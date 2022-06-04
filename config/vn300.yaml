@@ -1,0 +1,11 @@
+%YAML 1.2
+
+Name: "vn300"
+Type: "IMU"
+Rate: 400
+
+Topic: ""
+
+PosInit:  [0.0, 0.0, 0.0]
+QuatInit: [1.0, 0.0, 0.0, 0.0]
+BiasInit: [0.0, 0.0, 0.0]

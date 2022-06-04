@@ -1,0 +1,73 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        // Build tasks
+        {
+            "label": "build ekf-cal",
+            "detail": "Build ekf-cal package",
+            "type": "shell",
+            "command": "colcon build --symlink-install --packages-select ekf-cal --cmake-args '-DCMAKE_EXPORT_COMPILE_COMMANDS=On'",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/../../"
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "build workspace",
+            "detail": "Build ROS2 workspace",
+            "type": "shell",
+            "command": "colcon build --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/../../"
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "debug workspace",
+            "detail": "Build ROS2 workspace with debug symbols",
+            "type": "shell",
+            "command": "colcon build --symlink-install --cmake-args '-DCMAKE_BUILD_TYPE=Debug'",
+            "group": "build",
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "debug ekf-cal",
+            "detail": "Build ekf-cal package with debug symbols",
+            "type": "shell",
+            "command": "colcon build --symlink-install --packages-select ${input:package} --cmake-args '-DCMAKE_BUILD_TYPE=Debug'",
+            "group": "build",
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "source-foxy",
+            "detail": "Sources the current workspace with bash",
+            "type": "shell",
+            "command": "source ${workspaceFolder}/../../install/setup.bash && printenv",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "test workspace",
+            "detail": "Run all unit tests and show results.",
+            "type": "shell",
+            "command": "colcon test && colcon test-result --all",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            }
+        },
+    ],
+}
