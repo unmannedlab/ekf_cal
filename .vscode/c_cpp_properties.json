@@ -1,20 +1,12 @@
 {
     "configurations": [
         {
-            "browse": {
-                "databaseFilename": "",
-                "limitSymbolsToIncludedHeaders": true
-            },
             "includePath": [
-                "/opt/ros/foxy/include/**",
-                "/usr/local/include/**",
-                "/usr/include/**",
-                "/usr/src/googletest",
+                "/opt/ros/foxy/include",
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/src"
             ],
-            "name": "ROS",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "name": "ROS"
         }
     ],
     "version": 4

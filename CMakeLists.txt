@@ -17,17 +17,29 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
-add_executable(ekf_cal_node src/node/EkfCalNode.cpp)
-target_include_directories(ekf_cal_node PUBLIC
+add_executable(${PROJECT_NAME} src/node/EkfCalNode.cpp)
+ament_target_dependencies(${PROJECT_NAME} rclcpp rclcpp std_msgs sensor_msgs geometry_msgs)
+target_include_directories(${PROJECT_NAME} PUBLIC
+  include
+  src
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+  $<INSTALL_INTERFACE:include>
+)
 
-install(TARGETS ekf_cal_node
-  DESTINATION lib/${PROJECT_NAME})
+install(TARGETS 
+  ${PROJECT_NAME}
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY
+  config launch
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

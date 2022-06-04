@@ -21,18 +21,16 @@
 //                                                                            //
 // -------------------------------------------------------------------------- //
 
-#include "EkfCalNode.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 
 #include <cstdio>
-#include <string>
 
-int main(int argc, char *argv[])
+class EkfCalNode : public rclcpp::Node
 {
-    rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<EkfCalNode>());
-    rclcpp::shutdown();
+  public:
+    EkfCalNode() : Node("EkfCalNode")
+    {
+    }
 
-    return 0;
-}
+  private:
+};
