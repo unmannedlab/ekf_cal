@@ -2,11 +2,23 @@
 /EkfCalNode:
     ros__parameters:
         IMU_list:
-            -   Name: "vn300"
-                Type: "IMU"
-                Rate: 400
+            - "vn300"
+            - "vn100"
+
+        IMUs:
+            vn300:
+                Base: True
+                Rate: 400.0
                 Topic: ""
                 PosInit:  [0.0, 0.0, 0.0]
                 QuatInit: [1.0, 0.0, 0.0, 0.0]
                 BiasInit: [0.0, 0.0, 0.0]
-            -   Name: "IMU_0"
+
+            vn100:
+                Base: False
+                Rate: 100.0
+                Topic: ""
+                PosInit:  [0.0, 0.0, 0.0]
+                QuatInit: [1.0, 0.0, 0.0, 0.0]
+                BiasInit: [0.0, 0.0, 0.0]
+

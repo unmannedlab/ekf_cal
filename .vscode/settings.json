@@ -79,12 +79,13 @@
     },
     "editor.formatOnSave": true,
     "editor.rulers": [
-        80
+        120
     ],
     "python.autoComplete.extraPaths": [
         "/opt/ros/foxy/lib/python3.8/site-packages"
     ],
     "python.analysis.extraPaths": [
         "/opt/ros/foxy/lib/python3.8/site-packages"
-    ]
+    ],
+    "cmake.configureOnOpen": true,
 }
