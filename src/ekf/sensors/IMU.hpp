@@ -24,6 +24,10 @@
 
 #include "Sensor.hpp"
 
+///
+/// @class IMU Sensor
+/// @todo Make an extrinsic-only IMU
+///
 class IMU : public Sensor
 {
   public:
@@ -32,13 +36,12 @@ class IMU : public Sensor
         double rate {1.0};
         Eigen::Vector3d posOffset {0.0, 0.0, 0.0};
         Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
-        Eigen::Vector3d accelerationBias {0.0, 0.0, 0.0};
-        Eigen::Vector3d angRateBias {0.0, 0.0, 0.0};
+        Eigen::Vector3d accBias {0.0, 0.0, 0.0};
+        Eigen::Vector3d omgBias {0.0, 0.0, 0.0};
         Eigen::Matrix3d obsCovR {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
     } Params;
 
     ///
-    /// @class Sensor
     /// @brief
     ///
     IMU(Params params);

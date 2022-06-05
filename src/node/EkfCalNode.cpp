@@ -21,9 +21,15 @@
 
 #include "EkfCalNode.hpp"
 
-#include "rclcpp/rclcpp.hpp"
+#include "TypeHelper.hpp"
+#include "ekf/EKF.hpp"
+#include "ekf/sensors/Camera.hpp"
+#include "ekf/sensors/IMU.hpp"
+#include "ekf/sensors/LIDAR.hpp"
 
 #include <cstdio>
+#include <eigen3/Eigen/Eigen>
+#include <rclcpp/rclcpp.hpp>
 #include <string>
 
 EkfCalNode::EkfCalNode() : Node("EkfCalNode")
@@ -31,27 +37,59 @@ EkfCalNode::EkfCalNode() : Node("EkfCalNode")
     this->declare_parameter("IMU_list");
     this->declare_parameter("Camera_list");
     this->declare_parameter("LIDAR_list");
-    m_imuList = this->get_parameter("IMU_list").as_string_array();
+    m_imuList   = this->get_parameter("IMU_list").as_string_array();
+    m_camList   = this->get_parameter("Camera_list").as_string_array();
+    m_lidarList = this->get_parameter("LIDAR_list").as_string_array();
 
-    // int id {0};
     for (std::string &imuName : m_imuList)
     {
-        this->declare_parameter("IMUs." + imuName + ".Base");
-        this->declare_parameter("IMUs." + imuName + ".Rate");
-        this->declare_parameter("IMUs." + imuName + ".Topic");
-        this->declare_parameter("IMUs." + imuName + ".PosInit");
-        this->declare_parameter("IMUs." + imuName + ".QuatInit");
-        this->declare_parameter("IMUs." + imuName + ".BiasInit");
-
-        bool base                    = this->get_parameter("IMUs." + imuName + ".Base").as_bool();
-        double rate                  = this->get_parameter("IMUs." + imuName + ".Rate").as_double();
-        std::string topic            = this->get_parameter("IMUs." + imuName + ".Topic").as_string();
-        std::vector<double> posInit  = this->get_parameter("IMUs." + imuName + ".PosInit").as_double_array();
-        std::vector<double> biasInit = this->get_parameter("IMUs." + imuName + ".BiasInit").as_double_array();
-        std::vector<double> quatInit = this->get_parameter("IMUs." + imuName + ".QuatInit").as_double_array();
-
-        RCLCPP_INFO(get_logger(), "Loaded IMU: '%s'", imuName.c_str());
+        this->declare_parameter("IMUs." + imuName + ".Intrinsic");
+        bool intrinsic = this->get_parameter("IMUs." + imuName + ".Intrinsic").as_bool();
+        if (intrinsic)
+        {
+            LoadIntIMU(imuName);
+        }
+        else
+        {
+            LoadExtIMU(imuName);
+        }
     }
+}
+
+void EkfCalNode::LoadExtIMU(std::string imuName)
+{
+    this->declare_parameter("IMUs." + imuName + ".Rate");
+    this->declare_parameter("IMUs." + imuName + ".Topic");
+    this->declare_parameter("IMUs." + imuName + ".PosOffInit");
+    this->declare_parameter("IMUs." + imuName + ".QuatOffInit");
+    this->declare_parameter("IMUs." + imuName + ".AccBiasInit");
+    this->declare_parameter("IMUs." + imuName + ".OmgBiasInit");
+
+    // std::string topic            = this->get_parameter("IMUs." + imuName + ".Topic").as_string();
+
+    double rate                 = this->get_parameter("IMUs." + imuName + ".Rate").as_double();
+    std::vector<double> posOff  = this->get_parameter("IMUs." + imuName + ".PosOffInit").as_double_array();
+    std::vector<double> quatOff = this->get_parameter("IMUs." + imuName + ".QuatOffInit").as_double_array();
+    std::vector<double> accBias = this->get_parameter("IMUs." + imuName + ".AccBiasInit").as_double_array();
+    std::vector<double> omgBias = this->get_parameter("IMUs." + imuName + ".OmgBiasInit").as_double_array();
+
+    IMU::Params imuParams;
+    imuParams.rate       = rate;
+    imuParams.posOffset  = TypeHelper::StdToEigVec(posOff);
+    imuParams.quatOffset = TypeHelper::StdToEigQuat(quatOff);
+    imuParams.accBias    = TypeHelper::StdToEigVec(accBias);
+    imuParams.omgBias    = TypeHelper::StdToEigVec(omgBias);
+    // imuParams.obsCovR          = {};
+
+    RCLCPP_INFO(get_logger(), "Loaded IMU: '%s'", imuName.c_str());
+}
+
+void EkfCalNode::LoadExtCam(std::string camName)
+{
+}
+
+void EkfCalNode::LoadLIDAR(std::string lidarName)
+{
 }
 
 int main(int argc, char *argv[])

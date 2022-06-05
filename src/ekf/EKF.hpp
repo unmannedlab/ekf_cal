@@ -19,10 +19,13 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
-#include "ekf/update/Camera.hpp"
-#include "ekf/update/IMU.hpp"
-#include "ekf/update/LIDAR.hpp"
-#include "ekf/update/Sensor.hpp"
+#ifndef EKF_HPP
+#define EKF_HPP
+
+#include "sensors/Camera.hpp"
+#include "sensors/IMU.hpp"
+#include "sensors/LIDAR.hpp"
+#include "sensors/Sensor.hpp"
 
 #include <eigen3/Eigen/Eigen>
 
@@ -40,7 +43,14 @@ class EKF
     // void RegisterCamera(Camera::Params params);
     // void RegisterLIDAR(LIDAR::Params params);
 
-    void RegisterSensor(Sensor::Params params);
+    void SensorCallback();
+
+    template <typename T>
+    void RegisterSensor(typename T::Params params)
+    {
+        T sensor(params);
+        m_sensorList.push_back(sensor);
+    }
 
   private:
     void Predict();
@@ -49,3 +59,5 @@ class EKF
     Eigen::MatrixXd m_cov;
     std::vector<Sensor> m_sensorList {};
 };
+
+#endif

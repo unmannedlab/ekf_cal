@@ -19,49 +19,54 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
-#ifndef SENSOR_HPP
-#define SENSOR_HPP
+#ifndef TYPE_HELPER_HPP
+#define TYPE_HELPER_HPP
+
+#include "rclcpp/rclcpp.hpp"
 
 #include <eigen3/Eigen/Eigen>
-#include <vector>
 
-class Sensor
+namespace TypeHelper
 {
-  public:
-    typedef struct Params
+
+    ///
+    /// @brief Converts std::vector into Eigen Quaternion
+    /// @param in Input std::vector
+    /// @return Output Eigen Vector3
+    ///
+    static Eigen::Vector3d StdToEigVec(std::vector<double> const &in)
     {
-        double rate {1.0};
-        Eigen::Vector3d posOffset {0.0, 0.0, 0.0};
-        Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
-    } Params;
+        if (in.size() == 3U)
+        {
+            return Eigen::Vector3d {in[0U], in[1U], in[2U]};
+        }
+        else
+        {
+            RCLCPP_WARN(rclcpp::get_logger("TypeHelper"), "Vector incorrect size for Eigen conversion");
+            return Eigen::Vector3d {0.0, 0.0, 0.0};
+        }
+    }
 
     ///
-    /// @class Sensor
-    /// @brief
+    /// @brief Converts std::vector into Eigen Quaternion
+    /// @param in Input std::vector
+    /// @return Output Eigen Quaternion
     ///
-    Sensor() : m_id(++_idCount) {};
+    static Eigen::Quaterniond StdToEigQuat(std::vector<double> const &in)
+    {
+        if (in.size() == 4U)
+        {
+            Eigen::Quaterniond quat {in[0U], in[1U], in[2U], in[3U]};
+            quat.normalize();
+            return quat;
+        }
+        else
+        {
+            RCLCPP_WARN(rclcpp::get_logger("TypeHelper"), "Vector incorrect size for Eigen conversion");
+            return Eigen::Quaterniond {1.0, 0.0, 0.0, 0.0};
+        }
+    }
 
-    // virtual void GetMeasurementJacobian()   = 0;
-    // virtual void GetMeasurementCovariance() = 0;
-
-    // Eigen::Vector3d GetPosOffset();
-    // Eigen::Vector3d SetPosOffset();
-    // Eigen::Quaterniond GetAngOffset();
-    // Eigen::Quaterniond SetAngOffset();
-
-    unsigned int GetID();
-
-    const unsigned int STATE_SIZE {0U};
-
-  protected:
-    Eigen::Vector3d m_posOffset {0.0, 0.0, 0.0};
-    Eigen::Quaterniond m_quatOffset {0.0, 0.0, 0.0, 0.0};
-
-    unsigned int m_stateStartIndex {0};
-
-  private:
-    unsigned int m_id;
-    static unsigned int _idCount;
-};
+}    // namespace TypeHelper
 
 #endif

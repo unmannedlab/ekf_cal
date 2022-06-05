@@ -22,9 +22,10 @@
 #ifndef EKF_CAL_NODE_HPP
 #define EKF_CAL_NODE_HPP
 
-#include "rclcpp/rclcpp.hpp"
+#include "ekf/EKF.hpp"
 
 #include <cstdio>
+#include <rclcpp/rclcpp.hpp>
 
 class EkfCalNode : public rclcpp::Node
 {
@@ -36,12 +37,18 @@ class EkfCalNode : public rclcpp::Node
     ///
     EkfCalNode();
 
-    void RegisterIMUs();
+    void LoadIntIMU(std::string imuName);
+    void LoadExtIMU(std::string imuName);
+    void LoadIntCam(std::string camName);
+    void LoadExtCam(std::string camName);
+    void LoadLIDAR(std::string lidarName);
 
   private:
     std::vector<std::string> m_imuList;
     std::vector<std::string> m_camList;
     std::vector<std::string> m_lidarList;
+
+    EKF m_ekf;
 };
 
 #endif
