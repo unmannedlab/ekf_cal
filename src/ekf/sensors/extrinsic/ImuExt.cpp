@@ -18,3 +18,9 @@
 // If not, see <https://www.gnu.org/licenses/>.                                                                       //
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
+
+#include "ImuExt.hpp"
+
+ImuExt::ImuExt(ImuExt::Params params)
+{
+}

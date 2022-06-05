@@ -18,3 +18,9 @@
 // If not, see <https://www.gnu.org/licenses/>.                                                                       //
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
+
+#include "CameraExt.hpp"
+
+CameraExt::CameraExt(CameraExt::Params params)
+{
+}

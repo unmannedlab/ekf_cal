@@ -25,6 +25,9 @@
 #include <eigen3/Eigen/Eigen>
 #include <vector>
 
+///
+/// @class Base sensor class
+///
 class Sensor
 {
   public:
@@ -35,10 +38,6 @@ class Sensor
     //     Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
     // } Params;
 
-    ///
-    /// @class Sensor
-    /// @brief
-    ///
     Sensor() : m_id(++_idCount) {};
 
     // virtual void GetMeasurementJacobian()   = 0;

@@ -31,8 +31,11 @@
 
 #include <cstdio>
 #include <eigen3/Eigen/Eigen>
+#include <functional>
 #include <rclcpp/rclcpp.hpp>
 #include <string>
+
+using std::placeholders::_1;
 
 EkfCalNode::EkfCalNode() : Node("EkfCalNode")
 {
@@ -87,9 +90,8 @@ void EkfCalNode::LoadImuExt(std::string imuName)
     this->declare_parameter("IMUs." + imuName + ".AccBiasInit");
     this->declare_parameter("IMUs." + imuName + ".OmgBiasInit");
 
-    // std::string topic            = this->get_parameter("IMUs." + imuName + ".Topic").as_string();
-
     double rate                 = this->get_parameter("IMUs." + imuName + ".Rate").as_double();
+    std::string topic           = this->get_parameter("IMUs." + imuName + ".Topic").as_string();
     std::vector<double> posOff  = this->get_parameter("IMUs." + imuName + ".PosOffInit").as_double_array();
     std::vector<double> quatOff = this->get_parameter("IMUs." + imuName + ".QuatOffInit").as_double_array();
     std::vector<double> accBias = this->get_parameter("IMUs." + imuName + ".AccBiasInit").as_double_array();
@@ -99,9 +101,15 @@ void EkfCalNode::LoadImuExt(std::string imuName)
     imuParams.rate       = rate;
     imuParams.posOffset  = TypeHelper::StdToEigVec(posOff);
     imuParams.quatOffset = TypeHelper::StdToEigQuat(quatOff);
-    // imuParams.obsCovR          = {};
 
-    RCLCPP_INFO(get_logger(), "Loaded IMU: '%s'", imuName.c_str());
+    m_ekf.RegisterSensor<ImuExt>(imuParams);
+
+    // ImuSubs.push_back(
+    m_subscription
+        = this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, std::bind(&EkfCalNode::ImuCallback, this, _1));
+    // );
+
+    RCLCPP_INFO(get_logger(), "Loaded Extrinsic IMU: '%s'", imuName.c_str());
 }
 
 void EkfCalNode::LoadImuInt(std::string imuName)
@@ -113,9 +121,8 @@ void EkfCalNode::LoadImuInt(std::string imuName)
     this->declare_parameter("IMUs." + imuName + ".AccBiasInit");
     this->declare_parameter("IMUs." + imuName + ".OmgBiasInit");
 
-    // std::string topic            = this->get_parameter("IMUs." + imuName + ".Topic").as_string();
-
     double rate                 = this->get_parameter("IMUs." + imuName + ".Rate").as_double();
+    std::string topic           = this->get_parameter("IMUs." + imuName + ".Topic").as_string();
     std::vector<double> posOff  = this->get_parameter("IMUs." + imuName + ".PosOffInit").as_double_array();
     std::vector<double> quatOff = this->get_parameter("IMUs." + imuName + ".QuatOffInit").as_double_array();
     std::vector<double> accBias = this->get_parameter("IMUs." + imuName + ".AccBiasInit").as_double_array();
@@ -129,18 +136,36 @@ void EkfCalNode::LoadImuInt(std::string imuName)
     imuParams.omgBias    = TypeHelper::StdToEigVec(omgBias);
     // imuParams.obsCovR          = {};
 
-    RCLCPP_INFO(get_logger(), "Loaded IMU: '%s'", imuName.c_str());
+    // ImuSubs.push_back(
+    //     this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, std::bind(&EkfCalNode::ImuCallback, this)));
+
+    RCLCPP_INFO(get_logger(), "Loaded Intrinsic IMU: '%s'", imuName.c_str());
 }
 
 void EkfCalNode::LoadCameraExt(std::string camName)
 {
+    RCLCPP_INFO(get_logger(), "Extrinsic Camera not Loaded: '%s'", camName.c_str());
 }
 
 void EkfCalNode::LoadCameraInt(std::string camName)
 {
+    RCLCPP_INFO(get_logger(), "Intrinsic Camera not Loaded: '%s'", camName.c_str());
 }
 
 void EkfCalNode::LoadLidarExt(std::string lidarName)
+{
+    RCLCPP_INFO(get_logger(), "Extrinsic LIDAR not Loaded: '%s'", lidarName.c_str());
+}
+
+void EkfCalNode::ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg) const
+{
+}
+
+void EkfCalNode::CameraCallback(const sensor_msgs::msg::Imu::SharedPtr msg) const
+{
+}
+
+void EkfCalNode::LidarCallback(const sensor_msgs::msg::Imu::SharedPtr msg) const
 {
 }
 

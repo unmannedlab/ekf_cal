@@ -18,3 +18,9 @@
 // If not, see <https://www.gnu.org/licenses/>.                                                                       //
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
+
+#include "LidarExt.hpp"
+
+LidarExt::LidarExt(LidarExt::Params params)
+{
+}

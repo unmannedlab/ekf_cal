@@ -26,6 +26,9 @@
 
 #include <cstdio>
 #include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/image.hpp>
+#include <sensor_msgs/msg/imu.hpp>
+#include <sensor_msgs/msg/point_cloud.hpp>
 
 class EkfCalNode : public rclcpp::Node
 {
@@ -37,11 +40,41 @@ class EkfCalNode : public rclcpp::Node
     ///
     EkfCalNode();
 
-    void LoadImuInt(std::string imuName);
+    ///
+    /// @brief Loading function for Extrinsic IMU sensors
+    /// @param imuName Name of IMU to find and load from YAML
+    ///
     void LoadImuExt(std::string imuName);
-    void LoadCameraInt(std::string camName);
+
+    ///
+    /// @brief Loading function for Intrinsic IMU sensors
+    /// @param imuName Name of IMU to find and load from YAML
+    ///
+    void LoadImuInt(std::string imuName);
+
+    ///
+    /// @brief Loading function for Extrinsic IMU sensors
+    /// @param camName Name of IMU to find and load from YAML
+    ///
     void LoadCameraExt(std::string camName);
+
+    ///
+    /// @brief Loading function for Intrinsic IMU sensors
+    /// @param camName Name of IMU to find and load from YAML
+    ///
+    void LoadCameraInt(std::string camName);
+
+    ///
+    /// @brief Loading function for Extrinsic IMU sensors
+    /// @param lidarName Name of LIDAR to find and load from YAML
+    ///
     void LoadLidarExt(std::string lidarName);
+
+    void ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg) const;
+    void CameraCallback(const sensor_msgs::msg::Imu::SharedPtr msg) const;
+    void LidarCallback(const sensor_msgs::msg::Imu::SharedPtr msg) const;
+
+    rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr m_subscription;
 
   private:
     std::vector<std::string> m_imuList;
@@ -49,6 +82,10 @@ class EkfCalNode : public rclcpp::Node
     std::vector<std::string> m_lidarList;
 
     EKF m_ekf;
+
+    std::vector<rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr> ImuSubs;
+    std::vector<rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr> CameraSubs;
+    std::vector<rclcpp::Subscription<sensor_msgs::msg::PointCloud>::SharedPtr> LidarSubs;
 };
 
 #endif
