@@ -19,6 +19,11 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
+#include "ekf/update/Camera.hpp"
+#include "ekf/update/IMU.hpp"
+#include "ekf/update/LIDAR.hpp"
+#include "ekf/update/Sensor.hpp"
+
 #include <eigen3/Eigen/Eigen>
 
 class EKF
@@ -31,12 +36,16 @@ class EKF
     ///
     EKF();
 
-    void RegisterIMU();
-    void RegisterCamera();
-    void RegisterLIDAR();
+    // void RegisterIMU(IMU::Params params);
+    // void RegisterCamera(Camera::Params params);
+    // void RegisterLIDAR(LIDAR::Params params);
+
+    void RegisterSensor(Sensor::Params params);
 
   private:
     void Predict();
+    unsigned int m_stateSize {0};
     Eigen::VectorXd m_state;
     Eigen::MatrixXd m_cov;
+    std::vector<Sensor> m_sensorList {};
 };

@@ -19,17 +19,31 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
+#ifndef CAMERA_HPP
+#define CAMERA_HPP
+
 #include "Sensor.hpp"
 
 class Camera : public Sensor
 {
   public:
+    typedef struct Params
+    {
+        double rate {1.0};
+        Eigen::Vector3d posOffset {0.0, 0.0, 0.0};
+        Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
+    } Params;
+
     ///
     /// @class Sensor
     /// @brief
     ///
-    Camera();
+    Camera(Params params);
+
+    const unsigned int STATE_SIZE {6U};
 
   protected:
   private:
 };
+
+#endif

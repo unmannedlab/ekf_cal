@@ -18,3 +18,35 @@
 // If not, see <https://www.gnu.org/licenses/>.                                                                       //
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
+
+#include "ekf/base/EKF.hpp"
+
+#include "ekf/update/Camera.hpp"
+#include "ekf/update/IMU.hpp"
+#include "ekf/update/LIDAR.hpp"
+
+EKF::EKF()
+{
+}
+
+void EKF::RegisterSensor(Sensor::Params params)
+{
+}
+
+// void EKF::RegisterIMU(IMU::Params params)
+// {
+//     IMU imu = IMU(params);
+//     m_imuList.push_back(imu);
+// }
+
+// void EKF::RegisterCamera(Camera::Params params)
+// {
+//     Camera cam = Camera(params);
+//     m_camList.push_back(cam);
+// }
+
+// void EKF::RegisterLIDAR(LIDAR::Params params)
+// {
+//     LIDAR lidar = LIDAR(params);
+//     m_lidarList.push_back(lidar);
+// }

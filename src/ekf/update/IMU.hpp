@@ -19,17 +19,34 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
+#ifndef IMU_HPP
+#define IMU_HPP
+
 #include "Sensor.hpp"
 
 class IMU : public Sensor
 {
   public:
+    typedef struct Params
+    {
+        double rate {1.0};
+        Eigen::Vector3d posOffset {0.0, 0.0, 0.0};
+        Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
+        Eigen::Vector3d accelerationBias {0.0, 0.0, 0.0};
+        Eigen::Vector3d angRateBias {0.0, 0.0, 0.0};
+        Eigen::Matrix3d obsCovR {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
+    } Params;
+
     ///
     /// @class Sensor
     /// @brief
     ///
-    IMU();
+    IMU(Params params);
+
+    const unsigned int STATE_SIZE {12U};
 
   protected:
   private:
 };
+
+#endif

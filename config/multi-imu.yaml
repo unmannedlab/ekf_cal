@@ -29,4 +29,30 @@
                 PosInit:  [0.0, 0.0, 0.0]
                 QuatInit: [1.0, 0.0, 0.0, 0.0]
                 BiasInit: [0.0, 0.0, 0.0]
+                
+
+        Cameras:
+            dummy_cam_1:
+                Rate: 1.0
+                Topic: 
+                PosInit:  [0.0, 0.0, 0.0]
+                QuatInit: [1.0, 0.0, 0.0, 0.0]
+            dummy_cam_2:
+                Rate: 1.0
+                Topic: 
+                PosInit:  [0.0, 0.0, 0.0]
+                QuatInit: [1.0, 0.0, 0.0, 0.0]
+
+
+        LIDARs:
+            dummy_lidar_1:
+                Rate: 1.0
+                Topic: 
+                PosInit:  [0.0, 0.0, 0.0]
+                QuatInit: [1.0, 0.0, 0.0, 0.0]
+            dummy_lidar_2:
+                Rate: 1.0
+                Topic: 
+                PosInit:  [0.0, 0.0, 0.0]
+                QuatInit: [1.0, 0.0, 0.0, 0.0]
 

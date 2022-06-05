@@ -19,29 +19,43 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
+#ifndef SENSOR_HPP
+#define SENSOR_HPP
+
 #include <eigen3/Eigen/Eigen>
 #include <vector>
 
 class Sensor
 {
   public:
+    typedef struct Params
+    {
+        double rate {1.0};
+        Eigen::Vector3d posOffset {0.0, 0.0, 0.0};
+        Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
+    } Params;
+
     ///
     /// @class Sensor
     /// @brief
     ///
     Sensor();
 
-    virtual void Update() = 0;
+    // virtual void GetMeasurementJacobian()   = 0;
+    // virtual void GetMeasurementCovariance() = 0;
 
-    Eigen::Vector3d GetPosOffset();
-    Eigen::Vector3d SetPosOffset();
-    Eigen::Quaterniond GetAngOffset();
-    Eigen::Quaterniond SetAngOffset();
+    // Eigen::Vector3d GetPosOffset();
+    // Eigen::Vector3d SetPosOffset();
+    // Eigen::Quaterniond GetAngOffset();
+    // Eigen::Quaterniond SetAngOffset();
+
+    const unsigned int STATE_SIZE {0U};
 
   protected:
     Eigen::Vector3d m_posOffset {0.0, 0.0, 0.0};
     Eigen::Quaterniond m_quatOffset {0.0, 0.0, 0.0, 0.0};
 
-    unsigned int m_stateSize {0};
     unsigned int m_stateStartIndex {0};
 };
+
+#endif
