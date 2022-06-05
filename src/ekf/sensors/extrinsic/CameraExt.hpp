@@ -19,49 +19,34 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
-#ifndef SENSOR_HPP
-#define SENSOR_HPP
+#ifndef CAMERA_EXT_HPP
+#define CAMERA_EXT_HPP
 
-#include <eigen3/Eigen/Eigen>
-#include <vector>
+#include "../Sensor.hpp"
 
-class Sensor
+///
+/// @class Camera Extrinsic Sensor
+///
+class CameraExt : public Sensor
 {
   public:
-    // typedef struct Params
-    // {
-    //     double rate {1.0};
-    //     Eigen::Vector3d posOffset {0.0, 0.0, 0.0};
-    //     Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
-    // } Params;
+    typedef struct Params
+    {
+        double rate {1.0};
+        Eigen::Vector3d posOffset {0.0, 0.0, 0.0};
+        Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
+    } Params;
 
     ///
     /// @class Sensor
     /// @brief
     ///
-    Sensor() : m_id(++_idCount) {};
+    CameraExt(Params params);
 
-    // virtual void GetMeasurementJacobian()   = 0;
-    // virtual void GetMeasurementCovariance() = 0;
-
-    // Eigen::Vector3d GetPosOffset();
-    // Eigen::Vector3d SetPosOffset();
-    // Eigen::Quaterniond GetAngOffset();
-    // Eigen::Quaterniond SetAngOffset();
-
-    unsigned int GetID();
-
-    const unsigned int STATE_SIZE {0U};
+    const unsigned int STATE_SIZE {6U};
 
   protected:
-    Eigen::Vector3d m_posOffset {0.0, 0.0, 0.0};
-    Eigen::Quaterniond m_quatOffset {0.0, 0.0, 0.0, 0.0};
-
-    unsigned int m_stateStartIndex {0};
-
   private:
-    unsigned int m_id;
-    static unsigned int _idCount;
 };
 
 #endif

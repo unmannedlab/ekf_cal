@@ -37,11 +37,11 @@ class EkfCalNode : public rclcpp::Node
     ///
     EkfCalNode();
 
-    void LoadIntIMU(std::string imuName);
-    void LoadExtIMU(std::string imuName);
-    void LoadIntCam(std::string camName);
-    void LoadExtCam(std::string camName);
-    void LoadLIDAR(std::string lidarName);
+    void LoadImuInt(std::string imuName);
+    void LoadImuExt(std::string imuName);
+    void LoadCameraInt(std::string camName);
+    void LoadCameraExt(std::string camName);
+    void LoadLidarExt(std::string lidarName);
 
   private:
     std::vector<std::string> m_imuList;

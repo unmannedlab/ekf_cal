@@ -19,16 +19,13 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
-#ifndef IMU_HPP
-#define IMU_HPP
+#ifndef CAMERA_INT_HPP
+#define CAMERA_INT_HPP
 
-#include "Sensor.hpp"
+#include "../Sensor.hpp"
+#include "../extrinsic/CameraExt.hpp"
 
-///
-/// @class IMU Sensor
-/// @todo Make an extrinsic-only IMU
-///
-class IMU : public Sensor
+class CameraInt : public Sensor
 {
   public:
     typedef struct Params
@@ -36,17 +33,15 @@ class IMU : public Sensor
         double rate {1.0};
         Eigen::Vector3d posOffset {0.0, 0.0, 0.0};
         Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
-        Eigen::Vector3d accBias {0.0, 0.0, 0.0};
-        Eigen::Vector3d omgBias {0.0, 0.0, 0.0};
-        Eigen::Matrix3d obsCovR {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
     } Params;
 
     ///
+    /// @class Sensor
     /// @brief
     ///
-    IMU(Params params);
+    CameraInt(Params params);
 
-    const unsigned int STATE_SIZE {12U};
+    const unsigned int STATE_SIZE {6U};
 
   protected:
   private:

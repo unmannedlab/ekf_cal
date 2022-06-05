@@ -19,12 +19,15 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
-#ifndef LIDAR_HPP
-#define LIDAR_HPP
+#ifndef LIDAR_EXT_HPP
+#define LIDAR_EXT_HPP
 
-#include "Sensor.hpp"
+#include "../Sensor.hpp"
 
-class LIDAR : public Sensor
+///
+/// @class LIDAR Extrinsic Sensor
+///
+class LidarExt : public Sensor
 {
   public:
     typedef struct Params
@@ -38,7 +41,7 @@ class LIDAR : public Sensor
     /// @class Sensor
     /// @brief
     ///
-    LIDAR(Params params);
+    LidarExt(Params params);
 
     const unsigned int STATE_SIZE {6U};
 
