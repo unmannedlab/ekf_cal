@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) ekf-cal",
+            "name": "(gdb) ekf_cal",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/../../install/ekf-cal/lib/ekf-cal/ekf_cal_node",
+            "program": "${workspaceFolder}/../../install/ekf_cal/lib/ekf_cal/ekf_cal_node",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

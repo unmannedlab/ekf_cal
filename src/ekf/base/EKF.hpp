@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------------------------------------------------//
 //                                                                                                                    //
-//                                                      EKF-Cal                                                       //
+//                                                      EKF-CAL                                                       //
 //                                                                                                                    //
 //                                       Kalman Filter-Based Sensor Calibration                                       //
 //                                                                                                                    //
@@ -18,3 +18,25 @@
 // If not, see <https://www.gnu.org/licenses/>.                                                                       //
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
+
+#include <eigen3/Eigen/Eigen>
+
+class EKF
+{
+  public:
+    ///
+    /// @class EKF
+    /// @brief
+    /// @todo  Literally everything
+    ///
+    EKF();
+
+    void RegisterIMU();
+    void RegisterCamera();
+    void RegisterLIDAR();
+
+  private:
+    void Predict();
+    Eigen::VectorXd m_state;
+    Eigen::MatrixXd m_cov;
+};

@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------------------------------------------------//
 //                                                                                                                    //
-//                                                      EKF-Cal                                                       //
+//                                                      EKF-CAL                                                       //
 //                                                                                                                    //
 //                                       Kalman Filter-Based Sensor Calibration                                       //
 //                                                                                                                    //
@@ -29,7 +29,14 @@
 class EkfCalNode : public rclcpp::Node
 {
   public:
+    ///
+    /// @class EkfCalNode
+    /// @brief A ROS2 node for interfacing with the calibration EKF
+    /// @todo  Literally everything
+    ///
     EkfCalNode();
+
+    void RegisterIMUs();
 
   private:
     std::vector<std::string> m_imuList;

@@ -1,0 +1,6 @@
+# Python Cache Files
+*.pyc
+*/__pycache__/
+
+# Generated Docs
+docs/doxygen

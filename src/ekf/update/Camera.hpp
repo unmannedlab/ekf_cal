@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------------------------------------------------//
 //                                                                                                                    //
-//                                                      EKF-Cal                                                       //
+//                                                      EKF-CAL                                                       //
 //                                                                                                                    //
 //                                       Kalman Filter-Based Sensor Calibration                                       //
 //                                                                                                                    //
@@ -18,3 +18,18 @@
 // If not, see <https://www.gnu.org/licenses/>.                                                                       //
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
+
+#include "Sensor.hpp"
+
+class Camera : public Sensor
+{
+  public:
+    ///
+    /// @class Sensor
+    /// @brief
+    ///
+    Camera();
+
+  protected:
+  private:
+};

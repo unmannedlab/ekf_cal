@@ -8,11 +8,11 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    this_dir = get_package_share_directory("ekf-cal")
+    this_dir = get_package_share_directory("ekf_cal")
 
     start_ekf_cal_node_cmd = Node(
-        package="ekf-cal",
-        executable="ekf-cal",
+        package="ekf_cal",
+        executable="ekf_cal",
         output="screen",
         parameters=[os.path.join(this_dir, "config", "multi-imu.yaml")],
     )

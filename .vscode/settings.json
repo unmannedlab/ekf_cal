@@ -88,4 +88,14 @@
         "/opt/ros/foxy/lib/python3.8/site-packages"
     ],
     "cmake.configureOnOpen": true,
+    "files.exclude": {
+        "**/__pycache__": true
+    },
+    "[cpp]": {
+        "editor.wordBasedSuggestions": false,
+        "editor.suggest.insertMode": "replace",
+        "editor.semanticHighlighting.enabled": true,
+        "editor.tabSize": 4,
+        "editor.detectIndentation": false
+    },
 }

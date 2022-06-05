@@ -19,46 +19,17 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
-#include "EkfCalNode.hpp"
+#include "Sensor.hpp"
 
-#include "rclcpp/rclcpp.hpp"
-
-#include <cstdio>
-#include <string>
-
-EkfCalNode::EkfCalNode() : Node("EkfCalNode")
+class LIDAR : public Sensor
 {
-    this->declare_parameter("IMU_list");
-    this->declare_parameter("Camera_list");
-    this->declare_parameter("LIDAR_list");
-    m_imuList = this->get_parameter("IMU_list").as_string_array();
+  public:
+    ///
+    /// @class Sensor
+    /// @brief
+    ///
+    LIDAR();
 
-    // int id {0};
-    for (std::string &imuName : m_imuList)
-    {
-        this->declare_parameter("IMUs." + imuName + ".Base");
-        this->declare_parameter("IMUs." + imuName + ".Rate");
-        this->declare_parameter("IMUs." + imuName + ".Topic");
-        this->declare_parameter("IMUs." + imuName + ".PosInit");
-        this->declare_parameter("IMUs." + imuName + ".QuatInit");
-        this->declare_parameter("IMUs." + imuName + ".BiasInit");
-
-        bool base                    = this->get_parameter("IMUs." + imuName + ".Base").as_bool();
-        double rate                  = this->get_parameter("IMUs." + imuName + ".Rate").as_double();
-        std::string topic            = this->get_parameter("IMUs." + imuName + ".Topic").as_string();
-        std::vector<double> posInit  = this->get_parameter("IMUs." + imuName + ".PosInit").as_double_array();
-        std::vector<double> biasInit = this->get_parameter("IMUs." + imuName + ".BiasInit").as_double_array();
-        std::vector<double> quatInit = this->get_parameter("IMUs." + imuName + ".QuatInit").as_double_array();
-
-        RCLCPP_INFO(get_logger(), "Loaded IMU: '%s'", imuName.c_str());
-    }
-}
-
-int main(int argc, char *argv[])
-{
-    rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<EkfCalNode>());
-    rclcpp::shutdown();
-
-    return 0;
-}
+  protected:
+  private:
+};
