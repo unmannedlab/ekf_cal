@@ -21,6 +21,8 @@
 
 #include "LidarExt.hpp"
 
-LidarExt::LidarExt(LidarExt::Params params)
+#include "../Sensor.hpp"
+
+LidarExt::LidarExt(LidarExt::Params params) : Sensor()
 {
 }

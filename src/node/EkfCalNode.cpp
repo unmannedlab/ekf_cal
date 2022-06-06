@@ -62,8 +62,8 @@ EkfCalNode::EkfCalNode() : Node("EkfCalNode")
 
     for (std::string &camName : m_camList)
     {
-        this->declare_parameter("IMUs." + camName + ".Intrinsic");
-        bool intrinsic = this->get_parameter("IMUs." + camName + ".Intrinsic").as_bool();
+        this->declare_parameter("Cameras." + camName + ".Intrinsic");
+        bool intrinsic = this->get_parameter("Cameras." + camName + ".Intrinsic").as_bool();
         if (intrinsic)
         {
             LoadCameraInt(camName);
@@ -76,7 +76,6 @@ EkfCalNode::EkfCalNode() : Node("EkfCalNode")
 
     for (std::string &lidarName : m_lidarList)
     {
-        this->declare_parameter("IMUs." + lidarName + ".Intrinsic");
         LoadLidarExt(lidarName);
     }
 }
@@ -102,12 +101,10 @@ void EkfCalNode::LoadImuExt(std::string imuName)
     imuParams.posOffset  = TypeHelper::StdToEigVec(posOff);
     imuParams.quatOffset = TypeHelper::StdToEigQuat(quatOff);
 
-    m_ekf.RegisterSensor<ImuExt>(imuParams);
-
-    // ImuSubs.push_back(
-    m_subscription
-        = this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, std::bind(&EkfCalNode::ImuCallback, this, _1));
-    // );
+    unsigned int id = m_ekf.RegisterSensor<ImuExt>(imuParams);
+    std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
+    function = std::bind(&EkfCalNode::ImuCallback, this, _1, id);
+    ImuSubs.push_back(this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function));
 
     RCLCPP_INFO(get_logger(), "Loaded Extrinsic IMU: '%s'", imuName.c_str());
 }
@@ -136,8 +133,10 @@ void EkfCalNode::LoadImuInt(std::string imuName)
     imuParams.omgBias    = TypeHelper::StdToEigVec(omgBias);
     // imuParams.obsCovR          = {};
 
-    // ImuSubs.push_back(
-    //     this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, std::bind(&EkfCalNode::ImuCallback, this)));
+    unsigned int id = m_ekf.RegisterSensor<ImuInt>(imuParams);
+    std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
+    function = std::bind(&EkfCalNode::ImuCallback, this, _1, id);
+    ImuSubs.push_back(this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function));
 
     RCLCPP_INFO(get_logger(), "Loaded Intrinsic IMU: '%s'", imuName.c_str());
 }
@@ -157,15 +156,15 @@ void EkfCalNode::LoadLidarExt(std::string lidarName)
     RCLCPP_INFO(get_logger(), "Extrinsic LIDAR not Loaded: '%s'", lidarName.c_str());
 }
 
-void EkfCalNode::ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg) const
+void EkfCalNode::ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id) const
 {
 }
 
-void EkfCalNode::CameraCallback(const sensor_msgs::msg::Imu::SharedPtr msg) const
+void EkfCalNode::CameraCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id) const
 {
 }
 
-void EkfCalNode::LidarCallback(const sensor_msgs::msg::Imu::SharedPtr msg) const
+void EkfCalNode::LidarCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id) const
 {
 }
 

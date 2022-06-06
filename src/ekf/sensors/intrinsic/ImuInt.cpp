@@ -18,3 +18,11 @@
 // If not, see <https://www.gnu.org/licenses/>.                                                                       //
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
+
+#include "ImuInt.hpp"
+
+#include "../Sensor.hpp"
+
+ImuInt::ImuInt(ImuInt::Params params) : Sensor()
+{
+}

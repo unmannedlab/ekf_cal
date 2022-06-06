@@ -22,3 +22,8 @@
 #include "Sensor.hpp"
 
 unsigned int Sensor::_idCount = 0;
+
+unsigned int Sensor::GetId()
+{
+    return m_id;
+}

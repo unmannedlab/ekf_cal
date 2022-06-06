@@ -39,7 +39,7 @@ class CameraInt : public Sensor
     /// @class Sensor
     /// @brief
     ///
-    CameraInt(Params params);
+    CameraInt(CameraInt::Params params);
 
     const unsigned int STATE_SIZE {6U};
 

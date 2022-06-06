@@ -41,7 +41,7 @@ class ImuExt : public Sensor
     ///
     /// @brief
     ///
-    ImuExt(Params params);
+    ImuExt(ImuExt::Params params);
 
     const unsigned int STATE_SIZE {12U};
 

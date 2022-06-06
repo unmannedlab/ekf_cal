@@ -48,7 +48,7 @@ class Sensor
     // Eigen::Quaterniond GetAngOffset();
     // Eigen::Quaterniond SetAngOffset();
 
-    unsigned int GetID();
+    unsigned int GetId();
 
     const unsigned int STATE_SIZE {0U};
 

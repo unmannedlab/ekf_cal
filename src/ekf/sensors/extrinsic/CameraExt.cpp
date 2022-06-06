@@ -21,6 +21,8 @@
 
 #include "CameraExt.hpp"
 
-CameraExt::CameraExt(CameraExt::Params params)
+#include "../Sensor.hpp"
+
+CameraExt::CameraExt(CameraExt::Params params) : Sensor()
 {
 }

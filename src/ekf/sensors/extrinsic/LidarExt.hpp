@@ -41,7 +41,7 @@ class LidarExt : public Sensor
     /// @class Sensor
     /// @brief
     ///
-    LidarExt(Params params);
+    LidarExt(LidarExt::Params params);
 
     const unsigned int STATE_SIZE {6U};
 

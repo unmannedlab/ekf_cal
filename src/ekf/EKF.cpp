@@ -25,6 +25,6 @@ EKF::EKF()
 {
 }
 
-void EKF::SensorCallback()
+void EKF::Predict(double currentTime)
 {
 }

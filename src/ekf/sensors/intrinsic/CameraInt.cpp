@@ -18,3 +18,11 @@
 // If not, see <https://www.gnu.org/licenses/>.                                                                       //
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
+
+#include "CameraInt.hpp"
+
+#include "../Sensor.hpp"
+
+CameraInt::CameraInt(CameraInt::Params params) : Sensor()
+{
+}

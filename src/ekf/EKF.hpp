@@ -45,20 +45,23 @@ class EKF
     // void RegisterCamera(Camera::Params params);
     // void RegisterLIDAR(LIDAR::Params params);
 
-    void SensorCallback();
+    void ImuCallback();
+    void CameraCallback();
+    void LidarCallback();
 
     template <typename T>
-    void RegisterSensor(typename T::Params params)
+    unsigned int RegisterSensor(typename T::Params params)
     {
         T sensor(params);
         m_sensorList.push_back(sensor);
+        return sensor.GetId();
     }
 
   private:
-    void Predict();
+    void Predict(double currentTime);
     unsigned int m_stateSize {0};
-    Eigen::VectorXd m_state;
-    Eigen::MatrixXd m_cov;
+    Eigen::VectorXd m_state = Eigen::VectorXd::Zero(18U);
+    Eigen::MatrixXd m_cov   = Eigen::MatrixXd::Zero(18U, 18U);
     std::vector<Sensor> m_sensorList {};
 };
 

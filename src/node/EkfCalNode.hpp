@@ -70,9 +70,9 @@ class EkfCalNode : public rclcpp::Node
     ///
     void LoadLidarExt(std::string lidarName);
 
-    void ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg) const;
-    void CameraCallback(const sensor_msgs::msg::Imu::SharedPtr msg) const;
-    void LidarCallback(const sensor_msgs::msg::Imu::SharedPtr msg) const;
+    void ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id) const;
+    void CameraCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id) const;
+    void LidarCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id) const;
 
     rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr m_subscription;
 

@@ -41,7 +41,7 @@ class CameraExt : public Sensor
     /// @class Sensor
     /// @brief
     ///
-    CameraExt(Params params);
+    CameraExt(CameraExt::Params params);
 
     const unsigned int STATE_SIZE {6U};
 

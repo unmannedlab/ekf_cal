@@ -28,7 +28,7 @@
 ///
 /// @class IMU Intrinsic Sensor
 ///
-class ImuInt : private ImuExt
+class ImuInt : public Sensor
 {
   public:
     typedef struct Params
@@ -44,7 +44,7 @@ class ImuInt : private ImuExt
     ///
     /// @brief
     ///
-    ImuInt(Params params);
+    ImuInt(ImuInt::Params params);
 
     const unsigned int STATE_SIZE {12U};
 

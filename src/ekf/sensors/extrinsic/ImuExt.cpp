@@ -21,6 +21,8 @@
 
 #include "ImuExt.hpp"
 
-ImuExt::ImuExt(ImuExt::Params params)
+#include "../Sensor.hpp"
+
+ImuExt::ImuExt(ImuExt::Params params) : Sensor()
 {
 }

@@ -18,7 +18,7 @@
             vn300:
                 Intrinsic: False
                 Rate: 400.0
-                Topic:
+                Topic: "vn300"
                 PosOffInit:  [0.0, 0.0, 0.0]
                 QuatOffInit: [1.0, 0.0, 0.0, 0.0]
                 AccBiasInit: [0.0, 0.0, 0.0]
@@ -27,7 +27,7 @@
             vn100:
                 Intrinsic: True
                 Rate: 100.0
-                Topic:
+                Topic: "vn100"
                 PosOffInit:  [0.0, 0.0, 0.0]
                 QuatOffInit: [1.0, 0.0, 0.0, 0.0]
                 AccBiasInit: [0.0, 0.0, 0.0]
@@ -36,14 +36,16 @@
 
         Cameras:
             dummy_cam_1:
+                Intrinsic: False
                 Rate: 1.0
-                Topic: 
+                Topic:  "dummy_cam_1"
                 PosOffInit:  [0.0, 0.0, 0.0]
                 QuatOffInit: [1.0, 0.0, 0.0, 0.0]
 
             dummy_cam_2:
+                Intrinsic: False
                 Rate: 1.0
-                Topic: 
+                Topic:  "dummy_cam_2"
                 PosOffInit:  [0.0, 0.0, 0.0]
                 QuatOffInit: [1.0, 0.0, 0.0, 0.0]
 
@@ -51,13 +53,13 @@
         LIDARs:
             dummy_lidar_1:
                 Rate: 1.0
-                Topic: 
+                Topic:  "dummy_lidar_1"
                 PosOffInit:  [0.0, 0.0, 0.0]
                 QuatOffInit: [1.0, 0.0, 0.0, 0.0]
 
             dummy_lidar_2:
                 Rate: 1.0
-                Topic: 
+                Topic:  "dummy_lidar_2"
                 PosOffInit:  [0.0, 0.0, 0.0]
                 QuatOffInit: [1.0, 0.0, 0.0, 0.0]
 
