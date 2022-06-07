@@ -19,10 +19,10 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
-#include "ImuExt.hpp"
+#include "Camera.hpp"
 
-#include "../Sensor.hpp"
+#include "Sensor.hpp"
 
-ImuExt::ImuExt(ImuExt::Params params) : Sensor()
+Camera::Camera(Camera::Params params) : Sensor(params.name)
 {
 }

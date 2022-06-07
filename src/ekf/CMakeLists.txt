@@ -21,18 +21,10 @@
 
 set(EKF_FILES
     EKF.cpp
-    sensors/extrinsic/CameraExt.cpp
-    sensors/extrinsic/ImuExt.cpp
-    sensors/extrinsic/LidarExt.cpp
-    sensors/intrinsic/CameraInt.cpp
-    sensors/intrinsic/ImuInt.cpp
+    sensors/Camera.cpp
+    sensors/Imu.cpp
+    sensors/Lidar.cpp
     sensors/Sensor.cpp
 )
 
 add_library(EKF ${EKF_FILES})
-
-# target_include_directories(EKF
-#     sensors/
-#     sensors/extrinsic
-#     sensors/intrinsic
-# )

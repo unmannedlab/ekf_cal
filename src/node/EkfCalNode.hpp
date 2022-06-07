@@ -41,34 +41,22 @@ class EkfCalNode : public rclcpp::Node
     EkfCalNode();
 
     ///
-    /// @brief Loading function for Extrinsic IMU sensors
+    /// @brief Loading function for IMU sensors
     /// @param imuName Name of IMU to find and load from YAML
     ///
-    void LoadImuExt(std::string imuName);
+    void LoadImu(std::string imuName);
 
     ///
-    /// @brief Loading function for Intrinsic IMU sensors
-    /// @param imuName Name of IMU to find and load from YAML
-    ///
-    void LoadImuInt(std::string imuName);
-
-    ///
-    /// @brief Loading function for Extrinsic IMU sensors
+    /// @brief Loading function for IMU sensors
     /// @param camName Name of IMU to find and load from YAML
     ///
-    void LoadCameraExt(std::string camName);
+    void LoadCamera(std::string camName);
 
     ///
-    /// @brief Loading function for Intrinsic IMU sensors
-    /// @param camName Name of IMU to find and load from YAML
-    ///
-    void LoadCameraInt(std::string camName);
-
-    ///
-    /// @brief Loading function for Extrinsic IMU sensors
+    /// @brief Loading function for IMU sensors
     /// @param lidarName Name of LIDAR to find and load from YAML
     ///
-    void LoadLidarExt(std::string lidarName);
+    void LoadLidar(std::string lidarName);
 
     void ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id) const;
     void CameraCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id) const;

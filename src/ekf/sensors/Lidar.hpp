@@ -19,34 +19,32 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
-#ifndef IMU_EXT_HPP
-#define IMU_EXT_HPP
+#ifndef LIDAR_EXT_HPP
+#define LIDAR_EXT_HPP
 
-#include "../Sensor.hpp"
+#include "Sensor.hpp"
 
 ///
-/// @class IMU Extrinsic Sensor
+/// @class LIDAR Sensor Class
 ///
-class ImuExt : public Sensor
+class Lidar : public Sensor
 {
   public:
     typedef struct Params
     {
+        std::string name;
         double rate {1.0};
         Eigen::Vector3d posOffset {0.0, 0.0, 0.0};
         Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
-        Eigen::Matrix3d obsCovR {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
     } Params;
 
     ///
+    /// @class Sensor
     /// @brief
     ///
-    ImuExt(ImuExt::Params params);
-
-    const unsigned int STATE_SIZE {12U};
+    Lidar(Lidar::Params params);
 
   protected:
   private:
 };
-
 #endif

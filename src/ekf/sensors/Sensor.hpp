@@ -38,7 +38,7 @@ class Sensor
     //     Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
     // } Params;
 
-    Sensor() : m_id(++_idCount) {};
+    Sensor(std::string name);
 
     // virtual void GetMeasurementJacobian()   = 0;
     // virtual void GetMeasurementCovariance() = 0;
@@ -49,8 +49,7 @@ class Sensor
     // Eigen::Quaterniond SetAngOffset();
 
     unsigned int GetId();
-
-    const unsigned int STATE_SIZE {0U};
+    std::string GetName();
 
   protected:
     Eigen::Vector3d m_posOffset {0.0, 0.0, 0.0};
@@ -60,6 +59,7 @@ class Sensor
 
   private:
     unsigned int m_id;
+    std::string m_name;
     static unsigned int _idCount;
 };
 

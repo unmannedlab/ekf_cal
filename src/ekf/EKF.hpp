@@ -22,12 +22,10 @@
 #ifndef EKF_HPP
 #define EKF_HPP
 
+#include "sensors/Camera.hpp"
+#include "sensors/Imu.hpp"
+#include "sensors/Lidar.hpp"
 #include "sensors/Sensor.hpp"
-#include "sensors/extrinsic/CameraExt.hpp"
-#include "sensors/extrinsic/ImuExt.hpp"
-#include "sensors/extrinsic/LidarExt.hpp"
-#include "sensors/intrinsic/CameraInt.hpp"
-#include "sensors/intrinsic/ImuInt.hpp"
 
 #include <eigen3/Eigen/Eigen>
 

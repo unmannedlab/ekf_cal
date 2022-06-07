@@ -22,16 +22,18 @@
 #ifndef CAMERA_EXT_HPP
 #define CAMERA_EXT_HPP
 
-#include "../Sensor.hpp"
+#include "Sensor.hpp"
 
 ///
-/// @class Camera Extrinsic Sensor
+/// @class Camera Sensor Class
 ///
-class CameraExt : public Sensor
+class Camera : public Sensor
 {
   public:
     typedef struct Params
     {
+        std::string name;
+        bool intrinsic {false};
         double rate {1.0};
         Eigen::Vector3d posOffset {0.0, 0.0, 0.0};
         Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
@@ -41,9 +43,7 @@ class CameraExt : public Sensor
     /// @class Sensor
     /// @brief
     ///
-    CameraExt(CameraExt::Params params);
-
-    const unsigned int STATE_SIZE {6U};
+    Camera(Camera::Params params);
 
   protected:
   private:

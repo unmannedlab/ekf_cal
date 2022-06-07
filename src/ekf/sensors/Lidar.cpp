@@ -19,10 +19,10 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
-#include "LidarExt.hpp"
+#include "Lidar.hpp"
 
-#include "../Sensor.hpp"
+#include "Sensor.hpp"
 
-LidarExt::LidarExt(LidarExt::Params params) : Sensor()
+Lidar::Lidar(Lidar::Params params) : Sensor(params.name)
 {
 }

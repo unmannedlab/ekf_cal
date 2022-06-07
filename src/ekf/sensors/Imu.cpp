@@ -19,37 +19,10 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
-#ifndef IMU_INT_HPP
-#define IMU_INT_HPP
+#include "Imu.hpp"
 
-#include "../Sensor.hpp"
-#include "../extrinsic/ImuExt.hpp"
+#include "Sensor.hpp"
 
-///
-/// @class IMU Intrinsic Sensor
-///
-class ImuInt : public Sensor
+Imu::Imu(Imu::Params params) : Sensor(params.name)
 {
-  public:
-    typedef struct Params
-    {
-        double rate {1.0};
-        Eigen::Vector3d posOffset {0.0, 0.0, 0.0};
-        Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
-        Eigen::Vector3d accBias {0.0, 0.0, 0.0};
-        Eigen::Vector3d omgBias {0.0, 0.0, 0.0};
-        Eigen::Matrix3d obsCovR {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
-    } Params;
-
-    ///
-    /// @brief
-    ///
-    ImuInt(ImuInt::Params params);
-
-    const unsigned int STATE_SIZE {12U};
-
-  protected:
-  private:
-};
-
-#endif
+}

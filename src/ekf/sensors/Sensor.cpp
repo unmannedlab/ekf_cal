@@ -23,7 +23,16 @@
 
 unsigned int Sensor::_idCount = 0;
 
+Sensor::Sensor(std::string name) : m_id(++_idCount), m_name(name)
+{
+}
+
 unsigned int Sensor::GetId()
 {
     return m_id;
+}
+
+std::string Sensor::GetName()
+{
+    return m_name;
 }
