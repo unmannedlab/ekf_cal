@@ -5,7 +5,7 @@
   <version>0.0.0</version>
   <description>Kalman Filter-Base Sensor Calibration</description>
   <maintainer email="JacobHartzer@gmail.com">jacob</maintainer>
-  <license>GPL3</license>
+  <license>GPLv3</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
@@ -16,6 +16,7 @@
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_cmake_gtest</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

@@ -19,79 +19,24 @@
 //                                                                                                                    //
 //--------------------------------------------------------------------------------------------------------------------//
 
-#ifndef EKF_CAL_NODE_HPP
-#define EKF_CAL_NODE_HPP
+#ifndef VIZ_NODE_HPP
+#define VIZ_NODE_HPP
 
-#include "ekf/EKF.hpp"
-
-#include <cstdio>
 #include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/image.hpp>
-#include <sensor_msgs/msg/imu.hpp>
-#include <sensor_msgs/msg/point_cloud.hpp>
 
 ///
-/// @class EkfCalNode
-/// @brief A ROS2 node for interfacing with the calibration EKF
-/// @todo Testing
-/// @todo Bias Stability and Noise process inputs for IMUs
-/// @todo Combine Extrinsic/Intrinsic Sensors
-/// @todo Make flags for Extrinsic/Intrinsic in base sensor
-/// @todo Make flag for base sensor in IMU
-/// @todo Camera Functions
-/// @todo LIDAR Functions
-/// @todo Software Paper
-/// @todo Architecture Design
-/// @todo TF2 Publishing Flag
-/// @todo Debugging Info
-/// @todo Warnings as errors
-/// @todo Implement code style: https://docs.ros.org/en/rolling/Contributing/Code-Style-Language-Versions.html#id1
-/// @todo Implement static analysis:
-/// https://docs.ros.org/en/rolling/Contributing/Quality-Guide.html#static-code-analysis-as-part-of-the-ament-package-build
+/// @class EkfHealthNode: A node for monitoring the health of sensor calibrations
+/// @todo IMU error tracking
+/// @todo Implement 3 sensor error tracking for camera model
+/// @todo LiDAR error tracking
 ///
-class EkfCalNode : public rclcpp::Node
+class EkfHealthNode : public rclcpp::Node
 {
   public:
     ///
-    /// @brief Constructor for the Calibration EKF Node
-    /// @todo  Literally everything
+    /// @brief Constructor for the EKF Health Node
     ///
-    EkfCalNode();
-
-    ///
-    /// @brief Loading function for IMU sensors
-    /// @param imuName Name of IMU to find and load from YAML
-    ///
-    void LoadImu(std::string imuName);
-
-    ///
-    /// @brief Loading function for IMU sensors
-    /// @param camName Name of IMU to find and load from YAML
-    ///
-    void LoadCamera(std::string camName);
-
-    ///
-    /// @brief Loading function for IMU sensors
-    /// @param lidarName Name of LIDAR to find and load from YAML
-    ///
-    void LoadLidar(std::string lidarName);
-
-    void ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id) const;
-    void CameraCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id) const;
-    void LidarCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id) const;
-
-    rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr m_subscription;
-
-  private:
-    std::vector<std::string> m_imuList;
-    std::vector<std::string> m_camList;
-    std::vector<std::string> m_lidarList;
-
-    EKF m_ekf;
-
-    std::vector<rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr> ImuSubs;
-    std::vector<rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr> CameraSubs;
-    std::vector<rclcpp::Subscription<sensor_msgs::msg::PointCloud>::SharedPtr> LidarSubs;
+    EkfHealthNode();
 };
 
 #endif

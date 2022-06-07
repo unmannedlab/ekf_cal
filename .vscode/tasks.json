@@ -40,6 +40,19 @@
                 "cwd": "${workspaceFolder}"
             },
         },
+        {
+            "label": "test",
+            "detail": "Run all unit tests and static analysis.",
+            "type": "shell",
+            "command": "colcon test --packages-select ekf_cal --event-handlers console_direct+",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/../../"
+            },
+        },
         // {
         //     "label": "build workspace",
         //     "detail": "Build ROS2 workspace",
@@ -72,16 +85,6 @@
                 "isDefault": false
             },
             "problemMatcher": "$gcc"
-        },
-        {
-            "label": "test workspace",
-            "detail": "Run all unit tests and show results.",
-            "type": "shell",
-            "command": "colcon test && colcon test-result --all",
-            "group": {
-                "kind": "test",
-                "isDefault": false
-            }
         },
     ],
 }
