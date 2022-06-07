@@ -79,7 +79,7 @@
     },
     "editor.formatOnSave": true,
     "editor.rulers": [
-        120
+        100
     ],
     "python.autoComplete.extraPaths": [
         "/opt/ros/foxy/lib/python3.8/site-packages"
@@ -87,7 +87,6 @@
     "python.analysis.extraPaths": [
         "/opt/ros/foxy/lib/python3.8/site-packages"
     ],
-    "cmake.configureOnOpen": true,
     "files.exclude": {
         "**/__pycache__": true
     },
@@ -98,4 +97,11 @@
         "editor.tabSize": 4,
         "editor.detectIndentation": false
     },
+    "cSpell.words": [
+        "EKFCALNODE",
+        "EKFHEALTHNODE",
+        "MATHHELPER",
+        "TYPEHELPER",
+        "VIZNODE"
+    ],
 }
