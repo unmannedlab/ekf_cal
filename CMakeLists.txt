@@ -22,7 +22,7 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
-add_executable(${PROJECT_NAME}
+set(${PROJECT_NAME}_src
     src/EkfCalNode.cpp
     src/ekf/EKF.cpp
     src/ekf/sensors/Camera.cpp
@@ -30,6 +30,8 @@ add_executable(${PROJECT_NAME}
     src/ekf/sensors/Lidar.cpp
     src/ekf/sensors/Sensor.cpp
 )
+
+add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_src})
 
 ament_target_dependencies(${PROJECT_NAME} rclcpp rclcpp std_msgs sensor_msgs geometry_msgs)
 
