@@ -59,6 +59,6 @@ static Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
   }
 }
 
-} // namespace TypeHelper
+}  // namespace TypeHelper
 
-#endif // TYPEHELPER_HPP_
+#endif  // TYPEHELPER_HPP_

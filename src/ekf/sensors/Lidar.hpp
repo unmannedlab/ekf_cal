@@ -44,4 +44,4 @@ protected:
 private:
 };
 
-#endif // EKF__SENSORS__LIDAR_HPP_
+#endif  // EKF__SENSORS__LIDAR_HPP_

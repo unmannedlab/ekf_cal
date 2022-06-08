@@ -40,6 +40,6 @@ static Eigen::Matrix<double, 3U, 3U> CrossMatrix(Eigen::Vector3d const & inMat)
   return outMat;
 }
 
-} // namespace MathHelper
+}  // namespace MathHelper
 
-#endif // MATHHELPER_HPP_
+#endif  // MATHHELPER_HPP_

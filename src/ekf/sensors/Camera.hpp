@@ -45,4 +45,4 @@ protected:
 private:
 };
 
-#endif // EKF__SENSORS__CAMERA_HPP_
+#endif  // EKF__SENSORS__CAMERA_HPP_

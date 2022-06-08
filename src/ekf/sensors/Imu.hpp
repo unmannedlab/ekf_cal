@@ -48,4 +48,4 @@ protected:
 private:
 };
 
-#endif // EKF__SENSORS__IMU_HPP_
+#endif  // EKF__SENSORS__IMU_HPP_

@@ -34,4 +34,4 @@ public:
   EkfHealthNode();
 };
 
-#endif // NODE__EKFHEALTHNODE_HPP_
+#endif  // NODE__EKFHEALTHNODE_HPP_

@@ -32,4 +32,4 @@ public:
   VizNode();
 };
 
-#endif // NODE__VIZNODE_HPP_
+#endif  // NODE__VIZNODE_HPP_
