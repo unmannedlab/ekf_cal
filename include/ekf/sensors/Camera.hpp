@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include "Sensor.hpp"
+#include "ekf/sensors/Sensor.hpp"
 
 ///
 /// @class Camera Sensor Class

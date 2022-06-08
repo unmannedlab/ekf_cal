@@ -22,12 +22,19 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
-# Nodes
-add_subdirectory(src/ekf)
+add_executable(${PROJECT_NAME}
+    src/EkfCalNode.cpp
+    src/ekf/EKF.cpp
+    src/ekf/sensors/Camera.cpp
+    src/ekf/sensors/Imu.cpp
+    src/ekf/sensors/Lidar.cpp
+    src/ekf/sensors/Sensor.cpp
+)
 
-add_executable(${PROJECT_NAME} src/node/EkfCalNode.cpp)
 ament_target_dependencies(${PROJECT_NAME} rclcpp rclcpp std_msgs sensor_msgs geometry_msgs)
-target_link_libraries(${PROJECT_NAME} EKF)
+
+target_link_libraries(${PROJECT_NAME})
+
 target_include_directories(${PROJECT_NAME} PUBLIC
     include
     src

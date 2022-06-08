@@ -19,10 +19,10 @@
 #include <eigen3/Eigen/Eigen>
 #include <vector>
 
-#include "sensors/Camera.hpp"
-#include "sensors/Imu.hpp"
-#include "sensors/Lidar.hpp"
-#include "sensors/Sensor.hpp"
+#include "ekf/sensors/Camera.hpp"
+#include "ekf/sensors/Imu.hpp"
+#include "ekf/sensors/Lidar.hpp"
+#include "ekf/sensors/Sensor.hpp"
 
 class EKF
 {

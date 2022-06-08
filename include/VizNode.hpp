@@ -13,35 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef EKF__SENSORS__LIDAR_HPP_
-#define EKF__SENSORS__LIDAR_HPP_
+#ifndef VIZNODE_HPP_
+#define VIZNODE_HPP_
 
-#include <string>
-
-#include "Sensor.hpp"
+#include <rclcpp/rclcpp.hpp>
 
 ///
-/// @class LIDAR Sensor Class
+/// @class VizNode: A node for visualizing sensor calibrations
+/// @todo Add STL files
+/// @todo Look into Covariance ellipsoids
 ///
-class Lidar : public Sensor
+class VizNode : public rclcpp::Node
 {
 public:
-  typedef struct Params
-  {
-    std::string name;
-    double rate{1.0};
-    Eigen::Vector3d posOffset{0.0, 0.0, 0.0};
-    Eigen::Quaterniond quatOffset{1.0, 0.0, 0.0, 0.0};
-  } Params;
-
   ///
-  /// @class Sensor
-  /// @brief
+  /// @brief Constructor for the Visualization Node
   ///
-  explicit Lidar(Lidar::Params params);
-
-protected:
-private:
+  VizNode();
 };
 
-#endif  // EKF__SENSORS__LIDAR_HPP_
+#endif  // VIZNODE_HPP_

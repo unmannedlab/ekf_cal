@@ -13,39 +13,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef EKF__SENSORS__IMU_HPP_
-#define EKF__SENSORS__IMU_HPP_
+#ifndef EKFHEALTHNODE_HPP_
+#define EKFHEALTHNODE_HPP_
 
-#include <string>
-
-#include "Sensor.hpp"
+#include <rclcpp/rclcpp.hpp>
 
 ///
-/// @class IMU Sensor Class
+/// @class EkfHealthNode: A node for monitoring the health of sensor
+/// calibrations
+/// @todo IMU error tracking
+/// @todo Implement 3 sensor error tracking for camera model
+/// @todo LiDAR error tracking
 ///
-class Imu : public Sensor
+class EkfHealthNode : public rclcpp::Node
 {
 public:
-  typedef struct Params
-  {
-    std::string name;
-    bool baseSensor{false};
-    bool intrinsic{false};
-    double rate{1.0};
-    Eigen::Vector3d posOffset{0.0, 0.0, 0.0};
-    Eigen::Quaterniond quatOffset{1.0, 0.0, 0.0, 0.0};
-    Eigen::Vector3d accBias{0.0, 0.0, 0.0};
-    Eigen::Vector3d omgBias{0.0, 0.0, 0.0};
-    Eigen::Matrix3d obsCovR{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
-  } Params;
-
   ///
-  /// @brief
+  /// @brief Constructor for the EKF Health Node
   ///
-  explicit Imu(Imu::Params params);
-
-protected:
-private:
+  EkfHealthNode();
 };
 
-#endif  // EKF__SENSORS__IMU_HPP_
+#endif  // EKFHEALTHNODE_HPP_

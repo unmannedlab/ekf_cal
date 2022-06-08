@@ -13,9 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Lidar.hpp"
+#include "ekf/sensors/Lidar.hpp"
 
-#include "Sensor.hpp"
+#include "ekf/sensors/Sensor.hpp"
 
 Lidar::Lidar(Lidar::Params params)
 : Sensor(params.name) {}

@@ -13,9 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Imu.hpp"
+#include "ekf/sensors/Imu.hpp"
 
-#include "Sensor.hpp"
+#include "ekf/sensors/Sensor.hpp"
 
 Imu::Imu(Imu::Params params)
 : Sensor(params.name) {}

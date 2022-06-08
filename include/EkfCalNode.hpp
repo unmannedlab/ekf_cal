@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef NODE__EKFCALNODE_HPP_
-#define NODE__EKFCALNODE_HPP_
+#ifndef EKFCALNODE_HPP_
+#define EKFCALNODE_HPP_
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
@@ -100,4 +100,4 @@ private:
   LidarSubs;
 };
 
-#endif  // NODE__EKFCALNODE_HPP_
+#endif  // EKFCALNODE_HPP_

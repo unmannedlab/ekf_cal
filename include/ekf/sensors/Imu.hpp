@@ -13,23 +13,39 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef NODE__VIZNODE_HPP_
-#define NODE__VIZNODE_HPP_
+#ifndef EKF__SENSORS__IMU_HPP_
+#define EKF__SENSORS__IMU_HPP_
 
-#include <rclcpp/rclcpp.hpp>
+#include <string>
+
+#include "ekf/sensors/Sensor.hpp"
 
 ///
-/// @class VizNode: A node for visualizing sensor calibrations
-/// @todo Add STL files
-/// @todo Look into Covariance ellipsoids
+/// @class IMU Sensor Class
 ///
-class VizNode : public rclcpp::Node
+class Imu : public Sensor
 {
 public:
+  typedef struct Params
+  {
+    std::string name;
+    bool baseSensor{false};
+    bool intrinsic{false};
+    double rate{1.0};
+    Eigen::Vector3d posOffset{0.0, 0.0, 0.0};
+    Eigen::Quaterniond quatOffset{1.0, 0.0, 0.0, 0.0};
+    Eigen::Vector3d accBias{0.0, 0.0, 0.0};
+    Eigen::Vector3d omgBias{0.0, 0.0, 0.0};
+    Eigen::Matrix3d obsCovR{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
+  } Params;
+
   ///
-  /// @brief Constructor for the Visualization Node
+  /// @brief
   ///
-  VizNode();
+  explicit Imu(Imu::Params params);
+
+protected:
+private:
 };
 
-#endif  // NODE__VIZNODE_HPP_
+#endif  // EKF__SENSORS__IMU_HPP_
