@@ -31,15 +31,24 @@ set(${PROJECT_NAME}_src
     src/ekf/sensors/Sensor.cpp
 )
 
+add_library(${PROJECT_NAME}_lib
+    ${${PROJECT_NAME}_src}
+)
+
+ament_target_dependencies(${PROJECT_NAME}_lib rclcpp rclcpp std_msgs sensor_msgs geometry_msgs)
+
+target_include_directories(${PROJECT_NAME}_lib PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_src})
 
 ament_target_dependencies(${PROJECT_NAME} rclcpp rclcpp std_msgs sensor_msgs geometry_msgs)
 
-target_link_libraries(${PROJECT_NAME})
+# target_link_libraries(${PROJECT_NAME} ${${PROJECT_NAME}_lib})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-    include
-    src
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
@@ -57,6 +66,7 @@ install(DIRECTORY
 if(BUILD_TESTING)
     find_package(ament_lint_auto REQUIRED)
     ament_lint_auto_find_test_dependencies()
+    add_subdirectory(test)
 endif()
 
 ament_package()

@@ -29,6 +29,7 @@
                 "cwd": "${workspaceFolder}/../../"
             },
         },
+        /// @todo(hartzerj): make this a dependency task rather than just a giant command
         {
             "label": "coverage",
             "detail": "Build ekf_cal package with covereage symbols",

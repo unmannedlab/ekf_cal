@@ -16,7 +16,13 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-
+/// @todo Add integration tests
+/// https://index.ros.org/p/launch_testing/
+/// https://github.com/bponsler/ros2-support/blob/master/tutorials/unit-testing.md
+/// https://github.com/ros2/launch/tree/master/launch_testing
+/// https://docs.ros.org/en/rolling/Contributing/Developer-Guide.html#testing
+/// https://index.ros.org/p/launch_testing/
+/// https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/integration-testing.html
 TEST(module_name, test_name) {
   std::cout << "Hello world!" << std::endl;
   ASSERT_EQ(1 + 1, 2);
