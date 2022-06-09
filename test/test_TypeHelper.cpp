@@ -16,11 +16,11 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "MathHelper.hpp"
+#include "TypeHelper.hpp"
 
 ///
 /// @todo Write these unit tests
 ///
-TEST(test_MathHelper, hello_world) {
+TEST(test_TypeHelper, hello_world) {
   ASSERT_TRUE(true);
 }

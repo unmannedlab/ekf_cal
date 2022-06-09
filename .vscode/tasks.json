@@ -19,6 +19,65 @@
             },
         },
         {
+            "label": "build coverage",
+            "detail": "Build ekf_cal package with covereage symbols",
+            "type": "shell",
+            "command": "colcon build --symlink-install --packages-select ekf_cal --cmake-args -DCMAKE_C_FLAGS='--coverage' -DCMAKE_CXX_FLAGS='--coverage'",
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "options": {
+                "cwd": "${workspaceFolder}/../../"
+            },
+        },
+        // Testing Tasks
+        {
+            "label": "all tests",
+            "detail": "Run all unit tests and static analysis.",
+            "type": "shell",
+            "command": "colcon test --packages-select ekf_cal --event-handlers console_direct+",
+            "group": "test",
+            "options": {
+                "cwd": "${workspaceFolder}/../../"
+            },
+        },
+        {
+            "label": "test coverage",
+            "detail": "Build ekf_cal package with covereage symbols",
+            "type": "shell",
+            "command": "colcon test --packages-select ekf_cal --pytest-with-coverage --pytest-args --cov-report=term --event-handlers console_direct+",
+            "group": "test",
+            "problemMatcher": "$gcc",
+            "dependsOn": "build coverage",
+            "options": {
+                "cwd": "${workspaceFolder}/../../"
+            },
+        },
+        {
+            "label": "report coverage",
+            "detail": "Build ekf_cal package with covereage symbols",
+            "type": "shell",
+            "command": "colcon lcov-result",
+            "group": "test",
+            "problemMatcher": "$gcc",
+            "dependsOn": "test coverage",
+            "options": {
+                "cwd": "${workspaceFolder}/../../"
+            },
+        },
+        {
+            "label": "doxygen",
+            "detail": "Build ekf_cal documentation",
+            "type": "shell",
+            "command": "doxygen .doxyfile",
+            "group": "test",
+            "problemMatcher": "$gcc",
+            "dependsOn": "report coverage",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+        },
+        // Debug Tasks
+        {
             "label": "debug ekf_cal",
             "detail": "Build ekf_cal package with debug symbols",
             "type": "shell",
@@ -29,66 +88,7 @@
                 "cwd": "${workspaceFolder}/../../"
             },
         },
-        /// @todo(hartzerj): make this a dependency task rather than just a giant command
-        {
-            "label": "coverage",
-            "detail": "Build ekf_cal package with covereage symbols",
-            "type": "shell",
-            "command": ["colcon build --symlink-install --packages-select ekf_cal --cmake-args -DCMAKE_C_FLAGS='--coverage' -DCMAKE_CXX_FLAGS='--coverage'; ",
-                        "colcon test --packages-select ekf_cal --pytest-with-coverage --pytest-args --cov-report=term --event-handlers console_direct+; ",
-                        "colcon lcov-result"],
-            "group": "build",
-            "problemMatcher": "$gcc",
-            "options": {
-                "cwd": "${workspaceFolder}/../../"
-            },
-        },
-        {
-            "label": "doxygen",
-            "detail": "Build ekf_cal documentation",
-            "type": "shell",
-            "command": "doxygen .doxyfile",
-            "group": "build",
-            "problemMatcher": "$gcc",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-        },
-        {
-            "label": "test",
-            "detail": "Run all unit tests and static analysis.",
-            "type": "shell",
-            "command": "colcon test --packages-select ekf_cal --event-handlers console_direct+",
-            "group": {
-                "kind": "test",
-                "isDefault": false
-            },
-            "options": {
-                "cwd": "${workspaceFolder}/../../"
-            },
-        },
-        // {
-        //     "label": "build workspace",
-        //     "detail": "Build ROS2 workspace",
-        //     "type": "shell",
-        //     "command": "colcon build --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-        //     "group": {
-        //         "kind": "build",
-        //         "isDefault": false
-        //     },
-        //     "options": {
-        //         "cwd": "${workspaceFolder}/../../"
-        //     },
-        //     "problemMatcher": "$gcc"
-        // },
-        // {
-        //     "label": "debug workspace",
-        //     "detail": "Build ROS2 workspace with debug symbols",
-        //     "type": "shell",
-        //     "command": "colcon build --symlink-install --cmake-args '-DCMAKE_BUILD_TYPE=Debug'",
-        //     "group": "build",
-        //     "problemMatcher": "$gcc"
-        // },
+        // Source workspace
         {
             "label": "source-foxy",
             "detail": "Sources the current workspace with bash",

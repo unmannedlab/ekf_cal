@@ -16,11 +16,12 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "MathHelper.hpp"
+#include "ekf/EKF.hpp"
 
 ///
 /// @todo Write these unit tests
 ///
-TEST(test_MathHelper, hello_world) {
+TEST(test_EKF, hello_world) {
+  EKF ekf;
   ASSERT_TRUE(true);
 }

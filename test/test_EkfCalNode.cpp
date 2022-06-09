@@ -16,11 +16,16 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "MathHelper.hpp"
+#include "EkfCalNode.hpp"
 
-///
 /// @todo Write these unit tests
-///
-TEST(test_MathHelper, hello_world) {
+/// @todo Add integration tests
+/// https://index.ros.org/p/launch_testing/
+/// https://github.com/bponsler/ros2-support/blob/master/tutorials/unit-testing.md
+/// https://github.com/ros2/launch/tree/master/launch_testing
+/// https://docs.ros.org/en/rolling/Contributing/Developer-Guide.html#testing
+/// https://index.ros.org/p/launch_testing/
+/// https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/integration-testing.html
+TEST(test_EkfCalNode, hello_world) {
   ASSERT_TRUE(true);
 }

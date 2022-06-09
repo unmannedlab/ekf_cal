@@ -16,11 +16,12 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "MathHelper.hpp"
+#include "ekf/sensors/Sensor.hpp"
 
 ///
 /// @todo Write these unit tests
 ///
-TEST(test_MathHelper, hello_world) {
+TEST(test_Sensor, hello_world) {
+  Sensor sensor("name");
   ASSERT_TRUE(true);
 }

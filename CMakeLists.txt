@@ -22,8 +22,11 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
-set(${PROJECT_NAME}_src
+# List all sources
+set(${PROJECT_NAME}_SRCS
     src/EkfCalNode.cpp
+    src/EkfHealthNode.cpp
+    src/VizNode.cpp
     src/ekf/EKF.cpp
     src/ekf/sensors/Camera.cpp
     src/ekf/sensors/Imu.cpp
@@ -31,35 +34,41 @@ set(${PROJECT_NAME}_src
     src/ekf/sensors/Sensor.cpp
 )
 
-add_library(${PROJECT_NAME}_lib
-    ${${PROJECT_NAME}_src}
-)
-
-ament_target_dependencies(${PROJECT_NAME}_lib rclcpp rclcpp std_msgs sensor_msgs geometry_msgs)
-
-target_include_directories(${PROJECT_NAME}_lib PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-)
-
-add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_src})
+# Create library with sources
+add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS})
 
 ament_target_dependencies(${PROJECT_NAME} rclcpp rclcpp std_msgs sensor_msgs geometry_msgs)
-
-# target_link_libraries(${PROJECT_NAME} ${${PROJECT_NAME}_lib})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
+install(TARGETS ${PROJECT_NAME})
+
+# EKF CAL Node
+add_executable(${PROJECT_NAME}_NODE ${${PROJECT_NAME}_SRCS})
+ament_target_dependencies(${PROJECT_NAME}_NODE rclcpp rclcpp std_msgs sensor_msgs geometry_msgs)
+target_link_libraries(${PROJECT_NAME}_NODE ${PROJECT_NAME})
+
+add_executable(${PROJECT_NAME}_HEALTH ${${PROJECT_NAME}_SRCS})
+ament_target_dependencies(${PROJECT_NAME}_HEALTH rclcpp rclcpp std_msgs sensor_msgs geometry_msgs)
+target_link_libraries(${PROJECT_NAME}_HEALTH ${PROJECT_NAME})
+
+add_executable(${PROJECT_NAME}_VIZ ${${PROJECT_NAME}_SRCS})
+ament_target_dependencies(${PROJECT_NAME}_VIZ rclcpp rclcpp std_msgs sensor_msgs geometry_msgs)
+target_link_libraries(${PROJECT_NAME}_VIZ ${PROJECT_NAME})
+
 install(TARGETS
-    ${PROJECT_NAME}
+    ${PROJECT_NAME}_NODE
+    ${PROJECT_NAME}_HEALTH
+    ${PROJECT_NAME}_VIZ
     DESTINATION lib/${PROJECT_NAME}
 )
 
 install(DIRECTORY
-    config launch
+    config
+    launch
     DESTINATION share/${PROJECT_NAME}/
 )
 
