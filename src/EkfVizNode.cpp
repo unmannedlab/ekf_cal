@@ -13,23 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef VIZNODE_HPP_
-#define VIZNODE_HPP_
+#include "EkfVizNode.hpp"
 
-#include <rclcpp/rclcpp.hpp>
-
-///
-/// @class VizNode: A node for visualizing sensor calibrations
-/// @todo Add STL files
-/// @todo Look into Covariance ellipsoids
-///
-class VizNode : public rclcpp::Node
+EkfVizNode::EkfVizNode()
+: Node("EkfVizNode")
 {
-public:
-  ///
-  /// @brief Constructor for the Visualization Node
-  ///
-  VizNode();
-};
-
-#endif  // VIZNODE_HPP_
+}
