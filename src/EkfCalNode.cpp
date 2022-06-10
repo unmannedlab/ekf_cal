@@ -38,52 +38,62 @@ using std::placeholders::_1;
 EkfCalNode::EkfCalNode()
 : Node("EkfCalNode")
 {
+  // Declare Parameters
   this->declare_parameter("IMU_list");
   this->declare_parameter("Camera_list");
   this->declare_parameter("LIDAR_list");
-  m_imuList = this->get_parameter("IMU_list").as_string_array();
-  m_camList = this->get_parameter("Camera_list").as_string_array();
-  m_lidarList = this->get_parameter("LIDAR_list").as_string_array();
 
-  for (std::string & imuName : m_imuList) {
+  // Load lists of sensors
+  std::vector<std::string> imuList = this->get_parameter("IMU_list").as_string_array();
+  std::vector<std::string> camList = this->get_parameter("Camera_list").as_string_array();
+  std::vector<std::string> lidarList = this->get_parameter("LIDAR_list").as_string_array();
+
+  // Load Imu sensor parameters
+  for (std::string & imuName : imuList) {
     LoadImu(imuName);
   }
+  if (m_baseImuAssigned == false) {
+    RCLCPP_WARN(get_logger(), "Base IMU should be set for filter stability");
+  }
 
-  for (std::string & camName : m_camList) {
+  // Load Camera sensor parameters
+  for (std::string & camName : camList) {
     LoadCamera(camName);
   }
 
-  for (std::string & lidarName : m_lidarList) {
+  // Load Lidar sensor parameters
+  for (std::string & lidarName : lidarList) {
     LoadLidar(lidarName);
   }
 }
 
 void EkfCalNode::LoadImu(std::string imuName)
 {
-  this->declare_parameter("IMUs." + imuName + ".Intrinsic");
-  this->declare_parameter("IMUs." + imuName + ".Rate");
-  this->declare_parameter("IMUs." + imuName + ".Topic");
-  this->declare_parameter("IMUs." + imuName + ".PosOffInit");
-  this->declare_parameter("IMUs." + imuName + ".QuatOffInit");
-  this->declare_parameter("IMUs." + imuName + ".AccBiasInit");
-  this->declare_parameter("IMUs." + imuName + ".OmgBiasInit");
+  // Declare parameters
+  std::string imuPrefix = "IMUs." + imuName;
+  this->declare_parameter(imuPrefix + ".BaseSensor");
+  this->declare_parameter(imuPrefix + ".Intrinsic");
+  this->declare_parameter(imuPrefix + ".Rate");
+  this->declare_parameter(imuPrefix + ".Topic");
+  this->declare_parameter(imuPrefix + ".PosOffInit");
+  this->declare_parameter(imuPrefix + ".QuatOffInit");
+  this->declare_parameter(imuPrefix + ".AccBiasInit");
+  this->declare_parameter(imuPrefix + ".OmgBiasInit");
 
-  bool intrinsic =
-    this->get_parameter("IMUs." + imuName + ".Intrinsic").as_bool();
-  double rate = this->get_parameter("IMUs." + imuName + ".Rate").as_double();
-  std::string topic =
-    this->get_parameter("IMUs." + imuName + ".Topic").as_string();
-  std::vector<double> posOff =
-    this->get_parameter("IMUs." + imuName + ".PosOffInit").as_double_array();
-  std::vector<double> quatOff =
-    this->get_parameter("IMUs." + imuName + ".QuatOffInit").as_double_array();
-  std::vector<double> accBias =
-    this->get_parameter("IMUs." + imuName + ".AccBiasInit").as_double_array();
-  std::vector<double> omgBias =
-    this->get_parameter("IMUs." + imuName + ".OmgBiasInit").as_double_array();
+  // Load parameters
+  bool baseSensor = this->get_parameter(imuPrefix + ".BaseSensor").as_bool();
+  bool intrinsic = this->get_parameter(imuPrefix + ".Intrinsic").as_bool();
+  double rate = this->get_parameter(imuPrefix + ".Rate").as_double();
+  std::string topic = this->get_parameter(imuPrefix + ".Topic").as_string();
+  std::vector<double> posOff = this->get_parameter(imuPrefix + ".PosOffInit").as_double_array();
+  std::vector<double> quatOff = this->get_parameter(imuPrefix + ".QuatOffInit").as_double_array();
+  std::vector<double> accBias = this->get_parameter(imuPrefix + ".AccBiasInit").as_double_array();
+  std::vector<double> omgBias = this->get_parameter(imuPrefix + ".OmgBiasInit").as_double_array();
 
+  // Assign parameters to struct
   Imu::Params imuParams;
   imuParams.name = imuName;
+  imuParams.baseSensor = baseSensor;
   imuParams.intrinsic = intrinsic;
   imuParams.rate = rate;
   imuParams.posOffset = TypeHelper::StdToEigVec(posOff);
@@ -91,13 +101,16 @@ void EkfCalNode::LoadImu(std::string imuName)
   imuParams.accBias = TypeHelper::StdToEigVec(accBias);
   imuParams.omgBias = TypeHelper::StdToEigVec(omgBias);
 
-  unsigned int id = m_ekf.RegisterSensor<Imu>(imuParams);
+  // Register IMU and bind callback to ID
+  unsigned int id = m_ekf.RegisterSensor(imuParams);
   std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
   function = std::bind(&EkfCalNode::ImuCallback, this, _1, id);
-  ImuSubs.push_back(
-    this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function));
+  m_ImuSubs.push_back(this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function));
 
-  RCLCPP_INFO(get_logger(), "Loaded Intrinsic IMU: '%s'", imuName.c_str());
+  if (imuParams.baseSensor) {
+    m_baseImuAssigned = true;
+  }
+  RCLCPP_INFO(get_logger(), "Loaded IMU: '%s'", imuName.c_str());
 }
 
 void EkfCalNode::LoadCamera(std::string camName)
@@ -112,15 +125,29 @@ void EkfCalNode::LoadLidar(std::string lidarName)
 
 void EkfCalNode::ImuCallback(
   const sensor_msgs::msg::Imu::SharedPtr msg,
-  unsigned int id) const {}
+  unsigned int id)
+{
+  double time = TypeHelper::RosHeaderToTime(msg->header);
+  Eigen::Vector3d acc = TypeHelper::RosToEigen(msg->linear_acceleration);
+  Eigen::Vector3d omg = TypeHelper::RosToEigen(msg->angular_velocity);
+  Eigen::Matrix3d acc_cov = TypeHelper::RosToEigen(msg->linear_acceleration_covariance);
+  Eigen::Matrix3d omg_cov = TypeHelper::RosToEigen(msg->angular_velocity_covariance);
 
-void EkfCalNode::CameraCallback(
-  const sensor_msgs::msg::Imu::SharedPtr msg,
-  unsigned int id) const {}
+  m_ekf.ImuCallback(id, time, acc, acc_cov, omg, omg_cov);
+}
 
-void EkfCalNode::LidarCallback(
-  const sensor_msgs::msg::Imu::SharedPtr msg,
-  unsigned int id) const {}
+void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
+{
+  double time = TypeHelper::RosHeaderToTime(msg->header);
+
+  m_ekf.CameraCallback(id, time);
+}
+
+void EkfCalNode::LidarCallback(const sensor_msgs::msg::PointCloud::SharedPtr msg, unsigned int id)
+{
+  double time = TypeHelper::RosHeaderToTime(msg->header);
+  m_ekf.LidarCallback(id, time);
+}
 
 int main(int argc, char * argv[])
 {

@@ -36,16 +36,33 @@ public:
     Eigen::Quaterniond quatOffset{1.0, 0.0, 0.0, 0.0};
     Eigen::Vector3d accBias{0.0, 0.0, 0.0};
     Eigen::Vector3d omgBias{0.0, 0.0, 0.0};
-    Eigen::Matrix3d obsCovR{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
+    double accBiasStability {0.0};
+    double omgBiasStability {0.0};
   } Params;
 
-  ///
-  /// @brief
-  ///
   explicit Imu(Imu::Params params);
+  Eigen::VectorXd PredictMeasurement();
+  Eigen::MatrixXd GetMeasurementJacobian();
+  Eigen::MatrixXd GetMeasurementCovariance();
+
+
+  double GetAccBiasStability();
+  double GetOmgBiasStability();
+  bool IsBaseSensor();
+  bool IsIntrinsic();
 
 protected:
 private:
+  bool m_baseSensor;
+  bool m_intrinsic;
+  double m_rate;
+  Eigen::Vector3d m_posOffset;
+  Eigen::Quaterniond m_quatOffset;
+  Eigen::Vector3d m_accBias;
+  Eigen::Vector3d m_omgBias;
+  double m_accBiasStability;
+  double m_omgBiasStability;
+
 };
 
 #endif  // EKF__SENSORS__IMU_HPP_

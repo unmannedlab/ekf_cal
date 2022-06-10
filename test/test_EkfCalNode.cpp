@@ -18,8 +18,7 @@
 
 #include "EkfCalNode.hpp"
 
-/// @todo Write these unit tests
-/// @todo Add integration tests
+/// @todo Write these integration tests
 /// https://index.ros.org/p/launch_testing/
 /// https://github.com/bponsler/ros2-support/blob/master/tutorials/unit-testing.md
 /// https://github.com/ros2/launch/tree/master/launch_testing

@@ -40,6 +40,9 @@ public:
   /// @brief
   ///
   explicit Camera(Camera::Params params);
+  Eigen::VectorXd PredictMeasurement();
+  Eigen::VectorXd GetMeasurementJacobian();
+  Eigen::VectorXd GetMeasurementCovariance();
 
 protected:
 private:

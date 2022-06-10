@@ -29,11 +29,8 @@
 
 ///
 /// @class EkfCalNode
-/// @brief A ROS2 node for interfacing with the calibration EKF
-/// @todo Testing
+/// @brief A ROS2 node for EKF-based sensor calibration
 /// @todo Bias Stability and Noise process inputs for IMUs
-/// @todo Combine Extrinsic/Intrinsic Sensors
-/// @todo Make flags for Extrinsic/Intrinsic in base sensor
 /// @todo Make flag for base sensor in IMU
 /// @todo Camera Functions
 /// @todo LIDAR Functions
@@ -42,10 +39,6 @@
 /// @todo TF2 Publishing Flag
 /// @todo Debugging Info
 /// @todo Warnings as errors
-/// @todo Implement code style:
-/// https://docs.ros.org/en/rolling/Contributing/Code-Style-Language-Versions.html#id1
-/// @todo Implement static analysis:
-/// https://docs.ros.org/en/rolling/Contributing/Quality-Guide.html#static-code-analysis-as-part-of-the-ament-package-build
 ///
 class EkfCalNode : public rclcpp::Node
 {
@@ -74,30 +67,39 @@ public:
   ///
   void LoadLidar(std::string lidarName);
 
-  void ImuCallback(
-    const sensor_msgs::msg::Imu::SharedPtr msg,
-    unsigned int id) const;
-  void CameraCallback(
-    const sensor_msgs::msg::Imu::SharedPtr msg,
-    unsigned int id) const;
-  void LidarCallback(
-    const sensor_msgs::msg::Imu::SharedPtr msg,
-    unsigned int id) const;
-
-  rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr m_subscription;
+  ///
+  /// @brief Callback function for Imu sensor messages
+  /// @param msg Sensor message pointer
+  /// @param id Sensor ID number
+  ///
+  void ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id);
+  ///
+  /// @brief Callback function for Camera sensor messages
+  /// @param msg Sensor message pointer
+  /// @param id Sensor ID number
+  ///
+  void CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
+  ///
+  /// @brief Callback function for Lidar sensor messages
+  /// @param msg Sensor message pointer
+  /// @param id Sensor ID number
+  ///
+  void LidarCallback(const sensor_msgs::msg::PointCloud::SharedPtr msg, unsigned int id);
 
 private:
-  std::vector<std::string> m_imuList;
-  std::vector<std::string> m_camList;
-  std::vector<std::string> m_lidarList;
-
+  /// @brief Calibration EKF object
   EKF m_ekf;
 
-  std::vector<rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr> ImuSubs;
-  std::vector<rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr>
-  CameraSubs;
-  std::vector<rclcpp::Subscription<sensor_msgs::msg::PointCloud>::SharedPtr>
-  LidarSubs;
+  /// @brief Vector of subscribers for IMU sensor messages
+  std::vector<rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr> m_ImuSubs;
+
+  /// @brief Vector of subscribers for Camera sensor messages
+  std::vector<rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr> m_CameraSubs;
+
+  /// @brief Vector of subscribers for Lidar sensor messages
+  std::vector<rclcpp::Subscription<sensor_msgs::msg::PointCloud>::SharedPtr> m_LidarSubs;
+
+  bool m_baseImuAssigned {false};
 };
 
 #endif  // EKFCALNODE_HPP_

@@ -16,46 +16,68 @@
 #ifndef EKF__EKF_HPP_
 #define EKF__EKF_HPP_
 
+#include <rclcpp/rclcpp.hpp>
 #include <eigen3/Eigen/Eigen>
+#include <memory>
 #include <vector>
+#include <unordered_map>
+#include <iostream>
 
 #include "ekf/sensors/Camera.hpp"
 #include "ekf/sensors/Imu.hpp"
 #include "ekf/sensors/Lidar.hpp"
 #include "ekf/sensors/Sensor.hpp"
 
+///
+/// @class EKF
+/// @brief Calibration EKF class
+///
 class EKF
 {
 public:
   ///
-  /// @class EKF
-  /// @brief
-  /// @todo  Literally everything
+  /// @brief EKF class constructor
   ///
   EKF();
 
-  // void RegisterIMU(IMU::Params params);
-  // void RegisterCamera(Camera::Params params);
-  // void RegisterLIDAR(LIDAR::Params params);
+  ///
+  /// @brief Callback method for IMU messages
+  ///
+  void ImuCallback(
+    unsigned int id, double time,
+    Eigen::Vector3d acceleration,
+    Eigen::Matrix3d accelerationCovariance,
+    Eigen::Vector3d angularRate,
+    Eigen::Matrix3d angularRateCovariance);
 
-  void ImuCallback();
-  void CameraCallback();
-  void LidarCallback();
+  void CameraCallback(unsigned int id, double time);
 
-  template<typename T>
-  unsigned int RegisterSensor(typename T::Params params)
-  {
-    T sensor(params);
-    m_sensorList.push_back(sensor);
-    return sensor.GetId();
-  }
+  void LidarCallback(unsigned int id, double time);
+
+  ///
+  /// @brief Registers new sensor to calibration EKF
+  /// @tparam T Sensor time to register
+  /// @param params Sensor parameters to use in registration
+  ///
+  unsigned int RegisterSensor(typename Imu::Params params);
+  unsigned int RegisterSensor(typename Camera::Params params);
+  unsigned int RegisterSensor(typename Lidar::Params params);
 
 private:
   void Predict(double currentTime);
-  unsigned int m_stateSize{0};
+  Eigen::MatrixXd GetStateTransition(double dT);
+  Eigen::MatrixXd GetProcessInput();
+  Eigen::MatrixXd GetProcessNoise();
+
+
+  unsigned int ExtendState(unsigned int sensorStateSize);
+  unsigned int m_stateSize{18U};
   Eigen::VectorXd m_state = Eigen::VectorXd::Zero(18U);
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Zero(18U, 18U);
-  std::vector<Sensor> m_sensorList{};
+  std::map<int, std::shared_ptr<Imu>> m_mapImu{};
+  std::map<int, std::shared_ptr<Camera>> m_mapCamera{};
+  std::map<int, std::shared_ptr<Lidar>> m_mapLidar{};
+  double m_currentTime {0};
 };
 
 #endif  // EKF__EKF_HPP_

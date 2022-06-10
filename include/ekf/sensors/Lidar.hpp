@@ -39,6 +39,9 @@ public:
   /// @brief
   ///
   explicit Lidar(Lidar::Params params);
+  Eigen::VectorXd PredictMeasurement();
+  Eigen::VectorXd GetMeasurementJacobian();
+  Eigen::VectorXd GetMeasurementCovariance();
 
 protected:
 private:

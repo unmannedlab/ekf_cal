@@ -22,5 +22,8 @@
 /// @todo Write these unit tests
 ///
 TEST(test_Imu, hello_world) {
+  Imu::Params params;
+  params.name = "test_Imu";
+  Imu Imu(params);
   ASSERT_TRUE(true);
 }

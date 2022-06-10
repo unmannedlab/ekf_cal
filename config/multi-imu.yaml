@@ -16,6 +16,7 @@
 
         IMUs:
             vn300:
+                BaseSensor: False
                 Intrinsic: False
                 Rate: 400.0
                 Topic: "vn300"
@@ -25,6 +26,7 @@
                 OmgBiasInit: [0.0, 0.0, 0.0]
 
             vn100:
+                BaseSensor: True
                 Intrinsic: True
                 Rate: 100.0
                 Topic: "vn100"

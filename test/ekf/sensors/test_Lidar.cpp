@@ -22,5 +22,8 @@
 /// @todo Write these unit tests
 ///
 TEST(test_Lidar, hello_world) {
+  Lidar::Params params;
+  params.name = "test_Lidar";
+  Lidar lidar(params);
   ASSERT_TRUE(true);
 }

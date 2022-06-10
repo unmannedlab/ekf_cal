@@ -94,7 +94,7 @@
         "editor.wordBasedSuggestions": false,
         "editor.suggest.insertMode": "replace",
         "editor.semanticHighlighting.enabled": true,
-        "editor.tabSize": 4,
+        "editor.tabSize": 2,
         "editor.detectIndentation": false
     },
     "cSpell.words": [

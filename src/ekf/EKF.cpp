@@ -15,6 +15,141 @@
 
 #include "ekf/EKF.hpp"
 
+#include "ekf/sensors/Imu.hpp"
+
+#include <rclcpp/rclcpp.hpp>
+
 EKF::EKF() {}
 
-void EKF::Predict(double currentTime) {}
+
+unsigned int EKF::RegisterSensor(typename Imu::Params params)
+{
+  std::shared_ptr<Imu> sensor_ptr = std::make_shared<Imu>(params);
+  m_mapImu[sensor_ptr->GetId()] = sensor_ptr;
+  sensor_ptr->SetStateStartIndex(m_stateSize);
+
+  m_stateSize += sensor_ptr->GetStateSize();
+
+  m_state.conservativeResize(m_stateSize);
+  m_cov.conservativeResize(m_stateSize, m_stateSize);
+
+  return sensor_ptr->GetId();
+}
+
+unsigned int EKF::RegisterSensor(typename Camera::Params params)
+{
+  std::shared_ptr<Camera> sensor_ptr = std::make_shared<Camera>(params);
+  m_mapCamera[sensor_ptr->GetId()] = sensor_ptr;
+  sensor_ptr->SetStateStartIndex(m_stateSize);
+
+  m_stateSize += sensor_ptr->GetStateSize();
+
+  m_state.conservativeResize(m_stateSize);
+  m_cov.conservativeResize(m_stateSize, m_stateSize);
+
+  return sensor_ptr->GetId();
+}
+
+unsigned int EKF::RegisterSensor(typename Lidar::Params params)
+{
+  std::shared_ptr<Lidar> sensor_ptr = std::make_shared<Lidar>(params);
+  m_mapLidar[sensor_ptr->GetId()] = sensor_ptr;
+  sensor_ptr->SetStateStartIndex(m_stateSize);
+
+  m_stateSize += sensor_ptr->GetStateSize();
+
+  m_state.conservativeResize(m_stateSize);
+  m_cov.conservativeResize(m_stateSize, m_stateSize);
+
+  return sensor_ptr->GetId();
+}
+
+Eigen::MatrixXd EKF::GetStateTransition(double dT)
+{
+  Eigen::MatrixXd F = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
+  F.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * dT;
+  F.block<3, 3>(3, 6) = Eigen::MatrixXd::Identity(3, 3) * dT;
+  F.block<3, 3>(9, 12) = Eigen::MatrixXd::Identity(3, 3) * dT;
+  F.block<3, 3>(12, 15) = Eigen::MatrixXd::Identity(3, 3) * dT;
+  return F;
+}
+
+Eigen::MatrixXd EKF::GetProcessInput()
+{
+  Eigen::MatrixXd G = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
+  return G;
+}
+
+Eigen::MatrixXd EKF::GetProcessNoise()
+{
+  Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(m_stateSize, m_stateSize);
+  unsigned int stateStart {0};
+  double accBiasStability {0};
+  double omgBiasStability {0};
+
+  for (auto const & iter : m_mapImu) {
+    if (iter.second->IsIntrinsic()) {
+      stateStart = iter.second->GetStateStartIndex();
+      accBiasStability = iter.second->GetAccBiasStability();
+      omgBiasStability = iter.second->GetOmgBiasStability();
+
+      Q.block<3, 3>(
+        stateStart + 6,
+        stateStart + 6) = Eigen::MatrixXd::Identity(3, 3) * accBiasStability;
+      Q.block<3, 3>(
+        stateStart + 9,
+        stateStart + 9) = Eigen::MatrixXd::Identity(3, 3) * accBiasStability;
+    }
+  }
+
+  return Q;
+}
+
+void EKF::Predict(double time)
+{
+  if (time < m_currentTime) {
+    RCLCPP_WARN(rclcpp::get_logger("EKF"), "Requested time in the past");
+    return;
+  }
+  double dT = m_currentTime - time;
+
+  Eigen::MatrixXd F = GetStateTransition(dT);
+  Eigen::MatrixXd G = GetProcessInput();
+  Eigen::MatrixXd Q = GetProcessNoise();
+
+  m_state = F * m_state;
+  m_cov = F * m_cov * F + F * G * Q * G * F;
+  m_currentTime = time;
+}
+
+void EKF::ImuCallback(
+  unsigned int id, double time, Eigen::Vector3d acceleration,
+  Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
+  Eigen::Matrix3d angularRateCovariance)
+{
+  auto iter = m_mapImu.find(id);
+  Predict(time);
+
+  Eigen::VectorXd z(acceleration.size() + angularRate.size());
+  z << acceleration, angularRate;
+  Eigen::VectorXd z_pred = iter->second->PredictMeasurement();
+  Eigen::VectorXd resid = z - z_pred;
+
+  Eigen::MatrixXd H = iter->second->GetMeasurementJacobian();
+  Eigen::MatrixXd R = iter->second->GetMeasurementCovariance();
+  Eigen::MatrixXd S = H * m_cov * H.transpose() + R;
+  Eigen::MatrixXd K = m_cov * H.transpose() * S.inverse();
+
+  m_state = m_state + K * resid;
+  m_cov = (Eigen::MatrixXd::Identity(6, 6) - K * H) * m_cov;
+}
+
+void EKF::CameraCallback(unsigned int id, double time)
+{
+
+}
+
+void EKF::LidarCallback(unsigned int id, double time)
+{
+
+}

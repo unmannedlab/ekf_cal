@@ -27,7 +27,7 @@ def generate_launch_description():
 
     start_ekf_cal_node_cmd = Node(
         package="ekf_cal",
-        executable="ekf_cal",
+        executable="ekf_cal_node",
         output="screen",
         parameters=[os.path.join(this_dir, "config", "multi-imu.yaml")],
     )

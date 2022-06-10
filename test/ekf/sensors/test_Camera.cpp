@@ -22,5 +22,8 @@
 /// @todo Write these unit tests
 ///
 TEST(test_Camera, hello_world) {
+  Camera::Params params;
+  params.name = "test_Camera";
+  Camera Camera(params);
   ASSERT_TRUE(true);
 }

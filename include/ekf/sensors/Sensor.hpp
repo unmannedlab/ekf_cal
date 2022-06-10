@@ -27,31 +27,38 @@
 class Sensor
 {
 public:
-  // typedef struct Params
-  // {
-  //     double rate {1.0};
-  //     Eigen::Vector3d posOffset {0.0, 0.0, 0.0};
-  //     Eigen::Quaterniond quatOffset {1.0, 0.0, 0.0, 0.0};
-  // } Params;
+  typedef struct Params
+  {
+    std::string name;
+    double rate{1.0};
+    Eigen::Vector3d posOffset{0.0, 0.0, 0.0};
+    Eigen::Quaterniond quatOffset{1.0, 0.0, 0.0, 0.0};
+  } Params;
 
   explicit Sensor(std::string name);
 
-  // virtual void GetMeasurementJacobian()   = 0;
-  // virtual void GetMeasurementCovariance() = 0;
+  Eigen::VectorXd PredictMeasurement();
+  Eigen::MatrixXd GetMeasurementJacobian();
+  Eigen::MatrixXd GetMeasurementCovariance();
 
-  // Eigen::Vector3d GetPosOffset();
-  // Eigen::Vector3d SetPosOffset();
-  // Eigen::Quaterniond GetAngOffset();
-  // Eigen::Quaterniond SetAngOffset();
+  Eigen::Vector3d GetPosOffset();
+  Eigen::Quaterniond GetQuatOffset();
 
-  unsigned int GetId();
+  void SetPosOffset(Eigen::Vector3d posOffset);
+  void SetQuatOffset(Eigen::Quaterniond quatOffset);
+
   std::string GetName();
+  unsigned int GetId();
+  unsigned int GetStateStartIndex();
+  unsigned int GetStateSize();
+  void SetStateStartIndex(unsigned int stateStartIndex);
 
 protected:
   Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};
   Eigen::Quaterniond m_quatOffset{0.0, 0.0, 0.0, 0.0};
 
   unsigned int m_stateStartIndex{0};
+  unsigned int m_stateSize{0};
 
 private:
   unsigned int m_id;

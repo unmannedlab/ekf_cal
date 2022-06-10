@@ -16,10 +16,10 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "VizNode.hpp"
+#include "EkfVizNode.hpp"
 
 ///
-/// @todo Write these unit tests
+/// @todo Write these integration tests
 ///
 TEST(test_VizNode, hello_world) {
   ASSERT_TRUE(true);

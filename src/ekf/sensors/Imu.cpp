@@ -15,7 +15,68 @@
 
 #include "ekf/sensors/Imu.hpp"
 
+#include <rclcpp/rclcpp.hpp>
+
 #include "ekf/sensors/Sensor.hpp"
 
 Imu::Imu(Imu::Params params)
-: Sensor(params.name) {}
+: Sensor(params.name)
+{
+  if (params.intrinsic) {
+    if (params.baseSensor) {
+      RCLCPP_WARN(rclcpp::get_logger("IMU"), "Base IMU should be extrinsic for filter stability");
+    }
+    m_stateSize = 12U;
+  } else {
+    m_stateSize = 6U;
+  }
+
+  m_baseSensor = params.baseSensor;
+  m_intrinsic = params.intrinsic;
+  m_rate = params.rate;
+  m_posOffset = params.posOffset;
+  m_quatOffset = params.quatOffset;
+  m_accBias = params.accBias;
+  m_omgBias = params.omgBias;
+  m_accBiasStability = params.accBiasStability;
+  m_omgBiasStability = params.omgBiasStability;
+}
+
+
+double Imu::GetAccBiasStability()
+{
+  return m_accBiasStability;
+}
+
+double Imu::GetOmgBiasStability()
+{
+  return m_omgBiasStability;
+}
+
+bool Imu::IsBaseSensor()
+{
+  return m_baseSensor;
+}
+bool Imu::IsIntrinsic()
+{
+  return m_intrinsic;
+}
+
+/// @todo Update size and function for different types of IMUs
+Eigen::VectorXd Imu::PredictMeasurement()
+{
+  Eigen::VectorXd predictedMeasurement(m_stateSize);
+  return predictedMeasurement;
+}
+
+Eigen::MatrixXd Imu::GetMeasurementJacobian()
+{
+  Eigen::MatrixXd measurementJacobian(m_stateSize, m_stateSize);
+  return measurementJacobian;
+}
+
+Eigen::MatrixXd Imu::GetMeasurementCovariance()
+{
+  Eigen::MatrixXd measurementCovariance(m_stateSize, m_stateSize);
+  return measurementCovariance;
+}

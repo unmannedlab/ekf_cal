@@ -22,6 +22,65 @@ unsigned int Sensor::_idCount = 0;
 Sensor::Sensor(std::string name)
 : m_id(++_idCount), m_name(name) {}
 
-unsigned int Sensor::GetId() {return m_id;}
+std::string Sensor::GetName()
+{
+  return m_name;
+}
 
-std::string Sensor::GetName() {return m_name;}
+unsigned int Sensor::GetId()
+{
+  return m_id;
+}
+
+unsigned int Sensor::GetStateStartIndex()
+{
+  return m_stateStartIndex;
+}
+
+unsigned int Sensor::GetStateSize()
+{
+  return m_stateSize;
+}
+
+void Sensor::SetStateStartIndex(unsigned int stateStartIndex)
+{
+  m_stateStartIndex = stateStartIndex;
+}
+
+Eigen::Vector3d Sensor::GetPosOffset()
+{
+  return m_posOffset;
+}
+
+void Sensor::SetPosOffset(Eigen::Vector3d posOffset)
+{
+  m_posOffset = posOffset;
+}
+
+Eigen::Quaterniond Sensor::GetQuatOffset()
+{
+  return m_quatOffset;
+}
+
+void Sensor::SetQuatOffset(Eigen::Quaterniond quatOffset)
+{
+  m_quatOffset = quatOffset;
+}
+
+Eigen::VectorXd Sensor::PredictMeasurement()
+{
+  Eigen::VectorXd predictedMeasurement(m_stateSize);
+  return predictedMeasurement;
+}
+
+Eigen::MatrixXd Sensor::GetMeasurementJacobian()
+{
+  Eigen::MatrixXd measurementJacobian(m_stateSize, m_stateSize);
+  return measurementJacobian;
+}
+
+Eigen::MatrixXd Sensor::GetMeasurementCovariance()
+{
+  Eigen::MatrixXd measurementCovariance(m_stateSize, m_stateSize);
+  return measurementCovariance;
+}

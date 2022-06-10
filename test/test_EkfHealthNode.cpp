@@ -19,7 +19,7 @@
 #include "EkfHealthNode.hpp"
 
 ///
-/// @todo Write these unit tests
+/// @todo Write these integration tests
 ///
 TEST(test_EkfHealthNode, hello_world) {
   ASSERT_TRUE(true);

@@ -19,6 +19,10 @@
 #include <eigen3/Eigen/Eigen>
 #include <rclcpp/rclcpp.hpp>
 #include <vector>
+#include <std_msgs/msg/header.hpp>
+#include <geometry_msgs/msg/vector3.hpp>
+
+#include "Constants.hpp"
 
 namespace TypeHelper
 {
@@ -33,9 +37,7 @@ static Eigen::Vector3d StdToEigVec(std::vector<double> const & in)
   if (in.size() == 3U) {
     return Eigen::Vector3d{in[0U], in[1U], in[2U]};
   } else {
-    RCLCPP_WARN(
-      rclcpp::get_logger("TypeHelper"),
-      "Vector incorrect size for Eigen conversion");
+    RCLCPP_WARN(rclcpp::get_logger("TypeHelper"), "Vector incorrect size for Eigen conversion");
     return Eigen::Vector3d{0.0, 0.0, 0.0};
   }
 }
@@ -52,12 +54,30 @@ static Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
     quat.normalize();
     return quat;
   } else {
-    RCLCPP_WARN(
-      rclcpp::get_logger("TypeHelper"),
-      "Vector incorrect size for Eigen conversion");
+    RCLCPP_WARN(rclcpp::get_logger("TypeHelper"), "Vector incorrect size for Eigen conversion");
     return Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
   }
 }
+
+static double RosHeaderToTime(std_msgs::msg::Header header)
+{
+  return header.stamp.sec + (header.stamp.nanosec * NSEC_TO_SEC);
+}
+
+static Eigen::Vector3d RosToEigen(geometry_msgs::msg::Vector3 msg)
+{
+  return Eigen::Vector3d {msg.x, msg.y, msg.z};
+}
+
+static Eigen::Matrix3d RosToEigen(std::array<double, 9UL> msg)
+{
+  return Eigen::Matrix3d {
+    {msg[0], msg[1], msg[2]},
+    {msg[4], msg[5], msg[6]},
+    {msg[7], msg[8], msg[9]}
+  };
+}
+
 
 }  // namespace TypeHelper
 
