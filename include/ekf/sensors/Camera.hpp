@@ -21,27 +21,42 @@
 #include "ekf/sensors/Sensor.hpp"
 
 ///
-/// @class Camera Sensor Class
+/// @class Camera
+/// @brief Camera Sensor Class
+/// @todo Implement update methods
 ///
 class Camera : public Sensor
 {
 public:
+  ///
+  /// @brief Camera initialization parameters structure
+  ///
   typedef struct Params
   {
-    std::string name;
-    bool intrinsic{false};
-    double rate{1.0};
-    Eigen::Vector3d posOffset{0.0, 0.0, 0.0};
-    Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};
+    std::string name;                                  ///< @brief Camera name
+    bool intrinsic{false};                             ///< @brief Camera intrinsic calibration flag
+    double rate{1.0};                                  ///< @brief Camera update rate
+    Eigen::Vector3d posOffset{0.0, 0.0, 0.0};          ///< @brief Camera initial position offset
+    Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera initial angular offset
   } Params;
 
   ///
-  /// @class Sensor
-  /// @brief
+  /// @brief Camera sensor constructor
+  /// @param params Parameter struct for camera sensor
   ///
   explicit Camera(Camera::Params params);
+
+  ///
+  /// @brief Predict measurement method
+  /// @return Predicted measurement vector
+  ///
   Eigen::VectorXd PredictMeasurement();
-  Eigen::VectorXd GetMeasurementJacobian();
+
+  ///
+  /// @brief Measurement Jacobian method
+  /// @return Measurement Jacobian matrix
+  ///
+  Eigen::MatrixXd GetMeasurementJacobian();
 
 protected:
 private:

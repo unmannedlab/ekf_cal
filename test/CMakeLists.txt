@@ -1,10 +1,8 @@
 
 set(test_files
     test_EkfCalNode.cpp
-    test_EkfHealthNode.cpp
     test_MathHelper.cpp
     test_TypeHelper.cpp
-    test_VizNode.cpp
     ekf/test_EKF.cpp
     ekf/sensors/test_Camera.cpp
     ekf/sensors/test_Imu.cpp

@@ -25,8 +25,6 @@ find_package(geometry_msgs REQUIRED)
 # List all sources
 set(${PROJECT_NAME}_SRCS
     src/EkfCalNode.cpp
-    src/EkfHealthNode.cpp
-    src/EkfVizNode.cpp
     src/ekf/EKF.cpp
     src/ekf/sensors/Camera.cpp
     src/ekf/sensors/Imu.cpp
@@ -51,18 +49,8 @@ add_executable(${PROJECT_NAME}_node ${${PROJECT_NAME}_SRCS})
 ament_target_dependencies(${PROJECT_NAME}_node rclcpp rclcpp std_msgs sensor_msgs geometry_msgs)
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
 
-add_executable(${PROJECT_NAME}_health ${${PROJECT_NAME}_SRCS})
-ament_target_dependencies(${PROJECT_NAME}_health rclcpp rclcpp std_msgs sensor_msgs geometry_msgs)
-target_link_libraries(${PROJECT_NAME}_health ${PROJECT_NAME})
-
-add_executable(${PROJECT_NAME}_viz ${${PROJECT_NAME}_SRCS})
-ament_target_dependencies(${PROJECT_NAME}_viz rclcpp rclcpp std_msgs sensor_msgs geometry_msgs)
-target_link_libraries(${PROJECT_NAME}_viz ${PROJECT_NAME})
-
 install(TARGETS
     ${PROJECT_NAME}_node
-    ${PROJECT_NAME}_health
-    ${PROJECT_NAME}_viz
     DESTINATION lib/${PROJECT_NAME}
 )
 

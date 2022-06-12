@@ -21,26 +21,41 @@
 #include "ekf/sensors/Sensor.hpp"
 
 ///
-/// @class LIDAR Sensor Class
+/// @class Lidar
+/// @brief LIDAR Sensor Class
+/// @todo Implement update methods
 ///
 class Lidar : public Sensor
 {
 public:
+  ///
+  /// @brief Lidar initialization parameters structure
+  ///
   typedef struct Params
   {
-    std::string name;
-    double rate{1.0};
-    Eigen::Vector3d posOffset{0.0, 0.0, 0.0};
-    Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};
+    std::string name;                                  ///< @brief Lidar name
+    double rate{1.0};                                  ///< @brief Lidar update rate
+    Eigen::Vector3d posOffset{0.0, 0.0, 0.0};          ///< @brief Lidar initial position offset
+    Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};  ///< @brief Lidar initial angular offset
   } Params;
 
   ///
-  /// @class Sensor
-  /// @brief
+  /// @brief Lidar sensor constructor
+  /// @param params Lidar sensor parameters
   ///
   explicit Lidar(Lidar::Params params);
+
+  ///
+  /// @brief Predict measurement method
+  /// @return Predicted measurement vector
+  ///
   Eigen::VectorXd PredictMeasurement();
-  Eigen::VectorXd GetMeasurementJacobian();
+
+  ///
+  /// @brief Measurement Jacobian method
+  /// @return Measurement Jacobian matrix
+  ///
+  Eigen::MatrixXd GetMeasurementJacobian();
 
 protected:
 private:

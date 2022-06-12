@@ -33,7 +33,7 @@ namespace TypeHelper
 /// @param in Input std::vector
 /// @return Output Eigen Vector3
 ///
-static Eigen::Vector3d StdToEigVec(std::vector<double> const & in)
+Eigen::Vector3d StdToEigVec(std::vector<double> const & in)
 {
   if (in.size() == 3U) {
     return Eigen::Vector3d{in[0U], in[1U], in[2U]};

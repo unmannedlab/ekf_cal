@@ -43,7 +43,7 @@ public:
   EKF();
 
   ///
-  /// @brief Callback method for IMU messages
+  /// @brief IMU message callback method
   ///
   void ImuCallback(
     unsigned int id, double time,
@@ -52,17 +52,36 @@ public:
     Eigen::Vector3d angularRate,
     Eigen::Matrix3d angularRateCovariance);
 
+  ///
+  /// @brief Camera message callback method
+  /// @param id Camera sensor ID
+  /// @param time Camera measurement time
+  ///
   void CameraCallback(unsigned int id, double time);
 
+  ///
+  /// @brief Lidar message callback method
+  /// @param id Lidar sensor ID
+  /// @param time Lidar measurement time
+  ///
   void LidarCallback(unsigned int id, double time);
 
   ///
-  /// @brief Registers new sensor to calibration EKF
-  /// @tparam T Sensor time to register
+  /// @brief Registers new IMU sensor to calibration EKF
   /// @param params Sensor parameters to use in registration
   ///
   unsigned int RegisterSensor(typename Imu::Params params);
+
+  ///
+  /// @brief Registers new Camera sensor to calibration EKF
+  /// @param params Sensor parameters to use in registration
+  ///
   unsigned int RegisterSensor(typename Camera::Params params);
+
+  ///
+  /// @brief Registers new LIDAR sensor to calibration EKF
+  /// @param params Sensor parameters to use in registration
+  ///
   unsigned int RegisterSensor(typename Lidar::Params params);
 
 private:

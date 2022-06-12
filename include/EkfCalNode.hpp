@@ -32,13 +32,16 @@
 /// @brief A ROS2 node for EKF-based sensor calibration
 /// @todo Bias Stability and Noise process inputs for IMUs
 /// @todo Make flag for base sensor in IMU
-/// @todo Camera Functions
-/// @todo LIDAR Functions
+/// @todo Camera Methods
+/// @todo LIDAR Methods
 /// @todo Software Paper
 /// @todo Architecture Design
 /// @todo TF2 Publishing Flag
 /// @todo Debugging Info
 /// @todo Warnings as errors
+/// @todo Option to publish health metrics
+/// @todo Option to publish visualization messages
+/// @todo implement SLOC counter?
 ///
 class EkfCalNode : public rclcpp::Node
 {
@@ -50,37 +53,37 @@ public:
   EkfCalNode();
 
   ///
-  /// @brief Loading function for IMU sensors
+  /// @brief Loading method for IMU sensors
   /// @param imuName Name of IMU to find and load from YAML
   ///
   void LoadImu(std::string imuName);
 
   ///
-  /// @brief Loading function for IMU sensors
+  /// @brief Loading method for IMU sensors
   /// @param camName Name of IMU to find and load from YAML
   ///
   void LoadCamera(std::string camName);
 
   ///
-  /// @brief Loading function for IMU sensors
+  /// @brief Loading method for IMU sensors
   /// @param lidarName Name of LIDAR to find and load from YAML
   ///
   void LoadLidar(std::string lidarName);
 
   ///
-  /// @brief Callback function for Imu sensor messages
+  /// @brief Callback method for Imu sensor messages
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
   ///
   void ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id);
   ///
-  /// @brief Callback function for Camera sensor messages
+  /// @brief Callback method for Camera sensor messages
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
   ///
   void CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
   ///
-  /// @brief Callback function for Lidar sensor messages
+  /// @brief Callback method for Lidar sensor messages
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
   ///

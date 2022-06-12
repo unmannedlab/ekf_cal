@@ -63,7 +63,6 @@ bool Imu::IsIntrinsic()
   return m_intrinsic;
 }
 
-/// @todo Update size and function for different types of IMUs
 Eigen::VectorXd Imu::PredictMeasurement()
 {
   Eigen::VectorXd predictedMeasurement(m_stateSize);

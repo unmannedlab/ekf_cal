@@ -21,35 +21,75 @@
 #include "ekf/sensors/Sensor.hpp"
 
 ///
-/// @class IMU Sensor Class
+/// @class Imu
+/// @brief IMU Sensor Class
 ///
 class Imu : public Sensor
 {
 public:
+  ///
+  /// @brief Imu initialization parameters structure
+  ///
   typedef struct Params
   {
-    std::string name;
-    bool baseSensor{false};
-    bool intrinsic{false};
-    double rate{1.0};
-    Eigen::Vector3d posOffset{0.0, 0.0, 0.0};
-    Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};
-    Eigen::Vector3d accBias{0.0, 0.0, 0.0};
-    Eigen::Vector3d omgBias{0.0, 0.0, 0.0};
-    double accBiasStability {0.0};
-    double omgBiasStability {0.0};
+    std::string name;                                  ///< @brief IMU name
+    bool baseSensor{false};                            ///< @brief IMU base sensor flag
+    bool intrinsic{false};                             ///< @brief IMU intrinsic calibration
+    double rate{1.0};                                  ///< @brief IMU update rate
+    Eigen::Vector3d posOffset{0.0, 0.0, 0.0};          ///< @brief IMU position offset vector
+    Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};  ///< @brief IMU angular offset quaternion
+    Eigen::Vector3d accBias{0.0, 0.0, 0.0};            ///< @brief IMU accelerometer bias vector
+    Eigen::Vector3d omgBias{0.0, 0.0, 0.0};            ///< @brief IMU gyroscope bias vector
+    double accBiasStability {0.0};                     ///< @brief IMU accelerometer bias stability
+    double omgBiasStability {0.0};                     ///< @brief IMU gyroscope bias stability
   } Params;
 
+  ///
+  /// @brief IMU class constructor
+  /// @param params IMU sensor parameters
+  ///
   explicit Imu(Imu::Params params);
+
+  ///
+  /// @brief Predict measurement method
+  /// @return Predicted measurement vector
+  ///
   Eigen::VectorXd PredictMeasurement();
+
+  ///
+  /// @brief Measurement Jacobian method
+  /// @return Measurement Jacobian matrix
+  ///
   Eigen::MatrixXd GetMeasurementJacobian();
 
-
+  ///
+  /// @brief Accelerometer bias stability getter method
+  /// @return Accelerometer bias stability
+  ///
   double GetAccBiasStability();
+
+  ///
+  /// @brief Gyroscope bias stability getter method
+  /// @return Gyroscope bias stability
+  ///
   double GetOmgBiasStability();
+
+  ///
+  /// @brief Base sensor flag getter method
+  /// @return Base sensor flag
+  ///
   bool IsBaseSensor();
+
+  ///
+  /// @brief Intrinsic sensor flag getter method
+  /// @return Intrinsic sensor flag
+  ///
   bool IsIntrinsic();
 
+  ///
+  /// @brief Sensor state setter
+  /// @param state Sensor state vector
+  ///
   void SetState(Eigen::VectorXd state);
 
 protected:
