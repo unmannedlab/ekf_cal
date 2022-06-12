@@ -97,7 +97,7 @@ void EkfCalNode::LoadImu(std::string imuName)
   imuParams.intrinsic = intrinsic;
   imuParams.rate = rate;
   imuParams.posOffset = TypeHelper::StdToEigVec(posOff);
-  imuParams.quatOffset = TypeHelper::StdToEigQuat(quatOff);
+  imuParams.angOffset = TypeHelper::StdToEigQuat(quatOff);
   imuParams.accBias = TypeHelper::StdToEigVec(accBias);
   imuParams.omgBias = TypeHelper::StdToEigVec(omgBias);
 

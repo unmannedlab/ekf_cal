@@ -17,7 +17,15 @@
 
 #include <string>
 
+// Initialize static variables
 unsigned int Sensor::_idCount = 0;
+Eigen::Vector3d Sensor::m_bodyPos(0.0, 0.0, 0.0);
+Eigen::Vector3d Sensor::m_bodyVel(0.0, 0.0, 0.0);
+Eigen::Vector3d Sensor::m_bodyAcc(0.0, 0.0, 0.0);
+Eigen::Quaterniond Sensor::m_bodyAngPos(0.0, 0.0, 0.0, 0.0);
+Eigen::Vector3d Sensor::m_bodyAngVel(0.0, 0.0, 0.0);
+Eigen::Vector3d Sensor::m_bodyAngAcc(0.0, 0.0, 0.0);
+
 
 Sensor::Sensor(std::string name)
 : m_id(++_idCount), m_name(name) {}
@@ -57,14 +65,14 @@ void Sensor::SetPosOffset(Eigen::Vector3d posOffset)
   m_posOffset = posOffset;
 }
 
-Eigen::Quaterniond Sensor::GetQuatOffset()
+Eigen::Quaterniond Sensor::GetAngOffset()
 {
-  return m_quatOffset;
+  return m_angOffset;
 }
 
-void Sensor::SetQuatOffset(Eigen::Quaterniond quatOffset)
+void Sensor::SetAngOffset(Eigen::Quaterniond angOffset)
 {
-  m_quatOffset = quatOffset;
+  m_angOffset = angOffset;
 }
 
 Eigen::VectorXd Sensor::PredictMeasurement()
@@ -79,8 +87,12 @@ Eigen::MatrixXd Sensor::GetMeasurementJacobian()
   return measurementJacobian;
 }
 
-Eigen::MatrixXd Sensor::GetMeasurementCovariance()
+void Sensor::SetState(Eigen::VectorXd state)
 {
-  Eigen::MatrixXd measurementCovariance(m_stateSize, m_stateSize);
-  return measurementCovariance;
+  m_posOffset = state.segment(0, 3);
+  Eigen::Vector3d rotVec = state.segment(3, 3);
+  double angle = rotVec.norm();
+  Eigen::Vector3d axis = rotVec / rotVec.norm();
+  Eigen::AngleAxisd angAxis{angle, axis};
+  m_angOffset = Eigen::Quaterniond(angAxis);
 }

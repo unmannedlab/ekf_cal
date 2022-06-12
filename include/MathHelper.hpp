@@ -22,20 +22,20 @@ namespace MathHelper
 {
 ///
 /// @brief Produces a cross product matrix
-/// @param inMat Input vector with which to find the left hand size cross
+/// @param inVec Input vector with which to find the left hand size cross
 /// product matrix
 /// @return Cross product matrix
 ///
-static Eigen::Matrix<double, 3U, 3U> CrossMatrix(Eigen::Vector3d const & inMat)
+Eigen::Matrix3d CrossProductMatrix(Eigen::Vector3d inVec)
 {
-  Eigen::Matrix<double, 3U, 3U> outMat = Eigen::Matrix<double, 3U, 3U>::Zero();
+  Eigen::Matrix3d outMat = Eigen::Matrix3d::Zero();
 
-  outMat(0U, 1U) = -inMat[2U];
-  outMat(0U, 2U) = inMat[1U];
-  outMat(1U, 2U) = -inMat[0U];
-  outMat(1U, 0U) = inMat[2U];
-  outMat(2U, 0U) = -inMat[1U];
-  outMat(2U, 1U) = inMat[0U];
+  outMat(0U, 1U) = -inVec(2U);
+  outMat(0U, 2U) = inVec(1U);
+  outMat(1U, 2U) = -inVec(0U);
+  outMat(1U, 0U) = inVec(2U);
+  outMat(2U, 0U) = -inVec(1U);
+  outMat(2U, 1U) = inVec(0U);
 
   return outMat;
 }

@@ -36,6 +36,7 @@
             "type": "shell",
             "command": "colcon test --packages-select ekf_cal --event-handlers console_direct+",
             "group": "test",
+            "dependsOn": "build ekf_cal",
             "options": {
                 "cwd": "${workspaceFolder}/../../"
             },

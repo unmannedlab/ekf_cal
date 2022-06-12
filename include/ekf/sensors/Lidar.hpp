@@ -31,7 +31,7 @@ public:
     std::string name;
     double rate{1.0};
     Eigen::Vector3d posOffset{0.0, 0.0, 0.0};
-    Eigen::Quaterniond quatOffset{1.0, 0.0, 0.0, 0.0};
+    Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};
   } Params;
 
   ///
@@ -41,7 +41,6 @@ public:
   explicit Lidar(Lidar::Params params);
   Eigen::VectorXd PredictMeasurement();
   Eigen::VectorXd GetMeasurementJacobian();
-  Eigen::VectorXd GetMeasurementCovariance();
 
 protected:
 private:

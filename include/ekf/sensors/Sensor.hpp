@@ -32,33 +32,40 @@ public:
     std::string name;
     double rate{1.0};
     Eigen::Vector3d posOffset{0.0, 0.0, 0.0};
-    Eigen::Quaterniond quatOffset{1.0, 0.0, 0.0, 0.0};
+    Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};
   } Params;
 
   explicit Sensor(std::string name);
 
   Eigen::VectorXd PredictMeasurement();
   Eigen::MatrixXd GetMeasurementJacobian();
-  Eigen::MatrixXd GetMeasurementCovariance();
 
   Eigen::Vector3d GetPosOffset();
-  Eigen::Quaterniond GetQuatOffset();
+  Eigen::Quaterniond GetAngOffset();
 
   void SetPosOffset(Eigen::Vector3d posOffset);
-  void SetQuatOffset(Eigen::Quaterniond quatOffset);
+  void SetAngOffset(Eigen::Quaterniond angOffset);
 
   std::string GetName();
   unsigned int GetId();
   unsigned int GetStateStartIndex();
   unsigned int GetStateSize();
   void SetStateStartIndex(unsigned int stateStartIndex);
+  void SetState(Eigen::VectorXd state);
 
 protected:
   Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_quatOffset{0.0, 0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_angOffset{0.0, 0.0, 0.0, 0.0};
 
   unsigned int m_stateStartIndex{0};
   unsigned int m_stateSize{0};
+
+  static Eigen::Vector3d m_bodyPos;
+  static Eigen::Vector3d m_bodyVel;
+  static Eigen::Vector3d m_bodyAcc;
+  static Eigen::Quaterniond m_bodyAngPos;
+  static Eigen::Vector3d m_bodyAngVel;
+  static Eigen::Vector3d m_bodyAngAcc;
 
 private:
   unsigned int m_id;

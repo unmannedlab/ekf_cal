@@ -33,7 +33,7 @@ public:
     bool intrinsic{false};
     double rate{1.0};
     Eigen::Vector3d posOffset{0.0, 0.0, 0.0};
-    Eigen::Quaterniond quatOffset{1.0, 0.0, 0.0, 0.0};
+    Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};
     Eigen::Vector3d accBias{0.0, 0.0, 0.0};
     Eigen::Vector3d omgBias{0.0, 0.0, 0.0};
     double accBiasStability {0.0};
@@ -43,7 +43,6 @@ public:
   explicit Imu(Imu::Params params);
   Eigen::VectorXd PredictMeasurement();
   Eigen::MatrixXd GetMeasurementJacobian();
-  Eigen::MatrixXd GetMeasurementCovariance();
 
 
   double GetAccBiasStability();
@@ -51,18 +50,19 @@ public:
   bool IsBaseSensor();
   bool IsIntrinsic();
 
+  void SetState(Eigen::VectorXd state);
+
 protected:
 private:
   bool m_baseSensor;
   bool m_intrinsic;
   double m_rate;
   Eigen::Vector3d m_posOffset;
-  Eigen::Quaterniond m_quatOffset;
+  Eigen::Quaterniond m_angOffset;
   Eigen::Vector3d m_accBias;
   Eigen::Vector3d m_omgBias;
   double m_accBiasStability;
   double m_omgBiasStability;
-
 };
 
 #endif  // EKF__SENSORS__IMU_HPP_

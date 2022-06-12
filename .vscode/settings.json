@@ -106,4 +106,5 @@
         "TYPEHELPER",
         "VIZNODE"
     ],
+    "terminal.integrated.scrollback": 5000,
 }

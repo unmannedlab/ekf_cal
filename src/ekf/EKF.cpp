@@ -15,12 +15,13 @@
 
 #include "ekf/EKF.hpp"
 
-#include "ekf/sensors/Imu.hpp"
-
 #include <rclcpp/rclcpp.hpp>
 
-EKF::EKF() {}
+#include <memory>
 
+#include "ekf/sensors/Imu.hpp"
+
+EKF::EKF() {}
 
 unsigned int EKF::RegisterSensor(typename Imu::Params params)
 {
@@ -98,7 +99,7 @@ Eigen::MatrixXd EKF::GetProcessNoise()
         stateStart + 6) = Eigen::MatrixXd::Identity(3, 3) * accBiasStability;
       Q.block<3, 3>(
         stateStart + 9,
-        stateStart + 9) = Eigen::MatrixXd::Identity(3, 3) * accBiasStability;
+        stateStart + 9) = Eigen::MatrixXd::Identity(3, 3) * omgBiasStability;
     }
   }
 
@@ -136,20 +137,31 @@ void EKF::ImuCallback(
   Eigen::VectorXd resid = z - z_pred;
 
   Eigen::MatrixXd H = iter->second->GetMeasurementJacobian();
-  Eigen::MatrixXd R = iter->second->GetMeasurementCovariance();
+  Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
+  R.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3) * accelerationCovariance;
+  R.block<3, 3>(3, 3) = Eigen::MatrixXd::Identity(3, 3) * angularRateCovariance;
+
   Eigen::MatrixXd S = H * m_cov * H.transpose() + R;
   Eigen::MatrixXd K = m_cov * H.transpose() * S.inverse();
 
   m_state = m_state + K * resid;
   m_cov = (Eigen::MatrixXd::Identity(6, 6) - K * H) * m_cov;
+
+  unsigned int stateSize = iter->second->GetStateSize();
+  unsigned int stateStartIndex = iter->second->GetStateStartIndex();
+  iter->second->SetState(m_state.segment(stateStartIndex, stateSize));
 }
 
 void EKF::CameraCallback(unsigned int id, double time)
 {
-
+  RCLCPP_WARN(
+    rclcpp::get_logger("EKF"),
+    "Camera callback for '%u' at '%g' not implemented", id, time);
 }
 
 void EKF::LidarCallback(unsigned int id, double time)
 {
-
+  RCLCPP_WARN(
+    rclcpp::get_logger("EKF"),
+    "Lidar callback for '%u' at '%g' not implemented", id, time);
 }

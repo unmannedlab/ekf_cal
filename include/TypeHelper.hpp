@@ -18,9 +18,10 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <rclcpp/rclcpp.hpp>
-#include <vector>
-#include <std_msgs/msg/header.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
+
+#include <std_msgs/msg/header.hpp>
+#include <vector>
 
 #include "Constants.hpp"
 
@@ -47,7 +48,7 @@ static Eigen::Vector3d StdToEigVec(std::vector<double> const & in)
 /// @param in Input std::vector
 /// @return Output Eigen Quaternion
 ///
-static Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
+Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
 {
   if (in.size() == 4U) {
     Eigen::Quaterniond quat{in[0U], in[1U], in[2U], in[3U]};
@@ -59,17 +60,17 @@ static Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
   }
 }
 
-static double RosHeaderToTime(std_msgs::msg::Header header)
+double RosHeaderToTime(std_msgs::msg::Header header)
 {
   return header.stamp.sec + (header.stamp.nanosec * NSEC_TO_SEC);
 }
 
-static Eigen::Vector3d RosToEigen(geometry_msgs::msg::Vector3 msg)
+Eigen::Vector3d RosToEigen(geometry_msgs::msg::Vector3 msg)
 {
   return Eigen::Vector3d {msg.x, msg.y, msg.z};
 }
 
-static Eigen::Matrix3d RosToEigen(std::array<double, 9UL> msg)
+Eigen::Matrix3d RosToEigen(std::array<double, 9UL> msg)
 {
   return Eigen::Matrix3d {
     {msg[0], msg[1], msg[2]},
