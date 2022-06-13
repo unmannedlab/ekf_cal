@@ -28,6 +28,14 @@ TEST(test_TypeHelper, StdToEigVec) {
   ASSERT_EQ(out.z(), in[2]);
 }
 
+TEST(test_TypeHelper, StdToEigVec_err) {
+  std::vector<double> in {1.0, 2.0};
+  Eigen::Vector3d out = TypeHelper::StdToEigVec(in);
+  ASSERT_EQ(out.x(), 0.0);
+  ASSERT_EQ(out.y(), 0.0);
+  ASSERT_EQ(out.z(), 0.0);
+}
+
 TEST(test_TypeHelper, StdToEigQuat) {
   std::vector<double> in {1.0, 2.0, 3.0, 4.0};
   double norm = sqrt(in[0] * in[0] + in[1] * in[1] + in[2] * in[2] + in[3] * in[3]);
@@ -41,6 +49,16 @@ TEST(test_TypeHelper, StdToEigQuat) {
   ASSERT_NEAR(out.x(), in[1], 1e-6);
   ASSERT_NEAR(out.y(), in[2], 1e-6);
   ASSERT_NEAR(out.z(), in[3], 1e-6);
+}
+
+TEST(test_TypeHelper, StdToEigQuat_err) {
+  std::vector<double> in {1.0, 2.0, 3.0};
+
+  Eigen::Quaterniond out = TypeHelper::StdToEigQuat(in);
+  ASSERT_EQ(out.w(), 1.0);
+  ASSERT_EQ(out.x(), 0.0);
+  ASSERT_EQ(out.y(), 0.0);
+  ASSERT_EQ(out.z(), 0.0);
 }
 
 TEST(test_TypeHelper, RosHeaderToTime) {

@@ -83,7 +83,7 @@ Eigen::VectorXd Sensor::PredictMeasurement()
 
 Eigen::MatrixXd Sensor::GetMeasurementJacobian()
 {
-  Eigen::MatrixXd measurementJacobian(m_stateSize, m_stateSize);
+  Eigen::MatrixXd measurementJacobian(m_stateSize);
   return measurementJacobian;
 }
 

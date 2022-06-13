@@ -57,7 +57,7 @@
             "label": "report coverage",
             "detail": "Build ekf_cal package with covereage symbols",
             "type": "shell",
-            "command": "colcon lcov-result --packages-select ekf_cal",
+            "command": "colcon lcov-result --packages-select ekf_cal --filter '*/test/*'",
             "group": "test",
             "problemMatcher": "$gcc",
             "dependsOn": "test coverage",

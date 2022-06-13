@@ -87,7 +87,7 @@ Eigen::VectorXd Imu::PredictMeasurement()
 
 Eigen::MatrixXd Imu::GetMeasurementJacobian()
 {
-  Eigen::MatrixXd measurementJacobian(6, m_stateSize);
+  Eigen::MatrixXd measurementJacobian(6, m_stateSize + 18);
 
   if (m_baseSensor == true) {
     // Base Acceleration
@@ -127,7 +127,7 @@ Eigen::MatrixXd Imu::GetMeasurementJacobian()
     temp(2, 0) = m_bodyAngVel(0) * m_bodyAngVel(2);
     temp(2, 1) = m_bodyAngVel(1) * m_bodyAngVel(2);
     temp(2, 2) = -(m_bodyAngVel(0) * m_bodyAngVel(0)) - (m_bodyAngVel(1) * m_bodyAngVel(1));
-    measurementJacobian.block<3, 3>(0, m_stateStartIndex + 0) =
+    measurementJacobian.block<3, 3>(0, 18) =
       m_angOffset * MathHelper::CrossProductMatrix(m_bodyAngAcc) + temp;
 
     // IMU Angular Offset
@@ -135,21 +135,21 @@ Eigen::MatrixXd Imu::GetMeasurementJacobian()
       m_bodyAngAcc.cross(m_posOffset) +
       m_bodyAngVel.cross(m_bodyAngVel.cross(m_posOffset));
 
-    measurementJacobian.block<3, 3>(0, m_stateStartIndex + 3) =
+    measurementJacobian.block<3, 3>(0, 21) =
       -(m_angOffset * MathHelper::CrossProductMatrix(imu_acc));
 
     // IMU Accelerometer Bias
-    measurementJacobian.block<3, 3>(0, m_stateStartIndex + 6) = Eigen::MatrixXd::Identity(3, 3);
+    measurementJacobian.block<3, 3>(0, 23) = Eigen::MatrixXd::Identity(3, 3);
 
     // IMU Body Angular Velocity
-    measurementJacobian.block<3, 3>(3, m_stateStartIndex + 3) = m_angOffset.toRotationMatrix();
+    measurementJacobian.block<3, 3>(3, 21) = m_angOffset.toRotationMatrix();
 
     // IMU Angular Offset
-    measurementJacobian.block<3, 3>(3, m_stateStartIndex + 3) =
+    measurementJacobian.block<3, 3>(3, 21) =
       -(m_angOffset * MathHelper::CrossProductMatrix(m_bodyAngVel));
 
     // IMU Gyroscope Bias
-    measurementJacobian.block<3, 3>(3, m_stateStartIndex + 9) = Eigen::MatrixXd::Identity(3, 3);
+    measurementJacobian.block<3, 3>(3, 27) = Eigen::MatrixXd::Identity(3, 3);
   }
   return measurementJacobian;
 }

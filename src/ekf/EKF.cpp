@@ -136,7 +136,14 @@ void EKF::ImuCallback(
   Eigen::VectorXd z_pred = iter->second->PredictMeasurement();
   Eigen::VectorXd resid = z - z_pred;
 
-  Eigen::MatrixXd H = iter->second->GetMeasurementJacobian();
+  /// @todo fix this jacobian
+  unsigned int stateSize = iter->second->GetStateSize();
+  unsigned int stateStartIndex = iter->second->GetStateStartIndex();
+  Eigen::MatrixXd subH = iter->second->GetMeasurementJacobian();
+  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, m_stateSize);
+  // H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
+  // H.block<6, stateSize>(0, stateStartIndex) = subH.block<6, stateSize>(0, 18);
+
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
   R.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3) * accelerationCovariance;
   R.block<3, 3>(3, 3) = Eigen::MatrixXd::Identity(3, 3) * angularRateCovariance;
@@ -147,8 +154,6 @@ void EKF::ImuCallback(
   m_state = m_state + K * resid;
   m_cov = (Eigen::MatrixXd::Identity(6, 6) - K * H) * m_cov;
 
-  unsigned int stateSize = iter->second->GetStateSize();
-  unsigned int stateStartIndex = iter->second->GetStateStartIndex();
   iter->second->SetState(m_state.segment(stateStartIndex, stateSize));
 }
 
