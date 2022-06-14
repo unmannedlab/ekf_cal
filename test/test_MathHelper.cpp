@@ -23,13 +23,13 @@
 TEST(test_MathHelper, CrossProductMatrix) {
   Eigen::Vector3d testVec(1.0, 2.0, 3.0);
   Eigen::Matrix3d outMat = MathHelper::CrossProductMatrix(testVec);
-  ASSERT_EQ(outMat(0, 0), 0.0);
-  ASSERT_EQ(outMat(0, 1), -testVec(2));
-  ASSERT_EQ(outMat(0, 2), testVec(1));
-  ASSERT_EQ(outMat(1, 2), -testVec(0));
-  ASSERT_EQ(outMat(1, 1), 0.0);
-  ASSERT_EQ(outMat(1, 0), testVec(2));
-  ASSERT_EQ(outMat(2, 0), -testVec(1));
-  ASSERT_EQ(outMat(2, 1), testVec(0));
-  ASSERT_EQ(outMat(2, 2), 0.0);
+  EXPECT_EQ(outMat(0, 0), 0.0);
+  EXPECT_EQ(outMat(0, 1), -testVec(2));
+  EXPECT_EQ(outMat(0, 2), testVec(1));
+  EXPECT_EQ(outMat(1, 2), -testVec(0));
+  EXPECT_EQ(outMat(1, 1), 0.0);
+  EXPECT_EQ(outMat(1, 0), testVec(2));
+  EXPECT_EQ(outMat(2, 0), -testVec(1));
+  EXPECT_EQ(outMat(2, 1), testVec(0));
+  EXPECT_EQ(outMat(2, 2), 0.0);
 }

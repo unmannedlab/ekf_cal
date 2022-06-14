@@ -23,7 +23,7 @@
 
 ///
 /// @class Sensor
-/// @brief Base sensor class
+/// @brief Pure virtual base sensor class
 ///
 class Sensor
 {
@@ -38,13 +38,37 @@ public:
   /// @brief Predict measurement method
   /// @return Predicted measurement vector
   ///
-  Eigen::VectorXd PredictMeasurement();
+  virtual Eigen::VectorXd PredictMeasurement() = 0;
 
   ///
   /// @brief Measurement Jacobian method
   /// @return Measurement Jacobian matrix
   ///
-  Eigen::MatrixXd GetMeasurementJacobian();
+  virtual Eigen::MatrixXd GetMeasurementJacobian() = 0;
+
+  ///
+  /// @brief Sensor state setter
+  /// @param state Sensor state vector
+  ///
+  virtual void SetState(Eigen::VectorXd state) = 0;
+
+  ///
+  /// @brief Sensor state setter
+  /// @param state Sensor state vector
+  ///
+  virtual Eigen::VectorXd GetState() = 0;
+
+  ///
+  /// @brief Sensor state covariance setter method
+  /// @param cov Sensor state covariance
+  ///
+  void SetCov(Eigen::MatrixXd cov);
+
+  ///
+  /// @brief Sensor state covariance getter method
+  /// @return Sensor state covariance
+  ///
+  Eigen::MatrixXd GetCov();
 
   ///
   /// @brief Sensor position offset getter method
@@ -100,18 +124,13 @@ public:
   ///
   void SetStateStartIndex(unsigned int stateStartIndex);
 
-  ///
-  /// @brief Sensor state setter
-  /// @param state Sensor state vector
-  ///
-  void SetState(Eigen::VectorXd state);
-
 protected:
   Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};          ///< @brief Sensor position offset vector
   Eigen::Quaterniond m_angOffset{0.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset quaternion
 
   unsigned int m_stateStartIndex{0};  ///< @brief Sensor state start index
   unsigned int m_stateSize{0};        ///< @brief Sensor state size
+  Eigen::MatrixXd m_cov;              ///< @brief Sensor state covariance
 
   static Eigen::Vector3d m_bodyPos;         ///< @brief Body position vector
   static Eigen::Vector3d m_bodyVel;         ///< @brief Body velocity vector

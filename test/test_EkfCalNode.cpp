@@ -26,5 +26,5 @@
 /// https://index.ros.org/p/launch_testing/
 /// https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/integration-testing.html
 TEST(test_EkfCalNode, hello_world) {
-  ASSERT_TRUE(true);
+  EXPECT_TRUE(true);
 }

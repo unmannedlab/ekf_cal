@@ -19,3 +19,35 @@
 
 Lidar::Lidar(Lidar::Params params)
 : Sensor(params.name) {}
+
+Eigen::VectorXd Lidar::PredictMeasurement()
+{
+  Eigen::VectorXd predictedMeasurement(m_stateSize);
+  return predictedMeasurement;
+}
+
+Eigen::MatrixXd Lidar::GetMeasurementJacobian()
+{
+  Eigen::MatrixXd measurementJacobian(m_stateSize, m_stateSize);
+  return measurementJacobian;
+}
+
+void Lidar::SetState(Eigen::VectorXd state)
+{
+  m_posOffset = state.segment(0, 3);
+  Eigen::Vector3d rotVec = state.segment(3, 3);
+  double angle = rotVec.norm();
+  Eigen::Vector3d axis = rotVec / rotVec.norm();
+  Eigen::AngleAxisd angAxis{angle, axis};
+  m_angOffset = Eigen::Quaterniond(angAxis);
+}
+
+Eigen::VectorXd Lidar::GetState()
+{
+  Eigen::AngleAxisd angAxis{m_angOffset};
+  Eigen::Vector3d rotVec = angAxis.axis() * angAxis.angle();
+  Eigen::VectorXd stateVec(m_posOffset.size() + rotVec.size());
+  stateVec << m_posOffset, rotVec;
+
+  return stateVec;
+}

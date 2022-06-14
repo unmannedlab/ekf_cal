@@ -75,24 +75,12 @@ void Sensor::SetAngOffset(Eigen::Quaterniond angOffset)
   m_angOffset = angOffset;
 }
 
-Eigen::VectorXd Sensor::PredictMeasurement()
+void Sensor::SetCov(Eigen::MatrixXd cov)
 {
-  Eigen::VectorXd predictedMeasurement(m_stateSize);
-  return predictedMeasurement;
+  m_cov = cov;
 }
 
-Eigen::MatrixXd Sensor::GetMeasurementJacobian()
+Eigen::MatrixXd Sensor::GetCov()
 {
-  Eigen::MatrixXd measurementJacobian(m_stateSize);
-  return measurementJacobian;
-}
-
-void Sensor::SetState(Eigen::VectorXd state)
-{
-  m_posOffset = state.segment(0, 3);
-  Eigen::Vector3d rotVec = state.segment(3, 3);
-  double angle = rotVec.norm();
-  Eigen::Vector3d axis = rotVec / rotVec.norm();
-  Eigen::AngleAxisd angAxis{angle, axis};
-  m_angOffset = Eigen::Quaterniond(angAxis);
+  return m_cov;
 }

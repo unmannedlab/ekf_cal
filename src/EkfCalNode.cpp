@@ -75,20 +75,32 @@ void EkfCalNode::LoadImu(std::string imuName)
   this->declare_parameter(imuPrefix + ".Intrinsic");
   this->declare_parameter(imuPrefix + ".Rate");
   this->declare_parameter(imuPrefix + ".Topic");
-  this->declare_parameter(imuPrefix + ".PosOffInit");
-  this->declare_parameter(imuPrefix + ".QuatOffInit");
-  this->declare_parameter(imuPrefix + ".AccBiasInit");
-  this->declare_parameter(imuPrefix + ".OmgBiasInit");
 
   // Load parameters
   bool baseSensor = this->get_parameter(imuPrefix + ".BaseSensor").as_bool();
   bool intrinsic = this->get_parameter(imuPrefix + ".Intrinsic").as_bool();
   double rate = this->get_parameter(imuPrefix + ".Rate").as_double();
   std::string topic = this->get_parameter(imuPrefix + ".Topic").as_string();
-  std::vector<double> posOff = this->get_parameter(imuPrefix + ".PosOffInit").as_double_array();
-  std::vector<double> quatOff = this->get_parameter(imuPrefix + ".QuatOffInit").as_double_array();
-  std::vector<double> accBias = this->get_parameter(imuPrefix + ".AccBiasInit").as_double_array();
-  std::vector<double> omgBias = this->get_parameter(imuPrefix + ".OmgBiasInit").as_double_array();
+  std::vector<double> posOff;
+  std::vector<double> angOff;
+  std::vector<double> accBias {0, 0, 0};
+  std::vector<double> omgBias {0, 0, 0};
+
+  // Only calibrate offsets if not the base IMU
+  if (baseSensor == false) {
+    this->declare_parameter(imuPrefix + ".PosOffInit");
+    this->declare_parameter(imuPrefix + ".AngOffInit");
+    posOff = this->get_parameter(imuPrefix + ".PosOffInit").as_double_array();
+    angOff = this->get_parameter(imuPrefix + ".AngOffInit").as_double_array();
+  }
+
+  // Only calibrate intrinsics if flag is set
+  if (intrinsic == true) {
+    this->declare_parameter(imuPrefix + ".AccBiasInit");
+    this->declare_parameter(imuPrefix + ".OmgBiasInit");
+    accBias = this->get_parameter(imuPrefix + ".AccBiasInit").as_double_array();
+    omgBias = this->get_parameter(imuPrefix + ".OmgBiasInit").as_double_array();
+  }
 
   // Assign parameters to struct
   Imu::Params imuParams;
@@ -97,7 +109,7 @@ void EkfCalNode::LoadImu(std::string imuName)
   imuParams.intrinsic = intrinsic;
   imuParams.rate = rate;
   imuParams.posOffset = TypeHelper::StdToEigVec(posOff);
-  imuParams.angOffset = TypeHelper::StdToEigQuat(quatOff);
+  imuParams.angOffset = TypeHelper::StdToEigQuat(angOff);
   imuParams.accBias = TypeHelper::StdToEigVec(accBias);
   imuParams.omgBias = TypeHelper::StdToEigVec(omgBias);
 

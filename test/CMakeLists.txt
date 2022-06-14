@@ -7,7 +7,6 @@ set(test_files
     ekf/sensors/test_Camera.cpp
     ekf/sensors/test_Imu.cpp
     ekf/sensors/test_Lidar.cpp
-    ekf/sensors/test_Sensor.cpp
 )
 foreach(f_name IN LISTS test_files)
     get_filename_component(nam ${f_name} NAME_WE)

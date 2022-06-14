@@ -19,9 +19,45 @@
 #include "ekf/EKF.hpp"
 
 ///
-/// @todo Write these unit tests
+/// @todo Write test with varying covariance in sensors
 ///
-TEST(test_EKF, hello_world) {
+TEST(test_EKF, register_imu) {
   EKF ekf;
-  ASSERT_TRUE(true);
+
+  Imu::Params imu_params_base;
+  imu_params_base.baseSensor = true;
+  imu_params_base.intrinsic = false;
+
+  Imu::Params imu_params_extrinsic;
+  imu_params_extrinsic.baseSensor = false;
+  imu_params_extrinsic.intrinsic = false;
+
+  Imu::Params imu_params_intrinsic;
+  imu_params_intrinsic.baseSensor = false;
+  imu_params_intrinsic.intrinsic = true;
+
+  EXPECT_EQ(ekf.GetStateSize(), 18U);
+  EXPECT_EQ(ekf.GetState(), Eigen::VectorXd::Zero(18U));
+  EXPECT_EQ(ekf.GetCov(), Eigen::MatrixXd::Identity(18U, 18U));
+
+  unsigned int id_1 = ekf.RegisterSensor(imu_params_base);
+
+  EXPECT_EQ(ekf.GetStateSize(), 18U);
+  EXPECT_EQ(ekf.GetState(), Eigen::VectorXd::Zero(18U));
+  EXPECT_EQ(ekf.GetCov(), Eigen::MatrixXd::Identity(18U, 18U));
+
+  unsigned int id_2 = ekf.RegisterSensor(imu_params_extrinsic);
+
+  EXPECT_EQ(ekf.GetStateSize(), 24U);
+  EXPECT_EQ(ekf.GetState(), Eigen::VectorXd::Zero(24U));
+  EXPECT_EQ(ekf.GetCov(), Eigen::MatrixXd::Identity(24U, 24U));
+
+  // unsigned int id_3 = ekf.RegisterSensor(imu_params_intrinsic);
+
+  // EXPECT_EQ(ekf.GetStateSize(), 36U);
+  // EXPECT_EQ(ekf.GetState(), Eigen::VectorXd::Zero(36U));
+  // EXPECT_EQ(ekf.GetCov(), Eigen::MatrixXd::Identity(36U, 36U));
+
+  // EXPECT_EQ(id_1 + 1U, id_2);
+  // EXPECT_EQ(id_2 + 1U, id_3);
 }

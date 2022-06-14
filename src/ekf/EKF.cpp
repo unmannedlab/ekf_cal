@@ -29,11 +29,12 @@ unsigned int EKF::RegisterSensor(typename Imu::Params params)
   m_mapImu[sensor_ptr->GetId()] = sensor_ptr;
   sensor_ptr->SetStateStartIndex(m_stateSize);
 
-  m_stateSize += sensor_ptr->GetStateSize();
-
-  m_state.conservativeResize(m_stateSize);
-  m_cov.conservativeResize(m_stateSize, m_stateSize);
-
+  if (sensor_ptr->GetStateSize() != 0) {
+    std::cout << sensor_ptr->GetStateSize() << "\n";
+    std::cout << sensor_ptr->GetState() << "\n";
+    std::cout << sensor_ptr->GetCov() << "\n";
+    // ExtendState(sensor_ptr->GetStateSize(), sensor_ptr->GetState(), sensor_ptr->GetCov());
+  }
   return sensor_ptr->GetId();
 }
 
@@ -43,10 +44,9 @@ unsigned int EKF::RegisterSensor(typename Camera::Params params)
   m_mapCamera[sensor_ptr->GetId()] = sensor_ptr;
   sensor_ptr->SetStateStartIndex(m_stateSize);
 
-  m_stateSize += sensor_ptr->GetStateSize();
-
-  m_state.conservativeResize(m_stateSize);
-  m_cov.conservativeResize(m_stateSize, m_stateSize);
+  if (sensor_ptr->GetStateSize() != 0) {
+    ExtendState(sensor_ptr->GetStateSize(), sensor_ptr->GetState(), sensor_ptr->GetCov());
+  }
 
   return sensor_ptr->GetId();
 }
@@ -57,12 +57,30 @@ unsigned int EKF::RegisterSensor(typename Lidar::Params params)
   m_mapLidar[sensor_ptr->GetId()] = sensor_ptr;
   sensor_ptr->SetStateStartIndex(m_stateSize);
 
-  m_stateSize += sensor_ptr->GetStateSize();
-
-  m_state.conservativeResize(m_stateSize);
-  m_cov.conservativeResize(m_stateSize, m_stateSize);
+  if (sensor_ptr->GetStateSize() != 0) {
+    ExtendState(sensor_ptr->GetStateSize(), sensor_ptr->GetState(), sensor_ptr->GetCov());
+  }
 
   return sensor_ptr->GetId();
+}
+
+void EKF::ExtendState(
+  unsigned int sensorStateSize, Eigen::VectorXd sensorState,
+  Eigen::MatrixXd sensorCov)
+{
+  // Resize State and Covariance
+  m_state.conservativeResize(m_stateSize + sensorStateSize);
+  m_cov.conservativeResize(m_stateSize + sensorStateSize, m_stateSize + sensorStateSize);
+
+  // Set new states to zero
+  m_state.segment(m_stateSize, sensorStateSize) = sensorState;
+
+  // Set new covariance to identity and cross-covariance to zero
+  m_cov.block(m_stateSize, m_stateSize, sensorStateSize, sensorStateSize) = sensorCov;
+  m_cov.block(0, m_stateSize, m_stateSize, sensorStateSize).setZero();
+  m_cov.block(m_stateSize, 0, sensorStateSize, m_stateSize).setZero();
+
+  m_stateSize += sensorStateSize;
 }
 
 Eigen::MatrixXd EKF::GetStateTransition(double dT)
@@ -136,13 +154,12 @@ void EKF::ImuCallback(
   Eigen::VectorXd z_pred = iter->second->PredictMeasurement();
   Eigen::VectorXd resid = z - z_pred;
 
-  /// @todo fix this jacobian
   unsigned int stateSize = iter->second->GetStateSize();
   unsigned int stateStartIndex = iter->second->GetStateStartIndex();
   Eigen::MatrixXd subH = iter->second->GetMeasurementJacobian();
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, m_stateSize);
-  // H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
-  // H.block<6, stateSize>(0, stateStartIndex) = subH.block<6, stateSize>(0, 18);
+  H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
+  H.block(0, stateStartIndex, 6, stateSize) = subH.block(0, 18, 6, stateSize);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
   R.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3) * accelerationCovariance;
@@ -169,4 +186,19 @@ void EKF::LidarCallback(unsigned int id, double time)
   RCLCPP_WARN(
     rclcpp::get_logger("EKF"),
     "Lidar callback for '%u' at '%g' not implemented", id, time);
+}
+
+Eigen::VectorXd EKF::GetState()
+{
+  return m_state;
+}
+
+Eigen::MatrixXd EKF::GetCov()
+{
+  return m_cov;
+}
+
+unsigned int EKF::GetStateSize()
+{
+  return m_stateSize;
 }

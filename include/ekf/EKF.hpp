@@ -84,17 +84,40 @@ public:
   ///
   unsigned int RegisterSensor(typename Lidar::Params params);
 
+  ///
+  /// @brief Getter method for state vector
+  /// @return State vector
+  ///
+  Eigen::VectorXd GetState();
+
+  ///
+  /// @brief Getter method for state covariance matrix
+  /// @return State covariance matrix
+  ///
+  Eigen::MatrixXd GetCov();
+
+  ///
+  /// @brief Getter method for state size
+  /// @return State size
+  ///
+  unsigned int GetStateSize();
+
 private:
   void Predict(double currentTime);
+
   Eigen::MatrixXd GetStateTransition(double dT);
+
   Eigen::MatrixXd GetProcessInput();
+
   Eigen::MatrixXd GetProcessNoise();
 
+  void ExtendState(
+    unsigned int sensorStateSize, Eigen::VectorXd sensorState,
+    Eigen::MatrixXd sensorCov);
 
-  unsigned int ExtendState(unsigned int sensorStateSize);
   unsigned int m_stateSize{18U};
   Eigen::VectorXd m_state = Eigen::VectorXd::Zero(18U);
-  Eigen::MatrixXd m_cov = Eigen::MatrixXd::Zero(18U, 18U);
+  Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(18U, 18U);
   std::map<int, std::shared_ptr<Imu>> m_mapImu{};
   std::map<int, std::shared_ptr<Camera>> m_mapCamera{};
   std::map<int, std::shared_ptr<Lidar>> m_mapLidar{};

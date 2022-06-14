@@ -23,10 +23,12 @@
 Imu::Imu(Imu::Params params)
 : Sensor(params.name)
 {
-  if (params.intrinsic) {
-    if (params.baseSensor) {
+  if (params.baseSensor == true) {
+    if (params.intrinsic) {
       RCLCPP_WARN(rclcpp::get_logger("IMU"), "Base IMU should be extrinsic for filter stability");
     }
+    m_stateSize = 0U;
+  } else if (params.intrinsic == true) {
     m_stateSize = 12U;
   } else {
     m_stateSize = 6U;
@@ -41,6 +43,8 @@ Imu::Imu(Imu::Params params)
   m_omgBias = params.omgBias;
   m_accBiasStability = params.accBiasStability;
   m_omgBiasStability = params.omgBiasStability;
+
+  m_cov = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
 }
 
 
@@ -167,4 +171,21 @@ void Imu::SetState(Eigen::VectorXd state)
     m_accBias = state.segment(6, 3);
     m_omgBias = state.segment(9, 3);
   }
+}
+
+Eigen::VectorXd Imu::GetState()
+{
+  Eigen::AngleAxisd angAxis{m_angOffset};
+  Eigen::Vector3d rotVec = angAxis.axis() * angAxis.angle();
+  Eigen::VectorXd stateVec(m_stateSize);
+
+  if (m_baseSensor == true) {
+    RCLCPP_WARN(rclcpp::get_logger("IMU"), "Base IMU has no state to get");
+  } else if (m_intrinsic == true) {
+    stateVec << m_posOffset, rotVec, m_accBias, m_omgBias;
+  } else {
+    stateVec << m_posOffset, rotVec;
+  }
+
+  return stateVec;
 }

@@ -23,6 +23,7 @@
 ///
 /// @class Imu
 /// @brief IMU Sensor Class
+/// @todo Add parameter input/defaults for covariance
 ///
 class Imu : public Sensor
 {
@@ -87,10 +88,16 @@ public:
   bool IsIntrinsic();
 
   ///
-  /// @brief Sensor state setter
+  /// @brief Sensor state setter method
   /// @param state Sensor state vector
   ///
   void SetState(Eigen::VectorXd state);
+
+  ///
+  /// @brief Sensor state getter method
+  /// @return Sensor state vector
+  ///
+  Eigen::VectorXd GetState();
 
 protected:
 private:
@@ -103,6 +110,7 @@ private:
   Eigen::Vector3d m_omgBias;
   double m_accBiasStability;
   double m_omgBiasStability;
+  Eigen::MatrixXd m_cov;
 };
 
 #endif  // EKF__SENSORS__IMU_HPP_

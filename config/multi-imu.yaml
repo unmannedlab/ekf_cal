@@ -20,10 +20,6 @@
                 Intrinsic: False
                 Rate: 400.0
                 Topic: "vn300"
-                PosOffInit:  [0.0, 0.0, 0.0]
-                QuatOffInit: [1.0, 0.0, 0.0, 0.0]
-                AccBiasInit: [0.0, 0.0, 0.0]
-                OmgBiasInit: [0.0, 0.0, 0.0]
 
             vn100:
                 BaseSensor: True
@@ -31,7 +27,7 @@
                 Rate: 100.0
                 Topic: "vn100"
                 PosOffInit:  [0.0, 0.0, 0.0]
-                QuatOffInit: [1.0, 0.0, 0.0, 0.0]
+                AngOffInit: [1.0, 0.0, 0.0, 0.0]
                 AccBiasInit: [0.0, 0.0, 0.0]
                 OmgBiasInit: [0.0, 0.0, 0.0]
 
@@ -42,14 +38,14 @@
                 Rate: 1.0
                 Topic:  "dummy_cam_1"
                 PosOffInit:  [0.0, 0.0, 0.0]
-                QuatOffInit: [1.0, 0.0, 0.0, 0.0]
+                AngOffInit: [1.0, 0.0, 0.0, 0.0]
 
             dummy_cam_2:
                 Intrinsic: False
                 Rate: 1.0
                 Topic:  "dummy_cam_2"
                 PosOffInit:  [0.0, 0.0, 0.0]
-                QuatOffInit: [1.0, 0.0, 0.0, 0.0]
+                AngOffInit: [1.0, 0.0, 0.0, 0.0]
 
 
         LIDARs:
@@ -57,11 +53,11 @@
                 Rate: 1.0
                 Topic:  "dummy_lidar_1"
                 PosOffInit:  [0.0, 0.0, 0.0]
-                QuatOffInit: [1.0, 0.0, 0.0, 0.0]
+                AngOffInit: [1.0, 0.0, 0.0, 0.0]
 
             dummy_lidar_2:
                 Rate: 1.0
                 Topic:  "dummy_lidar_2"
                 PosOffInit:  [0.0, 0.0, 0.0]
-                QuatOffInit: [1.0, 0.0, 0.0, 0.0]
+                AngOffInit: [1.0, 0.0, 0.0, 0.0]
 
