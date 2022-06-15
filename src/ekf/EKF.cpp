@@ -30,10 +30,7 @@ unsigned int EKF::RegisterSensor(typename Imu::Params params)
   sensor_ptr->SetStateStartIndex(m_stateSize);
 
   if (sensor_ptr->GetStateSize() != 0) {
-    std::cout << sensor_ptr->GetStateSize() << "\n";
-    std::cout << sensor_ptr->GetState() << "\n";
-    std::cout << sensor_ptr->GetCov() << "\n";
-    // ExtendState(sensor_ptr->GetStateSize(), sensor_ptr->GetState(), sensor_ptr->GetCov());
+    ExtendState(sensor_ptr->GetStateSize(), sensor_ptr->GetState(), sensor_ptr->GetCov());
   }
   return sensor_ptr->GetId();
 }

@@ -33,14 +33,13 @@ namespace TypeHelper
 /// @param in Input std::vector
 /// @return Output Eigen Vector3
 ///
-Eigen::Vector3d StdToEigVec(std::vector<double> const & in)
+Eigen::VectorXd StdToEigVec(std::vector<double> const & in)
 {
-  if (in.size() == 3U) {
-    return Eigen::Vector3d{in[0U], in[1U], in[2U]};
-  } else {
-    RCLCPP_WARN(rclcpp::get_logger("TypeHelper"), "Vector incorrect size for Eigen conversion");
-    return Eigen::Vector3d{0.0, 0.0, 0.0};
+  Eigen::VectorXd out(in.size());
+  for (unsigned int i = 0; i < in.size(); ++i) {
+    out(i) = in[i];
   }
+  return out;
 }
 
 ///

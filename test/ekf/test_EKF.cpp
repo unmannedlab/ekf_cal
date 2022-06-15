@@ -31,10 +31,12 @@ TEST(test_EKF, register_imu) {
   Imu::Params imu_params_extrinsic;
   imu_params_extrinsic.baseSensor = false;
   imu_params_extrinsic.intrinsic = false;
+  imu_params_extrinsic.variance = Eigen::VectorXd::Ones(6);
 
   Imu::Params imu_params_intrinsic;
   imu_params_intrinsic.baseSensor = false;
   imu_params_intrinsic.intrinsic = true;
+  imu_params_intrinsic.variance = Eigen::VectorXd::Ones(12);
 
   EXPECT_EQ(ekf.GetStateSize(), 18U);
   EXPECT_EQ(ekf.GetState(), Eigen::VectorXd::Zero(18U));
@@ -52,12 +54,12 @@ TEST(test_EKF, register_imu) {
   EXPECT_EQ(ekf.GetState(), Eigen::VectorXd::Zero(24U));
   EXPECT_EQ(ekf.GetCov(), Eigen::MatrixXd::Identity(24U, 24U));
 
-  // unsigned int id_3 = ekf.RegisterSensor(imu_params_intrinsic);
+  unsigned int id_3 = ekf.RegisterSensor(imu_params_intrinsic);
 
-  // EXPECT_EQ(ekf.GetStateSize(), 36U);
-  // EXPECT_EQ(ekf.GetState(), Eigen::VectorXd::Zero(36U));
-  // EXPECT_EQ(ekf.GetCov(), Eigen::MatrixXd::Identity(36U, 36U));
+  EXPECT_EQ(ekf.GetStateSize(), 36U);
+  EXPECT_EQ(ekf.GetState(), Eigen::VectorXd::Zero(36U));
+  EXPECT_EQ(ekf.GetCov(), Eigen::MatrixXd::Identity(36U, 36U));
 
-  // EXPECT_EQ(id_1 + 1U, id_2);
-  // EXPECT_EQ(id_2 + 1U, id_3);
+  EXPECT_EQ(id_1 + 1U, id_2);
+  EXPECT_EQ(id_2 + 1U, id_3);
 }

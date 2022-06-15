@@ -20,20 +20,25 @@
 #include "TypeHelper.hpp"
 
 
-TEST(test_TypeHelper, StdToEigVec) {
+TEST(test_TypeHelper, StdToEigVec_2) {
+  std::vector<double> in {1.0, 2.0};
+  Eigen::VectorXd out = TypeHelper::StdToEigVec(in);
+  unsigned int size_1 = out.size();
+  unsigned int size_2 = in.size();
+  EXPECT_EQ(size_1, size_2);
+  EXPECT_EQ(out(0), in[0]);
+  EXPECT_EQ(out(1), in[1]);
+}
+
+TEST(test_TypeHelper, StdToEigVec_3) {
   std::vector<double> in {1.0, 2.0, 3.0};
   Eigen::Vector3d out = TypeHelper::StdToEigVec(in);
+  unsigned int size_1 = out.size();
+  unsigned int size_2 = in.size();
+  EXPECT_EQ(size_1, size_2);
   EXPECT_EQ(out.x(), in[0]);
   EXPECT_EQ(out.y(), in[1]);
   EXPECT_EQ(out.z(), in[2]);
-}
-
-TEST(test_TypeHelper, StdToEigVec_err) {
-  std::vector<double> in {1.0, 2.0};
-  Eigen::Vector3d out = TypeHelper::StdToEigVec(in);
-  EXPECT_EQ(out.x(), 0.0);
-  EXPECT_EQ(out.y(), 0.0);
-  EXPECT_EQ(out.z(), 0.0);
 }
 
 TEST(test_TypeHelper, StdToEigQuat) {

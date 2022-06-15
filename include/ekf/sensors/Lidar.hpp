@@ -37,6 +37,7 @@ public:
     double rate{1.0};                                  ///< @brief Lidar update rate
     Eigen::Vector3d posOffset{0.0, 0.0, 0.0};          ///< @brief Lidar initial position offset
     Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};  ///< @brief Lidar initial angular offset
+    Eigen::VectorXd variance {{0, 0, 0, 0, 0, 0}};     ///< @brief Initial state variance
   } Params;
 
   ///
@@ -59,7 +60,7 @@ public:
 
   ///
   /// @brief State setter
-  /// @param State Input state vector
+  /// @param state Input state vector
   ///
   void SetState(Eigen::VectorXd state);
 
@@ -68,9 +69,6 @@ public:
   /// @return Sensor state vector
   ///
   Eigen::VectorXd GetState();
-
-protected:
-private:
 };
 
 #endif  // EKF__SENSORS__LIDAR_HPP_

@@ -33,16 +33,17 @@ public:
   ///
   typedef struct Params
   {
-    std::string name;                                  ///< @brief IMU name
-    bool baseSensor{false};                            ///< @brief IMU base sensor flag
-    bool intrinsic{false};                             ///< @brief IMU intrinsic calibration
-    double rate{1.0};                                  ///< @brief IMU update rate
-    Eigen::Vector3d posOffset{0.0, 0.0, 0.0};          ///< @brief IMU position offset vector
-    Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};  ///< @brief IMU angular offset quaternion
-    Eigen::Vector3d accBias{0.0, 0.0, 0.0};            ///< @brief IMU accelerometer bias vector
-    Eigen::Vector3d omgBias{0.0, 0.0, 0.0};            ///< @brief IMU gyroscope bias vector
-    double accBiasStability {0.0};                     ///< @brief IMU accelerometer bias stability
-    double omgBiasStability {0.0};                     ///< @brief IMU gyroscope bias stability
+    std::string name;                               ///< @brief IMU name
+    bool baseSensor{false};                         ///< @brief IMU base sensor flag
+    bool intrinsic{false};                          ///< @brief IMU intrinsic calibration
+    double rate{1.0};                               ///< @brief IMU update rate
+    Eigen::Vector3d posOffset {0, 0, 0};            ///< @brief IMU position offset vector
+    Eigen::Quaterniond angOffset {1, 0, 0, 0};      ///< @brief IMU angular offset quaternion
+    Eigen::Vector3d accBias {0, 0, 0};              ///< @brief IMU accelerometer bias vector
+    Eigen::Vector3d omgBias {0, 0, 0};              ///< @brief IMU gyroscope bias vector
+    double accBiasStability {0};                    ///< @brief IMU accelerometer bias stability
+    double omgBiasStability {0};                    ///< @brief IMU gyroscope bias stability
+    Eigen::VectorXd variance {{0, 0, 0, 0, 0, 0}};  ///< @brief Initial state variance
   } Params;
 
   ///
@@ -99,18 +100,15 @@ public:
   ///
   Eigen::VectorXd GetState();
 
-protected:
 private:
   bool m_baseSensor;
   bool m_intrinsic;
-  double m_rate;
   Eigen::Vector3d m_posOffset;
   Eigen::Quaterniond m_angOffset;
   Eigen::Vector3d m_accBias;
   Eigen::Vector3d m_omgBias;
   double m_accBiasStability;
   double m_omgBiasStability;
-  Eigen::MatrixXd m_cov;
 };
 
 #endif  // EKF__SENSORS__IMU_HPP_

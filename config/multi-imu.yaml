@@ -30,6 +30,7 @@
                 AngOffInit: [1.0, 0.0, 0.0, 0.0]
                 AccBiasInit: [0.0, 0.0, 0.0]
                 OmgBiasInit: [0.0, 0.0, 0.0]
+                VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
 
         Cameras:
@@ -39,6 +40,7 @@
                 Topic:  "dummy_cam_1"
                 PosOffInit:  [0.0, 0.0, 0.0]
                 AngOffInit: [1.0, 0.0, 0.0, 0.0]
+                VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
             dummy_cam_2:
                 Intrinsic: False
@@ -46,6 +48,7 @@
                 Topic:  "dummy_cam_2"
                 PosOffInit:  [0.0, 0.0, 0.0]
                 AngOffInit: [1.0, 0.0, 0.0, 0.0]
+                VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
 
         LIDARs:
@@ -54,10 +57,12 @@
                 Topic:  "dummy_lidar_1"
                 PosOffInit:  [0.0, 0.0, 0.0]
                 AngOffInit: [1.0, 0.0, 0.0, 0.0]
+                VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
             dummy_lidar_2:
                 Rate: 1.0
                 Topic:  "dummy_lidar_2"
                 PosOffInit:  [0.0, 0.0, 0.0]
                 AngOffInit: [1.0, 0.0, 0.0, 0.0]
+                VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 

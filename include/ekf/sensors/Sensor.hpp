@@ -23,7 +23,7 @@
 
 ///
 /// @class Sensor
-/// @brief Pure virtual base sensor class
+/// @brief Pure base sensor class
 ///
 class Sensor
 {
@@ -130,7 +130,6 @@ protected:
 
   unsigned int m_stateStartIndex{0};  ///< @brief Sensor state start index
   unsigned int m_stateSize{0};        ///< @brief Sensor state size
-  Eigen::MatrixXd m_cov;              ///< @brief Sensor state covariance
 
   static Eigen::Vector3d m_bodyPos;         ///< @brief Body position vector
   static Eigen::Vector3d m_bodyVel;         ///< @brief Body velocity vector
@@ -139,9 +138,12 @@ protected:
   static Eigen::Vector3d m_bodyAngVel;      ///< @brief Body angular velocity vector
   static Eigen::Vector3d m_bodyAngAcc;      ///< @brief Body angular acceleration vector
 
+  double m_rate;                      ///< @brief Sensor measurement rate
+  unsigned int m_id;                  ///< @brief Sensor id
+  std::string m_name;                 ///< @brief Sensor name
+  Eigen::MatrixXd m_cov;              ///< @brief Sensor state covariance
+
 private:
-  unsigned int m_id;
-  std::string m_name;
   static unsigned int _idCount;
 };
 

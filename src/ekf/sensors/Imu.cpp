@@ -45,8 +45,11 @@ Imu::Imu(Imu::Params params)
   m_omgBiasStability = params.omgBiasStability;
 
   m_cov = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
-}
 
+  for (unsigned int i; i < m_stateSize; ++i) {
+    m_cov(i, i) = params.variance(i);
+  }
+}
 
 double Imu::GetAccBiasStability()
 {

@@ -75,14 +75,16 @@ void EkfCalNode::LoadImu(std::string imuName)
   this->declare_parameter(imuPrefix + ".Intrinsic");
   this->declare_parameter(imuPrefix + ".Rate");
   this->declare_parameter(imuPrefix + ".Topic");
+  this->declare_parameter(imuPrefix + ".Variance");
 
   // Load parameters
   bool baseSensor = this->get_parameter(imuPrefix + ".BaseSensor").as_bool();
   bool intrinsic = this->get_parameter(imuPrefix + ".Intrinsic").as_bool();
   double rate = this->get_parameter(imuPrefix + ".Rate").as_double();
   std::string topic = this->get_parameter(imuPrefix + ".Topic").as_string();
-  std::vector<double> posOff;
-  std::vector<double> angOff;
+  std::vector<double> variance = this->get_parameter(imuPrefix + ".Variance").as_double_array();
+  std::vector<double> posOff {0, 0, 0};
+  std::vector<double> angOff {0, 0, 0};
   std::vector<double> accBias {0, 0, 0};
   std::vector<double> omgBias {0, 0, 0};
 
