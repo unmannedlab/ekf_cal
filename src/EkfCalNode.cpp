@@ -16,6 +16,8 @@
 #include "EkfCalNode.hpp"
 
 #include <eigen3/Eigen/Eigen>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/imu.hpp>
@@ -65,6 +67,10 @@ EkfCalNode::EkfCalNode()
   for (std::string & lidarName : lidarList) {
     LoadLidar(lidarName);
   }
+
+  // Create publishers
+  pose_pub = this->create_publisher<geometry_msgs::msg::PoseStamped>("~/pose", 10);
+  twist_pub = this->create_publisher<geometry_msgs::msg::TwistStamped>("~/twist", 10);
 }
 
 void EkfCalNode::LoadImu(std::string imuName)
@@ -75,16 +81,14 @@ void EkfCalNode::LoadImu(std::string imuName)
   this->declare_parameter(imuPrefix + ".Intrinsic");
   this->declare_parameter(imuPrefix + ".Rate");
   this->declare_parameter(imuPrefix + ".Topic");
-  this->declare_parameter(imuPrefix + ".Variance");
 
   // Load parameters
   bool baseSensor = this->get_parameter(imuPrefix + ".BaseSensor").as_bool();
   bool intrinsic = this->get_parameter(imuPrefix + ".Intrinsic").as_bool();
   double rate = this->get_parameter(imuPrefix + ".Rate").as_double();
   std::string topic = this->get_parameter(imuPrefix + ".Topic").as_string();
-  std::vector<double> variance = this->get_parameter(imuPrefix + ".Variance").as_double_array();
   std::vector<double> posOff {0, 0, 0};
-  std::vector<double> angOff {0, 0, 0};
+  std::vector<double> angOff {0, 0, 0, 0};
   std::vector<double> accBias {0, 0, 0};
   std::vector<double> omgBias {0, 0, 0};
 
@@ -102,6 +106,11 @@ void EkfCalNode::LoadImu(std::string imuName)
     this->declare_parameter(imuPrefix + ".OmgBiasInit");
     accBias = this->get_parameter(imuPrefix + ".AccBiasInit").as_double_array();
     omgBias = this->get_parameter(imuPrefix + ".OmgBiasInit").as_double_array();
+  }
+
+  if ((baseSensor == false) || (intrinsic == true)) {
+    this->declare_parameter(imuPrefix + ".VarInit");
+    std::vector<double> variance = this->get_parameter(imuPrefix + ".VarInit").as_double_array();
   }
 
   // Assign parameters to struct
@@ -148,6 +157,7 @@ void EkfCalNode::ImuCallback(
   Eigen::Matrix3d omg_cov = TypeHelper::RosToEigen(msg->angular_velocity_covariance);
 
   m_ekf.ImuCallback(id, time, acc, acc_cov, omg, omg_cov);
+  PublishState();
 }
 
 void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
@@ -155,12 +165,52 @@ void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, un
   double time = TypeHelper::RosHeaderToTime(msg->header);
 
   m_ekf.CameraCallback(id, time);
+  PublishState();
 }
 
 void EkfCalNode::LidarCallback(const sensor_msgs::msg::PointCloud::SharedPtr msg, unsigned int id)
 {
   double time = TypeHelper::RosHeaderToTime(msg->header);
   m_ekf.LidarCallback(id, time);
+  PublishState();
+}
+
+void EkfCalNode::PublishState()
+{
+  auto pose_msg = geometry_msgs::msg::PoseStamped();
+  auto twist_msg = geometry_msgs::msg::TwistStamped();
+
+  Eigen::VectorXd state = m_ekf.GetState();
+
+  // Position
+  pose_msg.pose.position.x = state(0);
+  pose_msg.pose.position.y = state(1);
+  pose_msg.pose.position.z = state(2);
+
+  // Orientation
+  Eigen::Quaterniond quat = TypeHelper::RotVecToQuat(state.segment(9, 3));
+  pose_msg.pose.orientation.w = quat.w();
+  pose_msg.pose.orientation.x = quat.x();
+  pose_msg.pose.orientation.y = quat.y();
+  pose_msg.pose.orientation.z = quat.z();
+
+  // Linear Velocity
+  twist_msg.twist.linear.x = state(3);
+  twist_msg.twist.linear.y = state(4);
+  twist_msg.twist.linear.z = state(5);
+
+  // Angular Velocity
+  twist_msg.twist.angular.x = state(12);
+  twist_msg.twist.angular.y = state(13);
+  twist_msg.twist.angular.z = state(14);
+
+
+  rclcpp::Time now = this->get_clock()->now();
+  pose_msg.header.stamp = now;
+  twist_msg.header.stamp = now;
+
+  pose_pub->publish(pose_msg);
+  twist_pub->publish(twist_msg);
 }
 
 int main(int argc, char * argv[])

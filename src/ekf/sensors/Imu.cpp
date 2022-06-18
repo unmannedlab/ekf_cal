@@ -19,19 +19,19 @@
 
 #include "ekf/sensors/Sensor.hpp"
 #include "MathHelper.hpp"
+#include "TypeHelper.hpp"
 
 Imu::Imu(Imu::Params params)
 : Sensor(params.name)
 {
   if (params.baseSensor == true) {
-    if (params.intrinsic) {
-      RCLCPP_WARN(rclcpp::get_logger("IMU"), "Base IMU should be extrinsic for filter stability");
-    }
     m_stateSize = 0U;
-  } else if (params.intrinsic == true) {
-    m_stateSize = 12U;
   } else {
     m_stateSize = 6U;
+  }
+
+  if (params.intrinsic == true) {
+    m_stateSize += 6U;
   }
 
   m_baseSensor = params.baseSensor;
@@ -44,9 +44,10 @@ Imu::Imu(Imu::Params params)
   m_accBiasStability = params.accBiasStability;
   m_omgBiasStability = params.omgBiasStability;
 
+  m_cov.conservativeResize(m_stateSize, m_stateSize);
   m_cov = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
 
-  for (unsigned int i; i < m_stateSize; ++i) {
+  for (unsigned int i = 0; i < m_stateSize; ++i) {
     m_cov(i, i) = params.variance(i);
   }
 }
@@ -72,10 +73,11 @@ bool Imu::IsIntrinsic()
 
 Eigen::VectorXd Imu::PredictMeasurement()
 {
-  Eigen::VectorXd predictedMeasurement(m_stateSize);
+  Eigen::VectorXd predictedMeasurement(6);
 
   if (m_baseSensor == true) {
-    predictedMeasurement << m_bodyAcc, m_bodyAngVel;
+    predictedMeasurement.segment<3>(0) = m_bodyAcc;
+    predictedMeasurement.segment<3>(3) = m_bodyAngVel;
   } else {
     // Transform acceleration to IMU location
     Eigen::Vector3d imuAcc = m_bodyAcc +
@@ -86,7 +88,8 @@ Eigen::VectorXd Imu::PredictMeasurement()
     Eigen::Vector3d imuAccRot = m_angOffset * imuAcc + m_accBias;
     Eigen::Vector3d imuOmgRot = m_angOffset * m_bodyAngVel + m_omgBias;
 
-    predictedMeasurement << imuAccRot, imuOmgRot;
+    predictedMeasurement.segment<3>(0) = imuAccRot;
+    predictedMeasurement.segment<3>(3) = imuOmgRot;
   }
 
   return predictedMeasurement;
@@ -124,7 +127,7 @@ Eigen::MatrixXd Imu::GetMeasurementJacobian()
       m_posOffset);
 
     // IMU Positional Offset
-    temp = Eigen::MatrixXd::Zero(0, 3);
+    temp.setZero();
     temp(0, 0) = -(m_bodyAngVel(1) * m_bodyAngVel(1)) - (m_bodyAngVel(2) * m_bodyAngVel(2));
     temp(0, 1) = m_bodyAngVel(0) * m_bodyAngVel(1);
     temp(0, 2) = m_bodyAngVel(0) * m_bodyAngVel(2);
@@ -164,11 +167,7 @@ Eigen::MatrixXd Imu::GetMeasurementJacobian()
 void Imu::SetState(Eigen::VectorXd state)
 {
   m_posOffset = state.segment(0, 3);
-  Eigen::Vector3d rotVec = state.segment(3, 3);
-  double angle = rotVec.norm();
-  Eigen::Vector3d axis = rotVec / rotVec.norm();
-  Eigen::AngleAxisd angAxis{angle, axis};
-  m_angOffset = Eigen::Quaterniond(angAxis);
+  m_angOffset = TypeHelper::RotVecToQuat(state.segment(3, 3));
 
   if (m_intrinsic == true) {
     m_accBias = state.segment(6, 3);
@@ -185,9 +184,13 @@ Eigen::VectorXd Imu::GetState()
   if (m_baseSensor == true) {
     RCLCPP_WARN(rclcpp::get_logger("IMU"), "Base IMU has no state to get");
   } else if (m_intrinsic == true) {
-    stateVec << m_posOffset, rotVec, m_accBias, m_omgBias;
+    stateVec.segment<3>(0) = m_posOffset;
+    stateVec.segment<3>(3) = rotVec;
+    stateVec.segment<3>(6) = m_accBias;
+    stateVec.segment<3>(9) = m_omgBias;
   } else {
-    stateVec << m_posOffset, rotVec;
+    stateVec.segment<3>(0) = m_posOffset;
+    stateVec.segment<3>(3) = rotVec;
   }
 
   return stateVec;

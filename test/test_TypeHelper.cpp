@@ -68,17 +68,17 @@ TEST(test_TypeHelper, StdToEigQuat_err) {
 
 TEST(test_TypeHelper, RosHeaderToTime) {
   std_msgs::msg::Header in;
-  in.stamp.set__nanosec(987654321);
-  in.stamp.set__sec(123456789);
+  in.stamp.nanosec = 987654321;
+  in.stamp.sec = 123456789;
   double out = TypeHelper::RosHeaderToTime(in);
   EXPECT_EQ(out, 123456789.987654321);
 }
 
 TEST(test_TypeHelper, RosVecToEigen) {
   geometry_msgs::msg::Vector3 in;
-  in.set__x(1.0);
-  in.set__y(2.0);
-  in.set__z(3.0);
+  in.x = 1.0;
+  in.y = 2.0;
+  in.z = 3.0;
   Eigen::Vector3d out = TypeHelper::RosToEigen(in);
   EXPECT_EQ(out(0), in.x);
   EXPECT_EQ(out(1), in.y);
@@ -99,4 +99,43 @@ TEST(test_TypeHelper, RosMatToEigen) {
   EXPECT_EQ(out(2, 2), in[8]);
 
   EXPECT_TRUE(true);
+}
+
+TEST(test_TypeHelper, RotVecToQuat) {
+  Eigen::Vector3d vec1 {1.0, 0.0, 0.0};
+  Eigen::Vector3d vec2 {0.0, 1.0, 0.0};
+  Eigen::Vector3d vec3 {0.0, 0.0, 1.0};
+  Eigen::Vector3d vec4 {1.0, 2.0, 3.0};
+  Eigen::Vector3d vec5 {-4.0, 5.0, -6.0};
+
+  Eigen::Quaterniond quat1 = TypeHelper::RotVecToQuat(vec1);
+  Eigen::Quaterniond quat2 = TypeHelper::RotVecToQuat(vec2);
+  Eigen::Quaterniond quat3 = TypeHelper::RotVecToQuat(vec3);
+  Eigen::Quaterniond quat4 = TypeHelper::RotVecToQuat(vec4);
+  Eigen::Quaterniond quat5 = TypeHelper::RotVecToQuat(vec5);
+
+  EXPECT_NEAR(quat1.w(), 0.8775826, 1e-6);
+  EXPECT_NEAR(quat1.x(), 0.4794255, 1e-6);
+  EXPECT_NEAR(quat1.y(), 0.0000000, 1e-6);
+  EXPECT_NEAR(quat1.z(), 0.0000000, 1e-6);
+
+  EXPECT_NEAR(quat2.w(), 0.8775826, 1e-6);
+  EXPECT_NEAR(quat2.x(), 0.0000000, 1e-6);
+  EXPECT_NEAR(quat2.y(), 0.4794255, 1e-6);
+  EXPECT_NEAR(quat2.z(), 0.0000000, 1e-6);
+
+  EXPECT_NEAR(quat3.w(), 0.8775826, 1e-6);
+  EXPECT_NEAR(quat3.x(), 0.0000000, 1e-6);
+  EXPECT_NEAR(quat3.y(), 0.0000000, 1e-6);
+  EXPECT_NEAR(quat3.z(), 0.4794255, 1e-6);
+
+  EXPECT_NEAR(quat4.w(), -0.2955511, 1e-6);
+  EXPECT_NEAR(quat4.x(), 0.2553219, 1e-6);
+  EXPECT_NEAR(quat4.y(), 0.5106437, 1e-6);
+  EXPECT_NEAR(quat4.z(), 0.7659656, 1e-6);
+
+  EXPECT_NEAR(quat5.w(), -0.3192205, 1e-6);
+  EXPECT_NEAR(quat5.x(), 0.4319929, 1e-6);
+  EXPECT_NEAR(quat5.y(), -0.5399911, 1e-6);
+  EXPECT_NEAR(quat5.z(), 0.6479893, 1e-6);
 }

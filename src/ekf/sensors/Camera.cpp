@@ -16,6 +16,7 @@
 #include "ekf/sensors/Camera.hpp"
 
 #include "ekf/sensors/Sensor.hpp"
+#include "TypeHelper.hpp"
 
 Camera::Camera(Camera::Params params)
 : Sensor(params.name) {}
@@ -35,11 +36,7 @@ Eigen::MatrixXd Camera::GetMeasurementJacobian()
 void Camera::SetState(Eigen::VectorXd state)
 {
   m_posOffset = state.segment(0, 3);
-  Eigen::Vector3d rotVec = state.segment(3, 3);
-  double angle = rotVec.norm();
-  Eigen::Vector3d axis = rotVec / rotVec.norm();
-  Eigen::AngleAxisd angAxis{angle, axis};
-  m_angOffset = Eigen::Quaterniond(angAxis);
+  m_angOffset = TypeHelper::RotVecToQuat(state.segment(3, 3));
 }
 
 Eigen::VectorXd Camera::GetState()
@@ -47,7 +44,8 @@ Eigen::VectorXd Camera::GetState()
   Eigen::AngleAxisd angAxis{m_angOffset};
   Eigen::Vector3d rotVec = angAxis.axis() * angAxis.angle();
   Eigen::VectorXd stateVec(m_posOffset.size() + rotVec.size());
-  stateVec << m_posOffset, rotVec;
+  stateVec.segment<3>(0) = m_posOffset;
+  stateVec.segment<3>(3) = rotVec;
 
   return stateVec;
 }

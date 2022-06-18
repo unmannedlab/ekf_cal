@@ -144,10 +144,15 @@ void EKF::ImuCallback(
   Eigen::Matrix3d angularRateCovariance)
 {
   auto iter = m_mapImu.find(id);
+  RCLCPP_INFO(
+    rclcpp::get_logger("EKF"), "IMU Callback: '%s', '%f'",
+    iter->second->GetName().c_str(), time);
   Predict(time);
 
   Eigen::VectorXd z(acceleration.size() + angularRate.size());
-  z << acceleration, angularRate;
+  z.segment<3>(0) = acceleration;
+  z.segment<3>(3) = angularRate;
+
   Eigen::VectorXd z_pred = iter->second->PredictMeasurement();
   Eigen::VectorXd resid = z - z_pred;
 
@@ -166,7 +171,7 @@ void EKF::ImuCallback(
   Eigen::MatrixXd K = m_cov * H.transpose() * S.inverse();
 
   m_state = m_state + K * resid;
-  m_cov = (Eigen::MatrixXd::Identity(6, 6) - K * H) * m_cov;
+  m_cov = (Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) - K * H) * m_cov;
 
   iter->second->SetState(m_state.segment(stateStartIndex, stateSize));
 }

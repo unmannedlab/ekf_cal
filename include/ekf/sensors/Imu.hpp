@@ -43,7 +43,8 @@ public:
     Eigen::Vector3d omgBias {0, 0, 0};              ///< @brief IMU gyroscope bias vector
     double accBiasStability {0};                    ///< @brief IMU accelerometer bias stability
     double omgBiasStability {0};                    ///< @brief IMU gyroscope bias stability
-    Eigen::VectorXd variance {{0, 0, 0, 0, 0, 0}};  ///< @brief Initial state variance
+    /// @brief Initial state variance
+    Eigen::VectorXd variance {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
   } Params;
 
   ///

@@ -31,9 +31,6 @@ TEST(test_Imu, Id) {
   Imu::Params params1;
   Imu::Params params2;
 
-  params1.name = "Imu_1";
-  params2.name = "Imu_2";
-
   Imu imu1(params1);
   Imu imu2(params2);
 
@@ -47,7 +44,6 @@ TEST(test_Imu, Id) {
 
 TEST(test_Imu, StateStartIndex) {
   Imu::Params params;
-  params.name = "StateStartIndex";
   Imu imu(params);
 
   unsigned int index1 = 1U;
@@ -62,14 +58,31 @@ TEST(test_Imu, StateStartIndex) {
 
 TEST(test_Imu, StateSize) {
   Imu::Params params;
-  params.name = "StateSize";
-  Imu imu(params);
-  EXPECT_EQ(imu.GetStateSize(), 6U);
+
+  params.baseSensor = true;
+  params.intrinsic = false;
+
+  Imu imu1(params);
+  EXPECT_EQ(imu1.GetStateSize(), 0U);
+
+  params.baseSensor = true;
+  params.intrinsic = true;
+  Imu imu2(params);
+  EXPECT_EQ(imu2.GetStateSize(), 6U);
+
+  params.baseSensor = false;
+  params.intrinsic = false;
+  Imu imu3(params);
+  EXPECT_EQ(imu3.GetStateSize(), 6U);
+
+  params.baseSensor = false;
+  params.intrinsic = true;
+  Imu imu4(params);
+  EXPECT_EQ(imu4.GetStateSize(), 12U);
 }
 
 TEST(test_Imu, PosOffset) {
   Imu::Params params;
-  params.name = "PosOffset";
   Imu imu(params);
 
   Eigen::Vector3d posOff1 = {1.2, -3.4, 5.6};
@@ -84,7 +97,6 @@ TEST(test_Imu, PosOffset) {
 
 TEST(test_Imu, AngOffset) {
   Imu::Params params;
-  params.name = "PosOffset";
   Imu imu(params);
 
   Eigen::Quaterniond angOff1 = {1.2, -3.4, 5.6, -7.8};
@@ -95,4 +107,69 @@ TEST(test_Imu, AngOffset) {
 
   imu.SetAngOffset(angOff2);
   EXPECT_EQ(imu.GetAngOffset(), angOff2);
+}
+
+TEST(test_Imu, GetAccBiasStability)
+{
+  Imu::Params params;
+  params.accBiasStability = 1.234;
+  Imu imu(params);
+
+  EXPECT_EQ(imu.GetAccBiasStability(), params.accBiasStability);
+}
+
+TEST(test_Imu, GetOmgBiasStability)
+{
+  Imu::Params params;
+  params.omgBiasStability = 4.567;
+  Imu imu(params);
+
+  EXPECT_EQ(imu.GetOmgBiasStability(), params.omgBiasStability);
+}
+
+TEST(test_Imu, IsBaseSensor)
+{
+  Imu::Params params1;
+  Imu::Params params2;
+
+  params1.baseSensor = true;
+  params2.baseSensor = false;
+
+  Imu imu1(params1);
+  Imu imu2(params2);
+
+  EXPECT_TRUE(imu1.IsBaseSensor());
+  EXPECT_FALSE(imu2.IsBaseSensor());
+}
+
+TEST(test_Imu, IsIntrinsic)
+{
+  Imu::Params params1;
+  Imu::Params params2;
+
+  params1.intrinsic = true;
+  params2.intrinsic = false;
+
+  Imu imu1(params1);
+  Imu imu2(params2);
+
+  EXPECT_TRUE(imu1.IsIntrinsic());
+  EXPECT_FALSE(imu2.IsIntrinsic());
+}
+
+TEST(test_Imu, Cov)
+{
+  Imu::Params params;
+  params.baseSensor = false;
+  params.intrinsic = false;
+  Imu imu(params);
+
+  EXPECT_EQ(imu.GetStateSize(), 6U);
+
+  Eigen::MatrixXd cov(6, 6);
+  cov.setIdentity();
+
+  imu.SetCov(cov);
+
+  EXPECT_EQ(imu.GetCov(), cov);
 }

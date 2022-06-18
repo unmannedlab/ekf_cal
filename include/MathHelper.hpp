@@ -26,7 +26,7 @@ namespace MathHelper
 /// product matrix
 /// @return Cross product matrix
 ///
-Eigen::Matrix3d CrossProductMatrix(Eigen::Vector3d inVec)
+inline Eigen::Matrix3d CrossProductMatrix(Eigen::Vector3d inVec)
 {
   Eigen::Matrix3d outMat = Eigen::Matrix3d::Zero();
 

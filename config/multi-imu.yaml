@@ -16,16 +16,16 @@
 
         IMUs:
             vn300:
-                BaseSensor: False
+                BaseSensor: True
                 Intrinsic: False
                 Rate: 400.0
-                Topic: "vn300"
+                Topic: "/vn300/imu_uncompensated"
 
             vn100:
-                BaseSensor: True
+                BaseSensor: False
                 Intrinsic: True
                 Rate: 100.0
-                Topic: "vn100"
+                Topic: "/vn100/imu_uncompensated"
                 PosOffInit:  [0.0, 0.0, 0.0]
                 AngOffInit: [1.0, 0.0, 0.0, 0.0]
                 AccBiasInit: [0.0, 0.0, 0.0]

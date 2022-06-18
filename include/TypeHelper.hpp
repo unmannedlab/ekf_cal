@@ -33,7 +33,7 @@ namespace TypeHelper
 /// @param in Input std::vector
 /// @return Output Eigen Vector3
 ///
-Eigen::VectorXd StdToEigVec(std::vector<double> const & in)
+inline Eigen::VectorXd StdToEigVec(std::vector<double> const & in)
 {
   Eigen::VectorXd out(in.size());
   for (unsigned int i = 0; i < in.size(); ++i) {
@@ -47,29 +47,32 @@ Eigen::VectorXd StdToEigVec(std::vector<double> const & in)
 /// @param in Input std::vector
 /// @return Output Eigen Quaternion
 ///
-Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
+inline Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
 {
   if (in.size() == 4U) {
     Eigen::Quaterniond quat{in[0U], in[1U], in[2U], in[3U]};
     quat.normalize();
     return quat;
   } else {
-    RCLCPP_WARN(rclcpp::get_logger("TypeHelper"), "Vector incorrect size for Eigen conversion");
+    RCLCPP_WARN(
+      rclcpp::get_logger(
+        "TypeHelper"), "Vector incorrect size for Eigen conversion. Size: '%u'", in.size());
+
     return Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
   }
 }
 
-double RosHeaderToTime(std_msgs::msg::Header header)
+inline double RosHeaderToTime(std_msgs::msg::Header header)
 {
   return header.stamp.sec + (header.stamp.nanosec * NSEC_TO_SEC);
 }
 
-Eigen::Vector3d RosToEigen(geometry_msgs::msg::Vector3 msg)
+inline Eigen::Vector3d RosToEigen(geometry_msgs::msg::Vector3 msg)
 {
   return Eigen::Vector3d {msg.x, msg.y, msg.z};
 }
 
-Eigen::Matrix3d RosToEigen(std::array<double, 9UL> msg)
+inline Eigen::Matrix3d RosToEigen(std::array<double, 9> msg)
 {
   return Eigen::Matrix3d {
     {msg[0], msg[1], msg[2]},
@@ -78,6 +81,13 @@ Eigen::Matrix3d RosToEigen(std::array<double, 9UL> msg)
   };
 }
 
+inline Eigen::Quaterniond RotVecToQuat(Eigen::Vector3d rotVec)
+{
+  double angle = rotVec.norm();
+  Eigen::Vector3d axis = rotVec / rotVec.norm();
+  Eigen::AngleAxisd angAxis{angle, axis};
+  return Eigen::Quaterniond(angAxis);
+}
 
 }  // namespace TypeHelper
 

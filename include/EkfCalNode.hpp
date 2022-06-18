@@ -16,6 +16,9 @@
 #ifndef EKFCALNODE_HPP_
 #define EKFCALNODE_HPP_
 
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <geometry_msgs/msg/vector3.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/imu.hpp>
@@ -89,6 +92,11 @@ public:
   ///
   void LidarCallback(const sensor_msgs::msg::PointCloud::SharedPtr msg, unsigned int id);
 
+  ///
+  /// @brief Publish EKF state information
+  ///
+  void PublishState();
+
 private:
   /// @brief Calibration EKF object
   EKF m_ekf;
@@ -103,6 +111,9 @@ private:
   std::vector<rclcpp::Subscription<sensor_msgs::msg::PointCloud>::SharedPtr> m_LidarSubs;
 
   bool m_baseImuAssigned {false};
+
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_pub;
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr twist_pub;
 };
 
 #endif  // EKFCALNODE_HPP_
