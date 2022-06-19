@@ -102,15 +102,39 @@ public:
   ///
   unsigned int GetStateSize();
 
-private:
+  ///
+  /// @brief Predict state to given time
+  /// @param currentTime Time for prediction
+  ///
   void Predict(double currentTime);
 
+  ///
+  /// @brief State transition matrix getter method
+  /// @param dT State transition time
+  /// @return State transition matrix
+  ///
   Eigen::MatrixXd GetStateTransition(double dT);
 
+  ///
+  /// @brief Process input matrix getter method
+  /// @return Process input matrix
+  ///
   Eigen::MatrixXd GetProcessInput();
 
+  ///
+  /// @brief Process noise matrix getter method
+  /// @return Process noise matrix
+  ///
   Eigen::MatrixXd GetProcessNoise();
 
+  ///
+  /// @brief EKF state initialization method
+  /// @param timeInit Initial time
+  /// @param bodyStateInit Initial state
+  ///
+  void InitializeBodyState(double timeInit, Eigen::VectorXd bodyStateInit);
+
+private:
   void ExtendState(
     unsigned int sensorStateSize, Eigen::VectorXd sensorState,
     Eigen::MatrixXd sensorCov);

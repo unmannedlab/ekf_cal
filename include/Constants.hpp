@@ -17,5 +17,6 @@
 #define CONSTANTS_HPP_
 
 static const double NSEC_TO_SEC = 1e-9;
+static const double GRAVITY = 9.80665;
 
 #endif  // CONSTANTS_HPP_

@@ -127,15 +127,17 @@ void EKF::Predict(double time)
     RCLCPP_WARN(rclcpp::get_logger("EKF"), "Requested time in the past");
     return;
   }
-  double dT = m_currentTime - time;
+  double dT = time - m_currentTime;
 
   Eigen::MatrixXd F = GetStateTransition(dT);
   Eigen::MatrixXd G = GetProcessInput();
   Eigen::MatrixXd Q = GetProcessNoise();
 
+  /// @todo Should create convolution function to handle quaternion multiplication
   m_state = F * m_state;
-  m_cov = F * m_cov * F + F * G * Q * G * F;
+  m_cov = F * m_cov * F.transpose() + F * G * Q * G.transpose() * F.transpose();
   m_currentTime = time;
+  Sensor::SetBodyState(m_state.segment<18>(0));
 }
 
 void EKF::ImuCallback(
@@ -174,6 +176,7 @@ void EKF::ImuCallback(
   m_cov = (Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) - K * H) * m_cov;
 
   iter->second->SetState(m_state.segment(stateStartIndex, stateSize));
+  Sensor::SetBodyState(m_state.segment<18>(0));
 }
 
 void EKF::CameraCallback(unsigned int id, double time)
@@ -203,4 +206,11 @@ Eigen::MatrixXd EKF::GetCov()
 unsigned int EKF::GetStateSize()
 {
   return m_stateSize;
+}
+
+void EKF::InitializeBodyState(double timeInit, Eigen::VectorXd bodyStateInit)
+{
+  m_currentTime = timeInit;
+  m_state.segment<18>(0) = bodyStateInit;
+  Sensor::SetBodyState(bodyStateInit);
 }
