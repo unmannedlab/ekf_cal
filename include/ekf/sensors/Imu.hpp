@@ -56,6 +56,7 @@ public:
   ///
   /// @brief Predict measurement method
   /// @return Predicted measurement vector
+  /// @todo Add gravity to prediction
   ///
   Eigen::VectorXd PredictMeasurement();
 

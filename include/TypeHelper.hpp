@@ -84,9 +84,13 @@ inline Eigen::Matrix3d RosToEigen(std::array<double, 9> msg)
 inline Eigen::Quaterniond RotVecToQuat(Eigen::Vector3d rotVec)
 {
   double angle = rotVec.norm();
-  Eigen::Vector3d axis = rotVec / rotVec.norm();
-  Eigen::AngleAxisd angAxis{angle, axis};
-  return Eigen::Quaterniond(angAxis);
+  if (angle > 1e-9) {
+    Eigen::Vector3d axis = rotVec / rotVec.norm();
+    Eigen::AngleAxisd angAxis{angle, axis};
+    return Eigen::Quaterniond(angAxis);
+  } else {
+    return Eigen::Quaterniond{1, 0, 0, 0};
+  }
 }
 
 }  // namespace TypeHelper

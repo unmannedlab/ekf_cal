@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include "TypeHelper.hpp"
+
 // Initialize static variables
 unsigned int Sensor::_idCount = 0;
 Eigen::Vector3d Sensor::m_bodyPos(0.0, 0.0, 0.0);
@@ -83,4 +85,14 @@ void Sensor::SetCov(Eigen::MatrixXd cov)
 Eigen::MatrixXd Sensor::GetCov()
 {
   return m_cov;
+}
+
+void Sensor::SetBodyState(Eigen::VectorXd bodyState)
+{
+  m_bodyPos = bodyState.segment(0, 3);
+  m_bodyVel = bodyState.segment(3, 3);
+  m_bodyAcc = bodyState.segment(6, 3);
+  m_bodyAngPos = TypeHelper::RotVecToQuat(bodyState.segment(9, 3));
+  m_bodyAngVel = bodyState.segment(12, 3);
+  m_bodyAngAcc = bodyState.segment(15, 3);
 }

@@ -102,17 +102,24 @@ TEST(test_TypeHelper, RosMatToEigen) {
 }
 
 TEST(test_TypeHelper, RotVecToQuat) {
+  Eigen::Vector3d vec0 {0.0, 0.0, 0.0};
   Eigen::Vector3d vec1 {1.0, 0.0, 0.0};
   Eigen::Vector3d vec2 {0.0, 1.0, 0.0};
   Eigen::Vector3d vec3 {0.0, 0.0, 1.0};
   Eigen::Vector3d vec4 {1.0, 2.0, 3.0};
   Eigen::Vector3d vec5 {-4.0, 5.0, -6.0};
 
+  Eigen::Quaterniond quat0 = TypeHelper::RotVecToQuat(vec0);
   Eigen::Quaterniond quat1 = TypeHelper::RotVecToQuat(vec1);
   Eigen::Quaterniond quat2 = TypeHelper::RotVecToQuat(vec2);
   Eigen::Quaterniond quat3 = TypeHelper::RotVecToQuat(vec3);
   Eigen::Quaterniond quat4 = TypeHelper::RotVecToQuat(vec4);
   Eigen::Quaterniond quat5 = TypeHelper::RotVecToQuat(vec5);
+
+  EXPECT_NEAR(quat0.w(), 1.0000000, 1e-6);
+  EXPECT_NEAR(quat0.x(), 0.0000000, 1e-6);
+  EXPECT_NEAR(quat0.y(), 0.0000000, 1e-6);
+  EXPECT_NEAR(quat0.z(), 0.0000000, 1e-6);
 
   EXPECT_NEAR(quat1.w(), 0.8775826, 1e-6);
   EXPECT_NEAR(quat1.x(), 0.4794255, 1e-6);

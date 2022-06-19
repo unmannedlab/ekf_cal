@@ -4,7 +4,8 @@
             "includePath": [
                 "/opt/ros/foxy/include",
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/src"
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/test"
             ],
             "name": "ROS",
             "configurationProvider": "ms-vscode.cmake-tools"

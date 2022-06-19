@@ -76,8 +76,13 @@ Eigen::VectorXd Imu::PredictMeasurement()
   Eigen::VectorXd predictedMeasurement(6);
 
   if (m_baseSensor == true) {
-    predictedMeasurement.segment<3>(0) = m_bodyAcc;
-    predictedMeasurement.segment<3>(3) = m_bodyAngVel;
+    if (m_intrinsic) {
+      predictedMeasurement.segment<3>(0) = m_bodyAcc + m_accBias;
+      predictedMeasurement.segment<3>(3) = m_bodyAngVel + m_omgBias;
+    } else {
+      predictedMeasurement.segment<3>(0) = m_bodyAcc;
+      predictedMeasurement.segment<3>(3) = m_bodyAngVel;
+    }
   } else {
     // Transform acceleration to IMU location
     Eigen::Vector3d imuAcc = m_bodyAcc +
@@ -85,8 +90,14 @@ Eigen::VectorXd Imu::PredictMeasurement()
       m_bodyAngVel.cross((m_bodyAngVel.cross(m_posOffset)));
 
     // Rotate measurements in place
-    Eigen::Vector3d imuAccRot = m_angOffset * imuAcc + m_accBias;
-    Eigen::Vector3d imuOmgRot = m_angOffset * m_bodyAngVel + m_omgBias;
+    Eigen::Vector3d imuAccRot = m_angOffset * imuAcc;
+    Eigen::Vector3d imuOmgRot = m_angOffset * m_bodyAngVel;
+
+    // Add bias
+    if (m_intrinsic) {
+      imuAccRot += m_accBias;
+      imuOmgRot += m_omgBias;
+    }
 
     predictedMeasurement.segment<3>(0) = imuAccRot;
     predictedMeasurement.segment<3>(3) = imuOmgRot;
@@ -98,13 +109,22 @@ Eigen::VectorXd Imu::PredictMeasurement()
 Eigen::MatrixXd Imu::GetMeasurementJacobian()
 {
   Eigen::MatrixXd measurementJacobian(6, m_stateSize + 18);
+  measurementJacobian.setZero();
 
   if (m_baseSensor == true) {
     // Base Acceleration
     measurementJacobian.block<3, 3>(0, 6) = Eigen::MatrixXd::Identity(3, 3);
 
     // Base Angular Velocity
-    measurementJacobian.block<3, 3>(0, 12) = Eigen::MatrixXd::Identity(3, 3);
+    measurementJacobian.block<3, 3>(3, 12) = Eigen::MatrixXd::Identity(3, 3);
+
+    if (m_intrinsic) {
+      // IMU Accelerometer Bias
+      measurementJacobian.block<3, 3>(0, 18) = Eigen::MatrixXd::Identity(3, 3);
+
+      // IMU Gyroscope Bias
+      measurementJacobian.block<3, 3>(3, 21) = Eigen::MatrixXd::Identity(3, 3);
+    }
   } else {
     // Body Acceleration
     measurementJacobian.block<3, 3>(0, 6) = m_angOffset.toRotationMatrix();
@@ -148,9 +168,6 @@ Eigen::MatrixXd Imu::GetMeasurementJacobian()
     measurementJacobian.block<3, 3>(0, 21) =
       -(m_angOffset * MathHelper::CrossProductMatrix(imu_acc));
 
-    // IMU Accelerometer Bias
-    measurementJacobian.block<3, 3>(0, 23) = Eigen::MatrixXd::Identity(3, 3);
-
     // IMU Body Angular Velocity
     measurementJacobian.block<3, 3>(3, 21) = m_angOffset.toRotationMatrix();
 
@@ -158,20 +175,34 @@ Eigen::MatrixXd Imu::GetMeasurementJacobian()
     measurementJacobian.block<3, 3>(3, 21) =
       -(m_angOffset * MathHelper::CrossProductMatrix(m_bodyAngVel));
 
-    // IMU Gyroscope Bias
-    measurementJacobian.block<3, 3>(3, 27) = Eigen::MatrixXd::Identity(3, 3);
+    if (m_intrinsic) {
+      // IMU Accelerometer Bias
+      measurementJacobian.block<3, 3>(0, 24) = Eigen::MatrixXd::Identity(3, 3);
+
+      // IMU Gyroscope Bias
+      measurementJacobian.block<3, 3>(3, 27) = Eigen::MatrixXd::Identity(3, 3);
+    }
   }
   return measurementJacobian;
 }
 
 void Imu::SetState(Eigen::VectorXd state)
 {
-  m_posOffset = state.segment(0, 3);
-  m_angOffset = TypeHelper::RotVecToQuat(state.segment(3, 3));
+  if (m_baseSensor) {
+    if (m_intrinsic) {
+      m_accBias = state.segment(0, 3);
+      m_omgBias = state.segment(3, 3);
+    } else {
+      RCLCPP_WARN(rclcpp::get_logger("IMU"), "Base IMU has no state to get");
+    }
+  } else {
+    m_posOffset = state.segment(0, 3);
+    m_angOffset = TypeHelper::RotVecToQuat(state.segment(3, 3));
 
-  if (m_intrinsic == true) {
-    m_accBias = state.segment(6, 3);
-    m_omgBias = state.segment(9, 3);
+    if (m_intrinsic) {
+      m_accBias = state.segment(6, 3);
+      m_omgBias = state.segment(9, 3);
+    }
   }
 }
 
@@ -181,16 +212,23 @@ Eigen::VectorXd Imu::GetState()
   Eigen::Vector3d rotVec = angAxis.axis() * angAxis.angle();
   Eigen::VectorXd stateVec(m_stateSize);
 
-  if (m_baseSensor == true) {
-    RCLCPP_WARN(rclcpp::get_logger("IMU"), "Base IMU has no state to get");
-  } else if (m_intrinsic == true) {
-    stateVec.segment<3>(0) = m_posOffset;
-    stateVec.segment<3>(3) = rotVec;
-    stateVec.segment<3>(6) = m_accBias;
-    stateVec.segment<3>(9) = m_omgBias;
+  if (m_baseSensor) {
+    if (m_intrinsic) {
+      stateVec.segment<3>(0) = m_accBias;
+      stateVec.segment<3>(3) = m_omgBias;
+    } else {
+      RCLCPP_WARN(rclcpp::get_logger("IMU"), "Base IMU has no state to get");
+    }
   } else {
-    stateVec.segment<3>(0) = m_posOffset;
-    stateVec.segment<3>(3) = rotVec;
+    if (m_intrinsic) {
+      stateVec.segment<3>(0) = m_posOffset;
+      stateVec.segment<3>(3) = rotVec;
+      stateVec.segment<3>(6) = m_accBias;
+      stateVec.segment<3>(9) = m_omgBias;
+    } else {
+      stateVec.segment<3>(0) = m_posOffset;
+      stateVec.segment<3>(3) = rotVec;
+    }
   }
 
   return stateVec;

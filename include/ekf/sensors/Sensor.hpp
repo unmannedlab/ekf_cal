@@ -124,6 +124,12 @@ public:
   ///
   void SetStateStartIndex(unsigned int stateStartIndex);
 
+  ///
+  /// @brief Body state setter method
+  /// @param bodyState Body state vector
+  ///
+  static void SetBodyState(Eigen::VectorXd bodyState);
+
 protected:
   Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};          ///< @brief Sensor position offset vector
   Eigen::Quaterniond m_angOffset{0.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset quaternion
