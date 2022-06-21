@@ -146,6 +146,7 @@ private:
   std::map<int, std::shared_ptr<Camera>> m_mapCamera{};
   std::map<int, std::shared_ptr<Lidar>> m_mapLidar{};
   double m_currentTime {0};
+  bool m_timeInitialized {false};
 };
 
 #endif  // EKF__EKF_HPP_

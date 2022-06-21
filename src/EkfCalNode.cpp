@@ -88,7 +88,7 @@ void EkfCalNode::LoadImu(std::string imuName)
   double rate = this->get_parameter(imuPrefix + ".Rate").as_double();
   std::string topic = this->get_parameter(imuPrefix + ".Topic").as_string();
   std::vector<double> posOff {0, 0, 0};
-  std::vector<double> angOff {0, 0, 0, 0};
+  std::vector<double> angOff {1, 0, 0, 0};
   std::vector<double> accBias {0, 0, 0};
   std::vector<double> omgBias {0, 0, 0};
 
@@ -108,11 +108,6 @@ void EkfCalNode::LoadImu(std::string imuName)
     omgBias = this->get_parameter(imuPrefix + ".OmgBiasInit").as_double_array();
   }
 
-  if ((baseSensor == false) || (intrinsic == true)) {
-    this->declare_parameter(imuPrefix + ".VarInit");
-    std::vector<double> variance = this->get_parameter(imuPrefix + ".VarInit").as_double_array();
-  }
-
   // Assign parameters to struct
   Imu::Params imuParams;
   imuParams.name = imuName;
@@ -123,6 +118,12 @@ void EkfCalNode::LoadImu(std::string imuName)
   imuParams.angOffset = TypeHelper::StdToEigQuat(angOff);
   imuParams.accBias = TypeHelper::StdToEigVec(accBias);
   imuParams.omgBias = TypeHelper::StdToEigVec(omgBias);
+
+  if ((baseSensor == false) || (intrinsic == true)) {
+    this->declare_parameter(imuPrefix + ".VarInit");
+    std::vector<double> variance = this->get_parameter(imuPrefix + ".VarInit").as_double_array();
+    imuParams.variance = TypeHelper::StdToEigVec(variance);
+  }
 
   // Register IMU and bind callback to ID
   unsigned int id = m_ekf.RegisterSensor(imuParams);
@@ -203,7 +204,6 @@ void EkfCalNode::PublishState()
   twist_msg.twist.angular.x = state(12);
   twist_msg.twist.angular.y = state(13);
   twist_msg.twist.angular.z = state(14);
-
 
   rclcpp::Time now = this->get_clock()->now();
   pose_msg.header.stamp = now;

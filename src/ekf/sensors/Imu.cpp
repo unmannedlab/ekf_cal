@@ -47,9 +47,13 @@ Imu::Imu(Imu::Params params)
   m_cov.conservativeResize(m_stateSize, m_stateSize);
   m_cov = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
 
+  /// @todo Make sure there aren't zeros
   for (unsigned int i = 0; i < m_stateSize; ++i) {
     m_cov(i, i) = params.variance(i);
   }
+  std::cout << "StateSize\n" << m_stateSize << "\n";
+  std::cout << "Cov\n" << m_cov << "\n";
+  std::cout << "Var\n" << params.variance << "\n";
 }
 
 double Imu::GetAccBiasStability()
@@ -193,7 +197,7 @@ void Imu::SetState(Eigen::VectorXd state)
       m_accBias = state.segment(0, 3);
       m_omgBias = state.segment(3, 3);
     } else {
-      RCLCPP_WARN(rclcpp::get_logger("IMU"), "Base IMU has no state to get");
+      RCLCPP_WARN(rclcpp::get_logger("IMU"), "Base IMU has no state to set");
     }
   } else {
     m_posOffset = state.segment(0, 3);

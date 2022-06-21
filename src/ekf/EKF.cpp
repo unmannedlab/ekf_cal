@@ -77,6 +77,8 @@ void EKF::ExtendState(
   m_cov.block(0, m_stateSize, m_stateSize, sensorStateSize).setZero();
   m_cov.block(m_stateSize, 0, sensorStateSize, m_stateSize).setZero();
 
+  std::cout << "SensCov\n" << sensorCov << "\n";
+
   m_stateSize += sensorStateSize;
 }
 
@@ -123,6 +125,11 @@ Eigen::MatrixXd EKF::GetProcessNoise()
 
 void EKF::Predict(double time)
 {
+  if (!m_timeInitialized) {
+    m_currentTime = time;
+    m_timeInitialized = true;
+    return;
+  }
   if (time < m_currentTime) {
     RCLCPP_WARN(rclcpp::get_logger("EKF"), "Requested time in the past");
     return;
@@ -166,16 +173,26 @@ void EKF::ImuCallback(
   H.block(0, stateStartIndex, 6, stateSize) = subH.block(0, 18, 6, stateSize);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-  R.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3) * accelerationCovariance;
-  R.block<3, 3>(3, 3) = Eigen::MatrixXd::Identity(3, 3) * angularRateCovariance;
+  R.block<3, 3>(0, 0) = accelerationCovariance;
+  R.block<3, 3>(3, 3) = angularRateCovariance;
 
   Eigen::MatrixXd S = H * m_cov * H.transpose() + R;
   Eigen::MatrixXd K = m_cov * H.transpose() * S.inverse();
+  std::cout << "cov\n" << m_cov << "\n";
+  std::cout << "H\n" << H << "\n";
+  std::cout << "R\n" << R << "\n";
+  std::cout << "S\n" << S << "\n";
+  std::cout << "K\n" << K << "\n";
+  std::cout << "\n\n";
 
   m_state = m_state + K * resid;
   m_cov = (Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) - K * H) * m_cov;
 
-  iter->second->SetState(m_state.segment(stateStartIndex, stateSize));
+  // Only set state if nonzero in size
+  if (iter->second->GetStateSize() > 0) {
+    iter->second->SetState(m_state.segment(stateStartIndex, stateSize));
+  }
+
   Sensor::SetBodyState(m_state.segment<18>(0));
 }
 
