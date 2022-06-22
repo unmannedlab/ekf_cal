@@ -77,8 +77,6 @@ void EKF::ExtendState(
   m_cov.block(0, m_stateSize, m_stateSize, sensorStateSize).setZero();
   m_cov.block(m_stateSize, 0, sensorStateSize, m_stateSize).setZero();
 
-  std::cout << "SensCov\n" << sensorCov << "\n";
-
   m_stateSize += sensorStateSize;
 }
 
@@ -175,15 +173,19 @@ void EKF::ImuCallback(
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
   R.block<3, 3>(0, 0) = accelerationCovariance;
   R.block<3, 3>(3, 3) = angularRateCovariance;
+  for (int i = 0; i < 3; ++i) {
+    if (R(i, i) < 1e-3) {
+      R(i, i) = 1e-3;
+    }
+  }
+  for (int i = 3; i < 6; ++i) {
+    if (R(i, i) < 1e-2) {
+      R(i, i) = 1e-2;
+    }
+  }
 
   Eigen::MatrixXd S = H * m_cov * H.transpose() + R;
   Eigen::MatrixXd K = m_cov * H.transpose() * S.inverse();
-  std::cout << "cov\n" << m_cov << "\n";
-  std::cout << "H\n" << H << "\n";
-  std::cout << "R\n" << R << "\n";
-  std::cout << "S\n" << S << "\n";
-  std::cout << "K\n" << K << "\n";
-  std::cout << "\n\n";
 
   m_state = m_state + K * resid;
   m_cov = (Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) - K * H) * m_cov;

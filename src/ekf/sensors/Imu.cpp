@@ -47,9 +47,14 @@ Imu::Imu(Imu::Params params)
   m_cov.conservativeResize(m_stateSize, m_stateSize);
   m_cov = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
 
-  /// @todo Make sure there aren't zeros
+  // Lower bound by 1e-6
   for (unsigned int i = 0; i < m_stateSize; ++i) {
-    m_cov(i, i) = params.variance(i);
+    if (params.variance(i) > 1e-6) {
+      m_cov(i, i) = params.variance(i);
+    } else {
+      RCLCPP_WARN(rclcpp::get_logger("IMU"), "Variance should be larger than 1e-6");
+      m_cov(i, i) = 1e-6;
+    }
   }
   std::cout << "StateSize\n" << m_stateSize << "\n";
   std::cout << "Cov\n" << m_cov << "\n";
@@ -173,7 +178,7 @@ Eigen::MatrixXd Imu::GetMeasurementJacobian()
       -(m_angOffset * MathHelper::CrossProductMatrix(imu_acc));
 
     // IMU Body Angular Velocity
-    measurementJacobian.block<3, 3>(3, 21) = m_angOffset.toRotationMatrix();
+    measurementJacobian.block<3, 3>(3, 12) = m_angOffset.toRotationMatrix();
 
     // IMU Angular Offset
     measurementJacobian.block<3, 3>(3, 21) =

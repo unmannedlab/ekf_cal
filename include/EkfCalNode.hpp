@@ -45,6 +45,7 @@
 /// @todo Option to publish health metrics
 /// @todo Option to publish visualization messages
 /// @todo implement SLOC counter?
+/// @todo logging
 ///
 class EkfCalNode : public rclcpp::Node
 {
