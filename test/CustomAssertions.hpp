@@ -18,23 +18,38 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <gtest/gtest.h>
+#include <math.h>
 
 namespace CustomAssertions
 {
 ///
 /// @brief Function to expect near for two Eigen matrices
-/// @todo Should be a macro or otherwise show where the error occurred
+/// @todo Should be a macro or otherwise show where the error occurred and check every element
 ///
-static void EXPECT_EIGEN_NEAR(Eigen::MatrixXd mat1, Eigen::MatrixXd mat2, double precision)
+static testing::AssertionResult EXPECT_EIGEN_NEAR(
+  Eigen::MatrixXd mat1, Eigen::MatrixXd mat2,
+  double precision)
 {
-  ASSERT_EQ(mat1.rows(), mat2.rows());
-  ASSERT_EQ(mat1.cols(), mat2.cols());
+  if (mat1.rows() != mat2.rows()) {
+    return ::testing::AssertionFailure() <<
+           "mat1.rows (" << mat1.rows() << ") != mat2.rows(" << mat2.rows() << ")";
+  }
+
+  if (mat1.cols() != mat2.cols()) {
+    return ::testing::AssertionFailure() <<
+           "mat1.cols (" << mat1.cols() << ") != mat2.cols(" << mat2.cols() << ")";
+  }
 
   for (int i = 0; i < mat1.rows(); ++i) {
     for (int j = 0; j < mat1.cols(); ++j) {
-      EXPECT_NEAR(mat1(i, j), mat2(i, j), precision) << "(" << i << "," << j << ")";
+      if (abs(mat1(i, j) - mat2(i, j)) > precision) {
+        return ::testing::AssertionFailure() << "mat1[" << i << "," << j <<
+               "] (" << mat1(i, j) << ") != mat2[" << i << "," << j <<
+               "] (" << mat2(i, j) << ") Diff:" << abs(mat1(i, j) - mat2(i, j));
+      }
     }
   }
+  return testing::AssertionSuccess();
 }
 
 }  // namespace CustomAssertions

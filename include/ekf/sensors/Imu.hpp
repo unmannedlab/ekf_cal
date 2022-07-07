@@ -44,7 +44,7 @@ public:
     double accBiasStability {0};                    ///< @brief IMU accelerometer bias stability
     double omgBiasStability {0};                    ///< @brief IMU gyroscope bias stability
     /// @brief Initial state variance
-    Eigen::VectorXd variance {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+    Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
   } Params;
 
   ///

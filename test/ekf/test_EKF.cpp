@@ -86,7 +86,7 @@ TEST(test_EKF, GetStateTransition) {
   phiOut1 = ekf.GetStateTransition(0);
   phiExp1.setIdentity();
 
-  CustomAssertions::EXPECT_EIGEN_NEAR(phiOut1, phiExp1, 1e-6);
+  EXPECT_TRUE(CustomAssertions::EXPECT_EIGEN_NEAR(phiOut1, phiExp1, 1e-6));
 
 
   // (dt = 0.25)
@@ -99,7 +99,7 @@ TEST(test_EKF, GetStateTransition) {
   phiExp2.block<3, 3>(9, 12) = Eigen::Matrix3d::Identity() * 0.25;
   phiExp2.block<3, 3>(12, 15) = Eigen::Matrix3d::Identity() * 0.25;
 
-  CustomAssertions::EXPECT_EIGEN_NEAR(phiOut2, phiExp2, 1e-6);
+  EXPECT_TRUE(CustomAssertions::EXPECT_EIGEN_NEAR(phiOut2, phiExp2, 1e-6));
 
 
   // Change state size
@@ -118,7 +118,7 @@ TEST(test_EKF, GetStateTransition) {
   phiExp3.block<3, 3>(9, 12) = Eigen::Matrix3d::Identity() * 0.25;
   phiExp3.block<3, 3>(12, 15) = Eigen::Matrix3d::Identity() * 0.25;
 
-  CustomAssertions::EXPECT_EIGEN_NEAR(phiOut3, phiExp3, 1e-6);
+  EXPECT_TRUE(CustomAssertions::EXPECT_EIGEN_NEAR(phiOut3, phiExp3, 1e-6));
 }
 
 TEST(test_EKF, GetProcessInput) {
@@ -166,15 +166,25 @@ TEST(test_EKF, Predict) {
   bodyState << 1, 1, 1, 2, 2, 2, 3, 3, 3, 0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.3, 0.3, 0.3;
   ekf.InitializeBodyState(0.0, bodyState);
 
-  // Test past
-  ekf.Predict(-0.25);
-
-  // Test future
-  ekf.Predict(0.25);
   Eigen::VectorXd stateExp(18);
   Eigen::VectorXd stateOut(18);
   Eigen::MatrixXd covExp(18, 18);
   Eigen::MatrixXd covOut(18, 18);
+
+  // Test past
+  ekf.Predict(-0.25);
+
+  stateOut = ekf.GetState();
+  covOut = ekf.GetCov();
+
+  stateExp = bodyState;
+  covExp.setIdentity();
+
+  EXPECT_TRUE(CustomAssertions::EXPECT_EIGEN_NEAR(stateExp, stateOut, 1e-6));
+  EXPECT_TRUE(CustomAssertions::EXPECT_EIGEN_NEAR(covExp, covOut, 1e-6));
+
+  // Test future
+  ekf.Predict(0.25);
 
   stateOut = ekf.GetState();
   covOut = ekf.GetCov();
@@ -206,6 +216,9 @@ TEST(test_EKF, Predict) {
   covExp.block<3, 3>(12, 15) = Eigen::Matrix3d::Identity() * 0.25;
   covExp.block<3, 3>(15, 12) = Eigen::Matrix3d::Identity() * 0.25;
 
-  CustomAssertions::EXPECT_EIGEN_NEAR(stateExp, stateOut, 1e-6);
-  CustomAssertions::EXPECT_EIGEN_NEAR(covExp, covOut, 1e-6);
+  std::cout << std::setprecision(9) << stateOut << std::endl;
+  std::cout << std::setprecision(9) << covOut << std::endl;
+
+  EXPECT_TRUE(CustomAssertions::EXPECT_EIGEN_NEAR(stateExp, stateOut, 1e-6));
+  EXPECT_TRUE(CustomAssertions::EXPECT_EIGEN_NEAR(covExp, covOut, 1e-6));
 }

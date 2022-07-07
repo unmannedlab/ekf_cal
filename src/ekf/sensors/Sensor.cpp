@@ -77,6 +77,7 @@ void Sensor::SetAngOffset(Eigen::Quaterniond angOffset)
   m_angOffset = angOffset;
 }
 
+/// @todo Implement check for correlation coefficients to be between +/- 1
 void Sensor::SetCov(Eigen::MatrixXd cov)
 {
   m_cov = cov;

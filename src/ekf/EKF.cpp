@@ -123,6 +123,7 @@ Eigen::MatrixXd EKF::GetProcessNoise()
 
 void EKF::Predict(double time)
 {
+  std::cout << m_currentTime << std::endl;
   if (!m_timeInitialized) {
     m_currentTime = time;
     m_timeInitialized = true;
@@ -230,6 +231,7 @@ unsigned int EKF::GetStateSize()
 void EKF::InitializeBodyState(double timeInit, Eigen::VectorXd bodyStateInit)
 {
   m_currentTime = timeInit;
+  m_timeInitialized = true;
   m_state.segment<18>(0) = bodyStateInit;
   Sensor::SetBodyState(bodyStateInit);
 }

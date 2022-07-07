@@ -56,9 +56,6 @@ Imu::Imu(Imu::Params params)
       m_cov(i, i) = 1e-6;
     }
   }
-  std::cout << "StateSize\n" << m_stateSize << "\n";
-  std::cout << "Cov\n" << m_cov << "\n";
-  std::cout << "Var\n" << params.variance << "\n";
 }
 
 double Imu::GetAccBiasStability()

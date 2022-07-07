@@ -52,7 +52,6 @@ class EkfCalNode : public rclcpp::Node
 public:
   ///
   /// @brief Constructor for the Calibration EKF Node
-  /// @todo  Literally everything
   ///
   EkfCalNode();
 
