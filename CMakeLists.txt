@@ -15,6 +15,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+list(APPEND CMAKE_PREFIX_PATH /opt/ros/foxy/)
+
 # find dependencies
 set(ROS_PKGS
     ament_cmake
@@ -27,12 +29,6 @@ set(ROS_PKGS
 foreach(pkg ${ROS_PKGS})
     find_package(${pkg} REQUIRED)
 endforeach(pkg)
-# find_package(ament_cmake REQUIRED)
-# find_package(rclcpp REQUIRED)
-# find_package(std_msgs REQUIRED)
-# find_package(sensor_msgs REQUIRED)
-# find_package(geometry_msgs REQUIRED)
-# find_package(tf2_ros REQUIRED)
 
 # List all sources
 set(${PROJECT_NAME}_LIB
