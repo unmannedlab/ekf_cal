@@ -15,7 +15,7 @@
 
 #include "ekf/EKF.hpp"
 
-#include <rclcpp/rclcpp.hpp>
+// #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 
@@ -130,7 +130,8 @@ void EKF::Predict(double time)
     return;
   }
   if (time < m_currentTime) {
-    RCLCPP_WARN(rclcpp::get_logger("EKF"), "Requested time in the past");
+    /// @todo replace with generic logging
+    // RCLCPP_WARN(rclcpp::get_logger("EKF"), "Requested time in the past");
     return;
   }
   double dT = time - m_currentTime;
@@ -152,9 +153,10 @@ void EKF::ImuCallback(
   Eigen::Matrix3d angularRateCovariance)
 {
   auto iter = m_mapImu.find(id);
-  RCLCPP_INFO(
-    rclcpp::get_logger("EKF"), "IMU Callback: '%s', '%f'",
-    iter->second->GetName().c_str(), time);
+  /// @todo replace with generic logging
+  // RCLCPP_INFO(
+  //   rclcpp::get_logger("EKF"), "IMU Callback: '%s', '%f'",
+  //   iter->second->GetName().c_str(), time);
   Predict(time);
 
   Eigen::VectorXd z(acceleration.size() + angularRate.size());
@@ -201,16 +203,16 @@ void EKF::ImuCallback(
 
 void EKF::CameraCallback(unsigned int id, double time)
 {
-  RCLCPP_WARN(
-    rclcpp::get_logger("EKF"),
-    "Camera callback for '%u' at '%g' not implemented", id, time);
+  // RCLCPP_WARN(
+  //   rclcpp::get_logger("EKF"),
+  //   "Camera callback for '%u' at '%g' not implemented", id, time);
 }
 
 void EKF::LidarCallback(unsigned int id, double time)
 {
-  RCLCPP_WARN(
-    rclcpp::get_logger("EKF"),
-    "Lidar callback for '%u' at '%g' not implemented", id, time);
+  // RCLCPP_WARN(
+  //   rclcpp::get_logger("EKF"),
+  //   "Lidar callback for '%u' at '%g' not implemented", id, time);
 }
 
 Eigen::VectorXd EKF::GetState()
@@ -227,6 +229,37 @@ unsigned int EKF::GetStateSize()
 {
   return m_stateSize;
 }
+
+
+void EKF::GetTransforms(
+  std::string & baseImuName,
+  std::vector<std::string> & sensorNames, std::vector<Eigen::Vector3d> & sensorPosOffsets,
+  std::vector<Eigen::Quaterniond> & sensorAngOffsets)
+{
+  // Iterate over IMUs
+  for (auto const & iter : m_mapImu) {
+    if (iter.second->IsBaseSensor()) {
+      baseImuName = iter.second->GetName();
+    } else {
+      sensorNames.push_back(iter.second->GetName());
+      sensorPosOffsets.push_back(iter.second->GetPosOffset());
+      sensorAngOffsets.push_back(iter.second->GetAngOffset());
+    }
+  }
+  // Iterate over Cameras
+  for (auto const & iter : m_mapCamera) {
+    sensorNames.push_back(iter.second->GetName());
+    sensorPosOffsets.push_back(iter.second->GetPosOffset());
+    sensorAngOffsets.push_back(iter.second->GetAngOffset());
+  }
+  // Iterate over LiDARs
+  for (auto const & iter : m_mapLidar) {
+    sensorNames.push_back(iter.second->GetName());
+    sensorPosOffsets.push_back(iter.second->GetPosOffset());
+    sensorAngOffsets.push_back(iter.second->GetAngOffset());
+  }
+}
+
 
 void EKF::InitializeBodyState(double timeInit, Eigen::VectorXd bodyStateInit)
 {

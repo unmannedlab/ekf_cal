@@ -16,8 +16,6 @@
 #ifndef EKF__EKF_HPP_
 #define EKF__EKF_HPP_
 
-#include <rclcpp/rclcpp.hpp>
-
 #include <eigen3/Eigen/Eigen>
 #include <iostream>
 #include <map>
@@ -133,6 +131,13 @@ public:
   /// @param bodyStateInit Initial state
   ///
   void InitializeBodyState(double timeInit, Eigen::VectorXd bodyStateInit);
+
+  void GetTransforms(
+    std::string & baseImuName,
+    std::vector<std::string> & sensorNames,
+    std::vector<Eigen::Vector3d> & sensorPosOffsets,
+    std::vector<Eigen::Quaterniond> & sensorAngOffsets
+  );
 
 private:
   void ExtendState(

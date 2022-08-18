@@ -30,6 +30,7 @@
 #include <vector>
 
 #include "TypeHelper.hpp"
+#include "RosHelper.hpp"
 #include "ekf/EKF.hpp"
 #include "ekf/sensors/Camera.hpp"
 #include "ekf/sensors/Imu.hpp"
@@ -69,8 +70,13 @@ EkfCalNode::EkfCalNode()
   }
 
   // Create publishers
-  pose_pub = this->create_publisher<geometry_msgs::msg::PoseStamped>("~/pose", 10);
-  twist_pub = this->create_publisher<geometry_msgs::msg::TwistStamped>("~/twist", 10);
+  m_PosePub = this->create_publisher<geometry_msgs::msg::PoseStamped>("~/pose", 10);
+  m_TwistPub = this->create_publisher<geometry_msgs::msg::TwistStamped>("~/twist", 10);
+  m_tfTimer =
+    this->create_wall_timer(
+    std::chrono::milliseconds(500),
+    std::bind(&EkfCalNode::PublishTransforms, this));
+  m_tfBroadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 }
 
 void EkfCalNode::LoadImu(std::string imuName)
@@ -151,11 +157,11 @@ void EkfCalNode::ImuCallback(
   const sensor_msgs::msg::Imu::SharedPtr msg,
   unsigned int id)
 {
-  double time = TypeHelper::RosHeaderToTime(msg->header);
-  Eigen::Vector3d acc = TypeHelper::RosToEigen(msg->linear_acceleration);
-  Eigen::Vector3d omg = TypeHelper::RosToEigen(msg->angular_velocity);
-  Eigen::Matrix3d acc_cov = TypeHelper::RosToEigen(msg->linear_acceleration_covariance);
-  Eigen::Matrix3d omg_cov = TypeHelper::RosToEigen(msg->angular_velocity_covariance);
+  double time = RosHelper::RosHeaderToTime(msg->header);
+  Eigen::Vector3d acc = RosHelper::RosToEigen(msg->linear_acceleration);
+  Eigen::Vector3d omg = RosHelper::RosToEigen(msg->angular_velocity);
+  Eigen::Matrix3d acc_cov = RosHelper::RosToEigen(msg->linear_acceleration_covariance);
+  Eigen::Matrix3d omg_cov = RosHelper::RosToEigen(msg->angular_velocity_covariance);
 
   m_ekf.ImuCallback(id, time, acc, acc_cov, omg, omg_cov);
   PublishState();
@@ -163,7 +169,7 @@ void EkfCalNode::ImuCallback(
 
 void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
 {
-  double time = TypeHelper::RosHeaderToTime(msg->header);
+  double time = RosHelper::RosHeaderToTime(msg->header);
 
   m_ekf.CameraCallback(id, time);
   PublishState();
@@ -171,7 +177,7 @@ void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, un
 
 void EkfCalNode::LidarCallback(const sensor_msgs::msg::PointCloud::SharedPtr msg, unsigned int id)
 {
-  double time = TypeHelper::RosHeaderToTime(msg->header);
+  double time = RosHelper::RosHeaderToTime(msg->header);
   m_ekf.LidarCallback(id, time);
   PublishState();
 }
@@ -209,8 +215,67 @@ void EkfCalNode::PublishState()
   pose_msg.header.stamp = now;
   twist_msg.header.stamp = now;
 
-  pose_pub->publish(pose_msg);
-  twist_pub->publish(twist_msg);
+  m_PosePub->publish(pose_msg);
+  m_TwistPub->publish(twist_msg);
+}
+
+///
+/// @todo debug issue with future extrapolation in RVIZ
+///
+void EkfCalNode::PublishTransforms()
+{
+  std::string baseImuName;
+  std::vector<std::string> sensorNames;
+  std::vector<Eigen::Vector3d> sensorPosOffsets;
+  std::vector<Eigen::Quaterniond> sensorAngOffsets;
+  m_ekf.GetTransforms(baseImuName, sensorNames, sensorPosOffsets, sensorAngOffsets);
+
+  // rclcpp::Time now = this->get_clock()->now();
+
+  geometry_msgs::msg::TransformStamped tf;
+  tf.header.frame_id = baseImuName;
+
+  // Publish Sensor transforms
+  for (unsigned int i = 0; i < sensorNames.size(); ++i) {
+    // Sensor name
+    tf.child_frame_id = sensorNames[i];
+    tf.header.stamp = this->get_clock()->now();
+
+    // Sensor position
+    tf.transform.translation.x = 0.0;
+    tf.transform.translation.y = 0.0;
+    tf.transform.translation.z = 0.0;
+
+    // Sensor Orientation
+    /// @todo some of these quaternions are not valid (nan)
+    tf.transform.rotation.w = 1.0;
+    tf.transform.rotation.x = 0.0;
+    tf.transform.rotation.y = 0.0;
+    tf.transform.rotation.z = 0.0;
+
+    // Send the transformation
+    m_tfBroadcaster->sendTransform(tf);
+  }
+
+  Eigen::VectorXd ekfState = m_ekf.GetState();
+
+  // Publish Body transforms
+  tf.header.frame_id = "world";
+  tf.child_frame_id = baseImuName;
+  tf.header.stamp = this->get_clock()->now();
+
+  // Body position
+  tf.transform.translation.x = 0.0;
+  tf.transform.translation.y = 0.0;
+  tf.transform.translation.z = 0.0;
+
+  // Body Orientation
+  tf.transform.rotation.w = 1.0;
+  tf.transform.rotation.x = 0.0;
+  tf.transform.rotation.y = 0.0;
+  tf.transform.rotation.z = 0.0;
+
+  m_tfBroadcaster->sendTransform(tf);
 }
 
 int main(int argc, char * argv[])

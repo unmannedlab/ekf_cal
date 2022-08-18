@@ -23,6 +23,7 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/point_cloud.hpp>
+#include <tf2_ros/transform_broadcaster.h>
 
 #include <cstdio>
 #include <string>
@@ -97,6 +98,11 @@ public:
   ///
   void PublishState();
 
+  ///
+  /// @brief Publish sensor transforms
+  ///
+  void PublishTransforms();
+
 private:
   /// @brief Calibration EKF object
   EKF m_ekf;
@@ -112,8 +118,10 @@ private:
 
   bool m_baseImuAssigned {false};
 
-  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_pub;
-  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr twist_pub;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr m_PosePub;
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_TwistPub;
+  std::unique_ptr<tf2_ros::TransformBroadcaster> m_tfBroadcaster;
+  rclcpp::TimerBase::SharedPtr m_tfTimer;
 };
 
 #endif  // EKFCALNODE_HPP_
