@@ -15,8 +15,6 @@
 
 #include "ekf/sensors/Imu.hpp"
 
-// #include <rclcpp/rclcpp.hpp>
-
 #include "ekf/sensors/Sensor.hpp"
 #include "MathHelper.hpp"
 #include "TypeHelper.hpp"

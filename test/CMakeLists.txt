@@ -10,6 +10,7 @@ set(test_files
 )
 foreach(f_name IN LISTS test_files)
     get_filename_component(nam ${f_name} NAME_WE)
-    ament_add_gtest(${nam} ${f_name} ${${PROJECT_NAME}_src})
+    ament_add_gtest(${nam} ${f_name})
+    ament_target_dependencies(${nam} ${ROS_PKGS})
     target_link_libraries(${nam} ${PROJECT_NAME})
 endforeach()

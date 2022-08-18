@@ -55,14 +55,16 @@ public:
   /// @param id Camera sensor ID
   /// @param time Camera measurement time
   ///
-  void CameraCallback(unsigned int id, double time);
+  // void CameraCallback(unsigned int id, double time);
+  void CameraCallback();
 
   ///
   /// @brief Lidar message callback method
   /// @param id Lidar sensor ID
   /// @param time Lidar measurement time
   ///
-  void LidarCallback(unsigned int id, double time);
+  // void LidarCallback(unsigned int id, double time);
+  void LidarCallback();
 
   ///
   /// @brief Registers new IMU sensor to calibration EKF

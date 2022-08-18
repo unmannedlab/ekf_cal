@@ -85,13 +85,15 @@ public:
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
   ///
-  void CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
+  void CameraCallback();
+  // void CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
   ///
   /// @brief Callback method for Lidar sensor messages
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
   ///
-  void LidarCallback(const sensor_msgs::msg::PointCloud::SharedPtr msg, unsigned int id);
+  void LidarCallback();
+  // void LidarCallback(const sensor_msgs::msg::PointCloud::SharedPtr msg, unsigned int id);
 
   ///
   /// @brief Publish EKF state information

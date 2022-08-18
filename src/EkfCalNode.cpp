@@ -167,18 +167,21 @@ void EkfCalNode::ImuCallback(
   PublishState();
 }
 
-void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
+void EkfCalNode::CameraCallback()
+// void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
 {
-  double time = RosHelper::RosHeaderToTime(msg->header);
-
-  m_ekf.CameraCallback(id, time);
+  // double time = RosHelper::RosHeaderToTime(msg->header);
+  m_ekf.CameraCallback();
+  // m_ekf.CameraCallback(id, time);
   PublishState();
 }
 
-void EkfCalNode::LidarCallback(const sensor_msgs::msg::PointCloud::SharedPtr msg, unsigned int id)
+void EkfCalNode::LidarCallback()
+// void EkfCalNode::LidarCallback(const sensor_msgs::msg::PointCloud::SharedPtr msg, unsigned int id)
 {
-  double time = RosHelper::RosHeaderToTime(msg->header);
-  m_ekf.LidarCallback(id, time);
+  // double time = RosHelper::RosHeaderToTime(msg->header);
+  m_ekf.LidarCallback();
+  // m_ekf.LidarCallback(id, time);
   PublishState();
 }
 

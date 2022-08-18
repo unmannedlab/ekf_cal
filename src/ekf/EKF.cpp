@@ -15,8 +15,6 @@
 
 #include "ekf/EKF.hpp"
 
-// #include <rclcpp/rclcpp.hpp>
-
 #include <memory>
 
 #include "ekf/sensors/Imu.hpp"
@@ -123,12 +121,13 @@ Eigen::MatrixXd EKF::GetProcessNoise()
 
 void EKF::Predict(double time)
 {
-  std::cout << m_currentTime << std::endl;
+  // Don't predict if time is not initialized
   if (!m_timeInitialized) {
     m_currentTime = time;
     m_timeInitialized = true;
     return;
   }
+
   if (time < m_currentTime) {
     /// @todo replace with generic logging
     // RCLCPP_WARN(rclcpp::get_logger("EKF"), "Requested time in the past");
@@ -201,14 +200,16 @@ void EKF::ImuCallback(
   Sensor::SetBodyState(m_state.segment<18>(0));
 }
 
-void EKF::CameraCallback(unsigned int id, double time)
+void EKF::CameraCallback()
+// void EKF::CameraCallback(unsigned int id, double time)
 {
   // RCLCPP_WARN(
   //   rclcpp::get_logger("EKF"),
   //   "Camera callback for '%u' at '%g' not implemented", id, time);
 }
 
-void EKF::LidarCallback(unsigned int id, double time)
+void EKF::LidarCallback()
+// void EKF::LidarCallback(unsigned int id, double time)
 {
   // RCLCPP_WARN(
   //   rclcpp::get_logger("EKF"),

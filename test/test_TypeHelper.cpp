@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <vector>
+#include <std_msgs/msg/header.hpp>
 
 #include "TypeHelper.hpp"
 
@@ -64,41 +65,6 @@ TEST(test_TypeHelper, StdToEigQuat_err) {
   EXPECT_EQ(out.x(), 0.0);
   EXPECT_EQ(out.y(), 0.0);
   EXPECT_EQ(out.z(), 0.0);
-}
-
-TEST(test_TypeHelper, RosHeaderToTime) {
-  std_msgs::msg::Header in;
-  in.stamp.nanosec = 987654321;
-  in.stamp.sec = 123456789;
-  double out = TypeHelper::RosHeaderToTime(in);
-  EXPECT_EQ(out, 123456789.987654321);
-}
-
-TEST(test_TypeHelper, RosVecToEigen) {
-  geometry_msgs::msg::Vector3 in;
-  in.x = 1.0;
-  in.y = 2.0;
-  in.z = 3.0;
-  Eigen::Vector3d out = TypeHelper::RosToEigen(in);
-  EXPECT_EQ(out(0), in.x);
-  EXPECT_EQ(out(1), in.y);
-  EXPECT_EQ(out(2), in.z);
-}
-
-TEST(test_TypeHelper, RosMatToEigen) {
-  std::array<double, 9> in{1, 2, 3, 4, 5, 6, 7, 8, 9};
-  Eigen::Matrix3d out = TypeHelper::RosToEigen(in);
-  EXPECT_EQ(out(0, 0), in[0]);
-  EXPECT_EQ(out(0, 1), in[1]);
-  EXPECT_EQ(out(0, 2), in[2]);
-  EXPECT_EQ(out(1, 0), in[3]);
-  EXPECT_EQ(out(1, 1), in[4]);
-  EXPECT_EQ(out(1, 2), in[5]);
-  EXPECT_EQ(out(2, 0), in[6]);
-  EXPECT_EQ(out(2, 1), in[7]);
-  EXPECT_EQ(out(2, 2), in[8]);
-
-  EXPECT_TRUE(true);
 }
 
 TEST(test_TypeHelper, RotVecToQuat) {

@@ -17,10 +17,7 @@
 #define TYPEHELPER_HPP_
 
 #include <eigen3/Eigen/Eigen>
-#include <rclcpp/rclcpp.hpp>
-#include <geometry_msgs/msg/vector3.hpp>
 
-#include <std_msgs/msg/header.hpp>
 #include <vector>
 
 #include "Constants.hpp"
@@ -54,31 +51,13 @@ inline Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
     quat.normalize();
     return quat;
   } else {
-    RCLCPP_WARN(
-      rclcpp::get_logger(
-        "TypeHelper"), "Vector incorrect size for Eigen conversion. Size: '%u'", in.size());
+    /// @todo replace with generic logging
+    // RCLCPP_WARN(
+    //   rclcpp::get_logger(
+    //     "TypeHelper"), "Vector incorrect size for Eigen conversion. Size: '%u'", in.size());
 
     return Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
   }
-}
-
-inline double RosHeaderToTime(std_msgs::msg::Header header)
-{
-  return header.stamp.sec + (header.stamp.nanosec * NSEC_TO_SEC);
-}
-
-inline Eigen::Vector3d RosToEigen(geometry_msgs::msg::Vector3 msg)
-{
-  return Eigen::Vector3d {msg.x, msg.y, msg.z};
-}
-
-inline Eigen::Matrix3d RosToEigen(std::array<double, 9> msg)
-{
-  return Eigen::Matrix3d {
-    {msg[0], msg[1], msg[2]},
-    {msg[3], msg[4], msg[5]},
-    {msg[6], msg[7], msg[8]}
-  };
 }
 
 inline Eigen::Quaterniond RotVecToQuat(Eigen::Vector3d rotVec)
