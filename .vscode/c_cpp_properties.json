@@ -2,7 +2,7 @@
     "configurations": [
         {
             "includePath": [
-                "/opt/ros/foxy/include",
+                "/opt/ros/${ROS_DISTRO}/include/**",
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/src",
                 "${workspaceFolder}/test"

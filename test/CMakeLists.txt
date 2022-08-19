@@ -8,6 +8,7 @@ set(test_files
     ekf/sensors/test_Imu.cpp
     ekf/sensors/test_Lidar.cpp
 )
+
 foreach(f_name IN LISTS test_files)
     get_filename_component(nam ${f_name} NAME_WE)
     ament_add_gtest(${nam} ${f_name})

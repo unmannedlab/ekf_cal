@@ -2506,7 +2506,7 @@ DIAFILE_DIRS           =
 # generate a warning when it encounters a \startuml command in this case and
 # will not generate output for the diagram.
 
-PLANTUML_JAR_PATH      = /home/jacob/.vscode/extensions/jebbs.plantuml-2.17.2/plantuml.jar
+PLANTUML_JAR_PATH      = ${PLANTUML_INSTALL_DIR}/plantuml.jar
 
 # When using plantuml, the PLANTUML_CFG_FILE tag can be used to specify a
 # configuration file for plantuml.
