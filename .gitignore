@@ -6,3 +6,5 @@
 docs/doxygen/
 
 build/
+data/
+*.rviz

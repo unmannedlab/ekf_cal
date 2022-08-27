@@ -1,14 +1,16 @@
 {
     "configurations": [
         {
+            "name": "ROS",
             "includePath": [
-                "/opt/ros/${ROS_DISTRO}/include/**",
+                "/opt/ros/foxy/include",
+                "/usr/include/**",
+                "/usr/local/include/**",
+                "/usr/src/googletest",
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/src",
                 "${workspaceFolder}/test"
-            ],
-            "name": "ROS",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            ]
         }
     ],
     "version": 4
