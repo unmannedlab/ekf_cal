@@ -72,9 +72,11 @@ EkfCalNode::EkfCalNode()
   // Create publishers
   m_PosePub = this->create_publisher<geometry_msgs::msg::PoseStamped>("~/pose", 10);
   m_TwistPub = this->create_publisher<geometry_msgs::msg::TwistStamped>("~/twist", 10);
+  m_StatePub = this->create_publisher<std_msgs::msg::Float64MultiArray>("~/state", 10);
+
   m_tfTimer =
     this->create_wall_timer(
-    std::chrono::milliseconds(500),
+    std::chrono::milliseconds(100),
     std::bind(&EkfCalNode::PublishTransforms, this));
   m_tfBroadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 }
@@ -189,6 +191,7 @@ void EkfCalNode::PublishState()
 {
   auto pose_msg = geometry_msgs::msg::PoseStamped();
   auto twist_msg = geometry_msgs::msg::TwistStamped();
+  auto state_msg = std_msgs::msg::Float64MultiArray();
 
   Eigen::VectorXd state = m_ekf.GetState();
 
@@ -214,12 +217,18 @@ void EkfCalNode::PublishState()
   twist_msg.twist.angular.y = state(13);
   twist_msg.twist.angular.z = state(14);
 
+  // State msg
+  for (unsigned int i = 0; i < state.size(); ++i) {
+    state_msg.data.push_back(state(i));
+  }
+
   rclcpp::Time now = this->get_clock()->now();
   pose_msg.header.stamp = now;
   twist_msg.header.stamp = now;
 
   m_PosePub->publish(pose_msg);
   m_TwistPub->publish(twist_msg);
+  m_StatePub->publish(state_msg);
 }
 
 ///

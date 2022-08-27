@@ -16,6 +16,7 @@
 #ifndef EKFCALNODE_HPP_
 #define EKFCALNODE_HPP_
 
+#include <std_msgs/msg/float64_multi_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
@@ -122,6 +123,7 @@ private:
 
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr m_PosePub;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_TwistPub;
+  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_StatePub;
   std::unique_ptr<tf2_ros::TransformBroadcaster> m_tfBroadcaster;
   rclcpp::TimerBase::SharedPtr m_tfTimer;
 };
