@@ -25,7 +25,6 @@
 
 #include "ekf/sensors/Camera.hpp"
 #include "ekf/sensors/Imu.hpp"
-#include "ekf/sensors/Lidar.hpp"
 #include "ekf/sensors/Sensor.hpp"
 
 ///
@@ -59,14 +58,6 @@ public:
   void CameraCallback();
 
   ///
-  /// @brief Lidar message callback method
-  /// @param id Lidar sensor ID
-  /// @param time Lidar measurement time
-  ///
-  // void LidarCallback(unsigned int id, double time);
-  void LidarCallback();
-
-  ///
   /// @brief Registers new IMU sensor to calibration EKF
   /// @param params Sensor parameters to use in registration
   ///
@@ -77,12 +68,6 @@ public:
   /// @param params Sensor parameters to use in registration
   ///
   unsigned int RegisterSensor(typename Camera::Params params);
-
-  ///
-  /// @brief Registers new LIDAR sensor to calibration EKF
-  /// @param params Sensor parameters to use in registration
-  ///
-  unsigned int RegisterSensor(typename Lidar::Params params);
 
   ///
   /// @brief Getter method for state vector
@@ -151,7 +136,6 @@ private:
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(18U, 18U);
   std::map<int, std::shared_ptr<Imu>> m_mapImu{};
   std::map<int, std::shared_ptr<Camera>> m_mapCamera{};
-  std::map<int, std::shared_ptr<Lidar>> m_mapLidar{};
   double m_currentTime {0};
   bool m_timeInitialized {false};
 };

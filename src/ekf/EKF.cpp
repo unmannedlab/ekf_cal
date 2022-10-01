@@ -46,19 +46,6 @@ unsigned int EKF::RegisterSensor(typename Camera::Params params)
   return sensor_ptr->GetId();
 }
 
-unsigned int EKF::RegisterSensor(typename Lidar::Params params)
-{
-  std::shared_ptr<Lidar> sensor_ptr = std::make_shared<Lidar>(params);
-  m_mapLidar[sensor_ptr->GetId()] = sensor_ptr;
-  sensor_ptr->SetStateStartIndex(m_stateSize);
-
-  if (sensor_ptr->GetStateSize() != 0) {
-    ExtendState(sensor_ptr->GetStateSize(), sensor_ptr->GetState(), sensor_ptr->GetCov());
-  }
-
-  return sensor_ptr->GetId();
-}
-
 void EKF::ExtendState(
   unsigned int sensorStateSize, Eigen::VectorXd sensorState,
   Eigen::MatrixXd sensorCov)
@@ -208,14 +195,6 @@ void EKF::CameraCallback()
   //   "Camera callback for '%u' at '%g' not implemented", id, time);
 }
 
-void EKF::LidarCallback()
-// void EKF::LidarCallback(unsigned int id, double time)
-{
-  // RCLCPP_WARN(
-  //   rclcpp::get_logger("EKF"),
-  //   "Lidar callback for '%u' at '%g' not implemented", id, time);
-}
-
 Eigen::VectorXd EKF::GetState()
 {
   return m_state;
@@ -249,12 +228,6 @@ void EKF::GetTransforms(
   }
   // Iterate over Cameras
   for (auto const & iter : m_mapCamera) {
-    sensorNames.push_back(iter.second->GetName());
-    sensorPosOffsets.push_back(iter.second->GetPosOffset());
-    sensorAngOffsets.push_back(iter.second->GetAngOffset());
-  }
-  // Iterate over LiDARs
-  for (auto const & iter : m_mapLidar) {
     sensorNames.push_back(iter.second->GetName());
     sensorPosOffsets.push_back(iter.second->GetPosOffset());
     sensorAngOffsets.push_back(iter.second->GetAngOffset());

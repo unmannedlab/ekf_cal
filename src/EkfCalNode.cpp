@@ -34,7 +34,6 @@
 #include "ekf/EKF.hpp"
 #include "ekf/sensors/Camera.hpp"
 #include "ekf/sensors/Imu.hpp"
-#include "ekf/sensors/Lidar.hpp"
 
 using std::placeholders::_1;
 
@@ -44,12 +43,10 @@ EkfCalNode::EkfCalNode()
   // Declare Parameters
   this->declare_parameter("IMU_list");
   this->declare_parameter("Camera_list");
-  this->declare_parameter("LIDAR_list");
 
   // Load lists of sensors
   std::vector<std::string> imuList = this->get_parameter("IMU_list").as_string_array();
   std::vector<std::string> camList = this->get_parameter("Camera_list").as_string_array();
-  std::vector<std::string> lidarList = this->get_parameter("LIDAR_list").as_string_array();
 
   // Load Imu sensor parameters
   for (std::string & imuName : imuList) {
@@ -62,11 +59,6 @@ EkfCalNode::EkfCalNode()
   // Load Camera sensor parameters
   for (std::string & camName : camList) {
     LoadCamera(camName);
-  }
-
-  // Load Lidar sensor parameters
-  for (std::string & lidarName : lidarList) {
-    LoadLidar(lidarName);
   }
 
   // Create publishers
@@ -150,11 +142,6 @@ void EkfCalNode::LoadCamera(std::string camName)
   RCLCPP_INFO(get_logger(), "Camera not Loaded: '%s'", camName.c_str());
 }
 
-void EkfCalNode::LoadLidar(std::string lidarName)
-{
-  RCLCPP_INFO(get_logger(), "LIDAR not Loaded: '%s'", lidarName.c_str());
-}
-
 void EkfCalNode::ImuCallback(
   const sensor_msgs::msg::Imu::SharedPtr msg,
   unsigned int id)
@@ -175,15 +162,6 @@ void EkfCalNode::CameraCallback()
   // double time = RosHelper::RosHeaderToTime(msg->header);
   m_ekf.CameraCallback();
   // m_ekf.CameraCallback(id, time);
-  PublishState();
-}
-
-void EkfCalNode::LidarCallback()
-// void EkfCalNode::LidarCallback(const sensor_msgs::msg::PointCloud::SharedPtr msg, unsigned int id)
-{
-  // double time = RosHelper::RosHeaderToTime(msg->header);
-  m_ekf.LidarCallback();
-  // m_ekf.LidarCallback(id, time);
   PublishState();
 }
 

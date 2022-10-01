@@ -38,7 +38,6 @@
 /// @todo Bias Stability and Noise process inputs for IMUs
 /// @todo Make flag for base sensor in IMU
 /// @todo Camera Methods
-/// @todo LIDAR Methods
 /// @todo Software Paper
 /// @todo Architecture Design
 /// @todo TF2 Publishing Flag
@@ -70,12 +69,6 @@ public:
   void LoadCamera(std::string camName);
 
   ///
-  /// @brief Loading method for IMU sensors
-  /// @param lidarName Name of LIDAR to find and load from YAML
-  ///
-  void LoadLidar(std::string lidarName);
-
-  ///
   /// @brief Callback method for Imu sensor messages
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
@@ -88,13 +81,6 @@ public:
   ///
   void CameraCallback();
   // void CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
-  ///
-  /// @brief Callback method for Lidar sensor messages
-  /// @param msg Sensor message pointer
-  /// @param id Sensor ID number
-  ///
-  void LidarCallback();
-  // void LidarCallback(const sensor_msgs::msg::PointCloud::SharedPtr msg, unsigned int id);
 
   ///
   /// @brief Publish EKF state information
@@ -115,9 +101,6 @@ private:
 
   /// @brief Vector of subscribers for Camera sensor messages
   std::vector<rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr> m_CameraSubs;
-
-  /// @brief Vector of subscribers for Lidar sensor messages
-  std::vector<rclcpp::Subscription<sensor_msgs::msg::PointCloud>::SharedPtr> m_LidarSubs;
 
   bool m_baseImuAssigned {false};
 

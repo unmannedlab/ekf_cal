@@ -43,7 +43,6 @@ set(${PROJECT_NAME}_LIB
     src/ekf/EKF.cpp
     src/ekf/sensors/Camera.cpp
     src/ekf/sensors/Imu.cpp
-    src/ekf/sensors/Lidar.cpp
     src/ekf/sensors/Sensor.cpp
 )
 

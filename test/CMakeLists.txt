@@ -6,7 +6,6 @@ set(test_files
     ekf/test_EKF.cpp
     ekf/sensors/test_Camera.cpp
     ekf/sensors/test_Imu.cpp
-    ekf/sensors/test_Lidar.cpp
 )
 
 foreach(f_name IN LISTS test_files)
