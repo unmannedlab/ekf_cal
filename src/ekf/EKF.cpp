@@ -16,6 +16,8 @@
 #include "ekf/EKF.hpp"
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "ekf/sensors/Imu.hpp"
 

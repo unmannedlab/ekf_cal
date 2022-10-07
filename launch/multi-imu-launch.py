@@ -18,8 +18,9 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch_ros.actions import Node 
-from launch.actions import ExecuteProcess
+from launch_ros.actions import Node
+# from launch.actions import ExecuteProcess
+
 
 def generate_launch_description():
 
@@ -32,16 +33,26 @@ def generate_launch_description():
         parameters=[os.path.join(this_dir, "config", "multi-imu.yaml")],
     )
 
-    bag_file_path = os.path.abspath(os.path.join(this_dir,'..','..','..','..','data','dual-imu','rosbag2_2022_06_17-13_36_32'))
+    # bag_file_path = os.path.abspath(
+    #     os.path.join(
+    #         this_dir,
+    #         "..",
+    #         "..",
+    #         "..",
+    #         "..",
+    #         "data",
+    #         "dual-imu",
+    #         "rosbag2_2022_06_17-13_36_32",
+    #     )
+    # )
 
-    start_bag = ExecuteProcess(
-        cmd=['ros2', 'bag', 'play', bag_file_path],
-        output='screen'
-    )
+    # start_bag = ExecuteProcess(
+    #     cmd=["ros2", "bag", "play", bag_file_path], output="screen"
+    # )
 
     # Create the launch description and populate
     ld = LaunchDescription()
     ld.add_action(start_ekf_cal_node_cmd)
-    ld.add_action(start_bag)
+    # ld.add_action(start_bag)
 
     return ld

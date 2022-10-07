@@ -15,7 +15,7 @@ endif()
 if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 14)
 endif()
-   
+
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
@@ -36,7 +36,7 @@ set(ROS_PKGS
 )
 foreach(pkg ${ROS_PKGS})
     find_package(${pkg} REQUIRED)
-endforeach(pkg)
+endforeach()
 
 # List all sources
 set(${PROJECT_NAME}_LIB

@@ -216,9 +216,6 @@ TEST(test_EKF, Predict) {
   covExp.block<3, 3>(12, 15) = Eigen::Matrix3d::Identity() * 0.25;
   covExp.block<3, 3>(15, 12) = Eigen::Matrix3d::Identity() * 0.25;
 
-  std::cout << std::setprecision(9) << stateOut << std::endl;
-  std::cout << std::setprecision(9) << covOut << std::endl;
-
   EXPECT_TRUE(CustomAssertions::EXPECT_EIGEN_NEAR(stateExp, stateOut, 1e-6));
   EXPECT_TRUE(CustomAssertions::EXPECT_EIGEN_NEAR(covExp, covOut, 1e-6));
 }
