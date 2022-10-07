@@ -50,7 +50,7 @@ set(${PROJECT_NAME}_LIB
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_LIB})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/test>
     $<INSTALL_INTERFACE:include>
 )
@@ -60,7 +60,7 @@ install(TARGETS ${PROJECT_NAME})
 # EKF CAL Node
 add_executable(${PROJECT_NAME}_node src/EkfCalNode.cpp)
 target_include_directories(${PROJECT_NAME}_node PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
 ament_target_dependencies(${PROJECT_NAME}_node rclcpp rclcpp std_msgs sensor_msgs geometry_msgs tf2_ros)
