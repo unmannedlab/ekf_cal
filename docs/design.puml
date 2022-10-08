@@ -1,0 +1,12 @@
+
+@startuml design
+
+participant Application as app
+participant Sensor      as sen
+participant EKF         as ekf
+
+app ->  sen: Sensor(callback)
+sen ->  sen: Construction
+app ->  ekf: Register new sensor
+
+@enduml

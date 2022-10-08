@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef EKF__SENSORS__SENSOR_HPP_
-#define EKF__SENSORS__SENSOR_HPP_
+#ifndef SENSORS__ROS__SENSOR_HPP_
+#define SENSORS__ROS__SENSOR_HPP_
 
 #include <eigen3/Eigen/Eigen>
 
@@ -153,4 +153,4 @@ private:
   static unsigned int _idCount;
 };
 
-#endif  // EKF__SENSORS__SENSOR_HPP_
+#endif  // SENSORS__ROS__SENSOR_HPP_

@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef CONSTANTS_HPP_
-#define CONSTANTS_HPP_
+#ifndef UTILITIES__CONSTANTS_HPP_
+#define UTILITIES__CONSTANTS_HPP_
 
 static const double NSEC_TO_SEC = 1e-9;
 static const double GRAVITY = 9.80665;
 
-#endif  // CONSTANTS_HPP_
+#endif  // UTILITIES__CONSTANTS_HPP_

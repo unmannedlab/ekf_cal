@@ -13,14 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef TYPEHELPER_HPP_
-#define TYPEHELPER_HPP_
+#ifndef UTILITIES__TYPEHELPER_HPP_
+#define UTILITIES__TYPEHELPER_HPP_
 
 #include <eigen3/Eigen/Eigen>
 
 #include <vector>
 
-#include "Constants.hpp"
+#include "utilities/Constants.hpp"
 
 namespace TypeHelper
 {
@@ -74,4 +74,4 @@ inline Eigen::Quaterniond RotVecToQuat(Eigen::Vector3d rotVec)
 
 }  // namespace TypeHelper
 
-#endif  // TYPEHELPER_HPP_
+#endif  // UTILITIES__TYPEHELPER_HPP_

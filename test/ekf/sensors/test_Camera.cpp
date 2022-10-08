@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "ekf/sensors/Camera.hpp"
+#include "sensors/ros/Camera.hpp"
 
 ///
 /// @todo Write these unit tests

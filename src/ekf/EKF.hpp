@@ -24,9 +24,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "ekf/sensors/Camera.hpp"
-#include "ekf/sensors/Imu.hpp"
-#include "ekf/sensors/Sensor.hpp"
+#include "sensors/ros/Camera.hpp"
+#include "sensors/ros/Imu.hpp"
+#include "sensors/ros/Sensor.hpp"
 
 ///
 /// @class EKF

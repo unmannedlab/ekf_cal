@@ -39,26 +39,25 @@ foreach(pkg ${ROS_PKGS})
 endforeach()
 
 # List all sources
-set(${PROJECT_NAME}_LIB
+set(${PROJECT_NAME}_SRCS
     src/ekf/EKF.cpp
-    src/ekf/sensors/Camera.cpp
-    src/ekf/sensors/Imu.cpp
-    src/ekf/sensors/Sensor.cpp
+    src/sensors/ros/Camera.cpp
+    src/sensors/ros/Imu.cpp
+    src/sensors/ros/Sensor.cpp
 )
 
 # Create library with sources
-add_library(${PROJECT_NAME} ${${PROJECT_NAME}_LIB})
+add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/test>
     $<INSTALL_INTERFACE:include>
 )
 
 install(TARGETS ${PROJECT_NAME})
 
 # EKF CAL Node
-add_executable(${PROJECT_NAME}_node src/EkfCalNode.cpp)
+add_executable(${PROJECT_NAME}_node src/application/ros/EkfCalNode.cpp)
 target_include_directories(${PROJECT_NAME}_node PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
@@ -77,6 +76,7 @@ install(DIRECTORY
     DESTINATION share/${PROJECT_NAME}/
 )
 
+# gtest
 if(BUILD_TESTING)
     find_package(ament_lint_auto REQUIRED)
     ament_lint_auto_find_test_dependencies()

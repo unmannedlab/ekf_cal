@@ -16,9 +16,9 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "ekf/sensors/Imu.hpp"
+#include "sensors/ros/Imu.hpp"
 
-#include "TypeHelper.hpp"
+#include "utilities/TypeHelper.hpp"
 #include "CustomAssertions.hpp"
 
 TEST(test_Imu, Name) {

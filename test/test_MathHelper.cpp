@@ -18,7 +18,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "MathHelper.hpp"
+#include "utilities/MathHelper.hpp"
 
 TEST(test_MathHelper, CrossProductMatrix) {
   Eigen::Vector3d testVec(1.0, 2.0, 3.0);

@@ -13,12 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef EKF__SENSORS__CAMERA_HPP_
-#define EKF__SENSORS__CAMERA_HPP_
+#ifndef SENSORS__ROS__CAMERA_HPP_
+#define SENSORS__ROS__CAMERA_HPP_
 
 #include <string>
 
-#include "ekf/sensors/Sensor.hpp"
+#include "sensors/ros/Sensor.hpp"
 
 ///
 /// @class Camera
@@ -72,4 +72,4 @@ public:
   Eigen::VectorXd GetState();
 };
 
-#endif  // EKF__SENSORS__CAMERA_HPP_
+#endif  // SENSORS__ROS__CAMERA_HPP_

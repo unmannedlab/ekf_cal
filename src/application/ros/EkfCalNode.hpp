@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef EKFCALNODE_HPP_
-#define EKFCALNODE_HPP_
+#ifndef APPLICATION__ROS__EKFCALNODE_HPP_
+#define APPLICATION__ROS__EKFCALNODE_HPP_
 
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -46,7 +46,6 @@
 /// @todo Warnings as errors
 /// @todo Option to publish health metrics
 /// @todo Option to publish visualization messages
-/// @todo implement SLOC counter?
 /// @todo logging
 ///
 class EkfCalNode : public rclcpp::Node
@@ -112,4 +111,4 @@ private:
   rclcpp::TimerBase::SharedPtr m_tfTimer;
 };
 
-#endif  // EKFCALNODE_HPP_
+#endif  // APPLICATION__ROS__EKFCALNODE_HPP_

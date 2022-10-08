@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef ROSHELPER_HPP_
-#define ROSHELPER_HPP_
+#ifndef UTILITIES__ROSHELPER_HPP_
+#define UTILITIES__ROSHELPER_HPP_
 
 #include <eigen3/Eigen/Eigen>
 #include <rclcpp/rclcpp.hpp>
@@ -23,7 +23,7 @@
 #include <std_msgs/msg/header.hpp>
 #include <vector>
 
-#include "Constants.hpp"
+#include "utilities/Constants.hpp"
 
 namespace RosHelper
 {
@@ -49,4 +49,4 @@ inline Eigen::Matrix3d RosToEigen(std::array<double, 9> msg)
 
 }  // namespace RosHelper
 
-#endif  // ROSHELPER_HPP_
+#endif  // UTILITIES__ROSHELPER_HPP_

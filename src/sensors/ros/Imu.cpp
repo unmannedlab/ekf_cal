@@ -13,11 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "ekf/sensors/Imu.hpp"
+#include "sensors/ros/Imu.hpp"
 
-#include "ekf/sensors/Sensor.hpp"
-#include "MathHelper.hpp"
-#include "TypeHelper.hpp"
+#include "sensors/ros/Sensor.hpp"
+#include "utilities/MathHelper.hpp"
+#include "utilities/TypeHelper.hpp"
 
 Imu::Imu(Imu::Params params)
 : Sensor(params.name)

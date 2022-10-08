@@ -13,11 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "ekf/sensors/Sensor.hpp"
+#include "sensors/ros/Sensor.hpp"
 
 #include <string>
 
-#include "TypeHelper.hpp"
+#include "utilities/TypeHelper.hpp"
 
 // Initialize static variables
 unsigned int Sensor::_idCount = 0;

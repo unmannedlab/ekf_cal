@@ -13,12 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef EKF__SENSORS__IMU_HPP_
-#define EKF__SENSORS__IMU_HPP_
+#ifndef SENSORS__ROS__IMU_HPP_
+#define SENSORS__ROS__IMU_HPP_
 
 #include <string>
 
-#include "ekf/sensors/Sensor.hpp"
+#include "sensors/ros/Sensor.hpp"
 
 ///
 /// @class Imu
@@ -113,4 +113,4 @@ private:
   double m_omgBiasStability;
 };
 
-#endif  // EKF__SENSORS__IMU_HPP_
+#endif  // SENSORS__ROS__IMU_HPP_

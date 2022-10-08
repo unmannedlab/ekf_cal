@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "EkfCalNode.hpp"
+#include "application/ros/EkfCalNode.hpp"
 
 /// @todo Write these integration tests
 /// https://index.ros.org/p/launch_testing/
