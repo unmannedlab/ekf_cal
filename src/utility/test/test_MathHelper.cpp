@@ -13,10 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef UTILITIES__CONSTANTS_HPP_
-#define UTILITIES__CONSTANTS_HPP_
+#include <eigen3/Eigen/Eigen>
 
-static const double NSEC_TO_SEC = 1e-9;
-static const double GRAVITY = 9.80665;
+#include <gtest/gtest.h>
+#include <iostream>
 
-#endif  // UTILITIES__CONSTANTS_HPP_
+#include "utility/MathHelper.hpp"
+
+TEST(test_MathHelper, CrossProductMatrix) {
+  Eigen::Vector3d testVec(1.0, 2.0, 3.0);
+  Eigen::Matrix3d outMat = MathHelper::CrossProductMatrix(testVec);
+  EXPECT_EQ(outMat(0, 0), 0.0);
+  EXPECT_EQ(outMat(0, 1), -testVec(2));
+  EXPECT_EQ(outMat(0, 2), testVec(1));
+  EXPECT_EQ(outMat(1, 2), -testVec(0));
+  EXPECT_EQ(outMat(1, 1), 0.0);
+  EXPECT_EQ(outMat(1, 0), testVec(2));
+  EXPECT_EQ(outMat(2, 0), -testVec(1));
+  EXPECT_EQ(outMat(2, 1), testVec(0));
+  EXPECT_EQ(outMat(2, 2), 0.0);
+}

@@ -19,7 +19,7 @@
 #include <iostream>
 #include <vector>
 
-#include "utilities/TypeHelper.hpp"
+#include "utility/TypeHelper.hpp"
 
 
 TEST(test_TypeHelper, StdToEigVec_2) {

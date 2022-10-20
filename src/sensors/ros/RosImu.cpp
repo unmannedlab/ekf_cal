@@ -13,11 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sensors/ros/Imu.hpp"
+#include "sensors/ros/RosImu.hpp"
 
-#include "sensors/ros/Sensor.hpp"
-#include "utilities/MathHelper.hpp"
-#include "utilities/TypeHelper.hpp"
+#include "sensors/Sensor.hpp"
+#include "utility/MathHelper.hpp"
+#include "utility/TypeHelper.hpp"
 
 Imu::Imu(Imu::Params params)
 : Sensor(params.name)

@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "sensors/ros/Camera.hpp"
+#include "sensors/ros/RosCam.hpp"
 
 ///
 /// @todo Write these unit tests

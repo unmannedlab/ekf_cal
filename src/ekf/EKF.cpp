@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-#include "sensors/ros/Imu.hpp"
+#include "sensors/ros/RosImu.hpp"
 
 EKF::EKF() {}
 

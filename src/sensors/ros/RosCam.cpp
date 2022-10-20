@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sensors/ros/Camera.hpp"
+#include "sensors/ros/RosCam.hpp"
 
-#include "sensors/ros/Sensor.hpp"
-#include "utilities/TypeHelper.hpp"
+#include "sensors/Sensor.hpp"
+#include "utility/TypeHelper.hpp"
 
 Camera::Camera(Camera::Params params)
 : Sensor(params.name) {}

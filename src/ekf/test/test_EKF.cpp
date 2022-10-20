@@ -17,7 +17,7 @@
 #include <iostream>
 
 #include "ekf/EKF.hpp"
-#include "CustomAssertions.hpp"
+#include "utility/test/CustomAssertions.hpp"
 
 ///
 /// @todo Write test with varying covariance in sensors

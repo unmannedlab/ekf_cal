@@ -16,10 +16,10 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "sensors/ros/Imu.hpp"
+#include "sensors/ros/RosImu.hpp"
 
-#include "utilities/TypeHelper.hpp"
-#include "CustomAssertions.hpp"
+#include "utility/TypeHelper.hpp"
+#include "utility/test/CustomAssertions.hpp"
 
 TEST(test_Imu, Name) {
   Imu::Params params;

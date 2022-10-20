@@ -41,9 +41,9 @@ endforeach()
 # List all sources
 set(${PROJECT_NAME}_SRCS
     src/ekf/EKF.cpp
-    src/sensors/ros/Camera.cpp
-    src/sensors/ros/Imu.cpp
-    src/sensors/ros/Sensor.cpp
+    src/sensors/ros/RosCam.cpp
+    src/sensors/ros/RosImu.cpp
+    src/sensors/Sensor.cpp
 )
 
 # Create library with sources
@@ -80,7 +80,25 @@ install(DIRECTORY
 if(BUILD_TESTING)
     find_package(ament_lint_auto REQUIRED)
     ament_lint_auto_find_test_dependencies()
-    add_subdirectory(test)
+    set(test_files
+        src/utility/test/test_EkfCalNode.cpp
+        src/utility/test/test_MathHelper.cpp
+        src/utility/test/test_TypeHelper.cpp
+        src/ekf/test/test_EKF.cpp
+        src/sensors/ros/test/test_Camera.cpp
+        src/sensors/ros/test/test_Imu.cpp
+    )
+
+    foreach(f_name IN LISTS test_files)
+        get_filename_component(nam ${f_name} NAME_WE)
+        ament_add_gtest(${nam} ${f_name})
+        ament_target_dependencies(${nam} ${ROS_PKGS})
+        target_include_directories(${nam} PUBLIC
+            ${CMAKE_SOURCE_DIR}/src/
+        )
+        target_link_libraries(${nam} ${PROJECT_NAME})
+    endforeach()
+
 endif()
 
 ament_package()

@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef UTILITIES__MATHHELPER_HPP_
-#define UTILITIES__MATHHELPER_HPP_
+#ifndef UTILITY__MATHHELPER_HPP_
+#define UTILITY__MATHHELPER_HPP_
 
 #include <eigen3/Eigen/Eigen>
 
@@ -42,4 +42,4 @@ inline Eigen::Matrix3d CrossProductMatrix(Eigen::Vector3d inVec)
 
 }  // namespace MathHelper
 
-#endif  // UTILITIES__MATHHELPER_HPP_
+#endif  // UTILITY__MATHHELPER_HPP_

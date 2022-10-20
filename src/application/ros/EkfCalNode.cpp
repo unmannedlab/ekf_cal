@@ -29,11 +29,11 @@
 #include <string>
 #include <vector>
 
-#include "utilities/TypeHelper.hpp"
-#include "utilities/RosHelper.hpp"
+#include "utility/TypeHelper.hpp"
+#include "utility/RosHelper.hpp"
 #include "ekf/EKF.hpp"
-#include "sensors/ros/Camera.hpp"
-#include "sensors/ros/Imu.hpp"
+#include "sensors/ros/RosCam.hpp"
+#include "sensors/ros/RosImu.hpp"
 
 using std::placeholders::_1;
 
