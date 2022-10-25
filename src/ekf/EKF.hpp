@@ -27,6 +27,7 @@
 #include "sensors/ros/RosCam.hpp"
 #include "sensors/ros/RosImu.hpp"
 #include "sensors/Sensor.hpp"
+#include "infrastructure/Logger.hpp"
 
 ///
 /// @class EKF
@@ -139,6 +140,7 @@ private:
   std::map<int, std::shared_ptr<Camera>> m_mapCamera{};
   double m_currentTime {0};
   bool m_timeInitialized {false};
+  Logger m_Logger;
 };
 
 #endif  // EKF__EKF_HPP_

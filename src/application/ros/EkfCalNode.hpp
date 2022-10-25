@@ -32,6 +32,7 @@
 #include <vector>
 
 #include "ekf/EKF.hpp"
+#include "infrastructure/Logger.hpp"
 
 ///
 /// @class EkfCalNode
@@ -109,6 +110,7 @@ private:
   rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_StatePub;
   std::unique_ptr<tf2_ros::TransformBroadcaster> m_tfBroadcaster;
   rclcpp::TimerBase::SharedPtr m_tfTimer;
+  Logger m_Logger;
 };
 
 #endif  // APPLICATION__ROS__EKFCALNODE_HPP_

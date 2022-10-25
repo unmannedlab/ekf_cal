@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "utility/Constants.hpp"
+#include "infrastructure/Logger.hpp"
 
 namespace TypeHelper
 {
@@ -51,11 +52,8 @@ inline Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
     quat.normalize();
     return quat;
   } else {
-    /// @todo replace with generic logging
-    // RCLCPP_WARN(
-    //   rclcpp::get_logger(
-    //     "TypeHelper"), "Vector incorrect size for Eigen conversion. Size: '%u'", in.size());
-
+    Logger logger(LogLevel::DEBUG);
+    logger.log(LogLevel::WARN, "Vector incorrect size for Eigen conversion");
     return Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
   }
 }

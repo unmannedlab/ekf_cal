@@ -39,7 +39,7 @@ foreach(pkg ${ROS_PKGS})
 endforeach()
 
 # List all sources
-set(${PROJECT_NAME}_SRCS
+set(EKF_SRCS
     src/ekf/EKF.cpp
     src/sensors/ros/RosCam.cpp
     src/sensors/ros/RosImu.cpp
@@ -47,26 +47,38 @@ set(${PROJECT_NAME}_SRCS
 )
 
 # Create library with sources
-add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS})
+add_library(EKF_LIB ${EKF_SRCS})
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+target_include_directories(EKF_LIB PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
 
-install(TARGETS ${PROJECT_NAME})
+# ROS Infrastructure Sources
+set(ROS_INFRASTRUCTURE
+    src/infrastructure/ros/RosLog.cpp
+)
+
+add_library(ROS_INF_LIB ${ROS_INFRASTRUCTURE})
+target_include_directories(ROS_INF_LIB PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:include>
+)
+ament_target_dependencies(ROS_INF_LIB ${ROS_PKGS})
+
+install(TARGETS EKF_LIB)
 
 # EKF CAL Node
-add_executable(${PROJECT_NAME}_node src/application/ros/EkfCalNode.cpp)
-target_include_directories(${PROJECT_NAME}_node PUBLIC
+add_executable(ROS_APPLICATION src/application/ros/EkfCalNode.cpp)
+target_include_directories(ROS_APPLICATION PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
-ament_target_dependencies(${PROJECT_NAME}_node rclcpp rclcpp std_msgs sensor_msgs geometry_msgs tf2_ros)
-target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
+ament_target_dependencies(ROS_APPLICATION ${ROS_PKGS})
+target_link_libraries(ROS_APPLICATION EKF_LIB ROS_INF_LIB)
 
 install(TARGETS
-    ${PROJECT_NAME}_node
+    ROS_APPLICATION
     DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -96,7 +108,7 @@ if(BUILD_TESTING)
         target_include_directories(${nam} PUBLIC
             ${CMAKE_SOURCE_DIR}/src/
         )
-        target_link_libraries(${nam} ${PROJECT_NAME})
+        target_link_libraries(${nam} EKF_LIB ROS_INF_LIB)
     endforeach()
 
 endif()

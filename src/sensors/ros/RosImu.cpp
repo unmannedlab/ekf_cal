@@ -20,7 +20,8 @@
 #include "utility/TypeHelper.hpp"
 
 Imu::Imu(Imu::Params params)
-: Sensor(params.name)
+: Sensor(params.name),
+  m_Logger(LogLevel::DEBUG)
 {
   if (params.baseSensor == true) {
     m_stateSize = 0U;
@@ -50,8 +51,7 @@ Imu::Imu(Imu::Params params)
     if (params.variance(i) > 1e-6) {
       m_cov(i, i) = params.variance(i);
     } else {
-      /// @todo replace with generic logging
-      // RCLCPP_WARN(rclcpp::get_logger("IMU"), "Variance should be larger than 1e-6");
+      m_Logger.log(LogLevel::WARN, "Variance should be larger than 1e-6");
       m_cov(i, i) = 1e-6;
     }
   }
@@ -198,7 +198,7 @@ void Imu::SetState(Eigen::VectorXd state)
       m_accBias = state.segment(0, 3);
       m_omgBias = state.segment(3, 3);
     } else {
-      // RCLCPP_WARN(rclcpp::get_logger("IMU"), "Base IMU has no state to set");
+      m_Logger.log(LogLevel::WARN, "Base IMU has no state to set");
     }
   } else {
     m_posOffset = state.segment(0, 3);
@@ -222,7 +222,7 @@ Eigen::VectorXd Imu::GetState()
       stateVec.segment<3>(0) = m_accBias;
       stateVec.segment<3>(3) = m_omgBias;
     } else {
-      // RCLCPP_WARN(rclcpp::get_logger("IMU"), "Base IMU has no state to get");
+      m_Logger.log(LogLevel::WARN, "Base IMU has no state to get");
     }
   } else {
     if (m_intrinsic) {

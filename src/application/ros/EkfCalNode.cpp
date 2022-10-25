@@ -34,11 +34,13 @@
 #include "ekf/EKF.hpp"
 #include "sensors/ros/RosCam.hpp"
 #include "sensors/ros/RosImu.hpp"
+#include "infrastructure/Logger.hpp"
 
 using std::placeholders::_1;
 
 EkfCalNode::EkfCalNode()
-: Node("EkfCalNode")
+: Node("EkfCalNode"),
+  m_Logger(LogLevel::DEBUG)
 {
   // Declare Parameters
   this->declare_parameter("IMU_list");
@@ -53,7 +55,7 @@ EkfCalNode::EkfCalNode()
     LoadImu(imuName);
   }
   if (m_baseImuAssigned == false) {
-    RCLCPP_WARN(get_logger(), "Base IMU should be set for filter stability");
+    m_Logger.log(LogLevel::WARN, "Base IMU should be set for filter stability");
   }
 
   // Load Camera sensor parameters
@@ -134,12 +136,12 @@ void EkfCalNode::LoadImu(std::string imuName)
   if (imuParams.baseSensor) {
     m_baseImuAssigned = true;
   }
-  RCLCPP_INFO(get_logger(), "Loaded IMU: '%s'", imuName.c_str());
+  m_Logger.log(LogLevel::INFO, "Loaded IMU: " + imuName);
 }
 
 void EkfCalNode::LoadCamera(std::string camName)
 {
-  RCLCPP_INFO(get_logger(), "Camera not Loaded: '%s'", camName.c_str());
+  m_Logger.log(LogLevel::INFO, "Camera not Loaded: " + camName);
 }
 
 void EkfCalNode::ImuCallback(

@@ -19,6 +19,7 @@
 #include <string>
 
 #include "sensors/Sensor.hpp"
+#include "infrastructure/Logger.hpp"
 
 ///
 /// @class Imu
@@ -111,6 +112,7 @@ private:
   Eigen::Vector3d m_omgBias;
   double m_accBiasStability;
   double m_omgBiasStability;
+  Logger m_Logger;
 };
 
 #endif  // SENSORS__ROS__ROSIMU_HPP_

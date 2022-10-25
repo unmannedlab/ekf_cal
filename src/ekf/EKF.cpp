@@ -20,8 +20,11 @@
 #include <vector>
 
 #include "sensors/ros/RosImu.hpp"
+#include "infrastructure/Logger.hpp"
 
-EKF::EKF() {}
+EKF::EKF()
+: m_Logger(LogLevel::DEBUG)
+{}
 
 unsigned int EKF::RegisterSensor(typename Imu::Params params)
 {
@@ -118,10 +121,10 @@ void EKF::Predict(double time)
   }
 
   if (time < m_currentTime) {
-    /// @todo replace with generic logging
-    // RCLCPP_WARN(rclcpp::get_logger("EKF"), "Requested time in the past");
+    m_Logger.log(LogLevel::WARN, "Requested time in the past");
     return;
   }
+
   double dT = time - m_currentTime;
 
   Eigen::MatrixXd F = GetStateTransition(dT);
@@ -142,9 +145,10 @@ void EKF::ImuCallback(
 {
   auto iter = m_mapImu.find(id);
   /// @todo replace with generic logging
-  // RCLCPP_INFO(
-  //   rclcpp::get_logger("EKF"), "IMU Callback: '%s', '%f'",
-  //   iter->second->GetName().c_str(), time);
+
+  m_Logger.log(
+    LogLevel::INFO,
+    "IMU Callback: " + iter->second->GetName() + std::to_string(time));
   Predict(time);
 
   Eigen::VectorXd z(acceleration.size() + angularRate.size());
@@ -192,9 +196,7 @@ void EKF::ImuCallback(
 void EKF::CameraCallback()
 // void EKF::CameraCallback(unsigned int id, double time)
 {
-  // RCLCPP_WARN(
-  //   rclcpp::get_logger("EKF"),
-  //   "Camera callback for '%u' at '%g' not implemented", id, time);
+  m_Logger.log(LogLevel::INFO, "Camera callback not implemented");
 }
 
 Eigen::VectorXd EKF::GetState()
