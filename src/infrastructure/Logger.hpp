@@ -18,7 +18,7 @@
 
 
 /// TODO: Create generic logging class
-/// TODO: Create grabber function from list of available loggers get_logger("EKF")->
+/// TODO: Create grabber function from list of available loggers get_logger("Logger")->
 #include <string>
 
 
@@ -31,12 +31,46 @@ enum class LogLevel
   FATAL
 };
 
+/// @brief Logger class
+/// @todo Make Logger class a singleton or set of singletons by logfile
 class Logger
 {
+private:
+  static Logger * instancePointer;
+  Logger() {}
+  // explicit Logger(LogLevel level);
+
 public:
-  explicit Logger(LogLevel level);
   ~Logger();
   void log(LogLevel level, std::string message);
+
+
+  ///
+  /// @brief Delete copy constructor
+  ///
+  Logger(const Logger & obj) = delete;
+
+  static Logger * getInstance()
+  {
+    // If there is no instance of class
+    // then we can create an instance.
+    if (instancePointer == NULL) {
+      // We can access private members
+      // within the class.
+      instancePointer = new Logger();
+
+      // returning the instance pointer
+      return instancePointer;
+    } else {
+      // if instancePointer != NULL that means
+      // the class already have an instance.
+      // So, we are returning that instance
+      // and not creating new one.
+      return instancePointer;
+    }
+  }
+
+  void SetLogLevel(LogLevel level);
 
 private:
   LogLevel logLevel = LogLevel::DEBUG;

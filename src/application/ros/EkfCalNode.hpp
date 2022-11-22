@@ -33,7 +33,9 @@
 
 #include "ekf/EKF.hpp"
 #include "infrastructure/Logger.hpp"
-
+#include "sensors/ros/RosCam.hpp"
+#include "sensors/ros/RosImu.hpp"
+#include "sensors/Sensor.hpp"
 ///
 /// @class EkfCalNode
 /// @brief A ROS2 node for EKF-based sensor calibration
@@ -80,8 +82,8 @@ public:
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
   ///
-  void CameraCallback();
-  // void CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
+  // void CameraCallback();
+  void CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
 
   ///
   /// @brief Publish EKF state information
@@ -95,7 +97,7 @@ public:
 
 private:
   /// @brief Calibration EKF object
-  EKF m_ekf;
+  EKF * m_ekf = EKF::getInstance();
 
   /// @brief Vector of subscribers for IMU sensor messages
   std::vector<rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr> m_ImuSubs;
@@ -110,7 +112,9 @@ private:
   rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_StatePub;
   std::unique_ptr<tf2_ros::TransformBroadcaster> m_tfBroadcaster;
   rclcpp::TimerBase::SharedPtr m_tfTimer;
-  Logger m_Logger;
+  Logger * m_Logger = Logger::getInstance();
+  std::map<int, std::shared_ptr<Imu>> m_mapImu{};
+  std::map<int, std::shared_ptr<Camera>> m_mapCamera{};
 };
 
 #endif  // APPLICATION__ROS__EKFCALNODE_HPP_

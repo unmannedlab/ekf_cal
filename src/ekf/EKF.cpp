@@ -19,37 +19,41 @@
 #include <string>
 #include <vector>
 
-#include "sensors/ros/RosImu.hpp"
-#include "infrastructure/Logger.hpp"
 
-EKF::EKF()
-: m_Logger(LogLevel::DEBUG)
-{}
+// #include "sensors/ros/RosImu.hpp"
+// #include "infrastructure/Logger.hpp"
 
-unsigned int EKF::RegisterSensor(typename Imu::Params params)
-{
-  std::shared_ptr<Imu> sensor_ptr = std::make_shared<Imu>(params);
-  m_mapImu[sensor_ptr->GetId()] = sensor_ptr;
-  sensor_ptr->SetStateStartIndex(m_stateSize);
+// initializing instancePointer with NULL
+EKF * EKF::instancePointer = NULL;
 
-  if (sensor_ptr->GetStateSize() != 0) {
-    ExtendState(sensor_ptr->GetStateSize(), sensor_ptr->GetState(), sensor_ptr->GetCov());
-  }
-  return sensor_ptr->GetId();
-}
+// EKF::EKF()
+// : m_Logger(LogLevel::DEBUG)
+// {}
 
-unsigned int EKF::RegisterSensor(typename Camera::Params params)
-{
-  std::shared_ptr<Camera> sensor_ptr = std::make_shared<Camera>(params);
-  m_mapCamera[sensor_ptr->GetId()] = sensor_ptr;
-  sensor_ptr->SetStateStartIndex(m_stateSize);
+// unsigned int EKF::RegisterSensor(typename Imu::Params params)
+// {
+//   std::shared_ptr<Imu> sensor_ptr = std::make_shared<Imu>(params);
+//   m_mapImu[sensor_ptr->GetId()] = sensor_ptr;
+//   sensor_ptr->SetStateStartIndex(m_stateSize);
 
-  if (sensor_ptr->GetStateSize() != 0) {
-    ExtendState(sensor_ptr->GetStateSize(), sensor_ptr->GetState(), sensor_ptr->GetCov());
-  }
+//   if (sensor_ptr->GetStateSize() != 0) {
+//     ExtendState(sensor_ptr->GetStateSize(), sensor_ptr->GetState(), sensor_ptr->GetCov());
+//   }
+//   return sensor_ptr->GetId();
+// }
 
-  return sensor_ptr->GetId();
-}
+// unsigned int EKF::RegisterSensor(typename Camera::Params params)
+// {
+//   std::shared_ptr<Camera> sensor_ptr = std::make_shared<Camera>(params);
+//   m_mapCamera[sensor_ptr->GetId()] = sensor_ptr;
+//   sensor_ptr->SetStateStartIndex(m_stateSize);
+
+//   if (sensor_ptr->GetStateSize() != 0) {
+//     ExtendState(sensor_ptr->GetStateSize(), sensor_ptr->GetState(), sensor_ptr->GetCov());
+//   }
+
+//   return sensor_ptr->GetId();
+// }
 
 void EKF::ExtendState(
   unsigned int sensorStateSize, Eigen::VectorXd sensorState,
@@ -93,20 +97,20 @@ Eigen::MatrixXd EKF::GetProcessNoise()
   double accBiasStability {0};
   double omgBiasStability {0};
 
-  for (auto const & iter : m_mapImu) {
-    if (iter.second->IsIntrinsic()) {
-      stateStart = iter.second->GetStateStartIndex();
-      accBiasStability = iter.second->GetAccBiasStability();
-      omgBiasStability = iter.second->GetOmgBiasStability();
+  // for (auto const & iter : m_mapImu) {
+  //   if (iter.second->IsIntrinsic()) {
+  //     stateStart = iter.second->GetStateStartIndex();
+  //     accBiasStability = iter.second->GetAccBiasStability();
+  //     omgBiasStability = iter.second->GetOmgBiasStability();
 
-      Q.block<3, 3>(
-        stateStart + 6,
-        stateStart + 6) = Eigen::MatrixXd::Identity(3, 3) * accBiasStability;
-      Q.block<3, 3>(
-        stateStart + 9,
-        stateStart + 9) = Eigen::MatrixXd::Identity(3, 3) * omgBiasStability;
-    }
-  }
+  //     Q.block<3, 3>(
+  //       stateStart + 6,
+  //       stateStart + 6) = Eigen::MatrixXd::Identity(3, 3) * accBiasStability;
+  //     Q.block<3, 3>(
+  //       stateStart + 9,
+  //       stateStart + 9) = Eigen::MatrixXd::Identity(3, 3) * omgBiasStability;
+  //   }
+  // }
 
   return Q;
 }
@@ -121,7 +125,7 @@ void EKF::Predict(double time)
   }
 
   if (time < m_currentTime) {
-    m_Logger.log(LogLevel::WARN, "Requested time in the past");
+    // m_Logger->log(LogLevel::WARN, "Requested time in the past");
     return;
   }
 
@@ -135,69 +139,63 @@ void EKF::Predict(double time)
   m_state = F * m_state;
   m_cov = F * m_cov * F.transpose() + F * G * Q * G.transpose() * F.transpose();
   m_currentTime = time;
-  Sensor::SetBodyState(m_state.segment<18>(0));
+  // Sensor::SetBodyState(m_state.segment<18>(0));
 }
 
-void EKF::ImuCallback(
-  unsigned int id, double time, Eigen::Vector3d acceleration,
-  Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
-  Eigen::Matrix3d angularRateCovariance)
-{
-  auto iter = m_mapImu.find(id);
-  /// @todo replace with generic logging
+// void EKF::ImuCallback(
+//   unsigned int id, double time, Eigen::Vector3d acceleration,
+//   Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
+//   Eigen::Matrix3d angularRateCovariance)
+// {
+//   // auto iter = m_mapImu.find(id);
 
-  m_Logger.log(
-    LogLevel::INFO,
-    "IMU Callback: " + iter->second->GetName() + std::to_string(time));
-  Predict(time);
+//   /// @todo replace with generic logging
+//   // m_Logger->log(
+//   //   LogLevel::INFO,
+//   //   "IMU Callback: " + iter->second->GetName() + std::to_string(time));
+//   Predict(time);
 
-  Eigen::VectorXd z(acceleration.size() + angularRate.size());
-  z.segment<3>(0) = acceleration;
-  z.segment<3>(3) = angularRate;
+//   Eigen::VectorXd z(acceleration.size() + angularRate.size());
+//   z.segment<3>(0) = acceleration;
+//   z.segment<3>(3) = angularRate;
 
-  Eigen::VectorXd z_pred = iter->second->PredictMeasurement();
-  Eigen::VectorXd resid = z - z_pred;
+//   Eigen::VectorXd z_pred = iter->second->PredictMeasurement();
+//   Eigen::VectorXd resid = z - z_pred;
 
-  unsigned int stateSize = iter->second->GetStateSize();
-  unsigned int stateStartIndex = iter->second->GetStateStartIndex();
-  Eigen::MatrixXd subH = iter->second->GetMeasurementJacobian();
-  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, m_stateSize);
-  H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
-  H.block(0, stateStartIndex, 6, stateSize) = subH.block(0, 18, 6, stateSize);
+//   unsigned int stateSize = iter->second->GetStateSize();
+//   unsigned int stateStartIndex = iter->second->GetStateStartIndex();
+//   Eigen::MatrixXd subH = iter->second->GetMeasurementJacobian();
+//   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, m_stateSize);
+//   H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
+//   H.block(0, stateStartIndex, 6, stateSize) = subH.block(0, 18, 6, stateSize);
 
-  Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-  R.block<3, 3>(0, 0) = accelerationCovariance;
-  R.block<3, 3>(3, 3) = angularRateCovariance;
-  for (int i = 0; i < 3; ++i) {
-    if (R(i, i) < 1e-3) {
-      R(i, i) = 1e-3;
-    }
-  }
-  for (int i = 3; i < 6; ++i) {
-    if (R(i, i) < 1e-2) {
-      R(i, i) = 1e-2;
-    }
-  }
+//   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
+//   R.block<3, 3>(0, 0) = accelerationCovariance;
+//   R.block<3, 3>(3, 3) = angularRateCovariance;
+//   for (int i = 0; i < 3; ++i) {
+//     if (R(i, i) < 1e-3) {
+//       R(i, i) = 1e-3;
+//     }
+//   }
+//   for (int i = 3; i < 6; ++i) {
+//     if (R(i, i) < 1e-2) {
+//       R(i, i) = 1e-2;
+//     }
+//   }
 
-  Eigen::MatrixXd S = H * m_cov * H.transpose() + R;
-  Eigen::MatrixXd K = m_cov * H.transpose() * S.inverse();
+//   Eigen::MatrixXd S = H * m_cov * H.transpose() + R;
+//   Eigen::MatrixXd K = m_cov * H.transpose() * S.inverse();
 
-  m_state = m_state + K * resid;
-  m_cov = (Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) - K * H) * m_cov;
+//   m_state = m_state + K * resid;
+//   m_cov = (Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) - K * H) * m_cov;
 
-  // Only set state if nonzero in size
-  if (iter->second->GetStateSize() > 0) {
-    iter->second->SetState(m_state.segment(stateStartIndex, stateSize));
-  }
+//   // Only set state if nonzero in size
+//   if (iter->second->GetStateSize() > 0) {
+//     iter->second->SetState(m_state.segment(stateStartIndex, stateSize));
+//   }
 
-  Sensor::SetBodyState(m_state.segment<18>(0));
-}
-
-void EKF::CameraCallback()
-// void EKF::CameraCallback(unsigned int id, double time)
-{
-  m_Logger.log(LogLevel::INFO, "Camera callback not implemented");
-}
+//   Sensor::SetBodyState(m_state.segment<18>(0));
+// }
 
 Eigen::VectorXd EKF::GetState()
 {
@@ -215,28 +213,28 @@ unsigned int EKF::GetStateSize()
 }
 
 
-void EKF::GetTransforms(
-  std::string & baseImuName,
-  std::vector<std::string> & sensorNames, std::vector<Eigen::Vector3d> & sensorPosOffsets,
-  std::vector<Eigen::Quaterniond> & sensorAngOffsets)
-{
-  // Iterate over IMUs
-  for (auto const & iter : m_mapImu) {
-    if (iter.second->IsBaseSensor()) {
-      baseImuName = iter.second->GetName();
-    } else {
-      sensorNames.push_back(iter.second->GetName());
-      sensorPosOffsets.push_back(iter.second->GetPosOffset());
-      sensorAngOffsets.push_back(iter.second->GetAngOffset());
-    }
-  }
-  // Iterate over Cameras
-  for (auto const & iter : m_mapCamera) {
-    sensorNames.push_back(iter.second->GetName());
-    sensorPosOffsets.push_back(iter.second->GetPosOffset());
-    sensorAngOffsets.push_back(iter.second->GetAngOffset());
-  }
-}
+// void EKF::GetTransforms(
+//   std::string & baseImuName,
+//   std::vector<std::string> & sensorNames, std::vector<Eigen::Vector3d> & sensorPosOffsets,
+//   std::vector<Eigen::Quaterniond> & sensorAngOffsets)
+// {
+//   // Iterate over IMUs
+//   for (auto const & iter : m_mapImu) {
+//     if (iter.second->IsBaseSensor()) {
+//       baseImuName = iter.second->GetName();
+//     } else {
+//       sensorNames.push_back(iter.second->GetName());
+//       sensorPosOffsets.push_back(iter.second->GetPosOffset());
+//       sensorAngOffsets.push_back(iter.second->GetAngOffset());
+//     }
+//   }
+//   // Iterate over Cameras
+//   for (auto const & iter : m_mapCamera) {
+//     sensorNames.push_back(iter.second->GetName());
+//     sensorPosOffsets.push_back(iter.second->GetPosOffset());
+//     sensorAngOffsets.push_back(iter.second->GetAngOffset());
+//   }
+// }
 
 
 void EKF::InitializeBodyState(double timeInit, Eigen::VectorXd bodyStateInit)
@@ -244,5 +242,5 @@ void EKF::InitializeBodyState(double timeInit, Eigen::VectorXd bodyStateInit)
   m_currentTime = timeInit;
   m_timeInitialized = true;
   m_state.segment<18>(0) = bodyStateInit;
-  Sensor::SetBodyState(bodyStateInit);
+  // Sensor::SetBodyState(bodyStateInit);
 }

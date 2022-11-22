@@ -49,3 +49,8 @@ Eigen::VectorXd Camera::GetState()
 
   return stateVec;
 }
+
+void Camera::Callback(double time)
+{
+  m_Logger->log(LogLevel::INFO, "Camera callback not implemented");
+}

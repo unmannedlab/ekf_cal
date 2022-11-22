@@ -39,8 +39,7 @@
 using std::placeholders::_1;
 
 EkfCalNode::EkfCalNode()
-: Node("EkfCalNode"),
-  m_Logger(LogLevel::DEBUG)
+: Node("EkfCalNode")
 {
   // Declare Parameters
   this->declare_parameter("IMU_list");
@@ -51,17 +50,17 @@ EkfCalNode::EkfCalNode()
   std::vector<std::string> camList = this->get_parameter("Camera_list").as_string_array();
 
   // Load Imu sensor parameters
-  for (std::string & imuName : imuList) {
-    LoadImu(imuName);
-  }
-  if (m_baseImuAssigned == false) {
-    m_Logger.log(LogLevel::WARN, "Base IMU should be set for filter stability");
-  }
+  // for (std::string & imuName : imuList) {
+  //   LoadImu(imuName);
+  // }
+  // if (m_baseImuAssigned == false) {
+  //   m_Logger->log(LogLevel::WARN, "Base IMU should be set for filter stability");
+  // }
 
   // Load Camera sensor parameters
-  for (std::string & camName : camList) {
-    LoadCamera(camName);
-  }
+  // for (std::string & camName : camList) {
+  //   LoadCamera(camName);
+  // }
 
   // Create publishers
   m_PosePub = this->create_publisher<geometry_msgs::msg::PoseStamped>("~/pose", 10);
@@ -128,20 +127,20 @@ void EkfCalNode::LoadImu(std::string imuName)
   }
 
   // Register IMU and bind callback to ID
-  unsigned int id = m_ekf.RegisterSensor(imuParams);
-  std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
-  function = std::bind(&EkfCalNode::ImuCallback, this, _1, id);
-  m_ImuSubs.push_back(this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function));
+  // unsigned int id = m_ekf.RegisterSensor(imuParams);
+  // std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
+  // function = std::bind(&EkfCalNode::ImuCallback, this, _1, id);
+  // m_ImuSubs.push_back(this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function));
 
   if (imuParams.baseSensor) {
     m_baseImuAssigned = true;
   }
-  m_Logger.log(LogLevel::INFO, "Loaded IMU: " + imuName);
+  m_Logger->log(LogLevel::INFO, "Loaded IMU: " + imuName);
 }
 
 void EkfCalNode::LoadCamera(std::string camName)
 {
-  m_Logger.log(LogLevel::INFO, "Camera not Loaded: " + camName);
+  m_Logger->log(LogLevel::INFO, "Camera not Loaded: " + camName);
 }
 
 void EkfCalNode::ImuCallback(
@@ -154,16 +153,24 @@ void EkfCalNode::ImuCallback(
   Eigen::Matrix3d acc_cov = RosHelper::RosToEigen(msg->linear_acceleration_covariance);
   Eigen::Matrix3d omg_cov = RosHelper::RosToEigen(msg->angular_velocity_covariance);
 
-  m_ekf.ImuCallback(id, time, acc, acc_cov, omg, omg_cov);
+  auto iter = m_mapImu.find(id);
+  m_Logger->log(LogLevel::INFO, "IMU Callback: " + iter->second->GetName() + std::to_string(time));
+
+  iter->second->Callback(time, acc, acc_cov, omg, omg_cov);
+
   PublishState();
 }
 
-void EkfCalNode::CameraCallback()
-// void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
+// void EkfCalNode::CameraCallback()
+void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
 {
-  // double time = RosHelper::RosHeaderToTime(msg->header);
-  m_ekf.CameraCallback();
-  // m_ekf.CameraCallback(id, time);
+  double time = RosHelper::RosHeaderToTime(msg->header);
+
+  auto iter = m_mapCamera.find(id);
+  m_Logger->log(LogLevel::INFO, "IMU Callback: " + iter->second->GetName() + std::to_string(time));
+
+  iter->second->Callback(time);
+
   PublishState();
 }
 
@@ -173,7 +180,7 @@ void EkfCalNode::PublishState()
   auto twist_msg = geometry_msgs::msg::TwistStamped();
   auto state_msg = std_msgs::msg::Float64MultiArray();
 
-  Eigen::VectorXd state = m_ekf.GetState();
+  Eigen::VectorXd state = m_ekf->GetState();
 
   // Position
   pose_msg.pose.position.x = state(0);
@@ -220,52 +227,52 @@ void EkfCalNode::PublishTransforms()
   std::vector<std::string> sensorNames;
   std::vector<Eigen::Vector3d> sensorPosOffsets;
   std::vector<Eigen::Quaterniond> sensorAngOffsets;
-  m_ekf.GetTransforms(baseImuName, sensorNames, sensorPosOffsets, sensorAngOffsets);
+  // m_ekf->GetTransforms(baseImuName, sensorNames, sensorPosOffsets, sensorAngOffsets);
 
-  geometry_msgs::msg::TransformStamped tf;
-  tf.header.frame_id = baseImuName;
+  // geometry_msgs::msg::TransformStamped tf;
+  // tf.header.frame_id = baseImuName;
 
-  // Publish Sensor transforms
-  for (unsigned int i = 0; i < sensorNames.size(); ++i) {
-    // Sensor name
-    tf.child_frame_id = sensorNames[i];
-    tf.header.stamp = this->get_clock()->now();
+  // // Publish Sensor transforms
+  // for (unsigned int i = 0; i < sensorNames.size(); ++i) {
+  //   // Sensor name
+  //   tf.child_frame_id = sensorNames[i];
+  //   tf.header.stamp = this->get_clock()->now();
 
-    // Sensor position
-    tf.transform.translation.x = 0.0;
-    tf.transform.translation.y = 0.0;
-    tf.transform.translation.z = 0.0;
+  //   // Sensor position
+  //   tf.transform.translation.x = 0.0;
+  //   tf.transform.translation.y = 0.0;
+  //   tf.transform.translation.z = 0.0;
 
-    // Sensor Orientation
-    /// @todo some of these quaternions are not valid (nan)
-    tf.transform.rotation.w = 1.0;
-    tf.transform.rotation.x = 0.0;
-    tf.transform.rotation.y = 0.0;
-    tf.transform.rotation.z = 0.0;
+  //   // Sensor Orientation
+  //   /// @todo some of these quaternions are not valid (nan)
+  //   tf.transform.rotation.w = 1.0;
+  //   tf.transform.rotation.x = 0.0;
+  //   tf.transform.rotation.y = 0.0;
+  //   tf.transform.rotation.z = 0.0;
 
-    // Send the transformation
-    m_tfBroadcaster->sendTransform(tf);
-  }
+  //   // Send the transformation
+  //   m_tfBroadcaster->sendTransform(tf);
+  // }
 
-  Eigen::VectorXd ekfState = m_ekf.GetState();
+  // Eigen::VectorXd ekfState = m_ekf->GetState();
 
-  // Publish Body transforms
-  tf.header.frame_id = "world";
-  tf.child_frame_id = baseImuName;
-  tf.header.stamp = this->get_clock()->now();
+  // // Publish Body transforms
+  // tf.header.frame_id = "world";
+  // tf.child_frame_id = baseImuName;
+  // tf.header.stamp = this->get_clock()->now();
 
-  // Body position
-  tf.transform.translation.x = 0.0;
-  tf.transform.translation.y = 0.0;
-  tf.transform.translation.z = 0.0;
+  // // Body position
+  // tf.transform.translation.x = 0.0;
+  // tf.transform.translation.y = 0.0;
+  // tf.transform.translation.z = 0.0;
 
-  // Body Orientation
-  tf.transform.rotation.w = 1.0;
-  tf.transform.rotation.x = 0.0;
-  tf.transform.rotation.y = 0.0;
-  tf.transform.rotation.z = 0.0;
+  // // Body Orientation
+  // tf.transform.rotation.w = 1.0;
+  // tf.transform.rotation.x = 0.0;
+  // tf.transform.rotation.y = 0.0;
+  // tf.transform.rotation.z = 0.0;
 
-  m_tfBroadcaster->sendTransform(tf);
+  // m_tfBroadcaster->sendTransform(tf);
 }
 
 int main(int argc, char * argv[])

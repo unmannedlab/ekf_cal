@@ -24,9 +24,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "sensors/ros/RosCam.hpp"
-#include "sensors/ros/RosImu.hpp"
-#include "sensors/Sensor.hpp"
 #include "infrastructure/Logger.hpp"
 
 ///
@@ -35,21 +32,48 @@
 ///
 class EKF
 {
-public:
+private:
+  static EKF * instancePointer;
   ///
   /// @brief EKF class constructor
   ///
-  EKF();
+  EKF() {}
+
+public:
+  ///
+  /// @brief Delete copy constructor
+  ///
+  EKF(const EKF & obj) = delete;
+
+  static EKF * getInstance()
+  {
+    // If there is no instance of class
+    // then we can create an instance.
+    if (instancePointer == NULL) {
+      // We can access private members
+      // within the class.
+      instancePointer = new EKF();
+
+      // returning the instance pointer
+      return instancePointer;
+    } else {
+      // if instancePointer != NULL that means
+      // the class already have an instance.
+      // So, we are returning that instance
+      // and not creating new one.
+      return instancePointer;
+    }
+  }
 
   ///
   /// @brief IMU message callback method
   ///
-  void ImuCallback(
-    unsigned int id, double time,
-    Eigen::Vector3d acceleration,
-    Eigen::Matrix3d accelerationCovariance,
-    Eigen::Vector3d angularRate,
-    Eigen::Matrix3d angularRateCovariance);
+  // void ImuCallback(
+  //   unsigned int id, double time,
+  //   Eigen::Vector3d acceleration,
+  //   Eigen::Matrix3d accelerationCovariance,
+  //   Eigen::Vector3d angularRate,
+  //   Eigen::Matrix3d angularRateCovariance);
 
   ///
   /// @brief Camera message callback method
@@ -57,19 +81,19 @@ public:
   /// @param time Camera measurement time
   ///
   // void CameraCallback(unsigned int id, double time);
-  void CameraCallback();
+  // void CameraCallback();
 
   ///
   /// @brief Registers new IMU sensor to calibration EKF
   /// @param params Sensor parameters to use in registration
   ///
-  unsigned int RegisterSensor(typename Imu::Params params);
+  // unsigned int RegisterSensor(typename Imu::Params params);
 
   ///
   /// @brief Registers new Camera sensor to calibration EKF
   /// @param params Sensor parameters to use in registration
   ///
-  unsigned int RegisterSensor(typename Camera::Params params);
+  // unsigned int RegisterSensor(typename Camera::Params params);
 
   ///
   /// @brief Getter method for state vector
@@ -136,11 +160,9 @@ private:
   unsigned int m_stateSize{18U};
   Eigen::VectorXd m_state = Eigen::VectorXd::Zero(18U);
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(18U, 18U);
-  std::map<int, std::shared_ptr<Imu>> m_mapImu{};
-  std::map<int, std::shared_ptr<Camera>> m_mapCamera{};
   double m_currentTime {0};
   bool m_timeInitialized {false};
-  Logger m_Logger;
+  // Logger m_Logger;
 };
 
 #endif  // EKF__EKF_HPP_

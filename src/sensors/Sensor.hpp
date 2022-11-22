@@ -16,6 +16,8 @@
 #ifndef SENSORS__SENSOR_HPP_
 #define SENSORS__SENSOR_HPP_
 
+#include "ekf/EKF.hpp"
+
 #include <eigen3/Eigen/Eigen>
 
 #include <string>
@@ -148,6 +150,8 @@ protected:
   unsigned int m_id;                  ///< @brief Sensor id
   std::string m_name;                 ///< @brief Sensor name
   Eigen::MatrixXd m_cov;              ///< @brief Sensor state covariance
+
+  EKF * m_ekf = EKF::getInstance();
 
 private:
   static unsigned int _idCount;

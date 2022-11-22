@@ -20,8 +20,7 @@
 #include "utility/TypeHelper.hpp"
 
 Imu::Imu(Imu::Params params)
-: Sensor(params.name),
-  m_Logger(LogLevel::DEBUG)
+: Sensor(params.name)
 {
   if (params.baseSensor == true) {
     m_stateSize = 0U;
@@ -51,7 +50,7 @@ Imu::Imu(Imu::Params params)
     if (params.variance(i) > 1e-6) {
       m_cov(i, i) = params.variance(i);
     } else {
-      m_Logger.log(LogLevel::WARN, "Variance should be larger than 1e-6");
+      m_Logger->log(LogLevel::WARN, "Variance should be larger than 1e-6");
       m_cov(i, i) = 1e-6;
     }
   }
@@ -198,7 +197,7 @@ void Imu::SetState(Eigen::VectorXd state)
       m_accBias = state.segment(0, 3);
       m_omgBias = state.segment(3, 3);
     } else {
-      m_Logger.log(LogLevel::WARN, "Base IMU has no state to set");
+      m_Logger->log(LogLevel::WARN, "Base IMU has no state to set");
     }
   } else {
     m_posOffset = state.segment(0, 3);
@@ -222,7 +221,7 @@ Eigen::VectorXd Imu::GetState()
       stateVec.segment<3>(0) = m_accBias;
       stateVec.segment<3>(3) = m_omgBias;
     } else {
-      m_Logger.log(LogLevel::WARN, "Base IMU has no state to get");
+      m_Logger->log(LogLevel::WARN, "Base IMU has no state to get");
     }
   } else {
     if (m_intrinsic) {
@@ -237,4 +236,56 @@ Eigen::VectorXd Imu::GetState()
   }
 
   return stateVec;
+}
+
+
+void Imu::Callback(
+  double time, Eigen::Vector3d acceleration,
+  Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
+  Eigen::Matrix3d angularRateCovariance)
+{
+  // auto iter = m_mapImu.find(id);
+
+  // Predict(time);
+
+  // Eigen::VectorXd z(acceleration.size() + angularRate.size());
+  // z.segment<3>(0) = acceleration;
+  // z.segment<3>(3) = angularRate;
+
+  // Eigen::VectorXd z_pred = iter->second->PredictMeasurement();
+  // Eigen::VectorXd resid = z - z_pred;
+
+  // unsigned int stateSize = iter->second->GetStateSize();
+  // unsigned int stateStartIndex = iter->second->GetStateStartIndex();
+  // Eigen::MatrixXd subH = iter->second->GetMeasurementJacobian();
+  // Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, m_stateSize);
+  // H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
+  // H.block(0, stateStartIndex, 6, stateSize) = subH.block(0, 18, 6, stateSize);
+
+  // Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
+  // R.block<3, 3>(0, 0) = accelerationCovariance;
+  // R.block<3, 3>(3, 3) = angularRateCovariance;
+  // for (int i = 0; i < 3; ++i) {
+  //   if (R(i, i) < 1e-3) {
+  //     R(i, i) = 1e-3;
+  //   }
+  // }
+  // for (int i = 3; i < 6; ++i) {
+  //   if (R(i, i) < 1e-2) {
+  //     R(i, i) = 1e-2;
+  //   }
+  // }
+
+  // Eigen::MatrixXd S = H * m_cov * H.transpose() + R;
+  // Eigen::MatrixXd K = m_cov * H.transpose() * S.inverse();
+
+  // m_state = m_state + K * resid;
+  // m_cov = (Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) - K * H) * m_cov;
+
+  // // Only set state if nonzero in size
+  // if (iter->second->GetStateSize() > 0) {
+  //   iter->second->SetState(m_state.segment(stateStartIndex, stateSize));
+  // }
+
+  // Sensor::SetBodyState(m_state.segment<18>(0));
 }

@@ -18,7 +18,9 @@
 
 #include "../Logger.hpp"
 
-Logger::Logger(LogLevel level)
+Logger * Logger::instancePointer = NULL;
+
+void Logger::SetLogLevel(LogLevel level)
 {
   logLevel = level;
   if (logLevel <= LogLevel::INFO) {

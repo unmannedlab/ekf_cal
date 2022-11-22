@@ -103,6 +103,11 @@ public:
   ///
   Eigen::VectorXd GetState();
 
+
+  void Callback(
+    double time, Eigen::Vector3d acceleration, Eigen::Matrix3d accelerationCovariance,
+    Eigen::Vector3d angularRate, Eigen::Matrix3d angularRateCovariance);
+
 private:
   bool m_baseSensor;
   bool m_intrinsic;
@@ -112,7 +117,7 @@ private:
   Eigen::Vector3d m_omgBias;
   double m_accBiasStability;
   double m_omgBiasStability;
-  Logger m_Logger;
+  Logger * m_Logger = Logger::getInstance();
 };
 
 #endif  // SENSORS__ROS__ROSIMU_HPP_
