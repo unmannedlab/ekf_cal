@@ -222,8 +222,6 @@ void EkfCalNode::PublishTransforms()
   std::vector<Eigen::Quaterniond> sensorAngOffsets;
   m_ekf.GetTransforms(baseImuName, sensorNames, sensorPosOffsets, sensorAngOffsets);
 
-  // rclcpp::Time now = this->get_clock()->now();
-
   geometry_msgs::msg::TransformStamped tf;
   tf.header.frame_id = baseImuName;
 
