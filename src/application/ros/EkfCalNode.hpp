@@ -96,6 +96,11 @@ public:
   ///
   void PublishTransforms();
 
+  void GetTransforms(
+    std::string & baseImuName,
+    std::vector<std::string> & sensorNames, std::vector<Eigen::Vector3d> & sensorPosOffsets,
+    std::vector<Eigen::Quaterniond> & sensorAngOffsets);
+
 private:
   /// @brief Calibration EKF object
   EKF * m_ekf = EKF::getInstance();

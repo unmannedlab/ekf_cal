@@ -32,8 +32,8 @@ Imu::Imu(Imu::Params params)
     m_stateSize += 6U;
   }
 
-  m_baseSensor = params.baseSensor;
-  m_intrinsic = params.intrinsic;
+  m_isBaseSensor = params.baseSensor;
+  m_isIntrinsic = params.intrinsic;
   m_rate = params.rate;
   m_posOffset = params.posOffset;
   m_angOffset = params.angOffset;
@@ -68,19 +68,20 @@ double Imu::GetOmgBiasStability()
 
 bool Imu::IsBaseSensor()
 {
-  return m_baseSensor;
+  return m_isBaseSensor;
 }
+
 bool Imu::IsIntrinsic()
 {
-  return m_intrinsic;
+  return m_isIntrinsic;
 }
 
 Eigen::VectorXd Imu::PredictMeasurement()
 {
   Eigen::VectorXd predictedMeasurement(6);
 
-  if (m_baseSensor == true) {
-    if (m_intrinsic) {
+  if (m_isBaseSensor) {
+    if (m_isIntrinsic) {
       predictedMeasurement.segment<3>(0) = m_bodyAcc + m_accBias;
       predictedMeasurement.segment<3>(3) = m_bodyAngVel + m_omgBias;
     } else {
@@ -98,7 +99,7 @@ Eigen::VectorXd Imu::PredictMeasurement()
     Eigen::Vector3d imuOmgRot = m_angOffset * m_bodyAngVel;
 
     // Add bias
-    if (m_intrinsic) {
+    if (m_isIntrinsic) {
       imuAccRot += m_accBias;
       imuOmgRot += m_omgBias;
     }
@@ -115,14 +116,14 @@ Eigen::MatrixXd Imu::GetMeasurementJacobian()
   Eigen::MatrixXd measurementJacobian(6, m_stateSize + 18);
   measurementJacobian.setZero();
 
-  if (m_baseSensor == true) {
+  if (m_isBaseSensor) {
     // Base Acceleration
     measurementJacobian.block<3, 3>(0, 6) = Eigen::MatrixXd::Identity(3, 3);
 
     // Base Angular Velocity
     measurementJacobian.block<3, 3>(3, 12) = Eigen::MatrixXd::Identity(3, 3);
 
-    if (m_intrinsic) {
+    if (m_isIntrinsic) {
       // IMU Accelerometer Bias
       measurementJacobian.block<3, 3>(0, 18) = Eigen::MatrixXd::Identity(3, 3);
 
@@ -179,7 +180,7 @@ Eigen::MatrixXd Imu::GetMeasurementJacobian()
     measurementJacobian.block<3, 3>(3, 21) =
       -(m_angOffset * MathHelper::CrossProductMatrix(m_bodyAngVel));
 
-    if (m_intrinsic) {
+    if (m_isIntrinsic) {
       // IMU Accelerometer Bias
       measurementJacobian.block<3, 3>(0, 24) = Eigen::MatrixXd::Identity(3, 3);
 
@@ -192,8 +193,8 @@ Eigen::MatrixXd Imu::GetMeasurementJacobian()
 
 void Imu::SetState(Eigen::VectorXd state)
 {
-  if (m_baseSensor) {
-    if (m_intrinsic) {
+  if (m_isBaseSensor) {
+    if (m_isIntrinsic) {
       m_accBias = state.segment(0, 3);
       m_omgBias = state.segment(3, 3);
     } else {
@@ -203,7 +204,7 @@ void Imu::SetState(Eigen::VectorXd state)
     m_posOffset = state.segment(0, 3);
     m_angOffset = TypeHelper::RotVecToQuat(state.segment(3, 3));
 
-    if (m_intrinsic) {
+    if (m_isIntrinsic) {
       m_accBias = state.segment(6, 3);
       m_omgBias = state.segment(9, 3);
     }
@@ -216,15 +217,15 @@ Eigen::VectorXd Imu::GetState()
   Eigen::Vector3d rotVec = angAxis.axis() * angAxis.angle();
   Eigen::VectorXd stateVec(m_stateSize);
 
-  if (m_baseSensor) {
-    if (m_intrinsic) {
+  if (m_isBaseSensor) {
+    if (m_isIntrinsic) {
       stateVec.segment<3>(0) = m_accBias;
       stateVec.segment<3>(3) = m_omgBias;
     } else {
       m_Logger->log(LogLevel::WARN, "Base IMU has no state to get");
     }
   } else {
-    if (m_intrinsic) {
+    if (m_isIntrinsic) {
       stateVec.segment<3>(0) = m_posOffset;
       stateVec.segment<3>(3) = rotVec;
       stateVec.segment<3>(6) = m_accBias;
@@ -244,47 +245,45 @@ void Imu::Callback(
   Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
   Eigen::Matrix3d angularRateCovariance)
 {
-  // auto iter = m_mapImu.find(id);
+  m_ekf->Predict(time);
 
-  // Predict(time);
+  Eigen::VectorXd z(acceleration.size() + angularRate.size());
+  z.segment<3>(0) = acceleration;
+  z.segment<3>(3) = angularRate;
 
-  // Eigen::VectorXd z(acceleration.size() + angularRate.size());
-  // z.segment<3>(0) = acceleration;
-  // z.segment<3>(3) = angularRate;
+  Eigen::VectorXd z_pred = PredictMeasurement();
+  Eigen::VectorXd resid = z - z_pred;
 
-  // Eigen::VectorXd z_pred = iter->second->PredictMeasurement();
-  // Eigen::VectorXd resid = z - z_pred;
+  unsigned int stateSize = GetStateSize();
+  unsigned int stateStartIndex = GetStateStartIndex();
+  Eigen::MatrixXd subH = GetMeasurementJacobian();
+  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, m_stateSize);
+  H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
+  H.block(0, stateStartIndex, 6, stateSize) = subH.block(0, 18, 6, stateSize);
 
-  // unsigned int stateSize = iter->second->GetStateSize();
-  // unsigned int stateStartIndex = iter->second->GetStateStartIndex();
-  // Eigen::MatrixXd subH = iter->second->GetMeasurementJacobian();
-  // Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, m_stateSize);
-  // H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
-  // H.block(0, stateStartIndex, 6, stateSize) = subH.block(0, 18, 6, stateSize);
+  Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
+  R.block<3, 3>(0, 0) = accelerationCovariance;
+  R.block<3, 3>(3, 3) = angularRateCovariance;
+  for (int i = 0; i < 3; ++i) {
+    if (R(i, i) < 1e-3) {
+      R(i, i) = 1e-3;
+    }
+  }
+  for (int i = 3; i < 6; ++i) {
+    if (R(i, i) < 1e-2) {
+      R(i, i) = 1e-2;
+    }
+  }
 
-  // Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-  // R.block<3, 3>(0, 0) = accelerationCovariance;
-  // R.block<3, 3>(3, 3) = angularRateCovariance;
-  // for (int i = 0; i < 3; ++i) {
-  //   if (R(i, i) < 1e-3) {
-  //     R(i, i) = 1e-3;
-  //   }
-  // }
-  // for (int i = 3; i < 6; ++i) {
-  //   if (R(i, i) < 1e-2) {
-  //     R(i, i) = 1e-2;
-  //   }
-  // }
-
-  // Eigen::MatrixXd S = H * m_cov * H.transpose() + R;
-  // Eigen::MatrixXd K = m_cov * H.transpose() * S.inverse();
+  Eigen::MatrixXd S = H * m_cov * H.transpose() + R;
+  Eigen::MatrixXd K = m_cov * H.transpose() * S.inverse();
 
   // m_state = m_state + K * resid;
   // m_cov = (Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) - K * H) * m_cov;
 
   // // Only set state if nonzero in size
-  // if (iter->second->GetStateSize() > 0) {
-  //   iter->second->SetState(m_state.segment(stateStartIndex, stateSize));
+  // if (GetStateSize() > 0) {
+  //   SetState(m_state.segment(stateStartIndex, stateSize));
   // }
 
   // Sensor::SetBodyState(m_state.segment<18>(0));

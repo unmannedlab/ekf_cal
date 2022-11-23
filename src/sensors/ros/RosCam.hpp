@@ -72,7 +72,10 @@ public:
   Eigen::VectorXd GetState();
 
   void Callback(double time);
+
   Logger * m_Logger = Logger::getInstance();
+
+  EKF * m_ekf = EKF::getInstance();
 };
 
 #endif  // SENSORS__ROS__ROSCAM_HPP_

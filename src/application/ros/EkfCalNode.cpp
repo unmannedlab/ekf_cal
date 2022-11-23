@@ -50,17 +50,17 @@ EkfCalNode::EkfCalNode()
   std::vector<std::string> camList = this->get_parameter("Camera_list").as_string_array();
 
   // Load Imu sensor parameters
-  // for (std::string & imuName : imuList) {
-  //   LoadImu(imuName);
-  // }
-  // if (m_baseImuAssigned == false) {
-  //   m_Logger->log(LogLevel::WARN, "Base IMU should be set for filter stability");
-  // }
+  for (std::string & imuName : imuList) {
+    LoadImu(imuName);
+  }
+  if (m_baseImuAssigned == false) {
+    m_Logger->log(LogLevel::WARN, "Base IMU should be set for filter stability");
+  }
 
   // Load Camera sensor parameters
-  // for (std::string & camName : camList) {
-  //   LoadCamera(camName);
-  // }
+  for (std::string & camName : camList) {
+    LoadCamera(camName);
+  }
 
   // Create publishers
   m_PosePub = this->create_publisher<geometry_msgs::msg::PoseStamped>("~/pose", 10);
@@ -218,6 +218,30 @@ void EkfCalNode::PublishState()
   m_StatePub->publish(state_msg);
 }
 
+
+void EkfCalNode::GetTransforms(
+  std::string & baseImuName,
+  std::vector<std::string> & sensorNames, std::vector<Eigen::Vector3d> & sensorPosOffsets,
+  std::vector<Eigen::Quaterniond> & sensorAngOffsets)
+{
+  // Iterate over IMUs
+  for (auto const & iter : m_mapImu) {
+    if (iter.second->IsBaseSensor()) {
+      baseImuName = iter.second->GetName();
+    } else {
+      sensorNames.push_back(iter.second->GetName());
+      sensorPosOffsets.push_back(iter.second->GetPosOffset());
+      sensorAngOffsets.push_back(iter.second->GetAngOffset());
+    }
+  }
+  // Iterate over Cameras
+  for (auto const & iter : m_mapCamera) {
+    sensorNames.push_back(iter.second->GetName());
+    sensorPosOffsets.push_back(iter.second->GetPosOffset());
+    sensorAngOffsets.push_back(iter.second->GetAngOffset());
+  }
+}
+
 ///
 /// @todo debug issue with future extrapolation in RVIZ
 ///
@@ -227,52 +251,52 @@ void EkfCalNode::PublishTransforms()
   std::vector<std::string> sensorNames;
   std::vector<Eigen::Vector3d> sensorPosOffsets;
   std::vector<Eigen::Quaterniond> sensorAngOffsets;
-  // m_ekf->GetTransforms(baseImuName, sensorNames, sensorPosOffsets, sensorAngOffsets);
+  GetTransforms(baseImuName, sensorNames, sensorPosOffsets, sensorAngOffsets);
 
-  // geometry_msgs::msg::TransformStamped tf;
-  // tf.header.frame_id = baseImuName;
+  geometry_msgs::msg::TransformStamped tf;
+  tf.header.frame_id = baseImuName;
 
-  // // Publish Sensor transforms
-  // for (unsigned int i = 0; i < sensorNames.size(); ++i) {
-  //   // Sensor name
-  //   tf.child_frame_id = sensorNames[i];
-  //   tf.header.stamp = this->get_clock()->now();
+  // Publish Sensor transforms
+  for (unsigned int i = 0; i < sensorNames.size(); ++i) {
+    // Sensor name
+    tf.child_frame_id = sensorNames[i];
+    tf.header.stamp = this->get_clock()->now();
 
-  //   // Sensor position
-  //   tf.transform.translation.x = 0.0;
-  //   tf.transform.translation.y = 0.0;
-  //   tf.transform.translation.z = 0.0;
+    // Sensor position
+    tf.transform.translation.x = 0.0;
+    tf.transform.translation.y = 0.0;
+    tf.transform.translation.z = 0.0;
 
-  //   // Sensor Orientation
-  //   /// @todo some of these quaternions are not valid (nan)
-  //   tf.transform.rotation.w = 1.0;
-  //   tf.transform.rotation.x = 0.0;
-  //   tf.transform.rotation.y = 0.0;
-  //   tf.transform.rotation.z = 0.0;
+    // Sensor Orientation
+    /// @todo some of these quaternions are not valid (nan)
+    tf.transform.rotation.w = 1.0;
+    tf.transform.rotation.x = 0.0;
+    tf.transform.rotation.y = 0.0;
+    tf.transform.rotation.z = 0.0;
 
-  //   // Send the transformation
-  //   m_tfBroadcaster->sendTransform(tf);
-  // }
+    // Send the transformation
+    m_tfBroadcaster->sendTransform(tf);
+  }
 
-  // Eigen::VectorXd ekfState = m_ekf->GetState();
+  Eigen::VectorXd ekfState = m_ekf->GetState();
 
-  // // Publish Body transforms
-  // tf.header.frame_id = "world";
-  // tf.child_frame_id = baseImuName;
-  // tf.header.stamp = this->get_clock()->now();
+  // Publish Body transforms
+  tf.header.frame_id = "world";
+  tf.child_frame_id = baseImuName;
+  tf.header.stamp = this->get_clock()->now();
 
-  // // Body position
-  // tf.transform.translation.x = 0.0;
-  // tf.transform.translation.y = 0.0;
-  // tf.transform.translation.z = 0.0;
+  // Body position
+  tf.transform.translation.x = 0.0;
+  tf.transform.translation.y = 0.0;
+  tf.transform.translation.z = 0.0;
 
-  // // Body Orientation
-  // tf.transform.rotation.w = 1.0;
-  // tf.transform.rotation.x = 0.0;
-  // tf.transform.rotation.y = 0.0;
-  // tf.transform.rotation.z = 0.0;
+  // Body Orientation
+  tf.transform.rotation.w = 1.0;
+  tf.transform.rotation.x = 0.0;
+  tf.transform.rotation.y = 0.0;
+  tf.transform.rotation.z = 0.0;
 
-  // m_tfBroadcaster->sendTransform(tf);
+  m_tfBroadcaster->sendTransform(tf);
 }
 
 int main(int argc, char * argv[])

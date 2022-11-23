@@ -109,8 +109,8 @@ public:
     Eigen::Vector3d angularRate, Eigen::Matrix3d angularRateCovariance);
 
 private:
-  bool m_baseSensor;
-  bool m_intrinsic;
+  bool m_isBaseSensor;
+  bool m_isIntrinsic;
   Eigen::Vector3d m_posOffset;
   Eigen::Quaterniond m_angOffset;
   Eigen::Vector3d m_accBias;

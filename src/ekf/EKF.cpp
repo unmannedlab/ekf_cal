@@ -142,61 +142,6 @@ void EKF::Predict(double time)
   // Sensor::SetBodyState(m_state.segment<18>(0));
 }
 
-// void EKF::ImuCallback(
-//   unsigned int id, double time, Eigen::Vector3d acceleration,
-//   Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
-//   Eigen::Matrix3d angularRateCovariance)
-// {
-//   // auto iter = m_mapImu.find(id);
-
-//   /// @todo replace with generic logging
-//   // m_Logger->log(
-//   //   LogLevel::INFO,
-//   //   "IMU Callback: " + iter->second->GetName() + std::to_string(time));
-//   Predict(time);
-
-//   Eigen::VectorXd z(acceleration.size() + angularRate.size());
-//   z.segment<3>(0) = acceleration;
-//   z.segment<3>(3) = angularRate;
-
-//   Eigen::VectorXd z_pred = iter->second->PredictMeasurement();
-//   Eigen::VectorXd resid = z - z_pred;
-
-//   unsigned int stateSize = iter->second->GetStateSize();
-//   unsigned int stateStartIndex = iter->second->GetStateStartIndex();
-//   Eigen::MatrixXd subH = iter->second->GetMeasurementJacobian();
-//   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, m_stateSize);
-//   H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
-//   H.block(0, stateStartIndex, 6, stateSize) = subH.block(0, 18, 6, stateSize);
-
-//   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-//   R.block<3, 3>(0, 0) = accelerationCovariance;
-//   R.block<3, 3>(3, 3) = angularRateCovariance;
-//   for (int i = 0; i < 3; ++i) {
-//     if (R(i, i) < 1e-3) {
-//       R(i, i) = 1e-3;
-//     }
-//   }
-//   for (int i = 3; i < 6; ++i) {
-//     if (R(i, i) < 1e-2) {
-//       R(i, i) = 1e-2;
-//     }
-//   }
-
-//   Eigen::MatrixXd S = H * m_cov * H.transpose() + R;
-//   Eigen::MatrixXd K = m_cov * H.transpose() * S.inverse();
-
-//   m_state = m_state + K * resid;
-//   m_cov = (Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) - K * H) * m_cov;
-
-//   // Only set state if nonzero in size
-//   if (iter->second->GetStateSize() > 0) {
-//     iter->second->SetState(m_state.segment(stateStartIndex, stateSize));
-//   }
-
-//   Sensor::SetBodyState(m_state.segment<18>(0));
-// }
-
 Eigen::VectorXd EKF::GetState()
 {
   return m_state;
@@ -211,31 +156,6 @@ unsigned int EKF::GetStateSize()
 {
   return m_stateSize;
 }
-
-
-// void EKF::GetTransforms(
-//   std::string & baseImuName,
-//   std::vector<std::string> & sensorNames, std::vector<Eigen::Vector3d> & sensorPosOffsets,
-//   std::vector<Eigen::Quaterniond> & sensorAngOffsets)
-// {
-//   // Iterate over IMUs
-//   for (auto const & iter : m_mapImu) {
-//     if (iter.second->IsBaseSensor()) {
-//       baseImuName = iter.second->GetName();
-//     } else {
-//       sensorNames.push_back(iter.second->GetName());
-//       sensorPosOffsets.push_back(iter.second->GetPosOffset());
-//       sensorAngOffsets.push_back(iter.second->GetAngOffset());
-//     }
-//   }
-//   // Iterate over Cameras
-//   for (auto const & iter : m_mapCamera) {
-//     sensorNames.push_back(iter.second->GetName());
-//     sensorPosOffsets.push_back(iter.second->GetPosOffset());
-//     sensorAngOffsets.push_back(iter.second->GetAngOffset());
-//   }
-// }
-
 
 void EKF::InitializeBodyState(double timeInit, Eigen::VectorXd bodyStateInit)
 {
