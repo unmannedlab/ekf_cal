@@ -71,9 +71,10 @@ public:
   }
 
   void SetLogLevel(LogLevel level);
+  void SetLogLevel(unsigned int level);
 
 private:
-  LogLevel logLevel = LogLevel::DEBUG;
+  LogLevel logLevel = LogLevel::FATAL;
   std::string LogLevelNames[5] = {"DEBUG", "INFO ", "WARN ", "ERROR", "FATAL"};
 };
 

@@ -16,12 +16,13 @@
 #ifndef SENSORS__SENSOR_HPP_
 #define SENSORS__SENSOR_HPP_
 
-#include "ekf/EKF.hpp"
-
 #include <eigen3/Eigen/Eigen>
 
 #include <string>
 #include <vector>
+
+#include "ekf/EKF.hpp"
+
 
 ///
 /// @class Sensor

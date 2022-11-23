@@ -19,25 +19,26 @@
 
 #include "../Logger.hpp"
 
-Logger * Logger::instancePointer = NULL;
 
 void Logger::SetLogLevel(LogLevel level)
 {
   logLevel = level;
   if (logLevel <= LogLevel::INFO) {
-    std::cout << "[" <<
-      LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(logLevel)] << "]: " <<
-      "LOGGER set to: " <<
-      LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(logLevel)] << std::endl;
+    RCLCPP_INFO_STREAM(
+      rclcpp::get_logger("Logger"), "[" <<
+        LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(logLevel)] << "]: " <<
+        "LOGGER set to: " <<
+        LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(logLevel)]);
   }
 }
 
 Logger::~Logger()
 {
-  if (logLevel <= LogLevel::WARN) {
-    std::cout << "[" <<
-      LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(logLevel)] << "]:" <<
-      " LOGGER destroyed" << std::endl;
+  if (logLevel <= LogLevel::INFO) {
+    RCLCPP_INFO_STREAM(
+      rclcpp::get_logger("Logger"), "[" <<
+        LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(logLevel)] << "]:" <<
+        " LOGGER destroyed");
   }
 }
 

@@ -18,7 +18,6 @@
 
 #include "../Logger.hpp"
 
-Logger * Logger::instancePointer = NULL;
 
 void Logger::SetLogLevel(LogLevel level)
 {
@@ -33,7 +32,7 @@ void Logger::SetLogLevel(LogLevel level)
 
 Logger::~Logger()
 {
-  if (logLevel <= LogLevel::WARN) {
+  if (logLevel <= LogLevel::INFO) {
     std::cout << "[" <<
       LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(logLevel)] << "]:" <<
       " LOGGER destroyed" << std::endl;

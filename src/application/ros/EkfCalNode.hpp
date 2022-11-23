@@ -27,6 +27,7 @@
 #include <tf2_ros/transform_broadcaster.h>
 
 #include <cstdio>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>

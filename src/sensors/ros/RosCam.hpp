@@ -73,7 +73,6 @@ public:
 
   void Callback(double time);
   Logger * m_Logger = Logger::getInstance();
-
 };
 
 #endif  // SENSORS__ROS__ROSCAM_HPP_

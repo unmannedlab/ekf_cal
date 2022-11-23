@@ -38,7 +38,7 @@ foreach(pkg ${ROS_PKGS})
     find_package(${pkg} REQUIRED)
 endforeach()
 
-# List all sources
+# EKF sources
 set(EKF_SRCS
     src/ekf/EKF.cpp
     src/sensors/ros/RosCam.cpp
@@ -46,7 +46,7 @@ set(EKF_SRCS
     src/sensors/Sensor.cpp
 )
 
-# Create library with sources
+# Create library with EKF sources
 add_library(EKF_LIB ${EKF_SRCS})
 
 target_include_directories(EKF_LIB PUBLIC
@@ -56,6 +56,7 @@ target_include_directories(EKF_LIB PUBLIC
 
 # ROS Infrastructure Sources
 set(ROS_INFRASTRUCTURE
+    src/infrastructure/Logger.cpp
     src/infrastructure/ros/RosLog.cpp
 )
 
