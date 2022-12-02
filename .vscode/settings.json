@@ -98,7 +98,8 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
-        "bit": "cpp"
+        "bit": "cpp",
+        "*.ipp": "cpp"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python"

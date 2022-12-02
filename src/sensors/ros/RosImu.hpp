@@ -16,6 +16,8 @@
 #ifndef SENSORS__ROS__ROSIMU_HPP_
 #define SENSORS__ROS__ROSIMU_HPP_
 
+#include <sensor_msgs/msg/imu.hpp>
+
 #include <string>
 
 #include "sensors/Sensor.hpp"
@@ -92,12 +94,6 @@ public:
   bool IsIntrinsic();
 
   ///
-  /// @brief Sensor state setter method
-  /// @param state Sensor state vector
-  ///
-  void SetState(Eigen::VectorXd state);
-
-  ///
   /// @brief Sensor state getter method
   /// @return Sensor state vector
   ///
@@ -107,6 +103,8 @@ public:
   void Callback(
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d accelerationCovariance,
     Eigen::Vector3d angularRate, Eigen::Matrix3d angularRateCovariance);
+
+  void RosCallback(const sensor_msgs::msg::Imu::SharedPtr msg);
 
 private:
   bool m_isBaseSensor;

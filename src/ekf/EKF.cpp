@@ -26,35 +26,6 @@
 // initializing instancePointer with NULL
 EKF * EKF::instancePointer = NULL;
 
-// EKF::EKF()
-// : m_Logger(LogLevel::DEBUG)
-// {}
-
-// unsigned int EKF::RegisterSensor(typename Imu::Params params)
-// {
-//   std::shared_ptr<Imu> sensor_ptr = std::make_shared<Imu>(params);
-//   m_mapImu[sensor_ptr->GetId()] = sensor_ptr;
-//   sensor_ptr->SetStateStartIndex(m_stateSize);
-
-//   if (sensor_ptr->GetStateSize() != 0) {
-//     ExtendState(sensor_ptr->GetStateSize(), sensor_ptr->GetState(), sensor_ptr->GetCov());
-//   }
-//   return sensor_ptr->GetId();
-// }
-
-// unsigned int EKF::RegisterSensor(typename Camera::Params params)
-// {
-//   std::shared_ptr<Camera> sensor_ptr = std::make_shared<Camera>(params);
-//   m_mapCamera[sensor_ptr->GetId()] = sensor_ptr;
-//   sensor_ptr->SetStateStartIndex(m_stateSize);
-
-//   if (sensor_ptr->GetStateSize() != 0) {
-//     ExtendState(sensor_ptr->GetStateSize(), sensor_ptr->GetState(), sensor_ptr->GetCov());
-//   }
-
-//   return sensor_ptr->GetId();
-// }
-
 void EKF::ExtendState(
   unsigned int sensorStateSize, Eigen::VectorXd sensorState,
   Eigen::MatrixXd sensorCov)
@@ -142,12 +113,12 @@ void EKF::Predict(double time)
   // Sensor::SetBodyState(m_state.segment<18>(0));
 }
 
-Eigen::VectorXd EKF::GetState()
+Eigen::VectorXd & EKF::GetState()
 {
   return m_state;
 }
 
-Eigen::MatrixXd EKF::GetCov()
+Eigen::MatrixXd & EKF::GetCov()
 {
   return m_cov;
 }

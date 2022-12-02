@@ -50,30 +50,6 @@ public:
   virtual Eigen::MatrixXd GetMeasurementJacobian() = 0;
 
   ///
-  /// @brief Sensor state setter
-  /// @param state Sensor state vector
-  ///
-  virtual void SetState(Eigen::VectorXd state) = 0;
-
-  ///
-  /// @brief Sensor state setter
-  /// @param state Sensor state vector
-  ///
-  virtual Eigen::VectorXd GetState() = 0;
-
-  ///
-  /// @brief Sensor state covariance setter method
-  /// @param cov Sensor state covariance
-  ///
-  void SetCov(Eigen::MatrixXd cov);
-
-  ///
-  /// @brief Sensor state covariance getter method
-  /// @return Sensor state covariance
-  ///
-  Eigen::MatrixXd GetCov();
-
-  ///
   /// @brief Sensor position offset getter method
   /// @return Position offset vector
   ///

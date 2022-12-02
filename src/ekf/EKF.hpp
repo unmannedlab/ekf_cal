@@ -18,10 +18,8 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <iostream>
-#include <map>
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "infrastructure/Logger.hpp"
@@ -29,6 +27,7 @@
 ///
 /// @class EKF
 /// @brief Calibration EKF class
+/// @todo Implement check for correlation coefficients to be between +/- 1
 ///
 class EKF
 {
@@ -96,16 +95,16 @@ public:
   // unsigned int RegisterSensor(typename Camera::Params params);
 
   ///
-  /// @brief Getter method for state vector
-  /// @return State vector
+  /// @brief Getter for state vector reference
+  /// @return State vector reference
   ///
-  Eigen::VectorXd GetState();
+  Eigen::VectorXd & GetState();
 
   ///
-  /// @brief Getter method for state covariance matrix
-  /// @return State covariance matrix
+  /// @brief Getter method for state covariance matrix reference
+  /// @return State covariance matrix reference
   ///
-  Eigen::MatrixXd GetCov();
+  Eigen::MatrixXd & GetCov();
 
   ///
   /// @brief Getter method for state size

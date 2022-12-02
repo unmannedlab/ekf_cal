@@ -60,12 +60,6 @@ public:
   Eigen::MatrixXd GetMeasurementJacobian();
 
   ///
-  /// @brief State setter
-  /// @param state Input state vector
-  ///
-  void SetState(Eigen::VectorXd state);
-
-  ///
   /// @brief Sensor state getter method
   /// @return Sensor state vector
   ///

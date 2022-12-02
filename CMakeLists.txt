@@ -39,10 +39,9 @@ foreach(pkg ${ROS_PKGS})
 endforeach()
 
 # EKF sources
+# TODO: Fix separate linking
 set(EKF_SRCS
     src/ekf/EKF.cpp
-    src/sensors/ros/RosCam.cpp
-    src/sensors/ros/RosImu.cpp
     src/sensors/Sensor.cpp
 )
 
@@ -58,6 +57,10 @@ target_include_directories(EKF_LIB PUBLIC
 set(ROS_INFRASTRUCTURE
     src/infrastructure/Logger.cpp
     src/infrastructure/ros/RosLog.cpp
+    src/sensors/ros/RosCam.cpp
+    src/sensors/ros/RosImu.cpp
+    src/ekf/EKF.cpp
+    src/sensors/Sensor.cpp
 )
 
 add_library(ROS_INF_LIB ${ROS_INFRASTRUCTURE})

@@ -28,6 +28,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "utility/TypeHelper.hpp"
 #include "utility/RosHelper.hpp"
@@ -127,16 +128,19 @@ void EkfCalNode::LoadImu(std::string imuName)
   }
 
   // Register IMU and bind callback to ID
-  // unsigned int id = m_ekf.RegisterSensor(imuParams);
-  // std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
-  // function = std::bind(&EkfCalNode::ImuCallback, this, _1, id);
-  // m_ImuSubs.push_back(this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function));
+  std::shared_ptr<Imu> sensor_ptr = std::make_shared<Imu>(imuParams);
+  m_mapImu[sensor_ptr->GetId()] = sensor_ptr;
+
+  std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
+  function = std::bind(&EkfCalNode::ImuCallback, this, _1, sensor_ptr->GetId());
+  m_ImuSubs.push_back(this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function));
 
   if (imuParams.baseSensor) {
     m_baseImuAssigned = true;
   }
   m_Logger->log(LogLevel::INFO, "Loaded IMU: " + imuName);
 }
+
 
 void EkfCalNode::LoadCamera(std::string camName)
 {

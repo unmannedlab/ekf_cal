@@ -33,12 +33,6 @@ Eigen::MatrixXd Camera::GetMeasurementJacobian()
   return measurementJacobian;
 }
 
-void Camera::SetState(Eigen::VectorXd state)
-{
-  m_posOffset = state.segment(0, 3);
-  m_angOffset = TypeHelper::RotVecToQuat(state.segment(3, 3));
-}
-
 Eigen::VectorXd Camera::GetState()
 {
   Eigen::AngleAxisd angAxis{m_angOffset};

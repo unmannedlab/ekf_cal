@@ -15,8 +15,12 @@
 
 #include "sensors/ros/RosImu.hpp"
 
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/imu.hpp>
+
 #include "sensors/Sensor.hpp"
 #include "utility/MathHelper.hpp"
+#include "utility/RosHelper.hpp"
 #include "utility/TypeHelper.hpp"
 
 Imu::Imu(Imu::Params params)
@@ -191,26 +195,6 @@ Eigen::MatrixXd Imu::GetMeasurementJacobian()
   return measurementJacobian;
 }
 
-void Imu::SetState(Eigen::VectorXd state)
-{
-  if (m_isBaseSensor) {
-    if (m_isIntrinsic) {
-      m_accBias = state.segment(0, 3);
-      m_omgBias = state.segment(3, 3);
-    } else {
-      m_Logger->log(LogLevel::WARN, "Base IMU has no state to set");
-    }
-  } else {
-    m_posOffset = state.segment(0, 3);
-    m_angOffset = TypeHelper::RotVecToQuat(state.segment(3, 3));
-
-    if (m_isIntrinsic) {
-      m_accBias = state.segment(6, 3);
-      m_omgBias = state.segment(9, 3);
-    }
-  }
-}
-
 Eigen::VectorXd Imu::GetState()
 {
   Eigen::AngleAxisd angAxis{m_angOffset};
@@ -278,13 +262,6 @@ void Imu::Callback(
   Eigen::MatrixXd S = H * m_cov * H.transpose() + R;
   Eigen::MatrixXd K = m_cov * H.transpose() * S.inverse();
 
-  // m_state = m_state + K * resid;
-  // m_cov = (Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) - K * H) * m_cov;
-
-  // // Only set state if nonzero in size
-  // if (GetStateSize() > 0) {
-  //   SetState(m_state.segment(stateStartIndex, stateSize));
-  // }
-
-  // Sensor::SetBodyState(m_state.segment<18>(0));
+  m_ekf->GetState() = m_ekf->GetState() + K * resid;
+  m_ekf->GetCov() = (Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) - K * H) * m_ekf->GetCov();
 }
