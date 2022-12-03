@@ -121,44 +121,6 @@
 //   EXPECT_TRUE(CustomAssertions::EXPECT_EIGEN_NEAR(phiOut3, phiExp3, 1e-6));
 // }
 
-// TEST(test_EKF, GetProcessInput) {
-//   EKF ekf;
-
-//   EXPECT_EQ(ekf.GetProcessInput(), Eigen::MatrixXd::Identity(18, 18));
-
-//   Imu::Params params;
-//   params.baseSensor = false;
-//   params.intrinsic = true;
-//   params.variance = Eigen::VectorXd::Ones(12);
-//   ekf.RegisterSensor(params);
-
-//   EXPECT_EQ(ekf.GetProcessInput(), Eigen::MatrixXd::Identity(30, 30));
-// }
-
-// TEST(test_EKF, GetProcessNoise) {
-//   EKF ekf;
-
-//   EXPECT_EQ(ekf.GetProcessNoise(), Eigen::MatrixXd::Zero(18, 18));
-
-//   Imu::Params params;
-//   params.baseSensor = false;
-//   params.intrinsic = true;
-//   params.variance = Eigen::VectorXd::Ones(12);
-//   params.accBiasStability = 0.001;
-//   params.omgBiasStability = 0.01;
-//   ekf.RegisterSensor(params);
-
-//   Eigen::MatrixXd noiseOut(30, 30);
-//   Eigen::MatrixXd noiseExp(30, 30);
-
-//   noiseOut = ekf.GetProcessNoise();
-//   noiseExp.setZero();
-//   noiseExp.block<3, 3>(24, 24) = Eigen::Matrix3d::Identity() * params.accBiasStability;
-//   noiseExp.block<3, 3>(27, 27) = Eigen::Matrix3d::Identity() * params.omgBiasStability;
-
-//   EXPECT_EQ(noiseOut, noiseExp);
-// }
-
 // TEST(test_EKF, Predict) {
 //   // Initialize
 //   EKF ekf;

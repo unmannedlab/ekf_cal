@@ -7,9 +7,7 @@
                 "/usr/include/**",
                 "/usr/local/include/**",
                 "/usr/src/googletest",
-                "${workspaceFolder}/include",
-                "${workspaceFolder}/src",
-                "${workspaceFolder}/test"
+                "${workspaceFolder}/src"
             ],
             "configurationProvider": "ms-vscode.cmake-tools"
         }

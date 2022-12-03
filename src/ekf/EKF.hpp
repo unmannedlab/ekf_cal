@@ -65,36 +65,6 @@ public:
   }
 
   ///
-  /// @brief IMU message callback method
-  ///
-  // void ImuCallback(
-  //   unsigned int id, double time,
-  //   Eigen::Vector3d acceleration,
-  //   Eigen::Matrix3d accelerationCovariance,
-  //   Eigen::Vector3d angularRate,
-  //   Eigen::Matrix3d angularRateCovariance);
-
-  ///
-  /// @brief Camera message callback method
-  /// @param id Camera sensor ID
-  /// @param time Camera measurement time
-  ///
-  // void CameraCallback(unsigned int id, double time);
-  // void CameraCallback();
-
-  ///
-  /// @brief Registers new IMU sensor to calibration EKF
-  /// @param params Sensor parameters to use in registration
-  ///
-  // unsigned int RegisterSensor(typename Imu::Params params);
-
-  ///
-  /// @brief Registers new Camera sensor to calibration EKF
-  /// @param params Sensor parameters to use in registration
-  ///
-  // unsigned int RegisterSensor(typename Camera::Params params);
-
-  ///
   /// @brief Getter for state vector reference
   /// @return State vector reference
   ///
@@ -132,17 +102,11 @@ public:
   Eigen::MatrixXd GetProcessInput();
 
   ///
-  /// @brief Process noise matrix getter method
-  /// @return Process noise matrix
-  ///
-  Eigen::MatrixXd GetProcessNoise();
-
-  ///
   /// @brief EKF state initialization method
   /// @param timeInit Initial time
   /// @param bodyStateInit Initial state
   ///
-  void InitializeBodyState(double timeInit, Eigen::VectorXd bodyStateInit);
+  void Initialize(double timeInit, Eigen::VectorXd bodyStateInit);
 
   void GetTransforms(
     std::string & baseImuName,
@@ -151,17 +115,20 @@ public:
     std::vector<Eigen::Quaterniond> & sensorAngOffsets
   );
 
-private:
   void ExtendState(
     unsigned int sensorStateSize, Eigen::VectorXd sensorState,
     Eigen::MatrixXd sensorCov);
 
+private:
   unsigned int m_stateSize{18U};
   Eigen::VectorXd m_state = Eigen::VectorXd::Zero(18U);
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(18U, 18U);
   double m_currentTime {0};
   bool m_timeInitialized {false};
-  // Logger m_Logger;
+  Logger * m_Logger = Logger::getInstance();
+
+  Eigen::MatrixXd m_processNoise = Eigen::MatrixXd::Identity(18U, 18U) * 1e-3;
+  Eigen::MatrixXd m_processInput = Eigen::MatrixXd::Identity(18U, 18U) * 1e-3;
 };
 
 #endif  // EKF__EKF_HPP_

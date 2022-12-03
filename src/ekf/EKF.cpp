@@ -19,13 +19,12 @@
 #include <string>
 #include <vector>
 
-
-// #include "sensors/ros/RosImu.hpp"
-// #include "infrastructure/Logger.hpp"
+#include "infrastructure/Logger.hpp"
 
 // initializing instancePointer with NULL
 EKF * EKF::instancePointer = NULL;
 
+/// @todo Extend state with process noise (and inputs?)
 void EKF::ExtendState(
   unsigned int sensorStateSize, Eigen::VectorXd sensorState,
   Eigen::MatrixXd sensorCov)
@@ -55,37 +54,6 @@ Eigen::MatrixXd EKF::GetStateTransition(double dT)
   return F;
 }
 
-Eigen::MatrixXd EKF::GetProcessInput()
-{
-  Eigen::MatrixXd G = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
-  return G;
-}
-
-Eigen::MatrixXd EKF::GetProcessNoise()
-{
-  Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(m_stateSize, m_stateSize);
-  unsigned int stateStart {0};
-  double accBiasStability {0};
-  double omgBiasStability {0};
-
-  // for (auto const & iter : m_mapImu) {
-  //   if (iter.second->IsIntrinsic()) {
-  //     stateStart = iter.second->GetStateStartIndex();
-  //     accBiasStability = iter.second->GetAccBiasStability();
-  //     omgBiasStability = iter.second->GetOmgBiasStability();
-
-  //     Q.block<3, 3>(
-  //       stateStart + 6,
-  //       stateStart + 6) = Eigen::MatrixXd::Identity(3, 3) * accBiasStability;
-  //     Q.block<3, 3>(
-  //       stateStart + 9,
-  //       stateStart + 9) = Eigen::MatrixXd::Identity(3, 3) * omgBiasStability;
-  //   }
-  // }
-
-  return Q;
-}
-
 void EKF::Predict(double time)
 {
   // Don't predict if time is not initialized
@@ -96,21 +64,19 @@ void EKF::Predict(double time)
   }
 
   if (time < m_currentTime) {
-    // m_Logger->log(LogLevel::WARN, "Requested time in the past");
+    m_Logger->log(LogLevel::WARN, "Requested time in the past");
     return;
   }
 
   double dT = time - m_currentTime;
 
   Eigen::MatrixXd F = GetStateTransition(dT);
-  Eigen::MatrixXd G = GetProcessInput();
-  Eigen::MatrixXd Q = GetProcessNoise();
 
   /// @todo Should create convolution function to handle quaternion multiplication
   m_state = F * m_state;
-  m_cov = F * m_cov * F.transpose() + F * G * Q * G.transpose() * F.transpose();
+  m_cov = F * m_cov * F.transpose() + F * m_processInput * m_processNoise *
+    m_processInput.transpose() * F.transpose();
   m_currentTime = time;
-  // Sensor::SetBodyState(m_state.segment<18>(0));
 }
 
 Eigen::VectorXd & EKF::GetState()
@@ -128,10 +94,9 @@ unsigned int EKF::GetStateSize()
   return m_stateSize;
 }
 
-void EKF::InitializeBodyState(double timeInit, Eigen::VectorXd bodyStateInit)
+void EKF::Initialize(double timeInit, Eigen::VectorXd bodyStateInit)
 {
   m_currentTime = timeInit;
   m_timeInitialized = true;
   m_state.segment<18>(0) = bodyStateInit;
-  // Sensor::SetBodyState(bodyStateInit);
 }

@@ -248,6 +248,7 @@ void EkfCalNode::GetTransforms(
 
 ///
 /// @todo debug issue with future extrapolation in RVIZ
+/// @todo possibly separate into separate node that just reads and publishes EKF data
 ///
 void EkfCalNode::PublishTransforms()
 {

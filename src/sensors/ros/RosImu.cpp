@@ -27,14 +27,19 @@ Imu::Imu(Imu::Params params)
 : Sensor(params.name)
 {
   if (params.baseSensor == true) {
-    m_stateSize = 0U;
+    if (params.intrinsic == true) {
+      m_stateSize = 6U;
+    } else {
+      m_stateSize = 0U;
+    }
   } else {
-    m_stateSize = 6U;
+    if (params.intrinsic == true) {
+      m_stateSize = 12U;
+    } else {
+      m_stateSize = 6U;
+    }
   }
 
-  if (params.intrinsic == true) {
-    m_stateSize += 6U;
-  }
 
   m_isBaseSensor = params.baseSensor;
   m_isIntrinsic = params.intrinsic;
@@ -57,6 +62,27 @@ Imu::Imu(Imu::Params params)
       m_Logger->log(LogLevel::WARN, "Variance should be larger than 1e-6");
       m_cov(i, i) = 1e-6;
     }
+  }
+
+  Eigen::VectorXd sensorState(m_stateSize);
+  if (params.baseSensor == true) {
+    if (params.intrinsic == true) {
+      sensorState.segment(0, 3) = m_accBias;
+      sensorState.segment(3, 3) = m_omgBias;
+    }
+  } else {
+    Eigen::AngleAxisd angAxis{m_angOffset};
+    Eigen::Vector3d angBiasRotVec = angAxis.axis() * angAxis.angle();
+    sensorState.segment(0, 3) = m_posOffset;
+    sensorState.segment(3, 3) = angBiasRotVec;
+    if (params.intrinsic == true) {
+      sensorState.segment(0, 3) = m_accBias;
+      sensorState.segment(3, 3) = m_omgBias;
+    }
+  }
+
+  if (m_stateSize) {
+    m_ekf->ExtendState(m_stateSize, sensorState, m_cov);
   }
 }
 
