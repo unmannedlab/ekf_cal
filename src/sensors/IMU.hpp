@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__ROS__ROSIMU_HPP_
-#define SENSORS__ROS__ROSIMU_HPP_
+#ifndef SENSORS__IMU_HPP_
+#define SENSORS__IMU_HPP_
 
 #include <sensor_msgs/msg/imu.hpp>
 
@@ -24,15 +24,15 @@
 #include "infrastructure/Logger.hpp"
 
 ///
-/// @class Imu
+/// @class IMU
 /// @brief IMU Sensor Class
 /// @todo Add parameter input/defaults for covariance
 ///
-class Imu : public Sensor
+class IMU : public Sensor
 {
 public:
   ///
-  /// @brief Imu initialization parameters structure
+  /// @brief IMU initialization parameters structure
   ///
   typedef struct Params
   {
@@ -54,7 +54,7 @@ public:
   /// @brief IMU class constructor
   /// @param params IMU sensor parameters
   ///
-  explicit Imu(Imu::Params params);
+  explicit IMU(IMU::Params params);
 
   ///
   /// @brief Predict measurement method
@@ -115,7 +115,6 @@ private:
   Eigen::Vector3d m_omgBias;
   double m_accBiasStability;
   double m_omgBiasStability;
-  Logger * m_Logger = Logger::getInstance();
 };
 
-#endif  // SENSORS__ROS__ROSIMU_HPP_
+#endif  // SENSORS__IMU_HPP_

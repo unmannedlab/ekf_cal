@@ -13,18 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
-#include <iostream>
+#ifndef SENSORS__ROS__ROSIMU_HPP_
+#define SENSORS__ROS__ROSIMU_HPP_
 
-#include "sensors/ros/RosCamera.hpp"
-#include "sensors/Camera.hpp"
+#include <sensor_msgs/msg/imu.hpp>
+
+#include <string>
+
+#include "infrastructure/Logger.hpp"
+#include "sensors/IMU.hpp"
+#include "sensors/Sensor.hpp"
 
 ///
-/// @todo Write this test
+/// @class IMU
+/// @brief IMU Sensor Class
+/// @todo Add parameter input/defaults for covariance
 ///
-TEST(test_Camera, hello_world) {
-  Camera::Params params;
-  params.name = "test_Camera";
-  RosCamera RosCamera(params);
-  EXPECT_TRUE(true);
-}
+class RosIMU : public IMU
+{
+public:
+  using IMU::IMU;
+  void Callback(const sensor_msgs::msg::Imu::SharedPtr msg);
+};
+
+#endif  // SENSORS__ROS__ROSIMU_HPP_

@@ -57,8 +57,10 @@ target_include_directories(EKF_LIB PUBLIC
 set(ROS_INFRASTRUCTURE
     src/infrastructure/Logger.cpp
     src/infrastructure/ros/RosLog.cpp
-    src/sensors/ros/RosCam.cpp
-    src/sensors/ros/RosImu.cpp
+    src/sensors/ros/RosCamera.cpp
+    src/sensors/ros/RosIMU.cpp
+    src/sensors/Camera.cpp
+    src/sensors/IMU.cpp
     src/ekf/EKF.cpp
     src/sensors/Sensor.cpp
 )
@@ -102,7 +104,8 @@ if(BUILD_TESTING)
         src/utility/test/test_TypeHelper.cpp
         src/ekf/test/test_EKF.cpp
         src/sensors/ros/test/test_Camera.cpp
-        src/sensors/ros/test/test_Imu.cpp
+        src/sensors/ros/test/test_RosIMU.cpp
+        src/sensors/test/test_IMU.cpp
     )
 
     foreach(f_name IN LISTS test_files)

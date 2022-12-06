@@ -34,9 +34,8 @@
 
 #include "ekf/EKF.hpp"
 #include "infrastructure/Logger.hpp"
-#include "sensors/ros/RosCam.hpp"
-#include "sensors/ros/RosImu.hpp"
-#include "sensors/Sensor.hpp"
+#include "sensors/ros/RosCamera.hpp"
+#include "sensors/ros/RosIMU.hpp"
 ///
 /// @class EkfCalNode
 /// @brief A ROS2 node for EKF-based sensor calibration
@@ -64,7 +63,7 @@ public:
   /// @brief Loading method for IMU sensors
   /// @param imuName Name of IMU to find and load from YAML
   ///
-  void LoadImu(std::string imuName);
+  void LoadIMU(std::string imuName);
 
   ///
   /// @brief Loading method for IMU sensors
@@ -73,11 +72,11 @@ public:
   void LoadCamera(std::string camName);
 
   ///
-  /// @brief Callback method for Imu sensor messages
+  /// @brief Callback method for IMU sensor messages
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
   ///
-  void ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id);
+  void IMUCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id);
   ///
   /// @brief Callback method for Camera sensor messages
   /// @param msg Sensor message pointer
@@ -97,7 +96,7 @@ public:
   void PublishTransforms();
 
   void GetTransforms(
-    std::string & baseImuName,
+    std::string & baseIMUName,
     std::vector<std::string> & sensorNames, std::vector<Eigen::Vector3d> & sensorPosOffsets,
     std::vector<Eigen::Quaterniond> & sensorAngOffsets);
 
@@ -106,12 +105,12 @@ private:
   EKF * m_ekf = EKF::getInstance();
 
   /// @brief Vector of subscribers for IMU sensor messages
-  std::vector<rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr> m_ImuSubs;
+  std::vector<rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr> m_IMUSubs;
 
   /// @brief Vector of subscribers for Camera sensor messages
   std::vector<rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr> m_CameraSubs;
 
-  bool m_baseImuAssigned {false};
+  bool m_baseIMUAssigned {false};
 
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr m_PosePub;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_TwistPub;
@@ -119,8 +118,8 @@ private:
   std::unique_ptr<tf2_ros::TransformBroadcaster> m_tfBroadcaster;
   rclcpp::TimerBase::SharedPtr m_tfTimer;
   Logger * m_Logger = Logger::getInstance();
-  std::map<int, std::shared_ptr<Imu>> m_mapImu{};
-  std::map<int, std::shared_ptr<Camera>> m_mapCamera{};
+  std::map<int, std::shared_ptr<RosIMU>> m_mapIMU{};
+  std::map<int, std::shared_ptr<RosCamera>> m_mapCamera{};
 };
 
 #endif  // APPLICATION__ROS__EKFCALNODE_HPP_

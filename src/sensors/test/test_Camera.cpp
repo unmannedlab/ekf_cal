@@ -17,14 +17,13 @@
 #include <iostream>
 
 #include "sensors/ros/RosCamera.hpp"
-#include "sensors/Camera.hpp"
 
 ///
-/// @todo Write this test
+/// @todo Write these unit tests
 ///
 TEST(test_Camera, hello_world) {
   Camera::Params params;
   params.name = "test_Camera";
-  RosCamera RosCamera(params);
+  Camera Camera(params);
   EXPECT_TRUE(true);
 }

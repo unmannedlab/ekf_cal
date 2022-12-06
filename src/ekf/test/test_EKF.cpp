@@ -25,21 +25,21 @@
 // TEST(test_EKF, register_imu) {
 //   EKF ekf;
 
-//   Imu::Params imu_params_base;
+//   IMU::Params imu_params_base;
 //   imu_params_base.baseSensor = true;
 //   imu_params_base.intrinsic = false;
 
-//   Imu::Params imu_params_base_intrinsic;
+//   IMU::Params imu_params_base_intrinsic;
 //   imu_params_base_intrinsic.baseSensor = true;
 //   imu_params_base_intrinsic.intrinsic = true;
 //   imu_params_base_intrinsic.variance = Eigen::VectorXd::Ones(6);
 
-//   Imu::Params imu_params_extrinsic;
+//   IMU::Params imu_params_extrinsic;
 //   imu_params_extrinsic.baseSensor = false;
 //   imu_params_extrinsic.intrinsic = false;
 //   imu_params_extrinsic.variance = Eigen::VectorXd::Ones(6);
 
-//   Imu::Params imu_params_intrinsic;
+//   IMU::Params imu_params_intrinsic;
 //   imu_params_intrinsic.baseSensor = false;
 //   imu_params_intrinsic.intrinsic = true;
 //   imu_params_intrinsic.variance = Eigen::VectorXd::Ones(12);
@@ -103,7 +103,7 @@
 
 
 //   // Change state size
-//   Imu::Params params;
+//   IMU::Params params;
 //   params.baseSensor = false;
 //   params.intrinsic = true;
 //   params.variance = Eigen::VectorXd::Ones(12);

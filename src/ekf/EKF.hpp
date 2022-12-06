@@ -109,7 +109,7 @@ public:
   void Initialize(double timeInit, Eigen::VectorXd bodyStateInit);
 
   void GetTransforms(
-    std::string & baseImuName,
+    std::string & baseIMUName,
     std::vector<std::string> & sensorNames,
     std::vector<Eigen::Vector3d> & sensorPosOffsets,
     std::vector<Eigen::Quaterniond> & sensorAngOffsets

@@ -13,18 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
-#include <iostream>
+#ifndef SENSORS__ROS__ROSCAMERA_HPP_
+#define SENSORS__ROS__ROSCAMERA_HPP_
 
-#include "sensors/ros/RosCamera.hpp"
+#include <sensor_msgs/msg/image.hpp>
+#include <string>
+
 #include "sensors/Camera.hpp"
 
 ///
-/// @todo Write this test
+/// @class Camera
+/// @brief Camera Sensor Class
+/// @todo Implement update methods
 ///
-TEST(test_Camera, hello_world) {
-  Camera::Params params;
-  params.name = "test_Camera";
-  RosCamera RosCamera(params);
-  EXPECT_TRUE(true);
-}
+class RosCamera : public Camera
+{
+public:
+  using Camera::Camera;
+  void Callback(const sensor_msgs::msg::Image::SharedPtr msg);
+};
+
+#endif  // SENSORS__ROS__ROSCAMERA_HPP_

@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sensors/ros/RosImu.hpp"
+#include "sensors/IMU.hpp"
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/imu.hpp>
@@ -23,7 +23,7 @@
 #include "utility/RosHelper.hpp"
 #include "utility/TypeHelper.hpp"
 
-Imu::Imu(Imu::Params params)
+IMU::IMU(IMU::Params params)
 : Sensor(params.name)
 {
   if (params.baseSensor == true) {
@@ -86,27 +86,27 @@ Imu::Imu(Imu::Params params)
   }
 }
 
-double Imu::GetAccBiasStability()
+double IMU::GetAccBiasStability()
 {
   return m_accBiasStability;
 }
 
-double Imu::GetOmgBiasStability()
+double IMU::GetOmgBiasStability()
 {
   return m_omgBiasStability;
 }
 
-bool Imu::IsBaseSensor()
+bool IMU::IsBaseSensor()
 {
   return m_isBaseSensor;
 }
 
-bool Imu::IsIntrinsic()
+bool IMU::IsIntrinsic()
 {
   return m_isIntrinsic;
 }
 
-Eigen::VectorXd Imu::PredictMeasurement()
+Eigen::VectorXd IMU::PredictMeasurement()
 {
   Eigen::VectorXd predictedMeasurement(6);
 
@@ -141,7 +141,7 @@ Eigen::VectorXd Imu::PredictMeasurement()
   return predictedMeasurement;
 }
 
-Eigen::MatrixXd Imu::GetMeasurementJacobian()
+Eigen::MatrixXd IMU::GetMeasurementJacobian()
 {
   Eigen::MatrixXd measurementJacobian(6, m_stateSize + 18);
   measurementJacobian.setZero();
@@ -221,7 +221,7 @@ Eigen::MatrixXd Imu::GetMeasurementJacobian()
   return measurementJacobian;
 }
 
-Eigen::VectorXd Imu::GetState()
+Eigen::VectorXd IMU::GetState()
 {
   Eigen::AngleAxisd angAxis{m_angOffset};
   Eigen::Vector3d rotVec = angAxis.axis() * angAxis.angle();
@@ -250,7 +250,7 @@ Eigen::VectorXd Imu::GetState()
 }
 
 
-void Imu::Callback(
+void IMU::Callback(
   double time, Eigen::Vector3d acceleration,
   Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
   Eigen::Matrix3d angularRateCovariance)

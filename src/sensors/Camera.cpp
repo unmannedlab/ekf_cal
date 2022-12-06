@@ -13,7 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sensors/ros/RosCam.hpp"
+#include "sensors/Camera.hpp"
+
+#include <string>
 
 #include "sensors/Sensor.hpp"
 #include "utility/TypeHelper.hpp"
@@ -46,5 +48,6 @@ Eigen::VectorXd Camera::GetState()
 
 void Camera::Callback(double time)
 {
-  m_Logger->log(LogLevel::INFO, "Camera callback not implemented");
+  std::string log = "Camera callback not implemented. Called at time = " + std::to_string(time);
+  m_Logger->log(LogLevel::INFO, log);
 }

@@ -33,8 +33,8 @@
 #include "utility/TypeHelper.hpp"
 #include "utility/RosHelper.hpp"
 #include "ekf/EKF.hpp"
-#include "sensors/ros/RosCam.hpp"
-#include "sensors/ros/RosImu.hpp"
+#include "sensors/ros/RosCamera.hpp"
+#include "sensors/ros/RosIMU.hpp"
 #include "infrastructure/Logger.hpp"
 
 using std::placeholders::_1;
@@ -50,11 +50,11 @@ EkfCalNode::EkfCalNode()
   std::vector<std::string> imuList = this->get_parameter("IMU_list").as_string_array();
   std::vector<std::string> camList = this->get_parameter("Camera_list").as_string_array();
 
-  // Load Imu sensor parameters
+  // Load IMU sensor parameters
   for (std::string & imuName : imuList) {
-    LoadImu(imuName);
+    LoadIMU(imuName);
   }
-  if (m_baseImuAssigned == false) {
+  if (m_baseIMUAssigned == false) {
     m_Logger->log(LogLevel::WARN, "Base IMU should be set for filter stability");
   }
 
@@ -75,7 +75,7 @@ EkfCalNode::EkfCalNode()
   m_tfBroadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 }
 
-void EkfCalNode::LoadImu(std::string imuName)
+void EkfCalNode::LoadIMU(std::string imuName)
 {
   // Declare parameters
   std::string imuPrefix = "IMUs." + imuName;
@@ -111,7 +111,7 @@ void EkfCalNode::LoadImu(std::string imuName)
   }
 
   // Assign parameters to struct
-  Imu::Params imuParams;
+  IMU::Params imuParams;
   imuParams.name = imuName;
   imuParams.baseSensor = baseSensor;
   imuParams.intrinsic = intrinsic;
@@ -128,15 +128,15 @@ void EkfCalNode::LoadImu(std::string imuName)
   }
 
   // Register IMU and bind callback to ID
-  std::shared_ptr<Imu> sensor_ptr = std::make_shared<Imu>(imuParams);
-  m_mapImu[sensor_ptr->GetId()] = sensor_ptr;
+  std::shared_ptr<RosIMU> sensor_ptr = std::make_shared<RosIMU>(imuParams);
+  m_mapIMU[sensor_ptr->GetId()] = sensor_ptr;
 
   std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
-  function = std::bind(&EkfCalNode::ImuCallback, this, _1, sensor_ptr->GetId());
-  m_ImuSubs.push_back(this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function));
+  function = std::bind(&EkfCalNode::IMUCallback, this, _1, sensor_ptr->GetId());
+  m_IMUSubs.push_back(this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function));
 
   if (imuParams.baseSensor) {
-    m_baseImuAssigned = true;
+    m_baseIMUAssigned = true;
   }
   m_Logger->log(LogLevel::INFO, "Loaded IMU: " + imuName);
 }
@@ -147,20 +147,14 @@ void EkfCalNode::LoadCamera(std::string camName)
   m_Logger->log(LogLevel::INFO, "Camera not Loaded: " + camName);
 }
 
-void EkfCalNode::ImuCallback(
+void EkfCalNode::IMUCallback(
   const sensor_msgs::msg::Imu::SharedPtr msg,
   unsigned int id)
 {
-  double time = RosHelper::RosHeaderToTime(msg->header);
-  Eigen::Vector3d acc = RosHelper::RosToEigen(msg->linear_acceleration);
-  Eigen::Vector3d omg = RosHelper::RosToEigen(msg->angular_velocity);
-  Eigen::Matrix3d acc_cov = RosHelper::RosToEigen(msg->linear_acceleration_covariance);
-  Eigen::Matrix3d omg_cov = RosHelper::RosToEigen(msg->angular_velocity_covariance);
+  auto iter = m_mapIMU.find(id);
+  m_Logger->log(LogLevel::INFO, "IMU Callback: " + iter->second->GetName());
 
-  auto iter = m_mapImu.find(id);
-  m_Logger->log(LogLevel::INFO, "IMU Callback: " + iter->second->GetName() + std::to_string(time));
-
-  iter->second->Callback(time, acc, acc_cov, omg, omg_cov);
+  iter->second->Callback(msg);
 
   PublishState();
 }
@@ -168,12 +162,10 @@ void EkfCalNode::ImuCallback(
 // void EkfCalNode::CameraCallback()
 void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
 {
-  double time = RosHelper::RosHeaderToTime(msg->header);
-
   auto iter = m_mapCamera.find(id);
-  m_Logger->log(LogLevel::INFO, "IMU Callback: " + iter->second->GetName() + std::to_string(time));
+  m_Logger->log(LogLevel::INFO, "IMU Callback: " + iter->second->GetName());
 
-  iter->second->Callback(time);
+  iter->second->Callback(msg);
 
   PublishState();
 }
@@ -224,14 +216,14 @@ void EkfCalNode::PublishState()
 
 
 void EkfCalNode::GetTransforms(
-  std::string & baseImuName,
+  std::string & baseIMUName,
   std::vector<std::string> & sensorNames, std::vector<Eigen::Vector3d> & sensorPosOffsets,
   std::vector<Eigen::Quaterniond> & sensorAngOffsets)
 {
   // Iterate over IMUs
-  for (auto const & iter : m_mapImu) {
+  for (auto const & iter : m_mapIMU) {
     if (iter.second->IsBaseSensor()) {
-      baseImuName = iter.second->GetName();
+      baseIMUName = iter.second->GetName();
     } else {
       sensorNames.push_back(iter.second->GetName());
       sensorPosOffsets.push_back(iter.second->GetPosOffset());
@@ -252,14 +244,14 @@ void EkfCalNode::GetTransforms(
 ///
 void EkfCalNode::PublishTransforms()
 {
-  std::string baseImuName;
+  std::string baseIMUName;
   std::vector<std::string> sensorNames;
   std::vector<Eigen::Vector3d> sensorPosOffsets;
   std::vector<Eigen::Quaterniond> sensorAngOffsets;
-  GetTransforms(baseImuName, sensorNames, sensorPosOffsets, sensorAngOffsets);
+  GetTransforms(baseIMUName, sensorNames, sensorPosOffsets, sensorAngOffsets);
 
   geometry_msgs::msg::TransformStamped tf;
-  tf.header.frame_id = baseImuName;
+  tf.header.frame_id = baseIMUName;
 
   // Publish Sensor transforms
   for (unsigned int i = 0; i < sensorNames.size(); ++i) {
@@ -287,7 +279,7 @@ void EkfCalNode::PublishTransforms()
 
   // Publish Body transforms
   tf.header.frame_id = "world";
-  tf.child_frame_id = baseImuName;
+  tf.child_frame_id = baseIMUName;
   tf.header.stamp = this->get_clock()->now();
 
   // Body position

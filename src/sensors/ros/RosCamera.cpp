@@ -13,18 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
-#include <iostream>
-
 #include "sensors/ros/RosCamera.hpp"
-#include "sensors/Camera.hpp"
 
-///
-/// @todo Write this test
-///
-TEST(test_Camera, hello_world) {
-  Camera::Params params;
-  params.name = "test_Camera";
-  RosCamera RosCamera(params);
-  EXPECT_TRUE(true);
+#include <sensor_msgs/msg/image.hpp>
+
+#include "sensors/Camera.hpp"
+#include "utility/RosHelper.hpp"
+#include "utility/TypeHelper.hpp"
+
+
+// RosCamera::RosCamera(Camera::Params params)
+// : Camera(params) {}
+
+void RosCamera::Callback(const sensor_msgs::msg::Image::SharedPtr msg)
+{
+  double time = RosHelper::RosHeaderToTime(msg->header);
+
+  m_Logger->log(LogLevel::INFO, "IMU Callback: " + m_name + std::to_string(time));
+
+  Camera::Callback(time);
 }

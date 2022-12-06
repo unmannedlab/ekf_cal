@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__ROS__ROSCAM_HPP_
-#define SENSORS__ROS__ROSCAM_HPP_
+#ifndef SENSORS__CAMERA_HPP_
+#define SENSORS__CAMERA_HPP_
 
 #include <string>
 
@@ -72,4 +72,4 @@ public:
   EKF * m_ekf = EKF::getInstance();
 };
 
-#endif  // SENSORS__ROS__ROSCAM_HPP_
+#endif  // SENSORS__CAMERA_HPP_

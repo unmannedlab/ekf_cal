@@ -28,7 +28,8 @@
         "MATHHELPER",
         "ROSIMU",
         "TYPEHELPER",
-        "VIZNODE"
+        "VIZNODE",
+        "ROSCAMERA"
     ],
     "terminal.integrated.scrollback": 5000,
     "cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}",
@@ -99,7 +100,8 @@
         "valarray": "cpp",
         "variant": "cpp",
         "bit": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "shared_mutex": "cpp"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python"

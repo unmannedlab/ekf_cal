@@ -16,15 +16,18 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "sensors/ros/RosCamera.hpp"
-#include "sensors/Camera.hpp"
+#include "sensors/ros/RosIMU.hpp"
+
+#include "utility/TypeHelper.hpp"
+#include "utility/test/CustomAssertions.hpp"
+
 
 ///
 /// @todo Write this test
 ///
-TEST(test_Camera, hello_world) {
-  Camera::Params params;
-  params.name = "test_Camera";
-  RosCamera RosCamera(params);
-  EXPECT_TRUE(true);
+TEST(test_IMU, Callback) {
+  IMU::Params params;
+  params.name = "IMU_Name";
+  IMU imu(params);
+  EXPECT_EQ(imu.GetName(), params.name);
 }
