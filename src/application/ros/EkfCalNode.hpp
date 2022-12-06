@@ -49,7 +49,6 @@
 /// @todo Warnings as errors
 /// @todo Option to publish health metrics
 /// @todo Option to publish visualization messages
-/// @todo logging
 ///
 class EkfCalNode : public rclcpp::Node
 {

@@ -15,12 +15,8 @@
 
 #include "sensors/IMU.hpp"
 
-#include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/imu.hpp>
-
 #include "sensors/Sensor.hpp"
 #include "utility/MathHelper.hpp"
-#include "utility/RosHelper.hpp"
 #include "utility/TypeHelper.hpp"
 
 IMU::IMU(IMU::Params params)

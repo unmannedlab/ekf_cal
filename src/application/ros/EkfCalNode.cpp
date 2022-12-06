@@ -31,7 +31,6 @@
 #include <map>
 
 #include "utility/TypeHelper.hpp"
-#include "utility/RosHelper.hpp"
 #include "ekf/EKF.hpp"
 #include "sensors/ros/RosCamera.hpp"
 #include "sensors/ros/RosIMU.hpp"
@@ -78,7 +77,7 @@ EkfCalNode::EkfCalNode()
 void EkfCalNode::LoadIMU(std::string imuName)
 {
   // Declare parameters
-  std::string imuPrefix = "IMUs." + imuName;
+  std::string imuPrefix = "IMU." + imuName;
   this->declare_parameter(imuPrefix + ".BaseSensor");
   this->declare_parameter(imuPrefix + ".Intrinsic");
   this->declare_parameter(imuPrefix + ".Rate");
@@ -144,12 +143,42 @@ void EkfCalNode::LoadIMU(std::string imuName)
 
 void EkfCalNode::LoadCamera(std::string camName)
 {
-  m_Logger->log(LogLevel::INFO, "Camera not Loaded: " + camName);
+  // Declare parameters
+  std::string camPrefix = "Camera." + camName;
+  this->declare_parameter(camPrefix + ".Rate");
+  this->declare_parameter(camPrefix + ".Topic");
+  this->declare_parameter(camPrefix + ".PosOffInit");
+  this->declare_parameter(camPrefix + ".AngOffInit");
+  this->declare_parameter(camPrefix + ".VarInit");
+
+
+  // Load parameters
+  double rate = this->get_parameter(camPrefix + ".Rate").as_double();
+  std::string topic = this->get_parameter(camPrefix + ".Topic").as_string();
+  std::vector<double> posOff = this->get_parameter(camPrefix + ".PosOffInit").as_double_array();
+  std::vector<double> angOff = this->get_parameter(camPrefix + ".AngOffInit").as_double_array();
+  std::vector<double> variance = this->get_parameter(camPrefix + ".VarInit").as_double_array();
+
+  // Assign parameters to struct
+  Camera::Params camParams;
+  camParams.name = camName;
+  camParams.rate = rate;
+  camParams.posOffset = TypeHelper::StdToEigVec(posOff);
+  camParams.angOffset = TypeHelper::StdToEigQuat(angOff);
+  camParams.variance = TypeHelper::StdToEigVec(variance);
+
+  // Register IMU and bind callback to ID
+  std::shared_ptr<RosCamera> sensor_ptr = std::make_shared<RosCamera>(camParams);
+  m_mapCamera[sensor_ptr->GetId()] = sensor_ptr;
+
+  std::function<void(std::shared_ptr<sensor_msgs::msg::Image>)> function;
+  function = std::bind(&EkfCalNode::CameraCallback, this, _1, sensor_ptr->GetId());
+  m_CameraSubs.push_back(this->create_subscription<sensor_msgs::msg::Image>(topic, 10, function));
+
+  m_Logger->log(LogLevel::INFO, "Loaded Camera: " + camName);
 }
 
-void EkfCalNode::IMUCallback(
-  const sensor_msgs::msg::Imu::SharedPtr msg,
-  unsigned int id)
+void EkfCalNode::IMUCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id)
 {
   auto iter = m_mapIMU.find(id);
   m_Logger->log(LogLevel::INFO, "IMU Callback: " + iter->second->GetName());
@@ -159,7 +188,6 @@ void EkfCalNode::IMUCallback(
   PublishState();
 }
 
-// void EkfCalNode::CameraCallback()
 void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
 {
   auto iter = m_mapCamera.find(id);

@@ -39,9 +39,10 @@ foreach(pkg ${ROS_PKGS})
 endforeach()
 
 # EKF sources
-# TODO: Fix separate linking
 set(EKF_SRCS
     src/ekf/EKF.cpp
+    src/sensors/Camera.cpp
+    src/sensors/IMU.cpp
     src/sensors/Sensor.cpp
 )
 
@@ -53,38 +54,49 @@ target_include_directories(EKF_LIB PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 
-# ROS Infrastructure Sources
-set(ROS_INFRASTRUCTURE
+# Simulation Sources
+set(SIM_SRCS
+    src/infrastructure/Logger.cpp
+    src/infrastructure/sim/SimLog.cpp
+)
+
+# Create library with Sim sources
+add_library(SIM_LIB ${SIM_SRCS})
+
+# ROS Sources
+set(ROS_SRCS
+    src/ekf/EKF.cpp
     src/infrastructure/Logger.cpp
     src/infrastructure/ros/RosLog.cpp
     src/sensors/ros/RosCamera.cpp
     src/sensors/ros/RosIMU.cpp
-    src/sensors/Camera.cpp
-    src/sensors/IMU.cpp
-    src/ekf/EKF.cpp
-    src/sensors/Sensor.cpp
 )
 
-add_library(ROS_INF_LIB ${ROS_INFRASTRUCTURE})
-target_include_directories(ROS_INF_LIB PUBLIC
+# Create library with ROS sources
+add_library(ROS_LIB ${ROS_SRCS})
+
+target_link_libraries(ROS_LIB EKF_LIB)
+
+target_include_directories(ROS_LIB PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
-ament_target_dependencies(ROS_INF_LIB ${ROS_PKGS})
+ament_target_dependencies(ROS_LIB ${ROS_PKGS})
 
 install(TARGETS EKF_LIB)
 
 # EKF CAL Node
-add_executable(ROS_APPLICATION src/application/ros/EkfCalNode.cpp)
-target_include_directories(ROS_APPLICATION PUBLIC
+# @todo Build is still not compatible with colcon
+add_executable(ekf_cal_node src/application/ros/EkfCalNode.cpp)
+target_include_directories(ekf_cal_node PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
-ament_target_dependencies(ROS_APPLICATION ${ROS_PKGS})
-target_link_libraries(ROS_APPLICATION EKF_LIB ROS_INF_LIB)
+ament_target_dependencies(ekf_cal_node ${ROS_PKGS})
+target_link_libraries(ekf_cal_node EKF_LIB ROS_LIB)
 
 install(TARGETS
-    ROS_APPLICATION
+    ekf_cal_node
     DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -115,7 +127,7 @@ if(BUILD_TESTING)
         target_include_directories(${nam} PUBLIC
             ${CMAKE_SOURCE_DIR}/src/
         )
-        target_link_libraries(${nam} EKF_LIB ROS_INF_LIB)
+        target_link_libraries(${nam} EKF_LIB ROS_LIB)
     endforeach()
 
 endif()
@@ -125,7 +137,7 @@ ament_package()
 # Doxygen
 set(DOXYGEN_STUB_FILE ${PROJECT_SOURCE_DIR}/docs/empty.html)
 
-add_custom_target(DOXYGEN all
+add_custom_target(DOXYGEN
     DEPENDS ${DOXYGEN_STUB_FILE}
 )
 

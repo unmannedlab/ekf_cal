@@ -34,7 +34,6 @@ public:
   typedef struct Params
   {
     std::string name;                                  ///< @brief Camera name
-    bool intrinsic{false};                             ///< @brief Camera intrinsic calibration flag
     double rate{1.0};                                  ///< @brief Camera update rate
     Eigen::Vector3d posOffset{0.0, 0.0, 0.0};          ///< @brief Camera initial position offset
     Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera initial angular offset

@@ -9,7 +9,7 @@
             - dummy_cam_1
             - dummy_cam_2
 
-        IMUs:
+        IMU:
             vn300:
                 BaseSensor: True
                 Intrinsic: False
@@ -27,9 +27,8 @@
                 OmgBiasInit: [0.0, 0.0, 0.0]
                 VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
-        Cameras:
+        Camera:
             dummy_cam_1:
-                Intrinsic: False
                 Rate: 1.0
                 Topic:  "dummy_cam_1"
                 PosOffInit:  [0.0, 0.0, 0.0]
@@ -37,7 +36,6 @@
                 VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
             dummy_cam_2:
-                Intrinsic: False
                 Rate: 1.0
                 Topic:  "dummy_cam_2"
                 PosOffInit:  [0.0, 0.0, 0.0]

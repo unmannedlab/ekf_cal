@@ -17,10 +17,7 @@
 #include <iostream>
 
 #include "sensors/ros/RosIMU.hpp"
-
-#include "utility/TypeHelper.hpp"
-#include "utility/test/CustomAssertions.hpp"
-
+#include "sensors/IMU.hpp"
 
 ///
 /// @todo Write this test

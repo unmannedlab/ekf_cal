@@ -16,12 +16,3 @@
 #include "Logger.hpp"
 
 Logger * Logger::instancePointer = NULL;
-
-void Logger::SetLogLevel(unsigned int level)
-{
-  if (level > static_cast<int>(LogLevel::WARN)) {
-    SetLogLevel(static_cast<LogLevel>(level));
-  } else {
-    SetLogLevel(static_cast<LogLevel>(level));
-  }
-}

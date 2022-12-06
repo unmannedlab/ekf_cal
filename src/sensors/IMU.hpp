@@ -16,8 +16,6 @@
 #ifndef SENSORS__IMU_HPP_
 #define SENSORS__IMU_HPP_
 
-#include <sensor_msgs/msg/imu.hpp>
-
 #include <string>
 
 #include "sensors/Sensor.hpp"
@@ -103,8 +101,6 @@ public:
   void Callback(
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d accelerationCovariance,
     Eigen::Vector3d angularRate, Eigen::Matrix3d angularRateCovariance);
-
-  void RosCallback(const sensor_msgs::msg::Imu::SharedPtr msg);
 
 private:
   bool m_isBaseSensor;
