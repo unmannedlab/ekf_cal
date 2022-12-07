@@ -48,12 +48,14 @@ void Logger::log(LogLevel level, std::string message)
         std::cout << "[" <<
           LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(logLevel)] << "]: " <<
           message << std::endl;
+        return;
       case LogLevel::WARN:
       case LogLevel::ERROR:
       case LogLevel::FATAL:
         std::cerr << "[" <<
           LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(logLevel)] << "]: " <<
           message << std::endl;
+        return;
     }
   }
 }
