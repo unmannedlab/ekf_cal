@@ -105,5 +105,6 @@
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python"
-    }
+    },
+    "cmake.buildTask": true,
 }
