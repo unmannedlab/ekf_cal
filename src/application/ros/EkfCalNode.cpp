@@ -126,7 +126,7 @@ void EkfCalNode::LoadIMU(std::string imuName)
     imuParams.variance = TypeHelper::StdToEigVec(variance);
   }
 
-  // Register IMU and bind callback to ID
+  // Create new RosIMU and and bind callback to ID
   std::shared_ptr<RosIMU> sensor_ptr = std::make_shared<RosIMU>(imuParams);
   m_mapIMU[sensor_ptr->GetId()] = sensor_ptr;
 
@@ -167,7 +167,7 @@ void EkfCalNode::LoadCamera(std::string camName)
   camParams.angOffset = TypeHelper::StdToEigQuat(angOff);
   camParams.variance = TypeHelper::StdToEigVec(variance);
 
-  // Register IMU and bind callback to ID
+  // Create new RosCamera and bind callback to ID
   std::shared_ptr<RosCamera> sensor_ptr = std::make_shared<RosCamera>(camParams);
   m_mapCamera[sensor_ptr->GetId()] = sensor_ptr;
 

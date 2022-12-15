@@ -24,9 +24,6 @@
 #include "utility/TypeHelper.hpp"
 
 
-// RosIMU::RosIMU(IMU::Params params)
-// : IMU(params) {}
-
 void RosIMU::Callback(const sensor_msgs::msg::Imu::SharedPtr msg)
 {
   double time = RosHelper::RosHeaderToTime(msg->header);

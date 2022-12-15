@@ -22,9 +22,6 @@
 #include "utility/TypeHelper.hpp"
 
 
-// RosCamera::RosCamera(Camera::Params params)
-// : Camera(params) {}
-
 void RosCamera::Callback(const sensor_msgs::msg::Image::SharedPtr msg)
 {
   double time = RosHelper::RosHeaderToTime(msg->header);

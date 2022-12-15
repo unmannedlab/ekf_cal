@@ -42,6 +42,12 @@ private:
 
 public:
   ~Logger();
+
+  ///
+  /// @brief Log message
+  /// @param level Level of log
+  /// @param message Message contents of log
+  ///
   void log(LogLevel level, std::string message);
 
 
@@ -50,6 +56,10 @@ public:
   ///
   Logger(const Logger & obj) = delete;
 
+  ///
+  /// @brief Getter for Logger singleton
+  /// @return Pointer to Logger singleton
+  ///
   static Logger * getInstance()
   {
     // If there is no instance of class
@@ -70,7 +80,16 @@ public:
     }
   }
 
+  ///
+  /// @brief Function to set the log level
+  /// @param level LogLevel enumeration
+  ///
   void SetLogLevel(LogLevel level);
+
+  ///
+  /// @brief Function to set the log level
+  /// @param level LogLevel integer
+  ///
   void SetLogLevel(unsigned int level);
 
 private:

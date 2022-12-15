@@ -22,14 +22,19 @@
 #include "sensors/Camera.hpp"
 
 ///
-/// @class Camera
-/// @brief Camera Sensor Class
-/// @todo Implement update methods
+/// @class RosCamera
+/// @brief ROS camera sensor class
+/// @todo Implement callback methods
 ///
 class RosCamera : public Camera
 {
 public:
   using Camera::Camera;
+
+  ///
+  /// @brief RosCamera callback method
+  /// @param msg ROS image message
+  ///
   void Callback(const sensor_msgs::msg::Image::SharedPtr msg);
 };
 

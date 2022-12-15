@@ -25,7 +25,7 @@
 #include "sensors/Sensor.hpp"
 
 ///
-/// @class IMU
+/// @class RosIMU
 /// @brief IMU Sensor Class
 /// @todo Add parameter input/defaults for covariance
 ///
@@ -33,6 +33,11 @@ class RosIMU : public IMU
 {
 public:
   using IMU::IMU;
+
+  ///
+  /// @brief RosIMU callback method
+  /// @param msg ROS IMU measurement
+  ///
   void Callback(const sensor_msgs::msg::Imu::SharedPtr msg);
 };
 

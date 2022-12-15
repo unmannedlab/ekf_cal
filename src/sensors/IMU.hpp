@@ -97,7 +97,14 @@ public:
   ///
   Eigen::VectorXd GetState();
 
-
+  ///
+  /// @brief Callback method for IMU measurements
+  /// @param time Measurement time
+  /// @param acceleration Measured acceleration
+  /// @param accelerationCovariance Estimated acceleration error
+  /// @param angularRate Measured angular rate
+  /// @param angularRateCovariance Estimated angular rate error
+  ///
   void Callback(
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d accelerationCovariance,
     Eigen::Vector3d angularRate, Eigen::Matrix3d angularRateCovariance);

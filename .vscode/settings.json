@@ -26,10 +26,11 @@
         "EKFVIZNODE",
         "htmlonly",
         "MATHHELPER",
+        "ROSCAMERA",
         "ROSIMU",
+        "RVIZ",
         "TYPEHELPER",
-        "VIZNODE",
-        "ROSCAMERA"
+        "VIZNODE"
     ],
     "terminal.integrated.scrollback": 5000,
     "cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}",

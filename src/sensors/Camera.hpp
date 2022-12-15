@@ -64,11 +64,12 @@ public:
   ///
   Eigen::VectorXd GetState();
 
+  ///
+  /// @brief Callback method for camera
+  /// @param time Shunt input until implemented
+  /// @todo Implement actual callback method
+  ///
   void Callback(double time);
-
-  Logger * m_Logger = Logger::getInstance();
-
-  EKF * m_ekf = EKF::getInstance();
 };
 
 #endif  // SENSORS__CAMERA_HPP_

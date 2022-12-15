@@ -81,7 +81,6 @@ public:
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
   ///
-  // void CameraCallback();
   void CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
 
   ///
@@ -94,6 +93,13 @@ public:
   ///
   void PublishTransforms();
 
+  ///
+  /// @brief Get transforms between body and sensors
+  /// @param baseIMUName Name of base IMU representing body
+  /// @param sensorNames Vector of sensor names
+  /// @param sensorPosOffsets Vector of sensor positional offsets
+  /// @param sensorAngOffsets Vector of sensor rotational offsets
+  ///
   void GetTransforms(
     std::string & baseIMUName,
     std::vector<std::string> & sensorNames, std::vector<Eigen::Vector3d> & sensorPosOffsets,

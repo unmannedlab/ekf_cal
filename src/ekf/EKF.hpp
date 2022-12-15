@@ -44,6 +44,10 @@ public:
   ///
   EKF(const EKF & obj) = delete;
 
+  ///
+  /// @brief Singleton reference getter
+  /// @return Pointer to singleton instance
+  ///
   static EKF * getInstance()
   {
     // If there is no instance of class
@@ -108,6 +112,13 @@ public:
   ///
   void Initialize(double timeInit, Eigen::VectorXd bodyStateInit);
 
+  ///
+  /// @brief Get transforms between body and sensors
+  /// @param baseIMUName Name of base IMU representing body
+  /// @param sensorNames Vector of sensor names
+  /// @param sensorPosOffsets Vector of sensor positional offsets
+  /// @param sensorAngOffsets Vector of sensor rotational offsets
+  ///
   void GetTransforms(
     std::string & baseIMUName,
     std::vector<std::string> & sensorNames,
