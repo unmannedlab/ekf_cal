@@ -141,11 +141,10 @@ add_custom_target(DOXYGEN
     DEPENDS ${DOXYGEN_STUB_FILE}
 )
 
-# TODO still build even without doxygen
 find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
 
-    message(FATAL_ERROR "Doxygen is needed to build the documentation.")
+    message(WARNING "Doxygen is needed to build the documentation.")
 
 else()
 
