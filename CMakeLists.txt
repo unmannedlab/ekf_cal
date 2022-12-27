@@ -21,7 +21,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 if(NOT DEFINED ${ROS_DISTRO})
-    set(ROS_DISTRO foxy)
+    set(ROS_DISTRO humble)
 endif()
 
 list(APPEND CMAKE_PREFIX_PATH /opt/ros/${ROS_DISTRO}/)
@@ -141,6 +141,7 @@ add_custom_target(DOXYGEN
     DEPENDS ${DOXYGEN_STUB_FILE}
 )
 
+# TODO still build even without doxygen
 find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
 

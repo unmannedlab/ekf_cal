@@ -42,8 +42,8 @@ EkfCalNode::EkfCalNode()
 : Node("EkfCalNode")
 {
   // Declare Parameters
-  this->declare_parameter("IMU_list");
-  this->declare_parameter("Camera_list");
+  this->declare_parameter("IMU_list", "");
+  this->declare_parameter("Camera_list", "");
 
   // Load lists of sensors
   std::vector<std::string> imuList = this->get_parameter("IMU_list").as_string_array();
@@ -78,10 +78,10 @@ void EkfCalNode::LoadIMU(std::string imuName)
 {
   // Declare parameters
   std::string imuPrefix = "IMU." + imuName;
-  this->declare_parameter(imuPrefix + ".BaseSensor");
-  this->declare_parameter(imuPrefix + ".Intrinsic");
-  this->declare_parameter(imuPrefix + ".Rate");
-  this->declare_parameter(imuPrefix + ".Topic");
+  this->declare_parameter(imuPrefix + ".BaseSensor", false);
+  this->declare_parameter(imuPrefix + ".Intrinsic", false);
+  this->declare_parameter(imuPrefix + ".Rate", 1.0);
+  this->declare_parameter(imuPrefix + ".Topic", "");
 
   // Load parameters
   bool baseSensor = this->get_parameter(imuPrefix + ".BaseSensor").as_bool();
@@ -95,16 +95,16 @@ void EkfCalNode::LoadIMU(std::string imuName)
 
   // Only calibrate offsets if not the base IMU
   if (baseSensor == false) {
-    this->declare_parameter(imuPrefix + ".PosOffInit");
-    this->declare_parameter(imuPrefix + ".AngOffInit");
+    this->declare_parameter(imuPrefix + ".PosOffInit", "0.0, 0.0, 0.0");
+    this->declare_parameter(imuPrefix + ".AngOffInit", "0.0, 0.0, 0.0");
     posOff = this->get_parameter(imuPrefix + ".PosOffInit").as_double_array();
     angOff = this->get_parameter(imuPrefix + ".AngOffInit").as_double_array();
   }
 
   // Only calibrate intrinsics if flag is set
   if (intrinsic == true) {
-    this->declare_parameter(imuPrefix + ".AccBiasInit");
-    this->declare_parameter(imuPrefix + ".OmgBiasInit");
+    this->declare_parameter(imuPrefix + ".AccBiasInit", "0.0, 0.0, 0.0");
+    this->declare_parameter(imuPrefix + ".OmgBiasInit", "0.0, 0.0, 0.0");
     accBias = this->get_parameter(imuPrefix + ".AccBiasInit").as_double_array();
     omgBias = this->get_parameter(imuPrefix + ".OmgBiasInit").as_double_array();
   }
@@ -121,7 +121,7 @@ void EkfCalNode::LoadIMU(std::string imuName)
   imuParams.omgBias = TypeHelper::StdToEigVec(omgBias);
 
   if ((baseSensor == false) || (intrinsic == true)) {
-    this->declare_parameter(imuPrefix + ".VarInit");
+    this->declare_parameter(imuPrefix + ".VarInit", "0.0, 0.0, 0.0");
     std::vector<double> variance = this->get_parameter(imuPrefix + ".VarInit").as_double_array();
     imuParams.variance = TypeHelper::StdToEigVec(variance);
   }
@@ -145,11 +145,11 @@ void EkfCalNode::LoadCamera(std::string camName)
 {
   // Declare parameters
   std::string camPrefix = "Camera." + camName;
-  this->declare_parameter(camPrefix + ".Rate");
-  this->declare_parameter(camPrefix + ".Topic");
-  this->declare_parameter(camPrefix + ".PosOffInit");
-  this->declare_parameter(camPrefix + ".AngOffInit");
-  this->declare_parameter(camPrefix + ".VarInit");
+  this->declare_parameter(camPrefix + ".Rate", 1.0);
+  this->declare_parameter(camPrefix + ".Topic", "");
+  this->declare_parameter(camPrefix + ".PosOffInit", "0.0, 0.0, 0.0");
+  this->declare_parameter(camPrefix + ".AngOffInit", "0.0, 0.0, 0.0");
+  this->declare_parameter(camPrefix + ".VarInit", "0.0, 0.0, 0.");
 
 
   // Load parameters

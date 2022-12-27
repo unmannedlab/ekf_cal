@@ -89,7 +89,7 @@
         },
         // Source workspace
         {
-            "label": "source-foxy",
+            "label": "source-humble",
             "detail": "Sources the current workspace with bash",
             "type": "shell",
             "command": "source ${workspaceFolder}/../../install/setup.bash",

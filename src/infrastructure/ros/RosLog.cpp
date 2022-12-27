@@ -44,22 +44,23 @@ Logger::~Logger()
 
 void Logger::log(LogLevel level, std::string message)
 {
+  const char * message_c_str = message.c_str();
   if (logLevel <= level) {
     switch (logLevel) {
       case LogLevel::DEBUG:
-        RCLCPP_DEBUG(rclcpp::get_logger("Logger"), message);
+        RCLCPP_DEBUG(rclcpp::get_logger("Logger"), message_c_str);
 
       case LogLevel::INFO:
-        RCLCPP_INFO(rclcpp::get_logger("Logger"), message);
+        RCLCPP_INFO(rclcpp::get_logger("Logger"), message_c_str);
 
       case LogLevel::WARN:
-        RCLCPP_WARN(rclcpp::get_logger("Logger"), message);
+        RCLCPP_WARN(rclcpp::get_logger("Logger"), message_c_str);
 
       case LogLevel::ERROR:
-        RCLCPP_ERROR(rclcpp::get_logger("Logger"), message);
+        RCLCPP_ERROR(rclcpp::get_logger("Logger"), message_c_str);
 
       case LogLevel::FATAL:
-        RCLCPP_FATAL(rclcpp::get_logger("Logger"), message);
+        RCLCPP_FATAL(rclcpp::get_logger("Logger"), message_c_str);
     }
   }
 }

@@ -4,10 +4,10 @@
         100
     ],
     "python.autoComplete.extraPaths": [
-        "/opt/ros/foxy/lib/python3.8/site-packages"
+        "/opt/ros/humble/lib/python3.8/site-packages"
     ],
     "python.analysis.extraPaths": [
-        "/opt/ros/foxy/lib/python3.8/site-packages"
+        "/opt/ros/humble/lib/python3.8/site-packages"
     ],
     "files.exclude": {
         "**/__pycache__": true
@@ -26,6 +26,7 @@
         "EKFVIZNODE",
         "htmlonly",
         "MATHHELPER",
+        "RCLCPP",
         "ROSCAMERA",
         "ROSIMU",
         "RVIZ",
@@ -108,4 +109,6 @@
         "editor.defaultFormatter": "ms-python.python"
     },
     "cmake.buildTask": true,
+    "ros.distro": "humble",
+    "cmake.configureOnOpen": true,
 }
