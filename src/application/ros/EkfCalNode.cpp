@@ -41,7 +41,8 @@ using std::placeholders::_1;
 EkfCalNode::EkfCalNode()
 : Node("EkfCalNode")
 {
-  m_Logger->SetLogLevel(2);
+  /// @todo Get log level from config file
+  m_logger->SetLogLevel(1);
   RCLCPP_INFO(rclcpp::get_logger("Logger"), "INIT");
 
   // Declare Parameters
@@ -57,7 +58,7 @@ EkfCalNode::EkfCalNode()
     LoadIMU(imuName);
   }
   if (m_baseIMUAssigned == false) {
-    m_Logger->log(LogLevel::WARN, "Base IMU should be set for filter stability");
+    m_logger->log(LogLevel::WARN, "Base IMU should be set for filter stability");
   }
 
   // Load Camera sensor parameters
@@ -140,7 +141,7 @@ void EkfCalNode::LoadIMU(std::string imuName)
   if (imuParams.baseSensor) {
     m_baseIMUAssigned = true;
   }
-  m_Logger->log(LogLevel::INFO, "Loaded IMU: " + imuName);
+  m_logger->log(LogLevel::INFO, "Loaded IMU: " + imuName);
 }
 
 
@@ -178,28 +179,20 @@ void EkfCalNode::LoadCamera(std::string camName)
   function = std::bind(&EkfCalNode::CameraCallback, this, _1, sensor_ptr->GetId());
   m_CameraSubs.push_back(this->create_subscription<sensor_msgs::msg::Image>(topic, 10, function));
 
-  m_Logger->log(LogLevel::INFO, "Loaded Camera: " + camName);
+  m_logger->log(LogLevel::INFO, "Loaded Camera: " + camName);
 }
 
 void EkfCalNode::IMUCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id)
 {
   auto iter = m_mapIMU.find(id);
-  m_Logger->log(LogLevel::INFO, "IMU Callback: " + iter->second->GetName());
-  RCLCPP_INFO(rclcpp::get_logger("Logger"), "IMU Callback");
-
   iter->second->Callback(msg);
-
   PublishState();
 }
 
 void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
 {
   auto iter = m_mapCamera.find(id);
-  m_Logger->log(LogLevel::INFO, "IMU Callback: " + iter->second->GetName());
-  RCLCPP_INFO(rclcpp::get_logger("Logger"), "CAM Callback");
-
   iter->second->Callback(msg);
-
   PublishState();
 }
 

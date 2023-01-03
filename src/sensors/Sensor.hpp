@@ -129,7 +129,7 @@ protected:
   Eigen::MatrixXd m_cov;              ///< @brief Sensor state covariance
 
   EKF * m_ekf = EKF::getInstance();           ///< @brief EKF singleton
-  Logger * m_Logger = Logger::getInstance();  ///< @brief Logger singleton
+  Logger * m_logger = Logger::getInstance();  ///< @brief Logger singleton
 
 private:
   static unsigned int _idCount;

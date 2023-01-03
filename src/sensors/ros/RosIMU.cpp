@@ -32,7 +32,7 @@ void RosIMU::Callback(const sensor_msgs::msg::Imu::SharedPtr msg)
   Eigen::Matrix3d acc_cov = RosHelper::RosToEigen(msg->linear_acceleration_covariance);
   Eigen::Matrix3d omg_cov = RosHelper::RosToEigen(msg->angular_velocity_covariance);
 
-  m_Logger->log(LogLevel::INFO, "IMU Callback: " + m_name + std::to_string(time));
+  m_logger->log(LogLevel::INFO, "IMU \"" + m_name + "\" callback at time " + std::to_string(time));
 
   IMU::Callback(time, acc, acc_cov, omg, omg_cov);
 }

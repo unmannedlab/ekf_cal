@@ -49,5 +49,5 @@ Eigen::VectorXd Camera::GetState()
 void Camera::Callback(double time)
 {
   std::string log = "Camera callback not implemented. Called at time = " + std::to_string(time);
-  m_Logger->log(LogLevel::INFO, log);
+  m_logger->log(LogLevel::INFO, log);
 }

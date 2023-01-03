@@ -55,7 +55,7 @@ IMU::IMU(IMU::Params params)
     if (params.variance(i) > 1e-6) {
       m_cov(i, i) = params.variance(i);
     } else {
-      m_Logger->log(LogLevel::WARN, "Variance should be larger than 1e-6");
+      m_logger->log(LogLevel::WARN, "Variance should be larger than 1e-6");
       m_cov(i, i) = 1e-6;
     }
   }
@@ -228,7 +228,7 @@ Eigen::VectorXd IMU::GetState()
       stateVec.segment<3>(0) = m_accBias;
       stateVec.segment<3>(3) = m_omgBias;
     } else {
-      m_Logger->log(LogLevel::WARN, "Base IMU has no state to get");
+      m_logger->log(LogLevel::WARN, "Base IMU has no state to get");
     }
   } else {
     if (m_isIntrinsic) {
@@ -245,7 +245,7 @@ Eigen::VectorXd IMU::GetState()
   return stateVec;
 }
 
-
+/// @todo Add check for base IMU status: split callback into different IMU types
 void IMU::Callback(
   double time, Eigen::Vector3d acceleration,
   Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,

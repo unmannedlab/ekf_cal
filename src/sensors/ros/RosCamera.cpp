@@ -26,7 +26,9 @@ void RosCamera::Callback(const sensor_msgs::msg::Image::SharedPtr msg)
 {
   double time = RosHelper::RosHeaderToTime(msg->header);
 
-  m_Logger->log(LogLevel::INFO, "IMU Callback: " + m_name + std::to_string(time));
+  m_logger->log(
+    LogLevel::INFO,
+    "Camera \"" + m_name + "\" callback at time " + std::to_string(time));
 
   Camera::Callback(time);
 }

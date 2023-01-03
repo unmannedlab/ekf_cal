@@ -19,60 +19,59 @@
 
 #include "../Logger.hpp"
 
-
+/// @todo Log changes in log level based on highest of new and old levels
 void Logger::SetLogLevel(LogLevel level)
 {
-  logLevel = level;
-  if (logLevel <= LogLevel::INFO) {
+  m_logLevel = level;
+  if (m_logLevel <= LogLevel::INFO) {
     RCLCPP_INFO_STREAM(
-      rclcpp::get_logger("Logger"), "[" <<
-        LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(logLevel)] << "]: " <<
-        "LOGGER set to: " <<
-        LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(logLevel)]);
+      rclcpp::get_logger(
+        "Logger"), "Log level set to: " <<
+        LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(m_logLevel)]);
   }
 }
 
 void Logger::SetLogLevel(unsigned int level)
 {
-  logLevel = static_cast<LogLevel>(level);
+  m_logLevel = static_cast<LogLevel>(level);
 
-  if (logLevel <= LogLevel::INFO) {
-    RCLCPP_INFO_STREAM(
-      rclcpp::get_logger(
-        "Logger"),
-      "[" << LogLevelNames[level] << "]: " << "LOGGER set to: " << LogLevelNames[level]);
+  if (m_logLevel <= LogLevel::INFO) {
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("Logger"), "Logger set to: " << LogLevelNames[level]);
   }
 }
 
 Logger::~Logger()
 {
-  if (logLevel <= LogLevel::INFO) {
+  if (m_logLevel <= LogLevel::INFO) {
     RCLCPP_INFO_STREAM(
-      rclcpp::get_logger("Logger"), "[" <<
-        LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(logLevel)] << "]:" <<
-        " LOGGER destroyed");
+      rclcpp::get_logger("Logger"), "Logger destroyed");
   }
 }
 
 void Logger::log(LogLevel level, std::string message)
 {
   const char * message_c_str = message.c_str();
-  if (logLevel <= level) {
-    switch (logLevel) {
+  if (m_logLevel <= level) {
+    switch (m_logLevel) {
       case LogLevel::DEBUG:
         RCLCPP_DEBUG(rclcpp::get_logger("Logger"), message_c_str);
+        break;
 
       case LogLevel::INFO:
         RCLCPP_INFO(rclcpp::get_logger("Logger"), message_c_str);
+        break;
 
       case LogLevel::WARN:
         RCLCPP_WARN(rclcpp::get_logger("Logger"), message_c_str);
+        break;
 
       case LogLevel::ERROR:
         RCLCPP_ERROR(rclcpp::get_logger("Logger"), message_c_str);
+        break;
 
       case LogLevel::FATAL:
         RCLCPP_FATAL(rclcpp::get_logger("Logger"), message_c_str);
+        break;
     }
   }
 }

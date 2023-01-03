@@ -122,7 +122,7 @@ private:
   rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_StatePub;
   std::unique_ptr<tf2_ros::TransformBroadcaster> m_tfBroadcaster;
   rclcpp::TimerBase::SharedPtr m_tfTimer;
-  Logger * m_Logger = Logger::getInstance();
+  Logger * m_logger = Logger::getInstance();
   std::map<int, std::shared_ptr<RosIMU>> m_mapIMU{};
   std::map<int, std::shared_ptr<RosCamera>> m_mapCamera{};
 };

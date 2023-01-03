@@ -136,7 +136,7 @@ private:
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(18U, 18U);
   double m_currentTime {0};
   bool m_timeInitialized {false};
-  Logger * m_Logger = Logger::getInstance();
+  Logger * m_logger = Logger::getInstance();
 
   Eigen::MatrixXd m_processNoise = Eigen::MatrixXd::Identity(18U, 18U) * 1e-3;
   Eigen::MatrixXd m_processInput = Eigen::MatrixXd::Identity(18U, 18U) * 1e-3;

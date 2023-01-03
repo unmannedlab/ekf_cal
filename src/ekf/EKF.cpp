@@ -64,7 +64,7 @@ void EKF::Predict(double time)
   }
 
   if (time < m_currentTime) {
-    m_Logger->log(LogLevel::WARN, "Requested time in the past");
+    m_logger->log(LogLevel::WARN, "Requested time in the past");
     return;
   }
 
