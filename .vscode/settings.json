@@ -103,7 +103,15 @@
         "variant": "cpp",
         "bit": "cpp",
         "*.ipp": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "any": "cpp",
+        "codecvt": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "forward_list": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python"

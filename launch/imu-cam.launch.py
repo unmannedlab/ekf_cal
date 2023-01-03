@@ -30,7 +30,7 @@ def generate_launch_description():
         package="ekf_cal",
         executable="ekf_cal_node",
         output="screen",
-        parameters=[os.path.join(this_dir, "config", "imu-cam.yaml")],
+        parameters=[os.path.join(this_dir, "config", "imu-cam.yaml")]
     )
 
     bag_file_path = os.path.abspath(
@@ -41,7 +41,7 @@ def generate_launch_description():
             "..",
             "..",
             "data",
-            "imu-cam"
+            "imu_cam_1"
         )
     )
 

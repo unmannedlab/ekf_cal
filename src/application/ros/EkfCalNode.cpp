@@ -41,9 +41,12 @@ using std::placeholders::_1;
 EkfCalNode::EkfCalNode()
 : Node("EkfCalNode")
 {
+  m_Logger->SetLogLevel(2);
+  RCLCPP_INFO(rclcpp::get_logger("Logger"), "INIT");
+
   // Declare Parameters
-  this->declare_parameter("IMU_list", "");
-  this->declare_parameter("Camera_list", "");
+  this->declare_parameter("IMU_list", std::vector<std::string>{});
+  this->declare_parameter("Camera_list", std::vector<std::string>{});
 
   // Load lists of sensors
   std::vector<std::string> imuList = this->get_parameter("IMU_list").as_string_array();
@@ -95,16 +98,16 @@ void EkfCalNode::LoadIMU(std::string imuName)
 
   // Only calibrate offsets if not the base IMU
   if (baseSensor == false) {
-    this->declare_parameter(imuPrefix + ".PosOffInit", "0.0, 0.0, 0.0");
-    this->declare_parameter(imuPrefix + ".AngOffInit", "0.0, 0.0, 0.0");
+    this->declare_parameter(imuPrefix + ".PosOffInit", std::vector<double>{});
+    this->declare_parameter(imuPrefix + ".AngOffInit", std::vector<double>{});
     posOff = this->get_parameter(imuPrefix + ".PosOffInit").as_double_array();
     angOff = this->get_parameter(imuPrefix + ".AngOffInit").as_double_array();
   }
 
   // Only calibrate intrinsics if flag is set
   if (intrinsic == true) {
-    this->declare_parameter(imuPrefix + ".AccBiasInit", "0.0, 0.0, 0.0");
-    this->declare_parameter(imuPrefix + ".OmgBiasInit", "0.0, 0.0, 0.0");
+    this->declare_parameter(imuPrefix + ".AccBiasInit", std::vector<double>{});
+    this->declare_parameter(imuPrefix + ".OmgBiasInit", std::vector<double>{});
     accBias = this->get_parameter(imuPrefix + ".AccBiasInit").as_double_array();
     omgBias = this->get_parameter(imuPrefix + ".OmgBiasInit").as_double_array();
   }
@@ -121,7 +124,7 @@ void EkfCalNode::LoadIMU(std::string imuName)
   imuParams.omgBias = TypeHelper::StdToEigVec(omgBias);
 
   if ((baseSensor == false) || (intrinsic == true)) {
-    this->declare_parameter(imuPrefix + ".VarInit", "0.0, 0.0, 0.0");
+    this->declare_parameter(imuPrefix + ".VarInit", std::vector<double>{});
     std::vector<double> variance = this->get_parameter(imuPrefix + ".VarInit").as_double_array();
     imuParams.variance = TypeHelper::StdToEigVec(variance);
   }
@@ -147,9 +150,9 @@ void EkfCalNode::LoadCamera(std::string camName)
   std::string camPrefix = "Camera." + camName;
   this->declare_parameter(camPrefix + ".Rate", 1.0);
   this->declare_parameter(camPrefix + ".Topic", "");
-  this->declare_parameter(camPrefix + ".PosOffInit", "0.0, 0.0, 0.0");
-  this->declare_parameter(camPrefix + ".AngOffInit", "0.0, 0.0, 0.0");
-  this->declare_parameter(camPrefix + ".VarInit", "0.0, 0.0, 0.");
+  this->declare_parameter(camPrefix + ".PosOffInit", std::vector<double>{});
+  this->declare_parameter(camPrefix + ".AngOffInit", std::vector<double>{});
+  this->declare_parameter(camPrefix + ".VarInit", std::vector<double>{});
 
 
   // Load parameters
@@ -182,6 +185,7 @@ void EkfCalNode::IMUCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigne
 {
   auto iter = m_mapIMU.find(id);
   m_Logger->log(LogLevel::INFO, "IMU Callback: " + iter->second->GetName());
+  RCLCPP_INFO(rclcpp::get_logger("Logger"), "IMU Callback");
 
   iter->second->Callback(msg);
 
@@ -192,6 +196,7 @@ void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, un
 {
   auto iter = m_mapCamera.find(id);
   m_Logger->log(LogLevel::INFO, "IMU Callback: " + iter->second->GetName());
+  RCLCPP_INFO(rclcpp::get_logger("Logger"), "CAM Callback");
 
   iter->second->Callback(msg);
 

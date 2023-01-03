@@ -32,6 +32,18 @@ void Logger::SetLogLevel(LogLevel level)
   }
 }
 
+void Logger::SetLogLevel(unsigned int level)
+{
+  logLevel = static_cast<LogLevel>(level);
+
+  if (logLevel <= LogLevel::INFO) {
+    RCLCPP_INFO_STREAM(
+      rclcpp::get_logger(
+        "Logger"),
+      "[" << LogLevelNames[level] << "]: " << "LOGGER set to: " << LogLevelNames[level]);
+  }
+}
+
 Logger::~Logger()
 {
   if (logLevel <= LogLevel::INFO) {
