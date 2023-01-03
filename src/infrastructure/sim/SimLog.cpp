@@ -21,50 +21,52 @@
 
 void Logger::SetLogLevel(LogLevel level)
 {
-  m_logLevel = level;
-  if (m_logLevel <= LogLevel::INFO) {
+  if ((m_logLevel <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {
     std::cout << "[" <<
-      LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(m_logLevel)] << "]: " <<
+      LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(LogLevel::INFO)] << "]: " <<
       "Log level set to: " <<
-      LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(m_logLevel)] << std::endl;
+      LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(level)] << std::endl;
   }
+
+  m_logLevel = level;
 }
 
 void Logger::SetLogLevel(unsigned int level)
 {
-  m_logLevel = static_cast<LogLevel>(level);
-  if (m_logLevel <= LogLevel::INFO) {
+  if ((m_logLevel <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {
     std::cout << "[" <<
-      LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(m_logLevel)] << "]: " <<
+      LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(LogLevel::INFO)] << "]: " <<
       "Log level set to: " <<
-      LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(m_logLevel)] << std::endl;
+      LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(level)] << std::endl;
   }
+
+  m_logLevel = static_cast<LogLevel>(level);
 }
 
 Logger::~Logger()
 {
   if (m_logLevel <= LogLevel::INFO) {
     std::cout << "[" <<
-      LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(m_logLevel)] << "]:" <<
-      " Logger destroyed" << std::endl;
+      LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(LogLevel::INFO)] << "]: " <<
+      "Logger destroyed" << std::endl;
   }
 }
 
 void Logger::log(LogLevel level, std::string message)
 {
   if (m_logLevel <= level) {
-    switch (m_logLevel) {
+    switch (level) {
       case LogLevel::DEBUG:
       case LogLevel::INFO:
         std::cout << "[" <<
-          LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(m_logLevel)] << "]: " <<
+          LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(level)] << "]: " <<
           message << std::endl;
         return;
       case LogLevel::WARN:
       case LogLevel::ERROR:
       case LogLevel::FATAL:
         std::cerr << "[" <<
-          LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(m_logLevel)] << "]: " <<
+          LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(level)] << "]: " <<
           message << std::endl;
         return;
     }

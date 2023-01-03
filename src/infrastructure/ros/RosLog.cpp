@@ -19,25 +19,24 @@
 
 #include "../Logger.hpp"
 
-/// @todo Log changes in log level based on highest of new and old levels
 void Logger::SetLogLevel(LogLevel level)
 {
-  m_logLevel = level;
-  if (m_logLevel <= LogLevel::INFO) {
+  if ((m_logLevel <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {
     RCLCPP_INFO_STREAM(
       rclcpp::get_logger(
         "Logger"), "Log level set to: " <<
         LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(m_logLevel)]);
   }
+  m_logLevel = level;
 }
 
 void Logger::SetLogLevel(unsigned int level)
 {
-  m_logLevel = static_cast<LogLevel>(level);
-
-  if (m_logLevel <= LogLevel::INFO) {
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("Logger"), "Logger set to: " << LogLevelNames[level]);
+  if ((m_logLevel <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("Logger"), "Log level set to: " << LogLevelNames[level]);
   }
+
+  m_logLevel = static_cast<LogLevel>(level);
 }
 
 Logger::~Logger()
@@ -52,7 +51,7 @@ void Logger::log(LogLevel level, std::string message)
 {
   const char * message_c_str = message.c_str();
   if (m_logLevel <= level) {
-    switch (m_logLevel) {
+    switch (level) {
       case LogLevel::DEBUG:
         RCLCPP_DEBUG(rclcpp::get_logger("Logger"), message_c_str);
         break;
