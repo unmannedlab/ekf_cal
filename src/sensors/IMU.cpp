@@ -260,12 +260,14 @@ void IMU::Callback(
   Eigen::VectorXd z_pred = PredictMeasurement();
   Eigen::VectorXd resid = z - z_pred;
 
-  unsigned int stateSize = GetStateSize();
+  unsigned int stateSize = m_ekf->GetStateSize();
   unsigned int stateStartIndex = GetStateStartIndex();
   Eigen::MatrixXd subH = GetMeasurementJacobian();
-  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, m_stateSize);
+  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, stateSize);
   H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
-  H.block(0, stateStartIndex, 6, stateSize) = subH.block(0, 18, 6, stateSize);
+  if (m_stateSize) {
+    H.block(0, stateStartIndex, 6, m_stateSize) = subH.block<0, 18>(6, m_stateSize);
+  }
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
   R.block<3, 3>(0, 0) = accelerationCovariance;
@@ -281,9 +283,9 @@ void IMU::Callback(
     }
   }
 
-  Eigen::MatrixXd S = H * m_cov * H.transpose() + R;
-  Eigen::MatrixXd K = m_cov * H.transpose() * S.inverse();
+  Eigen::MatrixXd S = H * m_ekf->GetCov() * H.transpose() + R;
+  Eigen::MatrixXd K = m_ekf->GetCov() * H.transpose() * S.inverse();
 
   m_ekf->GetState() = m_ekf->GetState() + K * resid;
-  m_ekf->GetCov() = (Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) - K * H) * m_ekf->GetCov();
+  m_ekf->GetCov() = (Eigen::MatrixXd::Identity(stateSize, stateSize) - K * H) * m_ekf->GetCov();
 }

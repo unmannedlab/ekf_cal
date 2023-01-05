@@ -56,15 +56,21 @@ Eigen::MatrixXd EKF::GetStateTransition(double dT)
 
 void EKF::Predict(double time)
 {
+  m_logger->log(LogLevel::INFO, "EKF::Predict at t=" + std::to_string(time));
+
   // Don't predict if time is not initialized
   if (!m_timeInitialized) {
     m_currentTime = time;
     m_timeInitialized = true;
+    m_logger->log(LogLevel::INFO, "EKF::Predict initialize time at t=" + std::to_string(time));
     return;
   }
 
   if (time < m_currentTime) {
-    m_logger->log(LogLevel::WARN, "Requested time in the past");
+    m_logger->log(
+      LogLevel::WARN, "Requested time in the past. Current t=" +
+      std::to_string(time) + ", Requested t=" +
+      std::to_string(m_currentTime));
     return;
   }
 
