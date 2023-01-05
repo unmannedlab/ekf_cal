@@ -42,13 +42,14 @@ using std::placeholders::_1;
 EkfCalNode::EkfCalNode()
 : Node("EkfCalNode")
 {
-  /// @todo Get log level from config file
-  m_logger->SetLogLevel(1);
-  RCLCPP_INFO(rclcpp::get_logger("Logger"), "INIT");
-
   // Declare Parameters
+  this->declare_parameter("Log_Level", 2);
   this->declare_parameter("IMU_list", std::vector<std::string>{});
   this->declare_parameter("Camera_list", std::vector<std::string>{});
+
+  // Set logging
+  unsigned int logLevel = static_cast<unsigned int>(this->get_parameter("Log_Level").as_int());
+  m_logger->SetLogLevel(logLevel);
 
   // Load lists of sensors
   std::vector<std::string> imuList = this->get_parameter("IMU_list").as_string_array();
