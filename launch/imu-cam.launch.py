@@ -18,35 +18,27 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch_ros.actions import Node
 from launch.actions import ExecuteProcess
+
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
-
-    this_dir = get_package_share_directory("ekf_cal")
+    this_dir = get_package_share_directory('ekf_cal')
 
     start_ekf_cal_node_cmd = Node(
-        package="ekf_cal",
-        executable="ekf_cal_node",
-        output="screen",
-        parameters=[os.path.join(this_dir, "config", "imu-cam.yaml")]
+        package='ekf_cal',
+        executable='ekf_cal_node',
+        output='screen',
+        parameters=[os.path.join(this_dir, 'config', 'imu-cam.yaml')],
     )
 
     bag_file_path = os.path.abspath(
-        os.path.join(
-            this_dir,
-            "..",
-            "..",
-            "..",
-            "..",
-            "data",
-            "imu_cam_1"
-        )
+        os.path.join(this_dir, '..', '..', '..', '..', 'data', 'imu_cam_1')
     )
 
     start_bag = ExecuteProcess(
-        cmd=["ros2", "bag", "play", bag_file_path], output="screen"
+        cmd=['ros2', 'bag', 'play', bag_file_path], output='screen'
     )
 
     # Create the launch description and populate

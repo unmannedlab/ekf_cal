@@ -13,9 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <rclcpp/rclcpp.hpp>
 #include <iostream>
 #include <string>
+
+#include <rclcpp/rclcpp.hpp>
 
 #include "../Logger.hpp"
 

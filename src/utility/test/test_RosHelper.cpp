@@ -13,11 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <std_msgs/msg/header.hpp>
-
 #include <gtest/gtest.h>
+
 #include <iostream>
 #include <vector>
+
+#include <std_msgs/msg/header.hpp>
 
 #include "RosHelper.hpp"
 

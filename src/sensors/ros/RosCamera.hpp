@@ -16,8 +16,9 @@
 #ifndef SENSORS__ROS__ROSCAMERA_HPP_
 #define SENSORS__ROS__ROSCAMERA_HPP_
 
-#include <sensor_msgs/msg/image.hpp>
 #include <string>
+
+#include <sensor_msgs/msg/image.hpp>
 
 #include "sensors/Camera.hpp"
 

@@ -16,12 +16,13 @@
 #ifndef UTILITY__ROSHELPER_HPP_
 #define UTILITY__ROSHELPER_HPP_
 
+
 #include <eigen3/Eigen/Eigen>
+
+#include <vector>
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
-
 #include <std_msgs/msg/header.hpp>
-#include <vector>
 
 #include "utility/Constants.hpp"
 
