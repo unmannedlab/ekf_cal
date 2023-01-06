@@ -42,22 +42,6 @@ TEST(test_IMU, Id) {
   EXPECT_EQ(imu1.GetId(), id_one);
   EXPECT_EQ(imu2.GetId(), id_two);
 }
-
-
-TEST(test_IMU, StateStartIndex) {
-  IMU::Params params;
-  IMU imu(params);
-
-  unsigned int index1 = 1U;
-  unsigned int index2 = 2U;
-
-  imu.SetStateStartIndex(index1);
-  EXPECT_EQ(imu.GetStateStartIndex(), index1);
-
-  imu.SetStateStartIndex(index2);
-  EXPECT_EQ(imu.GetStateStartIndex(), index2);
-}
-
 TEST(test_IMU, StateSize) {
   IMU::Params params1;
   IMU::Params params2;
@@ -84,34 +68,6 @@ TEST(test_IMU, StateSize) {
   params4.intrinsic = true;
   IMU imu4(params4);
   EXPECT_EQ(imu4.GetStateSize(), 12U);
-}
-
-TEST(test_IMU, PosOffset) {
-  IMU::Params params;
-  IMU imu(params);
-
-  Eigen::Vector3d posOff1 = {1.2, -3.4, 5.6};
-  Eigen::Vector3d posOff2 = {-9.8, 7.6, -5.4};
-
-  imu.SetPosOffset(posOff1);
-  EXPECT_EQ(imu.GetPosOffset(), posOff1);
-
-  imu.SetPosOffset(posOff2);
-  EXPECT_EQ(imu.GetPosOffset(), posOff2);
-}
-
-TEST(test_IMU, AngOffset) {
-  IMU::Params params;
-  IMU imu(params);
-
-  Eigen::Quaterniond angOff1 = {1.2, -3.4, 5.6, -7.8};
-  Eigen::Quaterniond angOff2 = {-9.8, 7.6, -5.4, 3.2};
-
-  imu.SetAngOffset(angOff1);
-  EXPECT_EQ(imu.GetAngOffset(), angOff1);
-
-  imu.SetAngOffset(angOff2);
-  EXPECT_EQ(imu.GetAngOffset(), angOff2);
 }
 
 TEST(test_IMU, GetAccBiasStability)
@@ -161,23 +117,6 @@ TEST(test_IMU, IsIntrinsic)
   EXPECT_TRUE(imu1.IsIntrinsic());
   EXPECT_FALSE(imu2.IsIntrinsic());
 }
-
-// TEST(test_IMU, Covariance)
-// {
-//   IMU::Params params;
-//   params.baseSensor = false;
-//   params.intrinsic = false;
-//   IMU imu(params);
-
-//   EXPECT_EQ(imu.GetStateSize(), 6U);
-
-//   Eigen::MatrixXd cov(6, 6);
-//   cov.setIdentity();
-
-//   imu.SetCov(cov);
-
-//   EXPECT_EQ(imu.GetCov(), cov);
-// }
 
 // TEST(test_IMU, PredictMeasurement) {
 //   Eigen::VectorXd bodyVec(18);

@@ -49,5 +49,18 @@ Eigen::VectorXd Camera::GetState()
 void Camera::Callback(double time)
 {
   std::string log = "Camera callback not implemented. Called at time = " + std::to_string(time);
-  m_logger->log(LogLevel::INFO, log);
+  m_logger->log(LogLevel::WARN, log);
+}
+
+void Camera::SetState()
+{
+  Eigen::VectorXd state = m_ekf->GetState();
+
+  m_posOffset = state.segment<3>(m_stateStartIndex);
+  Eigen::Vector3d rotVec = state.segment<3>(m_stateStartIndex + 3);
+
+  double angle = rotVec.norm();
+  Eigen::Vector3d axis = rotVec / angle;
+
+  m_angOffset = Eigen::AngleAxisd(angle, axis);
 }

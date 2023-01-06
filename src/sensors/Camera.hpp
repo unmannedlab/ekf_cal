@@ -70,6 +70,13 @@ public:
   /// @todo Implement actual callback method
   ///
   void Callback(double time);
+
+private:
+  ///
+  /// @brief Protected state setter method
+  ///
+  void SetState();
+
 };
 
 #endif  // SENSORS__CAMERA_HPP_

@@ -126,6 +126,12 @@ public:
     std::vector<Eigen::Quaterniond> & sensorAngOffsets
   );
 
+  ///
+  /// @brief Extend EKF state and covariance
+  /// @param sensorStateSize Size of state extension
+  /// @param sensorState State extension initialization
+  /// @param sensorCov Covariance extension initialization
+  ///
   void ExtendState(
     unsigned int sensorStateSize, Eigen::VectorXd sensorState,
     Eigen::MatrixXd sensorCov);

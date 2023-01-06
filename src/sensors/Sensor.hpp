@@ -62,18 +62,6 @@ public:
   Eigen::Quaterniond GetAngOffset();
 
   ///
-  /// @brief Sensor position offset setter method
-  /// @param posOffset Position offset vector
-  ///
-  void SetPosOffset(Eigen::Vector3d posOffset);
-
-  ///
-  /// @brief Sensor angular offset setter method
-  /// @param angOffset Angular offset quaternion
-  ///
-  void SetAngOffset(Eigen::Quaterniond angOffset);
-
-  ///
   /// @brief Sensor name getter
   /// @return Sensor name
   ///
@@ -97,19 +85,13 @@ public:
   ///
   unsigned int GetStateSize();
 
-  ///
-  /// @brief Sensor state start setter method
-  /// @param stateStartIndex Sensor state start
-  ///
-  void SetStateStartIndex(unsigned int stateStartIndex);
-
-  ///
-  /// @brief Body state setter method
-  /// @param bodyState Body state vector
-  ///
-  static void SetBodyState(Eigen::VectorXd bodyState);
-
 protected:
+  ///
+  /// @brief Protected state setter method
+  /// @param state EKF state
+  ///
+  virtual void SetState() = 0;
+
   Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};          ///< @brief Sensor position offset vector
   Eigen::Quaterniond m_angOffset{0.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset quaternion
 
@@ -126,7 +108,6 @@ protected:
   double m_rate;                      ///< @brief Sensor measurement rate
   unsigned int m_id;                  ///< @brief Sensor id
   std::string m_name;                 ///< @brief Sensor name
-  Eigen::MatrixXd m_cov;              ///< @brief Sensor state covariance
 
   EKF * m_ekf = EKF::getInstance();           ///< @brief EKF singleton
   Logger * m_logger = Logger::getInstance();  ///< @brief Logger singleton

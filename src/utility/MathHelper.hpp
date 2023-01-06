@@ -40,6 +40,38 @@ inline Eigen::Matrix3d CrossProductMatrix(Eigen::Vector3d inVec)
   return outMat;
 }
 
+///
+/// @brief Bound matrix diagonal by a minimum value
+/// @param inMat Input matrix to be bound
+/// @param minBound Bounding value
+/// @return
+///
+inline Eigen::Matrix3d MinBoundDiagonal(Eigen::Matrix3d inMat, double minBound)
+{
+  Eigen::Matrix3d outMat = inMat;
+  for (unsigned int i = 0; i < 3; ++i) {
+    if (outMat(i, i) < minBound) {
+      outMat(i, i) = minBound;
+    }
+  }
+}
+
+///
+/// @brief Bound vector by a minimum value
+/// @param inVec Input vector to be bound
+/// @param minBound Bounding value
+/// @return
+///
+inline Eigen::VectorXd MinBoundVector(Eigen::VectorXd inVec, double minBound)
+{
+  Eigen::VectorXd outVec = inVec;
+  for (unsigned int i = 0; i < inVec.size(); ++i) {
+    if (inVec(i) < minBound) {
+      inVec(i) = minBound;
+    }
+  }
+}
+
 }  // namespace MathHelper
 
 #endif  // UTILITY__MATHHELPER_HPP_

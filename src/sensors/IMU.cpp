@@ -36,7 +36,6 @@ IMU::IMU(IMU::Params params)
     }
   }
 
-
   m_isBaseSensor = params.baseSensor;
   m_isIntrinsic = params.intrinsic;
   m_rate = params.rate;
@@ -47,38 +46,10 @@ IMU::IMU(IMU::Params params)
   m_accBiasStability = params.accBiasStability;
   m_omgBiasStability = params.omgBiasStability;
 
-  m_cov.conservativeResize(m_stateSize, m_stateSize);
-  m_cov = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
-
-  // Lower bound by 1e-6
-  for (unsigned int i = 0; i < m_stateSize; ++i) {
-    if (params.variance(i) > 1e-6) {
-      m_cov(i, i) = params.variance(i);
-    } else {
-      m_logger->log(LogLevel::WARN, "Variance should be larger than 1e-6");
-      m_cov(i, i) = 1e-6;
-    }
-  }
-
-  Eigen::VectorXd sensorState(m_stateSize);
-  if (params.baseSensor == true) {
-    if (params.intrinsic == true) {
-      sensorState.segment(0, 3) = m_accBias;
-      sensorState.segment(3, 3) = m_omgBias;
-    }
-  } else {
-    Eigen::AngleAxisd angAxis{m_angOffset};
-    Eigen::Vector3d angBiasRotVec = angAxis.axis() * angAxis.angle();
-    sensorState.segment(0, 3) = m_posOffset;
-    sensorState.segment(3, 3) = angBiasRotVec;
-    if (params.intrinsic == true) {
-      sensorState.segment(0, 3) = m_accBias;
-      sensorState.segment(3, 3) = m_omgBias;
-    }
-  }
-
   if (m_stateSize) {
-    m_ekf->ExtendState(m_stateSize, sensorState, m_cov);
+    Eigen::VectorXd sensorState = GetState();
+    Eigen::MatrixXd cov = MathHelper::MinBoundVector(params.variance, 1e-6).asDiagonal();
+    m_ekf->ExtendState(m_stateSize, sensorState, cov);
   }
 }
 
@@ -219,8 +190,6 @@ Eigen::MatrixXd IMU::GetMeasurementJacobian()
 
 Eigen::VectorXd IMU::GetState()
 {
-  Eigen::AngleAxisd angAxis{m_angOffset};
-  Eigen::Vector3d rotVec = angAxis.axis() * angAxis.angle();
   Eigen::VectorXd stateVec(m_stateSize);
 
   if (m_isBaseSensor) {
@@ -231,27 +200,53 @@ Eigen::VectorXd IMU::GetState()
       m_logger->log(LogLevel::WARN, "Base IMU has no state to get");
     }
   } else {
+    Eigen::AngleAxisd angAxis{m_angOffset};
+    Eigen::Vector3d angBiasRotVec = angAxis.axis() * angAxis.angle();
+    stateVec.segment<3>(0) = m_posOffset;
+    stateVec.segment<3>(3) = angBiasRotVec;
     if (m_isIntrinsic) {
-      stateVec.segment<3>(0) = m_posOffset;
-      stateVec.segment<3>(3) = rotVec;
       stateVec.segment<3>(6) = m_accBias;
       stateVec.segment<3>(9) = m_omgBias;
-    } else {
-      stateVec.segment<3>(0) = m_posOffset;
-      stateVec.segment<3>(3) = rotVec;
     }
   }
 
   return stateVec;
 }
 
-/// @todo Add check for base IMU status: split callback into different IMU types
+void IMU::SetState()
+{
+  Eigen::VectorXd state = m_ekf->GetState();
+
+  if (m_isBaseSensor) {
+    if (m_isIntrinsic) {
+      m_accBias = state.segment<3>(m_stateStartIndex);
+      m_omgBias = state.segment<3>(m_stateStartIndex + 3);
+    } else {
+      // Do nothing if zero-sized state
+    }
+  } else {
+    m_posOffset = state.segment<3>(m_stateStartIndex);
+    Eigen::Vector3d rotVec = state.segment<3>(m_stateStartIndex + 3);
+
+    double angle = rotVec.norm();
+    Eigen::Vector3d axis = rotVec / angle;
+
+    m_angOffset = Eigen::AngleAxisd(angle, axis);
+
+    if (m_isIntrinsic) {
+      m_accBias = state.segment<3>(m_stateStartIndex + 6);
+      m_omgBias = state.segment<3>(m_stateStartIndex + 9);
+    }
+  }
+}
+
 void IMU::Callback(
   double time, Eigen::Vector3d acceleration,
   Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
   Eigen::Matrix3d angularRateCovariance)
 {
   m_ekf->Predict(time);
+  SetState();
 
   Eigen::VectorXd z(acceleration.size() + angularRate.size());
   z.segment<3>(0) = acceleration;
@@ -270,22 +265,13 @@ void IMU::Callback(
   }
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-  R.block<3, 3>(0, 0) = accelerationCovariance;
-  R.block<3, 3>(3, 3) = angularRateCovariance;
-  for (int i = 0; i < 3; ++i) {
-    if (R(i, i) < 1e-3) {
-      R(i, i) = 1e-3;
-    }
-  }
-  for (int i = 3; i < 6; ++i) {
-    if (R(i, i) < 1e-2) {
-      R(i, i) = 1e-2;
-    }
-  }
+  R.block<3, 3>(0, 0) = MathHelper::MinBoundDiagonal(accelerationCovariance, 1e-3);
+  R.block<3, 3>(3, 3) = MathHelper::MinBoundDiagonal(angularRateCovariance, 1e-2);
 
   Eigen::MatrixXd S = H * m_ekf->GetCov() * H.transpose() + R;
   Eigen::MatrixXd K = m_ekf->GetCov() * H.transpose() * S.inverse();
 
   m_ekf->GetState() = m_ekf->GetState() + K * resid;
   m_ekf->GetCov() = (Eigen::MatrixXd::Identity(stateSize, stateSize) - K * H) * m_ekf->GetCov();
+  SetState();
 }

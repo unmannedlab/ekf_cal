@@ -56,7 +56,7 @@ Eigen::MatrixXd EKF::GetStateTransition(double dT)
 
 void EKF::Predict(double time)
 {
-  m_logger->log(LogLevel::INFO, "EKF::Predict at t=" + std::to_string(time));
+  m_logger->log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(time));
 
   // Don't predict if time is not initialized
   if (!m_timeInitialized) {
@@ -78,7 +78,6 @@ void EKF::Predict(double time)
 
   Eigen::MatrixXd F = GetStateTransition(dT);
 
-  /// @todo Should create convolution function to handle quaternion multiplication
   m_state = F * m_state;
   m_cov = F * m_cov * F.transpose() + F * m_processInput * m_processNoise *
     m_processInput.transpose() * F.transpose();

@@ -52,37 +52,12 @@ unsigned int Sensor::GetStateSize()
   return m_stateSize;
 }
 
-void Sensor::SetStateStartIndex(unsigned int stateStartIndex)
-{
-  m_stateStartIndex = stateStartIndex;
-}
-
 Eigen::Vector3d Sensor::GetPosOffset()
 {
   return m_posOffset;
 }
 
-void Sensor::SetPosOffset(Eigen::Vector3d posOffset)
-{
-  m_posOffset = posOffset;
-}
-
 Eigen::Quaterniond Sensor::GetAngOffset()
 {
   return m_angOffset;
-}
-
-void Sensor::SetAngOffset(Eigen::Quaterniond angOffset)
-{
-  m_angOffset = angOffset;
-}
-
-void Sensor::SetBodyState(Eigen::VectorXd bodyState)
-{
-  m_bodyPos = bodyState.segment(0, 3);
-  m_bodyVel = bodyState.segment(3, 3);
-  m_bodyAcc = bodyState.segment(6, 3);
-  m_bodyAngPos = TypeHelper::RotVecToQuat(bodyState.segment(9, 3));
-  m_bodyAngVel = bodyState.segment(12, 3);
-  m_bodyAngAcc = bodyState.segment(15, 3);
 }

@@ -110,6 +110,11 @@ public:
     Eigen::Vector3d angularRate, Eigen::Matrix3d angularRateCovariance);
 
 private:
+  ///
+  /// @brief Protected state setter method
+  ///
+  void SetState();
+
   bool m_isBaseSensor;
   bool m_isIntrinsic;
   Eigen::Vector3d m_posOffset;
