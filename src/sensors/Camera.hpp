@@ -19,6 +19,7 @@
 #include <string>
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/features2d.hpp>
 
 #include "sensors/Sensor.hpp"
 
@@ -68,16 +69,24 @@ public:
 
   ///
   /// @brief Callback method for camera
-  /// @param time Shunt input until implemented
-  /// @todo Implement actual callback method
+  /// @param time Measurement time
+  /// @param imgIn Image pointer
   ///
   void Callback(double time, cv::Mat & imgIn);
+
+  ///
+  /// @brief Image callback output publisher method. Does nothing for standard camera class
+  /// @param pubImg Output image pointer
+  ///
+  void PublishOutput(cv::Mat & pubImg);
 
 private:
   ///
   /// @brief Protected state setter method
   ///
   void SetState();
+
+  cv::Ptr<cv::FastFeatureDetector> m_fastDetector = cv::FastFeatureDetector::create(80, true);
 };
 
 #endif  // SENSORS__CAMERA_HPP_

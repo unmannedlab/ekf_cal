@@ -37,6 +37,12 @@ public:
   /// @param msg ROS image message
   ///
   void Callback(const sensor_msgs::msg::Image::SharedPtr msg);
+
+  ///
+  /// @brief Image callback output publisher method. Does nothing for standard camera class
+  /// @param pubImg Output image pointer
+  ///
+  void PublishOutput(cv::Mat & pubImg);
 };
 
 #endif  // SENSORS__ROS__ROSCAMERA_HPP_

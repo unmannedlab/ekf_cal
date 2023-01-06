@@ -36,3 +36,4 @@ void RosIMU::Callback(const sensor_msgs::msg::Imu::SharedPtr msg)
 
   IMU::Callback(time, acc, acc_cov, omg, omg_cov);
 }
+

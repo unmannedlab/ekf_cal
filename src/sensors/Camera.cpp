@@ -50,8 +50,10 @@ Eigen::VectorXd Camera::GetState()
 
 void Camera::Callback(double time, cv::Mat & imgIn)
 {
-  std::string log = "Camera callback not implemented. Called at time = " + std::to_string(time);
-  m_logger->log(LogLevel::WARN, log);
+  std::vector<cv::KeyPoint> keyPoints;
+  m_logger->log(LogLevel::INFO, "Camera callback called at time = " + std::to_string(time));
+  m_fastDetector->detect(imgIn, keyPoints);
+  this->PublishOutput(imgIn);
 }
 
 void Camera::SetState()
@@ -65,4 +67,13 @@ void Camera::SetState()
   Eigen::Vector3d axis = rotVec / angle;
 
   m_angOffset = Eigen::AngleAxisd(angle, axis);
+}
+
+void Camera::PublishOutput(cv::Mat & pubImg)
+{
+  /// @todo This function shouldn't be called by RosCamera
+  m_logger->log(
+    LogLevel::INFO,
+    "Image publish BASE fall through. Image size: " + std::to_string(pubImg.rows) +
+    std::to_string(pubImg.cols));
 }

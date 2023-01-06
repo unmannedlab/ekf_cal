@@ -33,3 +33,11 @@ void RosCamera::Callback(const sensor_msgs::msg::Image::SharedPtr msg)
 
   Camera::Callback(time, cv_ptr->image);
 }
+
+void RosCamera::PublishOutput(cv::Mat & pubImg)
+{
+  m_logger->log(
+    LogLevel::INFO,
+    "Image publish ROS. Image size: " + std::to_string(pubImg.rows) +
+    std::to_string(pubImg.cols));
+}
