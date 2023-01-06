@@ -54,6 +54,8 @@ inline Eigen::Matrix3d MinBoundDiagonal(Eigen::Matrix3d inMat, double minBound)
       outMat(i, i) = minBound;
     }
   }
+
+  return outMat;
 }
 
 ///
@@ -65,11 +67,13 @@ inline Eigen::Matrix3d MinBoundDiagonal(Eigen::Matrix3d inMat, double minBound)
 inline Eigen::VectorXd MinBoundVector(Eigen::VectorXd inVec, double minBound)
 {
   Eigen::VectorXd outVec = inVec;
-  for (unsigned int i = 0; i < inVec.size(); ++i) {
-    if (inVec(i) < minBound) {
-      inVec(i) = minBound;
+  for (unsigned int i = 0; i < outVec.size(); ++i) {
+    if (outVec(i) < minBound) {
+      outVec(i) = minBound;
     }
   }
+
+  return outVec;
 }
 
 }  // namespace MathHelper

@@ -48,7 +48,8 @@ IMU::IMU(IMU::Params params)
 
   if (m_stateSize) {
     Eigen::VectorXd sensorState = GetState();
-    Eigen::MatrixXd cov = MathHelper::MinBoundVector(params.variance, 1e-6).asDiagonal();
+    Eigen::VectorXd varVec = params.variance.segment(0, m_stateSize);
+    Eigen::MatrixXd cov = MathHelper::MinBoundVector(varVec, 1e-6).asDiagonal();
     m_ekf->ExtendState(m_stateSize, sensorState, cov);
   }
 }

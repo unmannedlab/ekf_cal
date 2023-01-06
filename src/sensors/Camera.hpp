@@ -18,6 +18,8 @@
 
 #include <string>
 
+#include <opencv2/opencv.hpp>
+
 #include "sensors/Sensor.hpp"
 
 ///
@@ -69,14 +71,13 @@ public:
   /// @param time Shunt input until implemented
   /// @todo Implement actual callback method
   ///
-  void Callback(double time);
+  void Callback(double time, cv::Mat & imgIn);
 
 private:
   ///
   /// @brief Protected state setter method
   ///
   void SetState();
-
 };
 
 #endif  // SENSORS__CAMERA_HPP_

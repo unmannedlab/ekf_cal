@@ -28,7 +28,6 @@ TEST(test_IMU, Name) {
   EXPECT_EQ(imu.GetName(), params.name);
 }
 
-
 TEST(test_IMU, Id) {
   IMU::Params params1;
   IMU::Params params2;
@@ -42,6 +41,7 @@ TEST(test_IMU, Id) {
   EXPECT_EQ(imu1.GetId(), id_one);
   EXPECT_EQ(imu2.GetId(), id_two);
 }
+
 TEST(test_IMU, StateSize) {
   IMU::Params params1;
   IMU::Params params2;
@@ -51,21 +51,25 @@ TEST(test_IMU, StateSize) {
   params1.baseSensor = true;
   params1.intrinsic = false;
 
+  std::cout << "imu1" << std::endl;
   IMU imu1(params1);
   EXPECT_EQ(imu1.GetStateSize(), 0U);
 
   params2.baseSensor = true;
   params2.intrinsic = true;
+  std::cout << "imu2" << std::endl;
   IMU imu2(params2);
   EXPECT_EQ(imu2.GetStateSize(), 6U);
 
   params3.baseSensor = false;
   params3.intrinsic = false;
+  std::cout << "imu3" << std::endl;
   IMU imu3(params3);
   EXPECT_EQ(imu3.GetStateSize(), 6U);
 
   params4.baseSensor = false;
   params4.intrinsic = true;
+  std::cout << "imu4" << std::endl;
   IMU imu4(params4);
   EXPECT_EQ(imu4.GetStateSize(), 12U);
 }

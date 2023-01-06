@@ -15,7 +15,10 @@
 
 #include "sensors/ros/RosCamera.hpp"
 
+#include <cv_bridge/cv_bridge.h>
+
 #include <sensor_msgs/msg/image.hpp>
+#include <opencv2/opencv.hpp>
 
 #include "sensors/Camera.hpp"
 #include "utility/RosHelper.hpp"
@@ -26,9 +29,7 @@ void RosCamera::Callback(const sensor_msgs::msg::Image::SharedPtr msg)
 {
   double time = RosHelper::RosHeaderToTime(msg->header);
 
-  m_logger->log(
-    LogLevel::INFO,
-    "Camera \"" + m_name + "\" callback at time " + std::to_string(time));
+  cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(msg);
 
-  Camera::Callback(time);
+  Camera::Callback(time, cv_ptr->image);
 }

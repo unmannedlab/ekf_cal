@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include <opencv2/opencv.hpp>
+
 #include "sensors/Sensor.hpp"
 #include "utility/TypeHelper.hpp"
 
@@ -46,7 +48,7 @@ Eigen::VectorXd Camera::GetState()
   return stateVec;
 }
 
-void Camera::Callback(double time)
+void Camera::Callback(double time, cv::Mat & imgIn)
 {
   std::string log = "Camera callback not implemented. Called at time = " + std::to_string(time);
   m_logger->log(LogLevel::WARN, log);

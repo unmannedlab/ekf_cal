@@ -33,6 +33,8 @@ set(ROS_PKGS
     sensor_msgs
     geometry_msgs
     tf2_ros
+    OpenCV
+    cv_bridge
 )
 foreach(pkg ${ROS_PKGS})
     find_package(${pkg} REQUIRED)
@@ -48,6 +50,8 @@ set(EKF_SRCS
 
 # Create library with EKF sources
 add_library(EKF_LIB ${EKF_SRCS})
+
+ament_target_dependencies(EKF_LIB OpenCV)
 
 target_include_directories(EKF_LIB PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
