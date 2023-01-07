@@ -17,8 +17,9 @@
 
 #include <cv_bridge/cv_bridge.h>
 
-#include <sensor_msgs/msg/image.hpp>
 #include <opencv2/opencv.hpp>
+#include <sensor_msgs/msg/image.hpp>
+#include <std_msgs/msg/header.hpp>
 
 #include "sensors/Camera.hpp"
 #include "utility/RosHelper.hpp"
@@ -32,21 +33,18 @@ RosCamera::RosCamera(Camera::Params params)
   m_imgPublisher = m_node->create_publisher<sensor_msgs::msg::Image>("outImg", 10);
 }
 
-void RosCamera::Callback(const sensor_msgs::msg::Image::SharedPtr msg)
+void RosCamera::Callback(const sensor_msgs::msg::Image::SharedPtr inMsg)
 {
-  double time = RosHelper::RosHeaderToTime(msg->header);
+  double time = RosHelper::RosHeaderToTime(inMsg->header);
 
-  cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(msg);
+  cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(inMsg);
 
   Camera::Callback(time, cv_ptr->image);
-  PublishOutput();
-}
 
-void RosCamera::PublishOutput()
-{
   m_logger->log(LogLevel::INFO, "Image publish ROS");
 
-  sensor_msgs::msg::Image::SharedPtr msg = cv_bridge::CvImage(
+  sensor_msgs::msg::Image::SharedPtr outMsg = cv_bridge::CvImage(
     std_msgs::msg::Header(), "bgr8", m_outImg).toImageMsg();
-  m_imgPublisher->publish(*msg.get());
+
+  m_imgPublisher->publish(*outMsg.get());
 }

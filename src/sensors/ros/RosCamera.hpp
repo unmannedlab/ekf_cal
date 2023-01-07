@@ -42,11 +42,6 @@ public:
   ///
   void Callback(const sensor_msgs::msg::Image::SharedPtr msg);
 
-  ///
-  /// @brief Image callback output publisher method.
-  ///
-  void PublishOutput();
-
 private:
   rclcpp::Node::SharedPtr m_node;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_imgPublisher;

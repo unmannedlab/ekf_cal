@@ -52,7 +52,7 @@ void Camera::Callback(double time, cv::Mat & imgIn)
 {
   m_logger->log(LogLevel::INFO, "Camera callback called at time = " + std::to_string(time));
   std::vector<cv::KeyPoint> keyPoints;
-  m_fastDetector->detect(m_outImg, keyPoints);
+  m_fastDetector->detect(imgIn, keyPoints);
   cv::drawKeypoints(imgIn, keyPoints, m_outImg);
 }
 

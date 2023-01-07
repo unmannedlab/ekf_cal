@@ -82,7 +82,7 @@ private:
   ///
   void SetState();
 
-  cv::Ptr<cv::FastFeatureDetector> m_fastDetector = cv::FastFeatureDetector::create(80, true);
+  cv::Ptr<cv::FastFeatureDetector> m_fastDetector = cv::FastFeatureDetector::create(4, true);
 };
 
 #endif  // SENSORS__CAMERA_HPP_
