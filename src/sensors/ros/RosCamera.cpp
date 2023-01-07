@@ -25,6 +25,13 @@
 #include "utility/TypeHelper.hpp"
 
 
+RosCamera::RosCamera(Camera::Params params)
+: Camera(params)
+{
+  m_node = rclcpp::Node::make_shared("ImgNode");
+  m_imgPublisher = m_node->create_publisher<sensor_msgs::msg::Image>("outImg", 10);
+}
+
 void RosCamera::Callback(const sensor_msgs::msg::Image::SharedPtr msg)
 {
   double time = RosHelper::RosHeaderToTime(msg->header);
@@ -32,12 +39,14 @@ void RosCamera::Callback(const sensor_msgs::msg::Image::SharedPtr msg)
   cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(msg);
 
   Camera::Callback(time, cv_ptr->image);
+  PublishOutput();
 }
 
-void RosCamera::PublishOutput(cv::Mat & pubImg)
+void RosCamera::PublishOutput()
 {
-  m_logger->log(
-    LogLevel::INFO,
-    "Image publish ROS. Image size: " + std::to_string(pubImg.rows) +
-    std::to_string(pubImg.cols));
+  m_logger->log(LogLevel::INFO, "Image publish ROS");
+
+  sensor_msgs::msg::Image::SharedPtr msg = cv_bridge::CvImage(
+    std_msgs::msg::Header(), "bgr8", m_outImg).toImageMsg();
+  m_imgPublisher->publish(*msg.get());
 }

@@ -74,11 +74,7 @@ public:
   ///
   void Callback(double time, cv::Mat & imgIn);
 
-  ///
-  /// @brief Image callback output publisher method. Does nothing for standard camera class
-  /// @param pubImg Output image pointer
-  ///
-  void PublishOutput(cv::Mat & pubImg);
+  cv::Mat m_outImg;
 
 private:
   ///

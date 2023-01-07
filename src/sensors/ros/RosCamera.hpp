@@ -18,7 +18,10 @@
 
 #include <string>
 
+#include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
+#include "std_msgs/msg/header.hpp"
+#include <opencv2/opencv.hpp>
 
 #include "sensors/Camera.hpp"
 
@@ -30,7 +33,8 @@
 class RosCamera : public Camera
 {
 public:
-  using Camera::Camera;
+  // using Camera::Camera;
+  explicit RosCamera(Camera::Params params);
 
   ///
   /// @brief RosCamera callback method
@@ -39,10 +43,13 @@ public:
   void Callback(const sensor_msgs::msg::Image::SharedPtr msg);
 
   ///
-  /// @brief Image callback output publisher method. Does nothing for standard camera class
-  /// @param pubImg Output image pointer
+  /// @brief Image callback output publisher method.
   ///
-  void PublishOutput(cv::Mat & pubImg);
+  void PublishOutput();
+
+private:
+  rclcpp::Node::SharedPtr m_node;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_imgPublisher;
 };
 
 #endif  // SENSORS__ROS__ROSCAMERA_HPP_
