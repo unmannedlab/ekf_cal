@@ -82,7 +82,14 @@ private:
   ///
   void SetState();
 
-  cv::Ptr<cv::FastFeatureDetector> m_fastDetector = cv::FastFeatureDetector::create(4, true);
+  cv::Ptr<cv::FeatureDetector> m_featureDetector;
+  cv::Ptr<cv::DescriptorExtractor> m_descriptorExtractor;
+  cv::Ptr<cv::DescriptorMatcher> m_descriptorMatcher;
+
+  std::vector<cv::KeyPoint> m_prevKeyPoints;
+  std::vector<cv::KeyPoint> m_currKeyPoints;
+  cv::Mat m_prevDescriptors;
+  cv::Mat m_currDescriptors;
 };
 
 #endif  // SENSORS__CAMERA_HPP_
