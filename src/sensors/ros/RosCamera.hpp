@@ -33,8 +33,12 @@
 class RosCamera : public Camera
 {
 public:
-  // using Camera::Camera;
-  explicit RosCamera(Camera::Params params);
+  ///
+  /// @brief RosCamera constructor
+  /// @param cParams Camera parameters
+  /// @param tParams Tracker parameters
+  ///
+  RosCamera(Camera::Params cParams, Tracker::Params tParams);
 
   ///
   /// @brief RosCamera callback method

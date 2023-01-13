@@ -16,14 +16,16 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "sensors/ros/RosCamera.hpp"
+#include "sensors/Camera.hpp"
+#include "sensors/Tracker.hpp"
 
 ///
 /// @todo Write these unit tests
 ///
-TEST(test_Camera, hello_world) {
-  Camera::Params params;
-  params.name = "test_Camera";
-  Camera Camera(params);
+TEST(test_Camera, constructor) {
+  Camera::Params cParams;
+  Tracker::Params tParams;
+  cParams.name = "test_Camera";
+  Camera Camera(cParams, tParams);
   EXPECT_TRUE(true);
 }

@@ -16,15 +16,19 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "sensors/ros/RosCamera.hpp"
 #include "sensors/Camera.hpp"
+#include "sensors/ros/RosCamera.hpp"
+#include "sensors/Tracker.hpp"
 
 ///
 /// @todo Write this test
 ///
-TEST(test_Camera, hello_world) {
-  Camera::Params params;
-  params.name = "test_Camera";
-  RosCamera RosCamera(params);
+TEST(test_RosCamera, constructor) {
+  Camera::Params cParams;
+  Tracker::Params tParams;
+  cParams.name = "test_Camera";
+
+  /// @todo: Re-enable this test once ROS node is not inside camera
+  // RosCamera RosCamera(cParams, tParams);
   EXPECT_TRUE(true);
 }

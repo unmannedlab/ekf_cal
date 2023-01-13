@@ -23,3 +23,7 @@
                 PosOffInit:  [0.0, 0.0, 0.0]
                 AngOffInit: [1.0, 0.0, 0.0, 0.0]
                 VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+                FeatureDetector: 4
+                DescriptorExtractor: 0
+                DescriptorMatcher: 1
+                DetectorThreshold: 5.0

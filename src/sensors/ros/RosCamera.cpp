@@ -22,12 +22,13 @@
 #include <std_msgs/msg/header.hpp>
 
 #include "sensors/Camera.hpp"
+#include "sensors/Tracker.hpp"
 #include "utility/RosHelper.hpp"
 #include "utility/TypeHelper.hpp"
 
 
-RosCamera::RosCamera(Camera::Params params)
-: Camera(params)
+RosCamera::RosCamera(Camera::Params cParams, Tracker::Params tParams)
+: Camera(cParams, tParams)
 {
   m_node = rclcpp::Node::make_shared("ImgNode");
   m_imgPublisher = m_node->create_publisher<sensor_msgs::msg::Image>("outImg", 10);

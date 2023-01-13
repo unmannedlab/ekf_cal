@@ -17,11 +17,13 @@
 #define SENSORS__CAMERA_HPP_
 
 #include <string>
+#include <vector>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
 
 #include "sensors/Sensor.hpp"
+#include "sensors/Tracker.hpp"
 
 ///
 /// @class Camera
@@ -45,9 +47,10 @@ public:
 
   ///
   /// @brief Camera sensor constructor
-  /// @param params Parameter struct for camera sensor
+  /// @param cParams Parameter struct for camera sensor
+  /// @param tParams Parameter struct for tracker
   ///
-  explicit Camera(Camera::Params params);
+  Camera(Camera::Params cParams, Tracker::Params tParams);
 
   ///
   /// @brief Predict measurement method
@@ -82,14 +85,12 @@ private:
   ///
   void SetState();
 
-  cv::Ptr<cv::FeatureDetector> m_featureDetector;
-  cv::Ptr<cv::DescriptorExtractor> m_descriptorExtractor;
-  cv::Ptr<cv::DescriptorMatcher> m_descriptorMatcher;
-
   std::vector<cv::KeyPoint> m_prevKeyPoints;
   std::vector<cv::KeyPoint> m_currKeyPoints;
   cv::Mat m_prevDescriptors;
   cv::Mat m_currDescriptors;
+
+  Tracker m_tracker;
 };
 
 #endif  // SENSORS__CAMERA_HPP_

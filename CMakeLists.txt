@@ -46,6 +46,7 @@ set(EKF_SRCS
     src/sensors/Camera.cpp
     src/sensors/IMU.cpp
     src/sensors/Sensor.cpp
+    src/sensors/Tracker.cpp
 )
 
 # Create library with EKF sources

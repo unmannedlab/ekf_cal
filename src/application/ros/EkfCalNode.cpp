@@ -33,6 +33,8 @@
 
 #include "utility/TypeHelper.hpp"
 #include "ekf/EKF.hpp"
+#include "sensors/Camera.hpp"
+#include "sensors/IMU.hpp"
 #include "sensors/ros/RosCamera.hpp"
 #include "sensors/ros/RosIMU.hpp"
 #include "infrastructure/Logger.hpp"
@@ -156,7 +158,10 @@ void EkfCalNode::LoadCamera(std::string camName)
   this->declare_parameter(camPrefix + ".PosOffInit", std::vector<double>{});
   this->declare_parameter(camPrefix + ".AngOffInit", std::vector<double>{});
   this->declare_parameter(camPrefix + ".VarInit", std::vector<double>{});
-
+  this->declare_parameter(camPrefix + ".FeatureDetector", 0);
+  this->declare_parameter(camPrefix + ".DescriptorExtractor", 0);
+  this->declare_parameter(camPrefix + ".DescriptorMatcher", 0);
+  this->declare_parameter(camPrefix + ".DetectorThreshold", 20.0);
 
   // Load parameters
   double rate = this->get_parameter(camPrefix + ".Rate").as_double();
@@ -173,8 +178,18 @@ void EkfCalNode::LoadCamera(std::string camName)
   camParams.angOffset = TypeHelper::StdToEigQuat(angOff);
   camParams.variance = TypeHelper::StdToEigVec(variance);
 
+  // Tracker Params
+  Tracker::Params tParams;
+  int fDetector = this->get_parameter(camPrefix + ".FeatureDetector").as_int();
+  int dExtractor = this->get_parameter(camPrefix + ".DescriptorExtractor").as_int();
+  int dMatcher = this->get_parameter(camPrefix + ".DescriptorMatcher").as_int();
+  tParams.featureDetector = static_cast<Tracker::FeatureDetectorEnum>(fDetector);
+  tParams.descriptorExtractor = static_cast<Tracker::DescriptorExtractorEnum>(dExtractor);
+  tParams.descriptorMatcher = static_cast<Tracker::DescriptorMatcherEnum>(dMatcher);
+  tParams.detectorThreshold = this->get_parameter(camPrefix + ".DetectorThreshold").as_double();
+
   // Create new RosCamera and bind callback to ID
-  std::shared_ptr<RosCamera> sensor_ptr = std::make_shared<RosCamera>(camParams);
+  std::shared_ptr<RosCamera> sensor_ptr = std::make_shared<RosCamera>(camParams, tParams);
   m_mapCamera[sensor_ptr->GetId()] = sensor_ptr;
 
   std::function<void(std::shared_ptr<sensor_msgs::msg::Image>)> function;

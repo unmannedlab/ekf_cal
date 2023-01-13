@@ -16,23 +16,18 @@
 #include "sensors/Camera.hpp"
 
 #include <string>
+#include <vector>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
 
 #include "sensors/Sensor.hpp"
+#include "sensors/Tracker.hpp"
 #include "utility/TypeHelper.hpp"
 
 /// @todo add detector/extractor parameters to input
-Camera::Camera(Camera::Params params)
-: Sensor(params.name)
-{
-  m_featureDetector = cv::ORB::create(
-    500, 1.2f, 8, 31,
-    0, 2, cv::ORB::HARRIS_SCORE, 31, 15);
-  m_descriptorExtractor = cv::ORB::create();
-  m_descriptorMatcher = cv::FlannBasedMatcher::create();
-}
+Camera::Camera(Camera::Params params, Tracker::Params tParams)
+: Sensor(params.name), m_tracker(tParams) {}
 
 Eigen::VectorXd Camera::PredictMeasurement()
 {
@@ -57,18 +52,20 @@ Eigen::VectorXd Camera::GetState()
   return stateVec;
 }
 
+/// @todo Undistort images in camera
+/// @todo Move tracking into tracker
 void Camera::Callback(double time, cv::Mat & imgIn)
 {
   m_logger->log(LogLevel::INFO, "Camera callback called at time = " + std::to_string(time));
 
-  m_featureDetector->detect(imgIn, m_currKeyPoints);
-  m_descriptorExtractor->compute(imgIn, m_currKeyPoints, m_currDescriptors);
+  m_tracker.GetFeatureDetector()->detect(imgIn, m_currKeyPoints);
+  m_tracker.GetDescriptorExtractor()->compute(imgIn, m_currKeyPoints, m_currDescriptors);
   m_currDescriptors.convertTo(m_currDescriptors, CV_32F);
   cv::drawKeypoints(imgIn, m_currKeyPoints, m_outImg);
 
   if (m_prevDescriptors.rows > 0 && m_currDescriptors.rows > 0) {
     std::vector<cv::DMatch> matches;
-    m_descriptorMatcher->match(m_prevDescriptors, m_currDescriptors, matches);
+    m_tracker.GetDescriptorMatcher()->match(m_prevDescriptors, m_currDescriptors, matches);
 
     // Use only "good" matches (i.e. whose distance is less than 3*min_dist )
     double max_dist = 0;
