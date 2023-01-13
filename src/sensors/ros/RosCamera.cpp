@@ -28,11 +28,7 @@
 
 
 RosCamera::RosCamera(Camera::Params cParams, Tracker::Params tParams)
-: Camera(cParams, tParams)
-{
-  m_node = rclcpp::Node::make_shared("ImgNode");
-  m_imgPublisher = m_node->create_publisher<sensor_msgs::msg::Image>("outImg", 10);
-}
+: Camera(cParams, tParams) {}
 
 void RosCamera::Callback(const sensor_msgs::msg::Image::SharedPtr inMsg)
 {
@@ -44,8 +40,10 @@ void RosCamera::Callback(const sensor_msgs::msg::Image::SharedPtr inMsg)
 
   m_logger->log(LogLevel::INFO, "Image publish ROS");
 
-  sensor_msgs::msg::Image::SharedPtr outMsg = cv_bridge::CvImage(
-    std_msgs::msg::Header(), "bgr8", m_outImg).toImageMsg();
+  m_outRosImg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", m_outImg).toImageMsg();
+}
 
-  m_imgPublisher->publish(*outMsg.get());
+sensor_msgs::msg::Image::SharedPtr RosCamera::GetRosImage()
+{
+  return m_outRosImg;
 }

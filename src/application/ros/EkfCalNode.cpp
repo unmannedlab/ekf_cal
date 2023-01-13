@@ -74,6 +74,7 @@ EkfCalNode::EkfCalNode()
   m_PosePub = this->create_publisher<geometry_msgs::msg::PoseStamped>("~/pose", 10);
   m_TwistPub = this->create_publisher<geometry_msgs::msg::TwistStamped>("~/twist", 10);
   m_StatePub = this->create_publisher<std_msgs::msg::Float64MultiArray>("~/state", 10);
+  m_imgPublisher = this->create_publisher<sensor_msgs::msg::Image>("~/outImg", 10);
 
   m_tfTimer =
     this->create_wall_timer(
@@ -211,6 +212,7 @@ void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, un
   auto iter = m_mapCamera.find(id);
   iter->second->Callback(msg);
   PublishState();
+  m_imgPublisher->publish(*iter->second->GetRosImage().get());
 }
 
 void EkfCalNode::PublishState()

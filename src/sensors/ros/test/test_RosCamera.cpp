@@ -27,8 +27,6 @@ TEST(test_RosCamera, constructor) {
   Camera::Params cParams;
   Tracker::Params tParams;
   cParams.name = "test_Camera";
-
-  /// @todo: Re-enable this test once ROS node is not inside camera
-  // RosCamera RosCamera(cParams, tParams);
+  RosCamera RosCamera(cParams, tParams);
   EXPECT_TRUE(true);
 }

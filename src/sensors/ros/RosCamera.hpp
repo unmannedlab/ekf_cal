@@ -46,9 +46,14 @@ public:
   ///
   void Callback(const sensor_msgs::msg::Image::SharedPtr msg);
 
+  ///
+  /// @brief Camera output ROS image getter method
+  /// @return Camera output ROS image
+  ///
+  sensor_msgs::msg::Image::SharedPtr GetRosImage();
+
 private:
-  rclcpp::Node::SharedPtr m_node;
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_imgPublisher;
+  sensor_msgs::msg::Image::SharedPtr m_outRosImg;
 };
 
 #endif  // SENSORS__ROS__ROSCAMERA_HPP_

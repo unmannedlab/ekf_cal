@@ -26,4 +26,4 @@
                 FeatureDetector: 4
                 DescriptorExtractor: 0
                 DescriptorMatcher: 1
-                DetectorThreshold: 5.0
+                DetectorThreshold: 15.0

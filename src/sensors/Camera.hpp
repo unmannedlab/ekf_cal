@@ -77,6 +77,7 @@ public:
   ///
   void Callback(double time, cv::Mat & imgIn);
 
+protected:
   cv::Mat m_outImg;
 
 private:
@@ -84,6 +85,7 @@ private:
   /// @brief Protected state setter method
   ///
   void SetState();
+
 
   std::vector<cv::KeyPoint> m_prevKeyPoints;
   std::vector<cv::KeyPoint> m_currKeyPoints;

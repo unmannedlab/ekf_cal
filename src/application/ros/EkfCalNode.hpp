@@ -121,6 +121,7 @@ private:
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr m_PosePub;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_TwistPub;
   rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_StatePub;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_imgPublisher;
   std::unique_ptr<tf2_ros::TransformBroadcaster> m_tfBroadcaster;
   rclcpp::TimerBase::SharedPtr m_tfTimer;
   Logger * m_logger = Logger::getInstance();
