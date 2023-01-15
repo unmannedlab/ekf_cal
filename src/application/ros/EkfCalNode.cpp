@@ -202,17 +202,17 @@ void EkfCalNode::LoadCamera(std::string camName)
 
 void EkfCalNode::IMUCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id)
 {
-  auto iter = m_mapIMU.find(id);
-  iter->second->Callback(msg);
+  const auto & rosImuPtr = m_mapIMU.find(id)->second;
+  rosImuPtr->Callback(msg);
   PublishState();
 }
 
 void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
 {
-  auto iter = m_mapCamera.find(id);
-  iter->second->Callback(msg);
+  const auto & rosCamPtr = m_mapCamera.find(id)->second;
+  rosCamPtr->Callback(msg);
   PublishState();
-  m_imgPublisher->publish(*iter->second->GetRosImage().get());
+  m_imgPublisher->publish(*rosCamPtr->GetRosImage().get());
 }
 
 void EkfCalNode::PublishState()
