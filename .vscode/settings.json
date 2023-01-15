@@ -33,6 +33,7 @@
         "ROSIMU",
         "RVIZ",
         "TYPEHELPER",
+        "undistort",
         "VIZNODE"
     ],
     "terminal.integrated.scrollback": 5000,

@@ -120,7 +120,7 @@ if(BUILD_TESTING)
         src/utility/test/test_MathHelper.cpp
         src/utility/test/test_TypeHelper.cpp
         src/ekf/test/test_EKF.cpp
-        src/sensors/ros/test/test_Camera.cpp
+        src/sensors/ros/test/test_RosCamera.cpp
         src/sensors/ros/test/test_RosIMU.cpp
         src/sensors/test/test_IMU.cpp
     )

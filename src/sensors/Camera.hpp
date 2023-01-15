@@ -86,13 +86,10 @@ private:
   ///
   void SetState();
 
-
-  std::vector<cv::KeyPoint> m_prevKeyPoints;
-  std::vector<cv::KeyPoint> m_currKeyPoints;
-  cv::Mat m_prevDescriptors;
-  cv::Mat m_currDescriptors;
-
   Tracker m_tracker;
+
+  std::vector<double> m_radDistortionK{0.0, 0.0, 0.0};
+  std::vector<double> m_tanDistortionD{0.0, 0.0};
 };
 
 #endif  // SENSORS__CAMERA_HPP_

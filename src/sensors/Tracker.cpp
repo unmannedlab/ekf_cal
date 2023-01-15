@@ -99,19 +99,55 @@ cv::Ptr<cv::DescriptorMatcher> Tracker::InitDescriptorMatcher(DescriptorMatcherE
   return descriptorMatcher;
 }
 
-cv::Ptr<cv::FeatureDetector> Tracker::GetFeatureDetector()
+/// @todo create maximum distance using predicted IMU rotations
+void Tracker::Track(double time, cv::Mat & imgIn, cv::Mat & imgOut)
 {
-  return m_featureDetector;
+  m_featureDetector->detect(imgIn, m_currKeyPoints);
+  m_descriptorExtractor->compute(imgIn, m_currKeyPoints, m_currDescriptors);
+  m_currDescriptors.convertTo(m_currDescriptors, CV_32F);
+  cv::drawKeypoints(imgIn, m_currKeyPoints, imgOut);
+
+  if (m_prevDescriptors.rows > 0 && m_currDescriptors.rows > 0) {
+    std::vector<std::vector<cv::DMatch>> matches;
+
+    m_descriptorMatcher->knnMatch(m_prevDescriptors, m_currDescriptors, matches, 2);
+
+    // Use only "good" matches (i.e. whose distance is less than 3*min_dist )
+    double max_dist = 0;
+    double min_dist = 100;
+
+    for (unsigned int i = 0; i < matches.size(); ++i) {
+      for (unsigned int j = 0; j < matches[i].size(); ++j) {
+        double dist = matches[i][j].distance;
+        if (dist < min_dist) {min_dist = dist;}
+        if (dist > max_dist) {max_dist = dist;}
+      }
+    }
+
+    for (unsigned int i = 0; i < matches.size(); ++i) {
+      for (unsigned int j = 0; j < matches[i].size(); ++j) {
+        if (matches[i][j].distance < 3 * min_dist) {
+          cv::Point2d point_old = m_prevKeyPoints[matches[i][j].queryIdx].pt;
+          cv::Point2d point_new = m_currKeyPoints[matches[i][j].trainIdx].pt;
+          cv::line(imgOut, point_old, point_new, cv::Scalar(0, 255, 0), 2, 8, 0);
+        }
+      }
+    }
+  }
+
+  m_prevKeyPoints = m_currKeyPoints;
+  m_prevDescriptors = m_currDescriptors;
 }
 
 
-cv::Ptr<cv::DescriptorExtractor> Tracker::GetDescriptorExtractor()
+unsigned int Tracker::generateFeatureID()
 {
-  return m_descriptorExtractor;
+  static unsigned int featureID = 0;
+  return featureID++;
 }
 
-
-cv::Ptr<cv::DescriptorMatcher> Tracker::GetDescriptorMatcher()
+unsigned int Tracker::generateSequenceID()
 {
-  return m_descriptorMatcher;
+  static unsigned int SequenceID = 0;
+  return SequenceID++;
 }
