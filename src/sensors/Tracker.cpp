@@ -99,7 +99,6 @@ cv::Ptr<cv::DescriptorMatcher> Tracker::InitDescriptorMatcher(DescriptorMatcherE
   return descriptorMatcher;
 }
 
-/// @todo create maximum distance using predicted IMU rotations
 void Tracker::Track(double time, cv::Mat & imgIn, cv::Mat & imgOut)
 {
   m_featureDetector->detect(imgIn, m_currKeyPoints);
@@ -110,6 +109,7 @@ void Tracker::Track(double time, cv::Mat & imgIn, cv::Mat & imgOut)
   if (m_prevDescriptors.rows > 0 && m_currDescriptors.rows > 0) {
     std::vector<std::vector<cv::DMatch>> matches;
 
+    /// @todo Mask using maximum distance from predicted IMU rotations
     m_descriptorMatcher->knnMatch(m_prevDescriptors, m_currDescriptors, matches, 2);
 
     // Use only "good" matches (i.e. whose distance is less than 3*min_dist )
@@ -124,13 +124,52 @@ void Tracker::Track(double time, cv::Mat & imgIn, cv::Mat & imgOut)
       }
     }
 
+    auto goodMatches = std::vector<cv::DMatch>{};
+
     for (unsigned int i = 0; i < matches.size(); ++i) {
       for (unsigned int j = 0; j < matches[i].size(); ++j) {
         if (matches[i][j].distance < 3 * min_dist) {
           cv::Point2d point_old = m_prevKeyPoints[matches[i][j].queryIdx].pt;
           cv::Point2d point_new = m_currKeyPoints[matches[i][j].trainIdx].pt;
           cv::line(imgOut, point_old, point_new, cv::Scalar(0, 255, 0), 2, 8, 0);
+          goodMatches.push_back(matches[i][j]);
         }
+      }
+    }
+    // Assign previous Key Point ID for each match
+    for (const auto & m : goodMatches) {
+      m_currKeyPoints[m.queryIdx].class_id = m_prevKeyPoints[m.trainIdx].class_id;
+    }
+
+    // Only generate feature IDs for unmatched features
+    for (auto & kp : m_currKeyPoints) {
+      if (kp.class_id == -1) {
+        kp.class_id = generateFeatureID();
+      }
+    }
+
+    // Store feature tracks
+    auto seqID = generateSequenceID();
+    for (const auto & kp : m_currKeyPoints) {
+      auto featureTrack = FeatureTrack{time, seqID, kp};
+      m_featureTrackMap[kp.class_id].push_back(featureTrack);
+    }
+
+    // Update MSCKF on features no longer detected
+    /// @todo Add a minimum number of detections before a feature is used
+    auto features_to_use = std::vector<std::vector<Tracker::FeatureTrack>> {};
+    for (auto it = m_featureTrackMap.cbegin(); it != m_featureTrackMap.cend(); ) {
+      const auto & featureTrack = it->second;
+      if ((featureTrack.back().sequenceID < seqID) ||
+        (featureTrack.size() >= max_feature_tracks_per_update))
+      {
+        // This feature does not exist in the latest frame
+        if (featureTrack.size() > min_track_length) {
+          features_to_use.push_back(featureTrack);
+        }
+        it = m_featureTrackMap.erase(it);
+      } else {
+        ++it;
       }
     }
   }

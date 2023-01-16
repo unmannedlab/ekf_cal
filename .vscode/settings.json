@@ -27,6 +27,7 @@
         "GFTT",
         "htmlonly",
         "MATHHELPER",
+        "MSCKF",
         "MSER",
         "RCLCPP",
         "ROSCAMERA",

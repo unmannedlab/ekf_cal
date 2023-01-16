@@ -18,7 +18,7 @@
 
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <map>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
@@ -63,14 +63,15 @@ public:
     FLANN
   };
 
+
   ///
   /// @brief Feature Track structure
   ///
   typedef struct FeatureTrack
   {
-    unsigned int latest_sequence_id;
-    unsigned int latest_time;
-    std::vector<cv::KeyPoint> keypoints;
+    double time;
+    unsigned int sequenceID;
+    cv::KeyPoint keyPoint;
   } FeatureTrack;
 
   ///
@@ -111,10 +112,15 @@ private:
   cv::Mat m_prevDescriptors;
   cv::Mat m_currDescriptors;
 
-  std::unordered_map<unsigned int, FeatureTrack> m_featureTrackMap;
+  std::map<unsigned int, std::vector<FeatureTrack>> m_featureTrackMap;
 
   unsigned int generateFeatureID();
   unsigned int generateSequenceID();
+
+  /// @todo Use parameter inputs for these values
+  bool use_qr_decomposition{false};
+  unsigned int max_feature_tracks_per_update{30};
+  unsigned int min_track_length{5};
 };
 
 #endif  // SENSORS__TRACKER_HPP_

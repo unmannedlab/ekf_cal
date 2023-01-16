@@ -153,6 +153,7 @@ void EkfCalNode::LoadIMU(std::string imuName)
 void EkfCalNode::LoadCamera(std::string camName)
 {
   // Declare parameters
+  /// @todo Change Feature Detector et. al. to be strings?
   std::string camPrefix = "Camera." + camName;
   this->declare_parameter(camPrefix + ".Rate", 1.0);
   this->declare_parameter(camPrefix + ".Topic", "");
