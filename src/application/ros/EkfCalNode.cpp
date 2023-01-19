@@ -185,10 +185,10 @@ void EkfCalNode::LoadCamera(std::string camName)
   int fDetector = this->get_parameter(camPrefix + ".FeatureDetector").as_int();
   int dExtractor = this->get_parameter(camPrefix + ".DescriptorExtractor").as_int();
   int dMatcher = this->get_parameter(camPrefix + ".DescriptorMatcher").as_int();
-  tParams.featureDetector = static_cast<Tracker::FeatureDetectorEnum>(fDetector);
-  tParams.descriptorExtractor = static_cast<Tracker::DescriptorExtractorEnum>(dExtractor);
-  tParams.descriptorMatcher = static_cast<Tracker::DescriptorMatcherEnum>(dMatcher);
-  tParams.detectorThreshold = this->get_parameter(camPrefix + ".DetectorThreshold").as_double();
+  tParams.detector = static_cast<Tracker::FeatureDetectorEnum>(fDetector);
+  tParams.descriptor = static_cast<Tracker::DescriptorExtractorEnum>(dExtractor);
+  tParams.matcher = static_cast<Tracker::DescriptorMatcherEnum>(dMatcher);
+  tParams.threshold = this->get_parameter(camPrefix + ".DetectorThreshold").as_double();
 
   // Create new RosCamera and bind callback to ID
   std::shared_ptr<RosCamera> sensor_ptr = std::make_shared<RosCamera>(camParams, tParams);

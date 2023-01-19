@@ -24,9 +24,9 @@
 /// @todo add detector/extractor parameters to input
 Tracker::Tracker(Tracker::Params params)
 {
-  m_featureDetector = InitFeatureDetector(FeatureDetectorEnum::ORB, 4);
-  m_descriptorExtractor = InitDescriptorExtractor(DescriptorExtractorEnum::ORB, 4);
-  m_descriptorMatcher = InitDescriptorMatcher(DescriptorMatcherEnum::FLANN);
+  m_featureDetector = InitFeatureDetector(params.detector, params.threshold);
+  m_descriptorExtractor = InitDescriptorExtractor(params.descriptor, params.threshold);
+  m_descriptorMatcher = InitDescriptorMatcher(params.matcher);
 }
 
 
@@ -99,7 +99,7 @@ cv::Ptr<cv::DescriptorMatcher> Tracker::InitDescriptorMatcher(DescriptorMatcherE
   return descriptorMatcher;
 }
 
-void Tracker::Track(double time, cv::Mat & imgIn, cv::Mat & imgOut)
+void Tracker::Track(double time, unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut)
 {
   m_featureDetector->detect(imgIn, m_currKeyPoints);
   m_descriptorExtractor->compute(imgIn, m_currKeyPoints, m_currDescriptors);
@@ -110,22 +110,22 @@ void Tracker::Track(double time, cv::Mat & imgIn, cv::Mat & imgOut)
     std::vector<std::vector<cv::DMatch>> matches;
 
     /// @todo Mask using maximum distance from predicted IMU rotations
-    m_descriptorMatcher->knnMatch(m_prevDescriptors, m_currDescriptors, matches, 2);
+    m_descriptorMatcher->knnMatch(m_prevDescriptors, m_currDescriptors, matches, 5);
 
     // Use only "good" matches (i.e. whose distance is less than 3*min_dist )
     double max_dist = 0;
     double min_dist = 100;
 
     for (unsigned int i = 0; i < matches.size(); ++i) {
-      for (unsigned int j = 0; j < matches[i].size(); ++j) {
-        double dist = matches[i][j].distance;
-        if (dist < min_dist) {min_dist = dist;}
-        if (dist > max_dist) {max_dist = dist;}
-      }
+      // for (unsigned int j = 0; j < matches[i].size(); ++j) {
+      double dist = matches[i][0].distance;
+
+      if (dist < min_dist && dist >= 5.0) {min_dist = dist;}
+      if (dist > max_dist) {max_dist = dist;}
+      // }
     }
 
     auto goodMatches = std::vector<cv::DMatch>{};
-
     for (unsigned int i = 0; i < matches.size(); ++i) {
       for (unsigned int j = 0; j < matches[i].size(); ++j) {
         if (matches[i][j].distance < 3 * min_dist) {
@@ -136,32 +136,31 @@ void Tracker::Track(double time, cv::Mat & imgIn, cv::Mat & imgOut)
         }
       }
     }
+
     // Assign previous Key Point ID for each match
     for (const auto & m : goodMatches) {
-      m_currKeyPoints[m.queryIdx].class_id = m_prevKeyPoints[m.trainIdx].class_id;
+      m_currKeyPoints[m.trainIdx].class_id = m_prevKeyPoints[m.queryIdx].class_id;
     }
 
     // Only generate feature IDs for unmatched features
-    for (auto & kp : m_currKeyPoints) {
-      if (kp.class_id == -1) {
-        kp.class_id = generateFeatureID();
+    for (auto & keyPoint : m_currKeyPoints) {
+      if (keyPoint.class_id == -1) {
+        keyPoint.class_id = generateFeatureID();
       }
     }
 
     // Store feature tracks
-    auto seqID = generateSequenceID();
-    for (const auto & kp : m_currKeyPoints) {
-      auto featureTrack = FeatureTrack{time, seqID, kp};
-      m_featureTrackMap[kp.class_id].push_back(featureTrack);
+    for (const auto & keyPoint : m_currKeyPoints) {
+      auto featureTrack = FeatureTrack{time, frameID, keyPoint};
+      m_featureTrackMap[keyPoint.class_id].push_back(featureTrack);
     }
 
     // Update MSCKF on features no longer detected
-    /// @todo Add a minimum number of detections before a feature is used
     auto features_to_use = std::vector<std::vector<Tracker::FeatureTrack>> {};
     for (auto it = m_featureTrackMap.cbegin(); it != m_featureTrackMap.cend(); ) {
       const auto & featureTrack = it->second;
-      if ((featureTrack.back().sequenceID < seqID) ||
-        (featureTrack.size() >= max_feature_tracks_per_update))
+      if ((featureTrack.back().frameID < frameID) ||
+        (featureTrack.size() >= max_track_length))
       {
         // This feature does not exist in the latest frame
         if (featureTrack.size() > min_track_length) {
@@ -183,10 +182,4 @@ unsigned int Tracker::generateFeatureID()
 {
   static unsigned int featureID = 0;
   return featureID++;
-}
-
-unsigned int Tracker::generateSequenceID()
-{
-  static unsigned int SequenceID = 0;
-  return SequenceID++;
 }

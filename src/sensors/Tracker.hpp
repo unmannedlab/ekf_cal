@@ -69,9 +69,9 @@ public:
   ///
   typedef struct FeatureTrack
   {
-    double time;
-    unsigned int sequenceID;
-    cv::KeyPoint keyPoint;
+    double time;              /// <@brief Time of feature detection
+    unsigned int frameID;  /// <@brief Sequence ID of feature detection
+    cv::KeyPoint keyPoint;    /// <@brief Detected key point
   } FeatureTrack;
 
   ///
@@ -79,10 +79,10 @@ public:
   ///
   typedef struct Params
   {
-    FeatureDetectorEnum featureDetector {FeatureDetectorEnum::ORB};
-    DescriptorExtractorEnum descriptorExtractor {DescriptorExtractorEnum::ORB};
-    DescriptorMatcherEnum descriptorMatcher {DescriptorMatcherEnum::FLANN};
-    double detectorThreshold {20.0};
+    FeatureDetectorEnum detector {FeatureDetectorEnum::ORB};
+    DescriptorExtractorEnum descriptor {DescriptorExtractorEnum::ORB};
+    DescriptorMatcherEnum matcher {DescriptorMatcherEnum::FLANN};
+    double threshold {20.0};
   } Params;
 
   ///
@@ -91,7 +91,7 @@ public:
   ///
   explicit Tracker(Tracker::Params params);
 
-  void Track(double time, cv::Mat & imgIn, cv::Mat & imgOut);
+  void Track(double time, unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut);
 
 private:
   cv::Ptr<cv::FeatureDetector> InitFeatureDetector(
@@ -115,12 +115,13 @@ private:
   std::map<unsigned int, std::vector<FeatureTrack>> m_featureTrackMap;
 
   unsigned int generateFeatureID();
-  unsigned int generateSequenceID();
+
+  Logger * m_logger = Logger::getInstance();  ///< @brief Logger singleton
 
   /// @todo Use parameter inputs for these values
   bool use_qr_decomposition{false};
-  unsigned int max_feature_tracks_per_update{30};
-  unsigned int min_track_length{5};
+  unsigned int max_track_length{30};
+  unsigned int min_track_length{2};
 };
 
 #endif  // SENSORS__TRACKER_HPP_

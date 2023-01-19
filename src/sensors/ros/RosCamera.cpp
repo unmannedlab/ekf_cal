@@ -38,7 +38,7 @@ void RosCamera::Callback(const sensor_msgs::msg::Image::SharedPtr inMsg)
 
   Camera::Callback(time, cv_ptr->image);
 
-  m_logger->log(LogLevel::INFO, "Image publish ROS");
+  m_logger->log(LogLevel::DEBUG, "Image publish ROS");
 
   m_outRosImg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", m_outImg).toImageMsg();
 }

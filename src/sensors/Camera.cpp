@@ -27,8 +27,8 @@
 #include "utility/TypeHelper.hpp"
 
 /// @todo add detector/extractor parameters to input
-Camera::Camera(Camera::Params params, Tracker::Params tParams)
-: Sensor(params.name), m_tracker(tParams) {}
+Camera::Camera(Camera::Params cParams, Tracker::Params tParams)
+: Sensor(cParams.name), m_tracker(tParams) {}
 
 Eigen::VectorXd Camera::PredictMeasurement()
 {
@@ -55,9 +55,11 @@ Eigen::VectorXd Camera::GetState()
 
 void Camera::Callback(double time, cv::Mat & imgIn)
 {
-  m_logger->log(LogLevel::INFO, "Camera callback called at time = " + std::to_string(time));
+  m_logger->log(LogLevel::DEBUG, "Camera callback called at time = " + std::to_string(time));
 
-  m_tracker.Track(time, imgIn, m_outImg);
+  unsigned int frameID = generateFrameID();
+
+  m_tracker.Track(time, frameID, imgIn, m_outImg);
 
   /// @todo Undistort points post track?
   // cv::undistortPoints();
@@ -74,4 +76,10 @@ void Camera::SetState()
   Eigen::Vector3d axis = rotVec / angle;
 
   m_angOffset = Eigen::AngleAxisd(angle, axis);
+}
+
+unsigned int Camera::generateFrameID()
+{
+  static unsigned int FrameID = 0;
+  return FrameID++;
 }

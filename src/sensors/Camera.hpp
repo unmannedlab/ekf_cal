@@ -78,13 +78,15 @@ public:
   void Callback(double time, cv::Mat & imgIn);
 
 protected:
-  cv::Mat m_outImg;
+  cv::Mat m_outImg;  ///< @brief Published output test image
 
 private:
   ///
   /// @brief Protected state setter method
   ///
   void SetState();
+
+  unsigned int generateFrameID();
 
   Tracker m_tracker;
 

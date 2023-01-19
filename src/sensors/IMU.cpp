@@ -246,6 +246,8 @@ void IMU::Callback(
   Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
   Eigen::Matrix3d angularRateCovariance)
 {
+  m_logger->log(LogLevel::DEBUG, "IMU \"" + m_name + "\" callback at time " + std::to_string(time));
+
   m_ekf->Predict(time);
   SetState();
 

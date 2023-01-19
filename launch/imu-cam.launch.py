@@ -39,7 +39,7 @@ def generate_launch_description():
     )
 
     start_bag = ExecuteProcess(
-        cmd=['ros2', 'bag', 'play', bag_file_path], output='screen'
+        cmd=['ros2', 'bag', 'play', bag_file_path, '--start-offset', '10'], output='screen'
     )
 
     # Create the launch description and populate

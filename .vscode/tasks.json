@@ -70,6 +70,17 @@
             "command": "doxygen .doxyfile",
             "group": "test",
             "problemMatcher": "$gcc",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+        },
+        {
+            "label": "doxygen and coverage",
+            "detail": "Build ekf_cal documentation with coverage report",
+            "type": "shell",
+            "command": "doxygen .doxyfile",
+            "group": "test",
+            "problemMatcher": "$gcc",
             "dependsOn": "report coverage",
             "options": {
                 "cwd": "${workspaceFolder}"
