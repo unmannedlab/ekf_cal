@@ -25,6 +25,7 @@
 /// @class IMU
 /// @brief IMU Sensor Class
 /// @todo Add parameter input/defaults for covariance
+/// @todo Bias Stability and Noise process inputs for IMUs
 ///
 class IMU : public Sensor
 {

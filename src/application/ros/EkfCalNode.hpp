@@ -38,14 +38,9 @@
 ///
 /// @class EkfCalNode
 /// @brief A ROS2 node for EKF-based sensor calibration
-/// @todo Bias Stability and Noise process inputs for IMUs
-/// @todo Make flag for base sensor in IMU
 /// @todo Camera Methods
 /// @todo Software Paper
 /// @todo Architecture Design
-/// @todo TF2 Publishing Flag
-/// @todo Debugging Info
-/// @todo Warnings as errors
 /// @todo Option to publish health metrics
 /// @todo Option to publish visualization messages
 ///

@@ -101,6 +101,7 @@ IMU::Params EkfCalNode::GetImuParameters(std::string imuName)
   // Assign parameters to struct
   IMU::Params imuParams;
   imuParams.name = imuName;
+  imuParams.topic = topic;
   imuParams.baseSensor = baseSensor;
   imuParams.intrinsic = intrinsic;
   imuParams.rate = rate;

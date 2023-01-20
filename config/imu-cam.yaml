@@ -17,7 +17,7 @@
                 Topic: "/vectornav/imu_uncompensated"
                 VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 PosOffInit: [0.0, 0.0, 0.0]
-                AngOffInit: [0.0, 0.0, 0.0]
+                AngOffInit: [1.0, 0.0, 0.0, 0.0]
                 AccBiasInit: [0.0, 0.0, 0.0]
                 OmgBiasInit: [0.0, 0.0, 0.0]
 

@@ -25,7 +25,6 @@
 
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 #include <rclcpp/rclcpp.hpp>
 
@@ -34,15 +33,8 @@
 
 ///
 /// @class EkfCalNode
-/// @brief A ROS2 node for EKF-based sensor calibration
-/// @todo Bias Stability and Noise process inputs for IMUs
-/// @todo Make flag for base sensor in IMU
-/// @todo Camera Methods
-/// @todo Software Paper
-/// @todo Architecture Design
+/// @brief A ROS2 node for publishing calibration EKF data
 /// @todo TF2 Publishing Flag
-/// @todo Debugging Info
-/// @todo Warnings as errors
 /// @todo Option to publish health metrics
 /// @todo Option to publish visualization messages
 ///
@@ -76,11 +68,16 @@ public:
   void PublishSensorTransforms();
 
 private:
+  // Publishers
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr m_PosePub;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_TwistPub;
   rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_StatePub;
+
+  // TF2 objects
   std::unique_ptr<tf2_ros::TransformBroadcaster> m_tfBroadcaster;
   rclcpp::TimerBase::SharedPtr m_tfTimer;
+
+  // Singletons
   EKF * m_ekf = EKF::getInstance();
   Logger * m_logger = Logger::getInstance();
 };

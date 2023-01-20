@@ -35,11 +35,11 @@ def generate_launch_description():
     )
 
     bag_file_path = os.path.abspath(
-        os.path.join(this_dir, '..', '..', '..', '..', 'data', 'imu_cam_1')
+        os.path.join(this_dir, '..', '..', '..', '..', 'data', 'imu_cam_2')
     )
 
     start_bag = ExecuteProcess(
-        cmd=['ros2', 'bag', 'play', bag_file_path, '--start-offset', '10'], output='screen'
+        cmd=['ros2', 'bag', 'play', bag_file_path, '--rate', '0.2'], output='screen'
     )
 
     # Create the launch description and populate

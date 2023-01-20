@@ -3,13 +3,12 @@
         {
             "name": "ROS",
             "includePath": [
-                "/opt/ros/humble/include",
+                "/opt/ros/humble/include/**",
                 "/usr/include/**",
-                "/usr/local/include/**",
                 "/usr/src/googletest",
-                "${workspaceFolder}/src"
-            ],
-            "configurationProvider": "ms-vscode.cmake-tools"
+                "${workspaceFolder}/src",
+                "/usr/include/c++/11"
+            ]
         }
     ],
     "version": 4
