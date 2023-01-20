@@ -16,7 +16,6 @@
 #ifndef APPLICATION__ROS__EKFCALNODE_HPP_
 #define APPLICATION__ROS__EKFCALNODE_HPP_
 
-#include <tf2_ros/transform_broadcaster.h>
 
 #include <cstdio>
 #include <map>
@@ -24,19 +23,18 @@
 #include <string>
 #include <vector>
 
-#include <std_msgs/msg/float64_multi_array.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <geometry_msgs/msg/vector3.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/imu.hpp>
-#include <sensor_msgs/msg/point_cloud.hpp>
 
 #include "ekf/EKF.hpp"
 #include "infrastructure/Logger.hpp"
+#include "sensors/Camera.hpp"
+#include "sensors/IMU.hpp"
 #include "sensors/ros/RosCamera.hpp"
 #include "sensors/ros/RosIMU.hpp"
+#include "sensors/Tracker.hpp"
+
 ///
 /// @class EkfCalNode
 /// @brief A ROS2 node for EKF-based sensor calibration
@@ -72,6 +70,28 @@ public:
   void LoadCamera(std::string camName);
 
   ///
+  /// @brief Function for declaring and loading IMU parameters
+  /// @param imuName Name of parameter structure
+  /// @return imuParameters
+  ///
+  IMU::Params GetImuParameters(std::string imuName);
+
+  ///
+  /// @brief Function for declaring and loading camera parameters
+  /// @param cameraName Name of parameter structure
+  /// @return cameraParameters
+  ///
+  Camera::Params GetCameraParameters(std::string cameraName);
+
+  ///
+  /// @brief Function for declaring and loading tracker parameters
+  /// @param trackerName Name of parameter structure
+  /// @return trackerParameters
+  ///
+  Tracker::Params GetTrackerParameters(std::string trackerName);
+
+
+  ///
   /// @brief Callback method for IMU sensor messages
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
@@ -84,32 +104,7 @@ public:
   ///
   void CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
 
-  ///
-  /// @brief Publish EKF state information
-  ///
-  void PublishState();
-
-  ///
-  /// @brief Publish sensor transforms
-  ///
-  void PublishTransforms();
-
-  ///
-  /// @brief Get transforms between body and sensors
-  /// @param baseIMUName Name of base IMU representing body
-  /// @param sensorNames Vector of sensor names
-  /// @param sensorPosOffsets Vector of sensor positional offsets
-  /// @param sensorAngOffsets Vector of sensor rotational offsets
-  ///
-  void GetTransforms(
-    std::string & baseIMUName,
-    std::vector<std::string> & sensorNames, std::vector<Eigen::Vector3d> & sensorPosOffsets,
-    std::vector<Eigen::Quaterniond> & sensorAngOffsets);
-
 private:
-  /// @brief Calibration EKF object
-  EKF * m_ekf = EKF::getInstance();
-
   /// @brief Vector of subscribers for IMU sensor messages
   std::vector<rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr> m_IMUSubs;
 
@@ -118,12 +113,7 @@ private:
 
   bool m_baseIMUAssigned {false};
 
-  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr m_PosePub;
-  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_TwistPub;
-  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_StatePub;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_imgPublisher;
-  std::unique_ptr<tf2_ros::TransformBroadcaster> m_tfBroadcaster;
-  rclcpp::TimerBase::SharedPtr m_tfTimer;
   Logger * m_logger = Logger::getInstance();
   std::map<int, std::shared_ptr<RosIMU>> m_mapIMU{};
   std::map<int, std::shared_ptr<RosCamera>> m_mapCamera{};

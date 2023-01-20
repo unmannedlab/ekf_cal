@@ -35,7 +35,8 @@ public:
   typedef struct Params
   {
     std::string name;                               ///< @brief IMU name
-    bool baseSensor{true};                         ///< @brief IMU base sensor flag
+    std::string topic;                              ///< @brief IMU topic
+    bool baseSensor{true};                          ///< @brief IMU base sensor flag
     bool intrinsic{false};                          ///< @brief IMU intrinsic calibration
     double rate{1.0};                               ///< @brief IMU update rate
     Eigen::Vector3d posOffset {0, 0, 0};            ///< @brief IMU position offset vector

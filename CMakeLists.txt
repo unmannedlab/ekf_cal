@@ -91,7 +91,6 @@ ament_target_dependencies(ROS_LIB ${ROS_PKGS})
 install(TARGETS EKF_LIB)
 
 # EKF CAL Node
-# @todo Build is still not compatible with colcon
 add_executable(ekf_cal_node src/application/ros/EkfCalNode.cpp)
 target_include_directories(ekf_cal_node PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
@@ -99,6 +98,15 @@ target_include_directories(ekf_cal_node PUBLIC
 )
 ament_target_dependencies(ekf_cal_node ${ROS_PKGS})
 target_link_libraries(ekf_cal_node EKF_LIB ROS_LIB)
+
+# State Publisher Node
+add_executable(state_pub_node src/application/ros/StatePublisherNode.cpp)
+target_include_directories(state_pub_node PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:include>
+)
+ament_target_dependencies(state_pub_node ${ROS_PKGS})
+target_link_libraries(state_pub_node EKF_LIB ROS_LIB)
 
 install(TARGETS
     ekf_cal_node

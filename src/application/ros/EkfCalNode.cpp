@@ -24,8 +24,6 @@
 #include <string>
 #include <vector>
 
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/imu.hpp>
@@ -71,19 +69,11 @@ EkfCalNode::EkfCalNode()
   }
 
   // Create publishers
-  m_PosePub = this->create_publisher<geometry_msgs::msg::PoseStamped>("~/pose", 10);
-  m_TwistPub = this->create_publisher<geometry_msgs::msg::TwistStamped>("~/twist", 10);
-  m_StatePub = this->create_publisher<std_msgs::msg::Float64MultiArray>("~/state", 10);
   m_imgPublisher = this->create_publisher<sensor_msgs::msg::Image>("~/outImg", 10);
-
-  m_tfTimer =
-    this->create_wall_timer(
-    std::chrono::milliseconds(100),
-    std::bind(&EkfCalNode::PublishTransforms, this));
-  m_tfBroadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 }
 
-void EkfCalNode::LoadIMU(std::string imuName)
+/// @todo Move these getters into ROS helper?
+IMU::Params EkfCalNode::GetImuParameters(std::string imuName)
 {
   // Declare parameters
   std::string imuPrefix = "IMU." + imuName;
@@ -91,32 +81,22 @@ void EkfCalNode::LoadIMU(std::string imuName)
   this->declare_parameter(imuPrefix + ".Intrinsic", false);
   this->declare_parameter(imuPrefix + ".Rate", 1.0);
   this->declare_parameter(imuPrefix + ".Topic", "");
+  this->declare_parameter(imuPrefix + ".VarInit", std::vector<double>{});
+  this->declare_parameter(imuPrefix + ".PosOffInit", std::vector<double>{});
+  this->declare_parameter(imuPrefix + ".AngOffInit", std::vector<double>{});
+  this->declare_parameter(imuPrefix + ".AccBiasInit", std::vector<double>{});
+  this->declare_parameter(imuPrefix + ".OmgBiasInit", std::vector<double>{});
 
   // Load parameters
   bool baseSensor = this->get_parameter(imuPrefix + ".BaseSensor").as_bool();
   bool intrinsic = this->get_parameter(imuPrefix + ".Intrinsic").as_bool();
   double rate = this->get_parameter(imuPrefix + ".Rate").as_double();
   std::string topic = this->get_parameter(imuPrefix + ".Topic").as_string();
-  std::vector<double> posOff {0, 0, 0};
-  std::vector<double> angOff {1, 0, 0, 0};
-  std::vector<double> accBias {0, 0, 0};
-  std::vector<double> omgBias {0, 0, 0};
-
-  // Only calibrate offsets if not the base IMU
-  if (baseSensor == false) {
-    this->declare_parameter(imuPrefix + ".PosOffInit", std::vector<double>{});
-    this->declare_parameter(imuPrefix + ".AngOffInit", std::vector<double>{});
-    posOff = this->get_parameter(imuPrefix + ".PosOffInit").as_double_array();
-    angOff = this->get_parameter(imuPrefix + ".AngOffInit").as_double_array();
-  }
-
-  // Only calibrate intrinsics if flag is set
-  if (intrinsic == true) {
-    this->declare_parameter(imuPrefix + ".AccBiasInit", std::vector<double>{});
-    this->declare_parameter(imuPrefix + ".OmgBiasInit", std::vector<double>{});
-    accBias = this->get_parameter(imuPrefix + ".AccBiasInit").as_double_array();
-    omgBias = this->get_parameter(imuPrefix + ".OmgBiasInit").as_double_array();
-  }
+  std::vector<double> variance = this->get_parameter(imuPrefix + ".VarInit").as_double_array();
+  std::vector<double> posOff = this->get_parameter(imuPrefix + ".PosOffInit").as_double_array();
+  std::vector<double> angOff = this->get_parameter(imuPrefix + ".AngOffInit").as_double_array();
+  std::vector<double> accBias = this->get_parameter(imuPrefix + ".AccBiasInit").as_double_array();
+  std::vector<double> omgBias = this->get_parameter(imuPrefix + ".OmgBiasInit").as_double_array();
 
   // Assign parameters to struct
   IMU::Params imuParams;
@@ -124,46 +104,23 @@ void EkfCalNode::LoadIMU(std::string imuName)
   imuParams.baseSensor = baseSensor;
   imuParams.intrinsic = intrinsic;
   imuParams.rate = rate;
+  imuParams.variance = TypeHelper::StdToEigVec(variance);
   imuParams.posOffset = TypeHelper::StdToEigVec(posOff);
   imuParams.angOffset = TypeHelper::StdToEigQuat(angOff);
   imuParams.accBias = TypeHelper::StdToEigVec(accBias);
   imuParams.omgBias = TypeHelper::StdToEigVec(omgBias);
-
-  if ((baseSensor == false) || (intrinsic == true)) {
-    this->declare_parameter(imuPrefix + ".VarInit", std::vector<double>{});
-    std::vector<double> variance = this->get_parameter(imuPrefix + ".VarInit").as_double_array();
-    imuParams.variance = TypeHelper::StdToEigVec(variance);
-  }
-
-  // Create new RosIMU and and bind callback to ID
-  std::shared_ptr<RosIMU> sensor_ptr = std::make_shared<RosIMU>(imuParams);
-  m_mapIMU[sensor_ptr->GetId()] = sensor_ptr;
-
-  std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
-  function = std::bind(&EkfCalNode::IMUCallback, this, _1, sensor_ptr->GetId());
-  m_IMUSubs.push_back(this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function));
-
-  if (imuParams.baseSensor) {
-    m_baseIMUAssigned = true;
-  }
-  m_logger->log(LogLevel::INFO, "Loaded IMU: " + imuName);
+  return imuParams;
 }
 
-
-void EkfCalNode::LoadCamera(std::string camName)
+Camera::Params EkfCalNode::GetCameraParameters(std::string cameraName)
 {
-  // Declare parameters
-  /// @todo Change Feature Detector et. al. to be strings?
-  std::string camPrefix = "Camera." + camName;
+  std::string camPrefix = "Camera." + cameraName;
   this->declare_parameter(camPrefix + ".Rate", 1.0);
   this->declare_parameter(camPrefix + ".Topic", "");
   this->declare_parameter(camPrefix + ".PosOffInit", std::vector<double>{});
   this->declare_parameter(camPrefix + ".AngOffInit", std::vector<double>{});
   this->declare_parameter(camPrefix + ".VarInit", std::vector<double>{});
-  this->declare_parameter(camPrefix + ".FeatureDetector", 0);
-  this->declare_parameter(camPrefix + ".DescriptorExtractor", 0);
-  this->declare_parameter(camPrefix + ".DescriptorMatcher", 0);
-  this->declare_parameter(camPrefix + ".DetectorThreshold", 20.0);
+  this->declare_parameter(camPrefix + ".Tracker", "");
 
   // Load parameters
   double rate = this->get_parameter(camPrefix + ".Rate").as_double();
@@ -171,176 +128,95 @@ void EkfCalNode::LoadCamera(std::string camName)
   std::vector<double> posOff = this->get_parameter(camPrefix + ".PosOffInit").as_double_array();
   std::vector<double> angOff = this->get_parameter(camPrefix + ".AngOffInit").as_double_array();
   std::vector<double> variance = this->get_parameter(camPrefix + ".VarInit").as_double_array();
+  std::string trackerName = this->get_parameter(camPrefix + ".Tracker").as_string();
 
   // Assign parameters to struct
-  Camera::Params camParams;
-  camParams.name = camName;
-  camParams.rate = rate;
-  camParams.posOffset = TypeHelper::StdToEigVec(posOff);
-  camParams.angOffset = TypeHelper::StdToEigQuat(angOff);
-  camParams.variance = TypeHelper::StdToEigVec(variance);
+  Camera::Params cameraParams;
+  cameraParams.name = cameraName;
+  cameraParams.topic = topic;
+  cameraParams.rate = rate;
+  cameraParams.posOffset = TypeHelper::StdToEigVec(posOff);
+  cameraParams.angOffset = TypeHelper::StdToEigQuat(angOff);
+  cameraParams.variance = TypeHelper::StdToEigVec(variance);
+  cameraParams.tracker = trackerName;
+  return cameraParams;
+}
 
-  // Tracker Params
-  Tracker::Params tParams;
-  int fDetector = this->get_parameter(camPrefix + ".FeatureDetector").as_int();
-  int dExtractor = this->get_parameter(camPrefix + ".DescriptorExtractor").as_int();
-  int dMatcher = this->get_parameter(camPrefix + ".DescriptorMatcher").as_int();
-  tParams.detector = static_cast<Tracker::FeatureDetectorEnum>(fDetector);
-  tParams.descriptor = static_cast<Tracker::DescriptorExtractorEnum>(dExtractor);
-  tParams.matcher = static_cast<Tracker::DescriptorMatcherEnum>(dMatcher);
-  tParams.threshold = this->get_parameter(camPrefix + ".DetectorThreshold").as_double();
+/// @todo Change Feature Detector et. al. to be strings?
+Tracker::Params EkfCalNode::GetTrackerParameters(std::string trackerName)
+{
+  std::string trackerPrefix = "Tracker." + trackerName;
+
+  // Declare parameters
+  this->declare_parameter(trackerPrefix + ".FeatureDetector", 0);
+  this->declare_parameter(trackerPrefix + ".DescriptorExtractor", 0);
+  this->declare_parameter(trackerPrefix + ".DescriptorMatcher", 0);
+  this->declare_parameter(trackerPrefix + ".DetectorThreshold", 20.0);
+
+  // Get parameters
+  Tracker::Params trackerParams;
+  int fDetector = this->get_parameter(trackerPrefix + ".FeatureDetector").as_int();
+  int dExtractor = this->get_parameter(trackerPrefix + ".DescriptorExtractor").as_int();
+  int dMatcher = this->get_parameter(trackerPrefix + ".DescriptorMatcher").as_int();
+  trackerParams.detector = static_cast<Tracker::FeatureDetectorEnum>(fDetector);
+  trackerParams.descriptor = static_cast<Tracker::DescriptorExtractorEnum>(dExtractor);
+  trackerParams.matcher = static_cast<Tracker::DescriptorMatcherEnum>(dMatcher);
+  trackerParams.threshold = this->get_parameter(trackerPrefix + ".DetectorThreshold").as_double();
+  return trackerParams;
+}
+
+
+void EkfCalNode::LoadIMU(std::string imuName)
+{
+  IMU::Params iParams = GetImuParameters(imuName);
+
+  // Create new RosIMU and and bind callback to ID
+  std::shared_ptr<RosIMU> sensor_ptr = std::make_shared<RosIMU>(iParams);
+  m_mapIMU[sensor_ptr->GetId()] = sensor_ptr;
+
+  std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
+  function = std::bind(&EkfCalNode::IMUCallback, this, _1, sensor_ptr->GetId());
+  auto callback = this->create_subscription<sensor_msgs::msg::Imu>(iParams.topic, 10, function);
+  m_IMUSubs.push_back(callback);
+
+  if (iParams.baseSensor) {
+    m_baseIMUAssigned = true;
+  }
+  m_logger->log(LogLevel::INFO, "Loaded IMU: " + imuName);
+}
+
+
+void EkfCalNode::LoadCamera(std::string cameraName)
+{
+  // Load parameters
+  Camera::Params cParams = GetCameraParameters(cameraName);
+  Tracker::Params tParams = GetTrackerParameters(cParams.tracker);
 
   // Create new RosCamera and bind callback to ID
-  std::shared_ptr<RosCamera> sensor_ptr = std::make_shared<RosCamera>(camParams, tParams);
+  std::shared_ptr<RosCamera> sensor_ptr = std::make_shared<RosCamera>(cParams, tParams);
   m_mapCamera[sensor_ptr->GetId()] = sensor_ptr;
 
   std::function<void(std::shared_ptr<sensor_msgs::msg::Image>)> function;
   function = std::bind(&EkfCalNode::CameraCallback, this, _1, sensor_ptr->GetId());
-  m_CameraSubs.push_back(this->create_subscription<sensor_msgs::msg::Image>(topic, 10, function));
+  auto callback = this->create_subscription<sensor_msgs::msg::Image>(cParams.topic, 10, function);
+  m_CameraSubs.push_back(callback);
 
-  m_logger->log(LogLevel::INFO, "Loaded Camera: " + camName);
+  m_logger->log(LogLevel::INFO, "Loaded Camera: " + cameraName);
 }
 
 void EkfCalNode::IMUCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id)
 {
   const auto & rosImuPtr = m_mapIMU.find(id)->second;
   rosImuPtr->Callback(msg);
-  PublishState();
 }
 
 void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
 {
   const auto & rosCamPtr = m_mapCamera.find(id)->second;
   rosCamPtr->Callback(msg);
-  PublishState();
   m_imgPublisher->publish(*rosCamPtr->GetRosImage().get());
 }
 
-void EkfCalNode::PublishState()
-{
-  auto pose_msg = geometry_msgs::msg::PoseStamped();
-  auto twist_msg = geometry_msgs::msg::TwistStamped();
-  auto state_msg = std_msgs::msg::Float64MultiArray();
-
-  Eigen::VectorXd state = m_ekf->GetState();
-
-  // Position
-  pose_msg.pose.position.x = state(0);
-  pose_msg.pose.position.y = state(1);
-  pose_msg.pose.position.z = state(2);
-
-  // Orientation
-  Eigen::Quaterniond quat = TypeHelper::RotVecToQuat(state.segment(9, 3));
-  pose_msg.pose.orientation.w = quat.w();
-  pose_msg.pose.orientation.x = quat.x();
-  pose_msg.pose.orientation.y = quat.y();
-  pose_msg.pose.orientation.z = quat.z();
-
-  // Linear Velocity
-  twist_msg.twist.linear.x = state(3);
-  twist_msg.twist.linear.y = state(4);
-  twist_msg.twist.linear.z = state(5);
-
-  // Angular Velocity
-  twist_msg.twist.angular.x = state(12);
-  twist_msg.twist.angular.y = state(13);
-  twist_msg.twist.angular.z = state(14);
-
-  // State msg
-  for (unsigned int i = 0; i < state.size(); ++i) {
-    state_msg.data.push_back(state(i));
-  }
-
-  rclcpp::Time now = this->get_clock()->now();
-  pose_msg.header.stamp = now;
-  twist_msg.header.stamp = now;
-
-  m_PosePub->publish(pose_msg);
-  m_TwistPub->publish(twist_msg);
-  m_StatePub->publish(state_msg);
-}
-
-
-void EkfCalNode::GetTransforms(
-  std::string & baseIMUName,
-  std::vector<std::string> & sensorNames, std::vector<Eigen::Vector3d> & sensorPosOffsets,
-  std::vector<Eigen::Quaterniond> & sensorAngOffsets)
-{
-  // Iterate over IMUs
-  for (auto const & iter : m_mapIMU) {
-    if (iter.second->IsBaseSensor()) {
-      baseIMUName = iter.second->GetName();
-    } else {
-      sensorNames.push_back(iter.second->GetName());
-      sensorPosOffsets.push_back(iter.second->GetPosOffset());
-      sensorAngOffsets.push_back(iter.second->GetAngOffset());
-    }
-  }
-  // Iterate over Cameras
-  for (auto const & iter : m_mapCamera) {
-    sensorNames.push_back(iter.second->GetName());
-    sensorPosOffsets.push_back(iter.second->GetPosOffset());
-    sensorAngOffsets.push_back(iter.second->GetAngOffset());
-  }
-}
-
-///
-/// @todo debug issue with future extrapolation in RVIZ
-/// @todo possibly separate into separate node that just reads and publishes EKF data
-///
-void EkfCalNode::PublishTransforms()
-{
-  std::string baseIMUName;
-  std::vector<std::string> sensorNames;
-  std::vector<Eigen::Vector3d> sensorPosOffsets;
-  std::vector<Eigen::Quaterniond> sensorAngOffsets;
-  GetTransforms(baseIMUName, sensorNames, sensorPosOffsets, sensorAngOffsets);
-
-  geometry_msgs::msg::TransformStamped tf;
-  tf.header.frame_id = baseIMUName;
-
-  // Publish Sensor transforms
-  for (unsigned int i = 0; i < sensorNames.size(); ++i) {
-    // Sensor name
-    tf.child_frame_id = sensorNames[i];
-    tf.header.stamp = this->get_clock()->now();
-
-    // Sensor position
-    tf.transform.translation.x = 0.0;
-    tf.transform.translation.y = 0.0;
-    tf.transform.translation.z = 0.0;
-
-    // Sensor Orientation
-    /// @todo some of these quaternions are not valid (nan)
-    tf.transform.rotation.w = 1.0;
-    tf.transform.rotation.x = 0.0;
-    tf.transform.rotation.y = 0.0;
-    tf.transform.rotation.z = 0.0;
-
-    // Send the transformation
-    m_tfBroadcaster->sendTransform(tf);
-  }
-
-  Eigen::VectorXd ekfState = m_ekf->GetState();
-
-  // Publish Body transforms
-  tf.header.frame_id = "world";
-  tf.child_frame_id = baseIMUName;
-  tf.header.stamp = this->get_clock()->now();
-
-  // Body position
-  tf.transform.translation.x = 0.0;
-  tf.transform.translation.y = 0.0;
-  tf.transform.translation.z = 0.0;
-
-  // Body Orientation
-  tf.transform.rotation.w = 1.0;
-  tf.transform.rotation.x = 0.0;
-  tf.transform.rotation.y = 0.0;
-  tf.transform.rotation.z = 0.0;
-
-  m_tfBroadcaster->sendTransform(tf);
-}
 
 int main(int argc, char * argv[])
 {

@@ -39,10 +39,12 @@ public:
   typedef struct Params
   {
     std::string name;                                  ///< @brief Camera name
+    std::string topic;                                 ///< @brief Camera topic name
     double rate{1.0};                                  ///< @brief Camera update rate
     Eigen::Vector3d posOffset{0.0, 0.0, 0.0};          ///< @brief Camera initial position offset
     Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera initial angular offset
     Eigen::VectorXd variance {{0, 0, 0, 0, 0, 0}};     ///< @brief Initial state variance
+    std::string tracker;                               ///< @brief Tracker name
   } Params;
 
   ///
