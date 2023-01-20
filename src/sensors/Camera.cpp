@@ -59,8 +59,10 @@ void Camera::Callback(double time, cv::Mat & imgIn)
 
   unsigned int frameID = generateFrameID();
 
-  m_tracker.Track(time, frameID, imgIn, m_outImg);
-
+  Tracker::FeatureTracks featureTracks;
+  m_tracker.Track(frameID, imgIn, m_outImg, featureTracks);
+  // m_msckf.processFrame(time, frameID)
+  // m_msckf.processTracks(featureTracks)
   /// @todo Undistort points post track?
   // cv::undistortPoints();
 }

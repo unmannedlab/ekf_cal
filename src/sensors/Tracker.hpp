@@ -69,10 +69,11 @@ public:
   ///
   typedef struct FeatureTrack
   {
-    double time;              /// <@brief Time of feature detection
-    unsigned int frameID;  /// <@brief Sequence ID of feature detection
-    cv::KeyPoint keyPoint;    /// <@brief Detected key point
+    unsigned int frameID;   /// <@brief Sequence ID of feature detection
+    cv::KeyPoint keyPoint;  /// <@brief Detected key point
   } FeatureTrack;
+
+  typedef std::vector<std::vector<Tracker::FeatureTrack>> FeatureTracks;
 
   ///
   /// @brief Tracker initialization parameters structure
@@ -91,7 +92,9 @@ public:
   ///
   explicit Tracker(Tracker::Params params);
 
-  void Track(double time, unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut);
+  void Track(
+    unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut,
+    FeatureTracks featureTracks);
 
 private:
   cv::Ptr<cv::FeatureDetector> InitFeatureDetector(

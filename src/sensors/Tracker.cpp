@@ -99,7 +99,9 @@ cv::Ptr<cv::DescriptorMatcher> Tracker::InitDescriptorMatcher(DescriptorMatcherE
   return descriptorMatcher;
 }
 
-void Tracker::Track(double time, unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut)
+void Tracker::Track(
+  unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut,
+  FeatureTracks featureTracks)
 {
   m_featureDetector->detect(imgIn, m_currKeyPoints);
   m_descriptorExtractor->compute(imgIn, m_currKeyPoints, m_currDescriptors);
@@ -151,12 +153,11 @@ void Tracker::Track(double time, unsigned int frameID, cv::Mat & imgIn, cv::Mat 
 
     // Store feature tracks
     for (const auto & keyPoint : m_currKeyPoints) {
-      auto featureTrack = FeatureTrack{time, frameID, keyPoint};
+      auto featureTrack = FeatureTrack{frameID, keyPoint};
       m_featureTrackMap[keyPoint.class_id].push_back(featureTrack);
     }
 
     // Update MSCKF on features no longer detected
-    auto features_to_use = std::vector<std::vector<Tracker::FeatureTrack>> {};
     for (auto it = m_featureTrackMap.cbegin(); it != m_featureTrackMap.cend(); ) {
       const auto & featureTrack = it->second;
       if ((featureTrack.back().frameID < frameID) ||
@@ -164,7 +165,7 @@ void Tracker::Track(double time, unsigned int frameID, cv::Mat & imgIn, cv::Mat 
       {
         // This feature does not exist in the latest frame
         if (featureTrack.size() > min_track_length) {
-          features_to_use.push_back(featureTrack);
+          featureTracks.push_back(featureTrack);
         }
         it = m_featureTrackMap.erase(it);
       } else {
