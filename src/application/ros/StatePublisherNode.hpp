@@ -58,12 +58,22 @@ public:
   ///
   /// @brief Publish EKF state information
   ///
-  void PublishState();
+  void PublishStates();
 
   ///
-  /// @brief Publish sensor transforms
+  /// @brief Publish entire vector state
   ///
-  void PublishTransforms();
+  void PublishVectorState();
+
+  ///
+  /// @brief Publish body specific states
+  ///
+  void PublishBodyState();
+
+  ///
+  /// @brief Publish sensor extrinsic transforms
+  ///
+  void PublishSensorTransforms();
 
 private:
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr m_PosePub;

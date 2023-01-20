@@ -33,18 +33,25 @@ StatePublisherNode::StatePublisherNode()
   m_tfTimer =
     this->create_wall_timer(
     std::chrono::milliseconds(100),
-    std::bind(&StatePublisherNode::PublishState, this));
+    std::bind(&StatePublisherNode::PublishStates, this));
   m_tfBroadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
   m_PosePub = this->create_publisher<geometry_msgs::msg::PoseStamped>("~/pose", 10);
   m_TwistPub = this->create_publisher<geometry_msgs::msg::TwistStamped>("~/twist", 10);
   m_StatePub = this->create_publisher<std_msgs::msg::Float64MultiArray>("~/state", 10);
 }
 
+void StatePublisherNode::PublishStates()
+{
+  PublishVectorState();
+  PublishBodyState();
+  PublishSensorTransforms();
+}
+void StatePublisherNode::PublishVectorState() {}
 
 /// @todo move this into separate node
 /// @todo publish full state vector
 /// @todo publish transforms
-void StatePublisherNode::PublishState()
+void StatePublisherNode::PublishBodyState()
 {
   auto pose_msg = geometry_msgs::msg::PoseStamped();
   auto twist_msg = geometry_msgs::msg::TwistStamped();
@@ -92,7 +99,7 @@ void StatePublisherNode::PublishState()
 /// @todo debug issue with future extrapolation in RVIZ
 /// @todo possibly separate into separate node that just reads and publishes EKF data
 ///
-void StatePublisherNode::PublishTransforms()
+void StatePublisherNode::PublishSensorTransforms()
 {
   // std::string baseIMUName;
   // std::vector<std::string> sensorNames;
