@@ -25,7 +25,7 @@ TEST(test_IMU, Name) {
   IMU::Params params;
   params.name = "IMU_Name";
   IMU imu(params);
-  EXPECT_EQ(imu.GetName(), params.name);
+  EXPECT_EQ(imu.getName(), params.name);
 }
 
 TEST(test_IMU, Id) {
@@ -35,11 +35,11 @@ TEST(test_IMU, Id) {
   IMU imu1(params1);
   IMU imu2(params2);
 
-  unsigned int id_one = imu1.GetId();
+  unsigned int id_one = imu1.getId();
   unsigned int id_two = id_one + 1;
 
-  EXPECT_EQ(imu1.GetId(), id_one);
-  EXPECT_EQ(imu2.GetId(), id_two);
+  EXPECT_EQ(imu1.getId(), id_one);
+  EXPECT_EQ(imu2.getId(), id_two);
 }
 
 TEST(test_IMU, StateSize) {
@@ -53,25 +53,25 @@ TEST(test_IMU, StateSize) {
 
   std::cout << "imu1" << std::endl;
   IMU imu1(params1);
-  EXPECT_EQ(imu1.GetStateSize(), 0U);
+  EXPECT_EQ(imu1.getStateSize(), 0U);
 
   params2.baseSensor = true;
   params2.intrinsic = true;
   std::cout << "imu2" << std::endl;
   IMU imu2(params2);
-  EXPECT_EQ(imu2.GetStateSize(), 6U);
+  EXPECT_EQ(imu2.getStateSize(), 6U);
 
   params3.baseSensor = false;
   params3.intrinsic = false;
   std::cout << "imu3" << std::endl;
   IMU imu3(params3);
-  EXPECT_EQ(imu3.GetStateSize(), 6U);
+  EXPECT_EQ(imu3.getStateSize(), 6U);
 
   params4.baseSensor = false;
   params4.intrinsic = true;
   std::cout << "imu4" << std::endl;
   IMU imu4(params4);
-  EXPECT_EQ(imu4.GetStateSize(), 12U);
+  EXPECT_EQ(imu4.getStateSize(), 12U);
 }
 
 TEST(test_IMU, GetAccBiasStability)
@@ -80,7 +80,7 @@ TEST(test_IMU, GetAccBiasStability)
   params.accBiasStability = 1.234;
   IMU imu(params);
 
-  EXPECT_EQ(imu.GetAccBiasStability(), params.accBiasStability);
+  EXPECT_EQ(imu.getAccBiasStability(), params.accBiasStability);
 }
 
 TEST(test_IMU, GetOmgBiasStability)
@@ -89,7 +89,7 @@ TEST(test_IMU, GetOmgBiasStability)
   params.omgBiasStability = 4.567;
   IMU imu(params);
 
-  EXPECT_EQ(imu.GetOmgBiasStability(), params.omgBiasStability);
+  EXPECT_EQ(imu.getOmgBiasStability(), params.omgBiasStability);
 }
 
 TEST(test_IMU, IsBaseSensor)
@@ -103,8 +103,8 @@ TEST(test_IMU, IsBaseSensor)
   IMU imu1(params1);
   IMU imu2(params2);
 
-  EXPECT_TRUE(imu1.IsBaseSensor());
-  EXPECT_FALSE(imu2.IsBaseSensor());
+  EXPECT_TRUE(imu1.isBaseSensor());
+  EXPECT_FALSE(imu2.isBaseSensor());
 }
 
 TEST(test_IMU, IsIntrinsic)
@@ -118,8 +118,8 @@ TEST(test_IMU, IsIntrinsic)
   IMU imu1(params1);
   IMU imu2(params2);
 
-  EXPECT_TRUE(imu1.IsIntrinsic());
-  EXPECT_FALSE(imu2.IsIntrinsic());
+  EXPECT_TRUE(imu1.isIntrinsic());
+  EXPECT_FALSE(imu2.isIntrinsic());
 }
 
 // TEST(test_IMU, PredictMeasurement) {
@@ -210,7 +210,7 @@ TEST(test_IMU, IsIntrinsic)
 //   Eigen::MatrixXd jacOut1(6, 18);
 //   Eigen::MatrixXd jacExp1(6, 18);
 
-//   jacOut1 = imu1.GetMeasurementJacobian();
+//   jacOut1 = imu1.getMeasurementJacobian();
 //   jacExp1.setZero();
 
 //   jacExp1.block<3, 3>(0, 6).setIdentity();
@@ -231,7 +231,7 @@ TEST(test_IMU, IsIntrinsic)
 //   Eigen::MatrixXd jacOut2(6, 24);
 //   Eigen::MatrixXd jacExp2(6, 24);
 
-//   jacOut2 = imu2.GetMeasurementJacobian();
+//   jacOut2 = imu2.getMeasurementJacobian();
 //   jacExp2.setZero();
 
 //   jacExp2.block<3, 3>(0, 6).setIdentity();
@@ -253,7 +253,7 @@ TEST(test_IMU, IsIntrinsic)
 //   Eigen::MatrixXd jacOut3(6, 24);
 //   Eigen::MatrixXd jacExp3(6, 24);
 
-//   jacOut3 = imu3.GetMeasurementJacobian();
+//   jacOut3 = imu3.getMeasurementJacobian();
 //   jacExp3.setZero();
 
 //   jacExp3.block<1, 3>(0, 6) << 0.714075363, 0.432164946, 0.550753879;
@@ -298,7 +298,7 @@ TEST(test_IMU, IsIntrinsic)
 //   Eigen::MatrixXd jacOut4(6, 30);
 //   Eigen::MatrixXd jacExp4(6, 30);
 
-//   jacOut4 = imu4.GetMeasurementJacobian();
+//   jacOut4 = imu4.getMeasurementJacobian();
 //   jacExp4.setZero();
 
 //   jacExp4.block<6, 24>(0, 0) = jacExp3;

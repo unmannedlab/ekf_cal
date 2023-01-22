@@ -31,19 +31,19 @@ Camera::Camera(Camera::Params cParams, Tracker::Params tParams)
 : Sensor(cParams.name), m_tracker(tParams)
 {}
 
-Eigen::VectorXd Camera::PredictMeasurement()
+Eigen::VectorXd Camera::predictMeasurement()
 {
   Eigen::VectorXd predictedMeasurement(m_stateSize);
   return predictedMeasurement;
 }
 
-Eigen::MatrixXd Camera::GetMeasurementJacobian()
+Eigen::MatrixXd Camera::getMeasurementJacobian()
 {
   Eigen::MatrixXd measurementJacobian(m_stateSize, m_stateSize);
   return measurementJacobian;
 }
 
-Eigen::VectorXd Camera::GetState()
+Eigen::VectorXd Camera::getState()
 {
   Eigen::AngleAxisd angAxis{m_angOffset};
   Eigen::Vector3d rotVec = angAxis.axis() * angAxis.angle();
@@ -54,21 +54,21 @@ Eigen::VectorXd Camera::GetState()
   return stateVec;
 }
 
-void Camera::Callback(double time, cv::Mat & imgIn)
+void Camera::callback(double time, cv::Mat & imgIn)
 {
   m_logger->log(LogLevel::DEBUG, "Camera callback called at time = " + std::to_string(time));
 
   unsigned int frameID = generateFrameID();
 
   Tracker::FeatureTracks featureTracks;
-  m_tracker.Track(frameID, imgIn, m_outImg, featureTracks);
+  m_tracker.track(frameID, imgIn, m_outImg, featureTracks);
   /// @todo Undistort points post track?
   // cv::undistortPoints();
 }
 
-void Camera::SetState()
+void Camera::setState()
 {
-  Eigen::VectorXd state = m_ekf->GetState();
+  Eigen::VectorXd state = m_ekf->getState();
 
   m_posOffset = state.segment<3>(m_stateStartIndex);
   Eigen::Vector3d rotVec = state.segment<3>(m_stateStartIndex + 3);

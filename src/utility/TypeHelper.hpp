@@ -31,7 +31,7 @@ namespace TypeHelper
 /// @param in Input std::vector
 /// @return Output Eigen Vector3
 ///
-inline Eigen::VectorXd StdToEigVec(std::vector<double> const & in)
+inline Eigen::VectorXd stdToEigVec(std::vector<double> const & in)
 {
   Eigen::VectorXd out(in.size());
   for (unsigned int i = 0; i < in.size(); ++i) {
@@ -45,7 +45,7 @@ inline Eigen::VectorXd StdToEigVec(std::vector<double> const & in)
 /// @param in Input std::vector
 /// @return Output Eigen Quaternion
 ///
-inline Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
+inline Eigen::Quaterniond stdToEigQuat(std::vector<double> const & in)
 {
   if (in.size() == 4U) {
     Eigen::Quaterniond quat{in[0U], in[1U], in[2U], in[3U]};
@@ -57,7 +57,7 @@ inline Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
   }
 }
 
-inline Eigen::Quaterniond RotVecToQuat(Eigen::Vector3d rotVec)
+inline Eigen::Quaterniond rotVecToQuat(Eigen::Vector3d rotVec)
 {
   double angle = rotVec.norm();
   if (angle > 1e-9) {

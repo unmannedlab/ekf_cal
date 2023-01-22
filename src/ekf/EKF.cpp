@@ -25,7 +25,7 @@
 EKF * EKF::instancePointer = NULL;
 
 /// @todo Extend state with process noise (and inputs?)
-void EKF::ExtendState(
+void EKF::extendState(
   unsigned int sensorStateSize, Eigen::VectorXd sensorState,
   Eigen::MatrixXd sensorCov)
 {
@@ -44,7 +44,7 @@ void EKF::ExtendState(
   m_stateSize += sensorStateSize;
 }
 
-Eigen::MatrixXd EKF::GetStateTransition(double dT)
+Eigen::MatrixXd EKF::getStateTransition(double dT)
 {
   Eigen::MatrixXd F = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
   F.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * dT;
@@ -54,7 +54,7 @@ Eigen::MatrixXd EKF::GetStateTransition(double dT)
   return F;
 }
 
-void EKF::Predict(double time)
+void EKF::predict(double time)
 {
   m_logger->log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(time));
 
@@ -62,7 +62,7 @@ void EKF::Predict(double time)
   if (!m_timeInitialized) {
     m_currentTime = time;
     m_timeInitialized = true;
-    m_logger->log(LogLevel::INFO, "EKF::Predict initialize time at t=" + std::to_string(time));
+    m_logger->log(LogLevel::INFO, "EKF::Predict initialized time at t=" + std::to_string(time));
     return;
   }
 
@@ -76,7 +76,7 @@ void EKF::Predict(double time)
 
   double dT = time - m_currentTime;
 
-  Eigen::MatrixXd F = GetStateTransition(dT);
+  Eigen::MatrixXd F = getStateTransition(dT);
 
   /// @todo use convolution function instead for rotation update or RK4
   m_state = F * m_state;
@@ -85,28 +85,28 @@ void EKF::Predict(double time)
   m_currentTime = time;
 }
 
-Eigen::VectorXd & EKF::GetState()
+Eigen::VectorXd & EKF::getState()
 {
   return m_state;
 }
 
-Eigen::VectorXd EKF::GetBodyState()
+Eigen::VectorXd EKF::getBodyState()
 {
   Eigen::VectorXd bodyState = m_state.segment(0, 18);
   return bodyState;
 }
 
-Eigen::MatrixXd & EKF::GetCov()
+Eigen::MatrixXd & EKF::getCov()
 {
   return m_cov;
 }
 
-unsigned int EKF::GetStateSize()
+unsigned int EKF::getStateSize()
 {
   return m_stateSize;
 }
 
-void EKF::Initialize(double timeInit, Eigen::VectorXd bodyStateInit)
+void EKF::initialize(double timeInit, Eigen::VectorXd bodyStateInit)
 {
   m_currentTime = timeInit;
   m_timeInitialized = true;

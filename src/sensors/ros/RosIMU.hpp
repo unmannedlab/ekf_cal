@@ -37,7 +37,7 @@ public:
   /// @brief RosIMU callback method
   /// @param msg ROS IMU measurement
   ///
-  void Callback(const sensor_msgs::msg::Imu::SharedPtr msg);
+  void callback(const sensor_msgs::msg::Imu::SharedPtr msg);
 };
 
 #endif  // SENSORS__ROS__ROSIMU_HPP_

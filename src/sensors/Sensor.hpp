@@ -41,56 +41,56 @@ public:
   /// @brief Predict measurement method
   /// @return Predicted measurement vector
   ///
-  virtual Eigen::VectorXd PredictMeasurement() = 0;
+  virtual Eigen::VectorXd predictMeasurement() = 0;
 
   ///
   /// @brief Measurement Jacobian method
   /// @return Measurement Jacobian matrix
   ///
-  virtual Eigen::MatrixXd GetMeasurementJacobian() = 0;
+  virtual Eigen::MatrixXd getMeasurementJacobian() = 0;
 
   ///
   /// @brief Sensor position offset getter method
   /// @return Position offset vector
   ///
-  Eigen::Vector3d GetPosOffset();
+  Eigen::Vector3d getPosOffset();
 
   ///
   /// @brief Sensor angular offset getter method
   /// @return Angular offset quaternion
   ///
-  Eigen::Quaterniond GetAngOffset();
+  Eigen::Quaterniond getAngOffset();
 
   ///
   /// @brief Sensor name getter
   /// @return Sensor name
   ///
-  std::string GetName();
+  std::string getName();
 
   ///
   /// @brief Sensor ID getter method
   /// @return Sensor ID
   ///
-  unsigned int GetId();
+  unsigned int getId();
 
   ///
   /// @brief Sensor state start index getter method
   /// @return Sensor state start index
   ///
-  unsigned int GetStateStartIndex();
+  unsigned int getStateStartIndex();
 
   ///
   /// @brief Sensor state size getter method
   /// @return Sensor state size
   ///
-  unsigned int GetStateSize();
+  unsigned int getStateSize();
 
 protected:
   ///
   /// @brief Protected state setter method
   /// @param state EKF state
   ///
-  virtual void SetState() = 0;
+  virtual void setState() = 0;
 
   Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};          ///< @brief Sensor position offset vector
   Eigen::Quaterniond m_angOffset{0.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset quaternion

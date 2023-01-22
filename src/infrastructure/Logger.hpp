@@ -84,13 +84,13 @@ public:
   /// @brief Function to set the log level
   /// @param level LogLevel enumeration
   ///
-  void SetLogLevel(LogLevel level);
+  void setLogLevel(LogLevel level);
 
   ///
   /// @brief Function to set the log level
   /// @param level LogLevel integer
   ///
-  void SetLogLevel(unsigned int level);
+  void setLogLevel(unsigned int level);
 
 private:
   LogLevel m_logLevel = LogLevel::FATAL;

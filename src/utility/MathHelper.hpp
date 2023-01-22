@@ -26,7 +26,7 @@ namespace MathHelper
 /// product matrix
 /// @return Cross product matrix
 ///
-inline Eigen::Matrix3d SkewSymmetric(Eigen::Vector3d inVec)
+inline Eigen::Matrix3d skewSymmetric(Eigen::Vector3d inVec)
 {
   Eigen::Matrix3d outMat = Eigen::Matrix3d::Zero();
 
@@ -46,7 +46,7 @@ inline Eigen::Matrix3d SkewSymmetric(Eigen::Vector3d inVec)
 /// @param minBound Bounding value
 /// @return
 ///
-inline Eigen::Matrix3d MinBoundDiagonal(Eigen::Matrix3d inMat, double minBound)
+inline Eigen::Matrix3d minBoundDiagonal(Eigen::Matrix3d inMat, double minBound)
 {
   Eigen::Matrix3d outMat = inMat;
   for (unsigned int i = 0; i < 3; ++i) {
@@ -64,7 +64,7 @@ inline Eigen::Matrix3d MinBoundDiagonal(Eigen::Matrix3d inMat, double minBound)
 /// @param minBound Bounding value
 /// @return
 ///
-inline Eigen::VectorXd MinBoundVector(Eigen::VectorXd inVec, double minBound)
+inline Eigen::VectorXd minBoundVector(Eigen::VectorXd inVec, double minBound)
 {
   Eigen::VectorXd outVec = inVec;
   for (unsigned int i = 0; i < outVec.size(); ++i) {

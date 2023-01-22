@@ -30,20 +30,20 @@
 RosCamera::RosCamera(Camera::Params cParams, Tracker::Params tParams)
 : Camera(cParams, tParams) {}
 
-void RosCamera::Callback(const sensor_msgs::msg::Image::SharedPtr inMsg)
+void RosCamera::callback(const sensor_msgs::msg::Image::SharedPtr inMsg)
 {
-  double time = RosHelper::RosHeaderToTime(inMsg->header);
+  double time = RosHelper::rosHeaderToTime(inMsg->header);
 
   cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(inMsg);
 
-  Camera::Callback(time, cv_ptr->image);
+  Camera::callback(time, cv_ptr->image);
 
   m_logger->log(LogLevel::DEBUG, "Image publish ROS");
 
   m_outRosImg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", m_outImg).toImageMsg();
 }
 
-sensor_msgs::msg::Image::SharedPtr RosCamera::GetRosImage()
+sensor_msgs::msg::Image::SharedPtr RosCamera::getRosImage()
 {
   return m_outRosImg;
 }

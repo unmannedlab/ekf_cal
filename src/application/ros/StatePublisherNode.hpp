@@ -16,6 +16,7 @@
 #ifndef APPLICATION__ROS__STATEPUBLISHERNODE_HPP_
 #define APPLICATION__ROS__STATEPUBLISHERNODE_HPP_
 
+#include <tf2_ros/transform_broadcaster.h>
 
 #include <cstdio>
 #include <map>
@@ -26,7 +27,6 @@
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
-#include <tf2_ros/transform_broadcaster.h>
 #include <rclcpp/rclcpp.hpp>
 
 #include "ekf/EKF.hpp"
@@ -51,28 +51,28 @@ public:
   ///
   /// @brief Publish EKF state information
   ///
-  void PublishStates();
+  void publishStates();
 
   ///
   /// @brief Publish entire vector state
   ///
-  void PublishVectorState();
+  void publishVectorState();
 
   ///
   /// @brief Publish body specific states
   ///
-  void PublishBodyState();
+  void publishBodyState();
 
   ///
   /// @brief Publish sensor extrinsic transforms
   ///
-  void PublishSensorTransforms();
+  void publishSensorTransforms();
 
 private:
   // Publishers
-  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr m_PosePub;
-  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_TwistPub;
-  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_StatePub;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr m_posePub;
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_twistPub;
+  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_statePub;
 
   // TF2 objects
   std::unique_ptr<tf2_ros::TransformBroadcaster> m_tfBroadcaster;

@@ -20,13 +20,13 @@
 
 #include <std_msgs/msg/header.hpp>
 
-#include "RosHelper.hpp"
+#include "utility/RosHelper.hpp"
 
 TEST(test_TypeHelper, RosHeaderToTime) {
   std_msgs::msg::Header in;
   in.stamp.nanosec = 987654321;
   in.stamp.sec = 123456789;
-  double out = RosHelper::RosHeaderToTime(in);
+  double out = RosHelper::rosHeaderToTime(in);
   EXPECT_EQ(out, 123456789.987654321);
 }
 
@@ -35,7 +35,7 @@ TEST(test_TypeHelper, RosVecToEigen) {
   in.x = 1.0;
   in.y = 2.0;
   in.z = 3.0;
-  Eigen::Vector3d out = RosHelper::RosToEigen(in);
+  Eigen::Vector3d out = RosHelper::rosToEigen(in);
   EXPECT_EQ(out(0), in.x);
   EXPECT_EQ(out(1), in.y);
   EXPECT_EQ(out(2), in.z);
@@ -43,7 +43,7 @@ TEST(test_TypeHelper, RosVecToEigen) {
 
 TEST(test_TypeHelper, RosMatToEigen) {
   std::array<double, 9> in{1, 2, 3, 4, 5, 6, 7, 8, 9};
-  Eigen::Matrix3d out = RosHelper::RosToEigen(in);
+  Eigen::Matrix3d out = RosHelper::rosToEigen(in);
   EXPECT_EQ(out(0, 0), in[0]);
   EXPECT_EQ(out(0, 1), in[1]);
   EXPECT_EQ(out(0, 2), in[2]);

@@ -33,31 +33,31 @@ StatePublisherNode::StatePublisherNode()
   m_tfTimer =
     this->create_wall_timer(
     std::chrono::milliseconds(100),
-    std::bind(&StatePublisherNode::PublishStates, this));
+    std::bind(&StatePublisherNode::publishStates, this));
   m_tfBroadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
-  m_PosePub = this->create_publisher<geometry_msgs::msg::PoseStamped>("~/pose", 10);
-  m_TwistPub = this->create_publisher<geometry_msgs::msg::TwistStamped>("~/twist", 10);
-  m_StatePub = this->create_publisher<std_msgs::msg::Float64MultiArray>("~/state", 10);
+  m_posePub = this->create_publisher<geometry_msgs::msg::PoseStamped>("~/pose", 10);
+  m_twistPub = this->create_publisher<geometry_msgs::msg::TwistStamped>("~/twist", 10);
+  m_statePub = this->create_publisher<std_msgs::msg::Float64MultiArray>("~/state", 10);
 }
 
-void StatePublisherNode::PublishStates()
+void StatePublisherNode::publishStates()
 {
-  PublishVectorState();
-  PublishBodyState();
-  PublishSensorTransforms();
+  publishVectorState();
+  publishBodyState();
+  publishSensorTransforms();
 }
-void StatePublisherNode::PublishVectorState() {}
+void StatePublisherNode::publishVectorState() {}
 
 /// @todo move this into separate node
 /// @todo publish full state vector
 /// @todo publish transforms
-void StatePublisherNode::PublishBodyState()
+void StatePublisherNode::publishBodyState()
 {
   auto pose_msg = geometry_msgs::msg::PoseStamped();
   auto twist_msg = geometry_msgs::msg::TwistStamped();
   auto state_msg = std_msgs::msg::Float64MultiArray();
 
-  Eigen::VectorXd state = m_ekf->GetState();
+  Eigen::VectorXd state = m_ekf->getState();
 
   // Position
   pose_msg.pose.position.x = state(0);
@@ -65,7 +65,7 @@ void StatePublisherNode::PublishBodyState()
   pose_msg.pose.position.z = state(2);
 
   // Orientation
-  Eigen::Quaterniond quat = TypeHelper::RotVecToQuat(state.segment(9, 3));
+  Eigen::Quaterniond quat = TypeHelper::rotVecToQuat(state.segment(9, 3));
   pose_msg.pose.orientation.w = quat.w();
   pose_msg.pose.orientation.x = quat.x();
   pose_msg.pose.orientation.y = quat.y();
@@ -90,16 +90,16 @@ void StatePublisherNode::PublishBodyState()
   pose_msg.header.stamp = now;
   twist_msg.header.stamp = now;
 
-  m_PosePub->publish(pose_msg);
-  m_TwistPub->publish(twist_msg);
-  m_StatePub->publish(state_msg);
+  m_posePub->publish(pose_msg);
+  m_twistPub->publish(twist_msg);
+  m_statePub->publish(state_msg);
 }
 
 ///
 /// @todo debug issue with future extrapolation in RVIZ
 /// @todo possibly separate into separate node that just reads and publishes EKF data
 ///
-void StatePublisherNode::PublishSensorTransforms()
+void StatePublisherNode::publishSensorTransforms()
 {
   // std::string baseIMUName;
   // std::vector<std::string> sensorNames;

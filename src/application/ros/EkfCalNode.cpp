@@ -49,7 +49,7 @@ EkfCalNode::EkfCalNode()
 
   // Set logging
   unsigned int logLevel = static_cast<unsigned int>(this->get_parameter("Log_Level").as_int());
-  m_logger->SetLogLevel(logLevel);
+  m_logger->setLogLevel(logLevel);
 
   // Load lists of sensors
   std::vector<std::string> imuList = this->get_parameter("IMU_list").as_string_array();
@@ -57,7 +57,7 @@ EkfCalNode::EkfCalNode()
 
   // Load IMU sensor parameters
   for (std::string & imuName : imuList) {
-    LoadIMU(imuName);
+    loadIMU(imuName);
   }
   if (m_baseIMUAssigned == false) {
     m_logger->log(LogLevel::WARN, "Base IMU should be set for filter stability");
@@ -65,7 +65,7 @@ EkfCalNode::EkfCalNode()
 
   // Load Camera sensor parameters
   for (std::string & camName : camList) {
-    LoadCamera(camName);
+    loadCamera(camName);
   }
 
   // Create publishers
@@ -73,7 +73,7 @@ EkfCalNode::EkfCalNode()
 }
 
 /// @todo Move these getters into ROS helper?
-IMU::Params EkfCalNode::GetImuParameters(std::string imuName)
+IMU::Params EkfCalNode::getImuParameters(std::string imuName)
 {
   // Declare parameters
   std::string imuPrefix = "IMU." + imuName;
@@ -105,15 +105,15 @@ IMU::Params EkfCalNode::GetImuParameters(std::string imuName)
   imuParams.baseSensor = baseSensor;
   imuParams.intrinsic = intrinsic;
   imuParams.rate = rate;
-  imuParams.variance = TypeHelper::StdToEigVec(variance);
-  imuParams.posOffset = TypeHelper::StdToEigVec(posOff);
-  imuParams.angOffset = TypeHelper::StdToEigQuat(angOff);
-  imuParams.accBias = TypeHelper::StdToEigVec(accBias);
-  imuParams.omgBias = TypeHelper::StdToEigVec(omgBias);
+  imuParams.variance = TypeHelper::stdToEigVec(variance);
+  imuParams.posOffset = TypeHelper::stdToEigVec(posOff);
+  imuParams.angOffset = TypeHelper::stdToEigQuat(angOff);
+  imuParams.accBias = TypeHelper::stdToEigVec(accBias);
+  imuParams.omgBias = TypeHelper::stdToEigVec(omgBias);
   return imuParams;
 }
 
-Camera::Params EkfCalNode::GetCameraParameters(std::string cameraName)
+Camera::Params EkfCalNode::getCameraParameters(std::string cameraName)
 {
   std::string camPrefix = "Camera." + cameraName;
   this->declare_parameter(camPrefix + ".Rate", 1.0);
@@ -136,15 +136,15 @@ Camera::Params EkfCalNode::GetCameraParameters(std::string cameraName)
   cameraParams.name = cameraName;
   cameraParams.topic = topic;
   cameraParams.rate = rate;
-  cameraParams.posOffset = TypeHelper::StdToEigVec(posOff);
-  cameraParams.angOffset = TypeHelper::StdToEigQuat(angOff);
-  cameraParams.variance = TypeHelper::StdToEigVec(variance);
+  cameraParams.posOffset = TypeHelper::stdToEigVec(posOff);
+  cameraParams.angOffset = TypeHelper::stdToEigQuat(angOff);
+  cameraParams.variance = TypeHelper::stdToEigVec(variance);
   cameraParams.tracker = trackerName;
   return cameraParams;
 }
 
 /// @todo Change Feature Detector et. al. to be strings?
-Tracker::Params EkfCalNode::GetTrackerParameters(std::string trackerName)
+Tracker::Params EkfCalNode::getTrackerParameters(std::string trackerName)
 {
   std::string trackerPrefix = "Tracker." + trackerName;
 
@@ -167,16 +167,16 @@ Tracker::Params EkfCalNode::GetTrackerParameters(std::string trackerName)
 }
 
 
-void EkfCalNode::LoadIMU(std::string imuName)
+void EkfCalNode::loadIMU(std::string imuName)
 {
-  IMU::Params iParams = GetImuParameters(imuName);
+  IMU::Params iParams = getImuParameters(imuName);
 
   // Create new RosIMU and and bind callback to ID
   std::shared_ptr<RosIMU> sensor_ptr = std::make_shared<RosIMU>(iParams);
-  m_mapIMU[sensor_ptr->GetId()] = sensor_ptr;
+  m_mapIMU[sensor_ptr->getId()] = sensor_ptr;
 
   std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
-  function = std::bind(&EkfCalNode::IMUCallback, this, _1, sensor_ptr->GetId());
+  function = std::bind(&EkfCalNode::imuCallback, this, _1, sensor_ptr->getId());
   auto callback = this->create_subscription<sensor_msgs::msg::Imu>(iParams.topic, 10, function);
   m_IMUSubs.push_back(callback);
 
@@ -187,35 +187,35 @@ void EkfCalNode::LoadIMU(std::string imuName)
 }
 
 
-void EkfCalNode::LoadCamera(std::string cameraName)
+void EkfCalNode::loadCamera(std::string cameraName)
 {
   // Load parameters
-  Camera::Params cParams = GetCameraParameters(cameraName);
-  Tracker::Params tParams = GetTrackerParameters(cParams.tracker);
+  Camera::Params cParams = getCameraParameters(cameraName);
+  Tracker::Params tParams = getTrackerParameters(cParams.tracker);
 
   // Create new RosCamera and bind callback to ID
   std::shared_ptr<RosCamera> sensor_ptr = std::make_shared<RosCamera>(cParams, tParams);
-  m_mapCamera[sensor_ptr->GetId()] = sensor_ptr;
+  m_mapCamera[sensor_ptr->getId()] = sensor_ptr;
 
   std::function<void(std::shared_ptr<sensor_msgs::msg::Image>)> function;
-  function = std::bind(&EkfCalNode::CameraCallback, this, _1, sensor_ptr->GetId());
+  function = std::bind(&EkfCalNode::cameraCallback, this, _1, sensor_ptr->getId());
   auto callback = this->create_subscription<sensor_msgs::msg::Image>(cParams.topic, 10, function);
   m_CameraSubs.push_back(callback);
 
   m_logger->log(LogLevel::INFO, "Loaded Camera: " + cameraName);
 }
 
-void EkfCalNode::IMUCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id)
+void EkfCalNode::imuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id)
 {
   const auto & rosImuPtr = m_mapIMU.find(id)->second;
-  rosImuPtr->Callback(msg);
+  rosImuPtr->callback(msg);
 }
 
-void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
+void EkfCalNode::cameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
 {
   const auto & rosCamPtr = m_mapCamera.find(id)->second;
-  rosCamPtr->Callback(msg);
-  m_imgPublisher->publish(*rosCamPtr->GetRosImage().get());
+  rosCamPtr->callback(msg);
+  m_imgPublisher->publish(*rosCamPtr->getRosImage().get());
 }
 
 

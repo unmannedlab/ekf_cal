@@ -19,7 +19,7 @@
 #include "../Logger.hpp"
 
 
-void Logger::SetLogLevel(LogLevel level)
+void Logger::setLogLevel(LogLevel level)
 {
   if ((m_logLevel <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {
     std::cout << "[" <<
@@ -31,7 +31,7 @@ void Logger::SetLogLevel(LogLevel level)
   m_logLevel = level;
 }
 
-void Logger::SetLogLevel(unsigned int level)
+void Logger::setLogLevel(unsigned int level)
 {
   if ((m_logLevel <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {
     std::cout << "[" <<

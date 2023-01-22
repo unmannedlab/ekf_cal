@@ -61,43 +61,43 @@ public:
   /// @return Predicted measurement vector
   /// @todo Add gravity to prediction
   ///
-  Eigen::VectorXd PredictMeasurement();
+  Eigen::VectorXd predictMeasurement();
 
   ///
   /// @brief Measurement Jacobian method
   /// @return Measurement Jacobian matrix
   ///
-  Eigen::MatrixXd GetMeasurementJacobian();
+  Eigen::MatrixXd getMeasurementJacobian();
 
   ///
   /// @brief Accelerometer bias stability getter method
   /// @return Accelerometer bias stability
   ///
-  double GetAccBiasStability();
+  double getAccBiasStability();
 
   ///
   /// @brief Gyroscope bias stability getter method
   /// @return Gyroscope bias stability
   ///
-  double GetOmgBiasStability();
+  double getOmgBiasStability();
 
   ///
   /// @brief Base sensor flag getter method
   /// @return Base sensor flag
   ///
-  bool IsBaseSensor();
+  bool isBaseSensor();
 
   ///
   /// @brief Intrinsic sensor flag getter method
   /// @return Intrinsic sensor flag
   ///
-  bool IsIntrinsic();
+  bool isIntrinsic();
 
   ///
   /// @brief Sensor state getter method
   /// @return Sensor state vector
   ///
-  Eigen::VectorXd GetState();
+  Eigen::VectorXd getState();
 
   ///
   /// @brief Callback method for IMU measurements
@@ -107,15 +107,18 @@ public:
   /// @param angularRate Measured angular rate
   /// @param angularRateCovariance Estimated angular rate error
   ///
-  void Callback(
+  void callback(
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d accelerationCovariance,
     Eigen::Vector3d angularRate, Eigen::Matrix3d angularRateCovariance);
+
+
+  static const Eigen::Vector3d GRAVITY;
 
 private:
   ///
   /// @brief Protected state setter method
   ///
-  void SetState();
+  void setState();
 
   bool m_isBaseSensor;
   bool m_isIntrinsic;

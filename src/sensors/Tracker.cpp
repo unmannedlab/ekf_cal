@@ -24,13 +24,13 @@
 /// @todo add detector/extractor parameters to input
 Tracker::Tracker(Tracker::Params params)
 {
-  m_featureDetector = InitFeatureDetector(params.detector, params.threshold);
-  m_descriptorExtractor = InitDescriptorExtractor(params.descriptor, params.threshold);
-  m_descriptorMatcher = InitDescriptorMatcher(params.matcher);
+  m_featureDetector = initFeatureDetector(params.detector, params.threshold);
+  m_descriptorExtractor = initDescriptorExtractor(params.descriptor, params.threshold);
+  m_descriptorMatcher = initDescriptorMatcher(params.matcher);
 }
 
 
-cv::Ptr<cv::FeatureDetector> Tracker::InitFeatureDetector(
+cv::Ptr<cv::FeatureDetector> Tracker::initFeatureDetector(
   FeatureDetectorEnum detector,
   double threshold)
 {
@@ -64,7 +64,7 @@ cv::Ptr<cv::FeatureDetector> Tracker::InitFeatureDetector(
 }
 
 
-cv::Ptr<cv::DescriptorExtractor> Tracker::InitDescriptorExtractor(
+cv::Ptr<cv::DescriptorExtractor> Tracker::initDescriptorExtractor(
   DescriptorExtractorEnum extractor,
   double threshold)
 {
@@ -84,7 +84,7 @@ cv::Ptr<cv::DescriptorExtractor> Tracker::InitDescriptorExtractor(
 }
 
 
-cv::Ptr<cv::DescriptorMatcher> Tracker::InitDescriptorMatcher(DescriptorMatcherEnum matcher)
+cv::Ptr<cv::DescriptorMatcher> Tracker::initDescriptorMatcher(DescriptorMatcherEnum matcher)
 {
   cv::Ptr<cv::DescriptorMatcher> descriptorMatcher;
   switch (matcher) {
@@ -99,7 +99,7 @@ cv::Ptr<cv::DescriptorMatcher> Tracker::InitDescriptorMatcher(DescriptorMatcherE
   return descriptorMatcher;
 }
 
-void Tracker::Track(
+void Tracker::track(
   unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut,
   FeatureTracks featureTracks)
 {

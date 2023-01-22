@@ -44,13 +44,13 @@ public:
   /// @brief RosCamera callback method
   /// @param msg ROS image message
   ///
-  void Callback(const sensor_msgs::msg::Image::SharedPtr msg);
+  void callback(const sensor_msgs::msg::Image::SharedPtr msg);
 
   ///
   /// @brief Camera output ROS image getter method
   /// @return Camera output ROS image
   ///
-  sensor_msgs::msg::Image::SharedPtr GetRosImage();
+  sensor_msgs::msg::Image::SharedPtr getRosImage();
 
 private:
   sensor_msgs::msg::Image::SharedPtr m_outRosImg;

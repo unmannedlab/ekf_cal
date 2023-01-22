@@ -58,26 +58,26 @@ public:
   /// @brief Predict measurement method
   /// @return Predicted measurement vector
   ///
-  Eigen::VectorXd PredictMeasurement();
+  Eigen::VectorXd predictMeasurement();
 
   ///
   /// @brief Measurement Jacobian method
   /// @return Measurement Jacobian matrix
   ///
-  Eigen::MatrixXd GetMeasurementJacobian();
+  Eigen::MatrixXd getMeasurementJacobian();
 
   ///
   /// @brief Sensor state getter method
   /// @return Sensor state vector
   ///
-  Eigen::VectorXd GetState();
+  Eigen::VectorXd getState();
 
   ///
   /// @brief Callback method for camera
   /// @param time Measurement time
   /// @param imgIn Image pointer
   ///
-  void Callback(double time, cv::Mat & imgIn);
+  void callback(double time, cv::Mat & imgIn);
 
 protected:
   cv::Mat m_outImg;  ///< @brief Published output test image
@@ -86,7 +86,7 @@ private:
   ///
   /// @brief Protected state setter method
   ///
-  void SetState();
+  void setState();
 
   unsigned int generateFrameID();
 

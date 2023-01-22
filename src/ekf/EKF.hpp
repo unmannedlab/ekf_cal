@@ -73,51 +73,51 @@ public:
   /// @brief Getter for state vector reference
   /// @return State vector reference
   ///
-  Eigen::VectorXd & GetState();
+  Eigen::VectorXd & getState();
 
   ///
   /// @brief Getter for the body state vector reference
   /// @return Body state vector reference
   ///
-  Eigen::VectorXd GetBodyState();
+  Eigen::VectorXd getBodyState();
 
   ///
   /// @brief Getter method for state covariance matrix reference
   /// @return State covariance matrix reference
   ///
-  Eigen::MatrixXd & GetCov();
+  Eigen::MatrixXd & getCov();
 
   ///
   /// @brief Getter method for state size
   /// @return State size
   ///
-  unsigned int GetStateSize();
+  unsigned int getStateSize();
 
   ///
   /// @brief Predict state to given time
   /// @param currentTime Time for prediction
   ///
-  void Predict(double currentTime);
+  void predict(double currentTime);
 
   ///
   /// @brief State transition matrix getter method
   /// @param dT State transition time
   /// @return State transition matrix
   ///
-  Eigen::MatrixXd GetStateTransition(double dT);
+  Eigen::MatrixXd getStateTransition(double dT);
 
   ///
   /// @brief Process input matrix getter method
   /// @return Process input matrix
   ///
-  Eigen::MatrixXd GetProcessInput();
+  Eigen::MatrixXd getProcessInput();
 
   ///
   /// @brief EKF state initialization method
   /// @param timeInit Initial time
   /// @param bodyStateInit Initial state
   ///
-  void Initialize(double timeInit, Eigen::VectorXd bodyStateInit);
+  void initialize(double timeInit, Eigen::VectorXd bodyStateInit);
 
   ///
   /// @brief Get transforms between body and sensors
@@ -126,7 +126,7 @@ public:
   /// @param sensorPosOffsets Vector of sensor positional offsets
   /// @param sensorAngOffsets Vector of sensor rotational offsets
   ///
-  void GetTransforms(
+  void getTransforms(
     std::string & baseIMUName,
     std::vector<std::string> & sensorNames,
     std::vector<Eigen::Vector3d> & sensorPosOffsets,
@@ -139,7 +139,7 @@ public:
   /// @param sensorState State extension initialization
   /// @param sensorCov Covariance extension initialization
   ///
-  void ExtendState(
+  void extendState(
     unsigned int sensorStateSize, Eigen::VectorXd sensorState,
     Eigen::MatrixXd sensorCov);
 

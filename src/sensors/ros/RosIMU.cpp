@@ -24,13 +24,13 @@
 #include "utility/TypeHelper.hpp"
 
 
-void RosIMU::Callback(const sensor_msgs::msg::Imu::SharedPtr msg)
+void RosIMU::callback(const sensor_msgs::msg::Imu::SharedPtr msg)
 {
-  double time = RosHelper::RosHeaderToTime(msg->header);
-  Eigen::Vector3d acc = RosHelper::RosToEigen(msg->linear_acceleration);
-  Eigen::Vector3d omg = RosHelper::RosToEigen(msg->angular_velocity);
-  Eigen::Matrix3d acc_cov = RosHelper::RosToEigen(msg->linear_acceleration_covariance);
-  Eigen::Matrix3d omg_cov = RosHelper::RosToEigen(msg->angular_velocity_covariance);
+  double time = RosHelper::rosHeaderToTime(msg->header);
+  Eigen::Vector3d acc = RosHelper::rosToEigen(msg->linear_acceleration);
+  Eigen::Vector3d omg = RosHelper::rosToEigen(msg->angular_velocity);
+  Eigen::Matrix3d acc_cov = RosHelper::rosToEigen(msg->linear_acceleration_covariance);
+  Eigen::Matrix3d omg_cov = RosHelper::rosToEigen(msg->angular_velocity_covariance);
 
-  IMU::Callback(time, acc, acc_cov, omg, omg_cov);
+  IMU::callback(time, acc, acc_cov, omg, omg_cov);
 }

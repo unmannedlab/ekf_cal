@@ -56,34 +56,34 @@ public:
   /// @brief Loading method for IMU sensors
   /// @param imuName Name of IMU to find and load from YAML
   ///
-  void LoadIMU(std::string imuName);
+  void loadIMU(std::string imuName);
 
   ///
   /// @brief Loading method for IMU sensors
   /// @param camName Name of IMU to find and load from YAML
   ///
-  void LoadCamera(std::string camName);
+  void loadCamera(std::string camName);
 
   ///
   /// @brief Function for declaring and loading IMU parameters
   /// @param imuName Name of parameter structure
   /// @return imuParameters
   ///
-  IMU::Params GetImuParameters(std::string imuName);
+  IMU::Params getImuParameters(std::string imuName);
 
   ///
   /// @brief Function for declaring and loading camera parameters
   /// @param cameraName Name of parameter structure
   /// @return cameraParameters
   ///
-  Camera::Params GetCameraParameters(std::string cameraName);
+  Camera::Params getCameraParameters(std::string cameraName);
 
   ///
   /// @brief Function for declaring and loading tracker parameters
   /// @param trackerName Name of parameter structure
   /// @return trackerParameters
   ///
-  Tracker::Params GetTrackerParameters(std::string trackerName);
+  Tracker::Params getTrackerParameters(std::string trackerName);
 
 
   ///
@@ -91,13 +91,13 @@ public:
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
   ///
-  void IMUCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id);
+  void imuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id);
   ///
   /// @brief Callback method for Camera sensor messages
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
   ///
-  void CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
+  void cameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
 
 private:
   /// @brief Vector of subscribers for IMU sensor messages

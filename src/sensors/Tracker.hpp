@@ -92,18 +92,18 @@ public:
   ///
   explicit Tracker(Tracker::Params params);
 
-  void Track(
+  void track(
     unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut,
     FeatureTracks featureTracks);
 
 private:
-  cv::Ptr<cv::FeatureDetector> InitFeatureDetector(
+  cv::Ptr<cv::FeatureDetector> initFeatureDetector(
     FeatureDetectorEnum detector,
     double threshold);
-  cv::Ptr<cv::DescriptorExtractor> InitDescriptorExtractor(
+  cv::Ptr<cv::DescriptorExtractor> initDescriptorExtractor(
     DescriptorExtractorEnum extractor,
     double threshold);
-  cv::Ptr<cv::DescriptorMatcher> InitDescriptorMatcher(
+  cv::Ptr<cv::DescriptorMatcher> initDescriptorMatcher(
     DescriptorMatcherEnum matcher);
 
   cv::Ptr<cv::FeatureDetector> m_featureDetector;
