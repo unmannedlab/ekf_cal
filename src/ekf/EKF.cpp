@@ -68,9 +68,9 @@ void EKF::Predict(double time)
 
   if (time < m_currentTime) {
     m_logger->log(
-      LogLevel::WARN, "Requested time in the past. Current t=" +
-      std::to_string(time) + ", Requested t=" +
-      std::to_string(m_currentTime));
+      LogLevel::WARN, "Requested prediction to time in the past. Current t=" +
+      std::to_string(m_currentTime) + ", Requested t=" +
+      std::to_string(time));
     return;
   }
 
@@ -78,6 +78,7 @@ void EKF::Predict(double time)
 
   Eigen::MatrixXd F = GetStateTransition(dT);
 
+  /// @todo use convolution function instead for rotation update or RK4
   m_state = F * m_state;
   m_cov = F * m_cov * F.transpose() + F * m_processInput * m_processNoise *
     m_processInput.transpose() * F.transpose();
