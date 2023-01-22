@@ -125,7 +125,8 @@
         "numbers": "cpp",
         "semaphore": "cpp",
         "stop_token": "cpp",
-        "eigen": "cpp"
+        "eigen": "cpp",
+        "*.txx": "cpp"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python"

@@ -111,3 +111,10 @@ void EKF::Initialize(double timeInit, Eigen::VectorXd bodyStateInit)
   m_timeInitialized = true;
   m_state.segment<18>(0) = bodyStateInit;
 }
+
+std::shared_ptr<MSCKF> EKF::RegisterMSCKF()
+{
+  std::shared_ptr<MSCKF> msckf = std::make_shared<MSCKF>();
+  m_msckfVector.push_back(msckf);
+  return msckf;
+}

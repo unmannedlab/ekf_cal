@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "infrastructure/Logger.hpp"
+#include "ekf/MSCKF.hpp"
 
 ///
 /// @class EKF
@@ -143,6 +144,11 @@ public:
     unsigned int sensorStateSize, Eigen::VectorXd sensorState,
     Eigen::MatrixXd sensorCov);
 
+  ///
+  ///
+  ///
+  std::shared_ptr<MSCKF> RegisterMSCKF();
+
 private:
   unsigned int m_stateSize{18U};
   Eigen::VectorXd m_state = Eigen::VectorXd::Zero(18U);
@@ -161,7 +167,7 @@ private:
     Eigen::Quaterniond orientation;
   } BodyState;
 
-  std::map<unsigned int, std::vector<BodyState>> m_stateHistory;
+  std::vector<std::shared_ptr<MSCKF>> m_msckfVector;
 };
 
 #endif  // EKF__EKF_HPP_

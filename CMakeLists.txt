@@ -43,6 +43,7 @@ endforeach()
 # EKF sources
 set(EKF_SRCS
     src/ekf/EKF.cpp
+    src/ekf/MSCKF.cpp
     src/sensors/Camera.cpp
     src/sensors/IMU.cpp
     src/sensors/Sensor.cpp
@@ -71,6 +72,7 @@ add_library(SIM_LIB ${SIM_SRCS})
 # ROS Sources
 set(ROS_SRCS
     src/ekf/EKF.cpp
+    src/ekf/MSCKF.cpp
     src/infrastructure/Logger.cpp
     src/infrastructure/ros/RosLog.cpp
     src/sensors/ros/RosCamera.cpp

@@ -28,7 +28,10 @@
 
 /// @todo add detector/extractor parameters to input
 Camera::Camera(Camera::Params cParams, Tracker::Params tParams)
-: Sensor(cParams.name), m_tracker(tParams) {}
+: Sensor(cParams.name), m_tracker(tParams)
+{
+  m_msckf = m_ekf->RegisterMSCKF();
+}
 
 Eigen::VectorXd Camera::PredictMeasurement()
 {

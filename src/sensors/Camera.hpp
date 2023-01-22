@@ -24,6 +24,7 @@
 
 #include "sensors/Sensor.hpp"
 #include "sensors/Tracker.hpp"
+#include "ekf/MSCKF.hpp"
 
 ///
 /// @class Camera
@@ -94,6 +95,8 @@ private:
 
   std::vector<double> m_radDistortionK{0.0, 0.0, 0.0};
   std::vector<double> m_tanDistortionD{0.0, 0.0};
+
+  std::shared_ptr<MSCKF> m_msckf;
 };
 
 #endif  // SENSORS__CAMERA_HPP_

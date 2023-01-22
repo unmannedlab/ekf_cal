@@ -19,9 +19,9 @@
 #include <eigen3/Eigen/Eigen>
 #include <string>
 #include <vector>
+#include <memory>
 
-
-#include "sensors/Tracker.hpp"
+#include "infrastructure/Logger.hpp"
 
 ///
 /// @class MSCKF
@@ -33,10 +33,8 @@ class MSCKF
 public:
   MSCKF();
   void processFrame(double time, unsigned int frameID);
-  void processTracks(Tracker::FeatureTracks featureTracks);
 
 private:
-  EKF * m_ekf = EKF::getInstance();           ///< @brief EKF singleton
   Logger * m_logger = Logger::getInstance();  ///< @brief Logger singleton
 
   unsigned int m_maxWindowSize{20};

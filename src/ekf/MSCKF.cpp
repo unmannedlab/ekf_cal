@@ -17,24 +17,21 @@
 
 
 MSCKF::MSCKF()
-{
-
-}
+{}
 
 
 void MSCKF::processFrame(double time, unsigned int frameID)
 {
   // Propagate to current time
-  m_ekf->Predict(time);
 
   // Insert state into history
-  std::rotate(m_stateHistory.rbegin(), m_stateHistory.rbegin() + 1, m_stateHistory.rend());
-  m_stateHistory[0] = m_ekf->GetBodyState();
+  // std::rotate(m_stateHistory.rbegin(), m_stateHistory.rbegin() + 1, m_stateHistory.rend());
+  // m_stateHistory[0] = m_ekf->GetBodyState();
 
   // Map frameID to copy of current state
 }
 
-void MSCKF::processTracks(Tracker::FeatureTracks featureTracks)
-{
-  // Retrieve states
-}
+// void MSCKF::processTracks(Tracker::FeatureTracks featureTracks)
+// {
+//   // Retrieve states
+// }
