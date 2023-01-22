@@ -20,9 +20,9 @@
 
 #include "utility/MathHelper.hpp"
 
-TEST(test_MathHelper, CrossProductMatrix) {
+TEST(test_MathHelper, SkewSymmetric) {
   Eigen::Vector3d testVec(1.0, 2.0, 3.0);
-  Eigen::Matrix3d outMat = MathHelper::CrossProductMatrix(testVec);
+  Eigen::Matrix3d outMat = MathHelper::SkewSymmetric(testVec);
   EXPECT_EQ(outMat(0, 0), 0.0);
   EXPECT_EQ(outMat(0, 1), -testVec(2));
   EXPECT_EQ(outMat(0, 2), testVec(1));

@@ -43,7 +43,6 @@ endforeach()
 # EKF sources
 set(EKF_SRCS
     src/ekf/EKF.cpp
-    src/ekf/MSCKF.cpp
     src/sensors/Camera.cpp
     src/sensors/IMU.cpp
     src/sensors/Sensor.cpp

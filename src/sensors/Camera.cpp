@@ -29,9 +29,7 @@
 /// @todo add detector/extractor parameters to input
 Camera::Camera(Camera::Params cParams, Tracker::Params tParams)
 : Sensor(cParams.name), m_tracker(tParams)
-{
-  m_msckf = m_ekf->RegisterMSCKF();
-}
+{}
 
 Eigen::VectorXd Camera::PredictMeasurement()
 {
@@ -64,8 +62,6 @@ void Camera::Callback(double time, cv::Mat & imgIn)
 
   Tracker::FeatureTracks featureTracks;
   m_tracker.Track(frameID, imgIn, m_outImg, featureTracks);
-  // m_msckf.processFrame(time, frameID);
-  // m_msckf.processTracks(featureTracks);
   /// @todo Undistort points post track?
   // cv::undistortPoints();
 }

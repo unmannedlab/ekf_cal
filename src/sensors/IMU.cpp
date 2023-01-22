@@ -147,7 +147,7 @@ Eigen::MatrixXd IMU::GetMeasurementJacobian()
     measurementJacobian.block<3, 3>(0, 12) = m_angOffset * temp;
 
     // Body Angular Acceleration
-    measurementJacobian.block<3, 3>(0, 15) = m_angOffset * MathHelper::CrossProductMatrix(
+    measurementJacobian.block<3, 3>(0, 15) = m_angOffset * MathHelper::SkewSymmetric(
       m_posOffset);
 
     // IMU Positional Offset
@@ -162,7 +162,7 @@ Eigen::MatrixXd IMU::GetMeasurementJacobian()
     temp(2, 1) = m_bodyAngVel(1) * m_bodyAngVel(2);
     temp(2, 2) = -(m_bodyAngVel(0) * m_bodyAngVel(0)) - (m_bodyAngVel(1) * m_bodyAngVel(1));
     measurementJacobian.block<3, 3>(0, 18) =
-      m_angOffset * MathHelper::CrossProductMatrix(m_bodyAngAcc) + temp;
+      m_angOffset * MathHelper::SkewSymmetric(m_bodyAngAcc) + temp;
 
     // IMU Angular Offset
     Eigen::Vector3d imu_acc = m_bodyAcc +
@@ -170,14 +170,14 @@ Eigen::MatrixXd IMU::GetMeasurementJacobian()
       m_bodyAngVel.cross(m_bodyAngVel.cross(m_posOffset));
 
     measurementJacobian.block<3, 3>(0, 21) =
-      -(m_angOffset * MathHelper::CrossProductMatrix(imu_acc));
+      -(m_angOffset * MathHelper::SkewSymmetric(imu_acc));
 
     // IMU Body Angular Velocity
     measurementJacobian.block<3, 3>(3, 12) = m_angOffset.toRotationMatrix();
 
     // IMU Angular Offset
     measurementJacobian.block<3, 3>(3, 21) =
-      -(m_angOffset * MathHelper::CrossProductMatrix(m_bodyAngVel));
+      -(m_angOffset * MathHelper::SkewSymmetric(m_bodyAngVel));
 
     if (m_isIntrinsic) {
       // IMU Accelerometer Bias
