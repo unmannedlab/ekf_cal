@@ -71,8 +71,6 @@ add_library(SIM_LIB ${SIM_SRCS})
 
 # ROS Sources
 set(ROS_SRCS
-    src/ekf/EKF.cpp
-    src/ekf/MSCKF.cpp
     src/infrastructure/Logger.cpp
     src/infrastructure/ros/RosLog.cpp
     src/sensors/ros/RosCamera.cpp

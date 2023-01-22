@@ -31,7 +31,10 @@ void MSCKF::processFrame(double time, unsigned int frameID)
   // Map frameID to copy of current state
 }
 
-// void MSCKF::processTracks(Tracker::FeatureTracks featureTracks)
-// {
-//   // Retrieve states
-// }
+void MSCKF::propagateStates(Eigen::Vector3d translation, Eigen::Quaterniond rotation)
+{
+  for (BodyState & state : m_stateHist) {
+    state.position = state.position + translation;
+    state.orientation = rotation * state.orientation;
+  }
+}

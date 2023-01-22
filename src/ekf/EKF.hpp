@@ -161,11 +161,6 @@ private:
   Eigen::MatrixXd m_processInput = Eigen::MatrixXd::Identity(18U, 18U) * 1e-3;
 
   /// @todo Create map of MSCKF IDs to vector of body states to update
-  typedef struct BodyState
-  {
-    Eigen::Vector3d position;
-    Eigen::Quaterniond orientation;
-  } BodyState;
 
   std::vector<std::shared_ptr<MSCKF>> m_msckfVector;
 };

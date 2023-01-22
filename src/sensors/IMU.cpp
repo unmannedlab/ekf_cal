@@ -19,6 +19,7 @@
 #include "utility/MathHelper.hpp"
 #include "utility/TypeHelper.hpp"
 
+/// @todo Consider moving EKF update equations into EKF updater class?
 IMU::IMU(IMU::Params params)
 : Sensor(params.name)
 {

@@ -33,6 +33,7 @@ class MSCKF
 public:
   MSCKF();
   void processFrame(double time, unsigned int frameID);
+  void propagateStates(Eigen::Vector3d translation, Eigen::Quaterniond rotation);
 
 private:
   Logger * m_logger = Logger::getInstance();  ///< @brief Logger singleton
@@ -40,5 +41,12 @@ private:
   unsigned int m_maxWindowSize{20};
   std::vector<Eigen::VectorXd> m_stateHistory;
   unsigned int currentFrameID;
+  typedef struct BodyState
+  {
+    Eigen::Vector3d position;
+    Eigen::Quaterniond orientation;
+  } BodyState;
+
+  std::vector<BodyState> m_stateHist;
 };
 #endif  // EKF__MSCKF_HPP_
