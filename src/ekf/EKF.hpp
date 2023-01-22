@@ -28,6 +28,7 @@
 /// @class EKF
 /// @brief Calibration EKF class
 /// @todo Implement check for correlation coefficients to be between +/- 1
+/// @todo Add gravity initialization check
 ///
 class EKF
 {
@@ -73,6 +74,12 @@ public:
   /// @return State vector reference
   ///
   Eigen::VectorXd & GetState();
+
+  ///
+  /// @brief Getter for the body state vector reference
+  /// @return Body state vector reference
+  ///
+  Eigen::VectorXd GetBodyState();
 
   ///
   /// @brief Getter method for state covariance matrix reference
@@ -146,6 +153,15 @@ private:
 
   Eigen::MatrixXd m_processNoise = Eigen::MatrixXd::Identity(18U, 18U) * 1e-3;
   Eigen::MatrixXd m_processInput = Eigen::MatrixXd::Identity(18U, 18U) * 1e-3;
+
+  /// @todo Create map of MSCKF IDs to vector of body states to update
+  typedef struct BodyState
+  {
+    Eigen::Vector3d position;
+    Eigen::Quaterniond orientation;
+  } BodyState;
+
+  std::map<unsigned int, std::vector<BodyState>> m_stateHistory;
 };
 
 #endif  // EKF__EKF_HPP_

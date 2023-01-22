@@ -89,6 +89,12 @@ Eigen::VectorXd & EKF::GetState()
   return m_state;
 }
 
+Eigen::VectorXd EKF::GetBodyState()
+{
+  Eigen::VectorXd bodyState = m_state.segment(0, 18);
+  return bodyState;
+}
+
 Eigen::MatrixXd & EKF::GetCov()
 {
   return m_cov;

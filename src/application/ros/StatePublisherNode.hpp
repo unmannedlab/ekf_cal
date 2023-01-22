@@ -25,6 +25,7 @@
 
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 #include <rclcpp/rclcpp.hpp>
 

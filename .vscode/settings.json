@@ -124,7 +124,8 @@
         "forward_list": "cpp",
         "numbers": "cpp",
         "semaphore": "cpp",
-        "stop_token": "cpp"
+        "stop_token": "cpp",
+        "eigen": "cpp"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python"
