@@ -92,36 +92,7 @@ TEST(test_IMU, GetOmgBiasStability)
   EXPECT_EQ(imu.getOmgBiasStability(), params.omgBiasStability);
 }
 
-TEST(test_IMU, IsBaseSensor)
-{
-  IMU::Params params1;
-  IMU::Params params2;
-
-  params1.baseSensor = true;
-  params2.baseSensor = false;
-
-  IMU imu1(params1);
-  IMU imu2(params2);
-
-  EXPECT_TRUE(imu1.isBaseSensor());
-  EXPECT_FALSE(imu2.isBaseSensor());
-}
-
-TEST(test_IMU, IsIntrinsic)
-{
-  IMU::Params params1;
-  IMU::Params params2;
-
-  params1.intrinsic = true;
-  params2.intrinsic = false;
-
-  IMU imu1(params1);
-  IMU imu2(params2);
-
-  EXPECT_TRUE(imu1.isIntrinsic());
-  EXPECT_FALSE(imu2.isIntrinsic());
-}
-
+/// @todo Reimplement these lines
 // TEST(test_IMU, PredictMeasurement) {
 //   Eigen::VectorXd bodyVec(18);
 //   bodyVec.setZero();

@@ -32,7 +32,6 @@ enum class LogLevel
 };
 
 /// @brief Logger class
-/// @todo Make Logger class a singleton or set of singletons by logfile
 class Logger
 {
 private:
@@ -59,6 +58,7 @@ public:
   ///
   /// @brief Getter for Logger singleton
   /// @return Pointer to Logger singleton
+  /// @todo Remove singleton pattern to support multiple log files
   ///
   static Logger * getInstance()
   {

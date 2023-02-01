@@ -53,46 +53,47 @@ void StatePublisherNode::publishVectorState() {}
 /// @todo publish transforms
 void StatePublisherNode::publishBodyState()
 {
-  auto pose_msg = geometry_msgs::msg::PoseStamped();
-  auto twist_msg = geometry_msgs::msg::TwistStamped();
-  auto state_msg = std_msgs::msg::Float64MultiArray();
+  /// @todo Reimplement these lines
+  // auto pose_msg = geometry_msgs::msg::PoseStamped();
+  // auto twist_msg = geometry_msgs::msg::TwistStamped();
+  // auto state_msg = std_msgs::msg::Float64MultiArray();
 
-  Eigen::VectorXd state = m_ekf->getState();
+  // Eigen::VectorXd state = m_ekf->getState();
 
-  // Position
-  pose_msg.pose.position.x = state(0);
-  pose_msg.pose.position.y = state(1);
-  pose_msg.pose.position.z = state(2);
+  // // Position
+  // pose_msg.pose.position.x = state(0);
+  // pose_msg.pose.position.y = state(1);
+  // pose_msg.pose.position.z = state(2);
 
-  // Orientation
-  Eigen::Quaterniond quat = TypeHelper::rotVecToQuat(state.segment(9, 3));
-  pose_msg.pose.orientation.w = quat.w();
-  pose_msg.pose.orientation.x = quat.x();
-  pose_msg.pose.orientation.y = quat.y();
-  pose_msg.pose.orientation.z = quat.z();
+  // // Orientation
+  // Eigen::Quaterniond quat = TypeHelper::rotVecToQuat(state.segment(9, 3));
+  // pose_msg.pose.orientation.w = quat.w();
+  // pose_msg.pose.orientation.x = quat.x();
+  // pose_msg.pose.orientation.y = quat.y();
+  // pose_msg.pose.orientation.z = quat.z();
 
-  // Linear Velocity
-  twist_msg.twist.linear.x = state(3);
-  twist_msg.twist.linear.y = state(4);
-  twist_msg.twist.linear.z = state(5);
+  // // Linear Velocity
+  // twist_msg.twist.linear.x = state(3);
+  // twist_msg.twist.linear.y = state(4);
+  // twist_msg.twist.linear.z = state(5);
 
-  // Angular Velocity
-  twist_msg.twist.angular.x = state(12);
-  twist_msg.twist.angular.y = state(13);
-  twist_msg.twist.angular.z = state(14);
+  // // Angular Velocity
+  // twist_msg.twist.angular.x = state(12);
+  // twist_msg.twist.angular.y = state(13);
+  // twist_msg.twist.angular.z = state(14);
 
-  // State msg
-  for (unsigned int i = 0; i < state.size(); ++i) {
-    state_msg.data.push_back(state(i));
-  }
+  // // State msg
+  // for (unsigned int i = 0; i < state.size(); ++i) {
+  //   state_msg.data.push_back(state(i));
+  // }
 
-  rclcpp::Time now = this->get_clock()->now();
-  pose_msg.header.stamp = now;
-  twist_msg.header.stamp = now;
+  // rclcpp::Time now = this->get_clock()->now();
+  // pose_msg.header.stamp = now;
+  // twist_msg.header.stamp = now;
 
-  m_posePub->publish(pose_msg);
-  m_twistPub->publish(twist_msg);
-  m_statePub->publish(state_msg);
+  // m_posePub->publish(pose_msg);
+  // m_twistPub->publish(twist_msg);
+  // m_statePub->publish(state_msg);
 }
 
 ///
@@ -101,6 +102,7 @@ void StatePublisherNode::publishBodyState()
 ///
 void StatePublisherNode::publishSensorTransforms()
 {
+  /// @todo Reimplement these lines
   // std::string baseIMUName;
   // std::vector<std::string> sensorNames;
   // std::vector<Eigen::Vector3d> sensorPosOffsets;

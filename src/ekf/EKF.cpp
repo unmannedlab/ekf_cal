@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 
+#include "ekf/Types.hpp"
 #include "infrastructure/Logger.hpp"
 
 // initializing instancePointer with NULL
@@ -29,17 +30,18 @@ void EKF::extendState(
   unsigned int sensorStateSize, Eigen::VectorXd sensorState,
   Eigen::MatrixXd sensorCov)
 {
-  // Resize State and Covariance
-  m_state.conservativeResize(m_stateSize + sensorStateSize);
-  m_cov.conservativeResize(m_stateSize + sensorStateSize, m_stateSize + sensorStateSize);
+  /// @todo Reimplement these lines
+  // // Resize State and Covariance
+  // m_state.conservativeResize(m_stateSize + sensorStateSize);
+  // m_cov.conservativeResize(m_stateSize + sensorStateSize, m_stateSize + sensorStateSize);
 
-  // Set new states to zero
-  m_state.segment(m_stateSize, sensorStateSize) = sensorState;
+  // // Set new states to zero
+  // m_state.segment(m_stateSize, sensorStateSize) = sensorState;
 
-  // Set new covariance to identity and cross-covariance to zero
-  m_cov.block(m_stateSize, m_stateSize, sensorStateSize, sensorStateSize) = sensorCov;
-  m_cov.block(0, m_stateSize, m_stateSize, sensorStateSize).setZero();
-  m_cov.block(m_stateSize, 0, sensorStateSize, m_stateSize).setZero();
+  // // Set new covariance to identity and cross-covariance to zero
+  // m_cov.block(m_stateSize, m_stateSize, sensorStateSize, sensorStateSize) = sensorCov;
+  // m_cov.block(0, m_stateSize, m_stateSize, sensorStateSize).setZero();
+  // m_cov.block(m_stateSize, 0, sensorStateSize, m_stateSize).setZero();
 
   m_stateSize += sensorStateSize;
 }
@@ -78,22 +80,22 @@ void EKF::predict(double time)
 
   Eigen::MatrixXd F = getStateTransition(dT);
 
+  /// @todo Reimplement these lines
   /// @todo use convolution function instead for rotation update or RK4
-  m_state = F * m_state;
-  m_cov = F * m_cov * F.transpose() + F * m_processInput * m_processNoise *
-    m_processInput.transpose() * F.transpose();
+  // m_state = F * m_state;
+  // m_cov = F * m_cov * F.transpose() + F * m_processInput * m_processNoise *
+  //   m_processInput.transpose() * F.transpose();
   m_currentTime = time;
 }
 
-Eigen::VectorXd & EKF::getState()
+State & EKF::getState()
 {
   return m_state;
 }
 
-Eigen::VectorXd EKF::getBodyState()
+BodyState EKF::getBodyState()
 {
-  Eigen::VectorXd bodyState = m_state.segment(0, 18);
-  return bodyState;
+  return m_state.bodyState;
 }
 
 Eigen::MatrixXd & EKF::getCov()
@@ -103,12 +105,40 @@ Eigen::MatrixXd & EKF::getCov()
 
 unsigned int EKF::getStateSize()
 {
-  return m_stateSize;
+  /// @todo update size count for map
+  unsigned int stateSize = 18 +
+    m_state.imuStates.size() * 12 +
+    m_state.camStates.size() * 6;
+  return stateSize;
 }
 
-void EKF::initialize(double timeInit, Eigen::VectorXd bodyStateInit)
+void EKF::initialize(double timeInit, BodyState bodyStateInit)
 {
   m_currentTime = timeInit;
   m_timeInitialized = true;
-  m_state.segment<18>(0) = bodyStateInit;
+  m_state.bodyState = bodyStateInit;
+}
+
+void EKF::augmentState(unsigned int cameraID)
+{
+  // Create a copy of the current estimate of the camera pose
+  // add pose reference to list per camera
+}
+
+void EKF::update_msckf(FeatureTracks featureTracks)
+{
+  // MSCKF Update
+}
+
+
+void EKF::registerIMU(unsigned int imuID, ImuState imuState)
+{
+  /// @todo check that id hasn't been used before
+  m_state.imuStates[imuID] = imuState;
+}
+
+void EKF::registerCamera(unsigned int camID, CamState camState)
+{
+  /// @todo check that id hasn't been used before
+  m_state.camStates[camID] = camState;
 }

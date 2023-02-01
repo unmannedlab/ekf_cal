@@ -24,6 +24,8 @@
 #include <opencv2/features2d.hpp>
 
 #include "sensors/Sensor.hpp"
+#include "ekf/Types.hpp"
+#include "ekf/EKF.hpp"
 
 ///
 /// @class Tracker
@@ -62,18 +64,6 @@ public:
     BRUTE_FORCE,
     FLANN
   };
-
-
-  ///
-  /// @brief Feature Track structure
-  ///
-  typedef struct FeatureTrack
-  {
-    unsigned int frameID;   /// <@brief Sequence ID of feature detection
-    cv::KeyPoint keyPoint;  /// <@brief Detected key point
-  } FeatureTrack;
-
-  typedef std::vector<std::vector<Tracker::FeatureTrack>> FeatureTracks;
 
   ///
   /// @brief Tracker initialization parameters structure
@@ -120,6 +110,7 @@ private:
   unsigned int generateFeatureID();
 
   Logger * m_logger = Logger::getInstance();  ///< @brief Logger singleton
+  EKF * m_ekf = EKF::getInstance();           ///< @brief EKF singleton
 
   /// @todo Use parameter inputs for these values
   bool use_qr_decomposition{false};

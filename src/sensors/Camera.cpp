@@ -22,6 +22,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
 
+#include "ekf/Types.hpp"
 #include "sensors/Sensor.hpp"
 #include "sensors/Tracker.hpp"
 #include "utility/TypeHelper.hpp"
@@ -60,23 +61,24 @@ void Camera::callback(double time, cv::Mat & imgIn)
 
   unsigned int frameID = generateFrameID();
 
-  Tracker::FeatureTracks featureTracks;
+  FeatureTracks featureTracks;
   m_tracker.track(frameID, imgIn, m_outImg, featureTracks);
   /// @todo Undistort points post track?
   // cv::undistortPoints();
+  /// @todo Call a EKF updater method
 }
 
 void Camera::setState()
 {
-  Eigen::VectorXd state = m_ekf->getState();
+  // Eigen::VectorXd state = m_ekf->getState();
 
-  m_posOffset = state.segment<3>(m_stateStartIndex);
-  Eigen::Vector3d rotVec = state.segment<3>(m_stateStartIndex + 3);
+  // m_posOffset = state.segment<3>(m_stateStartIndex);
+  // Eigen::Vector3d rotVec = state.segment<3>(m_stateStartIndex + 3);
 
-  double angle = rotVec.norm();
-  Eigen::Vector3d axis = rotVec / angle;
+  // double angle = rotVec.norm();
+  // Eigen::Vector3d axis = rotVec / angle;
 
-  m_angOffset = Eigen::AngleAxisd(angle, axis);
+  // m_angOffset = Eigen::AngleAxisd(angle, axis);
 }
 
 unsigned int Camera::generateFrameID()

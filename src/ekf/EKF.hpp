@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 
+#include "ekf/Types.hpp"
 #include "infrastructure/Logger.hpp"
 
 ///
@@ -48,6 +49,7 @@ public:
   ///
   /// @brief Singleton reference getter
   /// @return Pointer to singleton instance
+  /// @todo Remove singleton pattern
   ///
   static EKF * getInstance()
   {
@@ -73,13 +75,13 @@ public:
   /// @brief Getter for state vector reference
   /// @return State vector reference
   ///
-  Eigen::VectorXd & getState();
+  State & getState();
 
   ///
   /// @brief Getter for the body state vector reference
   /// @return Body state vector reference
   ///
-  Eigen::VectorXd getBodyState();
+  BodyState getBodyState();
 
   ///
   /// @brief Getter method for state covariance matrix reference
@@ -107,31 +109,11 @@ public:
   Eigen::MatrixXd getStateTransition(double dT);
 
   ///
-  /// @brief Process input matrix getter method
-  /// @return Process input matrix
-  ///
-  Eigen::MatrixXd getProcessInput();
-
-  ///
   /// @brief EKF state initialization method
   /// @param timeInit Initial time
   /// @param bodyStateInit Initial state
   ///
-  void initialize(double timeInit, Eigen::VectorXd bodyStateInit);
-
-  ///
-  /// @brief Get transforms between body and sensors
-  /// @param baseIMUName Name of base IMU representing body
-  /// @param sensorNames Vector of sensor names
-  /// @param sensorPosOffsets Vector of sensor positional offsets
-  /// @param sensorAngOffsets Vector of sensor rotational offsets
-  ///
-  void getTransforms(
-    std::string & baseIMUName,
-    std::vector<std::string> & sensorNames,
-    std::vector<Eigen::Vector3d> & sensorPosOffsets,
-    std::vector<Eigen::Quaterniond> & sensorAngOffsets
-  );
+  void initialize(double timeInit, BodyState bodyStateInit);
 
   ///
   /// @brief Extend EKF state and covariance
@@ -143,9 +125,17 @@ public:
     unsigned int sensorStateSize, Eigen::VectorXd sensorState,
     Eigen::MatrixXd sensorCov);
 
+  void registerIMU(unsigned int imuID, ImuState imuState);
+
+  void registerCamera(unsigned int camID, CamState camState);
+
+  void augmentState(unsigned int cameraID);
+
+  void update_msckf(FeatureTracks featureTracks);
+
 private:
   unsigned int m_stateSize{18U};
-  Eigen::VectorXd m_state = Eigen::VectorXd::Zero(18U);
+  State m_state;
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(18U, 18U);
   double m_currentTime {0};
   bool m_timeInitialized {false};

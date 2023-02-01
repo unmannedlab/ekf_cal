@@ -20,6 +20,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
 
+#include "ekf/Types.hpp"
+#include "ekf/EKF.hpp"
 
 /// @todo add detector/extractor parameters to input
 Tracker::Tracker(Tracker::Params params)
@@ -29,7 +31,7 @@ Tracker::Tracker(Tracker::Params params)
   m_descriptorMatcher = initDescriptorMatcher(params.matcher);
 }
 
-
+/// @todo Check what parameters are used by open_vins
 cv::Ptr<cv::FeatureDetector> Tracker::initFeatureDetector(
   FeatureDetectorEnum detector,
   double threshold)
@@ -164,7 +166,7 @@ void Tracker::track(
         (featureTrack.size() >= max_track_length))
       {
         // This feature does not exist in the latest frame
-        if (featureTrack.size() > min_track_length) {
+        if (featureTrack.size() >= min_track_length) {
           featureTracks.push_back(featureTrack);
         }
         it = m_featureTrackMap.erase(it);
@@ -173,6 +175,8 @@ void Tracker::track(
       }
     }
   }
+
+  m_ekf->update_msckf(featureTracks);
 
   m_prevKeyPoints = m_currKeyPoints;
   m_prevDescriptors = m_currDescriptors;

@@ -50,12 +50,13 @@ IMU::IMU(IMU::Params params)
   m_accBiasStability = params.accBiasStability;
   m_omgBiasStability = params.omgBiasStability;
 
-  if (m_stateSize) {
-    Eigen::VectorXd sensorState = getState();
-    Eigen::VectorXd varVec = params.variance.segment(0, m_stateSize);
-    Eigen::MatrixXd cov = MathHelper::minBoundVector(varVec, 1e-6).asDiagonal();
-    m_ekf->extendState(m_stateSize, sensorState, cov);
-  }
+  /// @todo Reimplement these lines
+  // if (m_stateSize) {
+  //   Eigen::VectorXd sensorState = getState();
+  //   Eigen::VectorXd varVec = params.variance.segment(0, m_stateSize);
+  //   Eigen::MatrixXd cov = MathHelper::minBoundVector(varVec, 1e-6).asDiagonal();
+  //   m_ekf->extendState(m_stateSize, sensorState, cov);
+  // }
 }
 
 double IMU::getAccBiasStability()
@@ -66,16 +67,6 @@ double IMU::getAccBiasStability()
 double IMU::getOmgBiasStability()
 {
   return m_omgBiasStability;
-}
-
-bool IMU::isBaseSensor()
-{
-  return m_isBaseSensor;
-}
-
-bool IMU::isIntrinsic()
-{
-  return m_isIntrinsic;
 }
 
 Eigen::VectorXd IMU::predictMeasurement()
@@ -220,31 +211,33 @@ Eigen::VectorXd IMU::getState()
 
 void IMU::setState()
 {
-  Eigen::VectorXd state = m_ekf->getState();
+  /// @todo Reimplement these lines
+  // Eigen::VectorXd state = m_ekf->getState();
 
-  if (m_isBaseSensor) {
-    if (m_isIntrinsic) {
-      m_accBias = state.segment<3>(m_stateStartIndex);
-      m_omgBias = state.segment<3>(m_stateStartIndex + 3);
-    } else {
-      // Do nothing if zero-sized state
-    }
-  } else {
-    m_posOffset = state.segment<3>(m_stateStartIndex);
-    Eigen::Vector3d rotVec = state.segment<3>(m_stateStartIndex + 3);
+  // if (m_isBaseSensor) {
+  //   if (m_isIntrinsic) {
+  //     // m_accBias = state.segment<3>(m_stateStartIndex);
+  //     // m_omgBias = state.segment<3>(m_stateStartIndex + 3);
+  //   } else {
+  //     // Do nothing if zero-sized state
+  //   }
+  // } else {
+  //   // m_posOffset = state.segment<3>(m_stateStartIndex);
+  //   // Eigen::Vector3d rotVec = state.segment<3>(m_stateStartIndex + 3);
 
-    double angle = rotVec.norm();
-    Eigen::Vector3d axis = rotVec / angle;
+  //   // double angle = rotVec.norm();
+  //   // Eigen::Vector3d axis = rotVec / angle;
 
-    m_angOffset = Eigen::AngleAxisd(angle, axis);
+  //   // m_angOffset = Eigen::AngleAxisd(angle, axis);
 
-    if (m_isIntrinsic) {
-      m_accBias = state.segment<3>(m_stateStartIndex + 6);
-      m_omgBias = state.segment<3>(m_stateStartIndex + 9);
-    }
-  }
+  //   // if (m_isIntrinsic) {
+  //   //   m_accBias = state.segment<3>(m_stateStartIndex + 6);
+  //   //   m_omgBias = state.segment<3>(m_stateStartIndex + 9);
+  //   // }
+  // }
 }
 
+/// @todo Call a EKF updater method
 void IMU::callback(
   double time, Eigen::Vector3d acceleration,
   Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
@@ -278,7 +271,7 @@ void IMU::callback(
   Eigen::MatrixXd S = H * m_ekf->getCov() * H.transpose() + R;
   Eigen::MatrixXd K = m_ekf->getCov() * H.transpose() * S.inverse();
 
-  m_ekf->getState() = m_ekf->getState() + K * resid;
-  m_ekf->getCov() = (Eigen::MatrixXd::Identity(stateSize, stateSize) - K * H) * m_ekf->getCov();
-  setState();
+  // m_ekf->getState() = m_ekf->getState() + K * resid;
+  // m_ekf->getCov() = (Eigen::MatrixXd::Identity(stateSize, stateSize) - K * H) * m_ekf->getCov();
+  // setState();
 }

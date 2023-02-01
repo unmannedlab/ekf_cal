@@ -82,18 +82,6 @@ public:
   double getOmgBiasStability();
 
   ///
-  /// @brief Base sensor flag getter method
-  /// @return Base sensor flag
-  ///
-  bool isBaseSensor();
-
-  ///
-  /// @brief Intrinsic sensor flag getter method
-  /// @return Intrinsic sensor flag
-  ///
-  bool isIntrinsic();
-
-  ///
   /// @brief Sensor state getter method
   /// @return Sensor state vector
   ///

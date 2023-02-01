@@ -26,15 +26,16 @@ endif()
 
 list(APPEND CMAKE_PREFIX_PATH /opt/ros/${ROS_DISTRO}/)
 
+# TODO Should this compile without ROS? Just make EKF library?
 set(ROS_PKGS
     ament_cmake
-    rclcpp
-    std_msgs
-    sensor_msgs
-    geometry_msgs
-    tf2_ros
-    OpenCV
     cv_bridge
+    geometry_msgs
+    OpenCV
+    rclcpp
+    sensor_msgs
+    std_msgs
+    tf2_ros
 )
 foreach(pkg ${ROS_PKGS})
     find_package(${pkg} REQUIRED)
@@ -43,6 +44,7 @@ endforeach()
 # EKF sources
 set(EKF_SRCS
     src/ekf/EKF.cpp
+    src/ekf/Types.hpp
     src/sensors/Camera.cpp
     src/sensors/IMU.cpp
     src/sensors/Sensor.cpp
