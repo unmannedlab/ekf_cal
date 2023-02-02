@@ -71,5 +71,36 @@ typedef struct FeatureTrack
 typedef std::vector<std::vector<FeatureTrack>> FeatureTracks;
 
 
+State & operator+=(State & lState, State & rState)
+{
+  lState.bodyState.position += lState.bodyState.position;
+  lState.bodyState.velocity += lState.bodyState.velocity;
+  lState.bodyState.acceleration += lState.bodyState.acceleration;
+  lState.bodyState.orientation *= lState.bodyState.orientation;
+  lState.bodyState.angularVelocity += lState.bodyState.angularVelocity;
+  lState.bodyState.angularAcceleration += lState.bodyState.angularAcceleration;
+
+  for (auto & imuIter: lState.imuStates) {
+    unsigned int imuID = imuIter.first;
+    lState.imuStates[imuID].position += rState.imuStates[imuID].position;
+    lState.imuStates[imuID].orientation *= rState.imuStates[imuID].orientation;
+    lState.imuStates[imuID].accBias += rState.imuStates[imuID].accBias;
+    lState.imuStates[imuID].omgBias += rState.imuStates[imuID].omgBias;
+  }
+
+  for (auto & camIter: lState.camStates) {
+    unsigned int imuID = camIter.first;
+    lState.camStates[imuID].position += rState.camStates[imuID].position;
+    lState.camStates[imuID].orientation *= rState.camStates[imuID].orientation;
+    for (unsigned int i = 0; i < lState.camStates[imuID].augmentedStates.size(); ++i) {
+      AugmentedState & lAugState = lState.camStates[imuID].augmentedStates[i];
+      AugmentedState & rAugState = rState.camStates[imuID].augmentedStates[i];
+      lAugState.position += rAugState.position;
+      lAugState.orientation *= rAugState.orientation;
+    }
+  }
+
+  return lState;
+}
 
 #endif  // EKF__TYPES_HPP_
