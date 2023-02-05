@@ -123,6 +123,8 @@ Eigen::VectorXd State::toVector()
       n += 6;
     }
   }
+
+  return outVec;
 }
 
 

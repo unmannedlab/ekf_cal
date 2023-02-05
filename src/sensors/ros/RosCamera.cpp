@@ -21,6 +21,7 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <std_msgs/msg/header.hpp>
 
+#include "infrastructure/Logger.hpp"
 #include "sensors/Camera.hpp"
 #include "sensors/Tracker.hpp"
 #include "utility/RosHelper.hpp"

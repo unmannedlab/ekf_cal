@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "sensors/Camera.hpp"
 #include "sensors/ros/RosCamera.hpp"
 #include "sensors/Tracker.hpp"
 
@@ -27,6 +26,6 @@ TEST(test_RosCamera, constructor) {
   Camera::Params cParams;
   Tracker::Params tParams;
   cParams.name = "test_Camera";
-  RosCamera RosCamera(cParams, tParams);
+  RosCamera rosCamera(cParams, tParams);
   EXPECT_TRUE(true);
 }

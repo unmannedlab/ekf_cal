@@ -35,7 +35,7 @@ enum class LogLevel
 class Logger
 {
 private:
-  static Logger * instancePointer;
+  static Logger * m_instancePointer;
   Logger() {}
   // explicit Logger(LogLevel level);
 
@@ -58,25 +58,25 @@ public:
   ///
   /// @brief Getter for Logger singleton
   /// @return Pointer to Logger singleton
-  /// @todo Remove singleton pattern to support multiple log files
+  /// @todo Remove singleton pattern to support multiple log files with mutex
   ///
   static Logger * getInstance()
   {
     // If there is no instance of class
     // then we can create an instance.
-    if (instancePointer == NULL) {
+    if (m_instancePointer == NULL) {
       // We can access private members
       // within the class.
-      instancePointer = new Logger();
+      m_instancePointer = new Logger();
 
       // returning the instance pointer
-      return instancePointer;
+      return m_instancePointer;
     } else {
-      // if instancePointer != NULL that means
+      // if m_instancePointer != NULL that means
       // the class already have an instance.
       // So, we are returning that instance
       // and not creating new one.
-      return instancePointer;
+      return m_instancePointer;
     }
   }
 

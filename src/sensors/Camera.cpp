@@ -23,6 +23,7 @@
 #include <opencv2/features2d.hpp>
 
 #include "ekf/Types.hpp"
+#include "infrastructure/Logger.hpp"
 #include "sensors/Sensor.hpp"
 #include "sensors/Tracker.hpp"
 #include "utility/TypeHelper.hpp"

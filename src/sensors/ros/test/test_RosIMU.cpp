@@ -25,5 +25,5 @@
 TEST(test_IMU, Callback) {
   IMU::Params params;
   params.name = "IMU_Name";
-  IMU imu(params);
+  RosIMU rosIMU(params);
 }

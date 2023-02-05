@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "ekf/EKF.hpp"
+#include "infrastructure/Logger.hpp"
 
 
 ///

@@ -145,6 +145,7 @@ unsigned int EKF::getImuStateStartIndex(unsigned int m_id)
       stateStartIndex += 12;
     }
   }
+  return stateStartIndex;
 }
 
 unsigned int EKF::getCamStateStartIndex(unsigned int m_id)
@@ -158,4 +159,5 @@ unsigned int EKF::getCamStateStartIndex(unsigned int m_id)
       stateStartIndex += 6;
     }
   }
+  return stateStartIndex;
 }

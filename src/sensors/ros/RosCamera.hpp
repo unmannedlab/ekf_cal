@@ -18,11 +18,12 @@
 
 #include <string>
 
+#include <opencv2/opencv.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
-#include "std_msgs/msg/header.hpp"
-#include <opencv2/opencv.hpp>
+#include <std_msgs/msg/header.hpp>
 
+#include "infrastructure/Logger.hpp"
 #include "sensors/Camera.hpp"
 
 ///
