@@ -26,11 +26,11 @@
 
 void RosIMU::callback(const sensor_msgs::msg::Imu::SharedPtr msg)
 {
-  double time = RosHelper::rosHeaderToTime(msg->header);
-  Eigen::Vector3d acc = RosHelper::rosToEigen(msg->linear_acceleration);
-  Eigen::Vector3d omg = RosHelper::rosToEigen(msg->angular_velocity);
-  Eigen::Matrix3d acc_cov = RosHelper::rosToEigen(msg->linear_acceleration_covariance);
-  Eigen::Matrix3d omg_cov = RosHelper::rosToEigen(msg->angular_velocity_covariance);
+  double time = rosHeaderToTime(msg->header);
+  Eigen::Vector3d acc = rosToEigen(msg->linear_acceleration);
+  Eigen::Vector3d omg = rosToEigen(msg->angular_velocity);
+  Eigen::Matrix3d acc_cov = rosToEigen(msg->linear_acceleration_covariance);
+  Eigen::Matrix3d omg_cov = rosToEigen(msg->angular_velocity_covariance);
 
   IMU::callback(time, acc, acc_cov, omg, omg_cov);
 }

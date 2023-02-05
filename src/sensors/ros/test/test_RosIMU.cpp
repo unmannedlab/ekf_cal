@@ -26,5 +26,4 @@ TEST(test_IMU, Callback) {
   IMU::Params params;
   params.name = "IMU_Name";
   IMU imu(params);
-  EXPECT_EQ(imu.getName(), params.name);
 }

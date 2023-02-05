@@ -15,6 +15,7 @@
 
 #include "sensors/IMU.hpp"
 
+#include "ekf/Types.hpp"
 #include "sensors/Sensor.hpp"
 #include "utility/MathHelper.hpp"
 #include "utility/TypeHelper.hpp"
@@ -26,19 +27,7 @@ const Eigen::Vector3d IMU::GRAVITY = Eigen::Vector3d(0, 0, -9.80665);
 IMU::IMU(IMU::Params params)
 : Sensor(params.name)
 {
-  if (params.baseSensor == true) {
-    if (params.intrinsic == true) {
-      m_stateSize = 6U;
-    } else {
-      m_stateSize = 0U;
-    }
-  } else {
-    if (params.intrinsic == true) {
-      m_stateSize = 12U;
-    } else {
-      m_stateSize = 6U;
-    }
-  }
+  ImuState imuState;
 
   m_isBaseSensor = params.baseSensor;
   m_isIntrinsic = params.intrinsic;
@@ -50,13 +39,14 @@ IMU::IMU(IMU::Params params)
   m_accBiasStability = params.accBiasStability;
   m_omgBiasStability = params.omgBiasStability;
 
-  /// @todo Reimplement these lines
-  // if (m_stateSize) {
-  //   Eigen::VectorXd sensorState = getState();
-  //   Eigen::VectorXd varVec = params.variance.segment(0, m_stateSize);
-  //   Eigen::MatrixXd cov = MathHelper::minBoundVector(varVec, 1e-6).asDiagonal();
-  //   m_ekf->extendState(m_stateSize, sensorState, cov);
-  // }
+  imuState.position = m_posOffset;
+  imuState.orientation = m_angOffset;
+  imuState.accBias = m_accBias;
+  imuState.omgBias = m_omgBias;
+
+  Eigen::MatrixXd cov = minBoundVector(params.variance, 1e-6).asDiagonal();
+
+  m_ekf->registerIMU(m_id, imuState, cov);
 }
 
 double IMU::getAccBiasStability()
@@ -106,7 +96,7 @@ Eigen::VectorXd IMU::predictMeasurement()
 
 Eigen::MatrixXd IMU::getMeasurementJacobian()
 {
-  Eigen::MatrixXd measurementJacobian(6, m_stateSize + 18);
+  Eigen::MatrixXd measurementJacobian(6, 12 + 18);
   measurementJacobian.setZero();
 
   if (m_isBaseSensor) {
@@ -141,7 +131,7 @@ Eigen::MatrixXd IMU::getMeasurementJacobian()
     measurementJacobian.block<3, 3>(0, 12) = m_angOffset * temp;
 
     // Body Angular Acceleration
-    measurementJacobian.block<3, 3>(0, 15) = m_angOffset * MathHelper::skewSymmetric(
+    measurementJacobian.block<3, 3>(0, 15) = m_angOffset * skewSymmetric(
       m_posOffset);
 
     // IMU Positional Offset
@@ -156,7 +146,7 @@ Eigen::MatrixXd IMU::getMeasurementJacobian()
     temp(2, 1) = m_bodyAngVel(1) * m_bodyAngVel(2);
     temp(2, 2) = -(m_bodyAngVel(0) * m_bodyAngVel(0)) - (m_bodyAngVel(1) * m_bodyAngVel(1));
     measurementJacobian.block<3, 3>(0, 18) =
-      m_angOffset * MathHelper::skewSymmetric(m_bodyAngAcc) + temp;
+      m_angOffset * skewSymmetric(m_bodyAngAcc) + temp;
 
     // IMU Angular Offset
     Eigen::Vector3d imu_acc = m_bodyAcc +
@@ -164,14 +154,14 @@ Eigen::MatrixXd IMU::getMeasurementJacobian()
       m_bodyAngVel.cross(m_bodyAngVel.cross(m_posOffset));
 
     measurementJacobian.block<3, 3>(0, 21) =
-      -(m_angOffset * MathHelper::skewSymmetric(imu_acc));
+      -(m_angOffset * skewSymmetric(imu_acc));
 
     // IMU Body Angular Velocity
     measurementJacobian.block<3, 3>(3, 12) = m_angOffset.toRotationMatrix();
 
     // IMU Angular Offset
     measurementJacobian.block<3, 3>(3, 21) =
-      -(m_angOffset * MathHelper::skewSymmetric(m_bodyAngVel));
+      -(m_angOffset * skewSymmetric(m_bodyAngVel));
 
     if (m_isIntrinsic) {
       // IMU Accelerometer Bias
@@ -184,60 +174,7 @@ Eigen::MatrixXd IMU::getMeasurementJacobian()
   return measurementJacobian;
 }
 
-Eigen::VectorXd IMU::getState()
-{
-  Eigen::VectorXd stateVec(m_stateSize);
-
-  if (m_isBaseSensor) {
-    if (m_isIntrinsic) {
-      stateVec.segment<3>(0) = m_accBias;
-      stateVec.segment<3>(3) = m_omgBias;
-    } else {
-      m_logger->log(LogLevel::WARN, "Base IMU has no state to get");
-    }
-  } else {
-    Eigen::AngleAxisd angAxis{m_angOffset};
-    Eigen::Vector3d angBiasRotVec = angAxis.axis() * angAxis.angle();
-    stateVec.segment<3>(0) = m_posOffset;
-    stateVec.segment<3>(3) = angBiasRotVec;
-    if (m_isIntrinsic) {
-      stateVec.segment<3>(6) = m_accBias;
-      stateVec.segment<3>(9) = m_omgBias;
-    }
-  }
-
-  return stateVec;
-}
-
-void IMU::setState()
-{
-  /// @todo Reimplement these lines
-  // Eigen::VectorXd state = m_ekf->getState();
-
-  // if (m_isBaseSensor) {
-  //   if (m_isIntrinsic) {
-  //     // m_accBias = state.segment<3>(m_stateStartIndex);
-  //     // m_omgBias = state.segment<3>(m_stateStartIndex + 3);
-  //   } else {
-  //     // Do nothing if zero-sized state
-  //   }
-  // } else {
-  //   // m_posOffset = state.segment<3>(m_stateStartIndex);
-  //   // Eigen::Vector3d rotVec = state.segment<3>(m_stateStartIndex + 3);
-
-  //   // double angle = rotVec.norm();
-  //   // Eigen::Vector3d axis = rotVec / angle;
-
-  //   // m_angOffset = Eigen::AngleAxisd(angle, axis);
-
-  //   // if (m_isIntrinsic) {
-  //   //   m_accBias = state.segment<3>(m_stateStartIndex + 6);
-  //   //   m_omgBias = state.segment<3>(m_stateStartIndex + 9);
-  //   // }
-  // }
-}
-
-/// @todo Call a EKF updater method
+/// @todo Move to a EKF updater class
 void IMU::callback(
   double time, Eigen::Vector3d acceleration,
   Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
@@ -245,8 +182,7 @@ void IMU::callback(
 {
   m_logger->log(LogLevel::DEBUG, "IMU \"" + m_name + "\" callback at time " + std::to_string(time));
 
-  m_ekf->predict(time);
-  setState();
+  m_ekf->processModel(time);
 
   Eigen::VectorXd z(acceleration.size() + angularRate.size());
   z.segment<3>(0) = acceleration;
@@ -255,23 +191,21 @@ void IMU::callback(
   Eigen::VectorXd z_pred = predictMeasurement();
   Eigen::VectorXd resid = z - z_pred;
 
-  unsigned int stateSize = m_ekf->getStateSize();
-  unsigned int stateStartIndex = getStateStartIndex();
+  unsigned int stateSize = m_ekf->getState().getStateSize();
+  unsigned int stateStartIndex = m_ekf->getImuStateStartIndex(m_id);
   Eigen::MatrixXd subH = getMeasurementJacobian();
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, stateSize);
   H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
-  if (m_stateSize) {
-    H.block(0, stateStartIndex, 6, m_stateSize) = subH.block<0, 18>(6, m_stateSize);
-  }
+  H.block(0, stateStartIndex, 6, 12) = subH.block<0, 18>(6, 12);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-  R.block<3, 3>(0, 0) = MathHelper::minBoundDiagonal(accelerationCovariance, 1e-3);
-  R.block<3, 3>(3, 3) = MathHelper::minBoundDiagonal(angularRateCovariance, 1e-2);
+  R.block<3, 3>(0, 0) = minBoundDiagonal(accelerationCovariance, 1e-3);
+  R.block<3, 3>(3, 3) = minBoundDiagonal(angularRateCovariance, 1e-2);
 
   Eigen::MatrixXd S = H * m_ekf->getCov() * H.transpose() + R;
   Eigen::MatrixXd K = m_ekf->getCov() * H.transpose() * S.inverse();
 
-  // m_ekf->getState() = m_ekf->getState() + K * resid;
-  // m_ekf->getCov() = (Eigen::MatrixXd::Identity(stateSize, stateSize) - K * H) * m_ekf->getCov();
-  // setState();
+  Eigen::VectorXd update = K * resid;
+  m_ekf->getState() += update;
+  m_ekf->getCov() = (Eigen::MatrixXd::Identity(stateSize, stateSize) - K * H) * m_ekf->getCov();
 }

@@ -82,12 +82,6 @@ public:
   double getOmgBiasStability();
 
   ///
-  /// @brief Sensor state getter method
-  /// @return Sensor state vector
-  ///
-  Eigen::VectorXd getState();
-
-  ///
   /// @brief Callback method for IMU measurements
   /// @param time Measurement time
   /// @param acceleration Measured acceleration
@@ -103,11 +97,6 @@ public:
   static const Eigen::Vector3d GRAVITY;
 
 private:
-  ///
-  /// @brief Protected state setter method
-  ///
-  void setState();
-
   bool m_isBaseSensor;
   bool m_isIntrinsic;
   Eigen::Vector3d m_posOffset;

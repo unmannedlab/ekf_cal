@@ -38,65 +38,14 @@ public:
   explicit Sensor(std::string name);
 
   ///
-  /// @brief Predict measurement method
-  /// @return Predicted measurement vector
-  ///
-  virtual Eigen::VectorXd predictMeasurement() = 0;
-
-  ///
-  /// @brief Measurement Jacobian method
-  /// @return Measurement Jacobian matrix
-  ///
-  virtual Eigen::MatrixXd getMeasurementJacobian() = 0;
-
-  ///
-  /// @brief Sensor position offset getter method
-  /// @return Position offset vector
-  ///
-  Eigen::Vector3d getPosOffset();
-
-  ///
-  /// @brief Sensor angular offset getter method
-  /// @return Angular offset quaternion
-  ///
-  Eigen::Quaterniond getAngOffset();
-
-  ///
-  /// @brief Sensor name getter
-  /// @return Sensor name
-  ///
-  std::string getName();
-
-  ///
   /// @brief Sensor ID getter method
   /// @return Sensor ID
   ///
   unsigned int getId();
 
-  ///
-  /// @brief Sensor state start index getter method
-  /// @return Sensor state start index
-  ///
-  unsigned int getStateStartIndex();
-
-  ///
-  /// @brief Sensor state size getter method
-  /// @return Sensor state size
-  ///
-  unsigned int getStateSize();
-
 protected:
-  ///
-  /// @brief Protected state setter method
-  /// @param state EKF state
-  ///
-  virtual void setState() = 0;
-
   Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};          ///< @brief Sensor position offset vector
   Eigen::Quaterniond m_angOffset{0.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset quaternion
-
-  unsigned int m_stateStartIndex{0};  ///< @brief Sensor state start index
-  unsigned int m_stateSize{0};        ///< @brief Sensor state size
 
   static Eigen::Vector3d m_bodyPos;         ///< @brief Body position vector
   static Eigen::Vector3d m_bodyVel;         ///< @brief Body velocity vector

@@ -20,6 +20,7 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/float64_multi_array.hpp>
 
 #include "ekf/EKF.hpp"
 #include "infrastructure/Logger.hpp"
@@ -46,113 +47,103 @@ void StatePublisherNode::publishStates()
   publishBodyState();
   publishSensorTransforms();
 }
-void StatePublisherNode::publishVectorState() {}
 
-/// @todo move this into separate node
-/// @todo publish full state vector
-/// @todo publish transforms
+void StatePublisherNode::publishVectorState()
+{
+  Eigen::VectorXd vectorState = m_ekf->getState().toVector();
+  auto stateVecMsg = std_msgs::msg::Float64MultiArray();
+
+  for (auto & element : vectorState) {
+    stateVecMsg.data.push_back(element);
+  }
+  m_statePub->publish(stateVecMsg);
+}
+
+
 void StatePublisherNode::publishBodyState()
 {
-  /// @todo Reimplement these lines
-  // auto pose_msg = geometry_msgs::msg::PoseStamped();
-  // auto twist_msg = geometry_msgs::msg::TwistStamped();
-  // auto state_msg = std_msgs::msg::Float64MultiArray();
+  auto poseMsg = geometry_msgs::msg::PoseStamped();
+  auto twistMsg = geometry_msgs::msg::TwistStamped();
 
-  // Eigen::VectorXd state = m_ekf->getState();
+  BodyState bodyState = m_ekf->getState().bodyState;
 
-  // // Position
-  // pose_msg.pose.position.x = state(0);
-  // pose_msg.pose.position.y = state(1);
-  // pose_msg.pose.position.z = state(2);
+  // Position
+  poseMsg.pose.position.x = bodyState.position(0);
+  poseMsg.pose.position.y = bodyState.position(1);
+  poseMsg.pose.position.z = bodyState.position(2);
 
-  // // Orientation
-  // Eigen::Quaterniond quat = TypeHelper::rotVecToQuat(state.segment(9, 3));
-  // pose_msg.pose.orientation.w = quat.w();
-  // pose_msg.pose.orientation.x = quat.x();
-  // pose_msg.pose.orientation.y = quat.y();
-  // pose_msg.pose.orientation.z = quat.z();
+  // Orientation
+  poseMsg.pose.orientation.w = bodyState.orientation.w();
+  poseMsg.pose.orientation.x = bodyState.orientation.x();
+  poseMsg.pose.orientation.y = bodyState.orientation.y();
+  poseMsg.pose.orientation.z = bodyState.orientation.z();
 
-  // // Linear Velocity
-  // twist_msg.twist.linear.x = state(3);
-  // twist_msg.twist.linear.y = state(4);
-  // twist_msg.twist.linear.z = state(5);
+  // Linear Velocity
+  twistMsg.twist.linear.x = bodyState.velocity(0);
+  twistMsg.twist.linear.y = bodyState.velocity(1);
+  twistMsg.twist.linear.z = bodyState.velocity(2);
 
-  // // Angular Velocity
-  // twist_msg.twist.angular.x = state(12);
-  // twist_msg.twist.angular.y = state(13);
-  // twist_msg.twist.angular.z = state(14);
+  // Angular Velocity
+  twistMsg.twist.angular.x = bodyState.angularVelocity(0);
+  twistMsg.twist.angular.y = bodyState.angularVelocity(1);
+  twistMsg.twist.angular.z = bodyState.angularVelocity(2);
 
-  // // State msg
-  // for (unsigned int i = 0; i < state.size(); ++i) {
-  //   state_msg.data.push_back(state(i));
-  // }
+  rclcpp::Time now = this->get_clock()->now();
+  poseMsg.header.stamp = now;
+  twistMsg.header.stamp = now;
 
-  // rclcpp::Time now = this->get_clock()->now();
-  // pose_msg.header.stamp = now;
-  // twist_msg.header.stamp = now;
-
-  // m_posePub->publish(pose_msg);
-  // m_twistPub->publish(twist_msg);
-  // m_statePub->publish(state_msg);
+  m_posePub->publish(poseMsg);
+  m_twistPub->publish(twistMsg);
 }
 
 ///
 /// @todo debug issue with future extrapolation in RVIZ
-/// @todo possibly separate into separate node that just reads and publishes EKF data
 ///
 void StatePublisherNode::publishSensorTransforms()
 {
-  /// @todo Reimplement these lines
-  // std::string baseIMUName;
-  // std::vector<std::string> sensorNames;
-  // std::vector<Eigen::Vector3d> sensorPosOffsets;
-  // std::vector<Eigen::Quaterniond> sensorAngOffsets;
-  // GetTransforms(baseIMUName, sensorNames, sensorPosOffsets, sensorAngOffsets);
 
-  // geometry_msgs::msg::TransformStamped tf;
-  // tf.header.frame_id = baseIMUName;
+  State ekfState = m_ekf->getState();
 
-  // // Publish Sensor transforms
-  // for (unsigned int i = 0; i < sensorNames.size(); ++i) {
-  //   // Sensor name
-  //   tf.child_frame_id = sensorNames[i];
-  //   tf.header.stamp = this->get_clock()->now();
+  geometry_msgs::msg::TransformStamped tf;
+  tf.header.stamp = this->get_clock()->now();
+  tf.header.frame_id = "body";
 
-  //   // Sensor position
-  //   tf.transform.translation.x = 0.0;
-  //   tf.transform.translation.y = 0.0;
-  //   tf.transform.translation.z = 0.0;
+  // Publish IMU transforms
+  for (auto const & imuIter : ekfState.imuStates) {
+    unsigned int id = imuIter.first;
+    tf.child_frame_id = std::to_string(id);
 
-  //   // Sensor Orientation
-  //   /// @todo some of these quaternions are not valid (nan)
-  //   tf.transform.rotation.w = 1.0;
-  //   tf.transform.rotation.x = 0.0;
-  //   tf.transform.rotation.y = 0.0;
-  //   tf.transform.rotation.z = 0.0;
+    // Sensor position
+    tf.transform.translation.x = imuIter.second.position(0);
+    tf.transform.translation.y = imuIter.second.position(1);
+    tf.transform.translation.z = imuIter.second.position(2);
 
-  //   // Send the transformation
-  //   m_tfBroadcaster->sendTransform(tf);
-  // }
+    // Sensor Orientation
+    tf.transform.rotation.w = imuIter.second.orientation.w();
+    tf.transform.rotation.x = imuIter.second.orientation.x();
+    tf.transform.rotation.y = imuIter.second.orientation.y();
+    tf.transform.rotation.z = imuIter.second.orientation.z();
 
-  // Eigen::VectorXd ekfState = m_ekf->GetState();
+    // Send the transformation
+    m_tfBroadcaster->sendTransform(tf);
+  }
 
-  // // Publish Body transforms
-  // tf.header.frame_id = "world";
-  // tf.child_frame_id = baseIMUName;
-  // tf.header.stamp = this->get_clock()->now();
+  // Publish Body transforms
+  tf.header.frame_id = "world";
+  tf.child_frame_id = "body";
 
-  // // Body position
-  // tf.transform.translation.x = 0.0;
-  // tf.transform.translation.y = 0.0;
-  // tf.transform.translation.z = 0.0;
+  // Body position
+  tf.transform.translation.x = ekfState.bodyState.position(0);
+  tf.transform.translation.y = ekfState.bodyState.position(1);
+  tf.transform.translation.z = ekfState.bodyState.position(2);
 
-  // // Body Orientation
-  // tf.transform.rotation.w = 1.0;
-  // tf.transform.rotation.x = 0.0;
-  // tf.transform.rotation.y = 0.0;
-  // tf.transform.rotation.z = 0.0;
+  // Body Orientation
+  tf.transform.rotation.w = ekfState.bodyState.orientation.w();
+  tf.transform.rotation.x = ekfState.bodyState.orientation.x();
+  tf.transform.rotation.y = ekfState.bodyState.orientation.y();
+  tf.transform.rotation.z = ekfState.bodyState.orientation.z();
 
-  // m_tfBroadcaster->sendTransform(tf);
+  m_tfBroadcaster->sendTransform(tf);
 }
 
 int main(int argc, char * argv[])

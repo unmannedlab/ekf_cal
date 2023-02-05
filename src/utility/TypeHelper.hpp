@@ -23,9 +23,6 @@
 #include "utility/Constants.hpp"
 #include "infrastructure/Logger.hpp"
 
-namespace TypeHelper
-{
-
 ///
 /// @brief Converts std::vector into Eigen Quaternion
 /// @param in Input std::vector
@@ -69,6 +66,11 @@ inline Eigen::Quaterniond rotVecToQuat(Eigen::Vector3d rotVec)
   }
 }
 
-}  // namespace TypeHelper
+inline Eigen::Vector3d quatToRotVec(Eigen::Quaterniond quat)
+{
+  Eigen::AngleAxisd angAxis{quat};
+  Eigen::Vector3d rotVec = angAxis.axis() * angAxis.angle();
+  return rotVec;
+}
 
 #endif  // UTILITY__TYPEHELPER_HPP_

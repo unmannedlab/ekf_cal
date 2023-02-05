@@ -90,16 +90,10 @@ public:
   Eigen::MatrixXd & getCov();
 
   ///
-  /// @brief Getter method for state size
-  /// @return State size
-  ///
-  unsigned int getStateSize();
-
-  ///
   /// @brief Predict state to given time
   /// @param currentTime Time for prediction
   ///
-  void predict(double currentTime);
+  void processModel(double currentTime);
 
   ///
   /// @brief State transition matrix getter method
@@ -108,6 +102,10 @@ public:
   ///
   Eigen::MatrixXd getStateTransition(double dT);
 
+  unsigned int getImuStateStartIndex(unsigned int m_id);
+
+  unsigned int getCamStateStartIndex(unsigned int m_id);
+
   ///
   /// @brief EKF state initialization method
   /// @param timeInit Initial time
@@ -115,21 +113,11 @@ public:
   ///
   void initialize(double timeInit, BodyState bodyStateInit);
 
-  ///
-  /// @brief Extend EKF state and covariance
-  /// @param sensorStateSize Size of state extension
-  /// @param sensorState State extension initialization
-  /// @param sensorCov Covariance extension initialization
-  ///
-  void extendState(
-    unsigned int sensorStateSize, Eigen::VectorXd sensorState,
-    Eigen::MatrixXd sensorCov);
+  void registerIMU(unsigned int imuID, ImuState imuState, Eigen::MatrixXd covariance);
 
-  void registerIMU(unsigned int imuID, ImuState imuState);
+  void registerCamera(unsigned int camID, CamState camState, Eigen::MatrixXd covariance);
 
-  void registerCamera(unsigned int camID, CamState camState);
-
-  void augmentState(unsigned int cameraID);
+  void augmentState(unsigned int cameraID, unsigned int frameID);
 
   void update_msckf(FeatureTracks featureTracks);
 

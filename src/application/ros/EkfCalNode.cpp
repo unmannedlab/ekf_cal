@@ -105,11 +105,11 @@ IMU::Params EkfCalNode::getImuParameters(std::string imuName)
   imuParams.baseSensor = baseSensor;
   imuParams.intrinsic = intrinsic;
   imuParams.rate = rate;
-  imuParams.variance = TypeHelper::stdToEigVec(variance);
-  imuParams.posOffset = TypeHelper::stdToEigVec(posOff);
-  imuParams.angOffset = TypeHelper::stdToEigQuat(angOff);
-  imuParams.accBias = TypeHelper::stdToEigVec(accBias);
-  imuParams.omgBias = TypeHelper::stdToEigVec(omgBias);
+  imuParams.variance = stdToEigVec(variance);
+  imuParams.posOffset = stdToEigVec(posOff);
+  imuParams.angOffset = stdToEigQuat(angOff);
+  imuParams.accBias = stdToEigVec(accBias);
+  imuParams.omgBias = stdToEigVec(omgBias);
   return imuParams;
 }
 
@@ -136,9 +136,9 @@ Camera::Params EkfCalNode::getCameraParameters(std::string cameraName)
   cameraParams.name = cameraName;
   cameraParams.topic = topic;
   cameraParams.rate = rate;
-  cameraParams.posOffset = TypeHelper::stdToEigVec(posOff);
-  cameraParams.angOffset = TypeHelper::stdToEigQuat(angOff);
-  cameraParams.variance = TypeHelper::stdToEigVec(variance);
+  cameraParams.posOffset = stdToEigVec(posOff);
+  cameraParams.angOffset = stdToEigQuat(angOff);
+  cameraParams.variance = stdToEigVec(variance);
   cameraParams.tracker = trackerName;
   return cameraParams;
 }

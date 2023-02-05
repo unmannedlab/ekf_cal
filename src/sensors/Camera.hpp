@@ -54,23 +54,17 @@ public:
   ///
   Camera(Camera::Params cParams, Tracker::Params tParams);
 
-  ///
-  /// @brief Predict measurement method
-  /// @return Predicted measurement vector
-  ///
-  Eigen::VectorXd predictMeasurement();
+  // ///
+  // /// @brief Predict measurement method
+  // /// @return Predicted measurement vector
+  // ///
+  // Eigen::VectorXd predictMeasurement();
 
-  ///
-  /// @brief Measurement Jacobian method
-  /// @return Measurement Jacobian matrix
-  ///
-  Eigen::MatrixXd getMeasurementJacobian();
-
-  ///
-  /// @brief Sensor state getter method
-  /// @return Sensor state vector
-  ///
-  Eigen::VectorXd getState();
+  // ///
+  // /// @brief Measurement Jacobian method
+  // /// @return Measurement Jacobian matrix
+  // ///
+  // Eigen::MatrixXd getMeasurementJacobian();
 
   ///
   /// @brief Callback method for camera
@@ -83,11 +77,6 @@ protected:
   cv::Mat m_outImg;  ///< @brief Published output test image
 
 private:
-  ///
-  /// @brief Protected state setter method
-  ///
-  void setState();
-
   unsigned int generateFrameID();
 
   Tracker m_tracker;

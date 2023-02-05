@@ -32,28 +32,17 @@ Camera::Camera(Camera::Params cParams, Tracker::Params tParams)
 : Sensor(cParams.name), m_tracker(tParams)
 {}
 
-Eigen::VectorXd Camera::predictMeasurement()
-{
-  Eigen::VectorXd predictedMeasurement(m_stateSize);
-  return predictedMeasurement;
-}
+// Eigen::VectorXd Camera::predictMeasurement()
+// {
+//   Eigen::VectorXd predictedMeasurement(m_stateSize);
+//   return predictedMeasurement;
+// }
 
-Eigen::MatrixXd Camera::getMeasurementJacobian()
-{
-  Eigen::MatrixXd measurementJacobian(m_stateSize, m_stateSize);
-  return measurementJacobian;
-}
-
-Eigen::VectorXd Camera::getState()
-{
-  Eigen::AngleAxisd angAxis{m_angOffset};
-  Eigen::Vector3d rotVec = angAxis.axis() * angAxis.angle();
-  Eigen::VectorXd stateVec(m_posOffset.size() + rotVec.size());
-  stateVec.segment<3>(0) = m_posOffset;
-  stateVec.segment<3>(3) = rotVec;
-
-  return stateVec;
-}
+// Eigen::MatrixXd Camera::getMeasurementJacobian()
+// {
+//   Eigen::MatrixXd measurementJacobian(m_stateSize, m_stateSize);
+//   return measurementJacobian;
+// }
 
 void Camera::callback(double time, cv::Mat & imgIn)
 {
@@ -66,19 +55,6 @@ void Camera::callback(double time, cv::Mat & imgIn)
   /// @todo Undistort points post track?
   // cv::undistortPoints();
   /// @todo Call a EKF updater method
-}
-
-void Camera::setState()
-{
-  // Eigen::VectorXd state = m_ekf->getState();
-
-  // m_posOffset = state.segment<3>(m_stateStartIndex);
-  // Eigen::Vector3d rotVec = state.segment<3>(m_stateStartIndex + 3);
-
-  // double angle = rotVec.norm();
-  // Eigen::Vector3d axis = rotVec / angle;
-
-  // m_angOffset = Eigen::AngleAxisd(angle, axis);
 }
 
 unsigned int Camera::generateFrameID()

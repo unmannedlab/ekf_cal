@@ -18,8 +18,6 @@
 
 #include <eigen3/Eigen/Eigen>
 
-namespace MathHelper
-{
 ///
 /// @brief Produces a cross product matrix
 /// @param inVec Input vector with which to find the left hand size cross
@@ -75,7 +73,5 @@ inline Eigen::VectorXd minBoundVector(Eigen::VectorXd inVec, double minBound)
 
   return outVec;
 }
-
-}  // namespace MathHelper
 
 #endif  // UTILITY__MATHHELPER_HPP_

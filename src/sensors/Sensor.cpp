@@ -32,32 +32,7 @@ Eigen::Vector3d Sensor::m_bodyAngAcc(0.0, 0.0, 0.0);
 Sensor::Sensor(std::string name)
 : m_id(++_idCount), m_name(name) {}
 
-std::string Sensor::getName()
-{
-  return m_name;
-}
-
 unsigned int Sensor::getId()
 {
   return m_id;
-}
-
-unsigned int Sensor::getStateStartIndex()
-{
-  return m_stateStartIndex;
-}
-
-unsigned int Sensor::getStateSize()
-{
-  return m_stateSize;
-}
-
-Eigen::Vector3d Sensor::getPosOffset()
-{
-  return m_posOffset;
-}
-
-Eigen::Quaterniond Sensor::getAngOffset()
-{
-  return m_angOffset;
 }

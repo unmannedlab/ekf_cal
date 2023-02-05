@@ -55,13 +55,6 @@ typedef struct CamState
   std::vector<AugmentedState> augmentedStates;
 } CamState;
 
-typedef struct State
-{
-  BodyState bodyState;
-  std::map<unsigned int, ImuState> imuStates{};
-  std::map<unsigned int, CamState> camStates{};
-} State;
-
 typedef struct FeatureTrack
 {
   unsigned int frameID;
@@ -71,36 +64,19 @@ typedef struct FeatureTrack
 typedef std::vector<std::vector<FeatureTrack>> FeatureTracks;
 
 
-State & operator+=(State & lState, State & rState)
+class State
 {
-  lState.bodyState.position += lState.bodyState.position;
-  lState.bodyState.velocity += lState.bodyState.velocity;
-  lState.bodyState.acceleration += lState.bodyState.acceleration;
-  lState.bodyState.orientation *= lState.bodyState.orientation;
-  lState.bodyState.angularVelocity += lState.bodyState.angularVelocity;
-  lState.bodyState.angularAcceleration += lState.bodyState.angularAcceleration;
+public:
+  State();
+  Eigen::VectorXd toVector();
+  unsigned int getStateSize();
 
-  for (auto & imuIter: lState.imuStates) {
-    unsigned int imuID = imuIter.first;
-    lState.imuStates[imuID].position += rState.imuStates[imuID].position;
-    lState.imuStates[imuID].orientation *= rState.imuStates[imuID].orientation;
-    lState.imuStates[imuID].accBias += rState.imuStates[imuID].accBias;
-    lState.imuStates[imuID].omgBias += rState.imuStates[imuID].omgBias;
-  }
+  BodyState bodyState {};
+  std::map<unsigned int, ImuState> imuStates{};
+  std::map<unsigned int, CamState> camStates{};
+};
 
-  for (auto & camIter: lState.camStates) {
-    unsigned int imuID = camIter.first;
-    lState.camStates[imuID].position += rState.camStates[imuID].position;
-    lState.camStates[imuID].orientation *= rState.camStates[imuID].orientation;
-    for (unsigned int i = 0; i < lState.camStates[imuID].augmentedStates.size(); ++i) {
-      AugmentedState & lAugState = lState.camStates[imuID].augmentedStates[i];
-      AugmentedState & rAugState = rState.camStates[imuID].augmentedStates[i];
-      lAugState.position += rAugState.position;
-      lAugState.orientation *= rAugState.orientation;
-    }
-  }
-
-  return lState;
-}
+State & operator+=(State & lState, State & rState);
+State & operator+=(State & lState, Eigen::VectorXd & rVector);
 
 #endif  // EKF__TYPES_HPP_

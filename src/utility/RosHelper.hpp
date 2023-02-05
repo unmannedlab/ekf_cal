@@ -26,8 +26,6 @@
 
 #include "utility/Constants.hpp"
 
-namespace RosHelper
-{
 
 inline double rosHeaderToTime(std_msgs::msg::Header header)
 {
@@ -47,7 +45,5 @@ inline Eigen::Matrix3d rosToEigen(std::array<double, 9> msg)
     {msg[6], msg[7], msg[8]}
   };
 }
-
-}  // namespace RosHelper
 
 #endif  // UTILITY__ROSHELPER_HPP_

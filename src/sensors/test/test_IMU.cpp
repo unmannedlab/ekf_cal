@@ -21,13 +21,6 @@
 #include "utility/TypeHelper.hpp"
 #include "utility/test/CustomAssertions.hpp"
 
-TEST(test_IMU, Name) {
-  IMU::Params params;
-  params.name = "IMU_Name";
-  IMU imu(params);
-  EXPECT_EQ(imu.getName(), params.name);
-}
-
 TEST(test_IMU, Id) {
   IMU::Params params1;
   IMU::Params params2;
@@ -40,38 +33,6 @@ TEST(test_IMU, Id) {
 
   EXPECT_EQ(imu1.getId(), id_one);
   EXPECT_EQ(imu2.getId(), id_two);
-}
-
-TEST(test_IMU, StateSize) {
-  IMU::Params params1;
-  IMU::Params params2;
-  IMU::Params params3;
-  IMU::Params params4;
-
-  params1.baseSensor = true;
-  params1.intrinsic = false;
-
-  std::cout << "imu1" << std::endl;
-  IMU imu1(params1);
-  EXPECT_EQ(imu1.getStateSize(), 0U);
-
-  params2.baseSensor = true;
-  params2.intrinsic = true;
-  std::cout << "imu2" << std::endl;
-  IMU imu2(params2);
-  EXPECT_EQ(imu2.getStateSize(), 6U);
-
-  params3.baseSensor = false;
-  params3.intrinsic = false;
-  std::cout << "imu3" << std::endl;
-  IMU imu3(params3);
-  EXPECT_EQ(imu3.getStateSize(), 6U);
-
-  params4.baseSensor = false;
-  params4.intrinsic = true;
-  std::cout << "imu4" << std::endl;
-  IMU imu4(params4);
-  EXPECT_EQ(imu4.getStateSize(), 12U);
 }
 
 TEST(test_IMU, GetAccBiasStability)
@@ -108,7 +69,6 @@ TEST(test_IMU, GetOmgBiasStability)
 //   params1.intrinsic = false;
 //   IMU imu1(params1);
 //   Eigen::VectorXd vecIn1 {};
-//   imu1.SetState(vecIn1);
 
 //   Eigen::VectorXd vecOut1 = imu1.PredictMeasurement();
 //   EXPECT_EQ(vecOut1.segment(0, 3), bodyVec.segment(6, 3));
@@ -122,7 +82,6 @@ TEST(test_IMU, GetOmgBiasStability)
 //   IMU imu2(params2);
 //   Eigen::VectorXd vecIn2(6);
 //   vecIn2 << 1, -2, 3, -4, 5, -6;
-//   imu2.SetState(vecIn2);
 
 //   Eigen::VectorXd vecOut2 = imu2.PredictMeasurement();
 //   EXPECT_EQ(vecOut2.segment(0, 3), bodyVec.segment(6, 3) + vecIn2.segment(0, 3));
@@ -136,7 +95,6 @@ TEST(test_IMU, GetOmgBiasStability)
 //   IMU imu3(params3);
 //   Eigen::VectorXd vecIn3(6);
 //   vecIn3 << -1, 2, -3, 0.4, -0.5, 0.6;
-//   imu3.SetState(vecIn3);
 
 //   Eigen::VectorXd vecOut3 = imu3.PredictMeasurement();
 //   Eigen::Vector3d expAcc {-4.946732775610, -3.791386724870, 4.104999579680};
@@ -157,7 +115,6 @@ TEST(test_IMU, GetOmgBiasStability)
 //   IMU imu4(params4);
 //   Eigen::VectorXd vecIn4(12);
 //   vecIn4 <<  -1, 2, -3, 0.4, -0.5, 0.6, -7, 8, -9, 10, -11, 12;
-//   imu4.SetState(vecIn4);
 //   Eigen::VectorXd vecOut4 = imu4.PredictMeasurement();
 //   EXPECT_NEAR(vecOut4(0), expAcc(0) + vecIn4(6), 1e-6);
 //   EXPECT_NEAR(vecOut4(1), expAcc(1) + vecIn4(7), 1e-6);
@@ -176,7 +133,6 @@ TEST(test_IMU, GetOmgBiasStability)
 //   IMU imu1(params1);
 //   Eigen::VectorXd vecIn1 {};
 //   vecIn1.setZero();
-//   imu1.SetState(vecIn1);
 
 //   Eigen::MatrixXd jacOut1(6, 18);
 //   Eigen::MatrixXd jacExp1(6, 18);
@@ -197,7 +153,6 @@ TEST(test_IMU, GetOmgBiasStability)
 //   IMU imu2(params2);
 //   Eigen::VectorXd vecIn2(6);
 //   vecIn2 << -1, 2, -3, 4, -5, 6;
-//   imu2.SetState(vecIn2);
 
 //   Eigen::MatrixXd jacOut2(6, 24);
 //   Eigen::MatrixXd jacExp2(6, 24);
@@ -220,7 +175,6 @@ TEST(test_IMU, GetOmgBiasStability)
 //   IMU imu3(params3);
 //   Eigen::VectorXd vecIn3(6);
 //   vecIn3 << 1, -2, 3, -0.4, 0.5, -0.6;
-//   imu3.SetState(vecIn3);
 //   Eigen::MatrixXd jacOut3(6, 24);
 //   Eigen::MatrixXd jacExp3(6, 24);
 
@@ -265,7 +219,6 @@ TEST(test_IMU, GetOmgBiasStability)
 //   IMU imu4(params4);
 //   Eigen::VectorXd vecIn4(12);
 //   vecIn4 << 1, -2, 3, -0.4, 0.5, -0.6, 7, -8, 9, -10, 11, -12;
-//   imu4.SetState(vecIn4);
 //   Eigen::MatrixXd jacOut4(6, 30);
 //   Eigen::MatrixXd jacExp4(6, 30);
 

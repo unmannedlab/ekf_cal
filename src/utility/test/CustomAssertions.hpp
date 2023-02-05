@@ -20,8 +20,6 @@
 #include <gtest/gtest.h>
 #include <math.h>
 
-namespace CustomAssertions
-{
 ///
 /// @brief Function to expect near for two Eigen matrices
 /// @todo Should be a macro or otherwise show where the error occurred and check every element
@@ -51,7 +49,5 @@ namespace CustomAssertions
 //   }
 //   return testing::AssertionSuccess();
 // }
-
-}  // namespace CustomAssertions
 
 #endif  // CUSTOMASSERTIONS_HPP_

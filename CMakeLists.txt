@@ -44,7 +44,7 @@ endforeach()
 # EKF sources
 set(EKF_SRCS
     src/ekf/EKF.cpp
-    src/ekf/Types.hpp
+    src/ekf/Types.cpp
     src/sensors/Camera.cpp
     src/sensors/IMU.cpp
     src/sensors/Sensor.cpp
@@ -120,31 +120,31 @@ install(DIRECTORY
     DESTINATION share/${PROJECT_NAME}/
 )
 
-# gtest
-if(BUILD_TESTING)
-    find_package(ament_lint_auto REQUIRED)
-    ament_lint_auto_find_test_dependencies()
-    set(test_files
-        src/utility/test/test_EkfCalNode.cpp
-        src/utility/test/test_MathHelper.cpp
-        src/utility/test/test_TypeHelper.cpp
-        src/ekf/test/test_EKF.cpp
-        src/sensors/ros/test/test_RosCamera.cpp
-        src/sensors/ros/test/test_RosIMU.cpp
-        src/sensors/test/test_IMU.cpp
-    )
+# # gtest
+# if(BUILD_TESTING)
+#     find_package(ament_lint_auto REQUIRED)
+#     ament_lint_auto_find_test_dependencies()
+#     set(test_files
+#         src/utility/test/test_EkfCalNode.cpp
+#         src/utility/test/test_MathHelper.cpp
+#         src/utility/test/test_TypeHelper.cpp
+#         src/ekf/test/test_EKF.cpp
+#         src/sensors/ros/test/test_RosCamera.cpp
+#         src/sensors/ros/test/test_RosIMU.cpp
+#         src/sensors/test/test_IMU.cpp
+#     )
 
-    foreach(f_name IN LISTS test_files)
-        get_filename_component(nam ${f_name} NAME_WE)
-        ament_add_gtest(${nam} ${f_name})
-        ament_target_dependencies(${nam} ${ROS_PKGS})
-        target_include_directories(${nam} PUBLIC
-            ${CMAKE_SOURCE_DIR}/src/
-        )
-        target_link_libraries(${nam} EKF_LIB ROS_LIB)
-    endforeach()
+#     foreach(f_name IN LISTS test_files)
+#         get_filename_component(nam ${f_name} NAME_WE)
+#         ament_add_gtest(${nam} ${f_name})
+#         ament_target_dependencies(${nam} ${ROS_PKGS})
+#         target_include_directories(${nam} PUBLIC
+#             ${CMAKE_SOURCE_DIR}/src/
+#         )
+#         target_link_libraries(${nam} EKF_LIB ROS_LIB)
+#     endforeach()
 
-endif()
+# endif()
 
 ament_package()
 

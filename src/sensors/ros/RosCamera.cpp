@@ -32,7 +32,7 @@ RosCamera::RosCamera(Camera::Params cParams, Tracker::Params tParams)
 
 void RosCamera::callback(const sensor_msgs::msg::Image::SharedPtr inMsg)
 {
-  double time = RosHelper::rosHeaderToTime(inMsg->header);
+  double time = rosHeaderToTime(inMsg->header);
 
   cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(inMsg);
 
