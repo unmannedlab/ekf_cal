@@ -101,7 +101,6 @@ void StatePublisherNode::publishBodyState()
 ///
 void StatePublisherNode::publishSensorTransforms()
 {
-
   State ekfState = m_ekf->getState();
 
   geometry_msgs::msg::TransformStamped tf;

@@ -33,7 +33,7 @@ State & operator+=(State & lState, State & rState)
   lState.bodyState.angularVelocity += lState.bodyState.angularVelocity;
   lState.bodyState.angularAcceleration += lState.bodyState.angularAcceleration;
 
-  for (auto & imuIter: lState.imuStates) {
+  for (auto & imuIter : lState.imuStates) {
     unsigned int imuID = imuIter.first;
     lState.imuStates[imuID].position += rState.imuStates[imuID].position;
     lState.imuStates[imuID].orientation *= rState.imuStates[imuID].orientation;
@@ -41,7 +41,7 @@ State & operator+=(State & lState, State & rState)
     lState.imuStates[imuID].omgBias += rState.imuStates[imuID].omgBias;
   }
 
-  for (auto & camIter: lState.camStates) {
+  for (auto & camIter : lState.camStates) {
     unsigned int imuID = camIter.first;
     lState.camStates[imuID].position += rState.camStates[imuID].position;
     lState.camStates[imuID].orientation *= rState.camStates[imuID].orientation;
@@ -66,7 +66,7 @@ State & operator+=(State & lState, Eigen::VectorXd & rVector)
   lState.bodyState.angularAcceleration += rVector.segment<3>(15);
 
   unsigned int n = 18;
-  for (auto & imuIter: lState.imuStates) {
+  for (auto & imuIter : lState.imuStates) {
     unsigned int imuID = imuIter.first;
     lState.imuStates[imuID].position += rVector.segment<3>(n + 0);
     lState.imuStates[imuID].orientation *= rotVecToQuat(rVector.segment<3>(n + 3));
@@ -75,7 +75,7 @@ State & operator+=(State & lState, Eigen::VectorXd & rVector)
     n += 12;
   }
 
-  for (auto & camIter: lState.camStates) {
+  for (auto & camIter : lState.camStates) {
     camIter.second.position += rVector.segment<3>(n + 0);
     camIter.second.orientation *= rotVecToQuat(rVector.segment<3>(n + 3));
     n += 6;

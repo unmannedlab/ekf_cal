@@ -18,7 +18,7 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <vector>
-#include <memory>
+#include <map>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>

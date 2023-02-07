@@ -29,7 +29,8 @@
 /// @class EKF
 /// @brief Calibration EKF class
 /// @todo Implement check for correlation coefficients to be between +/- 1
-/// @todo Add gravity initialization check
+/// @todo Add gravity initialization/check
+/// @todo Create generic function to update(r,H,R)
 ///
 class EKF
 {
@@ -119,7 +120,9 @@ public:
 
   void augmentState(unsigned int cameraID, unsigned int frameID);
 
-  void update_msckf(FeatureTracks featureTracks);
+  void update_msckf(unsigned int cameraID, FeatureTracks featureTracks);
+
+  AugmentedState matchState(std::vector<AugmentedState> augmentedStates, unsigned int frameID);
 
 private:
   unsigned int m_stateSize{18U};

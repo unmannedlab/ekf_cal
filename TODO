@@ -1,0 +1,7 @@
+Simulation Work:
+    - Create objects for calling MAVS binaries directly
+    - Trajectory designer
+    - Application for running simulated off-road trajectory
+
+Package Features:
+    - Auto-generate rviz configuration from yaml

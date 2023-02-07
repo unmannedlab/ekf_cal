@@ -126,7 +126,8 @@
         "semaphore": "cpp",
         "stop_token": "cpp",
         "eigen": "cpp",
-        "*.txx": "cpp"
+        "*.txx": "cpp",
+        "core": "cpp"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python"

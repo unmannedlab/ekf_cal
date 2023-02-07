@@ -21,6 +21,7 @@
 
 #include "ekf/Types.hpp"
 #include "infrastructure/Logger.hpp"
+#include "utility/MathHelper.hpp"
 
 // initializing instancePointer with NULL
 EKF * EKF::instancePointer = NULL;
@@ -97,28 +98,86 @@ void EKF::augmentState(unsigned int cameraID, unsigned int frameID)
     m_state.bodyState.orientation * m_state.camStates[cameraID].position;
   augState.orientation = m_state.camStates[cameraID].orientation * m_state.bodyState.orientation;
   m_state.camStates[cameraID].augmentedStates.push_back(augState);
+
+  /// @todo Augment covariance with Jacobian
 }
 
-void EKF::update_msckf(FeatureTracks featureTracks)
+AugmentedState EKF::matchState(std::vector<AugmentedState> augmentedStates, unsigned int frameID)
+{
+  AugmentedState augStateMatch;
+
+  for (auto & augState : augmentedStates) {
+    if (augState.frameID == frameID) {
+      augStateMatch = augState;
+      break;
+    }
+  }
+
+  return augStateMatch;
+}
+
+void EKF::update_msckf(unsigned int cameraID, FeatureTracks featureTracks)
 {
   // MSCKF Update
+  for (auto & featureTrack : featureTracks) {
+    const std::vector<AugmentedState> * augStates = &m_state.camStates[cameraID].augmentedStates;
+
+    AugmentedState augStateMatch = matchState(*augStates, featureTrack[0].frameID);
+
+    // 3D Cartesian Triangulation
+    Eigen::Matrix3d A = Eigen::Matrix3d::Zero();
+    Eigen::Vector3d b = Eigen::Vector3d::Zero();
+
+    const Eigen::Matrix<double, 3, 3> & R_GtoA = augStateMatch.orientation.toRotationMatrix();
+    const Eigen::Matrix<double, 3, 1> & p_AinG = augStateMatch.position;
+
+    for (unsigned int i = 1; i < featureTrack.size(); ++i) {
+      augStateMatch = matchState(*augStates, featureTrack[i].frameID);
+
+      const Eigen::Matrix<double, 3, 3> R_GtoCi = augStateMatch.orientation.toRotationMatrix();
+      const Eigen::Vector3d p_CiinG = augStateMatch.position;
+
+      // Convert current position relative to anchor
+      Eigen::Matrix3d R_AtoCi = R_GtoCi * R_GtoA.transpose();
+      Eigen::Vector3d p_CiinA = R_GtoA * (p_CiinG - p_AinG);
+
+      // Get the UV coordinate normal
+      Eigen::Vector3d b_i;
+      b_i << featureTrack[i].keyPoint.pt.x, featureTrack[i].keyPoint.pt.y, 1;
+      b_i = R_AtoCi.transpose() * b_i;
+      b_i = b_i / b_i.norm();
+      Eigen::Matrix3d bSkew = skewSymmetric(b_i);
+      Eigen::Matrix3d Ai = bSkew.transpose() * bSkew;
+      A += Ai;
+      b += Ai * p_CiinA;
+    }
+
+    // Solve linear triangulation for 3D cartesian estimate of feature position
+    Eigen::MatrixXd p_f = A.colPivHouseholderQr().solve(b);
+
+    /// @todo Option for 1-D Depth optimization
+    /// @todo Additional non-linear optimization
+  }
 }
 
 void EKF::registerIMU(unsigned int imuID, ImuState imuState, Eigen::MatrixXd covariance)
 {
   /// @todo check that id hasn't been used before
-  m_state.imuStates[imuID] = imuState;
   unsigned int imuStateSize = 18 + 12 * m_state.imuStates.size();
 
   Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize + 12);
 
   newCov.block(0, 0, imuStateSize, imuStateSize) = m_cov.block(0, 0, imuStateSize, imuStateSize);
+  newCov.block(imuStateSize, imuStateSize, 12, 12) = covariance;
   newCov.block(
-    imuStateSize + 12, imuStateSize + 12, m_stateSize + 12,
-    m_stateSize + 12) = m_cov.block(imuStateSize, imuStateSize, m_stateSize, m_stateSize);
-  newCov.block(imuStateSize + 12, imuStateSize + 12, 12, 12) = covariance;
+    imuStateSize + 12, imuStateSize + 12, m_stateSize - imuStateSize,
+    m_stateSize - imuStateSize) = m_cov.block(
+    imuStateSize, imuStateSize,
+    m_stateSize - imuStateSize,
+    m_stateSize - imuStateSize);
 
   m_cov = newCov;
+  m_state.imuStates[imuID] = imuState;
   m_stateSize += 12;
 }
 

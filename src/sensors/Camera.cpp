@@ -30,20 +30,7 @@
 
 /// @todo add detector/extractor parameters to input
 Camera::Camera(Camera::Params cParams, Tracker::Params tParams)
-: Sensor(cParams.name), m_tracker(tParams)
-{}
-
-// Eigen::VectorXd Camera::predictMeasurement()
-// {
-//   Eigen::VectorXd predictedMeasurement(m_stateSize);
-//   return predictedMeasurement;
-// }
-
-// Eigen::MatrixXd Camera::getMeasurementJacobian()
-// {
-//   Eigen::MatrixXd measurementJacobian(m_stateSize, m_stateSize);
-//   return measurementJacobian;
-// }
+: Sensor(cParams.name), m_tracker(tParams, m_id) {}
 
 void Camera::callback(double time, cv::Mat & imgIn)
 {

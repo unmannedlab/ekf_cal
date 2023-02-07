@@ -21,6 +21,12 @@
 #include "utility/TypeHelper.hpp"
 #include "utility/test/CustomAssertions.hpp"
 
+
+TEST(test_IMU, Constructor) {
+  IMU::Params params;
+  IMU imu(params);
+}
+
 TEST(test_IMU, Id) {
   IMU::Params params1;
   IMU::Params params2;

@@ -81,7 +81,7 @@ public:
   /// @brief Tracker sensor constructor
   /// @param params Parameter struct for Tracker sensor
   ///
-  explicit Tracker(Tracker::Params params);
+  explicit Tracker(Tracker::Params params, unsigned int cameraID);
 
   void track(
     unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut,
@@ -117,6 +117,7 @@ private:
   bool use_qr_decomposition{false};
   unsigned int max_track_length{30};
   unsigned int min_track_length{2};
+  unsigned int m_cameraID;
 };
 
 #endif  // SENSORS__TRACKER_HPP_

@@ -22,8 +22,7 @@
 ///
 /// @todo Write this test
 ///
-TEST(test_IMU, Callback) {
+TEST(test_IMU, Constructor) {
   IMU::Params params;
-  params.name = "IMU_Name";
   RosIMU rosIMU(params);
 }

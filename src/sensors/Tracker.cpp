@@ -24,11 +24,12 @@
 #include "ekf/EKF.hpp"
 
 /// @todo add detector/extractor parameters to input
-Tracker::Tracker(Tracker::Params params)
+Tracker::Tracker(Tracker::Params params, unsigned int cameraID)
 {
   m_featureDetector = initFeatureDetector(params.detector, params.threshold);
   m_descriptorExtractor = initDescriptorExtractor(params.descriptor, params.threshold);
   m_descriptorMatcher = initDescriptorMatcher(params.matcher);
+  m_cameraID = cameraID;
 }
 
 /// @todo Check what parameters are used by open_vins
@@ -39,12 +40,14 @@ cv::Ptr<cv::FeatureDetector> Tracker::initFeatureDetector(
   cv::Ptr<cv::FeatureDetector> featureDetector;
   switch (detector) {
     case FeatureDetectorEnum::BRISK:
-      featureDetector = cv::BRISK::create(threshold, 3, 1.0);
+      // featureDetector = cv::BRISK::create(threshold, 3, 1.0);
+      featureDetector = cv::BRISK::create();
       break;
     case FeatureDetectorEnum::FAST:
-      featureDetector = cv::FastFeatureDetector::create(
-        threshold, true,
-        cv::FastFeatureDetector::TYPE_9_16);
+      // featureDetector = cv::FastFeatureDetector::create(
+      //   threshold, true,
+      //   cv::FastFeatureDetector::TYPE_9_16);
+      featureDetector = cv::FastFeatureDetector::create();
       break;
     case FeatureDetectorEnum::GFTT:
       featureDetector = cv::GFTTDetector::create();
@@ -53,9 +56,10 @@ cv::Ptr<cv::FeatureDetector> Tracker::initFeatureDetector(
       featureDetector = cv::MSER::create();
       break;
     case FeatureDetectorEnum::ORB:
-      featureDetector = cv::ORB::create(
-        500, 1.2f, 8, 31,
-        0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
+      // featureDetector = cv::ORB::create(
+      //   500, 1.2f, 8, 31,
+      //   0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
+      featureDetector = cv::ORB::create();
       break;
     case FeatureDetectorEnum::SIFT:
       featureDetector = cv::SIFT::create();
@@ -73,9 +77,10 @@ cv::Ptr<cv::DescriptorExtractor> Tracker::initDescriptorExtractor(
   cv::Ptr<cv::DescriptorExtractor> descriptorExtractor;
   switch (extractor) {
     case DescriptorExtractorEnum::ORB:
-      descriptorExtractor = cv::ORB::create(
-        500, 1.2f, 8, 31,
-        0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
+      // descriptorExtractor = cv::ORB::create(
+      //   500, 1.2f, 8, 31,
+      //   0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
+      descriptorExtractor = cv::ORB::create();
       break;
     case DescriptorExtractorEnum::SIFT:
       descriptorExtractor = cv::SIFT::create();
@@ -176,7 +181,7 @@ void Tracker::track(
     }
   }
 
-  m_ekf->update_msckf(featureTracks);
+  m_ekf->update_msckf(m_cameraID, featureTracks);
 
   m_prevKeyPoints = m_currKeyPoints;
   m_prevDescriptors = m_currDescriptors;

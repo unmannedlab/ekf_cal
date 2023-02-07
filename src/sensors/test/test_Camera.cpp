@@ -22,10 +22,9 @@
 ///
 /// @todo Write these unit tests
 ///
-TEST(test_Camera, constructor) {
+TEST(test_Camera, Constructor) {
   Camera::Params cParams;
   Tracker::Params tParams;
-  cParams.name = "test_Camera";
   Camera Camera(cParams, tParams);
   EXPECT_TRUE(true);
 }
