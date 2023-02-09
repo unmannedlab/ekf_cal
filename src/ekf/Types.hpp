@@ -44,6 +44,8 @@ typedef struct ImuState
 typedef struct AugmentedState
 {
   unsigned int frameID;
+  Eigen::Vector3d imuPosition{0.0, 0.0, 0.0};
+  Eigen::Quaterniond imuOrientation{1.0, 0.0, 0.0, 0.0};
   Eigen::Vector3d position{0.0, 0.0, 0.0};
   Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};
 } AugmentedState;

@@ -1,7 +1,35 @@
-Simulation Work:
-    - Create objects for calling MAVS binaries directly
+Simple Simulation Work:
+    - Camera model
+    - IMU Model
     - Trajectory designer
+
+MAVS Simulation Work:
+    - Create objects for calling MAVS binaries directly
     - Application for running simulated off-road trajectory
 
 Package Features:
+    - Add detector for Aruco
+    - Add detector for Charuco
+    - Add detector for Aprilgrid
+    - Constrain correleation coefficients between +/- 1
+    - Implement RK4 prediction step
+    - Implement flag for calibration settling
+    - Implement flag for calibration shifting
+    - GPS update and notion of global frame
+    - Interpolation between stochastic clones
+    - Feature comparisons between cameras
+
+Software Work:
+    - Define types/transforms to force different coordinate frames
+    - Define types/transforms to force different time values
     - Auto-generate rviz configuration from yaml
+    - Compile separate libraries without dependencies
+    - Timing analysis / logging output
+    - Separate logging tiles / tee
+    - CI/CD for unit tests
+    - Set of single metrics for performance evaluation/testing
+    - Integration tests
+
+Documentation:
+    - Create Cake Diagram for EKF-CAL architecture
+    - Paper in JOSS: Journal of Open Source Software

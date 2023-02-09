@@ -80,9 +80,11 @@ State & operator+=(State & lState, Eigen::VectorXd & rVector)
     camIter.second.orientation *= rotVecToQuat(rVector.segment<3>(n + 3));
     n += 6;
     for (unsigned int i = 0; i < camIter.second.augmentedStates.size(); ++i) {
-      camIter.second.augmentedStates[i].position += rVector.segment<3>(n + 0);
-      camIter.second.augmentedStates[i].orientation *= rotVecToQuat(rVector.segment<3>(n + 3));
-      n += 6;
+      camIter.second.augmentedStates[i].imuPosition += rVector.segment<3>(n + 0);
+      camIter.second.augmentedStates[i].imuOrientation *= rotVecToQuat(rVector.segment<3>(n + 3));
+      camIter.second.augmentedStates[i].position += rVector.segment<3>(n + 6);
+      camIter.second.augmentedStates[i].orientation *= rotVecToQuat(rVector.segment<3>(n + 9));
+      n += 12;
     }
   }
 
@@ -134,7 +136,7 @@ unsigned int State::getStateSize()
   stateSize += 6 * imuStates.size();
 
   for (auto const & camIter : camStates) {
-    stateSize += 6 * (1 + camIter.second.augmentedStates.size());
+    stateSize += 6 + 12 * camIter.second.augmentedStates.size();
   }
   return stateSize;
 }

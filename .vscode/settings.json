@@ -30,6 +30,7 @@
         "GFTT",
         "htmlonly",
         "IROS",
+        "Jacobians",
         "MATHHELPER",
         "Mirzaei",
         "MSCKF",
@@ -137,5 +138,6 @@
     "flake8.args": [
         "--ignore=D100,D103"
     ],
-    "ros.distro": "humble"
+    "ros.distro": "humble",
+    "terminal.integrated.gpuAcceleration": "off",
 }

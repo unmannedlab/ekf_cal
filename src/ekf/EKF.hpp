@@ -107,6 +107,8 @@ public:
 
   unsigned int getCamStateStartIndex(unsigned int m_id);
 
+  unsigned int getAugStateStartIndex(unsigned int camID, unsigned int frameID);
+
   ///
   /// @brief EKF state initialization method
   /// @param timeInit Initial time
