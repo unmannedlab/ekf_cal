@@ -26,5 +26,12 @@
 /// https://index.ros.org/p/launch_testing/
 /// https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/integration-testing.html
 TEST(test_EkfCalNode, hello_world) {
+
+  EkfCalNode node;
+  sensor_msgs::msg::Imu::SharedPtr msg{};
+  unsigned int id = 0;
+
+  // node.imuCallback(msg, id);
+
   EXPECT_TRUE(true);
 }

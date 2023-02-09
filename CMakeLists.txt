@@ -128,7 +128,6 @@ if(BUILD_TESTING)
         src/sensors/ros/test/test_RosIMU.cpp
         src/sensors/test/test_Camera.cpp
         src/sensors/test/test_IMU.cpp
-        src/utility/test/test_EkfCalNode.cpp
         src/utility/test/test_MathHelper.cpp
         src/utility/test/test_TypeHelper.cpp
     )
@@ -142,6 +141,11 @@ if(BUILD_TESTING)
         )
         target_link_libraries(${nam} EKF_LIB ROS_LIB)
     endforeach()
+
+    ament_add_gtest(test_EkfCalNode src/application/ros/test/test_EkfCalNode.cpp src/application/ros/EkfCalNode.cpp)
+    ament_target_dependencies(test_EkfCalNode ${ROS_PKGS})
+    target_include_directories(test_EkfCalNode PUBLIC ${CMAKE_SOURCE_DIR}/src/)
+    target_link_libraries(test_EkfCalNode EKF_LIB ROS_LIB)
 
 endif()
 
