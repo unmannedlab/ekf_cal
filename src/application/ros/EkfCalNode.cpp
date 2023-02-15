@@ -56,6 +56,7 @@ EkfCalNode::EkfCalNode()
   std::vector<std::string> camList = this->get_parameter("Camera_list").as_string_array();
 
   // Load IMU sensor parameters
+  /// @todo Handle zero imu case
   for (std::string & imuName : imuList) {
     loadIMU(imuName);
   }
@@ -64,6 +65,7 @@ EkfCalNode::EkfCalNode()
   }
 
   // Load Camera sensor parameters
+  /// @todo Handle zero camera case
   for (std::string & camName : camList) {
     loadCamera(camName);
   }

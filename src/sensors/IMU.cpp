@@ -194,19 +194,38 @@ void IMU::callback(
 
   unsigned int stateSize = m_ekf->getState().getStateSize();
   unsigned int stateStartIndex = m_ekf->getImuStateStartIndex(m_id);
+  m_logger->log(LogLevel::DEBUG, "IMU callback gate 1");
+
   Eigen::MatrixXd subH = getMeasurementJacobian();
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, stateSize);
-  H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
-  H.block(0, stateStartIndex, 6, 12) = subH.block<0, 18>(6, 12);
 
+  m_logger->log(LogLevel::DEBUG, "IMU callback gate 2");
+  H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
+
+  m_logger->log(
+    LogLevel::DEBUG, "IMU callback gate 2.5: " +
+    std::to_string(H.rows()) + " " +
+    std::to_string(H.cols()) + " " +
+    std::to_string(subH.rows()) + " " +
+    std::to_string(subH.cols()) + " " +
+    std::to_string(stateStartIndex) + " " +
+    std::to_string(stateSize));
+
+  H.block(0, stateStartIndex, 6, 12) = subH.block<6, 12>(0, 18);
+
+  m_logger->log(LogLevel::DEBUG, "IMU callback gate 3");
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
   R.block<3, 3>(0, 0) = minBoundDiagonal(accelerationCovariance, 1e-3);
   R.block<3, 3>(3, 3) = minBoundDiagonal(angularRateCovariance, 1e-2);
 
+  m_logger->log(LogLevel::DEBUG, "IMU callback gate 4");
   Eigen::MatrixXd S = H * m_ekf->getCov() * H.transpose() + R;
   Eigen::MatrixXd K = m_ekf->getCov() * H.transpose() * S.inverse();
 
+
+  m_logger->log(LogLevel::DEBUG, "IMU callback gate 5");
   Eigen::VectorXd update = K * resid;
   m_ekf->getState() += update;
   m_ekf->getCov() = (Eigen::MatrixXd::Identity(stateSize, stateSize) - K * H) * m_ekf->getCov();
+  m_logger->log(LogLevel::DEBUG, "IMU \"" + m_name + "\" callback complete");
 }

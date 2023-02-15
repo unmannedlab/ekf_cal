@@ -135,7 +135,7 @@ private:
   Logger * m_logger = Logger::getInstance();
 
   Eigen::MatrixXd m_processNoise = Eigen::MatrixXd::Identity(18U, 18U) * 1e-3;
-  Eigen::MatrixXd m_processInput = Eigen::MatrixXd::Identity(18U, 18U) * 1e-3;
+  Eigen::MatrixXd m_processInput = Eigen::MatrixXd::Identity(18U, 18U);
 };
 
 #endif  // EKF__EKF_HPP_

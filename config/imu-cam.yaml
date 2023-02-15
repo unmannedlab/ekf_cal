@@ -1,7 +1,7 @@
 
 /EkfCalNode:
     ros__parameters:
-        Log_Level: 1
+        Log_Level: 0
 
         IMU_list:
             - 'vn300'
@@ -14,8 +14,8 @@
                 BaseSensor: True
                 Intrinsic: False
                 Rate: 400.0
-                Topic: "/vectornav/imu_uncompensated"
-                VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                Topic: "/vn300/imu_uncompensated"
+                VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 PosOffInit: [0.0, 0.0, 0.0]
                 AngOffInit: [1.0, 0.0, 0.0, 0.0]
                 AccBiasInit: [0.0, 0.0, 0.0]

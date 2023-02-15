@@ -17,7 +17,8 @@
         "editor.suggest.insertMode": "replace",
         "editor.semanticHighlighting.enabled": true,
         "editor.tabSize": 2,
-        "editor.detectIndentation": false
+        "editor.detectIndentation": false,
+        "editor.defaultFormatter": "zachflower.uncrustify"
     },
     "cSpell.words": [
         "CUSTOMASSERTIONS",
@@ -131,8 +132,9 @@
         "core": "cpp"
     },
     "[python]": {
-        "editor.defaultFormatter": "ms-python.python"
+        "editor.defaultFormatter": "ms-python.python",
     },
+    "python.linting.flake8Enabled": true,
     "cmake.buildTask": true,
     "cmake.configureOnOpen": true,
     "flake8.args": [

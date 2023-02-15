@@ -133,7 +133,7 @@ Eigen::VectorXd State::toVector()
 unsigned int State::getStateSize()
 {
   unsigned int stateSize = 18;
-  stateSize += 6 * imuStates.size();
+  stateSize += 12 * imuStates.size();
 
   for (auto const & camIter : camStates) {
     stateSize += 6 + 12 * camIter.second.augmentedStates.size();

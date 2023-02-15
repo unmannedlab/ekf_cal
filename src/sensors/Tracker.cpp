@@ -115,6 +115,8 @@ void Tracker::track(
   m_currDescriptors.convertTo(m_currDescriptors, CV_32F);
   cv::drawKeypoints(imgIn, m_currKeyPoints, imgOut);
 
+  m_logger->log(LogLevel::DEBUG, "Called Tracker for frame ID: " + std::to_string(frameID));
+
   if (m_prevDescriptors.rows > 0 && m_currDescriptors.rows > 0) {
     std::vector<std::vector<cv::DMatch>> matches;
 

@@ -18,6 +18,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include "ekf/Types.hpp"
 #include "infrastructure/Logger.hpp"
@@ -60,10 +61,34 @@ void EKF::processModel(double time)
 
   Eigen::MatrixXd F = getStateTransition(dT);
 
+  std::stringstream msg1;
+  msg1
+    << F.rows() << ", "
+    << F.cols() << ", "
+    << m_state.toVector().size();
+  m_logger->log(LogLevel::DEBUG, msg1.str());
+
   Eigen::VectorXd processUpdate = F * m_state.toVector();
+
+  m_logger->log(LogLevel::DEBUG, "EKF::Predict Gate 2");
   m_state += processUpdate;
+  std::stringstream msg;
+  msg
+    << m_cov.rows() << ", "
+    << m_cov.cols() << ", "
+    << F.rows() << ", "
+    << F.cols() << ", "
+    << m_processInput.rows() << ", "
+    << m_processInput.cols() << ", "
+    << m_processNoise.rows() << ", "
+    << m_processNoise.cols();
+  m_logger->log(LogLevel::DEBUG, msg.str());
+
   m_cov = F * m_cov * F.transpose() + F * m_processInput * m_processNoise *
     m_processInput.transpose() * F.transpose();
+
+  m_logger->log(LogLevel::DEBUG, "EKF::Predict Gate 4");
+
   m_currentTime = time;
 }
 
@@ -101,7 +126,38 @@ void EKF::augmentState(unsigned int cameraID, unsigned int frameID)
   augState.orientation = m_state.camStates[cameraID].orientation * m_state.bodyState.orientation;
   m_state.camStates[cameraID].augmentedStates.push_back(augState);
 
+  m_logger->log(
+    LogLevel::DEBUG, "Augment State 1: " + std::to_string(
+      cameraID) + ", " + std::to_string(frameID));
+
   /// @todo Augment covariance with Jacobian
+
+  unsigned int augStateStart = getAugStateStartIndex(cameraID, frameID);
+  Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize + 12);
+
+
+  m_logger->log(
+    LogLevel::DEBUG, "Augment State 2:" + std::to_string(
+      augStateStart) + ", " + std::to_string(m_stateSize));
+
+  /// @todo Math helper function to insert sub-matrix block
+  newCov.block(
+    0, 0, augStateStart,
+    augStateStart) = m_cov.block(0, 0, augStateStart, augStateStart);
+  m_logger->log(LogLevel::DEBUG, "Augment State 3");
+  newCov.block(augStateStart, augStateStart, 12, 12) = Eigen::MatrixXd::Identity(12, 12);
+  m_logger->log(LogLevel::DEBUG, "Augment State 4");
+  newCov.block(
+    augStateStart + 12, augStateStart + 12, m_stateSize - augStateStart,
+    m_stateSize - augStateStart) = m_cov.block(
+    augStateStart, augStateStart,
+    m_stateSize - augStateStart,
+    m_stateSize - augStateStart);
+
+  m_cov = newCov;
+  m_stateSize += 12;
+  m_processNoise = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) * 1e-3;
+  m_processInput = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
 }
 
 AugmentedState EKF::matchState(std::vector<AugmentedState> augmentedStates, unsigned int frameID)
@@ -120,8 +176,11 @@ AugmentedState EKF::matchState(std::vector<AugmentedState> augmentedStates, unsi
 
 void EKF::update_msckf(unsigned int cameraID, FeatureTracks featureTracks)
 {
+  m_logger->log(LogLevel::DEBUG, "Called update_msckf for camera ID: " + std::to_string(cameraID));
+
   // MSCKF Update
   for (auto & featureTrack : featureTracks) {
+    m_logger->log(LogLevel::DEBUG, "Feature Track size: " + std::to_string(featureTrack.size()));
     const std::vector<AugmentedState> * augStates = &m_state.camStates[cameraID].augmentedStates;
 
     AugmentedState augStateMatch = matchState(*augStates, featureTrack[0].frameID);
@@ -132,7 +191,6 @@ void EKF::update_msckf(unsigned int cameraID, FeatureTracks featureTracks)
     Eigen::Vector3d b = Eigen::Vector3d::Zero();
     unsigned int total_meas = 1;
     unsigned int total_hx = 6;
-
 
     const Eigen::Matrix<double, 3, 3> & R_GtoA = augStateMatch.orientation.toRotationMatrix();
     const Eigen::Matrix<double, 3, 1> & p_AinG = augStateMatch.position;
@@ -156,13 +214,27 @@ void EKF::update_msckf(unsigned int cameraID, FeatureTracks featureTracks)
       Eigen::Matrix3d Ai = bSkew.transpose() * bSkew;
       A += Ai;
       b += Ai * p_CiinA;
+
       total_meas += 1;
       total_hx += 6;
+      std::stringstream msg;
+      msg << "p_CiinG: " << p_CiinG.transpose() << std::endl;
+      msg << "p_AinG: " << p_AinG.transpose() << std::endl;
+      msg << "p_CiinA: " << p_CiinA.transpose() << std::endl;
+      m_logger->log(LogLevel::DEBUG, msg.str());
     }
 
-    // Solve linear triangulation for 3D cartesian estimate of feature position
-    Eigen::VectorXd p_FinA = A.colPivHouseholderQr().solve(b);
 
+    // Solve linear triangulation for 3D cartesian estimate of feature position
+    Eigen::Vector3d p_FinA = A.colPivHouseholderQr().solve(b);
+    std::stringstream msg;
+    msg << "MSCKF Triangulation: " << std::endl
+        << "A: " << A << std::endl
+        << "b: " << b.transpose() << std::endl;
+    m_logger->log(LogLevel::DEBUG, msg.str());
+    if (p_FinA == Eigen::Vector3d::Zero()) {
+      continue;
+    }
     /// @todo Additional non-linear optimization
 
     /// @todo Get Jacobian
@@ -300,6 +372,12 @@ void EKF::registerIMU(unsigned int imuID, ImuState imuState, Eigen::MatrixXd cov
   m_cov = newCov;
   m_state.imuStates[imuID] = imuState;
   m_stateSize += 12;
+
+  m_logger->log(
+    LogLevel::DEBUG, "Register IMU: " + std::to_string(
+      imuID) + ", stateSize: " + std::to_string(m_stateSize));
+  m_processNoise = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) * 1e-3;
+  m_processInput = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
 }
 
 void EKF::registerCamera(unsigned int camID, CamState camState, Eigen::MatrixXd covariance)
@@ -312,6 +390,12 @@ void EKF::registerCamera(unsigned int camID, CamState camState, Eigen::MatrixXd 
   newCov.block(m_stateSize, m_stateSize, 6, 6) = covariance;
   m_cov = newCov;
   m_stateSize += 6;
+
+  m_logger->log(
+    LogLevel::DEBUG, "Register Cam: " + std::to_string(
+      camID) + ", stateSize: " + std::to_string(m_stateSize));
+  m_processNoise = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) * 1e-3;
+  m_processInput = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
 }
 
 
@@ -344,13 +428,17 @@ unsigned int EKF::getCamStateStartIndex(unsigned int camID)
 
 unsigned int EKF::getAugStateStartIndex(unsigned int camID, unsigned int frameID)
 {
+  m_logger->log(LogLevel::DEBUG, "imu size " + std::to_string(m_state.imuStates.size()));
+
   unsigned int stateStartIndex = 18;
-  stateStartIndex += 12 * m_state.imuStates.size();
+  stateStartIndex += (12 * m_state.imuStates.size());
   for (auto const & camIter : m_state.camStates) {
     stateStartIndex += 6;
+    m_logger->log(LogLevel::DEBUG, "camera " + std::to_string(camIter.first));
     for (auto const & augIter : camIter.second.augmentedStates) {
+      m_logger->log(LogLevel::DEBUG, "frame " + std::to_string(augIter.frameID));
       if (augIter.frameID == frameID) {
-        break;
+        return stateStartIndex;
       } else {
         stateStartIndex += 12;
       }
