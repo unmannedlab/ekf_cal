@@ -16,7 +16,9 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "application/ros/EkfCalNode.hpp"
+#include "sensors/IMU.hpp"
+#include "sensors/ros/RosIMU.hpp"
+#include "application/ros/node/EkfCalNode.hpp"
 
 /// @todo Write these integration tests
 /// https://index.ros.org/p/launch_testing/
@@ -26,10 +28,19 @@
 /// https://index.ros.org/p/launch_testing/
 /// https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/integration-testing.html
 TEST(test_EkfCalNode, hello_world) {
-
+  // std::cout << "Test 1" << std::endl;
   EkfCalNode node;
-  sensor_msgs::msg::Imu::SharedPtr msg{};
-  unsigned int id = 0;
+  // IMU::Params imuParams;
+  // imuParams.name = "TestName";
+  // std::cout << "Test 1" << std::endl;
+
+  // std::shared_ptr<RosIMU> imuPtr = std::make_shared<RosIMU>(imuParams);
+
+  // std::cout << "Test 1" << std::endl;
+  // node.registerImu(imuPtr, "TestTopic");
+  // std::cout << "Test" << std::endl;
+  // sensor_msgs::msg::Imu::SharedPtr msg{};
+  // unsigned int id = 0;
 
   // node.imuCallback(msg, id);
 

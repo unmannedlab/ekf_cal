@@ -60,9 +60,9 @@ EkfCalNode::EkfCalNode()
   for (std::string & imuName : imuList) {
     loadIMU(imuName);
   }
-  if (m_baseIMUAssigned == false) {
-    m_logger->log(LogLevel::WARN, "Base IMU should be set for filter stability");
-  }
+  // if (m_baseIMUAssigned == false) {
+  //   m_logger->log(LogLevel::WARN, "Base IMU should be set for filter stability");
+  // }
 
   // Load Camera sensor parameters
   /// @todo Handle zero camera case
@@ -174,20 +174,26 @@ void EkfCalNode::loadIMU(std::string imuName)
   IMU::Params iParams = getImuParameters(imuName);
 
   // Create new RosIMU and and bind callback to ID
-  std::shared_ptr<RosIMU> sensor_ptr = std::make_shared<RosIMU>(iParams);
-  m_mapIMU[sensor_ptr->getId()] = sensor_ptr;
+  std::shared_ptr<RosIMU> imuPtr = std::make_shared<RosIMU>(iParams);
 
-  std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
-  function = std::bind(&EkfCalNode::imuCallback, this, _1, sensor_ptr->getId());
-  auto callback = this->create_subscription<sensor_msgs::msg::Imu>(iParams.topic, 10, function);
-  m_IMUSubs.push_back(callback);
-
-  if (iParams.baseSensor) {
-    m_baseIMUAssigned = true;
-  }
-  m_logger->log(LogLevel::INFO, "Loaded IMU: " + imuName);
+  registerImu(imuPtr, iParams.topic);
 }
 
+void EkfCalNode::registerImu(std::shared_ptr<RosIMU> imuPtr, std::string topic)
+{
+  m_mapIMU[imuPtr->getId()] = imuPtr;
+
+  std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
+  function = std::bind(&EkfCalNode::imuCallback, this, _1, imuPtr->getId());
+  std::cout << "Test 2" << std::endl;
+  auto sub = this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function);
+  m_IMUSubs.push_back(sub);
+
+  // if (iParams.baseSensor) {
+  //   m_baseIMUAssigned = true;
+  // }
+  m_logger->log(LogLevel::INFO, "Loaded IMU: " + imuPtr->getName());
+}
 
 void EkfCalNode::loadCamera(std::string cameraName)
 {
@@ -196,16 +202,23 @@ void EkfCalNode::loadCamera(std::string cameraName)
   Tracker::Params tParams = getTrackerParameters(cParams.tracker);
 
   // Create new RosCamera and bind callback to ID
-  std::shared_ptr<RosCamera> sensor_ptr = std::make_shared<RosCamera>(cParams, tParams);
-  m_mapCamera[sensor_ptr->getId()] = sensor_ptr;
+  std::shared_ptr<RosCamera> camPtr = std::make_shared<RosCamera>(cParams, tParams);
+
+  registerCamera(camPtr, cParams.topic);
+}
+
+void EkfCalNode::registerCamera(std::shared_ptr<RosCamera> camPtr, std::string topic)
+{
+  m_mapCamera[camPtr->getId()] = camPtr;
 
   std::function<void(std::shared_ptr<sensor_msgs::msg::Image>)> function;
-  function = std::bind(&EkfCalNode::cameraCallback, this, _1, sensor_ptr->getId());
-  auto callback = this->create_subscription<sensor_msgs::msg::Image>(cParams.topic, 10, function);
-  m_CameraSubs.push_back(callback);
+  function = std::bind(&EkfCalNode::cameraCallback, this, _1, camPtr->getId());
+  auto sub = this->create_subscription<sensor_msgs::msg::Image>(topic, 10, function);
+  m_CameraSubs.push_back(sub);
 
-  m_logger->log(LogLevel::INFO, "Loaded Camera: " + cameraName);
+  m_logger->log(LogLevel::INFO, "Loaded Camera: " + camPtr->getName());
 }
+
 
 void EkfCalNode::imuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id)
 {
@@ -218,14 +231,4 @@ void EkfCalNode::cameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, un
   const auto & rosCamPtr = m_mapCamera.find(id)->second;
   rosCamPtr->callback(msg);
   m_imgPublisher->publish(*rosCamPtr->getRosImage().get());
-}
-
-
-int main(int argc, char * argv[])
-{
-  rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<EkfCalNode>());
-  rclcpp::shutdown();
-
-  return 0;
 }

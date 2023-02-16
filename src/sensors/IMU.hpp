@@ -32,6 +32,7 @@ class IMU : public Sensor
 public:
   ///
   /// @brief IMU initialization parameters structure
+  /// @todo remove topic from parameters
   ///
   typedef struct Params
   {

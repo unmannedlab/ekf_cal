@@ -36,3 +36,8 @@ unsigned int Sensor::getId()
 {
   return m_id;
 }
+
+std::string Sensor::getName()
+{
+  return m_name;
+}

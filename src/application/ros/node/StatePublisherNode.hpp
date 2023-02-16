@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef APPLICATION__ROS__STATEPUBLISHERNODE_HPP_
-#define APPLICATION__ROS__STATEPUBLISHERNODE_HPP_
+#ifndef APPLICATION__ROS__NODE__STATEPUBLISHERNODE_HPP_
+#define APPLICATION__ROS__NODE__STATEPUBLISHERNODE_HPP_
 
 #include <tf2_ros/transform_broadcaster.h>
 
@@ -83,4 +83,4 @@ private:
   Logger * m_logger = Logger::getInstance();
 };
 
-#endif  // APPLICATION__ROS__STATEPUBLISHERNODE_HPP_
+#endif  // APPLICATION__ROS__NODE__STATEPUBLISHERNODE_HPP_

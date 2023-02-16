@@ -90,22 +90,36 @@ ament_target_dependencies(ROS_LIB ${ROS_PKGS})
 install(TARGETS EKF_LIB)
 
 # EKF CAL Node
-add_executable(ekf_cal_node src/application/ros/EkfCalNode.cpp)
+add_library(EKF_NODE_LIB src/application/ros/node/EkfCalNode.cpp)
+ament_target_dependencies(EKF_NODE_LIB ${ROS_PKGS})
+target_include_directories(EKF_NODE_LIB PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:include>
+)
+
+add_executable(ekf_cal_node src/application/ros/EkfCalMain.cpp)
 target_include_directories(ekf_cal_node PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
 ament_target_dependencies(ekf_cal_node ${ROS_PKGS})
-target_link_libraries(ekf_cal_node EKF_LIB ROS_LIB)
+target_link_libraries(ekf_cal_node EKF_NODE_LIB EKF_LIB ROS_LIB)
 
 # State Publisher Node
-add_executable(state_pub_node src/application/ros/StatePublisherNode.cpp)
+add_library(PUB_NODE_LIB src/application/ros/node/StatePublisherNode.cpp)
+ament_target_dependencies(PUB_NODE_LIB ${ROS_PKGS})
+target_include_directories(PUB_NODE_LIB PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:include>
+)
+
+add_executable(state_pub_node src/application/ros/StatePublisherMain.cpp)
 target_include_directories(state_pub_node PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
 ament_target_dependencies(state_pub_node ${ROS_PKGS})
-target_link_libraries(state_pub_node EKF_LIB ROS_LIB)
+target_link_libraries(state_pub_node PUB_NODE_LIB EKF_LIB ROS_LIB)
 
 install(TARGETS
     ekf_cal_node
@@ -142,10 +156,10 @@ if(BUILD_TESTING)
         target_link_libraries(${nam} EKF_LIB ROS_LIB)
     endforeach()
 
-    ament_add_gtest(test_EkfCalNode src/application/ros/test/test_EkfCalNode.cpp src/application/ros/EkfCalNode.cpp)
+    ament_add_gtest(test_EkfCalNode src/application/ros/node/test/test_EkfCalNode.cpp)
     ament_target_dependencies(test_EkfCalNode ${ROS_PKGS})
     target_include_directories(test_EkfCalNode PUBLIC ${CMAKE_SOURCE_DIR}/src/)
-    target_link_libraries(test_EkfCalNode EKF_LIB ROS_LIB)
+    target_link_libraries(test_EkfCalNode EKF_NODE_LIB EKF_LIB ROS_LIB)
 
 endif()
 

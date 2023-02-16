@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef APPLICATION__ROS__EKFCALNODE_HPP_
-#define APPLICATION__ROS__EKFCALNODE_HPP_
+#ifndef APPLICATION__ROS__NODE__EKFCALNODE_HPP_
+#define APPLICATION__ROS__NODE__EKFCALNODE_HPP_
 
 
 #include <cstdio>
@@ -84,8 +84,6 @@ public:
   /// @return trackerParameters
   ///
   Tracker::Params getTrackerParameters(std::string trackerName);
-
-
   ///
   /// @brief Callback method for IMU sensor messages
   /// @param msg Sensor message pointer
@@ -98,6 +96,9 @@ public:
   /// @param id Sensor ID number
   ///
   void cameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
+
+  void registerImu(std::shared_ptr<RosIMU> imuPtr, std::string topic);
+  void registerCamera(std::shared_ptr<RosCamera> camPtr, std::string topic);
 
 private:
   /// @brief Vector of subscribers for IMU sensor messages
@@ -114,4 +115,4 @@ private:
   std::map<int, std::shared_ptr<RosCamera>> m_mapCamera{};
 };
 
-#endif  // APPLICATION__ROS__EKFCALNODE_HPP_
+#endif  // APPLICATION__ROS__NODE__EKFCALNODE_HPP_

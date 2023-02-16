@@ -44,6 +44,8 @@ public:
   ///
   unsigned int getId();
 
+  std::string getName();
+
 protected:
   Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};          ///< @brief Sensor position offset vector
   Eigen::Quaterniond m_angOffset{0.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset quaternion
