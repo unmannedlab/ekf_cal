@@ -186,6 +186,8 @@ void IMU::callback(
 
   m_ekf->processModel(time);
 
+  std::cout << "processModel" << std::endl;
+
   Eigen::VectorXd z(acceleration.size() + angularRate.size());
   z.segment<3>(0) = acceleration;
   z.segment<3>(3) = angularRate;

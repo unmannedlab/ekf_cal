@@ -46,18 +46,44 @@ EkfCalNode::EkfCalNode()
   this->declare_parameter("Log_Level", 2);
   this->declare_parameter("IMU_list", std::vector<std::string>{});
   this->declare_parameter("Camera_list", std::vector<std::string>{});
+  this->declare_parameter("Tracker_list", std::vector<std::string>{});
 
+  initialize();
+  declareSensors();
+  loadSensors();
+}
+
+void EkfCalNode::initialize()
+{
   // Set logging
   unsigned int logLevel = static_cast<unsigned int>(this->get_parameter("Log_Level").as_int());
   m_logger->setLogLevel(logLevel);
 
   // Load lists of sensors
-  std::vector<std::string> imuList = this->get_parameter("IMU_list").as_string_array();
-  std::vector<std::string> camList = this->get_parameter("Camera_list").as_string_array();
+  m_ImuList = this->get_parameter("IMU_list").as_string_array();
+  m_CameraList = this->get_parameter("Camera_list").as_string_array();
+  m_TrackerList = this->get_parameter("Tracker_list").as_string_array();
+}
 
+void EkfCalNode::declareSensors()
+{
+  for (std::string & imuName : m_ImuList) {
+    declareImuParameters(imuName);
+  }
+  for (std::string & cameraName : m_CameraList) {
+    declareCameraParameters(cameraName);
+  }
+  for (std::string & trackerName : m_TrackerList) {
+    declareTrackerParameters(trackerName);
+  }
+}
+
+
+void EkfCalNode::loadSensors()
+{
   // Load IMU sensor parameters
   /// @todo Handle zero imu case
-  for (std::string & imuName : imuList) {
+  for (std::string & imuName : m_ImuList) {
     loadIMU(imuName);
   }
   // if (m_baseIMUAssigned == false) {
@@ -66,7 +92,7 @@ EkfCalNode::EkfCalNode()
 
   // Load Camera sensor parameters
   /// @todo Handle zero camera case
-  for (std::string & camName : camList) {
+  for (std::string & camName : m_CameraList) {
     loadCamera(camName);
   }
 
@@ -74,22 +100,29 @@ EkfCalNode::EkfCalNode()
   m_imgPublisher = this->create_publisher<sensor_msgs::msg::Image>("~/outImg", 10);
 }
 
-/// @todo Move these getters into ROS helper?
-IMU::Params EkfCalNode::getImuParameters(std::string imuName)
+void EkfCalNode::declareImuParameters(std::string imuName)
 {
+  m_logger->log(LogLevel::INFO, "Declare IMU: " + imuName);
+
   // Declare parameters
   std::string imuPrefix = "IMU." + imuName;
   this->declare_parameter(imuPrefix + ".BaseSensor", false);
   this->declare_parameter(imuPrefix + ".Intrinsic", false);
   this->declare_parameter(imuPrefix + ".Rate", 1.0);
-  this->declare_parameter(imuPrefix + ".Topic", "");
-  this->declare_parameter(imuPrefix + ".VarInit", std::vector<double>{});
-  this->declare_parameter(imuPrefix + ".PosOffInit", std::vector<double>{});
-  this->declare_parameter(imuPrefix + ".AngOffInit", std::vector<double>{});
-  this->declare_parameter(imuPrefix + ".AccBiasInit", std::vector<double>{});
-  this->declare_parameter(imuPrefix + ".OmgBiasInit", std::vector<double>{});
+  this->declare_parameter(imuPrefix + ".Topic", "Topic");
+  this->declare_parameter(
+    imuPrefix + ".VarInit", std::vector<double>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1});
+  this->declare_parameter(imuPrefix + ".PosOffInit", std::vector<double>{0, 0, 0});
+  this->declare_parameter(imuPrefix + ".AngOffInit", std::vector<double>{1, 0, 0, 0});
+  this->declare_parameter(imuPrefix + ".AccBiasInit", std::vector<double>{0, 0, 0});
+  this->declare_parameter(imuPrefix + ".OmgBiasInit", std::vector<double>{0, 0, 0});
+}
 
+/// @todo Move these getters into ROS helper?
+IMU::Params EkfCalNode::getImuParameters(std::string imuName)
+{
   // Load parameters
+  std::string imuPrefix = "IMU." + imuName;
   bool baseSensor = this->get_parameter(imuPrefix + ".BaseSensor").as_bool();
   bool intrinsic = this->get_parameter(imuPrefix + ".Intrinsic").as_bool();
   double rate = this->get_parameter(imuPrefix + ".Rate").as_double();
@@ -115,17 +148,22 @@ IMU::Params EkfCalNode::getImuParameters(std::string imuName)
   return imuParams;
 }
 
-Camera::Params EkfCalNode::getCameraParameters(std::string cameraName)
+void EkfCalNode::declareCameraParameters(std::string cameraName)
 {
+  // Declare parameters
   std::string camPrefix = "Camera." + cameraName;
   this->declare_parameter(camPrefix + ".Rate", 1.0);
-  this->declare_parameter(camPrefix + ".Topic", "");
-  this->declare_parameter(camPrefix + ".PosOffInit", std::vector<double>{});
-  this->declare_parameter(camPrefix + ".AngOffInit", std::vector<double>{});
-  this->declare_parameter(camPrefix + ".VarInit", std::vector<double>{});
-  this->declare_parameter(camPrefix + ".Tracker", "");
+  this->declare_parameter(camPrefix + ".Topic", "Topic");
+  this->declare_parameter(camPrefix + ".PosOffInit", std::vector<double>{0, 0, 0});
+  this->declare_parameter(camPrefix + ".AngOffInit", std::vector<double>{1, 0, 0, 0});
+  this->declare_parameter(camPrefix + ".VarInit", std::vector<double>{1, 1, 1, 1, 1, 1});
+  this->declare_parameter(camPrefix + ".Tracker", "Tracker");
+}
 
+Camera::Params EkfCalNode::getCameraParameters(std::string cameraName)
+{
   // Load parameters
+  std::string camPrefix = "Camera." + cameraName;
   double rate = this->get_parameter(camPrefix + ".Rate").as_double();
   std::string topic = this->get_parameter(camPrefix + ".Topic").as_string();
   std::vector<double> posOff = this->get_parameter(camPrefix + ".PosOffInit").as_double_array();
@@ -146,21 +184,25 @@ Camera::Params EkfCalNode::getCameraParameters(std::string cameraName)
 }
 
 /// @todo Change Feature Detector et. al. to be strings?
-Tracker::Params EkfCalNode::getTrackerParameters(std::string trackerName)
+void EkfCalNode::declareTrackerParameters(std::string trackerName)
 {
-  std::string trackerPrefix = "Tracker." + trackerName;
-
   // Declare parameters
+  std::string trackerPrefix = "Tracker." + trackerName;
   this->declare_parameter(trackerPrefix + ".FeatureDetector", 0);
   this->declare_parameter(trackerPrefix + ".DescriptorExtractor", 0);
   this->declare_parameter(trackerPrefix + ".DescriptorMatcher", 0);
   this->declare_parameter(trackerPrefix + ".DetectorThreshold", 20.0);
+}
 
+Tracker::Params EkfCalNode::getTrackerParameters(std::string trackerName)
+{
   // Get parameters
-  Tracker::Params trackerParams;
+  std::string trackerPrefix = "Tracker." + trackerName;
   int fDetector = this->get_parameter(trackerPrefix + ".FeatureDetector").as_int();
   int dExtractor = this->get_parameter(trackerPrefix + ".DescriptorExtractor").as_int();
   int dMatcher = this->get_parameter(trackerPrefix + ".DescriptorMatcher").as_int();
+
+  Tracker::Params trackerParams;
   trackerParams.detector = static_cast<Tracker::FeatureDetectorEnum>(fDetector);
   trackerParams.descriptor = static_cast<Tracker::DescriptorExtractorEnum>(dExtractor);
   trackerParams.matcher = static_cast<Tracker::DescriptorMatcherEnum>(dMatcher);
@@ -172,6 +214,7 @@ Tracker::Params EkfCalNode::getTrackerParameters(std::string trackerName)
 void EkfCalNode::loadIMU(std::string imuName)
 {
   IMU::Params iParams = getImuParameters(imuName);
+  m_logger->log(LogLevel::INFO, "Loaded IMU: " + imuName);
 
   // Create new RosIMU and and bind callback to ID
   std::shared_ptr<RosIMU> imuPtr = std::make_shared<RosIMU>(iParams);
@@ -185,14 +228,16 @@ void EkfCalNode::registerImu(std::shared_ptr<RosIMU> imuPtr, std::string topic)
 
   std::function<void(std::shared_ptr<sensor_msgs::msg::Imu>)> function;
   function = std::bind(&EkfCalNode::imuCallback, this, _1, imuPtr->getId());
-  std::cout << "Test 2" << std::endl;
+
   auto sub = this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function);
   m_IMUSubs.push_back(sub);
 
   // if (iParams.baseSensor) {
   //   m_baseIMUAssigned = true;
   // }
-  m_logger->log(LogLevel::INFO, "Loaded IMU: " + imuPtr->getName());
+  m_logger->log(
+    LogLevel::INFO, "Registered IMU " + std::to_string(
+      imuPtr->getId()) + ": " + imuPtr->getName());
 }
 
 void EkfCalNode::loadCamera(std::string cameraName)
@@ -200,6 +245,7 @@ void EkfCalNode::loadCamera(std::string cameraName)
   // Load parameters
   Camera::Params cParams = getCameraParameters(cameraName);
   Tracker::Params tParams = getTrackerParameters(cParams.tracker);
+  m_logger->log(LogLevel::INFO, "Loaded Camera: " + cameraName);
 
   // Create new RosCamera and bind callback to ID
   std::shared_ptr<RosCamera> camPtr = std::make_shared<RosCamera>(cParams, tParams);
@@ -216,19 +262,29 @@ void EkfCalNode::registerCamera(std::shared_ptr<RosCamera> camPtr, std::string t
   auto sub = this->create_subscription<sensor_msgs::msg::Image>(topic, 10, function);
   m_CameraSubs.push_back(sub);
 
-  m_logger->log(LogLevel::INFO, "Loaded Camera: " + camPtr->getName());
+  m_logger->log(
+    LogLevel::INFO, "Registered Camera " + std::to_string(
+      camPtr->getId()) + ": " + camPtr->getName());
 }
 
 
 void EkfCalNode::imuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id)
 {
-  const auto & rosImuPtr = m_mapIMU.find(id)->second;
-  rosImuPtr->callback(msg);
+  auto rosImuIter = m_mapIMU.find(id);
+  if (rosImuIter != m_mapIMU.end()) {
+    rosImuIter->second->callback(msg);
+  } else {
+    m_logger->log(LogLevel::WARN, "IMU ID Not Found: " + std::to_string(id));
+  }
 }
 
 void EkfCalNode::cameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
 {
-  const auto & rosCamPtr = m_mapCamera.find(id)->second;
-  rosCamPtr->callback(msg);
-  m_imgPublisher->publish(*rosCamPtr->getRosImage().get());
+  auto rosCamIter = m_mapCamera.find(id);
+  if (rosCamIter != m_mapCamera.end()) {
+    rosCamIter->second->callback(msg);
+    m_imgPublisher->publish(*rosCamIter->second->getRosImage().get());
+  } else {
+    m_logger->log(LogLevel::WARN, "Camera ID Not Found: " + std::to_string(id));
+  }
 }

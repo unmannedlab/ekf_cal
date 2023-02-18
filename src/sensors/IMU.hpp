@@ -36,8 +36,8 @@ public:
   ///
   typedef struct Params
   {
-    std::string name;                               ///< @brief IMU name
-    std::string topic;                              ///< @brief IMU topic
+    std::string name {"Name"};                      ///< @brief IMU name
+    std::string topic {"Topic"};                    ///< @brief IMU topic
     bool baseSensor{true};                          ///< @brief IMU base sensor flag
     bool intrinsic{false};                          ///< @brief IMU intrinsic calibration
     double rate{1.0};                               ///< @brief IMU update rate

@@ -49,7 +49,7 @@ void EKF::processModel(double time)
     return;
   }
 
-  if (time < m_currentTime) {
+  if (time <= m_currentTime) {
     m_logger->log(
       LogLevel::WARN, "Requested prediction to time in the past. Current t=" +
       std::to_string(m_currentTime) + ", Requested t=" +
@@ -70,7 +70,6 @@ void EKF::processModel(double time)
 
   Eigen::VectorXd processUpdate = F * m_state.toVector();
 
-  m_logger->log(LogLevel::DEBUG, "EKF::Predict Gate 2");
   m_state += processUpdate;
   std::stringstream msg;
   msg
@@ -87,7 +86,6 @@ void EKF::processModel(double time)
   m_cov = F * m_cov * F.transpose() + F * m_processInput * m_processNoise *
     m_processInput.transpose() * F.transpose();
 
-  m_logger->log(LogLevel::DEBUG, "EKF::Predict Gate 4");
 
   m_currentTime = time;
 }

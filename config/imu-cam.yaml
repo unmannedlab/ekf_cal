@@ -1,13 +1,16 @@
 
 /EkfCalNode:
     ros__parameters:
-        Log_Level: 0
+        Log_Level: 1
 
         IMU_list:
-            - 'vn300'
+            - "vn300"
 
         Camera_list:
-            - 'ace'
+            - "ace"
+
+        Tracker_list:
+            - "ORB"
 
         IMU:
             vn300:

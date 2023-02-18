@@ -16,33 +16,102 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
+#include <rclcpp/rclcpp.hpp>
+
 #include "sensors/IMU.hpp"
 #include "sensors/ros/RosIMU.hpp"
 #include "application/ros/node/EkfCalNode.hpp"
 
 /// @todo Write these integration tests
-/// https://index.ros.org/p/launch_testing/
-/// https://github.com/bponsler/ros2-support/blob/master/tutorials/unit-testing.md
-/// https://github.com/ros2/launch/tree/master/launch_testing
-/// https://docs.ros.org/en/rolling/Contributing/Developer-Guide.html#testing
-/// https://index.ros.org/p/launch_testing/
-/// https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/integration-testing.html
-TEST(test_EkfCalNode, hello_world) {
-  // std::cout << "Test 1" << std::endl;
+class test_EkfCalNode : public ::testing::Test
+{
+protected:
+  virtual void SetUp() {rclcpp::init(0, NULL);}
+  virtual void TearDown() {rclcpp::shutdown();}
+};
+
+TEST_F(test_EkfCalNode, hello_world) {
   EkfCalNode node;
-  // IMU::Params imuParams;
-  // imuParams.name = "TestName";
-  // std::cout << "Test 1" << std::endl;
 
-  // std::shared_ptr<RosIMU> imuPtr = std::make_shared<RosIMU>(imuParams);
+  node.set_parameter(rclcpp::Parameter("Log_Level", 1));
+  node.set_parameter(rclcpp::Parameter("IMU_list", std::vector<std::string>{"TestImu"}));
+  node.set_parameter(rclcpp::Parameter("Camera_list", std::vector<std::string>{"TestCamera"}));
+  node.set_parameter(rclcpp::Parameter("Tracker_list", std::vector<std::string>{"TestTracker"}));
 
-  // std::cout << "Test 1" << std::endl;
-  // node.registerImu(imuPtr, "TestTopic");
-  // std::cout << "Test" << std::endl;
-  // sensor_msgs::msg::Imu::SharedPtr msg{};
-  // unsigned int id = 0;
+  node.initialize();
+  node.declareSensors();
 
-  // node.imuCallback(msg, id);
+  node.set_parameter(rclcpp::Parameter("IMU.TestImu.BaseSensor", true));
+  node.set_parameter(rclcpp::Parameter("IMU.TestImu.Intrinsic", false));
+  node.set_parameter(rclcpp::Parameter("IMU.TestImu.Rate", 400.0));
+  node.set_parameter(rclcpp::Parameter("IMU.TestImu.Topic", "/ImuTopic"));
+  node.set_parameter(
+    rclcpp::Parameter(
+      "IMU.TestImu.VarInit",
+      std::vector<double>{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01}));
+  node.set_parameter(
+    rclcpp::Parameter(
+      "IMU.TestImu.PosOffInit",
+      std::vector<double>{0.0, 0.0, 0.0}));
+  node.set_parameter(
+    rclcpp::Parameter(
+      "IMU.TestImu.AngOffInit",
+      std::vector<double>{1.0, 0.0, 0.0, 0.0}));
+  node.set_parameter(
+    rclcpp::Parameter(
+      "IMU.TestImu.AccBiasInit", std::vector<double>{0.0, 0.0,
+        0.0}));
+  node.set_parameter(
+    rclcpp::Parameter(
+      "IMU.TestImu.OmgBiasInit", std::vector<double>{0.0, 0.0,
+        0.0}));
+
+  node.set_parameter(rclcpp::Parameter("Camera.TestCamera.Rate", 5.0));
+  node.set_parameter(rclcpp::Parameter("Camera.TestCamera.Topic", "/CameraTopic"));
+  node.set_parameter(
+    rclcpp::Parameter(
+      "Camera.TestCamera.PosOffInit",
+      std::vector<double>{0.0, 0.0, 0.0}));
+  node.set_parameter(
+    rclcpp::Parameter(
+      "Camera.TestCamera.AngOffInit",
+      std::vector<double>{1.0, 0.0, 0.0, 0.0}));
+  node.set_parameter(
+    rclcpp::Parameter(
+      "Camera.TestCamera.VarInit",
+      std::vector<double>{0.1, 0.1, 0.1, 0.1, 0.1, 0.1}));
+  node.set_parameter(rclcpp::Parameter("Camera.TestCamera.Tracker", "TestTracker"));
+
+  node.set_parameter(rclcpp::Parameter("Tracker.TestTracker.FeatureDetector", 4));
+  node.set_parameter(rclcpp::Parameter("Tracker.TestTracker.DescriptorExtractor", 0));
+  node.set_parameter(rclcpp::Parameter("Tracker.TestTracker.DescriptorMatcher", 0));
+  node.set_parameter(rclcpp::Parameter("Tracker.TestTracker.DetectorThreshold", 10.0));
+
+  node.loadSensors();
+  auto imuMsg = std::make_shared<sensor_msgs::msg::Imu>();
+  unsigned int imuID = 1;
+  imuMsg->header.stamp.sec = 0;
+  imuMsg->header.stamp.nanosec = 0;
+  imuMsg->linear_acceleration.x = 0.0;
+  imuMsg->linear_acceleration.y = 0.0;
+  imuMsg->linear_acceleration.z = 0.0;
+  imuMsg->angular_velocity.x = 0.0;
+  imuMsg->angular_velocity.y = 0.0;
+  imuMsg->angular_velocity.z = 0.0;
+  imuMsg->linear_acceleration_covariance.fill(0);
+  imuMsg->angular_velocity_covariance.fill(0);
+
+  node.imuCallback(imuMsg, imuID);
+  EXPECT_TRUE(true);
+
+  imuMsg->header.stamp.nanosec = 500000000;
+  node.imuCallback(imuMsg, imuID);
+  EXPECT_TRUE(true);
+
+  /// @todo add image to callback
+  // sensor_msgs::msg::Image::SharedPtr camMsg{};
+  // unsigned int camID = 2;
+  // node.cameraCallback(camMsg, camID);
 
   EXPECT_TRUE(true);
 }

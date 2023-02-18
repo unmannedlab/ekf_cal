@@ -52,6 +52,10 @@ public:
   ///
   EkfCalNode();
 
+  void initialize();
+
+  void loadSensors();
+
   ///
   /// @brief Loading method for IMU sensors
   /// @param imuName Name of IMU to find and load from YAML
@@ -77,6 +81,11 @@ public:
   /// @return cameraParameters
   ///
   Camera::Params getCameraParameters(std::string cameraName);
+
+  void declareSensors();
+  void declareImuParameters(std::string imuName);
+  void declareCameraParameters(std::string cameraName);
+  void declareTrackerParameters(std::string trackerName);
 
   ///
   /// @brief Function for declaring and loading tracker parameters
@@ -108,6 +117,9 @@ private:
   std::vector<rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr> m_CameraSubs;
 
   bool m_baseIMUAssigned {false};
+  std::vector<std::string> m_ImuList {};
+  std::vector<std::string> m_CameraList {};
+  std::vector<std::string> m_TrackerList {};
 
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_imgPublisher;
   Logger * m_logger = Logger::getInstance();

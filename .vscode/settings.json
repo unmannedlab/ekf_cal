@@ -135,7 +135,6 @@
         "editor.defaultFormatter": "ms-python.python",
     },
     "python.linting.flake8Enabled": true,
-    "cmake.buildTask": true,
     "cmake.configureOnOpen": true,
     "flake8.args": [
         "--ignore=D100,D103"
