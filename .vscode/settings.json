@@ -21,6 +21,7 @@
         "editor.defaultFormatter": "zachflower.uncrustify"
     },
     "cSpell.words": [
+        "CAMERAUPDATER",
         "CUSTOMASSERTIONS",
         "DISTRO",
         "doxyfile",
@@ -30,11 +31,14 @@
         "EKFVIZNODE",
         "GFTT",
         "htmlonly",
+        "ImuUpdater",
         "IROS",
         "Jacobians",
+        "keypoint",
         "MATHHELPER",
         "Mirzaei",
         "MSCKF",
+        "MSCKFUPDATER",
         "MSER",
         "PLANTUML",
         "RCLCPP",

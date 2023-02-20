@@ -44,10 +44,10 @@ inline Eigen::Matrix3d skewSymmetric(Eigen::Vector3d inVec)
 /// @param minBound Bounding value
 /// @return
 ///
-inline Eigen::Matrix3d minBoundDiagonal(Eigen::Matrix3d inMat, double minBound)
+inline Eigen::MatrixXd minBoundDiagonal(Eigen::MatrixXd inMat, double minBound)
 {
-  Eigen::Matrix3d outMat = inMat;
-  for (unsigned int i = 0; i < 3; ++i) {
+  Eigen::MatrixXd outMat = inMat;
+  for (unsigned int i = 0; i < inMat.rows() && i < inMat.cols(); ++i) {
     if (outMat(i, i) < minBound) {
       outMat(i, i) = minBound;
     }

@@ -19,15 +19,8 @@
 
 #include "utility/TypeHelper.hpp"
 
-// Initialize static variables
+// Initialize static variable
 unsigned int Sensor::_idCount = 0;
-Eigen::Vector3d Sensor::m_bodyPos(0.0, 0.0, 0.0);
-Eigen::Vector3d Sensor::m_bodyVel(0.0, 0.0, 0.0);
-Eigen::Vector3d Sensor::m_bodyAcc(0.0, 0.0, 0.0);
-Eigen::Quaterniond Sensor::m_bodyAngPos(0.0, 0.0, 0.0, 0.0);
-Eigen::Vector3d Sensor::m_bodyAngVel(0.0, 0.0, 0.0);
-Eigen::Vector3d Sensor::m_bodyAngAcc(0.0, 0.0, 0.0);
-
 
 Sensor::Sensor(std::string name)
 : m_id(++_idCount), m_name(name) {}

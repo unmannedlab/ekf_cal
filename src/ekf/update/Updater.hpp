@@ -13,31 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
-#include <iostream>
+#ifndef EKF__UPDATE__UPDATER_HPP_
+#define EKF__UPDATE__UPDATER_HPP_
 
-#include "sensors/IMU.hpp"
+#include "ekf/update/Updater.hpp"
 
-#include "utility/TypeHelper.hpp"
-#include "utility/test/CustomAssertions.hpp"
+#include "ekf/EKF.hpp"
 
-TEST(test_IMU, Constructor) {
-  IMU::Params params;
-  IMU imu(params);
-}
+///
+/// @class Updater
+/// @brief Base class for EKF updater classes
+///
+class Updater
+{
+public:
+  ///
+  /// @brief EKF Updater constructor
+  /// @param sensorID Sensor ID
+  ///
+  explicit Updater(unsigned int sensorID);
 
-TEST(test_IMU, Id) {
-  IMU::Params params1;
-  IMU::Params params2;
+protected:
+  unsigned int m_id;                 ///< @brief Associated sensor ID
+  EKF * m_ekf = EKF::getInstance();  ///< @brief EKF singleton
+};
 
-  IMU imu1(params1);
-  IMU imu2(params2);
-
-  unsigned int id_one = imu1.getId();
-  unsigned int id_two = id_one + 1;
-
-  EXPECT_EQ(imu1.getId(), id_one);
-  EXPECT_EQ(imu2.getId(), id_two);
-}
-
-/// @todo Remaining IMU tests
+#endif  // EKF__UPDATE__UPDATER_HPP_

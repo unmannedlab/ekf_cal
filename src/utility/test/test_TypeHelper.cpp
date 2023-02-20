@@ -24,25 +24,19 @@
 #include "utility/TypeHelper.hpp"
 
 
-TEST(test_TypeHelper, StdToEigVec_2) {
-  std::vector<double> in {1.0, 2.0};
-  Eigen::VectorXd out = stdToEigVec(in);
-  unsigned int size_1 = out.size();
-  unsigned int size_2 = in.size();
-  EXPECT_EQ(size_1, size_2);
-  EXPECT_EQ(out(0), in[0]);
-  EXPECT_EQ(out(1), in[1]);
-}
+TEST(test_TypeHelper, StdToEigVec) {
+  std::vector<double> vec2 {1.0, 2.0};
+  Eigen::VectorXd out2 = stdToEigVec(vec2);
+  EXPECT_EQ(vec2.size(), out2.size());
+  EXPECT_EQ(vec2[0], out2(0));
+  EXPECT_EQ(vec2[1], out2(1));
 
-TEST(test_TypeHelper, StdToEigVec_3) {
-  std::vector<double> in {1.0, 2.0, 3.0};
-  Eigen::Vector3d out = stdToEigVec(in);
-  unsigned int size_1 = out.size();
-  unsigned int size_2 = in.size();
-  EXPECT_EQ(size_1, size_2);
-  EXPECT_EQ(out.x(), in[0]);
-  EXPECT_EQ(out.y(), in[1]);
-  EXPECT_EQ(out.z(), in[2]);
+  std::vector<double> vec3 {1.0, 2.0, 3.0};
+  Eigen::Vector3d out3 = stdToEigVec(vec3);
+  EXPECT_EQ(vec3.size(), out3.size());
+  EXPECT_EQ(vec3[0], out3.x());
+  EXPECT_EQ(vec3[1], out3.y());
+  EXPECT_EQ(vec3[2], out3.z());
 }
 
 TEST(test_TypeHelper, StdToEigQuat) {
@@ -72,44 +66,42 @@ TEST(test_TypeHelper, StdToEigQuat_err) {
 
 TEST(test_TypeHelper, RotVecToQuat) {
   Eigen::Vector3d vec0 {0.0, 0.0, 0.0};
-  Eigen::Vector3d vec1 {1.0, 0.0, 0.0};
-  Eigen::Vector3d vec2 {0.0, 1.0, 0.0};
-  Eigen::Vector3d vec3 {0.0, 0.0, 1.0};
-  Eigen::Vector3d vec4 {1.0, 2.0, 3.0};
-  Eigen::Vector3d vec5 {-4.0, 5.0, -6.0};
-
   Eigen::Quaterniond quat0 = rotVecToQuat(vec0);
-  Eigen::Quaterniond quat1 = rotVecToQuat(vec1);
-  Eigen::Quaterniond quat2 = rotVecToQuat(vec2);
-  Eigen::Quaterniond quat3 = rotVecToQuat(vec3);
-  Eigen::Quaterniond quat4 = rotVecToQuat(vec4);
-  Eigen::Quaterniond quat5 = rotVecToQuat(vec5);
-
   EXPECT_NEAR(quat0.w(), 1.0000000, 1e-6);
   EXPECT_NEAR(quat0.x(), 0.0000000, 1e-6);
   EXPECT_NEAR(quat0.y(), 0.0000000, 1e-6);
   EXPECT_NEAR(quat0.z(), 0.0000000, 1e-6);
 
+  Eigen::Vector3d vec1 {1.0, 0.0, 0.0};
+  Eigen::Quaterniond quat1 = rotVecToQuat(vec1);
   EXPECT_NEAR(quat1.w(), 0.8775826, 1e-6);
   EXPECT_NEAR(quat1.x(), 0.4794255, 1e-6);
   EXPECT_NEAR(quat1.y(), 0.0000000, 1e-6);
   EXPECT_NEAR(quat1.z(), 0.0000000, 1e-6);
 
+  Eigen::Vector3d vec2 {0.0, 1.0, 0.0};
+  Eigen::Quaterniond quat2 = rotVecToQuat(vec2);
   EXPECT_NEAR(quat2.w(), 0.8775826, 1e-6);
   EXPECT_NEAR(quat2.x(), 0.0000000, 1e-6);
   EXPECT_NEAR(quat2.y(), 0.4794255, 1e-6);
   EXPECT_NEAR(quat2.z(), 0.0000000, 1e-6);
 
+  Eigen::Vector3d vec3 {0.0, 0.0, 1.0};
+  Eigen::Quaterniond quat3 = rotVecToQuat(vec3);
   EXPECT_NEAR(quat3.w(), 0.8775826, 1e-6);
   EXPECT_NEAR(quat3.x(), 0.0000000, 1e-6);
   EXPECT_NEAR(quat3.y(), 0.0000000, 1e-6);
   EXPECT_NEAR(quat3.z(), 0.4794255, 1e-6);
 
+  Eigen::Vector3d vec4 {1.0, 2.0, 3.0};
+  Eigen::Quaterniond quat4 = rotVecToQuat(vec4);
   EXPECT_NEAR(quat4.w(), -0.2955511, 1e-6);
   EXPECT_NEAR(quat4.x(), 0.2553219, 1e-6);
   EXPECT_NEAR(quat4.y(), 0.5106437, 1e-6);
   EXPECT_NEAR(quat4.z(), 0.7659656, 1e-6);
 
+  Eigen::Vector3d vec5 {-4.0, 5.0, -6.0};
+  Eigen::Quaterniond quat5 = rotVecToQuat(vec5);
   EXPECT_NEAR(quat5.w(), -0.3192205, 1e-6);
   EXPECT_NEAR(quat5.x(), 0.4319929, 1e-6);
   EXPECT_NEAR(quat5.y(), -0.5399911, 1e-6);

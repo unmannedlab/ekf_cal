@@ -23,59 +23,91 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
 
+///
+/// @brief BodyState structure
+///
 typedef struct BodyState
 {
-  Eigen::Vector3d position{0.0, 0.0, 0.0};
-  Eigen::Vector3d velocity{0.0, 0.0, 0.0};
-  Eigen::Vector3d acceleration{0.0, 0.0, 0.0};
-  Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};
-  Eigen::Vector3d angularVelocity{0.0, 0.0, 0.0};
-  Eigen::Vector3d angularAcceleration{0.0, 0.0, 0.0};
+  Eigen::Vector3d position{0.0, 0.0, 0.0};             ///< @brief Body state position
+  Eigen::Vector3d velocity{0.0, 0.0, 0.0};             ///< @brief Body state velocity
+  Eigen::Vector3d acceleration{0.0, 0.0, 0.0};         ///< @brief Body state acceleration
+  Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Body state orientation
+  Eigen::Vector3d angularVelocity{0.0, 0.0, 0.0};      ///< @brief Body state angular rate
+  Eigen::Vector3d angularAcceleration{0.0, 0.0, 0.0};  ///< @brief Body state angular acceleration
 } BodyState;
 
+///
+/// @brief ImuState structure
+///
 typedef struct ImuState
 {
-  Eigen::Vector3d position{0.0, 0.0, 0.0};
-  Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};
-  Eigen::Vector3d accBias{0.0, 0.0, 0.0};
-  Eigen::Vector3d omgBias{0.0, 0.0, 0.0};
+  Eigen::Vector3d position{0.0, 0.0, 0.0};             ///< @brief IMU state position
+  Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief IMU state orientation
+  Eigen::Vector3d accBias{0.0, 0.0, 0.0};              ///< @brief IMU state acceleration bias
+  Eigen::Vector3d omgBias{0.0, 0.0, 0.0};              ///< @brief IMU state angular rate bias
 } ImuState;
 
+///
+/// @brief AugmentedState structure
+///
 typedef struct AugmentedState
 {
-  unsigned int frameID;
-  Eigen::Vector3d imuPosition{0.0, 0.0, 0.0};
-  Eigen::Quaterniond imuOrientation{1.0, 0.0, 0.0, 0.0};
-  Eigen::Vector3d position{0.0, 0.0, 0.0};
-  Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};
+  unsigned int frameID;                                   ///< @brief Augmented frame ID
+  Eigen::Vector3d imuPosition{0.0, 0.0, 0.0};             ///< @brief Augmented IMU position
+  Eigen::Quaterniond imuOrientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
+  Eigen::Vector3d position{0.0, 0.0, 0.0};                ///< @brief Augmented position
+  Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};     ///< @brief Augmented orientation
 } AugmentedState;
 
+///
+/// @brief CamState structure
+///
 typedef struct CamState
 {
-  Eigen::Vector3d position{0.0, 0.0, 0.0};
-  Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};
-  std::vector<AugmentedState> augmentedStates;
+  Eigen::Vector3d position{0.0, 0.0, 0.0};             ///< @brief Camera state position
+  Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera state orientation
+  std::vector<AugmentedState> augmentedStates;         ///< @brief Camera augmented states
 } CamState;
 
+///
+/// @brief FeatureTrack structure
+///
 typedef struct FeatureTrack
 {
-  unsigned int frameID;
-  cv::KeyPoint keyPoint;
+  unsigned int frameID;   ///< @brief Feature track frame ID
+  cv::KeyPoint keyPoint;  ///< @brief Feature track keypoint
 } FeatureTrack;
 
 typedef std::vector<std::vector<FeatureTrack>> FeatureTracks;
 
 
+///
+/// @class State
+/// @brief EKF State Class
+///
 class State
 {
 public:
+  ///
+  /// @brief EKF State constructor
+  ///
   State();
+
+  ///
+  /// @brief Get EKF state as a vector
+  /// @return EKF state as a vector
+  ///
   Eigen::VectorXd toVector();
+
+  ///
+  /// @brief Get EKF state size
+  /// @return EKF state size as an integer
+  ///
   unsigned int getStateSize();
 
-  BodyState bodyState {};
-  std::map<unsigned int, ImuState> imuStates{};
-  std::map<unsigned int, CamState> camStates{};
+  BodyState bodyState {};                        ///< @brief Body state
+  std::map<unsigned int, ImuState> imuStates{};  ///< @brief IMU states
+  std::map<unsigned int, CamState> camStates{};  ///< @brief Camera States
 };
 
 State & operator+=(State & lState, State & rState);

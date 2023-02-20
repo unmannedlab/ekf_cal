@@ -13,31 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
-#include <iostream>
+#ifndef EKF__UPDATE__MSCKFUPDATER_HPP_
+#define EKF__UPDATE__MSCKFUPDATER_HPP_
 
-#include "sensors/IMU.hpp"
+#include "ekf/update/Updater.hpp"
+#include "ekf/EKF.hpp"
 
-#include "utility/TypeHelper.hpp"
-#include "utility/test/CustomAssertions.hpp"
+///
+/// @class MsckfUpdater
+/// @brief EKF Updater Class for MSCKF Camera Measurements
+///
+class MsckfUpdater : public Updater
+{
+public:
+  ///
+  /// @brief MSCKF EKF Updater constructor
+  /// @param camID Camera sensor ID
+  ///
+  explicit MsckfUpdater(unsigned int camID);
+};
 
-TEST(test_IMU, Constructor) {
-  IMU::Params params;
-  IMU imu(params);
-}
-
-TEST(test_IMU, Id) {
-  IMU::Params params1;
-  IMU::Params params2;
-
-  IMU imu1(params1);
-  IMU imu2(params2);
-
-  unsigned int id_one = imu1.getId();
-  unsigned int id_two = id_one + 1;
-
-  EXPECT_EQ(imu1.getId(), id_one);
-  EXPECT_EQ(imu2.getId(), id_two);
-}
-
-/// @todo Remaining IMU tests
+#endif  // EKF__UPDATE__MSCKFUPDATER_HPP_

@@ -52,8 +52,14 @@ public:
   ///
   EkfCalNode();
 
+  ///
+  /// @brief Initialize EKF calibration node
+  ///
   void initialize();
 
+  ///
+  /// @brief Load lists of sensors
+  ///
   void loadSensors();
 
   ///
@@ -82,9 +88,27 @@ public:
   ///
   Camera::Params getCameraParameters(std::string cameraName);
 
+  ///
+  /// @brief Declare parameters for all sensors
+  ///
   void declareSensors();
+
+  ///
+  /// @brief Declare IMU parameters
+  /// @param imuName IMU parameter namespace
+  ///
   void declareImuParameters(std::string imuName);
+
+  ///
+  /// @brief Declare camera parameters
+  /// @param cameraName Camera parameter namespace
+  ///
   void declareCameraParameters(std::string cameraName);
+
+  ///
+  /// @brief Declare tracker PARAMETERS
+  /// @param trackerName Tracker parameter namespace
+  ///
   void declareTrackerParameters(std::string trackerName);
 
   ///
@@ -106,7 +130,17 @@ public:
   ///
   void cameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
 
+  ///
+  /// @brief Register IMU sensor
+  /// @param imuPtr IMU sensor shared pointer
+  /// @param topic Topic to subscribe
+  ///
   void registerImu(std::shared_ptr<RosIMU> imuPtr, std::string topic);
+  ///
+  /// @brief Register camera sensor
+  /// @param camPtr Camera sensor shared pointer
+  /// @param topic Topic to subscribe
+  ///
   void registerCamera(std::shared_ptr<RosCamera> camPtr, std::string topic);
 
 private:

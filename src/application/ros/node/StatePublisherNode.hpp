@@ -33,7 +33,7 @@
 #include "infrastructure/Logger.hpp"
 
 ///
-/// @class EkfCalNode
+/// @class StatePublisherNode
 /// @brief A ROS2 node for publishing calibration EKF data
 /// @todo TF2 Publishing Flag
 /// @todo Option to publish health metrics

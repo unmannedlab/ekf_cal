@@ -100,6 +100,16 @@ BodyState EKF::getBodyState()
   return m_state.bodyState;
 }
 
+ImuState EKF::getImuState(unsigned int imuID)
+{
+  return m_state.imuStates[imuID];
+}
+
+CamState EKF::getCamState(unsigned int camID)
+{
+  return m_state.camStates[camID];
+}
+
 Eigen::MatrixXd & EKF::getCov()
 {
   return m_cov;
@@ -396,7 +406,7 @@ void EKF::registerCamera(unsigned int camID, CamState camState, Eigen::MatrixXd 
   m_processInput = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
 }
 
-
+/// @todo Replace this lookup with a map
 unsigned int EKF::getImuStateStartIndex(unsigned int imuID)
 {
   unsigned int stateStartIndex = 18;
@@ -410,6 +420,7 @@ unsigned int EKF::getImuStateStartIndex(unsigned int imuID)
   return stateStartIndex;
 }
 
+/// @todo Replace this lookup with a map
 unsigned int EKF::getCamStateStartIndex(unsigned int camID)
 {
   unsigned int stateStartIndex = 18;
@@ -424,6 +435,7 @@ unsigned int EKF::getCamStateStartIndex(unsigned int camID)
   return stateStartIndex;
 }
 
+/// @todo Replace this lookup with a map
 unsigned int EKF::getAugStateStartIndex(unsigned int camID, unsigned int frameID)
 {
   m_logger->log(LogLevel::DEBUG, "imu size " + std::to_string(m_state.imuStates.size()));

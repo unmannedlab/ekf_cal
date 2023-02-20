@@ -85,6 +85,19 @@ public:
   BodyState getBodyState();
 
   ///
+  /// @brief Get IMU sensor state
+  /// @param imuID Sensor ID
+  /// @return IMU state
+  ///
+  ImuState getImuState(unsigned int imuID);
+  ///
+  /// @brief Get camera sensor state
+  /// @param camID Sensor ID
+  /// @return Camera state
+  ///
+  CamState getCamState(unsigned int camID);
+
+  ///
   /// @brief Getter method for state covariance matrix reference
   /// @return State covariance matrix reference
   ///
@@ -103,10 +116,23 @@ public:
   ///
   Eigen::MatrixXd getStateTransition(double dT);
 
-  unsigned int getImuStateStartIndex(unsigned int m_id);
+  ///
+  /// @brief Getter for IMU state start index
+  /// @param imuID IMU sensor ID
+  ///
+  unsigned int getImuStateStartIndex(unsigned int imuID);
 
-  unsigned int getCamStateStartIndex(unsigned int m_id);
+  ///
+  /// @brief Getter for camera state start index
+  /// @param camID Camera sensor ID
+  ///
+  unsigned int getCamStateStartIndex(unsigned int camID);
 
+  ///
+  /// @brief Getter for augmented state start index
+  /// @param camID Camera sensor ID
+  /// @param frameID Camera frame ID
+  ///
   unsigned int getAugStateStartIndex(unsigned int camID, unsigned int frameID);
 
   ///
@@ -116,14 +142,41 @@ public:
   ///
   void initialize(double timeInit, BodyState bodyStateInit);
 
+  ///
+  /// @brief
+  /// @param imuID
+  /// @param imuState
+  /// @param covariance
+  ///
   void registerIMU(unsigned int imuID, ImuState imuState, Eigen::MatrixXd covariance);
 
+  ///
+  /// @brief
+  /// @param camID
+  /// @param camState
+  /// @param covariance
+  ///
   void registerCamera(unsigned int camID, CamState camState, Eigen::MatrixXd covariance);
 
+  ///
+  /// @brief
+  /// @param cameraID
+  /// @param frameID
+  ///
   void augmentState(unsigned int cameraID, unsigned int frameID);
 
+  ///
+  /// @brief
+  /// @param cameraID
+  /// @param featureTracks
+  ///
   void update_msckf(unsigned int cameraID, FeatureTracks featureTracks);
 
+  ///
+  /// @brief
+  /// @param augmentedStates
+  /// @param frameID
+  ///
   AugmentedState matchState(std::vector<AugmentedState> augmentedStates, unsigned int frameID);
 
 private:

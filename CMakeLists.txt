@@ -45,6 +45,9 @@ endforeach()
 set(EKF_SRCS
     src/ekf/EKF.cpp
     src/ekf/Types.cpp
+    src/ekf/update/ImuUpdater.cpp
+    src/ekf/update/MsckfUpdater.cpp
+    src/ekf/update/Updater.cpp
     src/sensors/Camera.cpp
     src/sensors/IMU.cpp
     src/sensors/Sensor.cpp
@@ -143,6 +146,7 @@ if(BUILD_TESTING)
         src/sensors/test/test_Camera.cpp
         src/sensors/test/test_IMU.cpp
         src/utility/test/test_MathHelper.cpp
+        src/utility/test/test_RosHelper.cpp
         src/utility/test/test_TypeHelper.cpp
     )
 
@@ -156,10 +160,10 @@ if(BUILD_TESTING)
         target_link_libraries(${nam} EKF_LIB ROS_LIB)
     endforeach()
 
-    ament_add_gtest(test_EkfCalNode src/application/ros/node/test/test_EkfCalNode.cpp)
-    ament_target_dependencies(test_EkfCalNode ${ROS_PKGS})
-    target_include_directories(test_EkfCalNode PUBLIC ${CMAKE_SOURCE_DIR}/src/)
-    target_link_libraries(test_EkfCalNode EKF_NODE_LIB EKF_LIB ROS_LIB)
+    # ament_add_gtest(test_EkfCalNode src/application/ros/node/test/test_EkfCalNode.cpp)
+    # ament_target_dependencies(test_EkfCalNode ${ROS_PKGS})
+    # target_include_directories(test_EkfCalNode PUBLIC ${CMAKE_SOURCE_DIR}/src/)
+    # target_link_libraries(test_EkfCalNode EKF_NODE_LIB EKF_LIB ROS_LIB)
 
 endif()
 

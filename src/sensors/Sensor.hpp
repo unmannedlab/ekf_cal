@@ -44,18 +44,15 @@ public:
   ///
   unsigned int getId();
 
+  ///
+  /// @brief Sensor name getter method
+  /// @return Sensor name
+  ///
   std::string getName();
 
 protected:
   Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};          ///< @brief Sensor position offset vector
   Eigen::Quaterniond m_angOffset{0.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset quaternion
-
-  static Eigen::Vector3d m_bodyPos;         ///< @brief Body position vector
-  static Eigen::Vector3d m_bodyVel;         ///< @brief Body velocity vector
-  static Eigen::Vector3d m_bodyAcc;         ///< @brief Body acceleration vector
-  static Eigen::Quaterniond m_bodyAngPos;   ///< @brief Body angular position quaternion
-  static Eigen::Vector3d m_bodyAngVel;      ///< @brief Body angular velocity vector
-  static Eigen::Vector3d m_bodyAngAcc;      ///< @brief Body angular acceleration vector
 
   double m_rate;                      ///< @brief Sensor measurement rate
   unsigned int m_id;                  ///< @brief Sensor id

@@ -1,4 +1,4 @@
-// Copyright 2022 Jacob Hartzer
+// Copyright 2023 Jacob Hartzer
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,31 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
-#include <iostream>
+#include "ekf/update/Updater.hpp"
 
-#include "sensors/IMU.hpp"
-
-#include "utility/TypeHelper.hpp"
-#include "utility/test/CustomAssertions.hpp"
-
-TEST(test_IMU, Constructor) {
-  IMU::Params params;
-  IMU imu(params);
-}
-
-TEST(test_IMU, Id) {
-  IMU::Params params1;
-  IMU::Params params2;
-
-  IMU imu1(params1);
-  IMU imu2(params2);
-
-  unsigned int id_one = imu1.getId();
-  unsigned int id_two = id_one + 1;
-
-  EXPECT_EQ(imu1.getId(), id_one);
-  EXPECT_EQ(imu2.getId(), id_two);
-}
-
-/// @todo Remaining IMU tests
+Updater::Updater(unsigned int sensorID)
+: m_id(sensorID) {}

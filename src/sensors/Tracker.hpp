@@ -71,15 +71,16 @@ public:
   ///
   typedef struct Params
   {
-    FeatureDetectorEnum detector {FeatureDetectorEnum::ORB};
-    DescriptorExtractorEnum descriptor {DescriptorExtractorEnum::ORB};
-    DescriptorMatcherEnum matcher {DescriptorMatcherEnum::FLANN};
-    double threshold {20.0};
+    FeatureDetectorEnum detector {FeatureDetectorEnum::ORB};            ///< @brief Detector
+    DescriptorExtractorEnum descriptor {DescriptorExtractorEnum::ORB};  ///< @brief Descriptor
+    DescriptorMatcherEnum matcher {DescriptorMatcherEnum::FLANN};       ///< @brief Matcher
+    double threshold {20.0};                                            ///< @brief Threshold
   } Params;
 
   ///
   /// @brief Tracker sensor constructor
   /// @param params Parameter struct for Tracker sensor
+  /// @param cameraID Associated camera ID
   ///
   explicit Tracker(Tracker::Params params, unsigned int cameraID);
 

@@ -20,6 +20,7 @@
 
 #include "sensors/Sensor.hpp"
 #include "infrastructure/Logger.hpp"
+#include "ekf/update/ImuUpdater.hpp"
 
 ///
 /// @class IMU
@@ -58,31 +59,6 @@ public:
   explicit IMU(IMU::Params params);
 
   ///
-  /// @brief Predict measurement method
-  /// @return Predicted measurement vector
-  /// @todo Add gravity to prediction
-  ///
-  Eigen::VectorXd predictMeasurement();
-
-  ///
-  /// @brief Measurement Jacobian method
-  /// @return Measurement Jacobian matrix
-  ///
-  Eigen::MatrixXd getMeasurementJacobian();
-
-  ///
-  /// @brief Accelerometer bias stability getter method
-  /// @return Accelerometer bias stability
-  ///
-  double getAccBiasStability();
-
-  ///
-  /// @brief Gyroscope bias stability getter method
-  /// @return Gyroscope bias stability
-  ///
-  double getOmgBiasStability();
-
-  ///
   /// @brief Callback method for IMU measurements
   /// @param time Measurement time
   /// @param acceleration Measured acceleration
@@ -94,18 +70,11 @@ public:
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d accelerationCovariance,
     Eigen::Vector3d angularRate, Eigen::Matrix3d angularRateCovariance);
 
-
-  static const Eigen::Vector3d GRAVITY;
-
 private:
   bool m_isBaseSensor;
   bool m_isIntrinsic;
-  Eigen::Vector3d m_posOffset;
-  Eigen::Quaterniond m_angOffset;
-  Eigen::Vector3d m_accBias;
-  Eigen::Vector3d m_omgBias;
-  double m_accBiasStability;
-  double m_omgBiasStability;
+
+  ImuUpdater m_imuUpdater;
 };
 
 #endif  // SENSORS__IMU_HPP_

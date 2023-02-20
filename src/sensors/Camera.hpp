@@ -54,18 +54,6 @@ public:
   ///
   Camera(Camera::Params cParams, Tracker::Params tParams);
 
-  // ///
-  // /// @brief Predict measurement method
-  // /// @return Predicted measurement vector
-  // ///
-  // Eigen::VectorXd predictMeasurement();
-
-  // ///
-  // /// @brief Measurement Jacobian method
-  // /// @return Measurement Jacobian matrix
-  // ///
-  // Eigen::MatrixXd getMeasurementJacobian();
-
   ///
   /// @brief Callback method for camera
   /// @param time Measurement time
