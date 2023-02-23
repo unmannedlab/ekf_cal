@@ -31,6 +31,37 @@ public:
   /// @param camID Camera sensor ID
   ///
   explicit MsckfUpdater(unsigned int camID);
+
+  ///
+  /// @brief
+  /// @param augmentedStates
+  /// @param frameID
+  ///
+  AugmentedState matchState(unsigned int frameID);
+
+  ///
+  /// @brief
+  /// @param cameraID
+  /// @param featureTracks
+  ///
+  void updateEKF(unsigned int cameraID, FeatureTracks featureTracks);
+
+  ///
+  /// @brief Refresh internal states with EKF values
+  ///
+  void RefreshStates();
+
+private:
+  static const Eigen::Vector3d GRAVITY;
+  Eigen::Vector3d m_bodyPos {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_bodyVel {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_bodyAcc {0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_bodyAngPos {1.0, 0.0, 0.0, 0.0};
+  Eigen::Vector3d m_bodyAngVel {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_bodyAngAcc {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_posOffset {0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_angOffset {1.0, 0.0, 0.0, 0.0};
+  std::vector<AugmentedState> m_augStates {};
 };
 
 #endif  // EKF__UPDATE__MSCKFUPDATER_HPP_

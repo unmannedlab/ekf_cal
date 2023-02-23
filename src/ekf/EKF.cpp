@@ -122,245 +122,6 @@ void EKF::initialize(double timeInit, BodyState bodyStateInit)
   m_state.bodyState = bodyStateInit;
 }
 
-void EKF::augmentState(unsigned int cameraID, unsigned int frameID)
-{
-  AugmentedState augState;
-  augState.frameID = frameID;
-
-  augState.imuPosition = m_state.bodyState.position;
-  augState.imuOrientation = m_state.bodyState.orientation;
-  augState.position = m_state.bodyState.position +
-    m_state.bodyState.orientation * m_state.camStates[cameraID].position;
-  augState.orientation = m_state.camStates[cameraID].orientation * m_state.bodyState.orientation;
-  m_state.camStates[cameraID].augmentedStates.push_back(augState);
-
-  m_logger->log(
-    LogLevel::DEBUG, "Augment State 1: " + std::to_string(
-      cameraID) + ", " + std::to_string(frameID));
-
-  /// @todo Augment covariance with Jacobian
-
-  unsigned int augStateStart = getAugStateStartIndex(cameraID, frameID);
-  Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize + 12);
-
-
-  m_logger->log(
-    LogLevel::DEBUG, "Augment State 2:" + std::to_string(
-      augStateStart) + ", " + std::to_string(m_stateSize));
-
-  /// @todo Math helper function to insert sub-matrix block
-  newCov.block(
-    0, 0, augStateStart,
-    augStateStart) = m_cov.block(0, 0, augStateStart, augStateStart);
-  m_logger->log(LogLevel::DEBUG, "Augment State 3");
-  newCov.block(augStateStart, augStateStart, 12, 12) = Eigen::MatrixXd::Identity(12, 12);
-  m_logger->log(LogLevel::DEBUG, "Augment State 4");
-  newCov.block(
-    augStateStart + 12, augStateStart + 12, m_stateSize - augStateStart,
-    m_stateSize - augStateStart) = m_cov.block(
-    augStateStart, augStateStart,
-    m_stateSize - augStateStart,
-    m_stateSize - augStateStart);
-
-  m_cov = newCov;
-  m_stateSize += 12;
-  m_processNoise = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) * 1e-3;
-  m_processInput = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
-}
-
-AugmentedState EKF::matchState(std::vector<AugmentedState> augmentedStates, unsigned int frameID)
-{
-  AugmentedState augStateMatch;
-
-  for (auto & augState : augmentedStates) {
-    if (augState.frameID == frameID) {
-      augStateMatch = augState;
-      break;
-    }
-  }
-
-  return augStateMatch;
-}
-
-void EKF::update_msckf(unsigned int cameraID, FeatureTracks featureTracks)
-{
-  m_logger->log(LogLevel::DEBUG, "Called update_msckf for camera ID: " + std::to_string(cameraID));
-
-  // MSCKF Update
-  for (auto & featureTrack : featureTracks) {
-    m_logger->log(LogLevel::DEBUG, "Feature Track size: " + std::to_string(featureTrack.size()));
-    const std::vector<AugmentedState> * augStates = &m_state.camStates[cameraID].augmentedStates;
-
-    AugmentedState augStateMatch = matchState(*augStates, featureTrack[0].frameID);
-
-    // 3D Cartesian Triangulation
-    /// @todo Move into separate function
-    Eigen::Matrix3d A = Eigen::Matrix3d::Zero();
-    Eigen::Vector3d b = Eigen::Vector3d::Zero();
-    unsigned int total_meas = 1;
-    unsigned int total_hx = 6;
-
-    const Eigen::Matrix<double, 3, 3> & R_GtoA = augStateMatch.orientation.toRotationMatrix();
-    const Eigen::Matrix<double, 3, 1> & p_AinG = augStateMatch.position;
-
-    for (unsigned int i = 1; i < featureTrack.size(); ++i) {
-      augStateMatch = matchState(*augStates, featureTrack[i].frameID);
-
-      const Eigen::Matrix<double, 3, 3> R_GtoCi = augStateMatch.orientation.toRotationMatrix();
-      const Eigen::Vector3d p_CiinG = augStateMatch.position;
-
-      // Convert current position relative to anchor
-      Eigen::Matrix3d R_AtoCi = R_GtoCi * R_GtoA.transpose();
-      Eigen::Vector3d p_CiinA = R_GtoA * (p_CiinG - p_AinG);
-
-      // Get the UV coordinate normal
-      Eigen::Vector3d b_i;
-      b_i << featureTrack[i].keyPoint.pt.x, featureTrack[i].keyPoint.pt.y, 1;
-      b_i = R_AtoCi.transpose() * b_i;
-      b_i = b_i / b_i.norm();
-      Eigen::Matrix3d bSkew = skewSymmetric(b_i);
-      Eigen::Matrix3d Ai = bSkew.transpose() * bSkew;
-      A += Ai;
-      b += Ai * p_CiinA;
-
-      total_meas += 1;
-      total_hx += 6;
-      std::stringstream msg;
-      msg << "p_CiinG: " << p_CiinG.transpose() << std::endl;
-      msg << "p_AinG: " << p_AinG.transpose() << std::endl;
-      msg << "p_CiinA: " << p_CiinA.transpose() << std::endl;
-      m_logger->log(LogLevel::DEBUG, msg.str());
-    }
-
-
-    // Solve linear triangulation for 3D cartesian estimate of feature position
-    Eigen::Vector3d p_FinA = A.colPivHouseholderQr().solve(b);
-    std::stringstream msg;
-    msg << "MSCKF Triangulation: " << std::endl
-        << "A: " << A << std::endl
-        << "b: " << b.transpose() << std::endl;
-    m_logger->log(LogLevel::DEBUG, msg.str());
-    if (p_FinA == Eigen::Vector3d::Zero()) {
-      continue;
-    }
-    /// @todo Additional non-linear optimization
-
-    /// @todo Get Jacobian
-    Eigen::MatrixXd H_f;
-    Eigen::MatrixXd H_x;
-    Eigen::VectorXd res;
-
-    // Calculate the position of this feature in the global frame
-    // Get calibration for our anchor camera
-    Eigen::Matrix3d R_ItoC = augStates->at(0).orientation.toRotationMatrix();
-    Eigen::Vector3d p_IinC = augStates->at(0).position;
-    // Anchor pose orientation and position
-    Eigen::Matrix3d R_GtoI = augStates->at(0).imuOrientation.toRotationMatrix();
-    Eigen::Vector3d p_IinG = augStates->at(0).imuPosition;
-    // Feature in the global frame
-    Eigen::Vector3d p_FinG = R_GtoI.transpose() * R_ItoC.transpose() * (p_FinA - p_IinC) +
-      p_IinG;
-
-    // Allocate our residual and Jacobians
-    int c = 0;
-    int jacobsize = 3;
-    res = Eigen::VectorXd::Zero(2 * total_meas);
-    H_f = Eigen::MatrixXd::Zero(2 * total_meas, jacobsize);
-    H_x = Eigen::MatrixXd::Zero(2 * total_meas, total_hx);
-
-    // Derivative of p_FinG in respect to feature representation.
-    // This only needs to be computed once and thus we pull it out of the loop
-    Eigen::MatrixXd dPFG_dLambda;
-    Eigen::Matrix3d R_CtoG = R_GtoI.transpose() * R_ItoC.transpose();
-
-    // Jacobian for our anchor pose
-    Eigen::Matrix<double, 3, 6> H_anc;
-    H_anc.block(
-      0, 0, 3,
-      3).noalias() = -R_GtoI.transpose() * skewSymmetric(R_ItoC.transpose() * (p_FinA - p_IinC));
-    H_anc.block(0, 3, 3, 3).setIdentity();
-
-    // Add anchor Jacobians to our return vector
-
-    // Get calibration Jacobians (for anchor clone)
-    Eigen::Matrix<double, 3, 6> H_calib;
-    H_calib.block(0, 0, 3, 3).noalias() = -R_CtoG * skewSymmetric(p_FinA - p_IinC);
-    H_calib.block(0, 3, 3, 3) = -R_CtoG;
-
-    dPFG_dLambda = R_CtoG;
-
-
-    // Loop through each camera for this feature
-    for (unsigned int i = 1; i < featureTrack.size(); ++i) {
-      augStateMatch = matchState(*augStates, featureTrack[i].frameID);
-
-      // Our calibration between the IMU and CAMi frames
-      Eigen::Matrix3d R_ItoC = augStateMatch.orientation.toRotationMatrix();
-      Eigen::Vector3d p_IinC = augStateMatch.position;
-
-      // Get current IMU clone state
-      Eigen::Matrix3d R_GtoIi = augStateMatch.imuOrientation.toRotationMatrix();
-      Eigen::Vector3d p_Ii_inG = augStateMatch.imuPosition;
-
-      // Get current feature in the IMU
-      Eigen::Vector3d p_FinIi = R_GtoIi * (p_FinG - p_Ii_inG);
-
-      // Project the current feature into the current frame of reference
-      Eigen::Vector3d p_FinCi = R_ItoC * p_FinIi + p_IinC;
-      Eigen::Vector2d uv_norm;
-      uv_norm << p_FinCi(0) / p_FinCi(2), p_FinCi(1) / p_FinCi(2);
-
-      // Normalized coordinates in respect to projection function
-      Eigen::MatrixXd dzn_dPFC = Eigen::MatrixXd::Zero(2, 3);
-      dzn_dPFC << 1 / p_FinCi(2), 0, -p_FinCi(0) / (p_FinCi(2) * p_FinCi(2)), 0, 1 / p_FinCi(2),
-        -p_FinCi(1) / (p_FinCi(2) * p_FinCi(2));
-
-      // Derivative of p_FinCi in respect to p_FinIi
-      Eigen::MatrixXd dPFC_dPFG = R_ItoC * R_GtoIi;
-
-      // Derivative of p_FinCi in respect to camera clone state
-      Eigen::MatrixXd dPFC_dClone = Eigen::MatrixXd::Zero(3, 6);
-      dPFC_dClone.block(0, 0, 3, 3) = R_ItoC * skewSymmetric(p_FinIi);
-      dPFC_dClone.block(0, 3, 3, 3) = -dPFC_dPFG;
-
-      unsigned int camStateStart = getCamStateStartIndex(cameraID);
-      unsigned int augStateStart = getAugStateStartIndex(cameraID, featureTrack[i].frameID);
-
-      // Precompute some matrices
-      Eigen::MatrixXd dz_dPFC = dzn_dPFC;
-      Eigen::MatrixXd dz_dPFG = dPFC_dPFG;
-
-      // CHAINRULE: get the total feature Jacobian
-      H_f.block(2 * c, 0, 2, H_f.cols()) = dz_dPFG * dPFG_dLambda;
-
-      // CHAINRULE: get state clone Jacobian
-      H_x.block(2 * c, camStateStart, 2, 6) = dz_dPFC * dPFC_dClone;
-
-      // CHAINRULE: loop through all extra states and add their
-      // NOTE: we add the Jacobian here as we might be in the anchoring pose for this measurement
-      H_x.block(2 * c, augStateStart, 2, 6) += dz_dPFG * H_anc;
-      H_x.block(2 * c, augStateStart + 6, 2, 6) += dz_dPFG * H_calib;
-
-      // Derivative of p_FinCi in respect to camera calibration (R_ItoC, p_IinC)
-
-      // Calculate the Jacobian
-      Eigen::MatrixXd dPFC_dCalib = Eigen::MatrixXd::Zero(3, 6);
-      dPFC_dCalib.block(0, 0, 3, 3) = skewSymmetric(p_FinCi - p_IinC);
-      dPFC_dCalib.block(0, 3, 3, 3) = Eigen::Matrix<double, 3, 3>::Identity();
-
-      // Chainrule it and add it to the big jacobian
-      H_x.block(2 * c, camStateStart + 6, 2, 6) += dz_dPFC * dPFC_dCalib;
-
-      // Move the Jacobian and residual index forward
-      c++;
-    }
-
-
-    /// @todo Get the Jacobian for this feature
-    /// @todo Nullspace projection
-  }
-}
-
 void EKF::registerIMU(unsigned int imuID, ImuState imuState, Eigen::MatrixXd covariance)
 {
   /// @todo check that id hasn't been used before
@@ -456,4 +217,51 @@ unsigned int EKF::getAugStateStartIndex(unsigned int camID, unsigned int frameID
   }
 
   return stateStartIndex;
+}
+
+
+void EKF::augmentState(unsigned int cameraID, unsigned int frameID)
+{
+  AugmentedState augState;
+  augState.frameID = frameID;
+
+  augState.imuPosition = m_state.bodyState.position;
+  augState.imuOrientation = m_state.bodyState.orientation;
+  augState.position = m_state.bodyState.position +
+    m_state.bodyState.orientation * m_state.camStates[cameraID].position;
+  augState.orientation = m_state.camStates[cameraID].orientation * m_state.bodyState.orientation;
+  m_state.camStates[cameraID].augmentedStates.push_back(augState);
+
+  m_logger->log(
+    LogLevel::DEBUG, "Augment State 1: " + std::to_string(
+      cameraID) + ", " + std::to_string(frameID));
+
+  /// @todo Augment covariance with Jacobian
+
+  unsigned int augStateStart = getAugStateStartIndex(cameraID, frameID);
+  Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize + 12);
+
+
+  m_logger->log(
+    LogLevel::DEBUG, "Augment State 2:" + std::to_string(
+      augStateStart) + ", " + std::to_string(m_stateSize));
+
+  /// @todo Math helper function to insert sub-matrix block
+  newCov.block(
+    0, 0, augStateStart,
+    augStateStart) = m_cov.block(0, 0, augStateStart, augStateStart);
+  m_logger->log(LogLevel::DEBUG, "Augment State 3");
+  newCov.block(augStateStart, augStateStart, 12, 12) = Eigen::MatrixXd::Identity(12, 12);
+  m_logger->log(LogLevel::DEBUG, "Augment State 4");
+  newCov.block(
+    augStateStart + 12, augStateStart + 12, m_stateSize - augStateStart,
+    m_stateSize - augStateStart) = m_cov.block(
+    augStateStart, augStateStart,
+    m_stateSize - augStateStart,
+    m_stateSize - augStateStart);
+
+  m_cov = newCov;
+  m_stateSize += 12;
+  m_processNoise = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) * 1e-3;
+  m_processInput = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
 }

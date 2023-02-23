@@ -25,6 +25,7 @@
 
 /// @todo add detector/extractor parameters to input
 Tracker::Tracker(Tracker::Params params, unsigned int cameraID)
+: m_msckfUpdater(cameraID)
 {
   m_featureDetector = initFeatureDetector(params.detector, params.threshold);
   m_descriptorExtractor = initDescriptorExtractor(params.descriptor, params.threshold);
@@ -183,7 +184,7 @@ void Tracker::track(
     }
   }
 
-  m_ekf->update_msckf(m_cameraID, featureTracks);
+  m_msckfUpdater.updateEKF(m_cameraID, featureTracks);
 
   m_prevKeyPoints = m_currKeyPoints;
   m_prevDescriptors = m_currDescriptors;

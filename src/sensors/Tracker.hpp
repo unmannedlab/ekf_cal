@@ -27,6 +27,7 @@
 #include "sensors/Sensor.hpp"
 #include "ekf/Types.hpp"
 #include "ekf/EKF.hpp"
+#include "ekf/update/MsckfUpdater.hpp"
 
 ///
 /// @class Tracker
@@ -119,6 +120,7 @@ private:
   unsigned int max_track_length{30};
   unsigned int min_track_length{2};
   unsigned int m_cameraID;
+  MsckfUpdater m_msckfUpdater;
 };
 
 #endif  // SENSORS__TRACKER_HPP_

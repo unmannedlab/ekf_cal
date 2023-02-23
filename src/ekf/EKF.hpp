@@ -165,20 +165,6 @@ public:
   ///
   void augmentState(unsigned int cameraID, unsigned int frameID);
 
-  ///
-  /// @brief
-  /// @param cameraID
-  /// @param featureTracks
-  ///
-  void update_msckf(unsigned int cameraID, FeatureTracks featureTracks);
-
-  ///
-  /// @brief
-  /// @param augmentedStates
-  /// @param frameID
-  ///
-  AugmentedState matchState(std::vector<AugmentedState> augmentedStates, unsigned int frameID);
-
 private:
   unsigned int m_stateSize{18U};
   State m_state;
