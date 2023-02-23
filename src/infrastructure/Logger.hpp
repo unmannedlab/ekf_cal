@@ -31,7 +31,9 @@ enum class LogLevel
   FATAL
 };
 
+///
 /// @brief Logger class
+///
 class Logger
 {
 private:

@@ -67,10 +67,16 @@ target_include_directories(EKF_LIB PUBLIC
 # Simulation Sources
 set(SIM_SRCS
     src/infrastructure/sim/SimLog.cpp
+    src/infrastructure/sim/TruthEngine.cpp
 )
 
 # Create library with Sim sources
 add_library(SIM_LIB ${SIM_SRCS})
+
+target_include_directories(SIM_LIB PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:include>
+)
 
 # ROS Sources
 set(ROS_SRCS
@@ -124,8 +130,17 @@ target_include_directories(state_pub_node PUBLIC
 ament_target_dependencies(state_pub_node ${ROS_PKGS})
 target_link_libraries(state_pub_node PUB_NODE_LIB EKF_LIB ROS_LIB)
 
+# Low-Fidelity Simulation
+add_executable(low_sim src/application/sim/LowFidelitySim.cpp)
+target_include_directories(low_sim PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(state_pub_node SIM_LIB EKF_LIB)
+
 install(TARGETS
     ekf_cal_node
+    state_pub_node
     DESTINATION lib/${PROJECT_NAME}
 )
 

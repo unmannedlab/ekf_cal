@@ -48,6 +48,7 @@
         "RVIZ",
         "SSRR",
         "STATEPUBLISHERNODE",
+        "TRUTHENGINE",
         "TYPEHELPER",
         "undistort",
         "VIZNODE"
