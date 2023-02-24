@@ -61,27 +61,9 @@ void EKF::processModel(double time)
 
   Eigen::MatrixXd F = getStateTransition(dT);
 
-  std::stringstream msg1;
-  msg1
-    << F.rows() << ", "
-    << F.cols() << ", "
-    << m_state.toVector().size();
-  m_logger->log(LogLevel::DEBUG, msg1.str());
-
   Eigen::VectorXd processUpdate = F * m_state.toVector();
 
   m_state += processUpdate;
-  std::stringstream msg;
-  msg
-    << m_cov.rows() << ", "
-    << m_cov.cols() << ", "
-    << F.rows() << ", "
-    << F.cols() << ", "
-    << m_processInput.rows() << ", "
-    << m_processInput.cols() << ", "
-    << m_processNoise.rows() << ", "
-    << m_processNoise.cols();
-  m_logger->log(LogLevel::DEBUG, msg.str());
 
   m_cov = F * m_cov * F.transpose() + F * m_processInput * m_processNoise *
     m_processInput.transpose() * F.transpose();
