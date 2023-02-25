@@ -1,4 +1,4 @@
-# Main Page {#index}
+# Main Page {#mainpage}
 
 This is a package for calibrating IMU and camera sensors using a Kalman Filter-based approach.
 

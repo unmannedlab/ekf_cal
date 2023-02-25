@@ -69,6 +69,7 @@ public:
   ///
   void RefreshStates();
 
+  /// @brief IMU calibration state size. Comprised of offsets and biases
   static const unsigned int IMU_STATE_SIZE {12};
 
 private:

@@ -34,7 +34,6 @@ public:
 
   ///
   /// @brief
-  /// @param augmentedStates
   /// @param frameID
   ///
   AugmentedState matchState(unsigned int frameID);

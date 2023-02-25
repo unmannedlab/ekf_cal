@@ -98,7 +98,15 @@ public:
   ///
   CamState getCamState(unsigned int camID);
 
+  ///
+  /// @brief IMU count getter method
+  /// @return IMU count
+  ///
   unsigned int getImuCount();
+  ///
+  /// @brief Camera count getter method
+  /// @return Camera count
+  ///
   unsigned int getCamCount();
 
   ///
@@ -169,6 +177,7 @@ public:
   ///
   void augmentState(unsigned int cameraID, unsigned int frameID);
 
+  /// @brief Size of the body state. Position and orientation and their 1st and 2nd derivatives
   static const unsigned int BODY_STATE_SIZE {18};
 
 private:

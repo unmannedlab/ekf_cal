@@ -47,7 +47,6 @@ public:
   ///
   StatePublisherNode();
 
-
   ///
   /// @brief Publish EKF state information
   ///
