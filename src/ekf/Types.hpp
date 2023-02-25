@@ -26,15 +26,27 @@
 ///
 /// @brief BodyState structure
 ///
-typedef struct BodyState
+class BodyState
 {
+public:
+  ///
+  /// @brief EKF State constructor
+  ///
+  BodyState() {}
+
+  ///
+  /// @brief Get EKF state as a vector
+  /// @return EKF state as a vector
+  ///
+  Eigen::VectorXd toVector();
+
   Eigen::Vector3d position{0.0, 0.0, 0.0};             ///< @brief Body state position
   Eigen::Vector3d velocity{0.0, 0.0, 0.0};             ///< @brief Body state velocity
   Eigen::Vector3d acceleration{0.0, 0.0, 0.0};         ///< @brief Body state acceleration
   Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Body state orientation
   Eigen::Vector3d angularVelocity{0.0, 0.0, 0.0};      ///< @brief Body state angular rate
   Eigen::Vector3d angularAcceleration{0.0, 0.0, 0.0};  ///< @brief Body state angular acceleration
-} BodyState;
+};
 
 ///
 /// @brief ImuState structure
@@ -91,7 +103,7 @@ public:
   ///
   /// @brief EKF State constructor
   ///
-  State();
+  State() {}
 
   ///
   /// @brief Get EKF state as a vector
@@ -110,6 +122,11 @@ public:
   std::map<unsigned int, CamState> camStates{};  ///< @brief Camera States
 };
 
+BodyState & operator+=(BodyState & lBodyState, BodyState & rBodyState);
+BodyState & operator+=(BodyState & lBodyState, Eigen::VectorXd & rVector);
+std::map<unsigned int, ImuState> & operator+=(
+  std::map<unsigned int, ImuState> & lImuState,
+  Eigen::VectorXd & rVector);
 State & operator+=(State & lState, State & rState);
 State & operator+=(State & lState, Eigen::VectorXd & rVector);
 

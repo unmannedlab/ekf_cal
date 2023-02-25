@@ -29,7 +29,7 @@ EKF * EKF::instancePointer = NULL;
 
 Eigen::MatrixXd EKF::getStateTransition(double dT)
 {
-  Eigen::MatrixXd F = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
+  Eigen::MatrixXd F = Eigen::MatrixXd::Identity(BODY_STATE_SIZE, BODY_STATE_SIZE);
   F.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * dT;
   F.block<3, 3>(3, 6) = Eigen::MatrixXd::Identity(3, 3) * dT;
   F.block<3, 3>(9, 12) = Eigen::MatrixXd::Identity(3, 3) * dT;
@@ -61,13 +61,13 @@ void EKF::processModel(double time)
 
   Eigen::MatrixXd F = getStateTransition(dT);
 
-  Eigen::VectorXd processUpdate = F * m_state.toVector();
+  Eigen::VectorXd processUpdate = F * m_state.bodyState.toVector();
 
-  m_state += processUpdate;
+  m_state.bodyState += processUpdate;
 
-  m_cov = F * m_cov * F.transpose() + F * m_processInput * m_processNoise *
-    m_processInput.transpose() * F.transpose();
-
+  // Process input matrix is just identity
+  m_cov.block<BODY_STATE_SIZE, BODY_STATE_SIZE>(0, 0) =
+    F * (m_cov.block<BODY_STATE_SIZE, BODY_STATE_SIZE>(0, 0) + m_processNoise) * F.transpose();
 
   m_currentTime = time;
 }
@@ -92,6 +92,16 @@ CamState EKF::getCamState(unsigned int camID)
   return m_state.camStates[camID];
 }
 
+unsigned int EKF::getImuCount()
+{
+  return m_state.imuStates.size();
+}
+
+unsigned int EKF::getCamCount()
+{
+  return m_state.camStates.size();
+}
+
 Eigen::MatrixXd & EKF::getCov()
 {
   return m_cov;
@@ -107,7 +117,8 @@ void EKF::initialize(double timeInit, BodyState bodyStateInit)
 void EKF::registerIMU(unsigned int imuID, ImuState imuState, Eigen::MatrixXd covariance)
 {
   /// @todo check that id hasn't been used before
-  unsigned int imuStateSize = 18 + 12 * m_state.imuStates.size();
+  /// @todo replace 12s with constants from IMU class
+  unsigned int imuStateSize = BODY_STATE_SIZE + 12 * m_state.imuStates.size();
 
   Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize + 12);
 
@@ -127,8 +138,6 @@ void EKF::registerIMU(unsigned int imuID, ImuState imuState, Eigen::MatrixXd cov
   m_logger->log(
     LogLevel::DEBUG, "Register IMU: " + std::to_string(
       imuID) + ", stateSize: " + std::to_string(m_stateSize));
-  m_processNoise = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) * 1e-3;
-  m_processInput = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
 }
 
 void EKF::registerCamera(unsigned int camID, CamState camState, Eigen::MatrixXd covariance)
@@ -145,14 +154,12 @@ void EKF::registerCamera(unsigned int camID, CamState camState, Eigen::MatrixXd 
   m_logger->log(
     LogLevel::DEBUG, "Register Cam: " + std::to_string(
       camID) + ", stateSize: " + std::to_string(m_stateSize));
-  m_processNoise = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) * 1e-3;
-  m_processInput = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
 }
 
 /// @todo Replace this lookup with a map
 unsigned int EKF::getImuStateStartIndex(unsigned int imuID)
 {
-  unsigned int stateStartIndex = 18;
+  unsigned int stateStartIndex = BODY_STATE_SIZE;
   for (auto const & imuIter : m_state.imuStates) {
     if (imuIter.first == imuID) {
       break;
@@ -166,7 +173,7 @@ unsigned int EKF::getImuStateStartIndex(unsigned int imuID)
 /// @todo Replace this lookup with a map
 unsigned int EKF::getCamStateStartIndex(unsigned int camID)
 {
-  unsigned int stateStartIndex = 18;
+  unsigned int stateStartIndex = BODY_STATE_SIZE;
   stateStartIndex += 12 * m_state.imuStates.size();
   for (auto const & camIter : m_state.camStates) {
     if (camIter.first == camID) {
@@ -181,15 +188,11 @@ unsigned int EKF::getCamStateStartIndex(unsigned int camID)
 /// @todo Replace this lookup with a map
 unsigned int EKF::getAugStateStartIndex(unsigned int camID, unsigned int frameID)
 {
-  m_logger->log(LogLevel::DEBUG, "imu size " + std::to_string(m_state.imuStates.size()));
-
-  unsigned int stateStartIndex = 18;
+  unsigned int stateStartIndex = BODY_STATE_SIZE;
   stateStartIndex += (12 * m_state.imuStates.size());
   for (auto const & camIter : m_state.camStates) {
     stateStartIndex += 6;
-    m_logger->log(LogLevel::DEBUG, "camera " + std::to_string(camIter.first));
     for (auto const & augIter : camIter.second.augmentedStates) {
-      m_logger->log(LogLevel::DEBUG, "frame " + std::to_string(augIter.frameID));
       if (augIter.frameID == frameID) {
         return stateStartIndex;
       } else {
@@ -214,27 +217,16 @@ void EKF::augmentState(unsigned int cameraID, unsigned int frameID)
   augState.orientation = m_state.camStates[cameraID].orientation * m_state.bodyState.orientation;
   m_state.camStates[cameraID].augmentedStates.push_back(augState);
 
-  m_logger->log(
-    LogLevel::DEBUG, "Augment State 1: " + std::to_string(
-      cameraID) + ", " + std::to_string(frameID));
-
   /// @todo Augment covariance with Jacobian
 
   unsigned int augStateStart = getAugStateStartIndex(cameraID, frameID);
   Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize + 12);
 
-
-  m_logger->log(
-    LogLevel::DEBUG, "Augment State 2:" + std::to_string(
-      augStateStart) + ", " + std::to_string(m_stateSize));
-
   /// @todo Math helper function to insert sub-matrix block
   newCov.block(
     0, 0, augStateStart,
     augStateStart) = m_cov.block(0, 0, augStateStart, augStateStart);
-  m_logger->log(LogLevel::DEBUG, "Augment State 3");
   newCov.block(augStateStart, augStateStart, 12, 12) = Eigen::MatrixXd::Identity(12, 12);
-  m_logger->log(LogLevel::DEBUG, "Augment State 4");
   newCov.block(
     augStateStart + 12, augStateStart + 12, m_stateSize - augStateStart,
     m_stateSize - augStateStart) = m_cov.block(
@@ -244,6 +236,4 @@ void EKF::augmentState(unsigned int cameraID, unsigned int frameID)
 
   m_cov = newCov;
   m_stateSize += 12;
-  m_processNoise = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize) * 1e-3;
-  m_processInput = Eigen::MatrixXd::Identity(m_stateSize, m_stateSize);
 }

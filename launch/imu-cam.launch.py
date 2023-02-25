@@ -31,7 +31,7 @@ def generate_launch_description():
         executable='ekf_cal_node',
         output='screen',
         parameters=[os.path.join(this_dir, 'config', 'imu-cam.yaml')],
-        # arguments=['--ros-args', '--log-level', 'debug']
+        arguments=['--ros-args', '--log-level', 'debug']
     )
 
     bag_file_path = os.path.abspath(

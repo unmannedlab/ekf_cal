@@ -50,8 +50,8 @@ Eigen::VectorXd ImuUpdater::predictMeasurement()
 
 Eigen::MatrixXd ImuUpdater::getMeasurementJacobian()
 {
-  Eigen::MatrixXd measurementJacobian(6, 12 + 18);
-  measurementJacobian.setZero();
+  Eigen::MatrixXd measurementJacobian =
+    Eigen::MatrixXd::Zero(6, EKF::BODY_STATE_SIZE + IMU_STATE_SIZE);
 
   // Body Acceleration
   measurementJacobian.block<3, 3>(0, 6) = m_angOffset.toRotationMatrix();
@@ -84,7 +84,7 @@ Eigen::MatrixXd ImuUpdater::getMeasurementJacobian()
   temp(2, 0) = m_bodyAngVel(0) * m_bodyAngVel(2);
   temp(2, 1) = m_bodyAngVel(1) * m_bodyAngVel(2);
   temp(2, 2) = -(m_bodyAngVel(0) * m_bodyAngVel(0)) - (m_bodyAngVel(1) * m_bodyAngVel(1));
-  measurementJacobian.block<3, 3>(0, 18) =
+  measurementJacobian.block<3, 3>(0, IMU_STATE_SIZE) =
     m_angOffset * skewSymmetric(m_bodyAngAcc) + temp;
 
   // IMU Angular Offset
@@ -92,21 +92,21 @@ Eigen::MatrixXd ImuUpdater::getMeasurementJacobian()
     m_bodyAngAcc.cross(m_posOffset) +
     m_bodyAngVel.cross(m_bodyAngVel.cross(m_posOffset));
 
-  measurementJacobian.block<3, 3>(0, 21) =
+  measurementJacobian.block<3, 3>(0, EKF::BODY_STATE_SIZE + 3) =
     -(m_angOffset * skewSymmetric(imu_acc));
 
   // IMU Body Angular Velocity
   measurementJacobian.block<3, 3>(3, 12) = m_angOffset.toRotationMatrix();
 
   // IMU Angular Offset
-  measurementJacobian.block<3, 3>(3, 21) =
+  measurementJacobian.block<3, 3>(3, EKF::BODY_STATE_SIZE + 3) =
     -(m_angOffset * skewSymmetric(m_bodyAngVel));
 
   // IMU Accelerometer Bias
-  measurementJacobian.block<3, 3>(0, 24) = Eigen::MatrixXd::Identity(3, 3);
+  measurementJacobian.block<3, 3>(0, EKF::BODY_STATE_SIZE + 6) = Eigen::MatrixXd::Identity(3, 3);
 
   // IMU Gyroscope Bias
-  measurementJacobian.block<3, 3>(3, 27) = Eigen::MatrixXd::Identity(3, 3);
+  measurementJacobian.block<3, 3>(3, EKF::BODY_STATE_SIZE + 9) = Eigen::MatrixXd::Identity(3, 3);
 
   return measurementJacobian;
 }
@@ -129,8 +129,6 @@ void ImuUpdater::RefreshStates()
 }
 
 
-/// @todo Move to a EKF updater class
-/// @todo This is very slow for large states. Slice matrix before multiplications
 void ImuUpdater::updateEKF(
   double time, Eigen::Vector3d acceleration,
   Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
@@ -149,21 +147,32 @@ void ImuUpdater::updateEKF(
   unsigned int stateSize = m_ekf->getState().getStateSize();
   unsigned int stateStartIndex = m_ekf->getImuStateStartIndex(m_id);
 
+  unsigned int updateSize = EKF::BODY_STATE_SIZE + IMU_STATE_SIZE * m_ekf->getImuCount();
+
   Eigen::MatrixXd subH = getMeasurementJacobian();
-  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, stateSize);
+  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, updateSize);
 
-  H.block<6, 18>(0, 0) = subH.block<6, 18>(0, 0);
+  H.block<6, EKF::BODY_STATE_SIZE>(0, 0) = subH.block<6, EKF::BODY_STATE_SIZE>(0, 0);
 
-  H.block(0, stateStartIndex, 6, 12) = subH.block<6, 12>(0, 18);
+  H.block(0, stateStartIndex, 6, IMU_STATE_SIZE) =
+    subH.block<6, IMU_STATE_SIZE>(0, EKF::BODY_STATE_SIZE);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
   R.block<3, 3>(0, 0) = minBoundDiagonal(accelerationCovariance, 1e-3);
   R.block<3, 3>(3, 3) = minBoundDiagonal(angularRateCovariance, 1e-2);
 
-  Eigen::MatrixXd S = H * m_ekf->getCov() * H.transpose() + R;
-  Eigen::MatrixXd K = m_ekf->getCov() * H.transpose() * S.inverse();
+  Eigen::MatrixXd S = H * m_ekf->getCov().block(0, 0, updateSize, updateSize) * H.transpose() + R;
+  Eigen::MatrixXd K =
+    m_ekf->getCov().block(0, 0, updateSize, updateSize) * H.transpose() * S.inverse();
 
   Eigen::VectorXd update = K * resid;
-  m_ekf->getState() += update;
-  m_ekf->getCov() = (Eigen::MatrixXd::Identity(stateSize, stateSize) - K * H) * m_ekf->getCov();
+  Eigen::VectorXd bodyUpdate = update.segment<EKF::BODY_STATE_SIZE>(0);
+  Eigen::VectorXd imuUpdate =
+    update.segment(EKF::BODY_STATE_SIZE, updateSize - EKF::BODY_STATE_SIZE);
+
+  m_ekf->getState().bodyState += bodyUpdate;
+  m_ekf->getState().imuStates += imuUpdate;
+  m_ekf->getCov().block(0, 0, updateSize, updateSize) =
+    (Eigen::MatrixXd::Identity(updateSize, updateSize) - K * H) *
+    m_ekf->getCov().block(0, 0, updateSize, updateSize);
 }

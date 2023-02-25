@@ -31,6 +31,7 @@
 /// @todo Implement check for correlation coefficients to be between +/- 1
 /// @todo Add gravity initialization/check
 /// @todo Create generic function to update(r,H,R)
+/// @todo Add map of sensor IDs to start index and state size
 ///
 class EKF
 {
@@ -96,6 +97,9 @@ public:
   /// @return Camera state
   ///
   CamState getCamState(unsigned int camID);
+
+  unsigned int getImuCount();
+  unsigned int getCamCount();
 
   ///
   /// @brief Getter method for state covariance matrix reference
@@ -165,16 +169,18 @@ public:
   ///
   void augmentState(unsigned int cameraID, unsigned int frameID);
 
+  static const unsigned int BODY_STATE_SIZE {18};
+
 private:
-  unsigned int m_stateSize{18U};
+  unsigned int m_stateSize{BODY_STATE_SIZE};
   State m_state;
-  Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(18U, 18U);
+  Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(BODY_STATE_SIZE, BODY_STATE_SIZE);
   double m_currentTime {0};
   bool m_timeInitialized {false};
   Logger * m_logger = Logger::getInstance();
 
-  Eigen::MatrixXd m_processNoise = Eigen::MatrixXd::Identity(18U, 18U) * 1e-3;
-  Eigen::MatrixXd m_processInput = Eigen::MatrixXd::Identity(18U, 18U);
+  Eigen::MatrixXd m_processNoise =
+    Eigen::MatrixXd::Identity(BODY_STATE_SIZE, BODY_STATE_SIZE) * 1e-3;
 };
 
 #endif  // EKF__EKF_HPP_

@@ -1,7 +1,7 @@
 
 /EkfCalNode:
     ros__parameters:
-        Log_Level: 1
+        Log_Level: 0
 
         IMU_list:
             - "vn300"

@@ -24,14 +24,29 @@
 
 #include "utility/TypeHelper.hpp"
 
+BodyState & operator+=(BodyState & lBodyState, BodyState & rBodyState)
+{
+  lBodyState.position += rBodyState.position;
+  lBodyState.velocity += rBodyState.velocity;
+  lBodyState.acceleration += rBodyState.acceleration;
+  lBodyState.orientation *= rBodyState.orientation;
+  lBodyState.angularVelocity += rBodyState.angularVelocity;
+  lBodyState.angularAcceleration += rBodyState.angularAcceleration;
+}
+
+BodyState & operator+=(BodyState & rBodyState, Eigen::VectorXd & rVector)
+{
+  rBodyState.position += rVector.segment<3>(0);
+  rBodyState.velocity += rVector.segment<3>(3);
+  rBodyState.acceleration += rVector.segment<3>(6);
+  rBodyState.orientation *= rotVecToQuat(rVector.segment<3>(9));
+  rBodyState.angularVelocity += rVector.segment<3>(12);
+  rBodyState.angularAcceleration += rVector.segment<3>(15);
+}
+
 State & operator+=(State & lState, State & rState)
 {
-  lState.bodyState.position += lState.bodyState.position;
-  lState.bodyState.velocity += lState.bodyState.velocity;
-  lState.bodyState.acceleration += lState.bodyState.acceleration;
-  lState.bodyState.orientation *= lState.bodyState.orientation;
-  lState.bodyState.angularVelocity += lState.bodyState.angularVelocity;
-  lState.bodyState.angularAcceleration += lState.bodyState.angularAcceleration;
+  lState.bodyState += rState.bodyState;
 
   for (auto & imuIter : lState.imuStates) {
     unsigned int imuID = imuIter.first;
@@ -58,12 +73,8 @@ State & operator+=(State & lState, State & rState)
 
 State & operator+=(State & lState, Eigen::VectorXd & rVector)
 {
-  lState.bodyState.position += rVector.segment<3>(0);
-  lState.bodyState.velocity += rVector.segment<3>(3);
-  lState.bodyState.acceleration += rVector.segment<3>(6);
-  lState.bodyState.orientation *= rotVecToQuat(rVector.segment<3>(9));
-  lState.bodyState.angularVelocity += rVector.segment<3>(12);
-  lState.bodyState.angularAcceleration += rVector.segment<3>(15);
+  Eigen::VectorXd rBodyState = rVector.segment<18>(0);
+  lState.bodyState += rBodyState;
 
   unsigned int n = 18;
   for (auto & imuIter : lState.imuStates) {
@@ -91,20 +102,41 @@ State & operator+=(State & lState, Eigen::VectorXd & rVector)
   return lState;
 }
 
+std::map<unsigned int, ImuState> & operator+=(
+  std::map<unsigned int, ImuState> & lImuState,
+  Eigen::VectorXd & rVector)
+{
+  unsigned int n {0};
+  for (auto & imuIter : lImuState) {
+    unsigned int imuID = imuIter.first;
+    lImuState[imuID].position += rVector.segment<3>(n + 0);
+    lImuState[imuID].orientation *= rotVecToQuat(rVector.segment<3>(n + 3));
+    lImuState[imuID].accBias += rVector.segment<3>(n + 6);
+    lImuState[imuID].omgBias += rVector.segment<3>(n + 9);
+    n += 12;
+  }
+}
 
-State::State() {}
 
+Eigen::VectorXd BodyState::toVector()
+{
+  Eigen::VectorXd outVec = Eigen::VectorXd::Zero(18);
+
+  outVec.segment<3>(0) = position;
+  outVec.segment<3>(3) = velocity;
+  outVec.segment<3>(6) = acceleration;
+  outVec.segment<3>(9) = quatToRotVec(orientation);
+  outVec.segment<3>(12) = angularVelocity;
+  outVec.segment<3>(15) = angularAcceleration;
+
+  return outVec;
+}
 
 Eigen::VectorXd State::toVector()
 {
   Eigen::VectorXd outVec = Eigen::VectorXd::Zero(getStateSize());
 
-  outVec.segment<3>(0) = bodyState.position;
-  outVec.segment<3>(3) = bodyState.velocity;
-  outVec.segment<3>(6) = bodyState.acceleration;
-  outVec.segment<3>(9) = quatToRotVec(bodyState.orientation);
-  outVec.segment<3>(12) = bodyState.angularVelocity;
-  outVec.segment<3>(15) = bodyState.angularAcceleration;
+  outVec.segment<18>(0) = bodyState.toVector();
   unsigned int n = 18;
 
   for (auto const & imuIter : imuStates) {
