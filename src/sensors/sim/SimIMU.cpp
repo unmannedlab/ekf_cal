@@ -13,25 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sensors/ros/RosIMU.hpp"
+#include "sensors/sim/SimIMU.hpp"
 
-#include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/imu.hpp>
 #include <eigen3/Eigen/Eigen>
 
-#include "sensors/Sensor.hpp"
-#include "utility/MathHelper.hpp"
-#include "utility/RosHelper.hpp"
-#include "utility/TypeHelper.hpp"
+#include "infrastructure/sim/TruthEngine.hpp"
 
-
-void RosIMU::callback(const sensor_msgs::msg::Imu::SharedPtr msg)
+SimImuMessage SimIMU::generateMeasurement(double measurementTime)
 {
-  double time = rosHeaderToTime(msg->header);
-  Eigen::Vector3d acc = rosToEigen(msg->linear_acceleration);
-  Eigen::Vector3d omg = rosToEigen(msg->angular_velocity);
-  Eigen::Matrix3d acc_cov = rosToEigen(msg->linear_acceleration_covariance);
-  Eigen::Matrix3d omg_cov = rosToEigen(msg->angular_velocity_covariance);
-
-  IMU::callback(time, acc, acc_cov, omg, omg_cov);
+  SimImuMessage simImuMsg;
+  simImuMsg.time = measurementTime;
+  simImuMsg.acceleration = Eigen::Vector3d::Zero(3);
+  simImuMsg.angularRate = Eigen::Vector3d::Zero(3);
+  return simImuMsg;
 }

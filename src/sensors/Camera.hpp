@@ -18,6 +18,7 @@
 
 #include <string>
 #include <vector>
+#include <eigen3/Eigen/Eigen>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>

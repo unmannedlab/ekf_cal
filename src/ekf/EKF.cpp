@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <eigen3/Eigen/Eigen>
 
 #include "ekf/Types.hpp"
 #include "infrastructure/Logger.hpp"

@@ -15,6 +15,8 @@
 
 #include "sensors/IMU.hpp"
 
+#include <eigen3/Eigen/Eigen>
+
 #include "ekf/Types.hpp"
 #include "infrastructure/Logger.hpp"
 #include "sensors/Sensor.hpp"

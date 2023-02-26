@@ -17,6 +17,7 @@
 #define SENSORS__IMU_HPP_
 
 #include <string>
+#include <eigen3/Eigen/Eigen>
 
 #include "sensors/Sensor.hpp"
 #include "infrastructure/Logger.hpp"

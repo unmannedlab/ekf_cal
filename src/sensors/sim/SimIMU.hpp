@@ -13,25 +13,40 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sensors/ros/RosIMU.hpp"
 
-#include <rclcpp/rclcpp.hpp>
+#ifndef SENSORS__ROS__SIMIMU_HPP_
+#define SENSORS__ROS__SIMIMU_HPP_
+
+#include <string>
 #include <sensor_msgs/msg/imu.hpp>
 #include <eigen3/Eigen/Eigen>
 
+#include "infrastructure/Logger.hpp"
+#include "sensors/IMU.hpp"
 #include "sensors/Sensor.hpp"
-#include "utility/MathHelper.hpp"
-#include "utility/RosHelper.hpp"
-#include "utility/TypeHelper.hpp"
+#include "sensors/sim/SimTypes.hpp"
 
 
-void RosIMU::callback(const sensor_msgs::msg::Imu::SharedPtr msg)
+class SimImuMessage : public SimMessage
 {
-  double time = rosHeaderToTime(msg->header);
-  Eigen::Vector3d acc = rosToEigen(msg->linear_acceleration);
-  Eigen::Vector3d omg = rosToEigen(msg->angular_velocity);
-  Eigen::Matrix3d acc_cov = rosToEigen(msg->linear_acceleration_covariance);
-  Eigen::Matrix3d omg_cov = rosToEigen(msg->angular_velocity_covariance);
+public:
+  SimImuMessage() {}
 
-  IMU::callback(time, acc, acc_cov, omg, omg_cov);
-}
+  Eigen::Vector3d acceleration;
+  Eigen::Vector3d angularRate;
+};
+
+///
+/// @class SimIMU
+/// @brief Simulated IMU Sensor Class
+///
+class SimIMU : public IMU
+{
+public:
+  using IMU::IMU;
+
+  SimImuMessage generateMeasurement(double measurementTime);
+};
+
+
+#endif  // SENSORS__ROS__SIMIMU_HPP_
