@@ -41,14 +41,12 @@ cv::Ptr<cv::FeatureDetector> Tracker::initFeatureDetector(
   cv::Ptr<cv::FeatureDetector> featureDetector;
   switch (detector) {
     case FeatureDetectorEnum::BRISK:
-      // featureDetector = cv::BRISK::create(threshold, 3, 1.0);
-      featureDetector = cv::BRISK::create();
+      featureDetector = cv::BRISK::create(threshold, 3, 1.0);
       break;
     case FeatureDetectorEnum::FAST:
-      // featureDetector = cv::FastFeatureDetector::create(
-      //   threshold, true,
-      //   cv::FastFeatureDetector::TYPE_9_16);
-      featureDetector = cv::FastFeatureDetector::create();
+      featureDetector = cv::FastFeatureDetector::create(
+        threshold, true,
+        cv::FastFeatureDetector::TYPE_9_16);
       break;
     case FeatureDetectorEnum::GFTT:
       featureDetector = cv::GFTTDetector::create();
@@ -57,10 +55,9 @@ cv::Ptr<cv::FeatureDetector> Tracker::initFeatureDetector(
       featureDetector = cv::MSER::create();
       break;
     case FeatureDetectorEnum::ORB:
-      // featureDetector = cv::ORB::create(
-      //   500, 1.2f, 8, 31,
-      //   0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
-      featureDetector = cv::ORB::create();
+      featureDetector = cv::ORB::create(
+        500, 1.2f, 8, 31,
+        0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
       break;
     case FeatureDetectorEnum::SIFT:
       featureDetector = cv::SIFT::create();
@@ -78,10 +75,9 @@ cv::Ptr<cv::DescriptorExtractor> Tracker::initDescriptorExtractor(
   cv::Ptr<cv::DescriptorExtractor> descriptorExtractor;
   switch (extractor) {
     case DescriptorExtractorEnum::ORB:
-      // descriptorExtractor = cv::ORB::create(
-      //   500, 1.2f, 8, 31,
-      //   0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
-      descriptorExtractor = cv::ORB::create();
+      descriptorExtractor = cv::ORB::create(
+        500, 1.2f, 8, 31,
+        0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
       break;
     case DescriptorExtractorEnum::SIFT:
       descriptorExtractor = cv::SIFT::create();

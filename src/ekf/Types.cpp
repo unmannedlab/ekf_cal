@@ -32,16 +32,20 @@ BodyState & operator+=(BodyState & lBodyState, BodyState & rBodyState)
   lBodyState.orientation *= rBodyState.orientation;
   lBodyState.angularVelocity += rBodyState.angularVelocity;
   lBodyState.angularAcceleration += rBodyState.angularAcceleration;
+
+  return lBodyState;
 }
 
-BodyState & operator+=(BodyState & rBodyState, Eigen::VectorXd & rVector)
+BodyState & operator+=(BodyState & lBodyState, Eigen::VectorXd & rVector)
 {
-  rBodyState.position += rVector.segment<3>(0);
-  rBodyState.velocity += rVector.segment<3>(3);
-  rBodyState.acceleration += rVector.segment<3>(6);
-  rBodyState.orientation *= rotVecToQuat(rVector.segment<3>(9));
-  rBodyState.angularVelocity += rVector.segment<3>(12);
-  rBodyState.angularAcceleration += rVector.segment<3>(15);
+  lBodyState.position += rVector.segment<3>(0);
+  lBodyState.velocity += rVector.segment<3>(3);
+  lBodyState.acceleration += rVector.segment<3>(6);
+  lBodyState.orientation *= rotVecToQuat(rVector.segment<3>(9));
+  lBodyState.angularVelocity += rVector.segment<3>(12);
+  lBodyState.angularAcceleration += rVector.segment<3>(15);
+
+  return lBodyState;
 }
 
 State & operator+=(State & lState, State & rState)
@@ -115,6 +119,8 @@ std::map<unsigned int, ImuState> & operator+=(
     lImuState[imuID].omgBias += rVector.segment<3>(n + 9);
     n += 12;
   }
+
+  return lImuState;
 }
 
 

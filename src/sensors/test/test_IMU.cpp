@@ -39,5 +39,3 @@ TEST(test_IMU, Id) {
   EXPECT_EQ(imu1.getId(), id_one);
   EXPECT_EQ(imu2.getId(), id_two);
 }
-
-/// @todo Remaining IMU tests

@@ -144,7 +144,6 @@ void ImuUpdater::updateEKF(
   Eigen::VectorXd z_pred = predictMeasurement();
   Eigen::VectorXd resid = z - z_pred;
 
-  unsigned int stateSize = m_ekf->getState().getStateSize();
   unsigned int stateStartIndex = m_ekf->getImuStateStartIndex(m_id);
 
   unsigned int updateSize = EKF::BODY_STATE_SIZE + IMU_STATE_SIZE * m_ekf->getImuCount();

@@ -17,7 +17,6 @@
 #define INFRASTRUCTURE__LOGGER_HPP_
 
 
-/// TODO: Create generic logging class
 /// TODO: Create grabber function from list of available loggers get_logger("Logger")->
 #include <string>
 

@@ -19,9 +19,6 @@
 #include "sensors/ros/RosCamera.hpp"
 #include "sensors/Tracker.hpp"
 
-///
-/// @todo Write this test
-///
 TEST(test_RosCamera, constructor) {
   Camera::Params cParams;
   Tracker::Params tParams;

@@ -28,6 +28,8 @@
 ///
 /// @class Sensor
 /// @brief Pure base sensor class
+/// @todo Time offset filter
+/// @todo Function for checking callback rate
 ///
 class Sensor
 {

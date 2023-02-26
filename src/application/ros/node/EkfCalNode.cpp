@@ -82,16 +82,11 @@ void EkfCalNode::declareSensors()
 void EkfCalNode::loadSensors()
 {
   // Load IMU sensor parameters
-  /// @todo Handle zero imu case
   for (std::string & imuName : m_ImuList) {
     loadIMU(imuName);
   }
-  // if (m_baseIMUAssigned == false) {
-  //   m_logger->log(LogLevel::WARN, "Base IMU should be set for filter stability");
-  // }
 
   // Load Camera sensor parameters
-  /// @todo Handle zero camera case
   for (std::string & camName : m_CameraList) {
     loadCamera(camName);
   }

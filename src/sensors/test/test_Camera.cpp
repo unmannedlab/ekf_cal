@@ -19,9 +19,6 @@
 #include "sensors/Camera.hpp"
 #include "sensors/Tracker.hpp"
 
-///
-/// @todo Write these unit tests
-///
 TEST(test_Camera, Constructor) {
   Camera::Params cParams;
   Tracker::Params tParams;

@@ -193,7 +193,7 @@ unsigned int EKF::getAugStateStartIndex(unsigned int camID, unsigned int frameID
   for (auto const & camIter : m_state.camStates) {
     stateStartIndex += 6;
     for (auto const & augIter : camIter.second.augmentedStates) {
-      if (augIter.frameID == frameID) {
+      if ((camIter.first == camID) && (augIter.frameID == frameID)) {
         return stateStartIndex;
       } else {
         stateStartIndex += 12;
