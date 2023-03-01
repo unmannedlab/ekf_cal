@@ -16,5 +16,16 @@
 #include "infrastructure/sim/TruthEngine.hpp"
 
 #include <random>
+#include <eigen3/Eigen/Eigen>
 
 TruthEngine::TruthEngine() {}
+
+Eigen::Vector3d TruthEngine::GetBodyAngularRate()
+{
+  return Eigen::Vector3d::Zero(3);
+}
+
+Eigen::Vector3d TruthEngine::GetBodyAcceleration()
+{
+  return Eigen::Vector3d::Zero(3);
+}

@@ -68,6 +68,10 @@ target_include_directories(EKF_LIB PUBLIC
 set(SIM_SRCS
     src/infrastructure/sim/SimLog.cpp
     src/infrastructure/sim/TruthEngine.cpp
+    src/sensors/sim/SimIMU.cpp
+    src/sensors/sim/SimTracker.cpp
+    src/sensors/sim/SimTypes.cpp
+    src/utility/sim/SimRNG.cpp
 )
 
 # Create library with Sim sources
@@ -77,6 +81,8 @@ target_include_directories(SIM_LIB PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
+
+ament_target_dependencies(SIM_LIB OpenCV)
 
 # ROS Sources
 set(ROS_SRCS
@@ -95,8 +101,6 @@ target_include_directories(ROS_LIB PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 ament_target_dependencies(ROS_LIB ${ROS_PKGS})
-
-install(TARGETS EKF_LIB)
 
 # EKF CAL Node
 add_library(EKF_NODE_LIB src/application/ros/node/EkfCalNode.cpp)
@@ -136,7 +140,9 @@ target_include_directories(low_sim PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(state_pub_node SIM_LIB EKF_LIB)
+target_link_libraries(EKF_LIB SIM_LIB)
+target_link_libraries(low_sim SIM_LIB EKF_LIB)
+ament_target_dependencies(low_sim OpenCV)
 
 install(TARGETS
     ekf_cal_node

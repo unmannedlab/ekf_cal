@@ -13,21 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
-#define INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
+#include "utility/sim/SimRNG.hpp"
 
-#include <eigen3/Eigen/Eigen>
+std::mt19937_64 SimRNG::m_generator;
 
-///
-/// @class TruthEngine
-/// @brief Truth for low fidelity simulations
-///
-class TruthEngine
+void SimRNG::SetSeed(double seed)
 {
-public:
-  TruthEngine();
-  Eigen::Vector3d GetBodyAngularRate();
-  Eigen::Vector3d GetBodyAcceleration();
-};
+  m_generator = std::mt19937_64(seed);
+}
 
-#endif  // INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
+double SimRNG::NormRand(double mean, double stdDev)
+{
+  std::normal_distribution<double> normDist(mean, stdDev);
+  return normDist(m_generator);
+}

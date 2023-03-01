@@ -12,3 +12,23 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#ifndef UTILITY__SIM_SIMRNG_HPP_
+#define UTILITY__SIM_SIMRNG_HPP_
+
+#include <random>
+
+class SimRNG
+{
+public:
+  SimRNG() {}
+
+  void SetSeed(double seed);
+
+  double NormRand(double mean, double stdDev);
+
+private:
+  static std::mt19937_64 m_generator;
+};
+
+#endif  // UTILITY__SIM_SIMRNG_HPP_

@@ -13,10 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef EKF__TYPES_HPP_
-#define EKF__TYPES_HPP_
-
-#endif  // EKF__TYPES_HPP_
+#ifndef SENSORS__SIM__SIMTYPES_HPP_
+#define SENSORS__SIM__SIMTYPES_HPP_
 
 class SimMessage
 {
@@ -25,3 +23,5 @@ public:
 
   double time;
 };
+
+#endif  // SENSORS__SIM__SIMTYPES_HPP_

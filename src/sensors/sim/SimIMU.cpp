@@ -16,14 +16,50 @@
 #include "sensors/sim/SimIMU.hpp"
 
 #include <eigen3/Eigen/Eigen>
+#include <random>
 
 #include "infrastructure/sim/TruthEngine.hpp"
+#include "utility/sim/SimRNG.hpp"
+
+SimIMU::SimIMU(SimImuParams params, std::shared_ptr<TruthEngine> truthEngine)
+: IMU(params.imuParams)
+{
+  m_tBias = params.tBias;
+  m_tError = params.tError;
+  m_accBias = params.accBias;
+  m_accError = params.accError;
+  m_omgBias = params.omgBias;
+  m_omgError = params.omgError;
+  m_posOffset = params.posOffset;
+  m_angOffset = params.angOffset;
+  m_truth = truthEngine;
+}
 
 SimImuMessage SimIMU::generateMeasurement(double measurementTime)
 {
   SimImuMessage simImuMsg;
-  simImuMsg.time = measurementTime;
+  simImuMsg.time = measurementTime += m_rng.NormRand(m_tBias, m_tError);
+
+  Eigen::Vector3d bodyAcc = m_truth->GetBodyAcceleration();
+  Eigen::Vector3d bodyOmg = m_truth->GetBodyAngularRate();
+
+  /// @todo Insert acceleration model here
+
   simImuMsg.acceleration = Eigen::Vector3d::Zero(3);
+  simImuMsg.acceleration[0] += m_rng.NormRand(m_accBias, m_accError);
+  simImuMsg.acceleration[1] += m_rng.NormRand(m_accBias, m_accError);
+  simImuMsg.acceleration[2] += m_rng.NormRand(m_accBias, m_accError);
+
   simImuMsg.angularRate = Eigen::Vector3d::Zero(3);
+  simImuMsg.angularRate[0] += m_rng.NormRand(m_omgBias, m_omgError);
+  simImuMsg.angularRate[1] += m_rng.NormRand(m_omgBias, m_omgError);
+  simImuMsg.angularRate[2] += m_rng.NormRand(m_omgBias, m_omgError);
+
+  Eigen::Vector3d accSigmas(m_accError, m_accError, m_accError);
+  Eigen::Vector3d omgSigmas(m_omgError, m_omgError, m_omgError);
+
+  simImuMsg.accelerationCovariance = accSigmas.asDiagonal();
+  simImuMsg.angularRateCovariance = omgSigmas.asDiagonal();
+
   return simImuMsg;
 }

@@ -13,11 +13,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "sensors/sim/SimIMU.hpp"
 #include "infrastructure/sim/TruthEngine.hpp"
+
 
 int main(int argc, char * argv[])
 {
   // Define sensors to use (load config from yaml)
+
+  auto truthEngine = std::make_shared<TruthEngine>();
+
+  SimImuParams imuParams1;
+  imuParams1.accError = 1e-3;
+  imuParams1.omgError = 1e-3;
+  SimIMU imu1(imuParams1, truthEngine);
+
+  SimImuParams imuParams2;
+  imuParams2.accError = 1e-3;
+  imuParams2.omgError = 1e-3;
+  imuParams2.posOffset = Eigen::Vector3d(0.1, 0, 0);
+  SimIMU imu2(imuParams2, truthEngine);
 
   // Calculate sensor measurement times with errors
 

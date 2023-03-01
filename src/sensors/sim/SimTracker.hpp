@@ -13,21 +13,38 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
-#define INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
+#ifndef SENSORS__SIM__SIMTRACKER_HPP_
+#define SENSORS__SIM__SIMTRACKER_HPP_
 
-#include <eigen3/Eigen/Eigen>
+#include <string>
 
-///
-/// @class TruthEngine
-/// @brief Truth for low fidelity simulations
-///
-class TruthEngine
+#include "infrastructure/Logger.hpp"
+#include "sensors/Camera.hpp"
+#include "sensors/Sensor.hpp"
+#include "sensors/sim/SimTypes.hpp"
+#include "utility/sim/SimRNG.hpp"
+
+
+class SimTrackerMessage : public SimMessage
 {
 public:
-  TruthEngine();
-  Eigen::Vector3d GetBodyAngularRate();
-  Eigen::Vector3d GetBodyAcceleration();
+  SimTrackerMessage() {}
 };
 
-#endif  // INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
+class SimTracker : public Camera
+{
+public:
+  SimTrackerMessage generateMeasurement(double measurementTime);
+
+private:
+  double tBias{0};
+  double uvError{1e-9};
+  double accBias{0};
+  double accError{1};
+  double omgBias{0};
+  double omgError{1};
+  SimRNG m_rng;
+};
+
+
+#endif  // SENSORS__SIM__SIMTRACKER_HPP_

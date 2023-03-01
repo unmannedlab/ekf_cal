@@ -17,11 +17,10 @@
 #define EKF__TYPES_HPP_
 
 #include <eigen3/Eigen/Eigen>
-#include <vector>
 #include <map>
-
-#include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
+#include <opencv2/opencv.hpp>
+#include <vector>
 
 ///
 /// @brief BodyState structure
