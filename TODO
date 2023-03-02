@@ -1,7 +1,9 @@
 Simple Simulation Work:
     - Camera model
+    - Tracker model
     - IMU Model
     - Trajectory designer
+    - Simulated fiducial detector
 
 MAVS Simulation Work:
     - Create objects for calling MAVS binaries directly
@@ -18,6 +20,7 @@ Package Features:
     - GPS update and notion of global frame
     - Interpolation between stochastic clones
     - Feature comparisons between cameras
+    - Option to pre-fuse IMU measurements
 
 Software Work:
     - Define types/transforms to force different coordinate frames
@@ -29,7 +32,10 @@ Software Work:
     - CI/CD for unit tests
     - Set of single metrics for performance evaluation/testing
     - Integration tests
+    - Remove Singleton Instance of EKF for simultaneous testing
+    - Move feature detection out of tracker callback
 
 Documentation:
     - Create Cake Diagram for EKF-CAL architecture
     - Paper in JOSS: Journal of Open Source Software
+    - Deploy Github page for generated doxygen
