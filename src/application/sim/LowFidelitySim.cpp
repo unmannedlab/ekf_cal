@@ -21,26 +21,43 @@ int main(int argc, char * argv[])
 {
   // Define sensors to use (load config from yaml)
 
+  double maxTime = 10;
+
+  // Construct sensors and EKF
   auto truthEngine = std::make_shared<TruthEngine>();
+  std::map<unsigned int, std::shared_ptr<Sensor>> sensorMap;
 
   SimImuParams imuParams1;
   imuParams1.accError = 1e-3;
   imuParams1.omgError = 1e-3;
-  SimIMU imu1(imuParams1, truthEngine);
+  auto imu1 = std::make_shared<SimIMU>(imuParams1, truthEngine);
+  sensorMap[imu1->getId()] = imu1;
 
   SimImuParams imuParams2;
   imuParams2.accError = 1e-3;
   imuParams2.omgError = 1e-3;
   imuParams2.posOffset = Eigen::Vector3d(0.1, 0, 0);
-  SimIMU imu2(imuParams2, truthEngine);
-
-  // Calculate sensor measurement times with errors
+  auto imu2 = std::make_shared<SimIMU>(imuParams2, truthEngine);
+  sensorMap[imu2->getId()] = imu2;
 
   // Calculate sensor measurements
+  std::vector<SimMessage> measurements;
+  std::vector<SimImuMessage> imu1Measurements = imu1->generateMeasurements(maxTime);
+  std::vector<SimImuMessage> imu2Measurements = imu2->generateMeasurements(maxTime);
 
-  // Construct sensors and EKF
+  measurements.insert(measurements.end(), imu1Measurements.begin(), imu1Measurements.end());
+  measurements.insert(measurements.end(), imu2Measurements.begin(), imu2Measurements.end());
+
+  // Sort Measurements
+  sort(measurements.begin(), measurements.end());
 
   // Run measurements through sensors and EKF
+  for (auto measurement : measurements) {
+    auto it = sensorMap.find(measurement.sensorID);
+    if (it != sensorMap.end()) {
+      // it->second->callback(measurement);
+    }
+  }
 
   // Plot results
   return 0;
