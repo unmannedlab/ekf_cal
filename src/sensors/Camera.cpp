@@ -29,6 +29,10 @@
 #include "utility/MathHelper.hpp"
 #include "utility/TypeHelper.hpp"
 
+
+CameraMessage::CameraMessage(cv::Mat & imgIn)
+: SensorMessage(), image(imgIn) {}
+
 /// @todo add detector/extractor parameters to input
 Camera::Camera(Camera::Params cParams, Tracker::Params tParams)
 : Sensor(cParams.name), m_tracker(tParams, m_id)
@@ -46,18 +50,18 @@ Camera::Camera(Camera::Params cParams, Tracker::Params tParams)
   m_ekf->registerCamera(m_id, camState, cov);
 }
 
-void Camera::callback(double time, cv::Mat & imgIn)
+void Camera::callback(CameraMessage cameraMessage)
 {
   m_logger->log(
     LogLevel::DEBUG, "Camera " + std::to_string(
-      m_id) + " callback called at time = " + std::to_string(time));
+      cameraMessage.sensorID) + " callback called at time = " + std::to_string(cameraMessage.time));
 
   unsigned int frameID = generateFrameID();
 
   m_ekf->augmentState(m_id, frameID);
 
   FeatureTracks featureTracks;
-  m_tracker.track(frameID, imgIn, m_outImg, featureTracks);
+  m_tracker.track(frameID, cameraMessage.image, m_outImg, featureTracks);
   /// @todo Undistort points post track?
   // cv::undistortPoints();
   /// @todo Call a EKF updater method

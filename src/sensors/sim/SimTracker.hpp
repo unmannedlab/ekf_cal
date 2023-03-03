@@ -21,11 +21,10 @@
 #include "infrastructure/Logger.hpp"
 #include "sensors/Camera.hpp"
 #include "sensors/Sensor.hpp"
-#include "sensors/sim/SimTypes.hpp"
 #include "utility/sim/SimRNG.hpp"
 
 
-class SimTrackerMessage : public SimMessage
+class SimTrackerMessage : public SensorMessage
 {
 public:
   SimTrackerMessage() {}

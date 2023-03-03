@@ -34,3 +34,10 @@ std::string Sensor::getName()
 {
   return m_name;
 }
+
+void Sensor::callback(SensorMessage sensorMessage)
+{
+  m_logger->log(
+    LogLevel::ERROR,
+    "Callback on Base Sensor Called at Time" + std::to_string(sensorMessage.time));
+}

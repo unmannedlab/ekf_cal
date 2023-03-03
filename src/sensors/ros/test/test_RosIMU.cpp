@@ -19,7 +19,7 @@
 #include "sensors/ros/RosIMU.hpp"
 #include "sensors/IMU.hpp"
 
-TEST(test_IMU, Constructor) {
+TEST(test_RosIMU, Constructor) {
   IMU::Params params;
   RosIMU rosIMU(params);
 }

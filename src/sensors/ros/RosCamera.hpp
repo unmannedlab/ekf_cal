@@ -26,6 +26,14 @@
 #include "infrastructure/Logger.hpp"
 #include "sensors/Camera.hpp"
 
+
+class RosCameraMessage : public CameraMessage
+{
+public:
+  RosCameraMessage(const sensor_msgs::msg::Image::SharedPtr msg);
+};
+
+
 ///
 /// @class RosCamera
 /// @brief ROS camera sensor class
@@ -45,7 +53,7 @@ public:
   /// @brief RosCamera callback method
   /// @param msg ROS image message
   ///
-  void callback(const sensor_msgs::msg::Image::SharedPtr msg);
+  void callback(RosCameraMessage rosCameraMessage);
 
   ///
   /// @brief Camera output ROS image getter method

@@ -23,6 +23,12 @@
 #include "sensors/IMU.hpp"
 #include "sensors/Sensor.hpp"
 
+class RosImuMessage : public ImuMessage
+{
+public:
+  RosImuMessage(const sensor_msgs::msg::Imu::SharedPtr msg);
+};
+
 ///
 /// @class RosIMU
 /// @brief IMU Sensor Class
@@ -32,12 +38,6 @@ class RosIMU : public IMU
 {
 public:
   using IMU::IMU;
-
-  ///
-  /// @brief RosIMU callback method
-  /// @param msg ROS IMU measurement
-  ///
-  void callback(const sensor_msgs::msg::Imu::SharedPtr msg);
 };
 
 #endif  // SENSORS__ROS__ROSIMU_HPP_

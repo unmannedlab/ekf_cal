@@ -26,6 +26,24 @@
 
 
 ///
+///
+///
+class SensorMessage
+{
+public:
+  SensorMessage() {}
+
+  // Less than operator used for sorting
+  bool operator<(const SensorMessage & message) const
+  {
+    return time < message.time;
+  }
+
+  unsigned int sensorID;
+  double time;
+};
+
+///
 /// @class Sensor
 /// @brief Pure base sensor class
 /// @todo Time offset filter
@@ -51,6 +69,11 @@ public:
   /// @return Sensor name
   ///
   std::string getName();
+
+  ///
+  /// @brief
+  ///
+  void callback(SensorMessage sensorMessage);
 
 protected:
   Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};          ///< @brief Sensor position offset vector

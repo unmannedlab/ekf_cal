@@ -34,6 +34,7 @@ Software Work:
     - Integration tests
     - Remove Singleton Instance of EKF for simultaneous testing
     - Move feature detection out of tracker callback
+    - Create Dockerfile for package
 
 Documentation:
     - Create Cake Diagram for EKF-CAL architecture

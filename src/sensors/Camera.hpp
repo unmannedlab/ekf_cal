@@ -23,8 +23,16 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
 
+#include "ekf/Types.hpp"
 #include "sensors/Sensor.hpp"
 #include "sensors/Tracker.hpp"
+
+class CameraMessage : public SensorMessage
+{
+public:
+  CameraMessage(cv::Mat & imgIn);
+  cv::Mat & image;
+};
 
 ///
 /// @class Camera
@@ -60,7 +68,7 @@ public:
   /// @param time Measurement time
   /// @param imgIn Image pointer
   ///
-  void callback(double time, cv::Mat & imgIn);
+  void callback(CameraMessage cameraMessage);
 
 protected:
   cv::Mat m_outImg;  ///< @brief Published output test image

@@ -28,16 +28,18 @@
 #include "utility/TypeHelper.hpp"
 
 
+RosCameraMessage::RosCameraMessage(const sensor_msgs::msg::Image::SharedPtr msg)
+: CameraMessage(cv_bridge::toCvCopy(msg)->image)
+{
+  time = rosHeaderToTime(msg->header);
+}
+
 RosCamera::RosCamera(Camera::Params cParams, Tracker::Params tParams)
 : Camera(cParams, tParams) {}
 
-void RosCamera::callback(const sensor_msgs::msg::Image::SharedPtr inMsg)
+void RosCamera::callback(RosCameraMessage rosCameraMessage)
 {
-  double time = rosHeaderToTime(inMsg->header);
-
-  cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(inMsg);
-
-  Camera::callback(time, cv_ptr->image);
+  Camera::callback(rosCameraMessage);
 
   m_logger->log(LogLevel::DEBUG, "Image publish ROS");
 

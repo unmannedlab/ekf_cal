@@ -18,24 +18,20 @@
 #define SENSORS__SIM__SIMIMU_HPP_
 
 #include <string>
+#include <vector>
 #include <eigen3/Eigen/Eigen>
 
+#include "ekf/Types.hpp"
 #include "infrastructure/Logger.hpp"
 #include "infrastructure/sim/TruthEngine.hpp"
 #include "sensors/IMU.hpp"
 #include "sensors/Sensor.hpp"
-#include "sensors/sim/SimTypes.hpp"
 #include "utility/sim/SimRNG.hpp"
 
-class SimImuMessage : public SimMessage
+class SimImuMessage : public ImuMessage
 {
 public:
-  SimImuMessage() {}
-
-  Eigen::Vector3d acceleration;
-  Eigen::Matrix3d accelerationCovariance;
-  Eigen::Vector3d angularRate;
-  Eigen::Matrix3d angularRateCovariance;
+  using ImuMessage::ImuMessage;
 };
 
 typedef struct SimImuParams
@@ -59,10 +55,11 @@ class SimIMU : public IMU
 {
 public:
   SimIMU(SimImuParams params, std::shared_ptr<TruthEngine> truthEngine);
-  SimImuMessage generateMeasurement(double measurementTime);
+  std::vector<SimImuMessage> generateMeasurements(double maxTime);
 
 private:
   double m_tBias{0};
+  double m_tSkew{1.0};
   double m_tError{1e-9};
   double m_accBias{0};
   double m_accError{1};

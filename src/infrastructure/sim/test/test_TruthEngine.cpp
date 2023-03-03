@@ -13,15 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__SIM__SIMTYPES_HPP_
-#define SENSORS__SIM__SIMTYPES_HPP_
+#include <gtest/gtest.h>
 
-class SimMessage
-{
-public:
-  SimMessage() {}
+#include "infrastructure/sim/TruthEngine.hpp"
 
-  double time;
-};
-
-#endif  // SENSORS__SIM__SIMTYPES_HPP_
+TEST(test_TruthEngine, Constructor) {
+  TruthEngine truthEngine;
+}

@@ -12,3 +12,16 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#include <gtest/gtest.h>
+#include <iostream>
+
+#include "sensors/sim/SimIMU.hpp"
+#include "sensors/IMU.hpp"
+
+TEST(test_SimIMU, Constructor) {
+  SimImuParams simImuParams;
+
+  auto truthEngine = std::make_shared<TruthEngine>();
+  SimIMU simIMU(simImuParams, truthEngine);
+}

@@ -41,7 +41,7 @@ int main(int argc, char * argv[])
   sensorMap[imu2->getId()] = imu2;
 
   // Calculate sensor measurements
-  std::vector<SimMessage> measurements;
+  std::vector<SensorMessage> measurements;
   std::vector<SimImuMessage> imu1Measurements = imu1->generateMeasurements(maxTime);
   std::vector<SimImuMessage> imu2Measurements = imu2->generateMeasurements(maxTime);
 
@@ -55,7 +55,8 @@ int main(int argc, char * argv[])
   for (auto measurement : measurements) {
     auto it = sensorMap.find(measurement.sensorID);
     if (it != sensorMap.end()) {
-      // it->second->callback(measurement);
+      /// @todo This doesn't call the child class callback
+      it->second->callback(measurement);
     }
   }
 

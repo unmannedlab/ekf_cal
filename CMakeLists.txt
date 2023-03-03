@@ -70,7 +70,6 @@ set(SIM_SRCS
     src/infrastructure/sim/TruthEngine.cpp
     src/sensors/sim/SimIMU.cpp
     src/sensors/sim/SimTracker.cpp
-    src/sensors/sim/SimTypes.cpp
     src/utility/sim/SimRNG.cpp
 )
 
@@ -162,8 +161,10 @@ if(BUILD_TESTING)
     ament_lint_auto_find_test_dependencies()
     set(test_files
         src/ekf/test/test_EKF.cpp
+        src/infrastructure/sim/test/test_TruthEngine.cpp
         src/sensors/ros/test/test_RosCamera.cpp
         src/sensors/ros/test/test_RosIMU.cpp
+        src/sensors/sim/test/test_SimTracker.cpp
         src/sensors/test/test_Camera.cpp
         src/sensors/test/test_IMU.cpp
         src/utility/test/test_MathHelper.cpp

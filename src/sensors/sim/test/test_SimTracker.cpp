@@ -12,3 +12,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#include <gtest/gtest.h>
+#include <iostream>
+
+#include "sensors/sim/SimIMU.hpp"
+#include "sensors/IMU.hpp"
+
+TEST(test_SimTracker, Constructor) {
+}

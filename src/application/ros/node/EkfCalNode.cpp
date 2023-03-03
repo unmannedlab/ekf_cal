@@ -267,7 +267,9 @@ void EkfCalNode::imuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigne
 {
   auto rosImuIter = m_mapIMU.find(id);
   if (rosImuIter != m_mapIMU.end()) {
-    rosImuIter->second->callback(msg);
+    RosImuMessage rosImuMessage(msg);
+    rosImuMessage.sensorID = id;
+    rosImuIter->second->callback(rosImuMessage);
   } else {
     m_logger->log(LogLevel::WARN, "IMU ID Not Found: " + std::to_string(id));
   }
@@ -277,7 +279,9 @@ void EkfCalNode::cameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, un
 {
   auto rosCamIter = m_mapCamera.find(id);
   if (rosCamIter != m_mapCamera.end()) {
-    rosCamIter->second->callback(msg);
+    RosCameraMessage rosCamMessage(msg);
+    rosCamMessage.sensorID = id;
+    rosCamIter->second->callback(rosCamMessage);
     m_imgPublisher->publish(*rosCamIter->second->getRosImage().get());
   } else {
     m_logger->log(LogLevel::WARN, "Camera ID Not Found: " + std::to_string(id));

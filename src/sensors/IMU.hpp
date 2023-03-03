@@ -23,6 +23,18 @@
 #include "infrastructure/Logger.hpp"
 #include "ekf/update/ImuUpdater.hpp"
 
+
+class ImuMessage : public SensorMessage
+{
+public:
+  ImuMessage() {}
+  Eigen::Vector3d acceleration = Eigen::Vector3d::Zero(3);
+  Eigen::Vector3d angularRate = Eigen::Vector3d::Zero(3);
+  Eigen::Matrix3d accelerationCovariance = Eigen::Matrix3d::Zero(3, 3);
+  Eigen::Matrix3d angularRateCovariance = Eigen::Matrix3d::Zero(3, 3);
+};
+
+
 ///
 /// @class IMU
 /// @brief IMU Sensor Class
@@ -67,9 +79,7 @@ public:
   /// @param angularRate Measured angular rate
   /// @param angularRateCovariance Estimated angular rate error
   ///
-  void callback(
-    double time, Eigen::Vector3d acceleration, Eigen::Matrix3d accelerationCovariance,
-    Eigen::Vector3d angularRate, Eigen::Matrix3d angularRateCovariance);
+  void callback(ImuMessage imuMessage);
 
 private:
   bool m_isBaseSensor;
