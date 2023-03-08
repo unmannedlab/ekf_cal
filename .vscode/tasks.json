@@ -118,5 +118,15 @@
             "command": "source ${workspaceFolder}/../../install/setup.bash",
             "problemMatcher": "$gcc"
         },
+        {
+            "label": "build-joss-paper",
+            "detail": "Builds JOSS paper using docker image",
+            "type": "shell",
+            "command": "docker run --rm --volume $PWD/docs/paper:/data --user $(id -u):$(id -g) --env JOURNAL=joss openjournals/inara",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        }
     ],
 }
