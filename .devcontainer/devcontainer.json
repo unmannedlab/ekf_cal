@@ -1,0 +1,19 @@
+{
+    "name": "ROS2-env",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-vscode.cpptools",
+                "streetsidesoftware.code-spell-checker",
+                "twxs.cmake",
+                "zachflower.uncrustify"
+            ]
+        }
+    },
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "workspaceMount": "src=${localWorkspaceFolder},dst=/ekf_cal_ws/src/ekf_cal,type=bind,consistency=cached",
+    "workspaceFolder": "/ekf_cal_ws/src/ekf_cal"
+}

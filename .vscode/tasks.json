@@ -100,7 +100,7 @@
         },
         // Source workspace
         {
-            "label": "source-humble",
+            "label": "source-workspace",
             "detail": "Sources the current workspace with bash",
             "type": "shell",
             "command": "source ${workspaceFolder}/../../install/setup.bash",

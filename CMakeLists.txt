@@ -20,6 +20,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# @todo Use this if statement to forgo building ROS components
 if(NOT DEFINED ${ROS_DISTRO})
     set(ROS_DISTRO humble)
 endif()
