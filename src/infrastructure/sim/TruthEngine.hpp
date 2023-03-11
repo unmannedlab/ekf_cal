@@ -25,9 +25,15 @@
 class TruthEngine
 {
 public:
-  TruthEngine();
-  Eigen::Vector3d GetBodyAngularRate();
+  TruthEngine() {}
+
+  Eigen::Vector3d GetBodyPosition();
+  Eigen::Vector3d GetBodyVelocity();
   Eigen::Vector3d GetBodyAcceleration();
+
+  Eigen::Quaterniond GetBodyAngularPosition();
+  Eigen::Vector3d GetBodyAngularRate();
+  Eigen::Vector3d GetBodyAngularAcceleration();
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_

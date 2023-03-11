@@ -20,53 +20,66 @@
 
 #include "infrastructure/sim/TruthEngine.hpp"
 #include "utility/sim/SimRNG.hpp"
+#include "utility/MathHelper.hpp"
 
 SimIMU::SimIMU(SimImuParams params, std::shared_ptr<TruthEngine> truthEngine)
 : IMU(params.imuParams)
 {
   m_tBias = params.tBias;
-  m_tError = params.tError;
+  m_tError = std::max(params.tError, 1e-9);
   m_accBias = params.accBias;
-  m_accError = params.accError;
+  m_accError = minBoundVector(params.accError, 1e-9);
   m_omgBias = params.omgBias;
-  m_omgError = params.omgError;
+  m_omgError = minBoundVector(params.omgError, 1e-9);
   m_posOffset = params.posOffset;
   m_angOffset = params.angOffset;
   m_truth = truthEngine;
 }
 
-std::vector<SimImuMessage> SimIMU::generateMeasurements(double maxTime)
+std::vector<std::shared_ptr<SimImuMessage>> SimIMU::generateMessages(double maxTime)
 {
-  double nMeasurements = maxTime / m_tSkew / m_rate;
-  std::vector<SimImuMessage> messages;
+  double nMeasurements = maxTime / (1 + m_tSkew) / m_rate;
+  std::vector<std::shared_ptr<SimImuMessage>> messages;
+  m_logger->log(LogLevel::INFO, "Generating " + std::to_string(nMeasurements) + " measurements");
 
   for (unsigned int i = 0; i < nMeasurements; ++i) {
-    SimImuMessage simImuMsg;
-    double measurementTime = m_tSkew * static_cast<double>(i);
-    simImuMsg.time = measurementTime += m_rng.NormRand(m_tBias, m_tError);
-    simImuMsg.sensorID = m_id;
+    auto simImuMsg = std::make_shared<SimImuMessage>();
+    double measurementTime = (1.0 + m_tSkew) / m_rate * static_cast<double>(i);
+    simImuMsg->time = measurementTime + m_rng.NormRand(m_tBias, m_tError);
+    simImuMsg->sensorID = m_id;
+    simImuMsg->sensorType = SensorType::IMU;
 
     Eigen::Vector3d bodyAcc = m_truth->GetBodyAcceleration();
-    Eigen::Vector3d bodyOmg = m_truth->GetBodyAngularRate();
+    Eigen::Quaterniond bodyAngPos = m_truth->GetBodyAngularPosition();
+    Eigen::Vector3d bodyAngVel = m_truth->GetBodyAngularRate();
+    Eigen::Vector3d bodyAngAcc = m_truth->GetBodyAngularAcceleration();
 
-    /// @todo Insert acceleration model here
-    /// @todo Add gravity
+    // Transform acceleration to IMU location
+    Eigen::Vector3d imuAcc = bodyAcc +
+      bodyAngAcc.cross(m_posOffset) +
+      bodyAngVel.cross((bodyAngVel.cross(m_posOffset)));
 
-    simImuMsg.acceleration = Eigen::Vector3d::Zero(3);
-    simImuMsg.acceleration[0] += m_rng.NormRand(m_accBias, m_accError);
-    simImuMsg.acceleration[1] += m_rng.NormRand(m_accBias, m_accError);
-    simImuMsg.acceleration[2] += m_rng.NormRand(m_accBias, m_accError);
+    // Rotate measurements in place
+    Eigen::Vector3d imuAccRot = m_angOffset * imuAcc;
+    Eigen::Vector3d imuOmgRot = m_angOffset * bodyAngVel;
 
-    simImuMsg.angularRate = Eigen::Vector3d::Zero(3);
-    simImuMsg.angularRate[0] += m_rng.NormRand(m_omgBias, m_omgError);
-    simImuMsg.angularRate[1] += m_rng.NormRand(m_omgBias, m_omgError);
-    simImuMsg.angularRate[2] += m_rng.NormRand(m_omgBias, m_omgError);
+    imuAccRot += bodyAngPos * m_angOffset * Eigen::Vector3d(0, 0, 9.80665);
 
-    Eigen::Vector3d accSigmas(m_accError, m_accError, m_accError);
-    Eigen::Vector3d omgSigmas(m_omgError, m_omgError, m_omgError);
+    simImuMsg->acceleration = imuAccRot;
+    simImuMsg->acceleration[0] += m_rng.NormRand(m_accBias[0], m_accError[0]);
+    simImuMsg->acceleration[1] += m_rng.NormRand(m_accBias[1], m_accError[1]);
+    simImuMsg->acceleration[2] += m_rng.NormRand(m_accBias[2], m_accError[2]);
 
-    simImuMsg.accelerationCovariance = accSigmas.asDiagonal();
-    simImuMsg.angularRateCovariance = omgSigmas.asDiagonal();
+    simImuMsg->angularRate = imuOmgRot;
+    simImuMsg->angularRate[0] += m_rng.NormRand(m_omgBias[0], m_omgError[0]);
+    simImuMsg->angularRate[1] += m_rng.NormRand(m_omgBias[1], m_omgError[1]);
+    simImuMsg->angularRate[2] += m_rng.NormRand(m_omgBias[2], m_omgError[2]);
+
+    Eigen::Vector3d accSigmas(m_accError[0], m_accError[1], m_accError[2]);
+    Eigen::Vector3d omgSigmas(m_omgError[0], m_omgError[1], m_omgError[2]);
+
+    simImuMsg->accelerationCovariance = accSigmas.asDiagonal();
+    simImuMsg->angularRateCovariance = omgSigmas.asDiagonal();
     messages.push_back(simImuMsg);
   }
   return messages;

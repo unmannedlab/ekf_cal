@@ -42,6 +42,14 @@ foreach(pkg ${ROS_PKGS})
     find_package(${pkg} REQUIRED)
 endforeach()
 
+# set(SIM_PKGS
+#     yaml-cpp
+#     OpenCV
+# )
+# foreach(pkg ${SIM_PKGS})
+#     find_package(${pkg} REQUIRED)
+# endforeach()
+
 # EKF sources
 set(EKF_SRCS
     src/ekf/EKF.cpp
@@ -140,9 +148,14 @@ target_include_directories(low_sim PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
+ament_target_dependencies(low_sim OpenCV)
+
+find_package(yaml-cpp REQUIRED)
+include_directories(${YAML_CPP_INCLUDE_DIRS})
+target_link_libraries(low_sim ${YAML_CPP_LIBRARIES})
+
 target_link_libraries(EKF_LIB SIM_LIB)
 target_link_libraries(low_sim SIM_LIB EKF_LIB)
-ament_target_dependencies(low_sim OpenCV)
 
 install(TARGETS
     ekf_cal_node

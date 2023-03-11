@@ -23,11 +23,11 @@
 
 enum class LogLevel
 {
-  DEBUG,
-  INFO,
-  WARN,
+  FATAL,
   ERROR,
-  FATAL
+  WARN,
+  INFO,
+  DEBUG
 };
 
 ///
@@ -95,7 +95,7 @@ public:
 
 private:
   LogLevel m_logLevel = LogLevel::FATAL;
-  std::string LogLevelNames[5] = {"DEBUG", "INFO ", "WARN ", "ERROR", "FATAL"};
+  std::string LogLevelNames[5] = {"FATAL", "ERROR", "WARN ", "INFO ", "DEBUG"};
 };
 
 #endif  // INFRASTRUCTURE__LOGGER_HPP_

@@ -50,18 +50,19 @@ Camera::Camera(Camera::Params cParams, Tracker::Params tParams)
   m_ekf->registerCamera(m_id, camState, cov);
 }
 
-void Camera::callback(CameraMessage cameraMessage)
+void Camera::callback(std::shared_ptr<CameraMessage> cameraMessage)
 {
   m_logger->log(
     LogLevel::DEBUG, "Camera " + std::to_string(
-      cameraMessage.sensorID) + " callback called at time = " + std::to_string(cameraMessage.time));
+      cameraMessage->sensorID) + " callback called at time = " +
+    std::to_string(cameraMessage->time));
 
   unsigned int frameID = generateFrameID();
 
   m_ekf->augmentState(m_id, frameID);
 
   FeatureTracks featureTracks;
-  m_tracker.track(frameID, cameraMessage.image, m_outImg, featureTracks);
+  // m_tracker.track(frameID, cameraMessage->image, m_outImg, featureTracks);
   /// @todo Undistort points post track?
   // cv::undistortPoints();
   /// @todo Call a EKF updater method

@@ -56,7 +56,7 @@ Logger::~Logger()
 
 void Logger::log(LogLevel level, std::string message)
 {
-  if (m_logLevel <= level) {
+  if (m_logLevel >= level) {
     switch (level) {
       case LogLevel::DEBUG:
       case LogLevel::INFO:

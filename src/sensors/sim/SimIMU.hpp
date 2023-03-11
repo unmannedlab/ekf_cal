@@ -36,14 +36,14 @@ public:
 
 typedef struct SimImuParams
 {
-  double tBias {0};
+  double tBias {0.0};
   double tError {1e-9};
-  double accBias {0};
-  double accError {1e-9};
-  double omgBias {0};
-  double omgError {1e-9};
-  Eigen::Vector3d posOffset {0, 0, 0};
-  Eigen::Quaterniond angOffset {1, 0, 0, 0};
+  Eigen::Vector3d accBias {0.0, 0.0, 0.0};
+  Eigen::Vector3d accError {1e-9, 1e-9, 1e-9};
+  Eigen::Vector3d omgBias {0.0, 0.0, 0.0};
+  Eigen::Vector3d omgError {1e-9, 1e-9, 1e-9};
+  Eigen::Vector3d posOffset {0.0, 0.0, 0.0};
+  Eigen::Quaterniond angOffset {1.0, 0.0, 0.0, 0.0};
   IMU::Params imuParams;
 } SimImuParams;
 
@@ -55,18 +55,18 @@ class SimIMU : public IMU
 {
 public:
   SimIMU(SimImuParams params, std::shared_ptr<TruthEngine> truthEngine);
-  std::vector<SimImuMessage> generateMeasurements(double maxTime);
+  std::vector<std::shared_ptr<SimImuMessage>> generateMessages(double maxTime);
 
 private:
-  double m_tBias{0};
-  double m_tSkew{1.0};
+  double m_tBias{0.0};
+  double m_tSkew{0.0};
   double m_tError{1e-9};
-  double m_accBias{0};
-  double m_accError{1};
-  double m_omgBias{0};
-  double m_omgError{1};
-  Eigen::Vector3d m_posOffset;
-  Eigen::Quaterniond m_angOffset;
+  Eigen::Vector3d m_accBias{0.0, 0.0, 0.0};
+  Eigen::Vector3d m_accError{1e-9, 1e-9, 1e-9};
+  Eigen::Vector3d m_omgBias{0.0, 0.0, 0.0};
+  Eigen::Vector3d m_omgError{1e-9, 1e-9, 1e-9};
+  Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_angOffset{1.0, 0.0, 0.0, 0.0};
   SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
 };

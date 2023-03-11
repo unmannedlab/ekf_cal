@@ -9,13 +9,15 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>cv_bridge</depend>
+  <depend>doxygen</depend>
   <depend>geometry_msgs</depend>
+  <depend>OpenCV</depend>
   <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>tf2_geometry_msgs</depend>
-  <depend>cv_bridge</depend>
-  <depend>doxygen</depend>
+  <depend>yaml-cpp</depend>
 
   <test_depend>gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>

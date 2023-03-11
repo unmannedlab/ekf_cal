@@ -42,16 +42,16 @@ IMU::IMU(IMU::Params params)
   m_ekf->registerIMU(m_id, imuState, cov);
 }
 
-void IMU::callback(ImuMessage imuMessage)
+void IMU::callback(std::shared_ptr<ImuMessage> imuMessage)
 {
   m_logger->log(
     LogLevel::DEBUG,
-    "IMU \"" + m_name + "\" callback at time " + std::to_string(imuMessage.time));
+    "IMU \"" + m_name + "\" callback at time " + std::to_string(imuMessage->time));
   m_imuUpdater.updateEKF(
-    imuMessage.time,
-    imuMessage.acceleration,
-    imuMessage.accelerationCovariance,
-    imuMessage.angularRate,
-    imuMessage.angularRateCovariance);
+    imuMessage->time,
+    imuMessage->acceleration,
+    imuMessage->accelerationCovariance,
+    imuMessage->angularRate,
+    imuMessage->angularRateCovariance);
   m_logger->log(LogLevel::DEBUG, "IMU \"" + m_name + "\" callback complete");
 }

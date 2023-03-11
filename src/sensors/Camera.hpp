@@ -68,7 +68,7 @@ public:
   /// @param time Measurement time
   /// @param imgIn Image pointer
   ///
-  void callback(CameraMessage cameraMessage);
+  void callback(std::shared_ptr<CameraMessage> cameraMessage);
 
 protected:
   cv::Mat m_outImg;  ///< @brief Published output test image

@@ -18,14 +18,32 @@
 #include <random>
 #include <eigen3/Eigen/Eigen>
 
-TruthEngine::TruthEngine() {}
 
-Eigen::Vector3d TruthEngine::GetBodyAngularRate()
+Eigen::Vector3d TruthEngine::GetBodyPosition()
+{
+  return Eigen::Vector3d::Zero(3);
+}
+
+Eigen::Vector3d TruthEngine::GetBodyVelocity()
 {
   return Eigen::Vector3d::Zero(3);
 }
 
 Eigen::Vector3d TruthEngine::GetBodyAcceleration()
+{
+  return Eigen::Vector3d::Zero(3);
+}
+
+Eigen::Quaterniond TruthEngine::GetBodyAngularPosition()
+{
+  return Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0);
+}
+Eigen::Vector3d TruthEngine::GetBodyAngularRate()
+{
+  return Eigen::Vector3d::Zero(3);
+}
+
+Eigen::Vector3d TruthEngine::GetBodyAngularAcceleration()
 {
   return Eigen::Vector3d::Zero(3);
 }

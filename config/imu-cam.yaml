@@ -23,6 +23,15 @@
                 AngOffInit: [1.0, 0.0, 0.0, 0.0]
                 AccBiasInit: [0.0, 0.0, 0.0]
                 OmgBiasInit: [0.0, 0.0, 0.0]
+                SimParams:
+                    timeBias: 0.0
+                    timeError: 1.0e-9
+                    accBias: [0.0, 0.0, 0.0]
+                    accError: [0.001, 0.001, 0.001]
+                    omgBias: [0.0, 0.0, 0.0]
+                    omgError: [0.01, 0.01, 0.01]
+                    posOffset: [0.0, 0.0, 0.0]
+                    angOffset: [1.0, 0.0, 0.0, 0.0]
 
         Camera:
             ace:

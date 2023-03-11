@@ -14,52 +14,89 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "sensors/sim/SimIMU.hpp"
+#include "sensors/IMU.hpp"
 #include "infrastructure/sim/TruthEngine.hpp"
+#include "utility/TypeHelper.hpp"
+
+#include <yaml-cpp/yaml.h>
+#include <iostream>
 
 
 int main(int argc, char * argv[])
 {
   // Define sensors to use (load config from yaml)
 
-  double maxTime = 10;
+  YAML::Node root = YAML::LoadFile("/home/jacob/proj/ekf_cal_ws/src/ekf_cal/config/imu-cam.yaml");
+  std::cout << "root size:" << root.size() << std::endl;
+  const auto imus = root["/EkfCalNode"]["ros__parameters"]["IMU"];
 
   // Construct sensors and EKF
-  auto truthEngine = std::make_shared<TruthEngine>();
   std::map<unsigned int, std::shared_ptr<Sensor>> sensorMap;
+  auto truthEngine = std::make_shared<TruthEngine>();
+  std::vector<std::shared_ptr<SensorMessage>> messages;
 
-  SimImuParams imuParams1;
-  imuParams1.accError = 1e-3;
-  imuParams1.omgError = 1e-3;
-  auto imu1 = std::make_shared<SimIMU>(imuParams1, truthEngine);
-  sensorMap[imu1->getId()] = imu1;
+  double maxTime = 10;
 
-  SimImuParams imuParams2;
-  imuParams2.accError = 1e-3;
-  imuParams2.omgError = 1e-3;
-  imuParams2.posOffset = Eigen::Vector3d(0.1, 0, 0);
-  auto imu2 = std::make_shared<SimIMU>(imuParams2, truthEngine);
-  sensorMap[imu2->getId()] = imu2;
+  if (imus) {
+    for (auto it = imus.begin(); it != imus.end(); ++it) {
+      YAML::Node imuNode = it->second;
+      YAML::Node simNode = imuNode["SimParams"];
 
-  // Calculate sensor measurements
-  std::vector<SensorMessage> measurements;
-  std::vector<SimImuMessage> imu1Measurements = imu1->generateMeasurements(maxTime);
-  std::vector<SimImuMessage> imu2Measurements = imu2->generateMeasurements(maxTime);
+      IMU::Params imuParams;
+      imuParams.baseSensor = imuNode["BaseSensor"].as<bool>();
+      imuParams.intrinsic = imuNode["Intrinsic"].as<bool>();
+      imuParams.rate = imuNode["Rate"].as<double>();
+      imuParams.topic = imuNode["Topic"].as<std::string>();
+      imuParams.variance = stdToEigVec(imuNode["VarInit"].as<std::vector<double>>());
+      imuParams.posOffset = stdToEigVec(imuNode["PosOffInit"].as<std::vector<double>>());
+      imuParams.angOffset = stdToEigQuat(imuNode["AngOffInit"].as<std::vector<double>>());
+      imuParams.accBias = stdToEigVec(imuNode["AccBiasInit"].as<std::vector<double>>());
+      imuParams.omgBias = stdToEigVec(imuNode["OmgBiasInit"].as<std::vector<double>>());
 
-  measurements.insert(measurements.end(), imu1Measurements.begin(), imu1Measurements.end());
-  measurements.insert(measurements.end(), imu2Measurements.begin(), imu2Measurements.end());
+      // SimParams
+      SimImuParams simImuParams;
+      simImuParams.imuParams = imuParams;
+      simImuParams.tBias = simNode["timeBias"].as<double>();
+      simImuParams.tError = simNode["timeError"].as<double>();
+      simImuParams.accBias = stdToEigVec(simNode["accBias"].as<std::vector<double>>());
+      simImuParams.accError = stdToEigVec(simNode["accError"].as<std::vector<double>>());
+      simImuParams.omgBias = stdToEigVec(simNode["omgBias"].as<std::vector<double>>());
+      simImuParams.omgError = stdToEigVec(simNode["omgError"].as<std::vector<double>>());
+      simImuParams.posOffset = stdToEigVec(simNode["posOffset"].as<std::vector<double>>());
+      simImuParams.angOffset = stdToEigQuat(simNode["angOffset"].as<std::vector<double>>());
+
+      // Add sensor to map
+      auto imu = std::make_shared<SimIMU>(simImuParams, truthEngine);
+      sensorMap[imu->getId()] = imu;
+
+      // Calculate sensor measurements
+      std::vector<std::shared_ptr<SimImuMessage>> imuMessages = imu->generateMessages(maxTime);
+      messages.insert(messages.end(), imuMessages.begin(), imuMessages.end());
+    }
+  }
 
   // Sort Measurements
-  sort(measurements.begin(), measurements.end());
+  sort(messages.begin(), messages.end());
 
   // Run measurements through sensors and EKF
-  for (auto measurement : measurements) {
-    auto it = sensorMap.find(measurement.sensorID);
+  for (auto message : messages) {
+    auto it = sensorMap.find(message->sensorID);
     if (it != sensorMap.end()) {
-      /// @todo This doesn't call the child class callback
-      it->second->callback(measurement);
+      if (message->sensorType == SensorType::IMU) {
+        auto imu = std::static_pointer_cast<SimIMU>(it->second);
+        auto msg = std::static_pointer_cast<SimImuMessage>(message);
+        imu->callback(msg);
+      } else if (message->sensorType == SensorType::Tracker) {
+        /// @todo Tracker sim callback
+      } else {
+        std::cout << "Unknown Message Type" << std::endl;
+      }
     }
   }
 
   // Plot results
+
+  // Return
+  (void)argv[argc - 1]; /// @todo "Uses" input parameters to suppress compiler warning
   return 0;
 }

@@ -54,7 +54,7 @@ Logger::~Logger()
 void Logger::log(LogLevel level, std::string message)
 {
   const char * message_c_str = message.c_str();
-  if (m_logLevel <= level) {
+  if (m_logLevel >= level) {
     switch (level) {
       case LogLevel::DEBUG:
         RCLCPP_DEBUG(rclcpp::get_logger("Logger"), message_c_str);

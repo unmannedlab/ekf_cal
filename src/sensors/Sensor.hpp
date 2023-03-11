@@ -25,6 +25,13 @@
 #include "infrastructure/Logger.hpp"
 
 
+enum class SensorType
+{
+  IMU,
+  Camera,
+  Tracker
+};
+
 ///
 ///
 ///
@@ -36,10 +43,11 @@ public:
   // Less than operator used for sorting
   bool operator<(const SensorMessage & message) const
   {
-    return time < message.time;
+    return this->time < message.time;
   }
 
   unsigned int sensorID;
+  SensorType sensorType;
   double time;
 };
 

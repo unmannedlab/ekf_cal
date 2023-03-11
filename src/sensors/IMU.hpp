@@ -79,7 +79,7 @@ public:
   /// @param angularRate Measured angular rate
   /// @param angularRateCovariance Estimated angular rate error
   ///
-  void callback(ImuMessage imuMessage);
+  void callback(std::shared_ptr<ImuMessage> imuMessage);
 
 private:
   bool m_isBaseSensor;

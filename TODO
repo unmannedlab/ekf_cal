@@ -21,6 +21,11 @@ Package Features:
     - Interpolation between stochastic clones
     - Feature comparisons between cameras
     - Option to pre-fuse IMU measurements
+    - LOST initialization: https://gtsam.org/2023/02/04/lost-triangulation.html
+    - First estimate jacobians
+    - Zero-Velocity Update
+    - Option for complementary IMU filter
+    - Option for fixed IMU offsets - high certainty constraint update
 
 Software Work:
     - Define types/transforms to force different coordinate frames
@@ -35,8 +40,15 @@ Software Work:
     - Remove Singleton Instance of EKF for simultaneous testing
     - Move feature detection out of tracker callback
     - Create Dockerfile for package
+    - Option to de-register sensor
+    - Add performance logging level / tracing: https://perf.wiki.kernel.org/index.php/Tutorial
+    - Log to file
 
 Documentation:
     - Create Cake Diagram for EKF-CAL architecture
     - Paper in JOSS: Journal of Open Source Software
     - Deploy Github page for generated doxygen
+
+Experimentation:
+    - Add profiling
+    - Submit ROS bag dataset to IEEE Dataport

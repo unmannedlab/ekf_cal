@@ -37,7 +37,7 @@ RosCameraMessage::RosCameraMessage(const sensor_msgs::msg::Image::SharedPtr msg)
 RosCamera::RosCamera(Camera::Params cParams, Tracker::Params tParams)
 : Camera(cParams, tParams) {}
 
-void RosCamera::callback(RosCameraMessage rosCameraMessage)
+void RosCamera::callback(std::shared_ptr<RosCameraMessage> rosCameraMessage)
 {
   Camera::callback(rosCameraMessage);
 

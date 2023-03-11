@@ -51,7 +51,6 @@ public:
   void RefreshStates();
 
 private:
-  static const Eigen::Vector3d GRAVITY;
   Eigen::Vector3d m_bodyPos {0.0, 0.0, 0.0};
   Eigen::Vector3d m_bodyVel {0.0, 0.0, 0.0};
   Eigen::Vector3d m_bodyAcc {0.0, 0.0, 0.0};

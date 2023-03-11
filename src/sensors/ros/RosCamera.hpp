@@ -53,7 +53,7 @@ public:
   /// @brief RosCamera callback method
   /// @param msg ROS image message
   ///
-  void callback(RosCameraMessage rosCameraMessage);
+  void callback(std::shared_ptr<RosCameraMessage> rosCameraMessage);
 
   ///
   /// @brief Camera output ROS image getter method

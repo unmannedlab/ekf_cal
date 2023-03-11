@@ -1,3 +1,4 @@
+# @todo Replace with minimal ROS build and incorporate rosdep
 FROM osrf/ros:humble-desktop
 
 # non interactive frontend for locales
