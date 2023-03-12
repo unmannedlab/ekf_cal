@@ -49,10 +49,10 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::generateMessages(double maxT
     simImuMsg->sensorID = m_id;
     simImuMsg->sensorType = SensorType::IMU;
 
-    Eigen::Vector3d bodyAcc = m_truth->GetBodyAcceleration();
-    Eigen::Quaterniond bodyAngPos = m_truth->GetBodyAngularPosition();
-    Eigen::Vector3d bodyAngVel = m_truth->GetBodyAngularRate();
-    Eigen::Vector3d bodyAngAcc = m_truth->GetBodyAngularAcceleration();
+    Eigen::Vector3d bodyAcc = m_truth->GetBodyAcceleration(measurementTime);
+    Eigen::Quaterniond bodyAngPos = m_truth->GetBodyAngularPosition(measurementTime);
+    Eigen::Vector3d bodyAngVel = m_truth->GetBodyAngularRate(measurementTime);
+    Eigen::Vector3d bodyAngAcc = m_truth->GetBodyAngularAcceleration(measurementTime);
 
     // Transform acceleration to IMU location
     Eigen::Vector3d imuAcc = bodyAcc +

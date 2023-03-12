@@ -27,13 +27,20 @@ class TruthEngine
 public:
   TruthEngine() {}
 
-  Eigen::Vector3d GetBodyPosition();
-  Eigen::Vector3d GetBodyVelocity();
-  Eigen::Vector3d GetBodyAcceleration();
+  void SetBodyPosCycleFrequency(Eigen::Vector3d frequency);
+  void SetBodyAngCycleFrequency(Eigen::Vector3d frequency);
 
-  Eigen::Quaterniond GetBodyAngularPosition();
-  Eigen::Vector3d GetBodyAngularRate();
-  Eigen::Vector3d GetBodyAngularAcceleration();
+  Eigen::Vector3d GetBodyPosition(double time);
+  Eigen::Vector3d GetBodyVelocity(double time);
+  Eigen::Vector3d GetBodyAcceleration(double time);
+
+  Eigen::Quaterniond GetBodyAngularPosition(double time);
+  Eigen::Vector3d GetBodyAngularRate(double time);
+  Eigen::Vector3d GetBodyAngularAcceleration(double time);
+
+private:
+  Eigen::Vector3d m_posCycleFrequency {1.0, 1.0, 1.0};
+  Eigen::Vector3d m_angCycleFrequency {1.0, 1.0, 1.0};
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
