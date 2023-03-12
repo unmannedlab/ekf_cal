@@ -55,6 +55,7 @@ class SimIMU : public IMU
 {
 public:
   SimIMU(SimImuParams params, std::shared_ptr<TruthEngine> truthEngine);
+
   std::vector<std::shared_ptr<SimImuMessage>> generateMessages(double maxTime);
 
 private:

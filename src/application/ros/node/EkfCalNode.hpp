@@ -43,6 +43,7 @@
 /// @todo Architecture Design
 /// @todo Option to publish health metrics
 /// @todo Option to publish visualization messages
+/// @todo Create generic callback that can be used to store and sort measurements
 ///
 class EkfCalNode : public rclcpp::Node
 {

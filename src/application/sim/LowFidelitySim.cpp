@@ -25,7 +25,6 @@
 int main(int argc, char * argv[])
 {
   // Define sensors to use (load config from yaml)
-
   YAML::Node root = YAML::LoadFile("/home/jacob/proj/ekf_cal_ws/src/ekf_cal/config/imu-cam.yaml");
   std::cout << "root size:" << root.size() << std::endl;
   const auto imus = root["/EkfCalNode"]["ros__parameters"]["IMU"];
@@ -36,6 +35,14 @@ int main(int argc, char * argv[])
   std::vector<std::shared_ptr<SensorMessage>> messages;
 
   double maxTime = 10;
+
+  // Logging parameters
+  unsigned int debugLogLevel =
+    root["/EkfCalNode"]["ros__parameters"]["Debug_Log_Level"].as<unsigned int>();
+  unsigned int performanceLogLevel =
+    root["/EkfCalNode"]["ros__parameters"]["Performance_Log_Level"].as<unsigned int>();
+  Logger * logger = Logger::getInstance();
+  logger->setLogLevel(debugLogLevel);
 
   if (imus) {
     for (auto it = imus.begin(); it != imus.end(); ++it) {
@@ -93,8 +100,6 @@ int main(int argc, char * argv[])
       }
     }
   }
-
-  // Plot results
 
   // Return
   (void)argv[argc - 1]; /// @todo "Uses" input parameters to suppress compiler warning

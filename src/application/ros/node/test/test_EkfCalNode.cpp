@@ -33,7 +33,7 @@ protected:
 TEST_F(test_EkfCalNode, hello_world) {
   EkfCalNode node;
 
-  node.set_parameter(rclcpp::Parameter("Log_Level", 1));
+  node.set_parameter(rclcpp::Parameter("Debug_Log_Level", 1));
   node.set_parameter(rclcpp::Parameter("IMU_list", std::vector<std::string>{"TestImu"}));
   node.set_parameter(rclcpp::Parameter("Camera_list", std::vector<std::string>{"TestCamera"}));
   node.set_parameter(rclcpp::Parameter("Tracker_list", std::vector<std::string>{"TestTracker"}));

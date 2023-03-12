@@ -43,7 +43,8 @@ EkfCalNode::EkfCalNode()
 : Node("EkfCalNode")
 {
   // Declare Parameters
-  this->declare_parameter("Log_Level", 2);
+  this->declare_parameter("Debug_Log_Level", 0);
+  this->declare_parameter("Performance_Log_Level", 0);
   this->declare_parameter("IMU_list", std::vector<std::string>{});
   this->declare_parameter("Camera_list", std::vector<std::string>{});
   this->declare_parameter("Tracker_list", std::vector<std::string>{});
@@ -56,7 +57,8 @@ EkfCalNode::EkfCalNode()
 void EkfCalNode::initialize()
 {
   // Set logging
-  unsigned int logLevel = static_cast<unsigned int>(this->get_parameter("Log_Level").as_int());
+  unsigned int logLevel =
+    static_cast<unsigned int>(this->get_parameter("Debug_Log_Level").as_int());
   m_logger->setLogLevel(logLevel);
 
   // Load lists of sensors
