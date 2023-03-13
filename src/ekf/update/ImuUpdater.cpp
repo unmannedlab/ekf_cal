@@ -16,21 +16,30 @@
 #include "ekf/update/ImuUpdater.hpp"
 
 #include "ekf/Types.hpp"
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 #include "sensors/Sensor.hpp"
 #include "utility/MathHelper.hpp"
 #include "utility/TypeHelper.hpp"
 
-const Eigen::Vector3d ImuUpdater::GRAVITY = Eigen::Vector3d(0, 0, -9.80665);
+#include <string>
+#include <sstream>
+#include <unistd.h>
+
+const Eigen::Vector3d ImuUpdater::GRAVITY = Eigen::Vector3d(0, 0, 9.80665);
 
 ImuUpdater::ImuUpdater(unsigned int imuID, double accBiasStability, double omgBiasStability)
-: Updater(imuID), m_accBiasStability(accBiasStability), m_omgBiasStability(omgBiasStability) {}
+: Updater(imuID), m_accBiasStability(accBiasStability), m_omgBiasStability(omgBiasStability),
+  m_dataLogger("src/application/sim/output/imu.csv")
+{
+  m_dataLogger.defineHeader("test1,test2,test3\n");
+  m_dataLogger.setLogging(true);
+}
 
 Eigen::VectorXd ImuUpdater::predictMeasurement()
 {
   Eigen::VectorXd predictedMeasurement(6);
   // Transform acceleration to IMU location
-  Eigen::Vector3d imuAcc = m_bodyAcc +
+  Eigen::Vector3d imuAcc = m_bodyAcc + GRAVITY +
     m_bodyAngAcc.cross(m_posOffset) +
     m_bodyAngVel.cross((m_bodyAngVel.cross(m_posOffset)));
 
@@ -48,7 +57,7 @@ Eigen::VectorXd ImuUpdater::predictMeasurement()
   return predictedMeasurement;
 }
 
-Eigen::MatrixXd ImuUpdater::getMeasurementJacobian()
+Eigen::MatrixXd ImuUpdater::getMeasurementJacobian(bool isBaseSensor, bool isIntrinsic)
 {
   Eigen::MatrixXd measurementJacobian =
     Eigen::MatrixXd::Zero(6, EKF::BODY_STATE_SIZE + IMU_STATE_SIZE);
@@ -73,40 +82,44 @@ Eigen::MatrixXd ImuUpdater::getMeasurementJacobian()
   measurementJacobian.block<3, 3>(0, 15) = m_angOffset * skewSymmetric(
     m_posOffset);
 
-  // IMU Positional Offset
-  temp.setZero();
-  temp(0, 0) = -(m_bodyAngVel(1) * m_bodyAngVel(1)) - (m_bodyAngVel(2) * m_bodyAngVel(2));
-  temp(0, 1) = m_bodyAngVel(0) * m_bodyAngVel(1);
-  temp(0, 2) = m_bodyAngVel(0) * m_bodyAngVel(2);
-  temp(1, 0) = m_bodyAngVel(0) * m_bodyAngVel(1);
-  temp(1, 1) = -(m_bodyAngVel(0) * m_bodyAngVel(0)) - (m_bodyAngVel(2) * m_bodyAngVel(2));
-  temp(1, 2) = m_bodyAngVel(1) * m_bodyAngVel(2);
-  temp(2, 0) = m_bodyAngVel(0) * m_bodyAngVel(2);
-  temp(2, 1) = m_bodyAngVel(1) * m_bodyAngVel(2);
-  temp(2, 2) = -(m_bodyAngVel(0) * m_bodyAngVel(0)) - (m_bodyAngVel(1) * m_bodyAngVel(1));
-  measurementJacobian.block<3, 3>(0, IMU_STATE_SIZE) =
-    m_angOffset * skewSymmetric(m_bodyAngAcc) + temp;
-
-  // IMU Angular Offset
-  Eigen::Vector3d imu_acc = m_bodyAcc +
-    m_bodyAngAcc.cross(m_posOffset) +
-    m_bodyAngVel.cross(m_bodyAngVel.cross(m_posOffset));
-
-  measurementJacobian.block<3, 3>(0, EKF::BODY_STATE_SIZE + 3) =
-    -(m_angOffset * skewSymmetric(imu_acc));
-
   // IMU Body Angular Velocity
   measurementJacobian.block<3, 3>(3, 12) = m_angOffset.toRotationMatrix();
 
-  // IMU Angular Offset
-  measurementJacobian.block<3, 3>(3, EKF::BODY_STATE_SIZE + 3) =
-    -(m_angOffset * skewSymmetric(m_bodyAngVel));
+  // IMU Positional Offset
+  if (!isBaseSensor) {
+    temp.setZero();
+    temp(0, 0) = -(m_bodyAngVel(1) * m_bodyAngVel(1)) - (m_bodyAngVel(2) * m_bodyAngVel(2));
+    temp(0, 1) = m_bodyAngVel(0) * m_bodyAngVel(1);
+    temp(0, 2) = m_bodyAngVel(0) * m_bodyAngVel(2);
+    temp(1, 0) = m_bodyAngVel(0) * m_bodyAngVel(1);
+    temp(1, 1) = -(m_bodyAngVel(0) * m_bodyAngVel(0)) - (m_bodyAngVel(2) * m_bodyAngVel(2));
+    temp(1, 2) = m_bodyAngVel(1) * m_bodyAngVel(2);
+    temp(2, 0) = m_bodyAngVel(0) * m_bodyAngVel(2);
+    temp(2, 1) = m_bodyAngVel(1) * m_bodyAngVel(2);
+    temp(2, 2) = -(m_bodyAngVel(0) * m_bodyAngVel(0)) - (m_bodyAngVel(1) * m_bodyAngVel(1));
+    measurementJacobian.block<3, 3>(0, IMU_STATE_SIZE) =
+      m_angOffset * skewSymmetric(m_bodyAngAcc) + temp;
 
-  // IMU Accelerometer Bias
-  measurementJacobian.block<3, 3>(0, EKF::BODY_STATE_SIZE + 6) = Eigen::MatrixXd::Identity(3, 3);
+    // IMU Angular Offset
+    Eigen::Vector3d imu_acc = m_bodyAcc +
+      m_bodyAngAcc.cross(m_posOffset) +
+      m_bodyAngVel.cross(m_bodyAngVel.cross(m_posOffset));
 
-  // IMU Gyroscope Bias
-  measurementJacobian.block<3, 3>(3, EKF::BODY_STATE_SIZE + 9) = Eigen::MatrixXd::Identity(3, 3);
+    measurementJacobian.block<3, 3>(0, EKF::BODY_STATE_SIZE + 3) =
+      -(m_angOffset * skewSymmetric(imu_acc));
+
+    // IMU Angular Offset
+    measurementJacobian.block<3, 3>(3, EKF::BODY_STATE_SIZE + 3) =
+      -(m_angOffset * skewSymmetric(m_bodyAngVel));
+  }
+
+  if (isIntrinsic) {
+    // IMU Accelerometer Bias
+    measurementJacobian.block<3, 3>(0, EKF::BODY_STATE_SIZE + 6) = Eigen::MatrixXd::Identity(3, 3);
+
+    // IMU Gyroscope Bias
+    measurementJacobian.block<3, 3>(3, EKF::BODY_STATE_SIZE + 9) = Eigen::MatrixXd::Identity(3, 3);
+  }
 
   return measurementJacobian;
 }
@@ -132,7 +145,7 @@ void ImuUpdater::RefreshStates()
 void ImuUpdater::updateEKF(
   double time, Eigen::Vector3d acceleration,
   Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
-  Eigen::Matrix3d angularRateCovariance)
+  Eigen::Matrix3d angularRateCovariance, bool isBaseSensor, bool isIntrinsic)
 {
   RefreshStates();
   m_ekf->processModel(time);
@@ -143,12 +156,15 @@ void ImuUpdater::updateEKF(
 
   Eigen::VectorXd z_pred = predictMeasurement();
   Eigen::VectorXd resid = z - z_pred;
+  std::stringstream msg0;
+  msg0 << "IMU resid: " << resid.transpose() << "\n";
+  m_logger->log(LogLevel::DEBUG, msg0.str());
 
   unsigned int stateStartIndex = m_ekf->getImuStateStartIndex(m_id);
 
   unsigned int updateSize = EKF::BODY_STATE_SIZE + IMU_STATE_SIZE * m_ekf->getImuCount();
 
-  Eigen::MatrixXd subH = getMeasurementJacobian();
+  Eigen::MatrixXd subH = getMeasurementJacobian(isBaseSensor, isIntrinsic);
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, updateSize);
 
   H.block<6, EKF::BODY_STATE_SIZE>(0, 0) = subH.block<6, EKF::BODY_STATE_SIZE>(0, 0);
@@ -174,4 +190,15 @@ void ImuUpdater::updateEKF(
   m_ekf->getCov().block(0, 0, updateSize, updateSize) =
     (Eigen::MatrixXd::Identity(updateSize, updateSize) - K * H) *
     m_ekf->getCov().block(0, 0, updateSize, updateSize);
+
+  std::stringstream msg;
+  msg << time;
+  for (unsigned int i = 0; i < bodyUpdate.size(); ++i) {
+    msg << "," << bodyUpdate[i];
+  }
+  for (unsigned int i = 0; i < imuUpdate.size(); ++i) {
+    msg << "," << imuUpdate[i];
+  }
+  msg << "\n";
+  m_dataLogger.log(msg.str());
 }

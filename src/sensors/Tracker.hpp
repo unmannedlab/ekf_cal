@@ -23,7 +23,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
 
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 #include "sensors/Sensor.hpp"
 #include "ekf/Types.hpp"
 #include "ekf/EKF.hpp"
@@ -112,7 +112,7 @@ private:
 
   unsigned int generateFeatureID();
 
-  Logger * m_logger = Logger::getInstance();  ///< @brief Logger singleton
+  DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton
   EKF * m_ekf = EKF::getInstance();           ///< @brief EKF singleton
 
   /// @todo Use parameter inputs for these values

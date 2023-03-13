@@ -36,11 +36,15 @@ AugmentedState MsckfUpdater::matchState(
 
 void MsckfUpdater::updateEKF(unsigned int cameraID, FeatureTracks featureTracks)
 {
-  m_logger->log(LogLevel::DEBUG, "Called update_msckf for camera ID: " + std::to_string(cameraID));
+  m_logger->log(
+    LogLevel::DEBUG,
+    "Called update_msckf for camera ID: " + std::to_string(cameraID));
 
   // MSCKF Update
   for (auto & featureTrack : featureTracks) {
-    m_logger->log(LogLevel::DEBUG, "Feature Track size: " + std::to_string(featureTrack.size()));
+    m_logger->log(
+      LogLevel::DEBUG,
+      "Feature Track size: " + std::to_string(featureTrack.size()));
 
     AugmentedState augStateMatch = matchState(featureTrack[0].frameID);
 

@@ -36,7 +36,7 @@ public:
 protected:
   unsigned int m_id;                          ///< @brief Associated sensor ID
   EKF * m_ekf = EKF::getInstance();           ///< @brief EKF singleton
-  Logger * m_logger = Logger::getInstance();  ///< @brief Logger singleton
+  DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton
 };
 
 #endif  // EKF__UPDATE__UPDATER_HPP_

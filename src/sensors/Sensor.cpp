@@ -41,3 +41,8 @@ void Sensor::callback(SensorMessage sensorMessage)
     LogLevel::ERROR,
     "Callback on Base Sensor Called at Time" + std::to_string(sensorMessage.time));
 }
+
+bool messageCompare(std::shared_ptr<SensorMessage> a, std::shared_ptr<SensorMessage> b)
+{
+  return a->time < b->time;
+}

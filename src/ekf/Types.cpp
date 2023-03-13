@@ -138,6 +138,17 @@ Eigen::VectorXd BodyState::toVector()
   return outVec;
 }
 
+void BodyState::SetState(Eigen::VectorXd state)
+{
+  position = state.segment<3>(0);
+  velocity = state.segment<3>(3);
+  acceleration = state.segment<3>(6);
+  orientation = rotVecToQuat(state.segment<3>(9));
+  angularVelocity = state.segment<3>(12);
+  angularAcceleration = state.segment<3>(15);
+}
+
+
 Eigen::VectorXd State::toVector()
 {
   Eigen::VectorXd outVec = Eigen::VectorXd::Zero(getStateSize());

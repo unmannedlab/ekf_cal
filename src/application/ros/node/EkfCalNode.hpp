@@ -28,7 +28,7 @@
 #include <sensor_msgs/msg/imu.hpp>
 
 #include "ekf/EKF.hpp"
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 #include "sensors/Camera.hpp"
 #include "sensors/IMU.hpp"
 #include "sensors/ros/RosCamera.hpp"
@@ -157,7 +157,7 @@ private:
   std::vector<std::string> m_TrackerList {};
 
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_imgPublisher;
-  Logger * m_logger = Logger::getInstance();
+  DebugLogger * m_logger = DebugLogger::getInstance();
   std::map<int, std::shared_ptr<RosIMU>> m_mapIMU{};
   std::map<int, std::shared_ptr<RosCamera>> m_mapCamera{};
 };

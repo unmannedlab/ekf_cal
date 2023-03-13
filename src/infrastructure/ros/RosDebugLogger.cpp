@@ -18,32 +18,34 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include "../Logger.hpp"
+#include "../DebugLogger.hpp"
 
 
-Logger * Logger::m_instancePointer = NULL;
+DebugLogger * DebugLogger::m_instancePointer = NULL;
 
-void Logger::setLogLevel(LogLevel level)
+void DebugLogger::setLogLevel(LogLevel level)
 {
   if ((m_logLevel <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {
     RCLCPP_INFO_STREAM(
       rclcpp::get_logger(
         "Logger"), "Log level set to: " <<
-        LogLevelNames[static_cast<std::underlying_type<LogLevel>::type>(m_logLevel)]);
+        m_logLevelNames[static_cast<std::underlying_type<LogLevel>::type>(m_logLevel)]);
   }
   m_logLevel = level;
 }
 
-void Logger::setLogLevel(unsigned int level)
+void DebugLogger::setLogLevel(unsigned int level)
 {
   if ((m_logLevel <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("Logger"), "Log level set to: " << LogLevelNames[level]);
+    RCLCPP_INFO_STREAM(
+      rclcpp::get_logger("Logger"),
+      "Log level set to: " << m_logLevelNames[level]);
   }
 
   m_logLevel = static_cast<LogLevel>(level);
 }
 
-Logger::~Logger()
+DebugLogger::~DebugLogger()
 {
   if (m_logLevel <= LogLevel::INFO) {
     RCLCPP_INFO_STREAM(
@@ -51,7 +53,7 @@ Logger::~Logger()
   }
 }
 
-void Logger::log(LogLevel level, std::string message)
+void DebugLogger::log(LogLevel level, std::string message)
 {
   const char * message_c_str = message.c_str();
   if (m_logLevel >= level) {

@@ -22,7 +22,7 @@
 #include <vector>
 
 #include "ekf/EKF.hpp"
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 
 
 enum class SensorType
@@ -39,12 +39,6 @@ class SensorMessage
 {
 public:
   SensorMessage() {}
-
-  // Less than operator used for sorting
-  bool operator<(const SensorMessage & message) const
-  {
-    return this->time < message.time;
-  }
 
   unsigned int sensorID;
   SensorType sensorType;
@@ -92,10 +86,13 @@ protected:
   std::string m_name;                 ///< @brief Sensor name
 
   EKF * m_ekf = EKF::getInstance();           ///< @brief EKF singleton
-  Logger * m_logger = Logger::getInstance();  ///< @brief Logger singleton
+  DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton
 
 private:
   static unsigned int _idCount;
 };
+
+
+bool messageCompare(std::shared_ptr<SensorMessage> a, std::shared_ptr<SensorMessage> b);
 
 #endif  // SENSORS__SENSOR_HPP_

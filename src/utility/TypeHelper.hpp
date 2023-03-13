@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "utility/Constants.hpp"
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 
 ///
 /// @brief Converts std::vector into Eigen Quaternion
@@ -49,7 +49,7 @@ inline Eigen::Quaterniond stdToEigQuat(std::vector<double> const & in)
     quat.normalize();
     return quat;
   } else {
-    Logger::getInstance()->log(LogLevel::WARN, "Vector incorrect size for Eigen conversion");
+    DebugLogger::getInstance()->log(LogLevel::WARN, "Vector incorrect size for Eigen conversion");
     return Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
   }
 }

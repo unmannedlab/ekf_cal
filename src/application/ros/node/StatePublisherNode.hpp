@@ -30,7 +30,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include "ekf/EKF.hpp"
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 
 ///
 /// @class StatePublisherNode
@@ -79,7 +79,7 @@ private:
 
   // Singletons
   EKF * m_ekf = EKF::getInstance();
-  Logger * m_logger = Logger::getInstance();
+  DebugLogger * m_logger = DebugLogger::getInstance();
 };
 
 #endif  // APPLICATION__ROS__NODE__STATEPUBLISHERNODE_HPP_

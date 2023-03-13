@@ -4,7 +4,3 @@
 
 # Generated Docs
 docs/doxygen/
-
-build/
-data/
-*.rviz

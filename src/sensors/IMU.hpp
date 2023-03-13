@@ -20,7 +20,7 @@
 #include <eigen3/Eigen/Eigen>
 
 #include "sensors/Sensor.hpp"
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 #include "ekf/update/ImuUpdater.hpp"
 
 

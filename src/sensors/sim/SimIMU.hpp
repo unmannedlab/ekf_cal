@@ -22,7 +22,7 @@
 #include <eigen3/Eigen/Eigen>
 
 #include "ekf/Types.hpp"
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 #include "infrastructure/sim/TruthEngine.hpp"
 #include "sensors/IMU.hpp"
 #include "sensors/Sensor.hpp"

@@ -22,7 +22,7 @@
 #include <eigen3/Eigen/Eigen>
 
 #include "ekf/Types.hpp"
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 #include "utility/MathHelper.hpp"
 
 // initializing instancePointer with NULL
@@ -46,7 +46,9 @@ void EKF::processModel(double time)
   if (!m_timeInitialized) {
     m_currentTime = time;
     m_timeInitialized = true;
-    m_logger->log(LogLevel::INFO, "EKF::Predict initialized time at t=" + std::to_string(time));
+    m_logger->log(
+      LogLevel::INFO,
+      "EKF::Predict initialized time at t=" + std::to_string(time));
     return;
   }
 
@@ -64,7 +66,7 @@ void EKF::processModel(double time)
 
   Eigen::VectorXd processUpdate = F * m_state.bodyState.toVector();
 
-  m_state.bodyState += processUpdate;
+  m_state.bodyState.SetState(processUpdate);
 
   // Process input matrix is just identity
   m_cov.block<BODY_STATE_SIZE, BODY_STATE_SIZE>(0, 0) =

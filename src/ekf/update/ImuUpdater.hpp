@@ -18,6 +18,7 @@
 
 #include "ekf/EKF.hpp"
 #include "ekf/update/Updater.hpp"
+#include "infrastructure/DataLogger.hpp"
 
 ///
 /// @class ImuUpdater
@@ -42,7 +43,6 @@ public:
   ///
   /// @brief Predict measurement method
   /// @return Predicted measurement vector
-  /// @todo Add gravity to prediction
   ///
   Eigen::VectorXd predictMeasurement();
 
@@ -50,7 +50,7 @@ public:
   /// @brief Measurement Jacobian method
   /// @return Measurement Jacobian matrix
   ///
-  Eigen::MatrixXd getMeasurementJacobian();
+  Eigen::MatrixXd getMeasurementJacobian(bool isBaseSensor, bool isIntrinsic);
 
   ///
   /// @brief EKF update method for IMU measurements
@@ -62,7 +62,8 @@ public:
   ///
   void updateEKF(
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d accelerationCovariance,
-    Eigen::Vector3d angularRate, Eigen::Matrix3d angularRateCovariance);
+    Eigen::Vector3d angularRate, Eigen::Matrix3d angularRateCovariance, bool isBaseSensor,
+    bool isIntrinsic);
 
   ///
   /// @brief Refresh internal states with EKF values
@@ -86,6 +87,7 @@ private:
   Eigen::Vector3d m_omgBias {0.0, 0.0, 0.0};
   double m_accBiasStability;
   double m_omgBiasStability;
+  DataLogger m_dataLogger;
 };
 
 #endif  // EKF__UPDATE__IMUUPDATER_HPP_

@@ -23,7 +23,7 @@
 #include <std_msgs/msg/float64_multi_array.hpp>
 
 #include "ekf/EKF.hpp"
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 #include "utility/TypeHelper.hpp"
 
 

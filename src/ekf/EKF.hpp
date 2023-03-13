@@ -23,7 +23,7 @@
 #include <vector>
 
 #include "ekf/Types.hpp"
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 
 ///
 /// @class EKF
@@ -186,7 +186,7 @@ private:
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(BODY_STATE_SIZE, BODY_STATE_SIZE);
   double m_currentTime {0};
   bool m_timeInitialized {false};
-  Logger * m_logger = Logger::getInstance();
+  DebugLogger * m_logger = DebugLogger::getInstance();
 
   Eigen::MatrixXd m_processNoise =
     Eigen::MatrixXd::Identity(BODY_STATE_SIZE, BODY_STATE_SIZE) * 1e-3;

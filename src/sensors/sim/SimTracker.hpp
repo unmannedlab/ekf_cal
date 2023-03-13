@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 #include "sensors/Camera.hpp"
 #include "sensors/Sensor.hpp"
 #include "utility/sim/SimRNG.hpp"

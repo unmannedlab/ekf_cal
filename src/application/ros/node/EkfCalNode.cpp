@@ -35,7 +35,7 @@
 #include "sensors/IMU.hpp"
 #include "sensors/ros/RosCamera.hpp"
 #include "sensors/ros/RosIMU.hpp"
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 
 using std::placeholders::_1;
 
@@ -44,7 +44,7 @@ EkfCalNode::EkfCalNode()
 {
   // Declare Parameters
   this->declare_parameter("Debug_Log_Level", 0);
-  this->declare_parameter("Performance_Log_Level", 0);
+  this->declare_parameter("Data_Log_Level", 0);
   this->declare_parameter("IMU_list", std::vector<std::string>{});
   this->declare_parameter("Camera_list", std::vector<std::string>{});
   this->declare_parameter("Tracker_list", std::vector<std::string>{});
@@ -57,9 +57,9 @@ EkfCalNode::EkfCalNode()
 void EkfCalNode::initialize()
 {
   // Set logging
-  unsigned int logLevel =
+  unsigned int LogLevel =
     static_cast<unsigned int>(this->get_parameter("Debug_Log_Level").as_int());
-  m_logger->setLogLevel(logLevel);
+  m_logger->setLogLevel(LogLevel);
 
   // Load lists of sensors
   m_ImuList = this->get_parameter("IMU_list").as_string_array();

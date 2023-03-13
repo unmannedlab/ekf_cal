@@ -39,6 +39,8 @@ public:
   ///
   Eigen::VectorXd toVector();
 
+  void SetState(Eigen::VectorXd state);
+
   Eigen::Vector3d position{0.0, 0.0, 0.0};             ///< @brief Body state position
   Eigen::Vector3d velocity{0.0, 0.0, 0.0};             ///< @brief Body state velocity
   Eigen::Vector3d acceleration{0.0, 0.0, 0.0};         ///< @brief Body state acceleration

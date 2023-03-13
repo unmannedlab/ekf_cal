@@ -2,7 +2,7 @@
 /EkfCalNode:
     ros__parameters:
         Debug_Log_Level: 0
-        Performance_Log_Level: 0
+        Data_Log_Level: 0
 
         IMU_list:
             - "vn300"
@@ -28,9 +28,9 @@
                     timeBias: 0.0
                     timeError: 1.0e-9
                     accBias: [0.0, 0.0, 0.0]
-                    accError: [0.001, 0.001, 0.001]
+                    accError: [1.0e-9, 1.0e-9, 1.0e-9]
                     omgBias: [0.0, 0.0, 0.0]
-                    omgError: [0.01, 0.01, 0.01]
+                    omgError: [1.0e-9, 1.0e-9, 1.0e-9]
                     posOffset: [0.0, 0.0, 0.0]
                     angOffset: [1.0, 0.0, 0.0, 0.0]
 

@@ -1,4 +1,4 @@
-// Copyright 2022 Jacob Hartzer
+// Copyright 2023 Jacob Hartzer
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,31 +13,38 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__ROS__ROSIMU_HPP_
-#define SENSORS__ROS__ROSIMU_HPP_
+#include "infrastructure/DataLogger.hpp"
 
-#include <string>
-#include <sensor_msgs/msg/imu.hpp>
+#include <iostream>
+#include <fstream>
 
-#include "infrastructure/DebugLogger.hpp"
-#include "sensors/IMU.hpp"
-#include "sensors/Sensor.hpp"
 
-class RosImuMessage : public ImuMessage
+DataLogger::DataLogger(std::string path)
 {
-public:
-  RosImuMessage(const sensor_msgs::msg::Imu::SharedPtr msg);
-};
+  /// @todo check if path exists
+  m_logFile.open(path);
+}
 
-///
-/// @class RosIMU
-/// @brief IMU Sensor Class
-/// @todo Add parameter input/defaults for covariance
-///
-class RosIMU : public IMU
+
+void DataLogger::log(std::string message)
 {
-public:
-  using IMU::IMU;
-};
+  if (m_loggingOn) {
+    if (!m_initialized) {
+      m_logFile << m_logHeader;
+      m_initialized = true;
+    }
+    m_logFile << message;
+  }
+}
 
-#endif  // SENSORS__ROS__ROSIMU_HPP_
+
+void DataLogger::setLogging(bool value)
+{
+  m_loggingOn = value;
+}
+
+
+void DataLogger::defineHeader(std::string header)
+{
+  m_logHeader = header;
+}

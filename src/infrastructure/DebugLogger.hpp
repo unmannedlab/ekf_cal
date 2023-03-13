@@ -13,11 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef INFRASTRUCTURE__LOGGER_HPP_
-#define INFRASTRUCTURE__LOGGER_HPP_
+#ifndef INFRASTRUCTURE__DEBUGLOGGER_HPP_
+#define INFRASTRUCTURE__DEBUGLOGGER_HPP_
 
 
-/// TODO: Create grabber function from list of available loggers get_logger("Logger")->
+/// TODO: Create grabber function from list of available Debugloggers get_Debuglogger("DebugLogger")->
 #include <string>
 
 
@@ -31,17 +31,16 @@ enum class LogLevel
 };
 
 ///
-/// @brief Logger class
+/// @brief DebugLogger class
 ///
-class Logger
+class DebugLogger
 {
 private:
-  static Logger * m_instancePointer;
-  Logger() {}
-  // explicit Logger(LogLevel level);
+  static DebugLogger * m_instancePointer;
+  DebugLogger() {}
 
 public:
-  ~Logger();
+  ~DebugLogger();
 
   ///
   /// @brief Log message
@@ -54,21 +53,21 @@ public:
   ///
   /// @brief Delete copy constructor
   ///
-  Logger(const Logger & obj) = delete;
+  DebugLogger(const DebugLogger & obj) = delete;
 
   ///
-  /// @brief Getter for Logger singleton
-  /// @return Pointer to Logger singleton
+  /// @brief Getter for DebugLogger singleton
+  /// @return Pointer to DebugLogger singleton
   /// @todo Remove singleton pattern to support multiple log files with mutex
   ///
-  static Logger * getInstance()
+  static DebugLogger * getInstance()
   {
     // If there is no instance of class
     // then we can create an instance.
     if (m_instancePointer == NULL) {
       // We can access private members
       // within the class.
-      m_instancePointer = new Logger();
+      m_instancePointer = new DebugLogger();
 
       // returning the instance pointer
       return m_instancePointer;
@@ -95,7 +94,7 @@ public:
 
 private:
   LogLevel m_logLevel = LogLevel::FATAL;
-  std::string LogLevelNames[5] = {"FATAL", "ERROR", "WARN ", "INFO ", "DEBUG"};
+  std::string m_logLevelNames[5] = {"FATAL", "ERROR", "WARN ", "INFO ", "DEBUG"};
 };
 
-#endif  // INFRASTRUCTURE__LOGGER_HPP_
+#endif  // INFRASTRUCTURE__DEBUGLOGGER_HPP_

@@ -18,7 +18,7 @@
 #include <eigen3/Eigen/Eigen>
 
 #include "ekf/Types.hpp"
-#include "infrastructure/Logger.hpp"
+#include "infrastructure/DebugLogger.hpp"
 #include "sensors/Sensor.hpp"
 #include "utility/MathHelper.hpp"
 #include "utility/TypeHelper.hpp"
@@ -52,6 +52,7 @@ void IMU::callback(std::shared_ptr<ImuMessage> imuMessage)
     imuMessage->acceleration,
     imuMessage->accelerationCovariance,
     imuMessage->angularRate,
-    imuMessage->angularRateCovariance);
+    imuMessage->angularRateCovariance,
+    m_isBaseSensor, m_isIntrinsic);
   m_logger->log(LogLevel::DEBUG, "IMU \"" + m_name + "\" callback complete");
 }

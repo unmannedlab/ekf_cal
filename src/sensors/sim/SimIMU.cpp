@@ -38,7 +38,7 @@ SimIMU::SimIMU(SimImuParams params, std::shared_ptr<TruthEngine> truthEngine)
 
 std::vector<std::shared_ptr<SimImuMessage>> SimIMU::generateMessages(double maxTime)
 {
-  double nMeasurements = maxTime / (1 + m_tSkew) / m_rate;
+  double nMeasurements = maxTime * m_rate / (1 + m_tSkew);
   std::vector<std::shared_ptr<SimImuMessage>> messages;
   m_logger->log(LogLevel::INFO, "Generating " + std::to_string(nMeasurements) + " measurements");
 
@@ -63,6 +63,7 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::generateMessages(double maxT
     Eigen::Vector3d imuAccRot = m_angOffset * imuAcc;
     Eigen::Vector3d imuOmgRot = m_angOffset * bodyAngVel;
 
+    /// @todo move gravity to constants file
     imuAccRot += bodyAngPos * m_angOffset * Eigen::Vector3d(0, 0, 9.80665);
 
     simImuMsg->acceleration = imuAccRot;

@@ -37,12 +37,12 @@ int main(int argc, char * argv[])
   double maxTime = 10;
 
   // Logging parameters
-  unsigned int debugLogLevel =
+  unsigned int LogLevel =
     root["/EkfCalNode"]["ros__parameters"]["Debug_Log_Level"].as<unsigned int>();
   unsigned int performanceLogLevel =
-    root["/EkfCalNode"]["ros__parameters"]["Performance_Log_Level"].as<unsigned int>();
-  Logger * logger = Logger::getInstance();
-  logger->setLogLevel(debugLogLevel);
+    root["/EkfCalNode"]["ros__parameters"]["Data_Log_Level"].as<unsigned int>();
+  DebugLogger * logger = DebugLogger::getInstance();
+  logger->setLogLevel(LogLevel);
 
   if (imus) {
     for (auto it = imus.begin(); it != imus.end(); ++it) {
@@ -50,6 +50,7 @@ int main(int argc, char * argv[])
       YAML::Node simNode = imuNode["SimParams"];
 
       IMU::Params imuParams;
+      imuParams.name = it->first.as<std::string>();
       imuParams.baseSensor = imuNode["BaseSensor"].as<bool>();
       imuParams.intrinsic = imuNode["Intrinsic"].as<bool>();
       imuParams.rate = imuNode["Rate"].as<double>();
@@ -83,7 +84,7 @@ int main(int argc, char * argv[])
   }
 
   // Sort Measurements
-  sort(messages.begin(), messages.end());
+  sort(messages.begin(), messages.end(), messageCompare);
 
   // Run measurements through sensors and EKF
   for (auto message : messages) {

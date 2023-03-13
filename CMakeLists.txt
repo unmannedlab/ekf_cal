@@ -75,7 +75,8 @@ target_include_directories(EKF_LIB PUBLIC
 
 # Simulation Sources
 set(SIM_SRCS
-    src/infrastructure/sim/SimLog.cpp
+    src/infrastructure/DataLogger.cpp
+    src/infrastructure/sim/SimDebugLogger.cpp
     src/infrastructure/sim/TruthEngine.cpp
     src/sensors/sim/SimIMU.cpp
     src/sensors/sim/SimTracker.cpp
@@ -94,7 +95,8 @@ ament_target_dependencies(SIM_LIB OpenCV)
 
 # ROS Sources
 set(ROS_SRCS
-    src/infrastructure/ros/RosLog.cpp
+    src/infrastructure/DataLogger.cpp
+    src/infrastructure/ros/RosDebugLogger.cpp
     src/sensors/ros/RosCamera.cpp
     src/sensors/ros/RosIMU.cpp
 )
