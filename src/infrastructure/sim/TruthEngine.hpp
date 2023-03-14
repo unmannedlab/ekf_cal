@@ -21,6 +21,7 @@
 ///
 /// @class TruthEngine
 /// @brief Truth for low fidelity simulations
+/// @todo Add initialization time to start of sim
 ///
 class TruthEngine
 {

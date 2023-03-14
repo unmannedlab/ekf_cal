@@ -67,7 +67,7 @@
             "label": "doxygen",
             "detail": "Build ekf_cal documentation",
             "type": "shell",
-            "command": "doxygen .doxyfile",
+            "command": "doxygen .doxyfile && cd docs/doxygen/latex && make",
             "group": "test",
             "problemMatcher": "$gcc",
             "options": {

@@ -1,9 +1,10 @@
 Simple Simulation Work:
-    - Camera model
     - Tracker model
-    - IMU Model
-    - Trajectory designer
-    - Simulated fiducial detector
+    - TruthModel subclasses
+    - Simulated fiducial detector / Board detector with and without uncertainty
+    - Determine if point is in FOV
+    - Generate random points on walls
+    - Add eval scripts ekfEval.py and simEval.py
 
 MAVS Simulation Work:
     - Create objects for calling MAVS binaries directly
@@ -26,6 +27,7 @@ Package Features:
     - Zero-Velocity Update
     - Option for complementary IMU filter
     - Option for fixed IMU offsets - high certainty constraint update
+    - IMU Time Update Equations
 
 Software Work:
     - Define types/transforms to force different coordinate frames
@@ -43,6 +45,14 @@ Software Work:
     - Option to de-register sensor
     - Add performance logging level / tracing: https://perf.wiki.kernel.org/index.php/Tutorial
     - Log to file
+    - Add "detectors" configuration for aruco: Map of arcuo starting ID to global pose
+    - Have EKF instance own updaters
+        - EKF::RegisterSensor() returns pointer to updater
+        - Sensor calls updater callback which calls sort/pop
+        - Add sort/pop for incoming messages into EKF 
+            - EKF::AddMessageToBuffer()
+            - EKF::ProcessNextMessage()
+
 
 Documentation:
     - Create Cake Diagram for EKF-CAL architecture

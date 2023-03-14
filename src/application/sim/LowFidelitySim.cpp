@@ -21,7 +21,7 @@
 #include <yaml-cpp/yaml.h>
 #include <iostream>
 
-
+/// @todo read input YAML and output directory from arguments
 int main(int argc, char * argv[])
 {
   // Define sensors to use (load config from yaml)
