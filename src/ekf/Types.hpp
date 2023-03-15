@@ -39,6 +39,10 @@ public:
   ///
   Eigen::VectorXd toVector();
 
+  ///
+  /// @brief Function to set state using vector
+  /// @param state vector for setting body state
+  ///
   void SetState(Eigen::VectorXd state);
 
   Eigen::Vector3d position{0.0, 0.0, 0.0};             ///< @brief Body state position

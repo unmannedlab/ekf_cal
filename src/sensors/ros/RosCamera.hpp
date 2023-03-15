@@ -26,7 +26,9 @@
 #include "infrastructure/DebugLogger.hpp"
 #include "sensors/Camera.hpp"
 
-
+///
+///
+///
 class RosCameraMessage : public CameraMessage
 {
 public:
@@ -51,7 +53,7 @@ public:
 
   ///
   /// @brief RosCamera callback method
-  /// @param msg ROS image message
+  /// @param rosCameraMessage ROS image message
   ///
   void callback(std::shared_ptr<RosCameraMessage> rosCameraMessage);
 

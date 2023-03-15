@@ -23,6 +23,10 @@
 #include "sensors/IMU.hpp"
 #include "sensors/Sensor.hpp"
 
+///
+/// @class RosImuMessage
+/// @brief Ros IMU message class
+///
 class RosImuMessage : public ImuMessage
 {
 public:

@@ -18,13 +18,26 @@
 
 #include <random>
 
+///
+/// @class SimRNG
+/// @brief Simulation Random Number Generator
+///
 class SimRNG
 {
 public:
   SimRNG() {}
 
+  ///
+  /// @brief Function to set seed for random number generator
+  /// @param seed Seed to use for random number generation
+  ///
   void SetSeed(double seed);
 
+  ///
+  /// @brief Function to return normal random number
+  /// @param mean Mean of normal distribution
+  /// @param stdDev Standard deviation of normal distribution
+  ///
   double NormRand(double mean, double stdDev);
 
 private:

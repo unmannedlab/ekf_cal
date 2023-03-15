@@ -35,14 +35,14 @@ public:
   void log(std::string message);
 
   ///
-  /// @brief Function to set the log level
-  /// @param level LogLevel integer
+  /// @brief Function to switch the logger on/off
+  /// @param value Logger on/off value
   ///
   void setLogging(bool value);
 
   ///
-  /// @brief Function to set the log file header
-  /// @param level LogLevel integer
+  /// @brief Function to set the output file header
+  /// @param header Header string for output file
   ///
   void defineHeader(std::string header);
 

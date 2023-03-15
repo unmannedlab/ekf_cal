@@ -33,15 +33,22 @@ enum class SensorType
 };
 
 ///
-///
+/// @class SensorMessage
+/// @brief Sensor message base class
 ///
 class SensorMessage
 {
 public:
   SensorMessage() {}
 
+
+  /// @brief Associated sensor ID of measurement
   unsigned int sensorID;
+
+  /// @brief Associated sensor type of measurement
   SensorType sensorType;
+
+  /// @brief Measurement time
   double time;
 };
 
@@ -74,6 +81,7 @@ public:
 
   ///
   /// @brief
+  /// @param sensorMessage
   ///
   void callback(SensorMessage sensorMessage);
 

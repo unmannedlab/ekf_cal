@@ -27,10 +27,20 @@
 #include "sensors/Sensor.hpp"
 #include "sensors/Tracker.hpp"
 
+///
+/// @class CameraMessage
+/// @brief Camera message class
+///
 class CameraMessage : public SensorMessage
 {
 public:
+  ///
+  /// @brief Camera message constructor
+  /// @param imgIn Input image
+  ///
   CameraMessage(cv::Mat & imgIn);
+
+  /// @brief Message image
   cv::Mat & image;
 };
 

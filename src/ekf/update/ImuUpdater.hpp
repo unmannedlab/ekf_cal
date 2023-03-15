@@ -59,6 +59,8 @@ public:
   /// @param accelerationCovariance Estimated acceleration error
   /// @param angularRate Measured angular rate
   /// @param angularRateCovariance Estimated angular rate error
+  /// @param isBaseSensor switch if this is the base sensor
+  /// @param isIntrinsic switch if imu intrinsics should be calibrated
   ///
   void updateEKF(
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d accelerationCovariance,

@@ -23,17 +23,28 @@
 #include "sensors/Sensor.hpp"
 #include "utility/sim/SimRNG.hpp"
 
-
+///
+/// @class SimTrackerMessage
+/// @brief Simulated Tracker Message class
+///
 class SimTrackerMessage : public SensorMessage
 {
 public:
   SimTrackerMessage() {}
 };
 
+///
+/// @class SimTracker
+/// @brief Simulated Tracker class
+///
 class SimTracker : public Camera
 {
 public:
-  SimTrackerMessage generateMeasurement(double measurementTime);
+  ///
+  /// @brief Generate simulated tracker messages
+  /// @param maxTime Maximum time of generated messages
+  ///
+  SimTrackerMessage generateMeasurement(double maxTime);
 
 private:
   double tBias{0};
