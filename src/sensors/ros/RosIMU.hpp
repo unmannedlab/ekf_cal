@@ -30,6 +30,10 @@
 class RosImuMessage : public ImuMessage
 {
 public:
+  ///
+  /// @brief RosImuMessage constructor
+  /// @param msg Ros IMU message pointer
+  ///
   RosImuMessage(const sensor_msgs::msg::Imu::SharedPtr msg);
 };
 

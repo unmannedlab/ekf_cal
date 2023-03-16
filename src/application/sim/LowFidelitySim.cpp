@@ -62,7 +62,7 @@ int main(int argc, char * argv[])
       imuParams.omgBias = stdToEigVec(imuNode["OmgBiasInit"].as<std::vector<double>>());
 
       // SimParams
-      SimImuParams simImuParams;
+      SimIMU::SimImuParams simImuParams;
       simImuParams.imuParams = imuParams;
       simImuParams.tBias = simNode["timeBias"].as<double>();
       simImuParams.tError = simNode["timeError"].as<double>();

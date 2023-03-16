@@ -24,14 +24,18 @@
 #include "ekf/update/ImuUpdater.hpp"
 
 
+///
+/// @class ImuMessage
+/// @brief Data class for IMU messages
+///
 class ImuMessage : public SensorMessage
 {
 public:
   ImuMessage() {}
-  Eigen::Vector3d acceleration = Eigen::Vector3d::Zero(3);
-  Eigen::Vector3d angularRate = Eigen::Vector3d::Zero(3);
-  Eigen::Matrix3d accelerationCovariance = Eigen::Matrix3d::Zero(3, 3);
-  Eigen::Matrix3d angularRateCovariance = Eigen::Matrix3d::Zero(3, 3);
+  Eigen::Vector3d acceleration;           ///< @brief IMU acceleration
+  Eigen::Vector3d angularRate;            ///< @brief IMU angular rate
+  Eigen::Matrix3d accelerationCovariance; ///< @brief IMU acceleration covariance
+  Eigen::Matrix3d angularRateCovariance;  ///< @brief IMU angular rate covariance
 };
 
 
@@ -73,11 +77,7 @@ public:
 
   ///
   /// @brief Callback method for IMU measurements
-  /// @param time Measurement time
-  /// @param acceleration Measured acceleration
-  /// @param accelerationCovariance Estimated acceleration error
-  /// @param angularRate Measured angular rate
-  /// @param angularRateCovariance Estimated angular rate error
+  /// @param imuMessage IMU measurement message
   ///
   void callback(std::shared_ptr<ImuMessage> imuMessage);
 

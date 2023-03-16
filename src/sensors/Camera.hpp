@@ -75,8 +75,7 @@ public:
 
   ///
   /// @brief Callback method for camera
-  /// @param time Measurement time
-  /// @param imgIn Image pointer
+  /// @param cameraMessage camera message
   ///
   void callback(std::shared_ptr<CameraMessage> cameraMessage);
 

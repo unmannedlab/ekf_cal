@@ -27,11 +27,16 @@
 #include "sensors/Camera.hpp"
 
 ///
-///
+/// @class RosCameraMessage
+/// @brief Class for ROS image message data structure
 ///
 class RosCameraMessage : public CameraMessage
 {
 public:
+  ///
+  /// @brief RosCameraMessage constructor
+  /// @param msg Ros image message input
+  ///
   RosCameraMessage(const sensor_msgs::msg::Image::SharedPtr msg);
 };
 

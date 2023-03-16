@@ -67,9 +67,21 @@
             "label": "doxygen",
             "detail": "Build ekf_cal documentation",
             "type": "shell",
-            "command": "doxygen .doxyfile && cd docs/doxygen/latex && make",
-            "group": "test",
+            "command": "doxygen .doxyfile",
+            "group": "none",
             "problemMatcher": "$gcc",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+        },
+        {
+            "label": "doxygen-pdf",
+            "detail": "Build ekf_cal documentation as single pdf",
+            "type": "shell",
+            "command": "cd docs/doxygen/latex && make",
+            "group": "none",
+            "problemMatcher": "$gcc",
+            "dependsOn": "doxygen",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
@@ -79,7 +91,7 @@
             "detail": "Build ekf_cal documentation with coverage report",
             "type": "shell",
             "command": "doxygen .doxyfile",
-            "group": "test",
+            "group": "none",
             "problemMatcher": "$gcc",
             "dependsOn": "report coverage",
             "options": {

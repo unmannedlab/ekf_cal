@@ -31,21 +31,11 @@
 class SimImuMessage : public ImuMessage
 {
 public:
+  ///
+  /// @brief Define SimImuMessage constructor with ImuMessage's
+  ///
   using ImuMessage::ImuMessage;
 };
-
-typedef struct SimImuParams
-{
-  double tBias {0.0};                                ///< @brief Time offset bias
-  double tError {1e-9};                              ///< @brief Time offset error
-  Eigen::Vector3d accBias {0.0, 0.0, 0.0};           ///< @brief Acceleration bias
-  Eigen::Vector3d accError {1e-9, 1e-9, 1e-9};       ///< @brief Acceleration error
-  Eigen::Vector3d omgBias {0.0, 0.0, 0.0};           ///< @brief Angular rate bias
-  Eigen::Vector3d omgError {1e-9, 1e-9, 1e-9};       ///< @brief Angular rate error
-  Eigen::Vector3d posOffset {0.0, 0.0, 0.0};         ///< @brief Sensor position offset
-  Eigen::Quaterniond angOffset {1.0, 0.0, 0.0, 0.0}; ///< @brief Sensor angular offset
-  IMU::Params imuParams;                             ///< @brief IMU sensor parameters
-} SimImuParams;
 
 ///
 /// @class SimIMU
@@ -54,6 +44,22 @@ typedef struct SimImuParams
 class SimIMU : public IMU
 {
 public:
+  ///
+  /// @brief Sim IMU initialization parameters structure
+  ///
+  typedef struct SimImuParams
+  {
+    double tBias {0.0};                              ///< @brief Time offset bias
+    double tError {1e-9};                            ///< @brief Time offset error
+    Eigen::Vector3d accBias {0.0, 0.0, 0.0};         ///< @brief Acceleration bias
+    Eigen::Vector3d accError {1e-9, 1e-9, 1e-9};     ///< @brief Acceleration error
+    Eigen::Vector3d omgBias {0.0, 0.0, 0.0};         ///< @brief Angular rate bias
+    Eigen::Vector3d omgError {1e-9, 1e-9, 1e-9};     ///< @brief Angular rate error
+    Eigen::Vector3d posOffset {0.0, 0.0, 0.0};       ///< @brief Sensor position offset
+    Eigen::Quaterniond angOffset {1.0, 0.0, 0.0, 0.0}; ///< @brief Sensor angular offset
+    IMU::Params imuParams;                           ///< @brief IMU sensor parameters
+  } SimImuParams;
+
   ///
   /// @brief Simulation IMU constructor
   /// @param params Simulation IMU parameters
