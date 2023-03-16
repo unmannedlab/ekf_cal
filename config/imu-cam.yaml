@@ -2,7 +2,7 @@
 /EkfCalNode:
     ros__parameters:
         Debug_Log_Level: 0
-        Data_Log_Level: 0
+        Data_Logging_On: True
 
         IMU_list:
             - "vn300"

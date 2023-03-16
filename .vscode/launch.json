@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) ekf_cal",
+            "name": "ekf_cal",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/../../install/ekf_cal/lib/ekf_cal/ekf_cal_node",

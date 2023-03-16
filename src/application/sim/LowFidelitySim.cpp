@@ -13,19 +13,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sensors/sim/SimIMU.hpp"
-#include "sensors/IMU.hpp"
 #include "infrastructure/sim/TruthEngine.hpp"
+#include "sensors/IMU.hpp"
+#include "sensors/sim/SimIMU.hpp"
 #include "utility/TypeHelper.hpp"
 
-#include <yaml-cpp/yaml.h>
 #include <iostream>
+#include <opencv2/core/utility.hpp>
+#include <yaml-cpp/yaml.h>
 
 /// @todo read input YAML and output directory from arguments
 int main(int argc, char * argv[])
 {
+  const cv::String keys =
+    "{help h usage ? |      | print this help message       }"
+    "{@config        |<none>| Input YAML configuration file }"
+    "{@outDir        |<none>| Output directory for logs     }"
+  ;
+
+  cv::CommandLineParser parser(argc, argv, keys);
+
+  std::string config = parser.get<std::string>("@config");
+  std::string outDir = parser.get<std::string>("@outDir");
+
   // Define sensors to use (load config from yaml)
-  YAML::Node root = YAML::LoadFile("/home/jacob/proj/ekf_cal_ws/src/ekf_cal/config/imu-cam.yaml");
+  YAML::Node root = YAML::LoadFile(config);
   std::cout << "root size:" << root.size() << std::endl;
   const auto imus = root["/EkfCalNode"]["ros__parameters"]["IMU"];
 
@@ -37,12 +49,13 @@ int main(int argc, char * argv[])
   double maxTime = 10;
 
   // Logging parameters
-  unsigned int LogLevel =
+  unsigned int debugLogLevel =
     root["/EkfCalNode"]["ros__parameters"]["Debug_Log_Level"].as<unsigned int>();
-  unsigned int performanceLogLevel =
-    root["/EkfCalNode"]["ros__parameters"]["Data_Log_Level"].as<unsigned int>();
-  DebugLogger * logger = DebugLogger::getInstance();
-  logger->setLogLevel(LogLevel);
+  bool dataLoggingOn = root["/EkfCalNode"]["ros__parameters"]["Data_Logging_On"].as<bool>();
+  DataLogger::setOutputDirectory(outDir);
+  DebugLogger::setOutputDirectory(outDir);
+  DataLogger::setLogging(dataLoggingOn);
+  DebugLogger::setLogLevel(debugLogLevel);
 
   if (imus) {
     for (auto it = imus.begin(); it != imus.end(); ++it) {

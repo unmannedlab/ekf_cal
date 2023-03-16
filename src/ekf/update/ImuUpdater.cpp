@@ -29,7 +29,7 @@ const Eigen::Vector3d ImuUpdater::GRAVITY = Eigen::Vector3d(0, 0, 9.80665);
 
 ImuUpdater::ImuUpdater(unsigned int imuID, double accBiasStability, double omgBiasStability)
 : Updater(imuID), m_accBiasStability(accBiasStability), m_omgBiasStability(omgBiasStability),
-  m_dataLogger("src/application/sim/output/imu.csv")
+  m_dataLogger("imu.csv")
 {
   m_dataLogger.defineHeader("test1,test2,test3\n");
   m_dataLogger.setLogging(true);

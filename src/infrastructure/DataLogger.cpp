@@ -19,10 +19,14 @@
 #include <fstream>
 
 
-DataLogger::DataLogger(std::string path)
+std::string DataLogger::m_outputDirectory = "";
+bool DataLogger::m_loggingOn = false;
+
+
+DataLogger::DataLogger(std::string filename)
 {
   /// @todo check if path exists
-  m_logFile.open(path);
+  m_logFile.open(m_outputDirectory + filename);
 }
 
 
@@ -47,4 +51,10 @@ void DataLogger::setLogging(bool value)
 void DataLogger::defineHeader(std::string header)
 {
   m_logHeader = header;
+}
+
+
+void DataLogger::setOutputDirectory(std::string directory)
+{
+  m_outputDirectory = directory;
 }

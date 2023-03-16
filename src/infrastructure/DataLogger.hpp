@@ -20,13 +20,14 @@
 #include <string>
 #include <fstream>
 
+
 ///
 /// @brief DataLogger class
 ///
 class DataLogger
 {
 public:
-  DataLogger(std::string path);
+  DataLogger(std::string filename);
 
   ///
   /// @brief Log message
@@ -35,22 +36,29 @@ public:
   void log(std::string message);
 
   ///
-  /// @brief Function to switch the logger on/off
-  /// @param value Logger on/off value
-  ///
-  void setLogging(bool value);
-
-  ///
   /// @brief Function to set the output file header
   /// @param header Header string for output file
   ///
   void defineHeader(std::string header);
 
+  ///
+  /// @brief Function to switch the logger on/off
+  /// @param value Logger on/off value
+  ///
+  static void setLogging(bool value);
+
+  ///
+  /// @brief Output directory setter
+  /// @param directory Output directory string
+  ///
+  static void setOutputDirectory(std::string directory);
+
 private:
-  bool m_loggingOn {false};
   bool m_initialized{false};
   std::string m_logHeader{"\n"};
   std::ofstream m_logFile {};
+  static bool m_loggingOn;
+  static std::string m_outputDirectory;
 };
 
 #endif  // INFRASTRUCTURE__DATALOGGER_HPP_
