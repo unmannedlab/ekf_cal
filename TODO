@@ -1,14 +1,9 @@
 Simple Simulation Work:
     - Tracker model
-    - TruthModel subclasses
     - Simulated fiducial detector / Board detector with and without uncertainty
     - Determine if point is in FOV
     - Generate random points on walls
     - Add eval scripts ekfEval.py and simEval.py
-
-MAVS Simulation Work:
-    - Create objects for calling MAVS binaries directly
-    - Application for running simulated off-road trajectory
 
 Package Features:
     - Add detector for Aruco
@@ -52,6 +47,7 @@ Software Work:
         - Add sort/pop for incoming messages into EKF 
             - EKF::AddMessageToBuffer()
             - EKF::ProcessNextMessage()
+    - Add binaries to Github release
 
 
 Documentation:

@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "infrastructure/sim/TruthEngine.hpp"
+#include "infrastructure/sim/TruthEngineSpline.hpp"
 #include "sensors/IMU.hpp"
 #include "sensors/sim/SimIMU.hpp"
 #include "utility/TypeHelper.hpp"
@@ -43,7 +44,7 @@ int main(int argc, char * argv[])
 
   // Construct sensors and EKF
   std::map<unsigned int, std::shared_ptr<Sensor>> sensorMap;
-  auto truthEngine = std::make_shared<TruthEngine>();
+  auto truthEngine = std::static_pointer_cast<TruthEngine>(std::make_shared<TruthEngineSpline>());
   std::vector<std::shared_ptr<SensorMessage>> messages;
 
   double maxTime = 10;

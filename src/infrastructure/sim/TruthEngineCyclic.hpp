@@ -13,20 +13,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
-#define INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
+#ifndef INFRASTRUCTURE__SIM__TRUTHENGINECYCLIC_HPP_
+#define INFRASTRUCTURE__SIM__TRUTHENGINECYCLIC_HPP_
+
+#include "infrastructure/sim/TruthEngine.hpp"
 
 #include <eigen3/Eigen/Eigen>
 
 ///
-/// @class TruthEngine
+/// @class TruthEngineCyclic
 /// @brief Truth for simulation
 /// @todo Add initialization time to start of sim
 ///
-class TruthEngine
+class TruthEngineCyclic : public TruthEngine
 {
 public:
-  TruthEngine() {}
+  TruthEngineCyclic() {}
 
   ///
   /// @brief Setter for body position cycle frequency
@@ -75,6 +77,10 @@ public:
   /// @param time Simulation time
   ///
   Eigen::Vector3d GetBodyAngularAcceleration(double time);
+
+private:
+  Eigen::Vector3d m_posCycleFrequency {1.0, 1.0, 1.0};
+  Eigen::Vector3d m_angCycleFrequency {1.0, 1.0, 1.0};
 };
 
-#endif  // INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
+#endif  // INFRASTRUCTURE__SIM__TRUTHENGINECYCLIC_HPP_

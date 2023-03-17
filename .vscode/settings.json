@@ -57,6 +57,8 @@
         "SSRR",
         "STATEPUBLISHERNODE",
         "TRUTHENGINE",
+        "TRUTHENGINECYCLIC",
+        "TRUTHENGINESPLINE",
         "TYPEHELPER",
         "undistort",
         "VIZNODE"
@@ -157,7 +159,7 @@
     "cmake.debugConfig": {
         "args": [
             "${workspaceFolder}/config/imu-cam.yaml",
-            "${workspaceFolder}/src/application/sim/output/"
+            "${workspaceFolder}/config/imu-cam/"
         ]
     }
 }

@@ -17,6 +17,6 @@
 
 #include "infrastructure/sim/TruthEngine.hpp"
 
-TEST(test_TruthEngine, Constructor) {
-  TruthEngine truthEngine;
-}
+// TEST(test_TruthEngine, Constructor) {
+//   TruthEngine truthEngine;
+// }

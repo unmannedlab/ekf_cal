@@ -79,6 +79,8 @@ set(SIM_SRCS
     src/infrastructure/DebugLogger.cpp
     src/infrastructure/sim/SimDebugLogger.cpp
     src/infrastructure/sim/TruthEngine.cpp
+    src/infrastructure/sim/TruthEngineCyclic.cpp
+    src/infrastructure/sim/TruthEngineSpline.cpp
     src/sensors/sim/SimIMU.cpp
     src/sensors/sim/SimTracker.cpp
     src/utility/sim/SimRNG.cpp
@@ -146,20 +148,20 @@ target_include_directories(state_pub_node PUBLIC
 ament_target_dependencies(state_pub_node ${ROS_PKGS})
 target_link_libraries(state_pub_node PUB_NODE_LIB EKF_LIB ROS_LIB)
 
-# Low-Fidelity Simulation
-add_executable(low_sim src/application/sim/LowFidelitySim.cpp)
-target_include_directories(low_sim PUBLIC
+# Simulation
+add_executable(sim src/application/sim/Simulation.cpp)
+target_include_directories(sim PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
-ament_target_dependencies(low_sim OpenCV)
+ament_target_dependencies(sim OpenCV)
 
 find_package(yaml-cpp REQUIRED)
 include_directories(${YAML_CPP_INCLUDE_DIRS})
-target_link_libraries(low_sim ${YAML_CPP_LIBRARIES})
+target_link_libraries(sim ${YAML_CPP_LIBRARIES})
 
 target_link_libraries(EKF_LIB SIM_LIB)
-target_link_libraries(low_sim SIM_LIB EKF_LIB)
+target_link_libraries(sim SIM_LIB EKF_LIB)
 
 install(TARGETS
     ekf_cal_node

@@ -13,32 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
-#define INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
+#ifndef INFRASTRUCTURE__SIM__TRUTHENGINESPLINE_HPP_
+#define INFRASTRUCTURE__SIM__TRUTHENGINESPLINE_HPP_
+
+#include "infrastructure/sim/TruthEngine.hpp"
 
 #include <eigen3/Eigen/Eigen>
+#include <eigen3/unsupported/Eigen/Splines>
 
 ///
-/// @class TruthEngine
+/// @class TruthEngineSpline
 /// @brief Truth for simulation
 /// @todo Add initialization time to start of sim
+/// @todo Add csv reading option to set control points
 ///
-class TruthEngine
+class TruthEngineSpline : public TruthEngine
 {
 public:
-  TruthEngine() {}
-
-  ///
-  /// @brief Setter for body position cycle frequency
-  /// @param frequency Vector of frequencies to use
-  ///
-  void SetBodyPosCycleFrequency(Eigen::Vector3d frequency);
-
-  ///
-  /// @brief Setter for body euler angle cycle frequency
-  /// @param frequency Vector of frequencies to use
-  ///
-  void SetBodyAngCycleFrequency(Eigen::Vector3d frequency);
+  TruthEngineSpline();
 
   ///
   /// @brief True body position getter
@@ -75,6 +67,21 @@ public:
   /// @param time Simulation time
   ///
   Eigen::Vector3d GetBodyAngularAcceleration(double time);
+
+  ///
+  /// @brief Setter function for spline control points
+  /// @param points Control Points
+  ///
+  void SetControlPoints(
+    std::vector<Eigen::Vector3d> positions,
+    std::vector<Eigen::Vector3d> angles);
+
+private:
+  bool IsTimeInvalid(double time);
+
+  double m_timeMax {0.0};
+  Eigen::Spline3d m_posSpline;
+  Eigen::Spline3d m_angSpline;
 };
 
-#endif  // INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
+#endif  // INFRASTRUCTURE__SIM__TRUTHENGINESPLINE_HPP_
