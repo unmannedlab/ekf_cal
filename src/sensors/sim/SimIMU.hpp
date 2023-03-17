@@ -17,9 +17,11 @@
 #ifndef SENSORS__SIM__SIMIMU_HPP_
 #define SENSORS__SIM__SIMIMU_HPP_
 
+#include <eigen3/Eigen/Eigen>
+
+#include <memory>
 #include <string>
 #include <vector>
-#include <eigen3/Eigen/Eigen>
 
 #include "ekf/Types.hpp"
 #include "infrastructure/DebugLogger.hpp"
@@ -49,16 +51,16 @@ public:
   ///
   typedef struct SimImuParams
   {
-    double tBias {0.0};                                ///< @brief Time offset bias
-    double tError {1e-9};                              ///< @brief Time offset error
-    Eigen::Vector3d accBias {0.0, 0.0, 0.0};           ///< @brief Acceleration bias
-    Eigen::Vector3d accError {1e-9, 1e-9, 1e-9};       ///< @brief Acceleration error
-    Eigen::Vector3d omgBias {0.0, 0.0, 0.0};           ///< @brief Angular rate bias
-    Eigen::Vector3d omgError {1e-9, 1e-9, 1e-9};       ///< @brief Angular rate error
-    Eigen::Vector3d posOffset {0.0, 0.0, 0.0};         ///< @brief Sensor position offset
-    Eigen::Quaterniond angOffset {1.0, 0.0, 0.0, 0.0}; ///< @brief Sensor angular offset
-    std::string outputDirectory;                       ///< @brief Output directory path
-    IMU::Params imuParams;                             ///< @brief IMU sensor parameters
+    double tBias {0.0};                                 ///< @brief Time offset bias
+    double tError {1e-9};                               ///< @brief Time offset error
+    Eigen::Vector3d accBias {0.0, 0.0, 0.0};            ///< @brief Acceleration bias
+    Eigen::Vector3d accError {1e-9, 1e-9, 1e-9};        ///< @brief Acceleration error
+    Eigen::Vector3d omgBias {0.0, 0.0, 0.0};            ///< @brief Angular rate bias
+    Eigen::Vector3d omgError {1e-9, 1e-9, 1e-9};        ///< @brief Angular rate error
+    Eigen::Vector3d posOffset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
+    Eigen::Quaterniond angOffset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
+    std::string outputDirectory;                        ///< @brief Output directory path
+    IMU::Params imuParams;                              ///< @brief IMU sensor parameters
   } SimImuParams;
 
   ///

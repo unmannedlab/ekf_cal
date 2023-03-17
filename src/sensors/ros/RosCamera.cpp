@@ -17,6 +17,7 @@
 
 #include <cv_bridge/cv_bridge.h>
 
+#include <memory>
 #include <opencv2/opencv.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <std_msgs/msg/header.hpp>

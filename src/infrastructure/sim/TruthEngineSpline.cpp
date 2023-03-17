@@ -15,6 +15,8 @@
 
 #include "infrastructure/sim/TruthEngineSpline.hpp"
 
+#include <vector>
+
 TruthEngineSpline::TruthEngineSpline() {}
 
 
@@ -87,7 +89,6 @@ void TruthEngineSpline::SetControlPoints(
   std::vector<Eigen::Vector3d> positions,
   std::vector<Eigen::Vector3d> angles)
 {
-
   Eigen::MatrixXd pos_mat(3, positions.size());
   int row_index;
   row_index = 0;

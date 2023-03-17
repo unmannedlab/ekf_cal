@@ -17,6 +17,8 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <memory>
+
 #include "ekf/Types.hpp"
 #include "infrastructure/DebugLogger.hpp"
 #include "sensors/Sensor.hpp"
@@ -25,7 +27,8 @@
 
 
 IMU::IMU(IMU::Params params)
-: Sensor(params.name), m_imuUpdater(m_id, params.accBiasStability, params.omgBiasStability)
+: Sensor(params.name), m_imuUpdater(m_id, params.accBiasStability, params.omgBiasStability,
+    params.outputDirectory, params.dataLoggingOn)
 {
   m_isBaseSensor = params.baseSensor;
   m_isIntrinsic = params.intrinsic;

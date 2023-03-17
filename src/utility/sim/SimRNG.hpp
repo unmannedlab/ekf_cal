@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef UTILITY__SIM_SIMRNG_HPP_
-#define UTILITY__SIM_SIMRNG_HPP_
+#ifndef UTILITY__SIM__SIMRNG_HPP_
+#define UTILITY__SIM__SIMRNG_HPP_
 
 #include <random>
 
@@ -44,4 +44,4 @@ private:
   static std::mt19937_64 m_generator;
 };
 
-#endif  // UTILITY__SIM_SIMRNG_HPP_
+#endif  // UTILITY__SIM__SIMRNG_HPP_

@@ -15,11 +15,12 @@
 
 #include "ekf/EKF.hpp"
 
+#include <eigen3/Eigen/Eigen>
+
 #include <memory>
 #include <string>
 #include <vector>
 #include <sstream>
-#include <eigen3/Eigen/Eigen>
 
 #include "ekf/Types.hpp"
 #include "infrastructure/DebugLogger.hpp"

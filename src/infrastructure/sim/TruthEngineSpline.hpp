@@ -16,10 +16,12 @@
 #ifndef INFRASTRUCTURE__SIM__TRUTHENGINESPLINE_HPP_
 #define INFRASTRUCTURE__SIM__TRUTHENGINESPLINE_HPP_
 
-#include "infrastructure/sim/TruthEngine.hpp"
-
 #include <eigen3/Eigen/Eigen>
 #include <eigen3/unsupported/Eigen/Splines>
+
+#include <vector>
+
+#include "infrastructure/sim/TruthEngine.hpp"
 
 ///
 /// @class TruthEngineSpline

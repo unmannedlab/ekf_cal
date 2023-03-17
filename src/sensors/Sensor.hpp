@@ -18,8 +18,8 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <memory>
 #include <string>
-#include <vector>
 
 #include "ekf/EKF.hpp"
 #include "infrastructure/DebugLogger.hpp"

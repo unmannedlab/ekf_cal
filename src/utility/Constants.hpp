@@ -16,6 +16,6 @@
 #ifndef UTILITY__CONSTANTS_HPP_
 #define UTILITY__CONSTANTS_HPP_
 
-static const double NSEC_TO_SEC = 1e-9;
+static constexpr double NSEC_TO_SEC = 1e-9;
 
 #endif  // UTILITY__CONSTANTS_HPP_

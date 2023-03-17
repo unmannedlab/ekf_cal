@@ -27,7 +27,12 @@
 class DataLogger
 {
 public:
-  DataLogger(std::string filename);
+  ///
+  /// @brief DataLogger constructor
+  /// @param outputDirectory Output directory for creating data log file
+  /// @param filename Name of data log file
+  ///
+  DataLogger(std::string outputDirectory, std::string filename);
 
   ///
   /// @brief Log message
@@ -45,20 +50,20 @@ public:
   /// @brief Function to switch the logger on/off
   /// @param value Logger on/off value
   ///
-  static void setLogging(bool value);
+  void setLogging(bool value);
 
   ///
   /// @brief Output directory setter
   /// @param directory Output directory string
   ///
-  static void setOutputDirectory(std::string directory);
+  void setOutputDirectory(std::string directory);
 
 private:
   bool m_initialized{false};
   std::string m_logHeader{"\n"};
-  std::ofstream m_logFile {};
-  static bool m_loggingOn;
-  static std::string m_outputDirectory;
+  std::ofstream m_logFile;
+  bool m_loggingOn {false};
+  std::string m_logFilePath;
 };
 
 #endif  // INFRASTRUCTURE__DATALOGGER_HPP_

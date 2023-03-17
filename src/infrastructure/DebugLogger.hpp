@@ -17,7 +17,7 @@
 #define INFRASTRUCTURE__DEBUGLOGGER_HPP_
 
 
-/// TODO: Create grabber function from list of available debug loggers get_Debuglogger("DebugLogger")->
+/// TODO: Create grabber function from list of available debug loggers
 #include <string>
 
 
@@ -84,24 +84,24 @@ public:
   /// @brief Function to set the log level
   /// @param level LogLevel enumeration
   ///
-  static void setLogLevel(LogLevel level);
+  void setLogLevel(LogLevel level);
 
   ///
   /// @brief Function to set the log level
   /// @param level LogLevel integer
   ///
-  static void setLogLevel(unsigned int level);
+  void setLogLevel(unsigned int level);
 
   ///
   /// @brief Output directory setter
   /// @param directory Output directory string
   ///
-  static void setOutputDirectory(std::string directory);
+  void setOutputDirectory(std::string directory);
 
 private:
-  static std::string m_logLevelNames[5];
-  static LogLevel m_logLevel;
-  static std::string m_outputDirectory;
+  LogLevel m_logLevel = LogLevel::FATAL;
+  std::string m_logLevelNames[5] = {"FATAL", "ERROR", "WARN ", "INFO ", "DEBUG"};
+  std::string m_outputDirectory = "";
 };
 
 #endif  // INFRASTRUCTURE__DEBUGLOGGER_HPP_

@@ -15,6 +15,7 @@
 
 #include "sensors/Sensor.hpp"
 
+#include <memory>
 #include <string>
 
 #include "utility/TypeHelper.hpp"

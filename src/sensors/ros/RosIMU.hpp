@@ -17,6 +17,7 @@
 #define SENSORS__ROS__ROSIMU_HPP_
 
 #include <string>
+
 #include <sensor_msgs/msg/imu.hpp>
 
 #include "infrastructure/DebugLogger.hpp"
@@ -34,7 +35,7 @@ public:
   /// @brief RosImuMessage constructor
   /// @param msg Ros IMU message pointer
   ///
-  RosImuMessage(const sensor_msgs::msg::Imu::SharedPtr msg);
+  explicit RosImuMessage(const sensor_msgs::msg::Imu::SharedPtr msg);
 };
 
 ///

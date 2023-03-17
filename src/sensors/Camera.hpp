@@ -16,12 +16,14 @@
 #ifndef SENSORS__CAMERA_HPP_
 #define SENSORS__CAMERA_HPP_
 
-#include <string>
-#include <vector>
 #include <eigen3/Eigen/Eigen>
 
-#include <opencv2/opencv.hpp>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include <opencv2/features2d.hpp>
+#include <opencv2/opencv.hpp>
 
 #include "ekf/Types.hpp"
 #include "sensors/Sensor.hpp"
@@ -38,7 +40,7 @@ public:
   /// @brief Camera message constructor
   /// @param imgIn Input image
   ///
-  CameraMessage(cv::Mat & imgIn);
+  explicit CameraMessage(cv::Mat & imgIn);
 
   /// @brief Message image
   cv::Mat & image;

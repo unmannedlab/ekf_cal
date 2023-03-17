@@ -178,7 +178,7 @@ public:
   void augmentState(unsigned int cameraID, unsigned int frameID);
 
   /// @brief Size of the body state. Position and orientation and their 1st and 2nd derivatives
-  static const unsigned int BODY_STATE_SIZE {18};
+  static constexpr unsigned int BODY_STATE_SIZE {18};
 
 private:
   unsigned int m_stateSize{BODY_STATE_SIZE};

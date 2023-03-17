@@ -16,7 +16,9 @@
 #include "sensors/sim/SimIMU.hpp"
 
 #include <eigen3/Eigen/Eigen>
-#include <random>
+
+#include <algorithm>
+#include <memory>
 
 #include "infrastructure/sim/TruthEngine.hpp"
 #include "utility/sim/SimRNG.hpp"

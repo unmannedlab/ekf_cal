@@ -16,6 +16,8 @@
 #ifndef EKF__UPDATE__IMUUPDATER_HPP_
 #define EKF__UPDATE__IMUUPDATER_HPP_
 
+#include <string>
+
 #include "ekf/EKF.hpp"
 #include "ekf/update/Updater.hpp"
 #include "infrastructure/DataLogger.hpp"
@@ -32,11 +34,14 @@ public:
   /// @param imuID IMU Sensor ID
   /// @param accBiasStability
   /// @param omgBiasStability
+  /// @param logFileDirectory
   ///
   ImuUpdater(
     unsigned int imuID,
     double accBiasStability,
-    double omgBiasStability
+    double omgBiasStability,
+    std::string logFileDirectory,
+    bool dataLoggingOn
   );
 
 
@@ -73,7 +78,7 @@ public:
   void RefreshStates();
 
   /// @brief IMU calibration state size. Comprised of offsets and biases
-  static const unsigned int IMU_STATE_SIZE {12};
+  static constexpr unsigned int IMU_STATE_SIZE {12};
 
 private:
   static const Eigen::Vector3d GRAVITY;

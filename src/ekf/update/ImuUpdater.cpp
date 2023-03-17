@@ -15,24 +15,27 @@
 
 #include "ekf/update/ImuUpdater.hpp"
 
+#include <unistd.h>
+
+#include <string>
+#include <sstream>
+
 #include "ekf/Types.hpp"
 #include "infrastructure/DebugLogger.hpp"
 #include "sensors/Sensor.hpp"
 #include "utility/MathHelper.hpp"
 #include "utility/TypeHelper.hpp"
 
-#include <string>
-#include <sstream>
-#include <unistd.h>
-
 const Eigen::Vector3d ImuUpdater::GRAVITY = Eigen::Vector3d(0, 0, 9.80665);
 
-ImuUpdater::ImuUpdater(unsigned int imuID, double accBiasStability, double omgBiasStability)
+ImuUpdater::ImuUpdater(
+  unsigned int imuID, double accBiasStability, double omgBiasStability,
+  std::string logFileDirectory, bool dataLoggingOn)
 : Updater(imuID), m_accBiasStability(accBiasStability), m_omgBiasStability(omgBiasStability),
-  m_dataLogger("imu.csv")
+  m_dataLogger(logFileDirectory, "imu.csv")
 {
   m_dataLogger.defineHeader("test1,test2,test3\n");
-  m_dataLogger.setLogging(true);
+  m_dataLogger.setLogging(dataLoggingOn);
 }
 
 Eigen::VectorXd ImuUpdater::predictMeasurement()

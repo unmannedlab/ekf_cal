@@ -144,7 +144,8 @@
         "stop_token": "cpp",
         "eigen": "cpp",
         "*.txx": "cpp",
-        "core": "cpp"
+        "core": "cpp",
+        "splines": "cpp"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python",

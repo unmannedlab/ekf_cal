@@ -16,12 +16,14 @@
 #ifndef SENSORS__IMU_HPP_
 #define SENSORS__IMU_HPP_
 
-#include <string>
 #include <eigen3/Eigen/Eigen>
 
-#include "sensors/Sensor.hpp"
-#include "infrastructure/DebugLogger.hpp"
+#include <memory>
+#include <string>
+
 #include "ekf/update/ImuUpdater.hpp"
+#include "infrastructure/DebugLogger.hpp"
+#include "sensors/Sensor.hpp"
 
 
 ///
@@ -32,10 +34,10 @@ class ImuMessage : public SensorMessage
 {
 public:
   ImuMessage() {}
-  Eigen::Vector3d acceleration;           ///< @brief IMU acceleration
-  Eigen::Vector3d angularRate;            ///< @brief IMU angular rate
-  Eigen::Matrix3d accelerationCovariance; ///< @brief IMU acceleration covariance
-  Eigen::Matrix3d angularRateCovariance;  ///< @brief IMU angular rate covariance
+  Eigen::Vector3d acceleration;            ///< @brief IMU acceleration
+  Eigen::Vector3d angularRate;             ///< @brief IMU angular rate
+  Eigen::Matrix3d accelerationCovariance;  ///< @brief IMU acceleration covariance
+  Eigen::Matrix3d angularRateCovariance;   ///< @brief IMU angular rate covariance
 };
 
 
@@ -65,6 +67,8 @@ public:
     Eigen::Vector3d omgBias {0, 0, 0};              ///< @brief IMU gyroscope bias vector
     double accBiasStability {0};                    ///< @brief IMU accelerometer bias stability
     double omgBiasStability {0};                    ///< @brief IMU gyroscope bias stability
+    std::string outputDirectory {""};               ///< @brief IMU data logging directory
+    bool dataLoggingOn {false};                     ///< @brief IMU data logging flag
     /// @brief Initial state variance
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
   } Params;

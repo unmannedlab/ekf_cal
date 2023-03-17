@@ -15,9 +15,9 @@
 
 #include "sensors/ros/RosIMU.hpp"
 
+#include <eigen3/Eigen/Eigen>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/imu.hpp>
-#include <eigen3/Eigen/Eigen>
 
 #include "sensors/Sensor.hpp"
 #include "utility/MathHelper.hpp"

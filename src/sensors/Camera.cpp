@@ -15,12 +15,15 @@
 
 #include "sensors/Camera.hpp"
 
-#include <string>
-#include <vector>
-#include <unordered_map>
 #include <eigen3/Eigen/Eigen>
-#include <opencv2/opencv.hpp>
+
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 #include <opencv2/features2d.hpp>
+#include <opencv2/opencv.hpp>
 
 #include "ekf/Types.hpp"
 #include "infrastructure/DebugLogger.hpp"

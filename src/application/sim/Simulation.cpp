@@ -13,15 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <yaml-cpp/yaml.h>
+
+#include <iostream>
+#include <opencv2/core/utility.hpp>
+
 #include "infrastructure/sim/TruthEngine.hpp"
 #include "infrastructure/sim/TruthEngineSpline.hpp"
 #include "sensors/IMU.hpp"
 #include "sensors/sim/SimIMU.hpp"
 #include "utility/TypeHelper.hpp"
 
-#include <iostream>
-#include <opencv2/core/utility.hpp>
-#include <yaml-cpp/yaml.h>
 
 /// @todo read input YAML and output directory from arguments
 int main(int argc, char * argv[])
@@ -53,10 +55,9 @@ int main(int argc, char * argv[])
   unsigned int debugLogLevel =
     root["/EkfCalNode"]["ros__parameters"]["Debug_Log_Level"].as<unsigned int>();
   bool dataLoggingOn = root["/EkfCalNode"]["ros__parameters"]["Data_Logging_On"].as<bool>();
-  DataLogger::setOutputDirectory(outDir);
-  DebugLogger::setOutputDirectory(outDir);
-  DataLogger::setLogging(dataLoggingOn);
-  DebugLogger::setLogLevel(debugLogLevel);
+  DebugLogger * logger = DebugLogger::getInstance();
+  logger->setOutputDirectory(outDir);
+  logger->setLogLevel(debugLogLevel);
 
   if (imus) {
     for (auto it = imus.begin(); it != imus.end(); ++it) {
@@ -74,6 +75,8 @@ int main(int argc, char * argv[])
       imuParams.angOffset = stdToEigQuat(imuNode["AngOffInit"].as<std::vector<double>>());
       imuParams.accBias = stdToEigVec(imuNode["AccBiasInit"].as<std::vector<double>>());
       imuParams.omgBias = stdToEigVec(imuNode["OmgBiasInit"].as<std::vector<double>>());
+      imuParams.outputDirectory = outDir;
+      imuParams.dataLoggingOn = dataLoggingOn;
 
       // SimParams
       SimIMU::SimImuParams simImuParams;
@@ -117,6 +120,7 @@ int main(int argc, char * argv[])
   }
 
   // Return
-  (void)argv[argc - 1]; /// @todo "Uses" input parameters to suppress compiler warning
+  /// @todo "Uses" input parameters to suppress compiler warning
+  (void)argv[argc - 1];
   return 0;
 }

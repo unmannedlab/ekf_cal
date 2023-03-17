@@ -17,11 +17,6 @@
 
 #include <string>
 
-
-std::string DebugLogger::m_logLevelNames[5] = {"FATAL", "ERROR", "WARN ", "INFO ", "DEBUG"};
-std::string DebugLogger::m_outputDirectory = "";
-LogLevel DebugLogger::m_logLevel = LogLevel::FATAL;
-
 void DebugLogger::setOutputDirectory(std::string directory)
 {
   m_outputDirectory = directory;

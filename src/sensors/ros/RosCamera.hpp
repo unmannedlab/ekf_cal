@@ -16,6 +16,7 @@
 #ifndef SENSORS__ROS__ROSCAMERA_HPP_
 #define SENSORS__ROS__ROSCAMERA_HPP_
 
+#include <memory>
 #include <string>
 
 #include <opencv2/opencv.hpp>
@@ -37,7 +38,7 @@ public:
   /// @brief RosCameraMessage constructor
   /// @param msg Ros image message input
   ///
-  RosCameraMessage(const sensor_msgs::msg::Image::SharedPtr msg);
+  explicit RosCameraMessage(const sensor_msgs::msg::Image::SharedPtr msg);
 };
 
 

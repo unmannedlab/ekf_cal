@@ -16,9 +16,9 @@
 #ifndef INFRASTRUCTURE__SIM__TRUTHENGINECYCLIC_HPP_
 #define INFRASTRUCTURE__SIM__TRUTHENGINECYCLIC_HPP_
 
-#include "infrastructure/sim/TruthEngine.hpp"
-
 #include <eigen3/Eigen/Eigen>
+
+#include "infrastructure/sim/TruthEngine.hpp"
 
 ///
 /// @class TruthEngineCyclic
