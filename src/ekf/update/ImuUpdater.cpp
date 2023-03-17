@@ -28,13 +28,24 @@
 
 const Eigen::Vector3d ImuUpdater::GRAVITY = Eigen::Vector3d(0, 0, 9.80665);
 
+/// @todo Should combine IMU with file name for multiple IMU logs
 ImuUpdater::ImuUpdater(
   unsigned int imuID, double accBiasStability, double omgBiasStability,
   std::string logFileDirectory, bool dataLoggingOn)
 : Updater(imuID), m_accBiasStability(accBiasStability), m_omgBiasStability(omgBiasStability),
   m_dataLogger(logFileDirectory, "imu.csv")
 {
-  m_dataLogger.defineHeader("test1,test2,test3\n");
+  std::stringstream msg;
+  msg << "time";
+  for (unsigned int i = 0; i < 6; ++i) {
+    msg << ",residual_" + std::to_string(i);
+  }
+  for (unsigned int i = 0; i < 12; ++i) {
+    msg << ",update_" + std::to_string(i);
+  }
+  msg << "\n";
+
+  m_dataLogger.defineHeader(msg.str());
   m_dataLogger.setLogging(dataLoggingOn);
 }
 
@@ -194,13 +205,15 @@ void ImuUpdater::updateEKF(
     (Eigen::MatrixXd::Identity(updateSize, updateSize) - K * H) *
     m_ekf->getCov().block(0, 0, updateSize, updateSize);
 
+  // Write outputs
   std::stringstream msg;
+  Eigen::VectorXd imuSubUpdate = update.segment(stateStartIndex, IMU_STATE_SIZE);
   msg << time;
-  for (unsigned int i = 0; i < bodyUpdate.size(); ++i) {
-    msg << "," << bodyUpdate[i];
+  for (unsigned int i = 0; i < resid.size(); ++i) {
+    msg << "," << resid[i];
   }
-  for (unsigned int i = 0; i < imuUpdate.size(); ++i) {
-    msg << "," << imuUpdate[i];
+  for (unsigned int i = 0; i < imuSubUpdate.size(); ++i) {
+    msg << "," << imuSubUpdate[i];
   }
   msg << "\n";
   m_dataLogger.log(msg.str());

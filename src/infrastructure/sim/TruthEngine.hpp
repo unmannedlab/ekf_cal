@@ -18,6 +18,8 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include "infrastructure/DebugLogger.hpp"
+
 ///
 /// @class TruthEngine
 /// @brief Truth for simulation
@@ -75,6 +77,9 @@ public:
   /// @param time Simulation time
   ///
   Eigen::Vector3d GetBodyAngularAcceleration(double time);
+
+private:
+  DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_
