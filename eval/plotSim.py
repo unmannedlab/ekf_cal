@@ -13,10 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import matplotlib.pyplot as plt
 import argparse
-import pandas as pd
 import os
+
+import matplotlib.pyplot as plt
+
+import pandas as pd
 
 
 def plot_sim_results(directories):
