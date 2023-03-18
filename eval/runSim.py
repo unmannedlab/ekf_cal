@@ -27,13 +27,26 @@ def print_err(err):
 
 
 def run_sim(yaml: str):
+    # Get (and create) yaml directory
     yaml_dir = yaml.split('.yaml')[0] + os.sep
     if (not os.path.isdir(yaml_dir)):
         os.mkdir(yaml_dir)
 
-    sim_path = os.path.join('..', '..', 'build', 'ekf_cal', 'sim_path')
-    subprocess.run([sim_path, yaml, yaml_dir])
-    return
+    # Run simulation
+    sim_path = os.path.join('..', '..', 'build', 'ekf_cal', 'sim')
+    proc = subprocess.run([sim_path, yaml, yaml_dir],
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE)
+
+    # Write stdout
+    if (proc.stdout):
+        with open(os.path.join(yaml_dir, 'sim.stdout'), 'wb') as output:
+            output.write(proc.stdout)
+
+    # Write stderr
+    if (proc.stderr):
+        with open(os.path.join(yaml_dir, 'sim.stderr'), 'wb') as output:
+            output.write(proc.stderr)
 
 
 def add_jobs(inputs: List[str]):
