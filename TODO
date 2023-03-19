@@ -23,6 +23,7 @@ Package Features:
     - Option for complementary IMU filter
     - Option for fixed IMU offsets - high certainty constraint update
     - IMU Time Update Equations
+    - RTS-Smoothing: https://math.stackexchange.com/questions/1811214/time-complexity-of-kalman-filter-and-rts-smoother
 
 Software Work:
     - Define types/transforms to force different coordinate frames
@@ -54,7 +55,9 @@ Documentation:
     - Create Cake Diagram for EKF-CAL architecture
     - Paper in JOSS: Journal of Open Source Software
     - Deploy Github page for generated doxygen
+    - Plant UML Functional Flow Diagrams
+    - Simulation diagram
 
 Experimentation:
     - Add profiling
-    - Submit ROS bag dataset to IEEE Dataport
+    - Submit ROS bag dataset to IEEE Dataport or add as release package
