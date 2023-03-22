@@ -28,6 +28,7 @@ SimIMU::SimIMU(SimImuParams params, std::shared_ptr<TruthEngine> truthEngine)
 : IMU(params.imuParams)
 {
   m_tBias = params.tBias;
+  m_tSkew = params.tSkew;
   m_tError = std::max(params.tError, 1e-9);
   m_accBias = params.accBias;
   m_accError = minBoundVector(params.accError, 1e-9);
@@ -35,6 +36,7 @@ SimIMU::SimIMU(SimImuParams params, std::shared_ptr<TruthEngine> truthEngine)
   m_omgError = minBoundVector(params.omgError, 1e-9);
   m_posOffset = params.posOffset;
   m_angOffset = params.angOffset;
+  m_rate = params.imuParams.rate;
   m_truth = truthEngine;
 }
 

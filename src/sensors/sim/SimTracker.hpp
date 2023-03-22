@@ -18,9 +18,12 @@
 
 #include <string>
 
+#include "ekf/Types.hpp"
 #include "infrastructure/DebugLogger.hpp"
-#include "sensors/Camera.hpp"
+#include "infrastructure/sim/TruthEngine.hpp"
 #include "sensors/Sensor.hpp"
+#include "sensors/Camera.hpp"
+#include "sensors/Tracker.hpp"
 #include "utility/sim/SimRNG.hpp"
 
 ///
@@ -37,23 +40,55 @@ public:
 /// @class SimTracker
 /// @brief Simulated Tracker class
 ///
-class SimTracker : public Camera
+class SimTracker : public Tracker
 {
 public:
+  ///
+  /// @brief Sim IMU initialization parameters structure
+  ///
+  typedef struct SimTrackerParams
+  {
+    double tBias {0.0};                                 ///< @brief Time offset bias
+    double tSkew {1.0};                                 ///< @brief Time offset error
+    double tError {1e-9};                               ///< @brief Time offset error
+    double uvError {0.0};                               ///< @brief Pixel error
+    Eigen::Vector3d posOffset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
+    Eigen::Quaterniond angOffset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
+    unsigned int cameraID {0};                          ///< @brief Associated camera ID
+    unsigned int featureCount{0};                       ///< @brief Number of features to generate
+    double roomSize{10.0};                              ///< @brief Size of "Room" for features
+    std::string outputDirectory;                        ///< @brief Output directory path
+    double rate;                                        ///< @brief Camera sensor rate
+    Tracker::Params trackerParams;                      ///< @brief Tracker parameters
+  } SimTrackerParams;
+
+  ///
+  /// @brief Simulation IMU constructor
+  /// @param params Simulation IMU parameters
+  /// @param truthEngine Truth engine
+  ///
+  SimTracker(SimTrackerParams params, std::shared_ptr<TruthEngine> truthEngine);
+
   ///
   /// @brief Generate simulated tracker messages
   /// @param maxTime Maximum time of generated messages
   ///
-  SimTrackerMessage generateMeasurement(double maxTime);
+  std::vector<FeatureTracks> generateMessages(double maxTime);
+
+  std::vector<Eigen::Vector3d> visibleKeypoints(double maxTime);
 
 private:
-  double tBias{0};
-  double uvError{1e-9};
-  double accBias{0};
-  double accError{1};
-  double omgBias{0};
-  double omgError{1};
+  double m_tBias{0.0};
+  double m_tSkew{0.0};
+  double m_tError{1e-9};
+  double m_uvError{1e-9};
+  Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_angOffset{1.0, 0.0, 0.0, 0.0};
+  std::shared_ptr<TruthEngine> m_truth;
+  double m_rate{1.0};
   SimRNG m_rng;
+  unsigned int m_featureCount {0};
+  std::vector<Eigen::Vector3d> m_featurePoints;
 };
 
 

@@ -27,3 +27,9 @@ double SimRNG::NormRand(double mean, double stdDev)
   std::normal_distribution<double> normDist(mean, stdDev);
   return normDist(m_generator);
 }
+
+double SimRNG::UniRand(double min, double max)
+{
+  std::uniform_real_distribution<double> uniDist(min, max);
+  return uniDist(m_generator);
+}

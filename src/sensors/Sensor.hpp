@@ -39,8 +39,8 @@ enum class SensorType
 class SensorMessage
 {
 public:
+  /// @brief SensorMessage constructor
   SensorMessage() {}
-
 
   /// @brief Associated sensor ID of measurement
   unsigned int sensorID;

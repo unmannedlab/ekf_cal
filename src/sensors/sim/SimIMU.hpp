@@ -52,6 +52,7 @@ public:
   typedef struct SimImuParams
   {
     double tBias {0.0};                                 ///< @brief Time offset bias
+    double tSkew {1.0};                               ///< @brief Time offset error
     double tError {1e-9};                               ///< @brief Time offset error
     Eigen::Vector3d accBias {0.0, 0.0, 0.0};            ///< @brief Acceleration bias
     Eigen::Vector3d accError {1e-9, 1e-9, 1e-9};        ///< @brief Acceleration error

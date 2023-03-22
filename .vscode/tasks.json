@@ -116,10 +116,6 @@
             "detail": "Sources the current workspace with bash",
             "type": "shell",
             "command": "source ${workspaceFolder}/../../install/setup.bash",
-            "group": {
-                "kind": "build",
-                "isDefault": false
-            },
             "problemMatcher": "$gcc"
         },
     ],

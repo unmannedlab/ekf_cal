@@ -40,6 +40,13 @@ public:
   ///
   double NormRand(double mean, double stdDev);
 
+  ///
+  /// @brief Uniform random number generator
+  /// @param min Minimum value for uniform distribution
+  /// @param max Maximum value for uniform distribution
+  ///
+  double UniRand(double min, double max);
+
 private:
   static std::mt19937_64 m_generator;
 };

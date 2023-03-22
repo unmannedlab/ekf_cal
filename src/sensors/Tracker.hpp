@@ -89,6 +89,9 @@ public:
     unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut,
     FeatureTracks featureTracks);
 
+protected:
+  DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton
+
 private:
   cv::Ptr<cv::FeatureDetector> initFeatureDetector(
     FeatureDetectorEnum detector,
@@ -112,7 +115,6 @@ private:
 
   unsigned int generateFeatureID();
 
-  DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton
   EKF * m_ekf = EKF::getInstance();           ///< @brief EKF singleton
 
   /// @todo Use parameter inputs for these values

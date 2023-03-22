@@ -62,11 +62,11 @@ void MsckfUpdater::updateEKF(unsigned int cameraID, FeatureTracks featureTracks)
       augStateMatch = matchState(featureTrack[i].frameID);
 
       const Eigen::Matrix<double, 3, 3> R_GtoCi = augStateMatch.orientation.toRotationMatrix();
-      const Eigen::Vector3d p_CiinG = augStateMatch.position;
+      const Eigen::Vector3d p_CIinG = augStateMatch.position;
 
       // Convert current position relative to anchor
       Eigen::Matrix3d R_AtoCi = R_GtoCi * R_GtoA.transpose();
-      Eigen::Vector3d p_CiinA = R_GtoA * (p_CiinG - p_AinG);
+      Eigen::Vector3d p_CIinA = R_GtoA * (p_CIinG - p_AinG);
 
       // Get the UV coordinate normal
       Eigen::Vector3d b_i;
@@ -76,17 +76,16 @@ void MsckfUpdater::updateEKF(unsigned int cameraID, FeatureTracks featureTracks)
       Eigen::Matrix3d bSkew = skewSymmetric(b_i);
       Eigen::Matrix3d Ai = bSkew.transpose() * bSkew;
       A += Ai;
-      b += Ai * p_CiinA;
+      b += Ai * p_CIinA;
 
       total_meas += 1;
       total_hx += 6;
       std::stringstream msg;
-      msg << "p_CiinG: " << p_CiinG.transpose() << std::endl;
+      msg << "p_CIinG: " << p_CIinG.transpose() << std::endl;
       msg << "p_AinG: " << p_AinG.transpose() << std::endl;
-      msg << "p_CiinA: " << p_CiinA.transpose() << std::endl;
+      msg << "p_CIinA: " << p_CIinA.transpose() << std::endl;
       m_logger->log(LogLevel::DEBUG, msg.str());
     }
-
 
     // Solve linear triangulation for 3D cartesian estimate of feature position
     Eigen::Vector3d p_FinA = A.colPivHouseholderQr().solve(b);
@@ -118,9 +117,9 @@ void MsckfUpdater::updateEKF(unsigned int cameraID, FeatureTracks featureTracks)
 
     // Allocate our residual and Jacobians
     int c = 0;
-    int jacobsize = 3;
+    int jacobSize = 3;
     res = Eigen::VectorXd::Zero(2 * total_meas);
-    H_f = Eigen::MatrixXd::Zero(2 * total_meas, jacobsize);
+    H_f = Eigen::MatrixXd::Zero(2 * total_meas, jacobSize);
     H_x = Eigen::MatrixXd::Zero(2 * total_meas, total_hx);
 
     // Derivative of p_FinG in respect to feature representation.
@@ -185,13 +184,13 @@ void MsckfUpdater::updateEKF(unsigned int cameraID, FeatureTracks featureTracks)
       Eigen::MatrixXd dz_dPFC = dzn_dPFC;
       Eigen::MatrixXd dz_dPFG = dPFC_dPFG;
 
-      // CHAINRULE: get the total feature Jacobian
+      // Chain Rule: get the total feature Jacobian
       H_f.block(2 * c, 0, 2, H_f.cols()) = dz_dPFG * dPFG_dLambda;
 
-      // CHAINRULE: get state clone Jacobian
+      // Chain Rule: get state clone Jacobian
       H_x.block(2 * c, camStateStart, 2, 6) = dz_dPFC * dPFC_dClone;
 
-      // CHAINRULE: loop through all extra states and add their
+      // Chain Rule: loop through all extra states and add their
       // NOTE: we add the Jacobian here as we might be in the anchoring pose for this measurement
       H_x.block(2 * c, augStateStart, 2, 6) += dz_dPFG * H_anc;
       H_x.block(2 * c, augStateStart + 6, 2, 6) += dz_dPFG * H_calib;
@@ -203,7 +202,7 @@ void MsckfUpdater::updateEKF(unsigned int cameraID, FeatureTracks featureTracks)
       dPFC_dCalib.block(0, 0, 3, 3) = skewSymmetric(p_FinCi - p_IinC);
       dPFC_dCalib.block(0, 3, 3, 3) = Eigen::Matrix<double, 3, 3>::Identity();
 
-      // Chainrule it and add it to the big jacobian
+      // Chain Rule it and add it to the big jacobian
       H_x.block(2 * c, camStateStart + 6, 2, 6) += dz_dPFC * dPFC_dCalib;
 
       // Move the Jacobian and residual index forward
