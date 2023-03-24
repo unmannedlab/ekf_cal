@@ -96,11 +96,19 @@ std::vector<cv::KeyPoint> SimTracker::visibleKeypoints(double time)
 
   // Convert to feature points
   std::vector<cv::KeyPoint> projectedFeatures;
-  for (auto & point : projectedPoints) {
+  for (unsigned int i = 0; i < projectedPoints.size(); ++i) {
     cv::KeyPoint feat;
-    feat.pt.x = point.x;
-    feat.pt.y = point.y;
-    projectedFeatures.push_back(feat);
+    feat.pt.x = projectedPoints[i].x;
+    feat.pt.y = projectedPoints[i].y;
+    feat.class_id = i;
+    if (
+      feat.pt.x > 0 &&
+      feat.pt.y > 0 &&
+      feat.pt.x < m_imageWidth &&
+      feat.pt.y < m_imageHeight)
+    {
+      projectedFeatures.push_back(feat);
+    }
   }
 
   return projectedFeatures;
