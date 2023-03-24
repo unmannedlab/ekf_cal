@@ -46,6 +46,7 @@
         "Nullspace",
         "PLANTUML",
         "RCLCPP",
+        "Rodrigues",
         "ROSCAMERA",
         "ROSIMU",
         "Roumeliotis",
@@ -146,7 +147,8 @@
         "eigen": "cpp",
         "*.txx": "cpp",
         "core": "cpp",
-        "splines": "cpp"
+        "splines": "cpp",
+        "regex": "cpp"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python",

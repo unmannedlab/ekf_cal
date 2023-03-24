@@ -18,6 +18,11 @@
 
 #include <string>
 
+#include <opencv2/core.hpp>
+#include <opencv2/calib3d.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
 #include "ekf/Types.hpp"
 #include "infrastructure/DebugLogger.hpp"
 #include "infrastructure/sim/TruthEngine.hpp"
@@ -75,7 +80,11 @@ public:
   ///
   std::vector<FeatureTracks> generateMessages(double maxTime);
 
-  std::vector<Eigen::Vector3d> visibleKeypoints(double maxTime);
+  ///
+  /// @brief Return currently visible keypoints
+  /// @param time Current time
+  ///
+  std::vector<cv::KeyPoint> visibleKeypoints(double time);
 
 private:
   double m_tBias{0.0};
@@ -88,7 +97,12 @@ private:
   double m_rate{1.0};
   SimRNG m_rng;
   unsigned int m_featureCount {0};
-  std::vector<Eigen::Vector3d> m_featurePoints;
+  std::vector<cv::Point3d> m_featurePoints;
+
+  double m_focalLength {10};
+  unsigned int m_imageHeight {480};
+  unsigned int m_imageWidth {640};
+  cv::Mat m_projMatrix;
 };
 
 

@@ -22,6 +22,7 @@
 #include "infrastructure/sim/TruthEngineSpline.hpp"
 #include "sensors/IMU.hpp"
 #include "sensors/sim/SimIMU.hpp"
+#include "sensors/sim/SimTracker.hpp"
 #include "utility/TypeHelper.hpp"
 
 
@@ -99,6 +100,19 @@ int main(int argc, char * argv[])
       messages.insert(messages.end(), imuMessages.begin(), imuMessages.end());
     }
   }
+
+  Tracker::Params trackerParams;
+  SimTracker::SimTrackerParams simTrackParams;
+  simTrackParams.cameraID = 2;
+  simTrackParams.featureCount = 100;
+  simTrackParams.outputDirectory = outDir;
+  simTrackParams.rate = 30.0;
+  simTrackParams.trackerParams = trackerParams;
+  simTrackParams.angOffset = Eigen::Quaterniond(0, 0.7071068, 0, 0.7071068);
+
+  SimTracker tracker(simTrackParams, truthEngine);
+  std::vector<FeatureTracks> trackMessages = tracker.generateMessages(maxTime);
+
 
   // Sort Measurements
   sort(messages.begin(), messages.end(), messageCompare);
