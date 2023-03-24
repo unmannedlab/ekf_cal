@@ -99,7 +99,7 @@ private:
   unsigned int m_featureCount {0};
   std::vector<cv::Point3d> m_featurePoints;
 
-  double m_focalLength {10};
+  double m_focalLength {100};
   unsigned int m_imageHeight {480};
   unsigned int m_imageWidth {640};
   cv::Mat m_projMatrix;

@@ -31,6 +31,12 @@ SimTracker::SimTracker(SimTrackerParams params, std::shared_ptr<TruthEngine> tru
   m_featureCount = params.featureCount;
   m_truth = truthEngine;
 
+  m_featurePoints.push_back(cv::Point3d(1, 0, 0));
+  m_featurePoints.push_back(cv::Point3d(-1, 0, 0));
+  m_featurePoints.push_back(cv::Point3d(0, 1, 0));
+  m_featurePoints.push_back(cv::Point3d(0, -1, 0));
+  m_featurePoints.push_back(cv::Point3d(0, 0, 1));
+  m_featurePoints.push_back(cv::Point3d(0, 0, -1));
   for (unsigned int i = 0; i < m_featureCount; ++i) {
     cv::Point3d vec;
     vec.x = m_rng.UniRand(-params.roomSize, params.roomSize);
@@ -39,13 +45,12 @@ SimTracker::SimTracker(SimTrackerParams params, std::shared_ptr<TruthEngine> tru
     m_featurePoints.push_back(vec);
   }
 
-  double camera_mat[3][3] = {
-    {m_focalLength, 0, static_cast<double>(m_imageWidth) / 2.0},
-    {0, m_focalLength, static_cast<double>(m_imageHeight) / 2.0},
-    {0, 0, 1}
-  };
-
-  m_projMatrix = cv::Mat(3, 3, cv::DataType<double>::type, camera_mat);
+  m_projMatrix = cv::Mat(3, 3, cv::DataType<double>::type, 0.0);
+  m_projMatrix.at<double>(0, 0) = m_focalLength;
+  m_projMatrix.at<double>(1, 1) = m_focalLength;
+  m_projMatrix.at<double>(0, 2) = static_cast<double>(m_imageWidth) / 2.0;
+  m_projMatrix.at<double>(1, 2) = static_cast<double>(m_imageHeight) / 2.0;
+  m_projMatrix.at<double>(2, 2) = 1;
 }
 
 /// @todo Write visibleKeypoints function
@@ -56,6 +61,7 @@ std::vector<cv::KeyPoint> SimTracker::visibleKeypoints(double time)
   Eigen::Quaterniond bodyAng = m_truth->GetBodyAngularPosition(time);
   Eigen::Quaterniond camAng = bodyAng * m_angOffset;
   Eigen::Matrix3d camAngEigMat = camAng.toRotationMatrix();
+  Eigen::Vector3d camPlaneVec = camAng * Eigen::Vector3d(0, 0, 1);
 
   cv::Mat camAngCvMat(3, 3, cv::DataType<double>::type);
   camAngCvMat.at<double>(0, 0) = camAngEigMat(0, 0);
@@ -97,17 +103,23 @@ std::vector<cv::KeyPoint> SimTracker::visibleKeypoints(double time)
   // Convert to feature points
   std::vector<cv::KeyPoint> projectedFeatures;
   for (unsigned int i = 0; i < projectedPoints.size(); ++i) {
-    cv::KeyPoint feat;
-    feat.pt.x = projectedPoints[i].x;
-    feat.pt.y = projectedPoints[i].y;
-    feat.class_id = i;
-    if (
-      feat.pt.x > 0 &&
-      feat.pt.y > 0 &&
-      feat.pt.x < m_imageWidth &&
-      feat.pt.y < m_imageHeight)
-    {
-      projectedFeatures.push_back(feat);
+    cv::Point3d pointCV = m_featurePoints[i];
+    Eigen::Vector3d pointEig(pointCV.x, pointCV.y, pointCV.z);
+
+    // Check that point is in front of camera plane
+    if (camPlaneVec.dot(pointEig) > 0) {
+      cv::KeyPoint feat;
+      feat.pt.x = projectedPoints[i].x;
+      feat.pt.y = projectedPoints[i].y;
+      feat.class_id = i;
+      if (
+        feat.pt.x > 0 &&
+        feat.pt.y > 0 &&
+        feat.pt.x < m_imageWidth &&
+        feat.pt.y < m_imageHeight)
+      {
+        projectedFeatures.push_back(feat);
+      }
     }
   }
 
