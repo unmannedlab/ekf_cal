@@ -85,12 +85,20 @@ public:
   ///
   explicit Tracker(Tracker::Params params, unsigned int cameraID);
 
+  std::vector<cv::KeyPoint> gridFeatures(
+    std::vector<cv::KeyPoint> points,
+    unsigned int rows,
+    unsigned int cols);
+
   void track(
     unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut,
     FeatureTracks featureTracks);
 
 protected:
   DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton
+  unsigned int max_track_length{30};
+  unsigned int min_track_length{2};
+  unsigned int m_cameraID;
 
 private:
   cv::Ptr<cv::FeatureDetector> initFeatureDetector(
@@ -119,9 +127,6 @@ private:
 
   /// @todo Use parameter inputs for these values
   bool use_qr_decomposition{false};
-  unsigned int max_track_length{30};
-  unsigned int min_track_length{2};
-  unsigned int m_cameraID;
   MsckfUpdater m_msckfUpdater;
 };
 

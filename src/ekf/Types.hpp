@@ -90,6 +90,7 @@ typedef struct CamState
 
 ///
 /// @brief FeatureTrack structure
+/// @todo change to FeaturePoint
 ///
 typedef struct FeatureTrack
 {

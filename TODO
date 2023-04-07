@@ -49,6 +49,7 @@ Software Work:
             - EKF::AddMessageToBuffer()
             - EKF::ProcessNextMessage()
     - Add binaries to Github release
+    - RQT Dashboard
 
 
 Documentation:
@@ -57,6 +58,7 @@ Documentation:
     - Deploy Github page for generated doxygen
     - Plant UML Functional Flow Diagrams
     - Simulation diagram
+    - Citation File: https://citation-file-format.github.io//
 
 Experimentation:
     - Add profiling

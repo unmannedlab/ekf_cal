@@ -127,17 +127,43 @@ std::vector<cv::KeyPoint> SimTracker::visibleKeypoints(double time)
 }
 
 /// @todo Write generateMessages function
-std::vector<FeatureTracks> SimTracker::generateMessages(double maxTime)
+std::vector<std::shared_ptr<SimTrackerMessage>> SimTracker::generateMessages(double maxTime)
 {
   double nMeasurements = maxTime * m_rate / (1 + m_tSkew);
-  std::vector<FeatureTracks> messages;
   m_logger->log(LogLevel::INFO, "Generating " + std::to_string(nMeasurements) + " measurements");
-  unsigned int frameID{0};
-  for (unsigned int i = 0; i < nMeasurements; ++i) {
-    double measurementTime = (1.0 + m_tSkew) / m_rate * static_cast<double>(i);
-    ++frameID;
-    std::vector<cv::KeyPoint> keypoints = visibleKeypoints(measurementTime);
-    // keyPoint.class_id = generateFeatureID()
+
+  std::map<unsigned int, std::vector<FeatureTrack>> featureTrackMap;
+  std::vector<std::shared_ptr<SimTrackerMessage>> trackerMessages;
+
+  for (unsigned int frameID = 0; frameID < nMeasurements; ++frameID) {
+    std::vector<std::vector<FeatureTrack>> featureTracks;
+    double measurementTime = (1.0 + m_tSkew) / m_rate * static_cast<double>(frameID);
+
+    std::vector<cv::KeyPoint> keyPoints = visibleKeypoints(measurementTime);
+
+    for (auto & keyPoint :keyPoints) {
+      auto featureTrack = FeatureTrack{frameID, keyPoint};
+      featureTrackMap[keyPoint.class_id].push_back(featureTrack);
+    }
+
+    // Update MSCKF on features no longer detected
+    for (auto it = featureTrackMap.cbegin(); it != featureTrackMap.cend(); ) {
+      const auto & featureTrack = it->second;
+      /// @todo get constant from tracker
+      if ((featureTrack.back().frameID < frameID) || (featureTrack.size() >= 20)) {
+        // This feature does not exist in the latest frame
+        featureTracks.push_back(featureTrack);
+        it = featureTrackMap.erase(it);
+      } else {
+        ++it;
+      }
+    }
+    auto trackerMessage = std::make_shared<SimTrackerMessage>();
+    trackerMessage->featureTracks = featureTracks;
+    trackerMessage->sensorID = m_cameraID;
+    trackerMessage->sensorType = SensorType::Tracker;
+    trackerMessage->time = measurementTime;
+    trackerMessages.push_back(trackerMessage);
   }
-  return messages;
+  return trackerMessages;
 }

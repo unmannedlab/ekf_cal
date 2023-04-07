@@ -33,7 +33,8 @@ def run_sim(yaml: str):
         os.mkdir(yaml_dir)
 
     # Run simulation
-    sim_path = os.path.join('..', '..', 'build', 'ekf_cal', 'sim')
+    base_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+    sim_path = os.path.join(base_path, '..', '..', 'build', 'ekf_cal', 'sim')
     proc = subprocess.run([sim_path, yaml, yaml_dir],
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE)

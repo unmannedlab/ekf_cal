@@ -103,11 +103,51 @@ cv::Ptr<cv::DescriptorMatcher> Tracker::initDescriptorMatcher(DescriptorMatcherE
   return descriptorMatcher;
 }
 
+/// @todo Do keypoint vector editing in place
+std::vector<cv::KeyPoint> Tracker::gridFeatures(
+  std::vector<cv::KeyPoint> keyPoints,
+  unsigned int rows,
+  unsigned int cols)
+{
+  unsigned int minPixelDistance = 20;
+  unsigned int gridCols = (int)((float)cols / (float)minPixelDistance);
+  unsigned int gridRows = (int)((float)rows / (float)minPixelDistance);
+  cv::Size size(gridCols, gridRows);
+  cv::Mat grid_2d = cv::Mat::zeros(size, CV_8UC1);
+
+  std::vector<cv::KeyPoint> gridKeyPoints;
+  for (size_t i = 0; i < keyPoints.size(); i++) {
+    // Get current left keypoint, check that it is in bounds
+    cv::KeyPoint kpt = keyPoints.at(i);
+    int x = (int)kpt.pt.x;
+    int y = (int)kpt.pt.y;
+    int x_grid = (int)(kpt.pt.x / (float)minPixelDistance);
+    int y_grid = (int)(kpt.pt.y / (float)minPixelDistance);
+    if (x_grid < 0 || x_grid >= size.width || y_grid < 0 || y_grid >= size.height || x < 0 ||
+      x >= cols || y < 0 || y >= rows)
+    {
+      continue;
+    }
+    // Check if this keypoint is near another point
+    if (grid_2d.at<uint8_t>(y_grid, x_grid) > 127) {
+      continue;
+    }
+    // Else we are good, append our keypoints and descriptors
+    gridKeyPoints.push_back(keyPoints.at(i));
+
+    grid_2d.at<uint8_t>(y_grid, x_grid) = 255;
+  }
+  return gridKeyPoints;
+}
+
 void Tracker::track(
   unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut,
   FeatureTracks featureTracks)
 {
   m_featureDetector->detect(imgIn, m_currKeyPoints);
+  /// @todo create occupancy grid of keypoints using minimal pixel distance
+  m_currKeyPoints = gridFeatures(m_currKeyPoints, imgIn.rows, imgIn.cols);
+
   m_descriptorExtractor->compute(imgIn, m_currKeyPoints, m_currDescriptors);
   m_currDescriptors.convertTo(m_currDescriptors, CV_32F);
   cv::drawKeypoints(imgIn, m_currKeyPoints, imgOut);

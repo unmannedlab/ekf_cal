@@ -39,6 +39,7 @@ class SimTrackerMessage : public SensorMessage
 {
 public:
   SimTrackerMessage() {}
+  std::vector<std::vector<FeatureTrack>> featureTracks;
 };
 
 ///
@@ -78,7 +79,7 @@ public:
   /// @brief Generate simulated tracker messages
   /// @param maxTime Maximum time of generated messages
   ///
-  std::vector<FeatureTracks> generateMessages(double maxTime);
+  std::vector<std::shared_ptr<SimTrackerMessage>> generateMessages(double maxTime);
 
   ///
   /// @brief Return currently visible keypoints

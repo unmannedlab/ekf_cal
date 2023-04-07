@@ -60,6 +60,7 @@ int main(int argc, char * argv[])
   logger->setOutputDirectory(outDir);
   logger->setLogLevel(debugLogLevel);
 
+  // Load IMUs and generate measurements
   if (imus) {
     for (auto it = imus.begin(); it != imus.end(); ++it) {
       YAML::Node imuNode = it->second;
@@ -111,7 +112,8 @@ int main(int argc, char * argv[])
   simTrackParams.angOffset = Eigen::Quaterniond(0, 0.7071068, 0, 0.7071068);
 
   SimTracker tracker(simTrackParams, truthEngine);
-  std::vector<FeatureTracks> trackMessages = tracker.generateMessages(maxTime);
+  std::vector<std::shared_ptr<SimTrackerMessage>> trackMessages = tracker.generateMessages(maxTime);
+  messages.insert(messages.end(), trackMessages.begin(), trackMessages.end());
 
 
   // Sort Measurements
