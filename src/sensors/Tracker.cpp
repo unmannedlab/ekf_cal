@@ -25,7 +25,7 @@
 
 /// @todo add detector/extractor parameters to input
 Tracker::Tracker(Tracker::Params params, unsigned int cameraID)
-: m_msckfUpdater(cameraID)
+: Sensor(params.name), m_msckfUpdater(cameraID)
 {
   m_featureDetector = initFeatureDetector(params.detector, params.threshold);
   m_descriptorExtractor = initDescriptorExtractor(params.descriptor, params.threshold);
@@ -113,6 +113,12 @@ std::vector<cv::KeyPoint> Tracker::gridFeatures(
   unsigned int gridCols = (int)((float)cols / (float)minPixelDistance);
   unsigned int gridRows = (int)((float)rows / (float)minPixelDistance);
   cv::Size size(gridCols, gridRows);
+
+  /// @todo replace this with some kind of boolean array. Eigen?
+  // Eigen::  Array<bool, 1, 5> false_array(5);
+  // false_array = Array<bool, 1, 5>::Zero(5);
+  /// @todo Implement non-maximal suppression instead
+
   cv::Mat grid_2d = cv::Mat::zeros(size, CV_8UC1);
 
   std::vector<cv::KeyPoint> gridKeyPoints;

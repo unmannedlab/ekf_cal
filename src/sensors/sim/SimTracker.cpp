@@ -167,3 +167,8 @@ std::vector<std::shared_ptr<SimTrackerMessage>> SimTracker::generateMessages(dou
   }
   return trackerMessages;
 }
+
+void SimTracker::callback(std::shared_ptr<SimTrackerMessage> msg)
+{
+  m_msckfUpdater.updateEKF(msg->sensorID, msg->featureTracks);
+}

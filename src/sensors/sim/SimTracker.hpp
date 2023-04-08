@@ -87,6 +87,8 @@ public:
   ///
   std::vector<cv::KeyPoint> visibleKeypoints(double time);
 
+  void callback(std::shared_ptr<SimTrackerMessage> msg);
+
 private:
   double m_tBias{0.0};
   double m_tSkew{0.0};

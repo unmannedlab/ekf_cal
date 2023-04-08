@@ -97,7 +97,7 @@ int main(int argc, char * argv[])
       sensorMap[imu->getId()] = imu;
 
       // Calculate sensor measurements
-      std::vector<std::shared_ptr<SimImuMessage>> imuMessages = imu->generateMessages(maxTime);
+      auto imuMessages = imu->generateMessages(maxTime);
       messages.insert(messages.end(), imuMessages.begin(), imuMessages.end());
     }
   }
@@ -105,14 +105,16 @@ int main(int argc, char * argv[])
   Tracker::Params trackerParams;
   SimTracker::SimTrackerParams simTrackParams;
   simTrackParams.cameraID = 2;
-  simTrackParams.featureCount = 100;
+  simTrackParams.featureCount = 1000;
   simTrackParams.outputDirectory = outDir;
   simTrackParams.rate = 30.0;
   simTrackParams.trackerParams = trackerParams;
   simTrackParams.angOffset = Eigen::Quaterniond(0, 0.7071068, 0, 0.7071068);
 
-  SimTracker tracker(simTrackParams, truthEngine);
-  std::vector<std::shared_ptr<SimTrackerMessage>> trackMessages = tracker.generateMessages(maxTime);
+  auto tracker = std::make_shared<SimTracker>(simTrackParams, truthEngine);
+  sensorMap[tracker->getId()] = tracker;
+
+  auto trackMessages = tracker->generateMessages(maxTime);
   messages.insert(messages.end(), trackMessages.begin(), trackMessages.end());
 
 
@@ -128,7 +130,9 @@ int main(int argc, char * argv[])
         auto msg = std::static_pointer_cast<SimImuMessage>(message);
         imu->callback(msg);
       } else if (message->sensorType == SensorType::Tracker) {
-        /// @todo Tracker sim callback
+        auto trk = std::static_pointer_cast<SimTracker>(it->second);
+        auto msg = std::static_pointer_cast<SimTrackerMessage>(message);
+        trk->callback(msg);
       } else {
         std::cout << "Unknown Message Type" << std::endl;
       }

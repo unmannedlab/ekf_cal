@@ -33,7 +33,7 @@
 /// @class Tracker
 /// @brief Tracker Class
 ///
-class Tracker
+class Tracker : public Sensor
 {
 public:
   ///
@@ -72,6 +72,7 @@ public:
   ///
   typedef struct Params
   {
+    std::string name;                                                   ///< @brief Name
     FeatureDetectorEnum detector {FeatureDetectorEnum::ORB};            ///< @brief Detector
     DescriptorExtractorEnum descriptor {DescriptorExtractorEnum::ORB};  ///< @brief Descriptor
     DescriptorMatcherEnum matcher {DescriptorMatcherEnum::FLANN};       ///< @brief Matcher
@@ -99,6 +100,7 @@ protected:
   unsigned int max_track_length{30};
   unsigned int min_track_length{2};
   unsigned int m_cameraID;
+  MsckfUpdater m_msckfUpdater;
 
 private:
   cv::Ptr<cv::FeatureDetector> initFeatureDetector(
@@ -127,7 +129,6 @@ private:
 
   /// @todo Use parameter inputs for these values
   bool use_qr_decomposition{false};
-  MsckfUpdater m_msckfUpdater;
 };
 
 #endif  // SENSORS__TRACKER_HPP_

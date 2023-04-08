@@ -209,7 +209,6 @@ void MsckfUpdater::updateEKF(unsigned int cameraID, FeatureTracks featureTracks)
       c++;
     }
 
-
     /// @todo Get the Jacobian for this feature
     /// @todo Nullspace projection
   }

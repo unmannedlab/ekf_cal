@@ -49,4 +49,6 @@
                 DescriptorExtractor: 0
                 DescriptorMatcher: 0
                 DetectorThreshold: 10.0
+                SimParams:
+                    featureCount: 1000
 
