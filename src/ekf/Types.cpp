@@ -123,6 +123,41 @@ std::map<unsigned int, ImuState> & operator+=(
   return lImuState;
 }
 
+std::map<unsigned int, CamState> & operator+=(
+  std::map<unsigned int, CamState> & lCamState,
+  Eigen::VectorXd & rVector)
+{
+  unsigned int n {0};
+  for (auto & camIter : lCamState) {
+    unsigned int camID = camIter.first;
+    lCamState[camID].position += rVector.segment<3>(n + 0);
+    lCamState[camID].orientation *= rotVecToQuat(rVector.segment<3>(n + 3));
+    unsigned int augSize = lCamState[camID].augmentedStates.size() * 12U;
+    Eigen::VectorXd augUpdate = rVector.segment(n + 6, augSize);
+    lCamState[camID].augmentedStates += augUpdate;
+    n += 6 + augSize;
+  }
+
+  return lCamState;
+}
+
+
+std::vector<AugmentedState> & operator+=(
+  std::vector<AugmentedState> & lAugState,
+  Eigen::VectorXd & rVector)
+{
+  unsigned int n {0};
+  for (auto & augIter : lAugState) {
+    augIter.position += rVector.segment<3>(n + 0);
+    augIter.orientation *= rotVecToQuat(rVector.segment<3>(n + 3));
+    augIter.imuPosition += rVector.segment<3>(n + 6);
+    augIter.imuOrientation *= rotVecToQuat(rVector.segment<3>(n + 9));
+    n += 12;
+  }
+
+  return lAugState;
+}
+
 
 Eigen::VectorXd BodyState::toVector()
 {

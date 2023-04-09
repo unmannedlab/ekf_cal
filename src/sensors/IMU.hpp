@@ -85,6 +85,8 @@ public:
   ///
   void callback(std::shared_ptr<ImuMessage> imuMessage);
 
+  static constexpr unsigned int IMU_STATE_SIZE {12};
+
 private:
   bool m_isBaseSensor;
   bool m_isIntrinsic;

@@ -135,6 +135,13 @@ BodyState & operator+=(BodyState & lBodyState, Eigen::VectorXd & rVector);
 std::map<unsigned int, ImuState> & operator+=(
   std::map<unsigned int, ImuState> & lImuState,
   Eigen::VectorXd & rVector);
+std::map<unsigned int, CamState> & operator+=(
+  std::map<unsigned int, CamState> & lCamState,
+  Eigen::VectorXd & rVector);
+std::vector<AugmentedState> & operator+=(
+  std::vector<AugmentedState> & lAugState,
+  Eigen::VectorXd & rVector);
+
 State & operator+=(State & lState, State & rState);
 State & operator+=(State & lState, Eigen::VectorXd & rVector);
 
