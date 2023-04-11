@@ -22,7 +22,8 @@
 #include "infrastructure/sim/TruthEngineSpline.hpp"
 #include "sensors/IMU.hpp"
 #include "sensors/sim/SimIMU.hpp"
-#include "sensors/sim/SimTracker.hpp"
+#include "sensors/sim/SimCamera.hpp"
+#include "trackers/sim/SimFeatureTracker.hpp"
 #include "utility/TypeHelper.hpp"
 
 
@@ -44,6 +45,8 @@ int main(int argc, char * argv[])
   YAML::Node root = YAML::LoadFile(config);
   std::cout << "root size:" << root.size() << std::endl;
   const auto imus = root["/EkfCalNode"]["ros__parameters"]["IMU"];
+  const auto cams = root["/EkfCalNode"]["ros__parameters"]["Camera"];
+  const auto trks = root["/EkfCalNode"]["ros__parameters"]["Tracker"];
 
   // Construct sensors and EKF
   std::map<unsigned int, std::shared_ptr<Sensor>> sensorMap;
@@ -66,7 +69,7 @@ int main(int argc, char * argv[])
       YAML::Node imuNode = it->second;
       YAML::Node simNode = imuNode["SimParams"];
 
-      IMU::Params imuParams;
+      IMU::Parameters imuParams;
       imuParams.name = it->first.as<std::string>();
       imuParams.baseSensor = imuNode["BaseSensor"].as<bool>();
       imuParams.intrinsic = imuNode["Intrinsic"].as<bool>();
@@ -81,7 +84,7 @@ int main(int argc, char * argv[])
       imuParams.dataLoggingOn = dataLoggingOn;
 
       // SimParams
-      SimIMU::SimImuParams simImuParams;
+      SimIMU::Parameters simImuParams;
       simImuParams.imuParams = imuParams;
       simImuParams.tBias = simNode["timeBias"].as<double>();
       simImuParams.tError = simNode["timeError"].as<double>();
@@ -102,23 +105,59 @@ int main(int argc, char * argv[])
     }
   }
 
-  Tracker::Params trackerParams;
-  trackerParams.outputDirectory = outDir;
-  trackerParams.dataLoggingOn = dataLoggingOn;
+  // Load tracker parameters
+  std::map<std::string, SimFeatureTracker::Parameters> trackerMap;
+  if (trks) {
+    for (auto it = imus.begin(); it != imus.end(); ++it) {
+      YAML::Node trkNode = it->second;
+      YAML::Node simNode = trkNode["SimParams"];
 
-  SimTracker::SimTrackerParams simTrackParams;
-  simTrackParams.cameraID = 2;
-  simTrackParams.featureCount = 1000;
-  simTrackParams.rate = 30.0;
-  simTrackParams.angOffset = Eigen::Quaterniond(0, 0.7071068, 0, 0.7071068);
-  simTrackParams.trackerParams = trackerParams;
+      FeatureTracker::Parameters trkParams;
+      trkParams.name = it->first.as<std::string>();
+      trkParams.outputDirectory = outDir;
+      trkParams.dataLoggingOn = dataLoggingOn;
 
-  auto tracker = std::make_shared<SimTracker>(simTrackParams, truthEngine);
-  sensorMap[tracker->getId()] = tracker;
+      SimFeatureTracker::Parameters simTrkParams;
+      simTrkParams.featureCount = simNode["featureCount"].as<double>();
+      simTrkParams.roomSize = simNode["roomSize"].as<double>();
+      simTrkParams.trackerParams = trkParams;
 
-  auto trackMessages = tracker->generateMessages(maxTime);
-  messages.insert(messages.end(), trackMessages.begin(), trackMessages.end());
+      trackerMap[trkParams.name] = simTrkParams;
+    }
+  }
 
+  // Load cameras and generate measurements
+  if (cams) {
+    for (auto it = imus.begin(); it != imus.end(); ++it) {
+      YAML::Node camNode = it->second;
+      YAML::Node simNode = camNode["SimParams"];
+
+      Camera::Parameters camParams;
+      camParams.name = it->first.as<std::string>();
+      camParams.outputDirectory = outDir;
+      camParams.dataLoggingOn = dataLoggingOn;
+      camParams.tracker = camNode["Tracker"].as<std::string>();
+
+      // SimCamera::Parameters
+      SimCamera::Parameters simCamParams;
+      simCamParams.tBias = simNode["timeBias"].as<double>();
+      simCamParams.tSkew = simNode["timeSkew"].as<double>();
+      simCamParams.tError = simNode["timeError"].as<double>();
+      simCamParams.posOffset = stdToEigVec(simNode["posOffset"].as<std::vector<double>>());
+      simCamParams.angOffset = stdToEigQuat(simNode["angOffset"].as<std::vector<double>>());
+      simCamParams.camParams = camParams;
+
+      // Add sensor to map
+      auto cam = std::make_shared<SimCamera>(simCamParams, truthEngine);
+      auto trk = std::make_shared<SimFeatureTracker>(trackerMap[camParams.tracker], truthEngine);
+      cam->addTracker(trk);
+      sensorMap[cam->getId()] = cam;
+
+      // Calculate sensor measurements
+      auto imuMessages = cam->generateMessages(maxTime);
+      messages.insert(messages.end(), imuMessages.begin(), imuMessages.end());
+    }
+  }
 
   // Sort Measurements
   sort(messages.begin(), messages.end(), messageCompare);
@@ -128,13 +167,13 @@ int main(int argc, char * argv[])
     auto it = sensorMap.find(message->sensorID);
     if (it != sensorMap.end()) {
       if (message->sensorType == SensorType::IMU) {
-        auto imu = std::static_pointer_cast<SimIMU>(it->second);
-        auto msg = std::static_pointer_cast<SimImuMessage>(message);
-        imu->callback(msg);
+        // auto imu = std::static_pointer_cast<SimIMU>(it->second);
+        // auto msg = std::static_pointer_cast<SimImuMessage>(message);
+        // imu->callback(msg);
       } else if (message->sensorType == SensorType::Tracker) {
-        auto trk = std::static_pointer_cast<SimTracker>(it->second);
-        auto msg = std::static_pointer_cast<SimTrackerMessage>(message);
-        trk->callback(msg);
+        // auto trk = std::static_pointer_cast<SimTracker>(it->second);
+        // auto msg = std::static_pointer_cast<SimTrackerMessage>(message);
+        // trk->callback(msg);
       } else {
         std::cout << "Unknown Message Type" << std::endl;
       }

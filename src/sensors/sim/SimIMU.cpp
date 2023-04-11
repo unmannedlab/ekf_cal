@@ -24,7 +24,7 @@
 #include "utility/sim/SimRNG.hpp"
 #include "utility/MathHelper.hpp"
 
-SimIMU::SimIMU(SimImuParams params, std::shared_ptr<TruthEngine> truthEngine)
+SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngine)
 : IMU(params.imuParams)
 {
   m_tBias = params.tBias;
@@ -36,7 +36,6 @@ SimIMU::SimIMU(SimImuParams params, std::shared_ptr<TruthEngine> truthEngine)
   m_omgError = minBoundVector(params.omgError, 1e-9);
   m_posOffset = params.posOffset;
   m_angOffset = params.angOffset;
-  m_rate = params.imuParams.rate;
   m_truth = truthEngine;
 }
 

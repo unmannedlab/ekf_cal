@@ -54,7 +54,7 @@
         "SIMCAMERA",
         "SIMIMU",
         "SIMRNG",
-        "SIMTRACKER",
+        "SIMFEATURETRACKER",
         "SIMTYPES",
         "SSRR",
         "STATEPUBLISHERNODE",

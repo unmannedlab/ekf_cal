@@ -33,6 +33,17 @@ public:
   ///
   explicit Updater(unsigned int sensorID);
 
+  /// @todo switch to passing EKF pointer
+  // Updater(std::shared_ptr<EKF> ekf, unsigned int sensorID);
+
+  /// @todo Generic Kalman Update function
+  // void KalmanUpdate(
+  //   std::shared_ptr ekf,
+  //   std::vector indices,
+  //   Eigen::MatrixXd jacobian,
+  //   Eigen::MatrixXd residual,
+  //   Eigen::MatrixXd jacobian);
+
 protected:
   unsigned int m_id;                          ///< @brief Associated sensor ID
   EKF * m_ekf = EKF::getInstance();           ///< @brief EKF singleton

@@ -15,5 +15,4 @@
 
 #include "ekf/update/Updater.hpp"
 
-Updater::Updater(unsigned int sensorID)
-: m_id(sensorID) {}
+Updater::Updater(unsigned int sensorID) {}

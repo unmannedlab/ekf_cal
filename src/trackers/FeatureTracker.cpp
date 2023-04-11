@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sensors/Tracker.hpp"
+#include "trackers/FeatureTracker.hpp"
 
 #include <string>
 
@@ -23,18 +23,21 @@
 #include "ekf/Types.hpp"
 #include "ekf/EKF.hpp"
 
+// Initialize static variable
+unsigned int FeatureTracker::_trackerCount = 0;
+
 /// @todo add detector/extractor parameters to input
-Tracker::Tracker(Tracker::Params params, unsigned int cameraID)
-: Sensor(params.name), m_msckfUpdater(cameraID, params.outputDirectory, params.dataLoggingOn)
+FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
+: m_msckfUpdater(params.sensorID, params.outputDirectory, params.dataLoggingOn), m_id(
+    ++_trackerCount)
 {
   m_featureDetector = initFeatureDetector(params.detector, params.threshold);
   m_descriptorExtractor = initDescriptorExtractor(params.descriptor, params.threshold);
   m_descriptorMatcher = initDescriptorMatcher(params.matcher);
-  m_cameraID = cameraID;
 }
 
 /// @todo Check what parameters are used by open_vins
-cv::Ptr<cv::FeatureDetector> Tracker::initFeatureDetector(
+cv::Ptr<cv::FeatureDetector> FeatureTracker::initFeatureDetector(
   FeatureDetectorEnum detector,
   double threshold)
 {
@@ -68,7 +71,7 @@ cv::Ptr<cv::FeatureDetector> Tracker::initFeatureDetector(
 }
 
 
-cv::Ptr<cv::DescriptorExtractor> Tracker::initDescriptorExtractor(
+cv::Ptr<cv::DescriptorExtractor> FeatureTracker::initDescriptorExtractor(
   DescriptorExtractorEnum extractor,
   double threshold)
 {
@@ -88,7 +91,7 @@ cv::Ptr<cv::DescriptorExtractor> Tracker::initDescriptorExtractor(
 }
 
 
-cv::Ptr<cv::DescriptorMatcher> Tracker::initDescriptorMatcher(DescriptorMatcherEnum matcher)
+cv::Ptr<cv::DescriptorMatcher> FeatureTracker::initDescriptorMatcher(DescriptorMatcherEnum matcher)
 {
   cv::Ptr<cv::DescriptorMatcher> descriptorMatcher;
   switch (matcher) {
@@ -104,7 +107,7 @@ cv::Ptr<cv::DescriptorMatcher> Tracker::initDescriptorMatcher(DescriptorMatcherE
 }
 
 /// @todo Do keypoint vector editing in place
-std::vector<cv::KeyPoint> Tracker::gridFeatures(
+std::vector<cv::KeyPoint> FeatureTracker::gridFeatures(
   std::vector<cv::KeyPoint> keyPoints,
   unsigned int rows,
   unsigned int cols)
@@ -146,7 +149,7 @@ std::vector<cv::KeyPoint> Tracker::gridFeatures(
   return gridKeyPoints;
 }
 
-void Tracker::track(
+void FeatureTracker::track(
   double time,
   unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut,
   FeatureTracks featureTracks)
@@ -234,7 +237,7 @@ void Tracker::track(
 }
 
 
-unsigned int Tracker::generateFeatureID()
+unsigned int FeatureTracker::generateFeatureID()
 {
   static unsigned int featureID = 0;
   return featureID++;

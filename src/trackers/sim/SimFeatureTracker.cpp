@@ -13,21 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sensors/sim/SimTracker.hpp"
+#include "trackers/sim/SimFeatureTracker.hpp"
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
 
-SimTracker::SimTracker(SimTrackerParams params, std::shared_ptr<TruthEngine> truthEngine)
-: Tracker(params.trackerParams, params.cameraID)
+SimFeatureTracker::SimFeatureTracker(
+  SimFeatureTracker::Parameters params,
+  std::shared_ptr<TruthEngine> truthEngine)
+: FeatureTracker(params.trackerParams)
 {
-  m_rate = params.rate;
-  m_tBias = params.tBias;
-  m_tSkew = params.tSkew;
-  m_tError = params.tError;
-  m_uvError = params.uvError;
-  m_posOffset = params.posOffset;
-  m_angOffset = params.angOffset;
+  m_pxError = params.pxError;
   m_featureCount = params.featureCount;
   m_truth = truthEngine;
 
@@ -54,7 +50,7 @@ SimTracker::SimTracker(SimTrackerParams params, std::shared_ptr<TruthEngine> tru
 }
 
 /// @todo Write visibleKeypoints function
-std::vector<cv::KeyPoint> SimTracker::visibleKeypoints(double time)
+std::vector<cv::KeyPoint> SimFeatureTracker::visibleKeypoints(double time)
 {
   std::vector<Eigen::Vector3d> keypoints;
   Eigen::Vector3d bodyPos = m_truth->GetBodyPosition(time);
@@ -127,13 +123,14 @@ std::vector<cv::KeyPoint> SimTracker::visibleKeypoints(double time)
 }
 
 /// @todo Write generateMessages function
-std::vector<std::shared_ptr<SimTrackerMessage>> SimTracker::generateMessages(double maxTime)
+std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::generateMessages(
+  double maxTime, unsigned int sensorID)
 {
   double nMeasurements = maxTime * m_rate / (1 + m_tSkew);
   m_logger->log(LogLevel::INFO, "Generating " + std::to_string(nMeasurements) + " measurements");
 
   std::map<unsigned int, std::vector<FeatureTrack>> featureTrackMap;
-  std::vector<std::shared_ptr<SimTrackerMessage>> trackerMessages;
+  std::vector<std::shared_ptr<SimFeatureTrackerMessage>> trackerMessages;
 
   for (unsigned int frameID = 0; frameID < nMeasurements; ++frameID) {
     std::vector<std::vector<FeatureTrack>> featureTracks;
@@ -158,17 +155,20 @@ std::vector<std::shared_ptr<SimTrackerMessage>> SimTracker::generateMessages(dou
         ++it;
       }
     }
-    auto trackerMessage = std::make_shared<SimTrackerMessage>();
+    auto trackerMessage = std::make_shared<SimFeatureTrackerMessage>();
     trackerMessage->featureTracks = featureTracks;
-    trackerMessage->sensorID = m_cameraID;
-    trackerMessage->sensorType = SensorType::Tracker;
     trackerMessage->time = measurementTime;
+    trackerMessage->trackerID = m_id;
+    trackerMessage->sensorID = sensorID;
+    trackerMessage->sensorType = SensorType::Tracker;
     trackerMessages.push_back(trackerMessage);
   }
   return trackerMessages;
 }
 
-void SimTracker::callback(std::shared_ptr<SimTrackerMessage> msg)
+void SimFeatureTracker::callback(
+  double time, unsigned int cameraID,
+  std::shared_ptr<SimFeatureTrackerMessage> msg)
 {
-  m_msckfUpdater.updateEKF(msg->time, msg->sensorID, msg->featureTracks);
+  m_msckfUpdater.updateEKF(time, cameraID, msg->featureTracks);
 }

@@ -55,7 +55,7 @@ set(EKF_SRCS
     src/sensors/Camera.cpp
     src/sensors/IMU.cpp
     src/sensors/Sensor.cpp
-    src/sensors/Tracker.cpp
+    src/trackers/FeatureTracker.cpp
 )
 
 # Create library with EKF sources
@@ -77,7 +77,8 @@ set(SIM_SRCS
     src/infrastructure/sim/TruthEngineCyclic.cpp
     src/infrastructure/sim/TruthEngineSpline.cpp
     src/sensors/sim/SimIMU.cpp
-    src/sensors/sim/SimTracker.cpp
+    src/sensors/sim/SimCamera.cpp
+    src/trackers/sim/SimFeatureTracker.cpp
     src/utility/sim/SimRNG.cpp
 )
 
@@ -178,7 +179,6 @@ if(BUILD_TESTING)
         src/infrastructure/sim/test/test_TruthEngine.cpp
         src/sensors/ros/test/test_RosCamera.cpp
         src/sensors/ros/test/test_RosIMU.cpp
-        src/sensors/sim/test/test_SimTracker.cpp
         src/sensors/test/test_Camera.cpp
         src/sensors/test/test_IMU.cpp
         src/utility/test/test_MathHelper.cpp

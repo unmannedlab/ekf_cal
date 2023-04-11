@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__TRACKER_HPP_
-#define SENSORS__TRACKER_HPP_
+#ifndef SENSORS__FEATURETRACKER_HPP_
+#define SENSORS__FEATURETRACKER_HPP_
 
 #include <string>
 #include <vector>
@@ -30,10 +30,10 @@
 #include "ekf/update/MsckfUpdater.hpp"
 
 ///
-/// @class Tracker
-/// @brief Tracker Class
+/// @class FeatureTracker
+/// @brief FeatureTracker Class
 ///
-class Tracker : public Sensor
+class FeatureTracker
 {
 public:
   ///
@@ -68,25 +68,26 @@ public:
   };
 
   ///
-  /// @brief Tracker initialization parameters structure
+  /// @brief Feature Tracker initialization parameters structure
   ///
-  typedef struct Params
+  typedef struct Parameters
   {
-    std::string name;                                                   ///< @brief Name
+    std::string name {""};                                          ///< @brief Feature Tracker name
     FeatureDetectorEnum detector {FeatureDetectorEnum::ORB};            ///< @brief Detector
     DescriptorExtractorEnum descriptor {DescriptorExtractorEnum::ORB};  ///< @brief Descriptor
     DescriptorMatcherEnum matcher {DescriptorMatcherEnum::FLANN};       ///< @brief Matcher
     double threshold {20.0};                                            ///< @brief Threshold
-    std::string outputDirectory {""};               ///< @brief Tracker data logging directory
-    bool dataLoggingOn {false};                     ///< @brief Tracker data logging flag
-  } Params;
+    unsigned int sensorID;
+    std::string outputDirectory {""};               ///< @brief Feature Tracker data logging directory
+    bool dataLoggingOn {false};                     ///< @brief Feature Tracker data logging flag
+  } Parameters;
 
   ///
-  /// @brief Tracker sensor constructor
-  /// @param params Parameter struct for Tracker sensor
+  /// @brief FeatureTracker sensor constructor
+  /// @param params Parameter struct for feature tracker
   /// @param cameraID Associated camera ID
   ///
-  explicit Tracker(Tracker::Params params, unsigned int cameraID);
+  explicit FeatureTracker(FeatureTracker::Parameters params);
 
   std::vector<cv::KeyPoint> gridFeatures(
     std::vector<cv::KeyPoint> points,
@@ -104,6 +105,7 @@ protected:
   unsigned int min_track_length{2};
   unsigned int m_cameraID;
   MsckfUpdater m_msckfUpdater;
+  unsigned int m_id;
 
 private:
   cv::Ptr<cv::FeatureDetector> initFeatureDetector(
@@ -132,6 +134,8 @@ private:
 
   /// @todo Use parameter inputs for these values
   bool use_qr_decomposition{false};
+
+  static unsigned int _trackerCount;
 };
 
-#endif  // SENSORS__TRACKER_HPP_
+#endif  // SENSORS__FEATURETRACKER_HPP_

@@ -21,10 +21,10 @@
 #include "utility/TypeHelper.hpp"
 
 // Initialize static variable
-unsigned int Sensor::_idCount = 0;
+unsigned int Sensor::_sensorCount = 0;
 
 Sensor::Sensor(std::string name)
-: m_id(++_idCount), m_name(name) {}
+: m_id(++_sensorCount), m_name(name) {}
 
 unsigned int Sensor::getId()
 {

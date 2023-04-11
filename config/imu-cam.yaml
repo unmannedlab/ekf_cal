@@ -42,6 +42,11 @@
                 AngOffInit: [1.0, 0.0, 0.0, 0.0]
                 VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 Tracker: "ORB"
+                SimParams:
+                    timeBias: 0.0
+                    timeError: 1.0e-9
+                    posOffset: [0.0, 0.0, 0.0]
+                    angOffset: [1.0, 0.0, 0.0, 0.0]
 
         Tracker:
             ORB:
@@ -51,4 +56,5 @@
                 DetectorThreshold: 10.0
                 SimParams:
                     featureCount: 1000
+                    roomSize: 10.0
 

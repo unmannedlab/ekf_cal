@@ -63,3 +63,30 @@ Documentation:
 Experimentation:
     - Add profiling
     - Submit ROS bag dataset to IEEE Dataport or add as release package
+
+
+
+- Use prediction IMU
+- Simulated Box Grid Camera
+- Project point to camera matrix
+- Stationary Filter
+- Test Sim with intrinsic calibration
+- Update max frame length
+- Update version numbers
+- Inject Covariance Subroutine
+
+GPS Updater:
+    - LLA to NED calibration
+    2 Stage Update - 
+    1.) Refine LLA to NED World to Local Conversion
+    2.) Once settled, switch to using GPS to update state
+
+
+Trackers:
+    - FeatureTracker
+    - FiducialTracker
+        - ArucoBoardTracker
+        - CharucoBoardTracker
+        - ChessBoardTracker
+        - CharucoDiamondTracker
+        

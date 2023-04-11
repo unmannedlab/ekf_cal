@@ -33,7 +33,7 @@
 #include "sensors/IMU.hpp"
 #include "sensors/ros/RosCamera.hpp"
 #include "sensors/ros/RosIMU.hpp"
-#include "sensors/Tracker.hpp"
+#include "trackers/FeatureTracker.hpp"
 
 ///
 /// @class EkfCalNode

@@ -26,7 +26,7 @@
 #include "utility/TypeHelper.hpp"
 
 
-IMU::IMU(IMU::Params params)
+IMU::IMU(IMU::Parameters params)
 : Sensor(params.name), m_imuUpdater(m_id, params.accBiasStability, params.omgBiasStability,
     params.outputDirectory, params.dataLoggingOn)
 {

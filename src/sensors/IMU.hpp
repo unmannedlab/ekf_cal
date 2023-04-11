@@ -54,7 +54,7 @@ public:
   /// @brief IMU initialization parameters structure
   /// @todo remove topic from parameters
   ///
-  typedef struct Params
+  typedef struct Parameters
   {
     std::string name {"Name"};                      ///< @brief IMU name
     std::string topic {"Topic"};                    ///< @brief IMU topic
@@ -71,13 +71,13 @@ public:
     bool dataLoggingOn {false};                     ///< @brief IMU data logging flag
     /// @brief Initial state variance
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
-  } Params;
+  } Parameters;
 
   ///
   /// @brief IMU class constructor
   /// @param params IMU sensor parameters
   ///
-  explicit IMU(IMU::Params params);
+  explicit IMU(IMU::Parameters params);
 
   ///
   /// @brief Callback method for IMU measurements

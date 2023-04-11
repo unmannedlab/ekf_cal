@@ -17,7 +17,7 @@
 #include <iostream>
 
 #include "sensors/Camera.hpp"
-#include "sensors/Tracker.hpp"
+#include "trackers/FeatureTracker.hpp"
 
 TEST(test_Camera, Constructor) {
   Camera::Params cParams;

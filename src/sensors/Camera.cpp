@@ -28,7 +28,7 @@
 #include "ekf/Types.hpp"
 #include "infrastructure/DebugLogger.hpp"
 #include "sensors/Sensor.hpp"
-#include "sensors/Tracker.hpp"
+#include "trackers/FeatureTracker.hpp"
 #include "utility/MathHelper.hpp"
 #include "utility/TypeHelper.hpp"
 
@@ -37,8 +37,8 @@ CameraMessage::CameraMessage(cv::Mat & imgIn)
 : SensorMessage(), image(imgIn) {}
 
 /// @todo add detector/extractor parameters to input
-Camera::Camera(Camera::Params cParams, Tracker::Params tParams)
-: Sensor(cParams.name), m_tracker(tParams, m_id)
+Camera::Camera(Camera::Parameters cParams)
+: Sensor(cParams.name)
 {
   m_rate = cParams.rate;
   m_posOffset = cParams.posOffset;
@@ -65,7 +65,7 @@ void Camera::callback(std::shared_ptr<CameraMessage> cameraMessage)
   m_ekf->augmentState(m_id, frameID);
 
   FeatureTracks featureTracks;
-  m_tracker.track(cameraMessage->time, frameID, cameraMessage->image, m_outImg, featureTracks);
+  m_trackers[0]->track(cameraMessage->time, frameID, cameraMessage->image, m_outImg, featureTracks);
   /// @todo Undistort points post track?
   // cv::undistortPoints();
   /// @todo Call a EKF updater method
@@ -75,4 +75,9 @@ unsigned int Camera::generateFrameID()
 {
   static unsigned int FrameID = 0;
   return FrameID++;
+}
+
+void Camera::addTracker(std::shared_ptr<FeatureTracker> tracker)
+{
+  m_trackers.push_back(tracker);
 }

@@ -24,7 +24,7 @@
 
 #include "infrastructure/DebugLogger.hpp"
 #include "sensors/Camera.hpp"
-#include "sensors/Tracker.hpp"
+#include "trackers/FeatureTracker.hpp"
 #include "utility/RosHelper.hpp"
 #include "utility/TypeHelper.hpp"
 

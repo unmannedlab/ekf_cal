@@ -17,7 +17,7 @@
 #include <iostream>
 
 #include "sensors/ros/RosCamera.hpp"
-#include "sensors/Tracker.hpp"
+#include "trackers/FeatureTracker.hpp"
 
 TEST(test_RosCamera, constructor) {
   Camera::Params cParams;

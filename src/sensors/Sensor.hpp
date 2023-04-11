@@ -97,7 +97,7 @@ protected:
   DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton
 
 private:
-  static unsigned int _idCount;
+  static unsigned int _sensorCount;
 };
 
 

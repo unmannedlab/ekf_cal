@@ -14,8 +14,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-#ifndef SENSORS__SIM__SIMIMU_HPP_
-#define SENSORS__SIM__SIMIMU_HPP_
+#ifndef SENSORS__SIM__SIMCAMERA_HPP_
+#define SENSORS__SIM__SIMCAMERA_HPP_
 
 #include <eigen3/Eigen/Eigen>
 
@@ -26,24 +26,25 @@
 #include "ekf/Types.hpp"
 #include "infrastructure/DebugLogger.hpp"
 #include "infrastructure/sim/TruthEngine.hpp"
-#include "sensors/IMU.hpp"
+#include "sensors/Camera.hpp"
 #include "sensors/Sensor.hpp"
 #include "utility/sim/SimRNG.hpp"
+#include "trackers/sim/SimFeatureTracker.hpp"
 
-class SimImuMessage : public ImuMessage
+class SimCameraMessage : public CameraMessage
 {
 public:
   ///
-  /// @brief Define SimImuMessage constructor with ImuMessage's
+  /// @brief Define SimCameraMessage constructor with CameraMessage's
   ///
-  using ImuMessage::ImuMessage;
+  using CameraMessage::CameraMessage;
 };
 
 ///
-/// @class SimIMU
-/// @brief Simulated IMU Sensor Class
+/// @class SimCamera
+/// @brief Simulated Camera Sensor Class
 ///
-class SimIMU : public IMU
+class SimCamera : public Camera
 {
 public:
   ///
@@ -52,15 +53,11 @@ public:
   typedef struct Parameters
   {
     double tBias {0.0};                                 ///< @brief Time offset bias
-    double tSkew {1.0};                                 ///< @brief Time offset error
+    double tSkew {1.0};                               ///< @brief Time offset error
     double tError {1e-9};                               ///< @brief Time offset error
-    Eigen::Vector3d accBias {0.0, 0.0, 0.0};            ///< @brief Acceleration bias
-    Eigen::Vector3d accError {1e-9, 1e-9, 1e-9};        ///< @brief Acceleration error
-    Eigen::Vector3d omgBias {0.0, 0.0, 0.0};            ///< @brief Angular rate bias
-    Eigen::Vector3d omgError {1e-9, 1e-9, 1e-9};        ///< @brief Angular rate error
     Eigen::Vector3d posOffset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
     Eigen::Quaterniond angOffset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
-    IMU::Parameters imuParams;                          ///< @brief IMU sensor parameters
+    Camera::Parameters camParams;                              ///< @brief IMU sensor parameters
   } Parameters;
 
   ///
@@ -68,27 +65,28 @@ public:
   /// @param params Simulation IMU parameters
   /// @param truthEngine Truth engine
   ///
-  SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngine);
+  SimCamera(SimCamera::Parameters params, std::shared_ptr<TruthEngine> truthEngine);
+
+  void addTracker(std::shared_ptr<SimFeatureTracker> tracker);
 
   ///
   /// @brief Generate simulated IMU messages
   /// @param maxTime Maximum time of generated messages
   ///
-  std::vector<std::shared_ptr<SimImuMessage>> generateMessages(double maxTime);
+  std::vector<std::shared_ptr<SimCameraMessage>> generateMessages(double maxTime);
 
 private:
   double m_tBias{0.0};
   double m_tSkew{0.0};
   double m_tError{1e-9};
-  Eigen::Vector3d m_accBias{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_accError{1e-9, 1e-9, 1e-9};
-  Eigen::Vector3d m_omgBias{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_omgError{1e-9, 1e-9, 1e-9};
   Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};
   Eigen::Quaterniond m_angOffset{1.0, 0.0, 0.0, 0.0};
   SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
+
+  /// @todo create vector of trackers
+  std::vector<std::shared_ptr<SimFeatureTracker>> m_trackers;
 };
 
 
-#endif  // SENSORS__SIM__SIMIMU_HPP_
+#endif  // SENSORS__SIM__SIMCAMERA_HPP_

@@ -27,7 +27,7 @@
 
 #include "ekf/Types.hpp"
 #include "sensors/Sensor.hpp"
-#include "sensors/Tracker.hpp"
+#include "trackers/FeatureTracker.hpp"
 
 ///
 /// @class CameraMessage
@@ -57,7 +57,7 @@ public:
   ///
   /// @brief Camera initialization parameters structure
   ///
-  typedef struct Params
+  typedef struct Parameters
   {
     std::string name;                                  ///< @brief Camera name
     std::string topic;                                 ///< @brief Camera topic name
@@ -66,14 +66,17 @@ public:
     Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera initial angular offset
     Eigen::VectorXd variance {{0, 0, 0, 0, 0, 0}};     ///< @brief Initial state variance
     std::string tracker;                               ///< @brief Tracker name
-  } Params;
+    std::string outputDirectory {""};                  ///< @brief IMU data logging directory
+    bool dataLoggingOn {false};                        ///< @brief IMU data logging flag
+  } Parameters;
 
   ///
   /// @brief Camera sensor constructor
   /// @param cParams Parameter struct for camera sensor
-  /// @param tParams Parameter struct for tracker
   ///
-  Camera(Camera::Params cParams, Tracker::Params tParams);
+  Camera(Camera::Parameters cParams);
+
+  void addTracker(std::shared_ptr<FeatureTracker> tracker);
 
   ///
   /// @brief Callback method for camera
@@ -87,7 +90,7 @@ protected:
 private:
   unsigned int generateFrameID();
 
-  Tracker m_tracker;
+  std::vector<std::shared_ptr<FeatureTracker>> m_trackers;
 
   std::vector<double> m_radDistortionK{0.0, 0.0, 0.0};
   std::vector<double> m_tanDistortionD{0.0, 0.0};

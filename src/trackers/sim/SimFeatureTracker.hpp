@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__SIM__SIMTRACKER_HPP_
-#define SENSORS__SIM__SIMTRACKER_HPP_
+#ifndef SENSORS__SIM__SIMFeatureTRACKER_HPP_
+#define SENSORS__SIM__SIMFeatureTRACKER_HPP_
 
 #include <string>
 
@@ -26,59 +26,55 @@
 #include "ekf/Types.hpp"
 #include "infrastructure/DebugLogger.hpp"
 #include "infrastructure/sim/TruthEngine.hpp"
-#include "sensors/Sensor.hpp"
 #include "sensors/Camera.hpp"
-#include "sensors/Tracker.hpp"
+#include "sensors/Sensor.hpp"
+#include "trackers/FeatureTracker.hpp"
 #include "utility/sim/SimRNG.hpp"
 
 ///
-/// @class SimTrackerMessage
+/// @class SimFeatureTrackerMessage
 /// @brief Simulated Tracker Message class
 ///
-class SimTrackerMessage : public SensorMessage
+class SimFeatureTrackerMessage : public SensorMessage
 {
 public:
-  SimTrackerMessage() {}
+  SimFeatureTrackerMessage() {}
+  unsigned int trackerID {0};
   std::vector<std::vector<FeatureTrack>> featureTracks;
 };
 
 ///
-/// @class SimTracker
+/// @class SimFeatureTracker
 /// @brief Simulated Tracker class
 ///
-class SimTracker : public Tracker
+class SimFeatureTracker : public FeatureTracker
 {
 public:
   ///
   /// @brief Sim IMU initialization parameters structure
   ///
-  typedef struct SimTrackerParams
+  typedef struct Parameters
   {
-    double tBias {0.0};                                 ///< @brief Time offset bias
-    double tSkew {1.0};                                 ///< @brief Time offset error
-    double tError {1e-9};                               ///< @brief Time offset error
-    double uvError {0.0};                               ///< @brief Pixel error
-    Eigen::Vector3d posOffset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
-    Eigen::Quaterniond angOffset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
-    unsigned int cameraID {0};                          ///< @brief Associated camera ID
     unsigned int featureCount{0};                       ///< @brief Number of features to generate
     double roomSize{10.0};                              ///< @brief Size of "Room" for features
-    double rate;                                        ///< @brief Camera sensor rate
-    Tracker::Params trackerParams;                      ///< @brief Tracker parameters
-  } SimTrackerParams;
+    double pxError{1.0};                                ///< @brief Pixel Error
+    FeatureTracker::Parameters trackerParams;           ///< @brief Tracker parameters
+  } Parameters;
 
   ///
   /// @brief Simulation IMU constructor
   /// @param params Simulation IMU parameters
   /// @param truthEngine Truth engine
   ///
-  SimTracker(SimTrackerParams params, std::shared_ptr<TruthEngine> truthEngine);
+  SimFeatureTracker(Parameters params, std::shared_ptr<TruthEngine> truthEngine);
 
   ///
   /// @brief Generate simulated tracker messages
   /// @param maxTime Maximum time of generated messages
   ///
-  std::vector<std::shared_ptr<SimTrackerMessage>> generateMessages(double maxTime);
+  std::vector<std::shared_ptr<SimFeatureTrackerMessage>> generateMessages(
+    double maxTime,
+    unsigned int sensorID);
 
   ///
   /// @brief Return currently visible keypoints
@@ -86,13 +82,13 @@ public:
   ///
   std::vector<cv::KeyPoint> visibleKeypoints(double time);
 
-  void callback(std::shared_ptr<SimTrackerMessage> msg);
+  void callback(double time, unsigned int cameraID, std::shared_ptr<SimFeatureTrackerMessage> msg);
 
 private:
   double m_tBias{0.0};
   double m_tSkew{0.0};
   double m_tError{1e-9};
-  double m_uvError{1e-9};
+  double m_pxError{1e-9};
   Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};
   Eigen::Quaterniond m_angOffset{1.0, 0.0, 0.0, 0.0};
   std::shared_ptr<TruthEngine> m_truth;
@@ -108,4 +104,4 @@ private:
 };
 
 
-#endif  // SENSORS__SIM__SIMTRACKER_HPP_
+#endif  // SENSORS__SIM__SIMFeatureTRACKER_HPP_
