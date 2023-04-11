@@ -20,6 +20,7 @@
 
 #include "ekf/update/Updater.hpp"
 #include "ekf/EKF.hpp"
+#include "infrastructure/DataLogger.hpp"
 
 ///
 /// @class MsckfUpdater
@@ -32,7 +33,9 @@ public:
   /// @brief MSCKF EKF Updater constructor
   /// @param camID Camera sensor ID
   ///
-  explicit MsckfUpdater(unsigned int camID);
+  explicit MsckfUpdater(
+    unsigned int camID, std::string logFileDirectory,
+    bool dataLoggingOn);
 
   ///
   /// @brief
@@ -45,7 +48,7 @@ public:
   /// @param cameraID
   /// @param featureTracks
   ///
-  void updateEKF(unsigned int cameraID, FeatureTracks featureTracks);
+  void updateEKF(double time, unsigned int cameraID, FeatureTracks featureTracks);
 
   ///
   /// @brief Refresh internal states with EKF values
@@ -62,6 +65,7 @@ private:
   Eigen::Vector3d m_posOffset {0.0, 0.0, 0.0};
   Eigen::Quaterniond m_angOffset {1.0, 0.0, 0.0, 0.0};
   std::vector<AugmentedState> m_augStates {};
+  DataLogger m_dataLogger;
 };
 
 #endif  // EKF__UPDATE__MSCKFUPDATER_HPP_

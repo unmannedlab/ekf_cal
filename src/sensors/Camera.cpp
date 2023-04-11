@@ -65,7 +65,7 @@ void Camera::callback(std::shared_ptr<CameraMessage> cameraMessage)
   m_ekf->augmentState(m_id, frameID);
 
   FeatureTracks featureTracks;
-  // m_tracker.track(frameID, cameraMessage->image, m_outImg, featureTracks);
+  m_tracker.track(cameraMessage->time, frameID, cameraMessage->image, m_outImg, featureTracks);
   /// @todo Undistort points post track?
   // cv::undistortPoints();
   /// @todo Call a EKF updater method

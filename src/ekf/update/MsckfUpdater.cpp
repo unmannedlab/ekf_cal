@@ -17,8 +17,22 @@
 #include "utility/MathHelper.hpp"
 #include "sensors/IMU.hpp"
 
-MsckfUpdater::MsckfUpdater(unsigned int camID)
-: Updater(camID) {}
+MsckfUpdater::MsckfUpdater(unsigned int camID, std::string logFileDirectory, bool dataLoggingOn)
+: Updater(camID), m_dataLogger(logFileDirectory, "msckf.csv")
+{
+  std::stringstream msg;
+  msg << "time";
+  for (unsigned int i = 0; i < 18; ++i) {
+    msg << ",body_update_" + std::to_string(i);
+  }
+  for (unsigned int i = 0; i < 6; ++i) {
+    msg << ",cam_update_" + std::to_string(i);
+  }
+  msg << "\n";
+
+  m_dataLogger.defineHeader(msg.str());
+  m_dataLogger.setLogging(dataLoggingOn);
+}
 
 AugmentedState MsckfUpdater::matchState(
   unsigned int frameID)
@@ -35,11 +49,16 @@ AugmentedState MsckfUpdater::matchState(
   return augStateMatch;
 }
 
-void MsckfUpdater::updateEKF(unsigned int cameraID, FeatureTracks featureTracks)
+void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks featureTracks)
 {
+  m_ekf->processModel(time);
   m_logger->log(
     LogLevel::DEBUG,
     "Called update_msckf for camera ID: " + std::to_string(cameraID));
+
+  if (featureTracks.size() == 0) {
+    return;
+  }
 
   // Calculate the max possible measurement size
   unsigned int max_meas_size = 0;
@@ -258,25 +277,24 @@ void MsckfUpdater::updateEKF(unsigned int cameraID, FeatureTracks featureTracks)
   }
 
   // 5. Perform measurement compression
+  /// @todo verify logic here
   // Return if Hx_big is a fat matrix (there is no need to compress in this case)
-  if (Hx_big.rows() <= Hx_big.cols()) {
-    return;
-  }
-
-  // Do measurement compression through givens rotations
-  // Based on "Matrix Computations 4th Edition by Golub and Van Loan"
-  // See page 252, Algorithm 5.2.4 for how these two loops work
-  // They use "matlab" index notation, thus we need to subtract 1 from all index
-  Eigen::JacobiRotation<double> tempHo_GR;
-  for (int n = 0; n < Hx_big.cols(); n++) {
-    for (int m = (int)Hx_big.rows() - 1; m > n; m--) {
-      // Givens matrix G
-      tempHo_GR.makeGivens(Hx_big(m - 1, n), Hx_big(m, n));
-      // Multiply G to the corresponding lines (m-1,m) in each matrix
-      // Note: we only apply G to the nonzero cols [n:Ho.cols()-n-1], while
-      //       it is equivalent to applying G to the entire cols [0:Ho.cols()-1].
-      (Hx_big.block(m - 1, n, 2, Hx_big.cols() - n)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
-      (res_big.block(m - 1, 0, 2, 1)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+  if (Hx_big.rows() > Hx_big.cols()) {
+    // Do measurement compression through givens rotations
+    // Based on "Matrix Computations 4th Edition by Golub and Van Loan"
+    // See page 252, Algorithm 5.2.4 for how these two loops work
+    // They use "matlab" index notation, thus we need to subtract 1 from all index
+    Eigen::JacobiRotation<double> tempHo_GR;
+    for (int n = 0; n < Hx_big.cols(); n++) {
+      for (int m = (int)Hx_big.rows() - 1; m > n; m--) {
+        // Givens matrix G
+        tempHo_GR.makeGivens(Hx_big(m - 1, n), Hx_big(m, n));
+        // Multiply G to the corresponding lines (m-1,m) in each matrix
+        // Note: we only apply G to the nonzero cols [n:Ho.cols()-n-1], while
+        //       it is equivalent to applying G to the entire cols [0:Ho.cols()-1].
+        (Hx_big.block(m - 1, n, 2, Hx_big.cols() - n)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+        (res_big.block(m - 1, 0, 2, 1)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+      }
     }
   }
 
@@ -311,13 +329,25 @@ void MsckfUpdater::updateEKF(unsigned int cameraID, FeatureTracks featureTracks)
   Eigen::VectorXd imuUpdate = update.segment(EKF::BODY_STATE_SIZE, imuStateSize);
   Eigen::VectorXd camUpdate = update.segment(EKF::BODY_STATE_SIZE + imuStateSize, camStateSize);
 
-
   m_ekf->getState().bodyState += bodyUpdate;
   m_ekf->getState().imuStates += imuUpdate;
   m_ekf->getState().camStates += camUpdate;
 
   m_ekf->getCov() =
     (Eigen::MatrixXd::Identity(stateSize, stateSize) - K * Hx_big) * m_ekf->getCov();
+
+  // Write outputs
+  std::stringstream msg;
+  msg << time;
+  for (unsigned int i = 0; i < bodyUpdate.size(); ++i) {
+    msg << "," << bodyUpdate[i];
+  }
+  for (unsigned int i = 0; i < 6; ++i) {
+    msg << "," << camUpdate[i];
+  }
+  msg << "\n";
+  m_dataLogger.log(msg.str());
+  std::cout << "test" << std::endl;
 }
 
 void MsckfUpdater::RefreshStates()

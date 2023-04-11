@@ -63,7 +63,6 @@ public:
     unsigned int cameraID {0};                          ///< @brief Associated camera ID
     unsigned int featureCount{0};                       ///< @brief Number of features to generate
     double roomSize{10.0};                              ///< @brief Size of "Room" for features
-    std::string outputDirectory;                        ///< @brief Output directory path
     double rate;                                        ///< @brief Camera sensor rate
     Tracker::Params trackerParams;                      ///< @brief Tracker parameters
   } SimTrackerParams;

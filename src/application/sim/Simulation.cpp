@@ -103,13 +103,15 @@ int main(int argc, char * argv[])
   }
 
   Tracker::Params trackerParams;
+  trackerParams.outputDirectory = outDir;
+  trackerParams.dataLoggingOn = dataLoggingOn;
+
   SimTracker::SimTrackerParams simTrackParams;
   simTrackParams.cameraID = 2;
   simTrackParams.featureCount = 1000;
-  simTrackParams.outputDirectory = outDir;
   simTrackParams.rate = 30.0;
-  simTrackParams.trackerParams = trackerParams;
   simTrackParams.angOffset = Eigen::Quaterniond(0, 0.7071068, 0, 0.7071068);
+  simTrackParams.trackerParams = trackerParams;
 
   auto tracker = std::make_shared<SimTracker>(simTrackParams, truthEngine);
   sensorMap[tracker->getId()] = tracker;

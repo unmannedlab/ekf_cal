@@ -21,65 +21,86 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
+def plot_imu_residuals(imu_df):
+    fig, (axs_1, axs_2) = plt.subplots(2, 1)
+    axs_1.plot(imu_df['time'], imu_df['residual_0'], label=r'$p_x$')
+    axs_1.plot(imu_df['time'], imu_df['residual_1'], label=r'$p_y$')
+    axs_1.plot(imu_df['time'], imu_df['residual_2'], label=r'$p_z$')
+    axs_2.plot(imu_df['time'], imu_df['residual_3'], label=r'$\theta_x$')
+    axs_2.plot(imu_df['time'], imu_df['residual_4'], label=r'$\theta_y$')
+    axs_2.plot(imu_df['time'], imu_df['residual_5'], label=r'$\theta_z$')
+    axs_1.set_title('IMU Residuals')
+    axs_1.set_ylabel('Position Residual\n[m]')
+    axs_2.set_ylabel('Angular Residual\n[red]')
+    axs_2.set_xlabel('Time [s]')
+    axs_1.grid(True)
+    axs_2.grid(True)
+    axs_1.legend()
+    axs_2.legend()
+    fig.tight_layout()
+
+    return fig
+
+
+def plot_imu_pos_updates(imu_df):
+    fig, (axs_1, axs_2) = plt.subplots(2, 1)
+    axs_1.plot(imu_df['time'], imu_df['update_0'], label=r'$p_x$')
+    axs_1.plot(imu_df['time'], imu_df['update_1'], label=r'$p_y$')
+    axs_1.plot(imu_df['time'], imu_df['update_2'], label=r'$p_z$')
+    axs_2.plot(imu_df['time'], imu_df['update_3'], label=r'$\theta_x$')
+    axs_2.plot(imu_df['time'], imu_df['update_4'], label=r'$\theta_y$')
+    axs_2.plot(imu_df['time'], imu_df['update_5'], label=r'$\theta_z$')
+    axs_1.set_title('IMU State Offset Updates')
+    axs_1.set_ylabel('Position Offset Update\n[m]')
+    axs_2.set_ylabel('Angular Offset Update\n[red]')
+    axs_2.set_xlabel('Time [s]')
+    axs_1.grid(True)
+    axs_2.grid(True)
+    axs_1.legend()
+    axs_2.legend()
+    fig.tight_layout()
+
+    return fig
+
+
+def plot_imu_vel_updates(imu_df):
+    fig, (axs_1, axs_2) = plt.subplots(2, 1)
+    axs_1.plot(imu_df['time'], imu_df['update_6'], label=r'$a_x$')
+    axs_1.plot(imu_df['time'], imu_df['update_7'], label=r'$a_y$')
+    axs_1.plot(imu_df['time'], imu_df['update_8'], label=r'$a_z$')
+    axs_2.plot(imu_df['time'], imu_df['update_9'], label=r'$\omega_x$')
+    axs_2.plot(imu_df['time'], imu_df['update_10'], label=r'$\omega_y$')
+    axs_2.plot(imu_df['time'], imu_df['update_11'], label=r'$\omega_z$')
+    axs_1.set_title('IMU State Bias Updates')
+    axs_1.set_ylabel('Acceleration Bias Update\n[m/s/s]')
+    axs_2.set_ylabel('Angular Rate Bias Update\n[rad/s]')
+    axs_2.set_xlabel('Time [s]')
+    axs_1.grid(True)
+    axs_2.grid(True)
+    axs_1.legend()
+    axs_2.legend()
+    fig.tight_layout()
+
+    return fig
+
+
 def plot_sim_results(directories):
-    # for directory in directories:
-    directory = directories[0]
-    print(directory)
-    # @todo switch to glob
-    imu_df = pd.read_csv(os.path.join(directory, 'imu.csv'))
+    for directory in directories:
+        imu_df = pd.read_csv(os.path.join(directory, 'imu.csv'))
 
-    fig1, (axs1_1, axs1_2) = plt.subplots(2, 1)
-    axs1_1.plot(imu_df['time'], imu_df['residual_0'], label=r'$p_x$')
-    axs1_1.plot(imu_df['time'], imu_df['residual_1'], label=r'$p_y$')
-    axs1_1.plot(imu_df['time'], imu_df['residual_2'], label=r'$p_z$')
-    axs1_2.plot(imu_df['time'], imu_df['residual_3'], label=r'$\theta_x$')
-    axs1_2.plot(imu_df['time'], imu_df['residual_4'], label=r'$\theta_y$')
-    axs1_2.plot(imu_df['time'], imu_df['residual_5'], label=r'$\theta_z$')
-    axs1_1.set_title('IMU Residuals')
-    axs1_1.set_ylabel('Position Residual\n[m]')
-    axs1_2.set_ylabel('Angular Residual\n[red]')
-    axs1_2.set_xlabel('Time [s]')
-    axs1_1.grid(True)
-    axs1_2.grid(True)
-    axs1_1.legend()
-    axs1_2.legend()
-    fig1.tight_layout()
+        fig1 = plot_imu_residuals(imu_df)
+        fig2 = plot_imu_pos_updates(imu_df)
+        fig3 = plot_imu_vel_updates(imu_df)
 
-    fig2, (axs2_1, axs2_2) = plt.subplots(2, 1)
-    axs2_1.plot(imu_df['time'], imu_df['update_0'], label=r'$p_x$')
-    axs2_1.plot(imu_df['time'], imu_df['update_1'], label=r'$p_y$')
-    axs2_1.plot(imu_df['time'], imu_df['update_2'], label=r'$p_z$')
-    axs2_2.plot(imu_df['time'], imu_df['update_3'], label=r'$\theta_x$')
-    axs2_2.plot(imu_df['time'], imu_df['update_4'], label=r'$\theta_y$')
-    axs2_2.plot(imu_df['time'], imu_df['update_5'], label=r'$\theta_z$')
-    axs2_1.set_title('IMU State Offset Updates')
-    axs2_1.set_ylabel('Position Offset Update\n[m]')
-    axs2_2.set_ylabel('Angular Offset Update\n[red]')
-    axs2_2.set_xlabel('Time [s]')
-    axs2_1.grid(True)
-    axs2_2.grid(True)
-    axs2_1.legend()
-    axs2_2.legend()
-    fig2.tight_layout()
+        saveDir = os.path.join(directory, 'plots')
+        if not os.path.isdir(saveDir):
+            os.mkdir(saveDir)
 
-    fig3, (axs3_1, axs3_2) = plt.subplots(2, 1)
-    axs3_1.plot(imu_df['time'], imu_df['update_6'], label=r'$a_x$')
-    axs3_1.plot(imu_df['time'], imu_df['update_7'], label=r'$a_y$')
-    axs3_1.plot(imu_df['time'], imu_df['update_8'], label=r'$a_z$')
-    axs3_2.plot(imu_df['time'], imu_df['update_9'], label=r'$\omega_x$')
-    axs3_2.plot(imu_df['time'], imu_df['update_10'], label=r'$\omega_y$')
-    axs3_2.plot(imu_df['time'], imu_df['update_11'], label=r'$\omega_z$')
-    axs3_1.set_title('IMU State Bias Updates')
-    axs3_1.set_ylabel('Acceleration Bias Update\n[m/s/s]')
-    axs3_2.set_ylabel('Angular Rate Bias Update\n[rad/s]')
-    axs3_2.set_xlabel('Time [s]')
-    axs3_1.grid(True)
-    axs3_2.grid(True)
-    axs3_1.legend()
-    axs3_2.legend()
-    fig3.tight_layout()
+        fig1.savefig(os.path.join(saveDir, 'imu_residuals.png'))
+        fig2.savefig(os.path.join(saveDir, 'imu_pos_updates.png'))
+        fig3.savefig(os.path.join(saveDir, 'imu_vel_updates.png'))
 
-    plt.show()
+        plt.show()
 
 
 if __name__ == '__main__':

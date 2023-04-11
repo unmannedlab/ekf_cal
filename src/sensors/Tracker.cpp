@@ -25,7 +25,7 @@
 
 /// @todo add detector/extractor parameters to input
 Tracker::Tracker(Tracker::Params params, unsigned int cameraID)
-: Sensor(params.name), m_msckfUpdater(cameraID)
+: Sensor(params.name), m_msckfUpdater(cameraID, params.outputDirectory, params.dataLoggingOn)
 {
   m_featureDetector = initFeatureDetector(params.detector, params.threshold);
   m_descriptorExtractor = initDescriptorExtractor(params.descriptor, params.threshold);
@@ -147,6 +147,7 @@ std::vector<cv::KeyPoint> Tracker::gridFeatures(
 }
 
 void Tracker::track(
+  double time,
   unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut,
   FeatureTracks featureTracks)
 {
@@ -226,7 +227,7 @@ void Tracker::track(
     }
   }
 
-  m_msckfUpdater.updateEKF(m_cameraID, featureTracks);
+  m_msckfUpdater.updateEKF(time, m_cameraID, featureTracks);
 
   m_prevKeyPoints = m_currKeyPoints;
   m_prevDescriptors = m_currDescriptors;

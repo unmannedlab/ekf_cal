@@ -77,6 +77,8 @@ public:
     DescriptorExtractorEnum descriptor {DescriptorExtractorEnum::ORB};  ///< @brief Descriptor
     DescriptorMatcherEnum matcher {DescriptorMatcherEnum::FLANN};       ///< @brief Matcher
     double threshold {20.0};                                            ///< @brief Threshold
+    std::string outputDirectory {""};               ///< @brief Tracker data logging directory
+    bool dataLoggingOn {false};                     ///< @brief Tracker data logging flag
   } Params;
 
   ///
@@ -92,6 +94,7 @@ public:
     unsigned int cols);
 
   void track(
+    double time,
     unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut,
     FeatureTracks featureTracks);
 
