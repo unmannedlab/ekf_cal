@@ -42,14 +42,7 @@ foreach(pkg ${ROS_PKGS})
     find_package(${pkg} REQUIRED)
 endforeach()
 
-# set(SIM_PKGS
-#     yaml-cpp
-#     OpenCV
-# )
-# foreach(pkg ${SIM_PKGS})
-#     find_package(${pkg} REQUIRED)
-# endforeach()
-
+# @todo split infrastructure into separate library
 # EKF sources
 set(EKF_SRCS
     src/ekf/EKF.cpp
@@ -57,6 +50,8 @@ set(EKF_SRCS
     src/ekf/update/ImuUpdater.cpp
     src/ekf/update/MsckfUpdater.cpp
     src/ekf/update/Updater.cpp
+    src/infrastructure/DataLogger.cpp
+    src/infrastructure/DebugLogger.cpp
     src/sensors/Camera.cpp
     src/sensors/IMU.cpp
     src/sensors/Sensor.cpp
@@ -160,7 +155,6 @@ find_package(yaml-cpp REQUIRED)
 include_directories(${YAML_CPP_INCLUDE_DIRS})
 target_link_libraries(sim ${YAML_CPP_LIBRARIES})
 
-target_link_libraries(EKF_LIB SIM_LIB)
 target_link_libraries(sim SIM_LIB EKF_LIB)
 
 install(TARGETS
@@ -202,10 +196,10 @@ if(BUILD_TESTING)
         target_link_libraries(${nam} EKF_LIB ROS_LIB)
     endforeach()
 
-    # ament_add_gtest(test_EkfCalNode src/application/ros/node/test/test_EkfCalNode.cpp)
-    # ament_target_dependencies(test_EkfCalNode ${ROS_PKGS})
-    # target_include_directories(test_EkfCalNode PUBLIC ${CMAKE_SOURCE_DIR}/src/)
-    # target_link_libraries(test_EkfCalNode EKF_NODE_LIB EKF_LIB ROS_LIB)
+    ament_add_gtest(test_EkfCalNode src/application/ros/node/test/test_EkfCalNode.cpp)
+    ament_target_dependencies(test_EkfCalNode ${ROS_PKGS})
+    target_include_directories(test_EkfCalNode PUBLIC ${CMAKE_SOURCE_DIR}/src/)
+    target_link_libraries(test_EkfCalNode EKF_NODE_LIB EKF_LIB ROS_LIB)
 
 endif()
 
