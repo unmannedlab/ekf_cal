@@ -73,7 +73,7 @@ public:
   /// @param maxTime Maximum time of generated messages
   ///
   std::vector<std::shared_ptr<SimFeatureTrackerMessage>> generateMessages(
-    double maxTime,
+    std::vector<double> messageTimes,
     unsigned int sensorID);
 
   ///
@@ -85,9 +85,6 @@ public:
   void callback(double time, unsigned int cameraID, std::shared_ptr<SimFeatureTrackerMessage> msg);
 
 private:
-  double m_tBias{0.0};
-  double m_tSkew{0.0};
-  double m_tError{1e-9};
   double m_pxError{1e-9};
   Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};
   Eigen::Quaterniond m_angOffset{1.0, 0.0, 0.0, 0.0};

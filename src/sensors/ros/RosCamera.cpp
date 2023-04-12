@@ -24,7 +24,6 @@
 
 #include "infrastructure/DebugLogger.hpp"
 #include "sensors/Camera.hpp"
-#include "trackers/FeatureTracker.hpp"
 #include "utility/RosHelper.hpp"
 #include "utility/TypeHelper.hpp"
 
@@ -35,8 +34,8 @@ RosCameraMessage::RosCameraMessage(const sensor_msgs::msg::Image::SharedPtr msg)
   time = rosHeaderToTime(msg->header);
 }
 
-RosCamera::RosCamera(Camera::Params cParams, Tracker::Params tParams)
-: Camera(cParams, tParams) {}
+RosCamera::RosCamera(Camera::Parameters cParams)
+: Camera(cParams) {}
 
 void RosCamera::callback(std::shared_ptr<RosCameraMessage> rosCameraMessage)
 {
@@ -50,4 +49,9 @@ void RosCamera::callback(std::shared_ptr<RosCameraMessage> rosCameraMessage)
 sensor_msgs::msg::Image::SharedPtr RosCamera::getRosImage()
 {
   return m_outRosImg;
+}
+
+void RosCamera::addTracker(std::shared_ptr<FeatureTracker> tracker)
+{
+  Camera::addTracker(tracker);
 }

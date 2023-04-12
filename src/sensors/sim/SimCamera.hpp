@@ -38,6 +38,7 @@ public:
   /// @brief Define SimCameraMessage constructor with CameraMessage's
   ///
   using CameraMessage::CameraMessage;
+  std::shared_ptr<SimFeatureTrackerMessage> featureTrackMessage;
 };
 
 ///
@@ -69,6 +70,10 @@ public:
 
   void addTracker(std::shared_ptr<SimFeatureTracker> tracker);
 
+  std::vector<double> generateMessageTimes(double maxTime);
+
+  void callback(std::shared_ptr<SimCameraMessage> simCameraMessage);
+
   ///
   /// @brief Generate simulated IMU messages
   /// @param maxTime Maximum time of generated messages
@@ -85,7 +90,7 @@ private:
   std::shared_ptr<TruthEngine> m_truth;
 
   /// @todo create vector of trackers
-  std::vector<std::shared_ptr<SimFeatureTracker>> m_trackers;
+  std::map<unsigned int, std::shared_ptr<SimFeatureTracker>> m_trackers;
 };
 
 

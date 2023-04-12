@@ -116,7 +116,7 @@ void EkfCalNode::declareImuParameters(std::string imuName)
 }
 
 /// @todo Move these getters into ROS helper?
-IMU::Params EkfCalNode::getImuParameters(std::string imuName)
+IMU::Parameters EkfCalNode::getImuParameters(std::string imuName)
 {
   // Load parameters
   std::string imuPrefix = "IMU." + imuName;
@@ -131,7 +131,7 @@ IMU::Params EkfCalNode::getImuParameters(std::string imuName)
   std::vector<double> omgBias = this->get_parameter(imuPrefix + ".OmgBiasInit").as_double_array();
 
   // Assign parameters to struct
-  IMU::Params imuParams;
+  IMU::Parameters imuParams;
   imuParams.name = imuName;
   imuParams.topic = topic;
   imuParams.baseSensor = baseSensor;
@@ -157,7 +157,7 @@ void EkfCalNode::declareCameraParameters(std::string cameraName)
   this->declare_parameter(camPrefix + ".Tracker", "Tracker");
 }
 
-Camera::Params EkfCalNode::getCameraParameters(std::string cameraName)
+Camera::Parameters EkfCalNode::getCameraParameters(std::string cameraName)
 {
   // Load parameters
   std::string camPrefix = "Camera." + cameraName;
@@ -169,7 +169,7 @@ Camera::Params EkfCalNode::getCameraParameters(std::string cameraName)
   std::string trackerName = this->get_parameter(camPrefix + ".Tracker").as_string();
 
   // Assign parameters to struct
-  Camera::Params cameraParams;
+  Camera::Parameters cameraParams;
   cameraParams.name = cameraName;
   cameraParams.topic = topic;
   cameraParams.rate = rate;
@@ -191,7 +191,7 @@ void EkfCalNode::declareTrackerParameters(std::string trackerName)
   this->declare_parameter(trackerPrefix + ".DetectorThreshold", 20.0);
 }
 
-Tracker::Params EkfCalNode::getTrackerParameters(std::string trackerName)
+FeatureTracker::Parameters EkfCalNode::getTrackerParameters(std::string trackerName)
 {
   // Get parameters
   std::string trackerPrefix = "Tracker." + trackerName;
@@ -199,10 +199,10 @@ Tracker::Params EkfCalNode::getTrackerParameters(std::string trackerName)
   int dExtractor = this->get_parameter(trackerPrefix + ".DescriptorExtractor").as_int();
   int dMatcher = this->get_parameter(trackerPrefix + ".DescriptorMatcher").as_int();
 
-  Tracker::Params trackerParams;
-  trackerParams.detector = static_cast<Tracker::FeatureDetectorEnum>(fDetector);
-  trackerParams.descriptor = static_cast<Tracker::DescriptorExtractorEnum>(dExtractor);
-  trackerParams.matcher = static_cast<Tracker::DescriptorMatcherEnum>(dMatcher);
+  FeatureTracker::Parameters trackerParams;
+  trackerParams.detector = static_cast<FeatureTracker::FeatureDetectorEnum>(fDetector);
+  trackerParams.descriptor = static_cast<FeatureTracker::DescriptorExtractorEnum>(dExtractor);
+  trackerParams.matcher = static_cast<FeatureTracker::DescriptorMatcherEnum>(dMatcher);
   trackerParams.threshold = this->get_parameter(trackerPrefix + ".DetectorThreshold").as_double();
   return trackerParams;
 }
@@ -210,7 +210,7 @@ Tracker::Params EkfCalNode::getTrackerParameters(std::string trackerName)
 
 void EkfCalNode::loadIMU(std::string imuName)
 {
-  IMU::Params iParams = getImuParameters(imuName);
+  IMU::Parameters iParams = getImuParameters(imuName);
   m_logger->log(LogLevel::INFO, "Loaded IMU: " + imuName);
 
   // Create new RosIMU and and bind callback to ID
@@ -240,12 +240,14 @@ void EkfCalNode::registerImu(std::shared_ptr<RosIMU> imuPtr, std::string topic)
 void EkfCalNode::loadCamera(std::string cameraName)
 {
   // Load parameters
-  Camera::Params cParams = getCameraParameters(cameraName);
-  Tracker::Params tParams = getTrackerParameters(cParams.tracker);
+  Camera::Parameters cParams = getCameraParameters(cameraName);
+  FeatureTracker::Parameters tParams = getTrackerParameters(cParams.tracker);
   m_logger->log(LogLevel::INFO, "Loaded Camera: " + cameraName);
 
   // Create new RosCamera and bind callback to ID
-  std::shared_ptr<RosCamera> camPtr = std::make_shared<RosCamera>(cParams, tParams);
+  std::shared_ptr<RosCamera> camPtr = std::make_shared<RosCamera>(cParams);
+  std::shared_ptr<FeatureTracker> trkPtr = std::make_shared<FeatureTracker>(tParams);
+  camPtr->addTracker(trkPtr);
 
   registerCamera(camPtr, cParams.topic);
 }
@@ -258,6 +260,8 @@ void EkfCalNode::registerCamera(std::shared_ptr<RosCamera> camPtr, std::string t
   function = std::bind(&EkfCalNode::cameraCallback, this, _1, camPtr->getId());
   auto sub = this->create_subscription<sensor_msgs::msg::Image>(topic, 10, function);
   m_CameraSubs.push_back(sub);
+
+  /// @todo next: Update covariance size
 
   m_logger->log(
     LogLevel::INFO, "Registered Camera " + std::to_string(

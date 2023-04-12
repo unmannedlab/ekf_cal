@@ -53,9 +53,8 @@ public:
   ///
   /// @brief RosCamera constructor
   /// @param cParams Camera parameters
-  /// @param tParams Tracker parameters
   ///
-  RosCamera(Camera::Params cParams, Tracker::Params tParams);
+  RosCamera(Camera::Parameters cParams);
 
   ///
   /// @brief RosCamera callback method
@@ -68,6 +67,8 @@ public:
   /// @return Camera output ROS image
   ///
   sensor_msgs::msg::Image::SharedPtr getRosImage();
+
+  void addTracker(std::shared_ptr<FeatureTracker> tracker);
 
 private:
   sensor_msgs::msg::Image::SharedPtr m_outRosImg;

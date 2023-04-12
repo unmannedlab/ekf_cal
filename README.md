@@ -2,11 +2,18 @@
 
 Extended Kalman Filter - Calibration and Localization
 
-## Build
+## Dependencies
 The EKF-CAL package has the following dependencies:
 - OpenCV
 - Doxygen
 - Google Test
+
+These can be installed by running `rosdep` in the base directory of this repo
+```
+rosdep install --from-paths src -y --ignore-src
+```
+
+## Build
 
 Building can be done simply with the following command:
 

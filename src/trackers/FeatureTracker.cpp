@@ -242,3 +242,8 @@ unsigned int FeatureTracker::generateFeatureID()
   static unsigned int featureID = 0;
   return featureID++;
 }
+
+unsigned int FeatureTracker::getID()
+{
+  return m_id;
+}

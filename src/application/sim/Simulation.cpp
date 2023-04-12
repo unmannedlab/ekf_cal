@@ -87,6 +87,7 @@ int main(int argc, char * argv[])
       SimIMU::Parameters simImuParams;
       simImuParams.imuParams = imuParams;
       simImuParams.tBias = simNode["timeBias"].as<double>();
+      simImuParams.tSkew = simNode["timeSkew"].as<double>();
       simImuParams.tError = simNode["timeError"].as<double>();
       simImuParams.accBias = stdToEigVec(simNode["accBias"].as<std::vector<double>>());
       simImuParams.accError = stdToEigVec(simNode["accError"].as<std::vector<double>>());
@@ -108,7 +109,7 @@ int main(int argc, char * argv[])
   // Load tracker parameters
   std::map<std::string, SimFeatureTracker::Parameters> trackerMap;
   if (trks) {
-    for (auto it = imus.begin(); it != imus.end(); ++it) {
+    for (auto it = trks.begin(); it != trks.end(); ++it) {
       YAML::Node trkNode = it->second;
       YAML::Node simNode = trkNode["SimParams"];
 
@@ -118,7 +119,7 @@ int main(int argc, char * argv[])
       trkParams.dataLoggingOn = dataLoggingOn;
 
       SimFeatureTracker::Parameters simTrkParams;
-      simTrkParams.featureCount = simNode["featureCount"].as<double>();
+      simTrkParams.featureCount = simNode["featureCount"].as<unsigned int>();
       simTrkParams.roomSize = simNode["roomSize"].as<double>();
       simTrkParams.trackerParams = trkParams;
 
@@ -128,7 +129,7 @@ int main(int argc, char * argv[])
 
   // Load cameras and generate measurements
   if (cams) {
-    for (auto it = imus.begin(); it != imus.end(); ++it) {
+    for (auto it = cams.begin(); it != cams.end(); ++it) {
       YAML::Node camNode = it->second;
       YAML::Node simNode = camNode["SimParams"];
 
@@ -167,13 +168,13 @@ int main(int argc, char * argv[])
     auto it = sensorMap.find(message->sensorID);
     if (it != sensorMap.end()) {
       if (message->sensorType == SensorType::IMU) {
-        // auto imu = std::static_pointer_cast<SimIMU>(it->second);
-        // auto msg = std::static_pointer_cast<SimImuMessage>(message);
-        // imu->callback(msg);
-      } else if (message->sensorType == SensorType::Tracker) {
-        // auto trk = std::static_pointer_cast<SimTracker>(it->second);
-        // auto msg = std::static_pointer_cast<SimTrackerMessage>(message);
-        // trk->callback(msg);
+        auto imu = std::static_pointer_cast<SimIMU>(it->second);
+        auto msg = std::static_pointer_cast<SimImuMessage>(message);
+        imu->callback(msg);
+      } else if (message->sensorType == SensorType::Camera) {
+        auto cam = std::static_pointer_cast<SimCamera>(it->second);
+        auto msg = std::static_pointer_cast<SimCameraMessage>(message);
+        // cam->callback(msg);
       } else {
         std::cout << "Unknown Message Type" << std::endl;
       }

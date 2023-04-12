@@ -20,9 +20,8 @@
 #include "trackers/FeatureTracker.hpp"
 
 TEST(test_RosCamera, constructor) {
-  Camera::Params cParams;
-  Tracker::Params tParams;
+  Camera::Parameters cParams;
   cParams.name = "test_Camera";
-  RosCamera rosCamera(cParams, tParams);
+  RosCamera rosCamera(cParams);
   EXPECT_TRUE(true);
 }

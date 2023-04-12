@@ -124,19 +124,20 @@ std::vector<cv::KeyPoint> SimFeatureTracker::visibleKeypoints(double time)
 
 /// @todo Write generateMessages function
 std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::generateMessages(
-  double maxTime, unsigned int sensorID)
+  std::vector<double> messageTimes, unsigned int sensorID)
 {
-  double nMeasurements = maxTime * m_rate / (1 + m_tSkew);
-  m_logger->log(LogLevel::INFO, "Generating " + std::to_string(nMeasurements) + " measurements");
+
+  m_logger->log(
+    LogLevel::INFO, "Generating " + std::to_string(
+      messageTimes.size()) + " measurements");
 
   std::map<unsigned int, std::vector<FeatureTrack>> featureTrackMap;
   std::vector<std::shared_ptr<SimFeatureTrackerMessage>> trackerMessages;
 
-  for (unsigned int frameID = 0; frameID < nMeasurements; ++frameID) {
+  for (unsigned int frameID = 0; frameID < messageTimes.size(); ++frameID) {
     std::vector<std::vector<FeatureTrack>> featureTracks;
-    double measurementTime = (1.0 + m_tSkew) / m_rate * static_cast<double>(frameID);
 
-    std::vector<cv::KeyPoint> keyPoints = visibleKeypoints(measurementTime);
+    std::vector<cv::KeyPoint> keyPoints = visibleKeypoints(messageTimes[frameID]);
 
     for (auto & keyPoint :keyPoints) {
       auto featureTrack = FeatureTrack{frameID, keyPoint};
@@ -157,7 +158,7 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::genera
     }
     auto trackerMessage = std::make_shared<SimFeatureTrackerMessage>();
     trackerMessage->featureTracks = featureTracks;
-    trackerMessage->time = measurementTime;
+    trackerMessage->time = messageTimes[frameID];
     trackerMessage->trackerID = m_id;
     trackerMessage->sensorID = sensorID;
     trackerMessage->sensorType = SensorType::Tracker;

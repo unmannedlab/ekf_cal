@@ -80,14 +80,14 @@ public:
   /// @param imuName Name of parameter structure
   /// @return imuParameters
   ///
-  IMU::Params getImuParameters(std::string imuName);
+  IMU::Parameters getImuParameters(std::string imuName);
 
   ///
   /// @brief Function for declaring and loading camera parameters
   /// @param cameraName Name of parameter structure
   /// @return cameraParameters
   ///
-  Camera::Params getCameraParameters(std::string cameraName);
+  Camera::Parameters getCameraParameters(std::string cameraName);
 
   ///
   /// @brief Declare parameters for all sensors
@@ -117,7 +117,7 @@ public:
   /// @param trackerName Name of parameter structure
   /// @return trackerParameters
   ///
-  Tracker::Params getTrackerParameters(std::string trackerName);
+  FeatureTracker::Parameters getTrackerParameters(std::string trackerName);
   ///
   /// @brief Callback method for IMU sensor messages
   /// @param msg Sensor message pointer

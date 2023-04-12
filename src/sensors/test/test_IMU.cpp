@@ -22,13 +22,13 @@
 #include "utility/test/CustomAssertions.hpp"
 
 TEST(test_IMU, Constructor) {
-  IMU::Params params;
+  IMU::Parameters params;
   IMU imu(params);
 }
 
 TEST(test_IMU, Id) {
-  IMU::Params params1;
-  IMU::Params params2;
+  IMU::Parameters params1;
+  IMU::Parameters params2;
 
   IMU imu1(params1);
   IMU imu2(params2);

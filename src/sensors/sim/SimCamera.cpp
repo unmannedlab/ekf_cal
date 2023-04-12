@@ -37,17 +37,46 @@ SimCamera::SimCamera(
   m_truth = truthEngine;
 }
 
+std::vector<double> SimCamera::generateMessageTimes(double maxTime)
+{
+  std::vector<double> messageTimes;
+  double nMeasurements = maxTime * m_rate / (1 + m_tSkew);
+  for (unsigned int i = 0; i < nMeasurements; ++i) {
+    double measurementTime = (1.0 + m_tSkew) / m_rate * static_cast<double>(i);
+    messageTimes.push_back(measurementTime + m_rng.NormRand(m_tBias, m_tError));
+  }
+  return messageTimes;
+}
+
 std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::generateMessages(double maxTime)
 {
-  double nMeasurements = maxTime * m_rate / (1 + m_tSkew);
   std::vector<std::shared_ptr<SimCameraMessage>> messages;
-  m_logger->log(LogLevel::INFO, "Generating " + std::to_string(nMeasurements) + " measurements");
+  std::vector<double> messageTimes = generateMessageTimes(maxTime);
 
-  /// @todo Next: Iterate over trackers to return measurements
+  for (auto const & trkIter : m_trackers) {
+    auto trkMsgs = m_trackers[trkIter.first]->generateMessages(messageTimes, m_id);
+    cv::Mat blankImg;
+    for (auto trkMsg : trkMsgs) {
+      auto camMsg = std::make_shared<SimCameraMessage>(blankImg);
+
+      camMsg->featureTrackMessage = trkMsg;
+      camMsg->sensorID = m_id;
+      camMsg->time = trkMsg->time;
+      camMsg->sensorType = SensorType::Camera;
+
+      messages.push_back(camMsg);
+    }
+  }
   return messages;
 }
 
 void SimCamera::addTracker(std::shared_ptr<SimFeatureTracker> tracker)
 {
-  m_trackers.push_back(tracker);
+  m_trackers[tracker->getID()] = tracker;
+}
+
+void SimCamera::callback(std::shared_ptr<SimCameraMessage> simCameraMessage)
+{
+  m_trackers[simCameraMessage->featureTrackMessage->trackerID]->callback(
+    simCameraMessage->time, simCameraMessage->sensorID, simCameraMessage->featureTrackMessage);
 }

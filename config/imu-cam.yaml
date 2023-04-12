@@ -26,6 +26,7 @@
                 OmgBiasInit: [0.0, 0.0, 0.0]
                 SimParams:
                     timeBias: 0.0
+                    timeSkew: 0.0
                     timeError: 1.0e-9
                     accBias: [0.0, 0.0, 0.0]
                     accError: [1.0e-9, 1.0e-9, 1.0e-9]
@@ -44,6 +45,7 @@
                 Tracker: "ORB"
                 SimParams:
                     timeBias: 0.0
+                    timeSkew: 0.0
                     timeError: 1.0e-9
                     posOffset: [0.0, 0.0, 0.0]
                     angOffset: [1.0, 0.0, 0.0, 0.0]

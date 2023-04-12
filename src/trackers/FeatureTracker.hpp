@@ -99,6 +99,8 @@ public:
     unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut,
     FeatureTracks featureTracks);
 
+  unsigned int getID();
+
 protected:
   DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton
   unsigned int max_track_length{30};
