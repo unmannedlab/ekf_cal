@@ -61,12 +61,12 @@ State & operator+=(State & lState, State & rState)
   }
 
   for (auto & camIter : lState.camStates) {
-    unsigned int imuID = camIter.first;
-    lState.camStates[imuID].position += rState.camStates[imuID].position;
-    lState.camStates[imuID].orientation *= rState.camStates[imuID].orientation;
-    for (unsigned int i = 0; i < lState.camStates[imuID].augmentedStates.size(); ++i) {
-      AugmentedState & lAugState = lState.camStates[imuID].augmentedStates[i];
-      AugmentedState & rAugState = rState.camStates[imuID].augmentedStates[i];
+    unsigned int camID = camIter.first;
+    lState.camStates[camID].position += rState.camStates[camID].position;
+    lState.camStates[camID].orientation *= rState.camStates[camID].orientation;
+    for (unsigned int i = 0; i < lState.camStates[camID].augmentedStates.size(); ++i) {
+      AugmentedState & lAugState = lState.camStates[camID].augmentedStates[i];
+      AugmentedState & rAugState = rState.camStates[camID].augmentedStates[i];
       lAugState.position += rAugState.position;
       lAugState.orientation *= rAugState.orientation;
     }

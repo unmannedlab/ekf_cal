@@ -127,6 +127,7 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
         << "b: " << b.transpose() << std::endl;
     m_logger->log(LogLevel::DEBUG, msg.str());
     if (p_FinA == Eigen::Vector3d::Zero()) {
+      m_logger->log(LogLevel::INFO, "MSCKF Triangulation is Zero");
       continue;
     }
     /// @todo Additional non-linear optimization
@@ -347,7 +348,6 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
   }
   msg << "\n";
   m_dataLogger.log(msg.str());
-  std::cout << "test" << std::endl;
 }
 
 void MsckfUpdater::RefreshStates()

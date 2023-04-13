@@ -135,6 +135,10 @@ int main(int argc, char * argv[])
 
       Camera::Parameters camParams;
       camParams.name = it->first.as<std::string>();
+      camParams.rate = camNode["Rate"].as<double>();
+      camParams.variance = stdToEigVec(camNode["VarInit"].as<std::vector<double>>());
+      camParams.posOffset = stdToEigVec(camNode["PosOffInit"].as<std::vector<double>>());
+      camParams.angOffset = stdToEigQuat(camNode["AngOffInit"].as<std::vector<double>>());
       camParams.outputDirectory = outDir;
       camParams.dataLoggingOn = dataLoggingOn;
       camParams.tracker = camNode["Tracker"].as<std::string>();
@@ -174,7 +178,7 @@ int main(int argc, char * argv[])
       } else if (message->sensorType == SensorType::Camera) {
         auto cam = std::static_pointer_cast<SimCamera>(it->second);
         auto msg = std::static_pointer_cast<SimCameraMessage>(message);
-        // cam->callback(msg);
+        cam->callback(msg);
       } else {
         std::cout << "Unknown Message Type" << std::endl;
       }
