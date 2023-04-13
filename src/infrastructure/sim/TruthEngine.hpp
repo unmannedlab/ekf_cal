@@ -31,52 +31,40 @@ public:
   TruthEngine() {}
 
   ///
-  /// @brief Setter for body position cycle frequency
-  /// @param frequency Vector of frequencies to use
-  ///
-  void SetBodyPosCycleFrequency(Eigen::Vector3d frequency);
-
-  ///
-  /// @brief Setter for body euler angle cycle frequency
-  /// @param frequency Vector of frequencies to use
-  ///
-  void SetBodyAngCycleFrequency(Eigen::Vector3d frequency);
-
-  ///
   /// @brief True body position getter
   /// @param time Simulation time
   ///
-  Eigen::Vector3d GetBodyPosition(double time);
+  virtual Eigen::Vector3d GetBodyPosition(double time) = 0;
 
   ///
   /// @brief True body velocity getter
   /// @param time Simulation time
   ///
-  Eigen::Vector3d GetBodyVelocity(double time);
+  virtual Eigen::Vector3d GetBodyVelocity(double time) = 0;
 
   ///
   /// @brief True body acceleration getter
   /// @param time Simulation time
   ///
-  Eigen::Vector3d GetBodyAcceleration(double time);
+  virtual Eigen::Vector3d GetBodyAcceleration(double time) = 0;
 
   ///
   /// @brief True body orientation quaternion getter
   /// @param time Simulation time
   ///
-  Eigen::Quaterniond GetBodyAngularPosition(double time);
+  virtual Eigen::Quaterniond GetBodyAngularPosition(double time) = 0;
 
   ///
   /// @brief True body angular rate getter
   /// @param time Simulation time
   ///
-  Eigen::Vector3d GetBodyAngularRate(double time);
+  virtual Eigen::Vector3d GetBodyAngularRate(double time) = 0;
 
   ///
   /// @brief True body angular acceleration getter
   /// @param time Simulation time
   ///
-  Eigen::Vector3d GetBodyAngularAcceleration(double time);
+  virtual Eigen::Vector3d GetBodyAngularAcceleration(double time) = 0;
 
 private:
   DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton

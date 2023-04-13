@@ -148,7 +148,9 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::genera
     for (auto it = featureTrackMap.cbegin(); it != featureTrackMap.cend(); ) {
       const auto & featureTrack = it->second;
       /// @todo get constant from tracker
-      if ((featureTrack.back().frameID < frameID) || (featureTrack.size() >= 20)) {
+      if ((featureTrack.size() > 1) &&
+        ((featureTrack.back().frameID < frameID) || (featureTrack.size() >= 20)))
+      {
         // This feature does not exist in the latest frame
         featureTracks.push_back(featureTrack);
         it = featureTrackMap.erase(it);

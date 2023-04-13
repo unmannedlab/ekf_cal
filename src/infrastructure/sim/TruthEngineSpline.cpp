@@ -15,7 +15,10 @@
 
 #include "infrastructure/sim/TruthEngineSpline.hpp"
 
+#include <eigen3/unsupported/Eigen/Splines>
+
 #include <vector>
+#include <iostream>
 
 TruthEngineSpline::TruthEngineSpline() {}
 
@@ -31,8 +34,7 @@ Eigen::Vector3d TruthEngineSpline::GetBodyVelocity(double time)
     return Eigen::Vector3d::Zero(3);
   } else {
     double u = time / m_timeMax;
-    Eigen::Matrix3d derivatives = m_posSpline.derivatives(u, 1);
-    Eigen::Vector3d velocity = derivatives.block<3, 1>(0, 1) / m_timeMax;
+    Eigen::Vector3d velocity = m_posSpline.derivatives(u, 1) / m_timeMax;
     return velocity;
   }
 }
@@ -43,8 +45,7 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAcceleration(double time)
     return Eigen::Vector3d::Zero(3);
   } else {
     double u = time / m_timeMax;
-    Eigen::Matrix3d derivatives = m_posSpline.derivatives(u, 2);
-    Eigen::Vector3d acceleration = derivatives.block<3, 1>(0, 2) / m_timeMax;
+    Eigen::Vector3d acceleration = m_posSpline.derivatives(u, 2) / m_timeMax;
     return acceleration;
   }
 }
@@ -67,8 +68,7 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAngularRate(double time)
     return Eigen::Vector3d::Zero(3);
   } else {
     double u = time / m_timeMax;
-    Eigen::Matrix3d derivatives = m_angSpline.derivatives(u, 1);
-    Eigen::Vector3d velocity = derivatives.block<3, 1>(0, 1) / m_timeMax;
+    Eigen::Vector3d velocity = m_angSpline.derivatives(u, 1) / m_timeMax;
     return velocity;
   }
 }
@@ -79,8 +79,7 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAngularAcceleration(double time)
     return Eigen::Vector3d::Zero(3);
   } else {
     double u = time / m_timeMax;
-    Eigen::Matrix3d derivatives = m_angSpline.derivatives(u, 2);
-    Eigen::Vector3d acceleration = derivatives.block<3, 1>(0, 2) / m_timeMax;
+    Eigen::Vector3d acceleration = m_angSpline.derivatives(u, 2) / m_timeMax;
     return acceleration;
   }
 }

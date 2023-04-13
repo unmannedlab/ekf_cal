@@ -1,7 +1,7 @@
 
 /EkfCalNode:
     ros__parameters:
-        Debug_Log_Level: 0
+        Debug_Log_Level: 3
         Data_Logging_On: True
 
         IMU_list:
@@ -37,7 +37,7 @@
 
         Camera:
             ace:
-                Rate: 5.0
+                Rate: 20.0
                 Topic:  "/my_camera/pylon_ros2_camera_node/image_raw"
                 PosOffInit: [0.0, 0.0, 0.0]
                 AngOffInit: [1.0, 0.0, 0.0, 0.0]
