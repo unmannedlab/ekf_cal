@@ -261,8 +261,6 @@ void EkfCalNode::registerCamera(std::shared_ptr<RosCamera> camPtr, std::string t
   auto sub = this->create_subscription<sensor_msgs::msg::Image>(topic, 10, function);
   m_CameraSubs.push_back(sub);
 
-  /// @todo next: Update covariance size
-
   m_logger->log(
     LogLevel::INFO, "Registered Camera " + std::to_string(
       camPtr->getId()) + ": " + camPtr->getName());

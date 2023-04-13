@@ -20,6 +20,7 @@
 
 #include "infrastructure/sim/TruthEngine.hpp"
 #include "infrastructure/sim/TruthEngineSpline.hpp"
+#include "infrastructure/sim/TruthEngineCyclic.hpp"
 #include "sensors/IMU.hpp"
 #include "sensors/sim/SimIMU.hpp"
 #include "sensors/sim/SimCamera.hpp"
@@ -50,7 +51,9 @@ int main(int argc, char * argv[])
 
   // Construct sensors and EKF
   std::map<unsigned int, std::shared_ptr<Sensor>> sensorMap;
-  auto truthEngine = std::static_pointer_cast<TruthEngine>(std::make_shared<TruthEngineSpline>());
+
+  /// @todo Select type of truth engine using parameters
+  auto truthEngine = std::static_pointer_cast<TruthEngine>(std::make_shared<TruthEngineCyclic>());
   std::vector<std::shared_ptr<SensorMessage>> messages;
 
   double maxTime = 10;

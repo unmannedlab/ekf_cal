@@ -17,7 +17,7 @@
 #define INFRASTRUCTURE__DEBUGLOGGER_HPP_
 
 
-/// TODO: Create grabber function from list of available debug loggers
+/// @todo: Create grabber function from list of available debug loggers
 #include <string>
 
 
