@@ -33,7 +33,7 @@ ImuUpdater::ImuUpdater(
   unsigned int imuID, double accBiasStability, double omgBiasStability,
   std::string logFileDirectory, bool dataLoggingOn)
 : Updater(imuID), m_accBiasStability(accBiasStability), m_omgBiasStability(omgBiasStability),
-  m_dataLogger(logFileDirectory, "imu.csv")
+  m_dataLogger(logFileDirectory, "imu_" + std::to_string(imuID) + ".csv")
 {
   std::stringstream msg;
   msg << "time";
@@ -42,6 +42,9 @@ ImuUpdater::ImuUpdater(
   }
   for (unsigned int i = 0; i < 12; ++i) {
     msg << ",update_" + std::to_string(i);
+  }
+  for (unsigned int i = 0; i < 1; ++i) {
+    msg << ",time_" + std::to_string(i);
   }
   msg << "\n";
 
@@ -161,8 +164,9 @@ void ImuUpdater::updateEKF(
   Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
   Eigen::Matrix3d angularRateCovariance, bool isBaseSensor, bool isIntrinsic)
 {
-  RefreshStates();
   m_ekf->processModel(time);
+  RefreshStates();
+  auto t_start = std::chrono::high_resolution_clock::now();
 
   Eigen::VectorXd z(acceleration.size() + angularRate.size());
   z.segment<3>(0) = acceleration;
@@ -205,6 +209,9 @@ void ImuUpdater::updateEKF(
     (Eigen::MatrixXd::Identity(updateSize, updateSize) - K * H) *
     m_ekf->getCov().block(0, 0, updateSize, updateSize);
 
+  auto t_end = std::chrono::high_resolution_clock::now();
+  auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
+
   // Write outputs
   std::stringstream msg;
   Eigen::VectorXd imuSubUpdate = update.segment(stateStartIndex, IMU_STATE_SIZE);
@@ -215,6 +222,7 @@ void ImuUpdater::updateEKF(
   for (unsigned int i = 0; i < imuSubUpdate.size(); ++i) {
     msg << "," << imuSubUpdate[i];
   }
+  msg << "," << t_execution.count();
   msg << "\n";
   m_dataLogger.log(msg.str());
 }

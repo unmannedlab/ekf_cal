@@ -85,11 +85,10 @@ public:
   void callback(std::shared_ptr<CameraMessage> cameraMessage);
 
 protected:
+  unsigned int generateFrameID();
   cv::Mat m_outImg;  ///< @brief Published output test image
 
 private:
-  unsigned int generateFrameID();
-
   std::vector<std::shared_ptr<FeatureTracker>> m_trackers;
 
   std::vector<double> m_radDistortionK{0.0, 0.0, 0.0};

@@ -14,11 +14,14 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "ekf/update/MsckfUpdater.hpp"
-#include "utility/MathHelper.hpp"
+
+#include <chrono>
+
 #include "sensors/IMU.hpp"
+#include "utility/MathHelper.hpp"
 
 MsckfUpdater::MsckfUpdater(unsigned int camID, std::string logFileDirectory, bool dataLoggingOn)
-: Updater(camID), m_dataLogger(logFileDirectory, "msckf.csv")
+: Updater(camID), m_dataLogger(logFileDirectory, "msckf_" + std::to_string(camID) + ".csv")
 {
   std::stringstream msg;
   msg << "time";
@@ -27,6 +30,9 @@ MsckfUpdater::MsckfUpdater(unsigned int camID, std::string logFileDirectory, boo
   }
   for (unsigned int i = 0; i < 6; ++i) {
     msg << ",cam_update_" + std::to_string(i);
+  }
+  for (unsigned int i = 0; i < 1; ++i) {
+    msg << ",time_" + std::to_string(i);
   }
   msg << "\n";
 
@@ -52,6 +58,9 @@ AugmentedState MsckfUpdater::matchState(
 void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks featureTracks)
 {
   m_ekf->processModel(time);
+  RefreshStates();
+  auto t_start = std::chrono::high_resolution_clock::now();
+
   m_logger->log(
     LogLevel::DEBUG,
     "Called update_msckf for camera ID: " + std::to_string(cameraID));
@@ -84,11 +93,9 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
     /// @todo Move into separate function
     Eigen::Matrix3d A = Eigen::Matrix3d::Zero();
     Eigen::Vector3d b = Eigen::Vector3d::Zero();
-    unsigned int total_meas = 1;
-    unsigned int total_hx = 6;
 
-    const Eigen::Matrix<double, 3, 3> & R_GtoA = augStateMatch.orientation.toRotationMatrix();
-    const Eigen::Matrix<double, 3, 1> & p_AinG = augStateMatch.position;
+    const Eigen::Matrix<double, 3, 3> R_GtoA = augStateMatch.orientation.toRotationMatrix();
+    const Eigen::Matrix<double, 3, 1> p_AinG = augStateMatch.position;
 
     for (unsigned int i = 1; i < featureTrack.size(); ++i) {
       augStateMatch = matchState(featureTrack[i].frameID);
@@ -110,8 +117,6 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
       A += Ai;
       b += Ai * p_CIinA;
 
-      total_meas += 1;
-      total_hx += 6;
       std::stringstream msg;
       msg << "p_CIinG: " << p_CIinG.transpose() << std::endl;
       msg << "p_AinG: " << p_AinG.transpose() << std::endl;
@@ -132,11 +137,6 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
     }
     /// @todo Additional non-linear optimization
 
-    /// @todo Get Jacobian
-    Eigen::MatrixXd H_f;
-    Eigen::MatrixXd H_x;
-    Eigen::VectorXd res;
-
     // Calculate the position of this feature in the global frame
     // Get calibration for our anchor camera
     Eigen::Matrix3d R_ItoC = m_augStates[0].orientation.toRotationMatrix();
@@ -151,9 +151,11 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
     // Allocate our residual and Jacobians
     int c = 0;
     int jacobSize = 3;
-    res = Eigen::VectorXd::Zero(2 * total_meas);
-    H_f = Eigen::MatrixXd::Zero(2 * total_meas, jacobSize);
-    H_x = Eigen::MatrixXd::Zero(2 * total_meas, total_hx);
+
+    unsigned int augStateSize = 12 * m_ekf->getCamState(cameraID).augmentedStates.size();
+    Eigen::VectorXd res = Eigen::VectorXd::Zero(2 * featureTrack.size());
+    Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * featureTrack.size(), jacobSize);
+    Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(2 * featureTrack.size(), augStateSize);
 
     // Derivative of p_FinG in respect to feature representation.
     // This only needs to be computed once and thus we pull it out of the loop
@@ -217,18 +219,18 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
 
       // Precompute some matrices
       Eigen::MatrixXd dz_dPFC = dzn_dPFC;
-      Eigen::MatrixXd dz_dPFG = dPFC_dPFG;
+      Eigen::MatrixXd dz_dPFG = dz_dPFC * dPFC_dPFG;
 
       // Chain Rule: get the total feature Jacobian
       H_f.block(2 * c, 0, 2, H_f.cols()) = dz_dPFG * dPFG_dLambda;
 
       // Chain Rule: get state clone Jacobian
-      H_x.block(2 * c, camStateStart, 2, 6) = dz_dPFC * dPFC_dClone;
+      H_x.block(2 * c, 0, 2, 6) = dz_dPFC * dPFC_dClone;
 
       // Chain Rule: loop through all extra states and add their
       // NOTE: we add the Jacobian here as we might be in the anchoring pose for this measurement
-      H_x.block(2 * c, augStateStart, 2, 6) += dz_dPFG * H_anc;
-      H_x.block(2 * c, augStateStart + 6, 2, 6) += dz_dPFG * H_calib;
+      H_x.block(2 * c, augStateStart - camStateStart - 6, 2, 6) += dz_dPFG * H_anc;
+      H_x.block(2 * c, augStateStart - camStateStart, 2, 6) += dz_dPFG * H_calib;
 
       // Derivative of p_FinCi in respect to camera calibration (R_ItoC, p_IinC)
 
@@ -238,7 +240,7 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
       dPFC_dCalib.block(0, 3, 3, 3) = Eigen::Matrix<double, 3, 3>::Identity();
 
       // Chain Rule it and add it to the big jacobian
-      H_x.block(2 * c, camStateStart + 6, 2, 6) += dz_dPFC * dPFC_dCalib;
+      H_x.block(2 * c, camStateStart - camStateStart, 2, 6) += dz_dPFC * dPFC_dCalib;
 
       // Move the Jacobian and residual index forward
       c++;
@@ -274,7 +276,11 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
     Hx_big.block(ct_meas, camStateStart, H_x.rows(), H_x.cols()) = H_x;
     res_big.block(ct_meas, 0, res.rows(), 1) = res;
 
-    ct_meas += total_hx;
+    ct_meas += H_x.rows();
+  }
+
+  if (ct_meas == 0) {
+    return;
   }
 
   // 5. Perform measurement compression
@@ -316,7 +322,7 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
   Eigen::MatrixXd R_big = SIGMA_PIX * SIGMA_PIX * Eigen::MatrixXd::Identity(
     res_big.rows(), res_big.rows());
 
-  // // 6. With all good features update the state
+  // 6. With all good features update the state
   Eigen::MatrixXd S = Hx_big *
     m_ekf->getCov().block(0, 0, stateSize, stateSize) * Hx_big.transpose() + R_big;
   Eigen::MatrixXd K =
@@ -337,15 +343,19 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
   m_ekf->getCov() =
     (Eigen::MatrixXd::Identity(stateSize, stateSize) - K * Hx_big) * m_ekf->getCov();
 
+  auto t_end = std::chrono::high_resolution_clock::now();
+  auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
+
   // Write outputs
   std::stringstream msg;
   msg << time;
-  for (unsigned int i = 0; i < bodyUpdate.size(); ++i) {
+  for (unsigned int i = 0; i < 18; ++i) {
     msg << "," << bodyUpdate[i];
   }
   for (unsigned int i = 0; i < 6; ++i) {
     msg << "," << camUpdate[i];
   }
+  msg << "," << t_execution.count();
   msg << "\n";
   m_dataLogger.log(msg.str());
 }

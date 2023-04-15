@@ -77,6 +77,12 @@ void SimCamera::addTracker(std::shared_ptr<SimFeatureTracker> tracker)
 
 void SimCamera::callback(std::shared_ptr<SimCameraMessage> simCameraMessage)
 {
-  m_trackers[simCameraMessage->featureTrackMessage->trackerID]->callback(
-    simCameraMessage->time, simCameraMessage->sensorID, simCameraMessage->featureTrackMessage);
+  unsigned int frameID = generateFrameID();
+
+  m_ekf->augmentState(m_id, frameID);
+
+  if (simCameraMessage->featureTrackMessage->featureTracks.size() > 0) {
+    m_trackers[simCameraMessage->featureTrackMessage->trackerID]->callback(
+      simCameraMessage->time, simCameraMessage->sensorID, simCameraMessage->featureTrackMessage);
+  }
 }

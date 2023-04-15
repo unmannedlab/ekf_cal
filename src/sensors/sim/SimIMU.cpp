@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <cmath>
 
 #include "infrastructure/sim/TruthEngine.hpp"
 #include "utility/sim/SimRNG.hpp"
@@ -41,7 +42,7 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngi
 
 std::vector<std::shared_ptr<SimImuMessage>> SimIMU::generateMessages(double maxTime)
 {
-  double nMeasurements = maxTime * m_rate / (1 + m_tSkew);
+  double nMeasurements = static_cast<int>(std::round(maxTime * m_rate / (1 + m_tSkew)));
   std::vector<std::shared_ptr<SimImuMessage>> messages;
   m_logger->log(LogLevel::INFO, "Generating " + std::to_string(nMeasurements) + " measurements");
 

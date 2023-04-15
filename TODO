@@ -41,6 +41,7 @@ Software Work:
     - Option to de-register sensor
     - Add performance logging level / tracing: https://perf.wiki.kernel.org/index.php/Tutorial
     - Log to file
+    - Pick style and make it consistent
     - Add "detectors" configuration for aruco: Map of arcuo starting ID to global pose
     - Have EKF instance own updaters
         - EKF::RegisterSensor() returns pointer to updater
@@ -89,4 +90,7 @@ Trackers:
         - CharucoBoardTracker
         - ChessBoardTracker
         - CharucoDiamondTracker
-        
+
+Add ID to data loggers
+Add timing to functions
+Timing Plots with Histograms

@@ -157,7 +157,9 @@ int main(int argc, char * argv[])
 
       // Add sensor to map
       auto cam = std::make_shared<SimCamera>(simCamParams, truthEngine);
-      auto trk = std::make_shared<SimFeatureTracker>(trackerMap[camParams.tracker], truthEngine);
+      auto trkParams = trackerMap[camParams.tracker];
+      trkParams.trackerParams.sensorID = cam->getId();
+      auto trk = std::make_shared<SimFeatureTracker>(trkParams, truthEngine);
       cam->addTracker(trk);
       sensorMap[cam->getId()] = cam;
 
