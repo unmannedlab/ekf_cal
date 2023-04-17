@@ -122,20 +122,9 @@ void EKF::registerIMU(unsigned int imuID, ImuState imuState, Eigen::MatrixXd cov
 {
   /// @todo check that id hasn't been used before
   /// @todo replace 12s with constants from IMU class
-  unsigned int imuStateSize = BODY_STATE_SIZE + 12 * m_state.imuStates.size();
+  unsigned int imuStateStart = BODY_STATE_SIZE + 12 * m_state.imuStates.size();
 
-  Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize + 12);
-
-  newCov.block(0, 0, imuStateSize, imuStateSize) = m_cov.block(0, 0, imuStateSize, imuStateSize);
-  newCov.block(imuStateSize, imuStateSize, 12, 12) = covariance;
-  newCov.block(
-    imuStateSize + 12, imuStateSize + 12, m_stateSize - imuStateSize,
-    m_stateSize - imuStateSize) = m_cov.block(
-    imuStateSize, imuStateSize,
-    m_stateSize - imuStateSize,
-    m_stateSize - imuStateSize);
-
-  m_cov = newCov;
+  m_cov = insertInMatrix(covariance, m_cov, imuStateStart, imuStateStart);
   m_state.imuStates[imuID] = imuState;
   m_stateSize += 12;
 
@@ -148,11 +137,7 @@ void EKF::registerCamera(unsigned int camID, CamState camState, Eigen::MatrixXd 
 {
   /// @todo check that id hasn't been used before
   m_state.camStates[camID] = camState;
-
-  Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 6, m_stateSize + 6);
-  newCov.block(0, 0, m_stateSize, m_stateSize) = m_cov;
-  newCov.block(m_stateSize, m_stateSize, 6, 6) = covariance;
-  m_cov = newCov;
+  m_cov = insertInMatrix(covariance, m_cov, 6, 6);
   m_stateSize += 6;
 
   m_logger->log(
@@ -208,7 +193,7 @@ unsigned int EKF::getAugStateStartIndex(unsigned int camID, unsigned int frameID
   return stateStartIndex;
 }
 
-
+/// @todo Augment covariance with Jacobian
 void EKF::augmentState(unsigned int cameraID, unsigned int frameID)
 {
   AugmentedState augState;
@@ -221,23 +206,27 @@ void EKF::augmentState(unsigned int cameraID, unsigned int frameID)
   augState.orientation = m_state.camStates[cameraID].orientation * m_state.bodyState.orientation;
   m_state.camStates[cameraID].augmentedStates.push_back(augState);
 
-  /// @todo Augment covariance with Jacobian
+  // Limit augmented states to 20
+  if (m_state.camStates[cameraID].augmentedStates.size() <= 20) {
 
-  unsigned int augStateStart = getAugStateStartIndex(cameraID, frameID);
-  Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize + 12);
+    unsigned int augStateStart = getAugStateStartIndex(cameraID, frameID);
+    Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize + 12);
 
-  /// @todo Math helper function to insert sub-matrix block
-  newCov.block(
-    0, 0, augStateStart,
-    augStateStart) = m_cov.block(0, 0, augStateStart, augStateStart);
-  newCov.block(augStateStart, augStateStart, 12, 12) = Eigen::MatrixXd::Identity(12, 12);
-  newCov.block(
-    augStateStart + 12, augStateStart + 12, m_stateSize - augStateStart,
-    m_stateSize - augStateStart) = m_cov.block(
-    augStateStart, augStateStart,
-    m_stateSize - augStateStart,
-    m_stateSize - augStateStart);
+    /// @todo Math helper function to insert sub-matrix block
+    m_cov = insertInMatrix(Eigen::MatrixXd::Identity(12, 12), m_cov, augStateStart, augStateStart);
+    m_stateSize += 12;
 
-  m_cov = newCov;
-  m_stateSize += 12;
+  } else {
+    // Remove second element from state
+    m_state.camStates[cameraID].augmentedStates.erase(
+      m_state.camStates[cameraID].augmentedStates.begin() + 1);
+
+    // Remove second element
+    unsigned int camStateStart = getCamStateStartIndex(cameraID);
+    m_cov = removeFromMatrix(m_cov, camStateStart + 24, camStateStart + 24, 12);
+
+    // Insert new state
+    unsigned int augStateStart = getAugStateStartIndex(cameraID, frameID);
+    m_cov = insertInMatrix(Eigen::MatrixXd::Identity(12, 12), m_cov, augStateStart, augStateStart);
+  }
 }

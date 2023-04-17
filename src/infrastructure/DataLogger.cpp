@@ -34,7 +34,7 @@ void DataLogger::log(std::string message)
       m_logFile << m_logHeader;
       m_initialized = true;
     }
-    m_logFile << message;
+    m_logFile << message << std::flush;
   }
 }
 

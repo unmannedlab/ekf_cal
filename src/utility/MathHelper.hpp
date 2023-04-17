@@ -74,4 +74,48 @@ inline Eigen::VectorXd minBoundVector(Eigen::VectorXd inVec, double minBound)
   return outVec;
 }
 
+inline Eigen::MatrixXd insertInMatrix(
+  Eigen::MatrixXd subMat, Eigen::MatrixXd inMat, unsigned int row,
+  unsigned int col)
+{
+  unsigned int iRows = inMat.rows();
+  unsigned int iCols = inMat.cols();
+  unsigned int sRows = subMat.rows();
+  unsigned int sCols = subMat.cols();
+  unsigned int oRows = inMat.rows() + subMat.rows();
+  unsigned int oCols = inMat.cols() + subMat.cols();
+
+  Eigen::MatrixXd outMat = Eigen::MatrixXd::Zero(oRows, oCols);
+
+  outMat.block(0, 0, row, col) = inMat.block(0, 0, row, col);
+  outMat.block(row, col, sRows, sCols) = subMat;
+  outMat.block(row + sRows, col + sCols, iRows - row, iCols - col) =
+    inMat.block(row, col, iRows - row, iCols - col);
+
+  return outMat;
+}
+
+inline Eigen::MatrixXd removeFromMatrix(
+  Eigen::MatrixXd inMat, unsigned int row,
+  unsigned int col, unsigned int size)
+{
+  unsigned int iRows = inMat.rows();
+  unsigned int iCols = inMat.cols();
+
+  Eigen::MatrixXd outMat = Eigen::MatrixXd::Zero(iRows - size, iCols - size);
+
+  outMat.block(0, 0, row, col) = inMat.block(0, 0, row, col);
+
+  outMat.block(row, col, iRows - row - size, iCols - col - size) =
+    inMat.block(row + size, col + size, iRows - row - size, iCols - col - size);
+
+  outMat.block(row, 0, iRows - row - size, col) =
+    inMat.block(row + size, 0, iRows - row - size, col);
+
+  outMat.block(0, col, row, iCols - col - size) =
+    inMat.block(0, col + size, row, iCols - col - size);
+
+  return outMat;
+}
+
 #endif  // UTILITY__MATHHELPER_HPP_
