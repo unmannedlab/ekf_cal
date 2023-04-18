@@ -14,7 +14,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <gtest/gtest.h>
-#include <iostream>
 
 #include "ekf/EKF.hpp"
 #include "utility/test/CustomAssertions.hpp"
@@ -25,21 +24,21 @@
 // TEST(test_EKF, register_imu) {
 //   EKF ekf;
 
-//   IMU::Params imu_params_base;
+//   IMU::Parameters imu_params_base;
 //   imu_params_base.baseSensor = true;
 //   imu_params_base.intrinsic = false;
 
-//   IMU::Params imu_params_base_intrinsic;
+//   IMU::Parameters imu_params_base_intrinsic;
 //   imu_params_base_intrinsic.baseSensor = true;
 //   imu_params_base_intrinsic.intrinsic = true;
 //   imu_params_base_intrinsic.variance = Eigen::VectorXd::Ones(6);
 
-//   IMU::Params imu_params_extrinsic;
+//   IMU::Parameters imu_params_extrinsic;
 //   imu_params_extrinsic.baseSensor = false;
 //   imu_params_extrinsic.intrinsic = false;
 //   imu_params_extrinsic.variance = Eigen::VectorXd::Ones(6);
 
-//   IMU::Params imu_params_intrinsic;
+//   IMU::Parameters imu_params_intrinsic;
 //   imu_params_intrinsic.baseSensor = false;
 //   imu_params_intrinsic.intrinsic = true;
 //   imu_params_intrinsic.variance = Eigen::VectorXd::Ones(12);
@@ -98,7 +97,7 @@
 
 
 //   // Change state size
-//   IMU::Params params;
+//   IMU::Parameters params;
 //   params.baseSensor = false;
 //   params.intrinsic = true;
 //   params.variance = Eigen::VectorXd::Ones(12);

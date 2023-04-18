@@ -44,7 +44,6 @@ int main(int argc, char * argv[])
 
   // Define sensors to use (load config from yaml)
   YAML::Node root = YAML::LoadFile(config);
-  std::cout << "root size:" << root.size() << std::endl;
   const auto imus = root["/EkfCalNode"]["ros__parameters"]["IMU"];
   const auto cams = root["/EkfCalNode"]["ros__parameters"]["Camera"];
   const auto trks = root["/EkfCalNode"]["ros__parameters"]["Tracker"];
@@ -67,6 +66,7 @@ int main(int argc, char * argv[])
   logger->setLogLevel(debugLogLevel);
 
   // Load IMUs and generate measurements
+  logger->log(LogLevel::INFO, "Loading IMUs");
   if (imus) {
     for (auto it = imus.begin(); it != imus.end(); ++it) {
       YAML::Node imuNode = it->second;
@@ -110,6 +110,7 @@ int main(int argc, char * argv[])
   }
 
   // Load tracker parameters
+  logger->log(LogLevel::INFO, "Loading Trackers");
   std::map<std::string, SimFeatureTracker::Parameters> trackerMap;
   if (trks) {
     for (auto it = trks.begin(); it != trks.end(); ++it) {
@@ -131,6 +132,7 @@ int main(int argc, char * argv[])
   }
 
   // Load cameras and generate measurements
+  logger->log(LogLevel::INFO, "Loading Cameras");
   if (cams) {
     for (auto it = cams.begin(); it != cams.end(); ++it) {
       YAML::Node camNode = it->second;
@@ -173,6 +175,7 @@ int main(int argc, char * argv[])
   sort(messages.begin(), messages.end(), messageCompare);
 
   // Run measurements through sensors and EKF
+  logger->log(LogLevel::INFO, "Begin Simulation");
   for (auto message : messages) {
     auto it = sensorMap.find(message->sensorID);
     if (it != sensorMap.end()) {
@@ -185,10 +188,11 @@ int main(int argc, char * argv[])
         auto msg = std::static_pointer_cast<SimCameraMessage>(message);
         cam->callback(msg);
       } else {
-        std::cout << "Unknown Message Type" << std::endl;
+        logger->log(LogLevel::WARN, "Unknown Message Type");
       }
     }
   }
+  logger->log(LogLevel::INFO, "End Simulation");
 
   // Return
   /// @todo "Uses" input parameters to suppress compiler warning

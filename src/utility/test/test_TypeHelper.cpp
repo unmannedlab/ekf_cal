@@ -16,7 +16,6 @@
 
 #include <gtest/gtest.h>
 
-#include <iostream>
 #include <vector>
 
 #include <std_msgs/msg/header.hpp>

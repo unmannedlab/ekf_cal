@@ -17,7 +17,6 @@
 #define EKF__EKF_HPP_
 
 #include <eigen3/Eigen/Eigen>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>

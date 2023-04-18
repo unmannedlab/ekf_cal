@@ -18,7 +18,6 @@
 #include <eigen3/unsupported/Eigen/Splines>
 
 #include <vector>
-#include <iostream>
 
 TruthEngineSpline::TruthEngineSpline() {}
 

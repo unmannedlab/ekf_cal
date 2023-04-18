@@ -16,7 +16,6 @@
 #include <eigen3/Eigen/Eigen>
 
 #include <gtest/gtest.h>
-#include <iostream>
 
 #include "utility/MathHelper.hpp"
 #include "utility/test/CustomAssertions.hpp"
