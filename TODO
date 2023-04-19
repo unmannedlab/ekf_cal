@@ -1,16 +1,7 @@
-Simple Simulation Work:
-    - Tracker model
-    - Simulated fiducial detector / Board detector with and without uncertainty
-    - Determine if point is in FOV
-    - Generate random points on walls
-    - Add eval scripts ekfEval.py and simEval.py
-
 Package Features:
-    - Add detector for Aruco
-    - Add detector for Charuco
-    - Add detector for Aprilgrid
     - Constrain correleation coefficients between +/- 1
     - Implement RK4 prediction step
+    - Implement prediction IMU flag
     - Implement flag for calibration settling
     - Implement flag for calibration shifting
     - GPS update and notion of global frame
@@ -19,39 +10,47 @@ Package Features:
     - Option to pre-fuse IMU measurements
     - LOST initialization: https://gtsam.org/2023/02/04/lost-triangulation.html
     - First estimate jacobians
-    - Zero-Velocity Update
+    - Zero-Velocity Update / Stationary Filter
     - Option for complementary IMU filter
     - Option for fixed IMU offsets - high certainty constraint update
     - IMU Time Update Equations
     - RTS-Smoothing: https://math.stackexchange.com/questions/1811214/time-complexity-of-kalman-filter-and-rts-smoother
+
+    GPS Updater:
+        - LLA to NED calibration
+        2 Stage Update - 
+        1.) Refine LLA to NED World to Local Conversion
+        2.) Once settled, switch to using GPS to update state
 
 Software Work:
     - Define types/transforms to force different coordinate frames
     - Define types/transforms to force different time values
     - Auto-generate rviz configuration from yaml
     - Compile separate libraries without dependencies
-    - Timing analysis / logging output
-    - Separate logging tiles / tee
     - CI/CD for unit tests
     - Set of single metrics for performance evaluation/testing
     - Integration tests
-    - Remove Singleton Instance of EKF for simultaneous testing
+    - Remove Singleton Instance of EKF for simultaneous filter testing
     - Move feature detection out of tracker callback
-    - Create Dockerfile for package
     - Option to de-register sensor
     - Add performance logging level / tracing: https://perf.wiki.kernel.org/index.php/Tutorial
-    - Log to file
+    - Log to file like tee
     - Pick style and make it consistent
-    - Add "detectors" configuration for aruco: Map of arcuo starting ID to global pose
-    - Have EKF instance own updaters
-        - EKF::RegisterSensor() returns pointer to updater
-        - Sensor calls updater callback which calls sort/pop
-        - Add sort/pop for incoming messages into EKF 
-            - EKF::AddMessageToBuffer()
-            - EKF::ProcessNextMessage()
     - Add binaries to Github release
     - RQT Dashboard
+    - Code Maintainability Score https://codeclimate.com
+    - OpenSSF Best Practices https://bestpractices.coreinfrastructure.org
+    - Parameter for max frame length
+    Simple Simulation:
+        - Add parameter for feature point uncertainty
 
+    Additional Trackers:
+        - FeatureTracker
+        - FiducialTracker
+            - ArucoBoardTracker
+            - CharucoBoardTracker
+            - ChessBoardTracker
+            - CharucoDiamondTracker
 
 Documentation:
     - Create Cake Diagram for EKF-CAL architecture
@@ -62,37 +61,5 @@ Documentation:
     - Citation File: https://citation-file-format.github.io//
 
 Experimentation:
-    - Add profiling
     - Submit ROS bag dataset to IEEE Dataport or add as release package
-
-
-
-- Use prediction IMU
-- Simulated Box Grid Camera
-- Project point to camera matrix
-- Stationary Filter
-- Test Sim with intrinsic calibration
-- Update max frame length
-- Update version numbers
-- Inject Covariance Subroutine
-
-GPS Updater:
-    - LLA to NED calibration
-    2 Stage Update - 
-    1.) Refine LLA to NED World to Local Conversion
-    2.) Once settled, switch to using GPS to update state
-
-
-Trackers:
-    - FeatureTracker
-    - FiducialTracker
-        - ArucoBoardTracker
-        - CharucoBoardTracker
-        - ChessBoardTracker
-        - CharucoDiamondTracker
-
-Add ID to data loggers
-Add timing to functions
-Timing Plots with Histograms
-Code Maintainability Score https://codeclimate.com
-OpenSSF Best Practices https://bestpractices.coreinfrastructure.org
+    - Test Sim with intrinsic calibration
