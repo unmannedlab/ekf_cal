@@ -17,8 +17,8 @@
 
 #include <chrono>
 
-#include "sensors/IMU.hpp"
 #include "utility/MathHelper.hpp"
+#include "ekf/Constants.hpp"
 
 MsckfUpdater::MsckfUpdater(unsigned int camID, std::string logFileDirectory, bool dataLoggingOn)
 : Updater(camID), m_dataLogger(logFileDirectory, "msckf_" + std::to_string(camID) + ".csv")
@@ -76,16 +76,15 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
   }
 
   unsigned int ct_meas = 0;
-  unsigned int camStateStart = m_ekf->getCamStateStartIndex(cameraID);
   unsigned int stateSize = m_ekf->getState().getStateSize();
   Eigen::VectorXd res_big = Eigen::VectorXd::Zero(max_meas_size);
   Eigen::MatrixXd Hx_big = Eigen::MatrixXd::Zero(max_meas_size, stateSize);
 
+  m_logger->log(LogLevel::DEBUG, "Update track count: " + std::to_string(featureTracks.size()));
+
   // MSCKF Update
   for (auto & featureTrack : featureTracks) {
-    m_logger->log(
-      LogLevel::DEBUG,
-      "Feature Track size: " + std::to_string(featureTrack.size()));
+    m_logger->log(LogLevel::DEBUG, "Feature Track size: " + std::to_string(featureTrack.size()));
 
     AugmentedState augStateMatch = matchState(featureTrack[0].frameID);
 
@@ -109,18 +108,22 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
 
       // Get the UV coordinate normal
       Eigen::Vector3d b_i;
-      b_i << featureTrack[i].keyPoint.pt.x, featureTrack[i].keyPoint.pt.y, 1;
+      b_i(0) = featureTrack[i].keyPoint.pt.x;
+      b_i(1) = featureTrack[i].keyPoint.pt.y;
+      b_i(2) = 1;
+
       b_i = R_AtoCi.transpose() * b_i;
       b_i = b_i / b_i.norm();
+
       Eigen::Matrix3d bSkew = skewSymmetric(b_i);
       Eigen::Matrix3d Ai = bSkew.transpose() * bSkew;
       A += Ai;
       b += Ai * p_CIinA;
 
       std::stringstream msg;
-      msg << "p_CIinG: " << p_CIinG.transpose() << std::endl;
-      msg << "p_AinG: " << p_AinG.transpose() << std::endl;
-      msg << "p_CIinA: " << p_CIinA.transpose() << std::endl;
+      msg << "p_CIinG: " << p_CIinG.transpose() << std::endl
+          << "p_AinG: " << p_AinG.transpose() << std::endl
+          << "p_CIinA: " << p_CIinA.transpose() << std::endl;
       m_logger->log(LogLevel::DEBUG, msg.str());
     }
 
@@ -139,34 +142,29 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
 
     // Calculate the position of this feature in the global frame
     // Get calibration for our anchor camera
-    Eigen::Matrix3d R_ItoC = m_augStates[0].orientation.toRotationMatrix();
+    Eigen::Matrix3d R_CtoI = m_augStates[0].orientation.toRotationMatrix().transpose();
     Eigen::Vector3d p_IinC = m_augStates[0].position;
+
     // Anchor pose orientation and position
     Eigen::Matrix3d R_GtoI = m_augStates[0].imuOrientation.toRotationMatrix();
     Eigen::Vector3d p_IinG = m_augStates[0].imuPosition;
+
     // Feature in the global frame
-    Eigen::Vector3d p_FinG = R_GtoI.transpose() * R_ItoC.transpose() * (p_FinA - p_IinC) +
-      p_IinG;
+    Eigen::Vector3d p_FinG = R_GtoI.transpose() * R_CtoI * (p_FinA - p_IinC) + p_IinG;
 
     // Allocate our residual and Jacobians
-    int c = 0;
     int jacobSize = 3;
-
     unsigned int augStateSize = 12 * m_ekf->getCamState(cameraID).augmentedStates.size();
     Eigen::VectorXd res = Eigen::VectorXd::Zero(2 * featureTrack.size());
     Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * featureTrack.size(), jacobSize);
     Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(2 * featureTrack.size(), augStateSize);
 
-    // Derivative of p_FinG in respect to feature representation.
-    // This only needs to be computed once and thus we pull it out of the loop
-    Eigen::MatrixXd dPFG_dLambda;
-    Eigen::Matrix3d R_CtoG = R_GtoI.transpose() * R_ItoC.transpose();
+    Eigen::Matrix3d R_CtoG = R_GtoI.transpose() * R_CtoI;
 
     // Jacobian for our anchor pose
     Eigen::Matrix<double, 3, 6> H_anc;
-    H_anc.block(
-      0, 0, 3,
-      3).noalias() = -R_GtoI.transpose() * skewSymmetric(R_ItoC.transpose() * (p_FinA - p_IinC));
+    H_anc.block(0, 0, 3, 3).noalias() =
+      -R_GtoI.transpose() * skewSymmetric(R_CtoI * (p_FinA - p_IinC));
     H_anc.block(0, 3, 3, 3).setIdentity();
 
     // Add anchor Jacobians to our return vector
@@ -176,13 +174,13 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
     H_calib.block(0, 0, 3, 3).noalias() = -R_CtoG * skewSymmetric(p_FinA - p_IinC);
     H_calib.block(0, 3, 3, 3) = -R_CtoG;
 
-    dPFG_dLambda = R_CtoG;
+    // Derivative of p_FinG in respect to feature representation.
+    // This only needs to be computed once and thus we pull it out of the loop
+    Eigen::MatrixXd dPFG_dLambda = R_CtoG;
 
     // Get the Jacobian for this feature
     // Loop through each camera for this feature
-    if (featureTrack.size() == 0) {
-      return;
-    }
+    unsigned int camStateStart = m_ekf->getCamStateStartIndex(cameraID);
     for (unsigned int i = 1; i < featureTrack.size(); ++i) {
       augStateMatch = matchState(featureTrack[i].frameID);
 
@@ -200,12 +198,21 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
       // Project the current feature into the current frame of reference
       Eigen::Vector3d p_FinCi = R_ItoC * p_FinIi + p_IinC;
       Eigen::Vector2d uv_norm;
-      uv_norm << p_FinCi(0) / p_FinCi(2), p_FinCi(1) / p_FinCi(2);
+      uv_norm(0) = p_FinCi(0) / p_FinCi(2);
+      uv_norm(1) = p_FinCi(1) / p_FinCi(2);
+
+      // Our residual
+      Eigen::Vector2d uv_m;
+      uv_m(0) = featureTrack[i].keyPoint.pt.x;
+      uv_m(1) = featureTrack[i].keyPoint.pt.y;
+      res.block(2 * (i - 1), 0, 2, 1) = uv_m - uv_norm;
 
       // Normalized coordinates in respect to projection function
       Eigen::MatrixXd dzn_dPFC = Eigen::MatrixXd::Zero(2, 3);
-      dzn_dPFC << 1 / p_FinCi(2), 0, -p_FinCi(0) / (p_FinCi(2) * p_FinCi(2)), 0, 1 / p_FinCi(2),
-        -p_FinCi(1) / (p_FinCi(2) * p_FinCi(2));
+      dzn_dPFC(0, 0) = 1 / p_FinCi(2);
+      dzn_dPFC(1, 1) = 1 / p_FinCi(2);
+      dzn_dPFC(0, 2) = -p_FinCi(0) / (p_FinCi(2) * p_FinCi(2));
+      dzn_dPFC(1, 1) = -p_FinCi(1) / (p_FinCi(2) * p_FinCi(2));
 
       // Derivative of p_FinCi in respect to p_FinIi
       Eigen::MatrixXd dPFC_dPFG = R_ItoC * R_GtoIi;
@@ -222,15 +229,15 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
       Eigen::MatrixXd dz_dPFG = dz_dPFC * dPFC_dPFG;
 
       // Chain Rule: get the total feature Jacobian
-      H_f.block(2 * c, 0, 2, H_f.cols()) = dz_dPFG * dPFG_dLambda;
+      H_f.block(2 * (i - 1), 0, 2, H_f.cols()) = dz_dPFG * dPFG_dLambda;
 
       // Chain Rule: get state clone Jacobian
-      H_x.block(2 * c, 0, 2, 6) = dz_dPFC * dPFC_dClone;
+      H_x.block(2 * (i - 1), 0, 2, 6) = dz_dPFC * dPFC_dClone;
 
       // Chain Rule: loop through all extra states and add their
       // NOTE: we add the Jacobian here as we might be in the anchoring pose for this measurement
-      H_x.block(2 * c, augStateStart - camStateStart - 6, 2, 6) += dz_dPFG * H_anc;
-      H_x.block(2 * c, augStateStart - camStateStart, 2, 6) += dz_dPFG * H_calib;
+      H_x.block(2 * (i - 1), augStateStart - camStateStart - 6, 2, 6) += dz_dPFG * H_anc;
+      H_x.block(2 * (i - 1), augStateStart - camStateStart, 2, 6) += dz_dPFG * H_calib;
 
       // Derivative of p_FinCi in respect to camera calibration (R_ItoC, p_IinC)
 
@@ -240,27 +247,23 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
       dPFC_dCalib.block(0, 3, 3, 3) = Eigen::Matrix<double, 3, 3>::Identity();
 
       // Chain Rule it and add it to the big jacobian
-      H_x.block(2 * c, camStateStart - camStateStart, 2, 6) += dz_dPFC * dPFC_dCalib;
-
-      // Move the Jacobian and residual index forward
-      c++;
+      H_x.block(2 * (i - 1), camStateStart - camStateStart, 2, 6) += dz_dPFC * dPFC_dCalib;
     }
 
     // Apply the left nullspace of H_f to all variables
     // Based on "Matrix Computations 4th Edition by Golub and Van Loan"
     // See page 252, Algorithm 5.2.4 for how these two loops work
-    // They use "matlab" index notation, thus we need to subtract 1 from all index
     Eigen::JacobiRotation<double> tempHo_GR;
     for (int n = 0; n < H_f.cols(); ++n) {
-      for (int m = (int)H_f.rows() - 1; m > n; m--) {
+      for (int m = (int)H_f.rows() - 2; m >= n; --m) {
         // Givens matrix G
-        tempHo_GR.makeGivens(H_f(m - 1, n), H_f(m, n));
-        // Multiply G to the corresponding lines (m-1,m) in each matrix
+        tempHo_GR.makeGivens(H_f(m, n), H_f(m, n));
+        // Multiply G to the corresponding lines (m,m) in each matrix
         // Note: we only apply G to the nonzero cols [n:Ho.cols()-n-1], while
         //       it is equivalent to applying G to the entire cols [0:Ho.cols()-1].
-        (H_f.block(m - 1, n, 2, H_f.cols() - n)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
-        (H_x.block(m - 1, 0, 2, H_x.cols())).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
-        (res.block(m - 1, 0, 2, 1)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+        (H_f.block(m, n, 2, H_f.cols() - n)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+        (H_x.block(m, 0, 2, H_x.cols())).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+        (res.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
       }
     }
 
@@ -293,14 +296,14 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
     // They use "matlab" index notation, thus we need to subtract 1 from all index
     Eigen::JacobiRotation<double> tempHo_GR;
     for (int n = 0; n < Hx_big.cols(); n++) {
-      for (int m = (int)Hx_big.rows() - 1; m > n; m--) {
+      for (int m = (int)Hx_big.rows() - 2; m >= n; --m) {
         // Givens matrix G
-        tempHo_GR.makeGivens(Hx_big(m - 1, n), Hx_big(m, n));
+        tempHo_GR.makeGivens(Hx_big(m, n), Hx_big(m, n));
         // Multiply G to the corresponding lines (m-1,m) in each matrix
         // Note: we only apply G to the nonzero cols [n:Ho.cols()-n-1], while
         //       it is equivalent to applying G to the entire cols [0:Ho.cols()-1].
-        (Hx_big.block(m - 1, n, 2, Hx_big.cols() - n)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
-        (res_big.block(m - 1, 0, 2, 1)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+        (Hx_big.block(m, n, 2, Hx_big.cols() - n)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+        (res_big.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
       }
     }
   }
@@ -328,13 +331,13 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
   Eigen::MatrixXd K =
     m_ekf->getCov().block(0, 0, stateSize, stateSize) * Hx_big.transpose() * S.inverse();
 
-  unsigned int imuStateSize = m_ekf->getImuCount() * IMU::IMU_STATE_SIZE;
-  unsigned int camStateSize = stateSize - EKF::BODY_STATE_SIZE - imuStateSize;
+  unsigned int imuStateSize = m_ekf->getImuCount() * IMU_STATE_SIZE;
+  unsigned int camStateSize = stateSize - BODY_STATE_SIZE - imuStateSize;
 
   Eigen::VectorXd update = K * res_big;
-  Eigen::VectorXd bodyUpdate = update.segment<EKF::BODY_STATE_SIZE>(0);
-  Eigen::VectorXd imuUpdate = update.segment(EKF::BODY_STATE_SIZE, imuStateSize);
-  Eigen::VectorXd camUpdate = update.segment(EKF::BODY_STATE_SIZE + imuStateSize, camStateSize);
+  Eigen::VectorXd bodyUpdate = update.segment<BODY_STATE_SIZE>(0);
+  Eigen::VectorXd imuUpdate = update.segment(BODY_STATE_SIZE, imuStateSize);
+  Eigen::VectorXd camUpdate = update.segment(BODY_STATE_SIZE + imuStateSize, camStateSize);
 
   m_ekf->getState().bodyState += bodyUpdate;
   m_ekf->getState().imuStates += imuUpdate;

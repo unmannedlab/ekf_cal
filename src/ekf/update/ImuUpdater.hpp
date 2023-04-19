@@ -77,9 +77,6 @@ public:
   ///
   void RefreshStates();
 
-  /// @brief IMU calibration state size. Comprised of offsets and biases
-  static constexpr unsigned int IMU_STATE_SIZE {12};
-
 private:
   static const Eigen::Vector3d GRAVITY;
   Eigen::Vector3d m_bodyPos {0.0, 0.0, 0.0};

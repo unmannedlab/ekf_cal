@@ -34,6 +34,7 @@ void DataLogger::log(std::string message)
       m_logFile << m_logHeader;
       m_initialized = true;
     }
+    /// @todo Flush is not always necessary. Add as option or remove when sim is faster
     m_logFile << message << std::flush;
   }
 }

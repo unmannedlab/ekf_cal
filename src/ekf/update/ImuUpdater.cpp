@@ -21,8 +21,8 @@
 #include <sstream>
 
 #include "ekf/Types.hpp"
+#include "ekf/Constants.hpp"
 #include "infrastructure/DebugLogger.hpp"
-#include "sensors/Sensor.hpp"
 #include "utility/MathHelper.hpp"
 #include "utility/TypeHelper.hpp"
 
@@ -77,7 +77,7 @@ Eigen::VectorXd ImuUpdater::predictMeasurement()
 Eigen::MatrixXd ImuUpdater::getMeasurementJacobian(bool isBaseSensor, bool isIntrinsic)
 {
   Eigen::MatrixXd measurementJacobian =
-    Eigen::MatrixXd::Zero(6, EKF::BODY_STATE_SIZE + IMU_STATE_SIZE);
+    Eigen::MatrixXd::Zero(6, BODY_STATE_SIZE + IMU_STATE_SIZE);
 
   // Body Acceleration
   measurementJacobian.block<3, 3>(0, 6) = m_angOffset.toRotationMatrix();
@@ -122,20 +122,20 @@ Eigen::MatrixXd ImuUpdater::getMeasurementJacobian(bool isBaseSensor, bool isInt
       m_bodyAngAcc.cross(m_posOffset) +
       m_bodyAngVel.cross(m_bodyAngVel.cross(m_posOffset));
 
-    measurementJacobian.block<3, 3>(0, EKF::BODY_STATE_SIZE + 3) =
+    measurementJacobian.block<3, 3>(0, BODY_STATE_SIZE + 3) =
       -(m_angOffset * skewSymmetric(imu_acc));
 
     // IMU Angular Offset
-    measurementJacobian.block<3, 3>(3, EKF::BODY_STATE_SIZE + 3) =
+    measurementJacobian.block<3, 3>(3, BODY_STATE_SIZE + 3) =
       -(m_angOffset * skewSymmetric(m_bodyAngVel));
   }
 
   if (isIntrinsic) {
     // IMU Accelerometer Bias
-    measurementJacobian.block<3, 3>(0, EKF::BODY_STATE_SIZE + 6) = Eigen::MatrixXd::Identity(3, 3);
+    measurementJacobian.block<3, 3>(0, BODY_STATE_SIZE + 6) = Eigen::MatrixXd::Identity(3, 3);
 
     // IMU Gyroscope Bias
-    measurementJacobian.block<3, 3>(3, EKF::BODY_STATE_SIZE + 9) = Eigen::MatrixXd::Identity(3, 3);
+    measurementJacobian.block<3, 3>(3, BODY_STATE_SIZE + 9) = Eigen::MatrixXd::Identity(3, 3);
   }
 
   return measurementJacobian;
@@ -180,15 +180,15 @@ void ImuUpdater::updateEKF(
 
   unsigned int stateStartIndex = m_ekf->getImuStateStartIndex(m_id);
 
-  unsigned int updateSize = EKF::BODY_STATE_SIZE + IMU_STATE_SIZE * m_ekf->getImuCount();
+  unsigned int updateSize = BODY_STATE_SIZE + IMU_STATE_SIZE * m_ekf->getImuCount();
 
   Eigen::MatrixXd subH = getMeasurementJacobian(isBaseSensor, isIntrinsic);
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, updateSize);
 
-  H.block<6, EKF::BODY_STATE_SIZE>(0, 0) = subH.block<6, EKF::BODY_STATE_SIZE>(0, 0);
+  H.block<6, BODY_STATE_SIZE>(0, 0) = subH.block<6, BODY_STATE_SIZE>(0, 0);
 
   H.block(0, stateStartIndex, 6, IMU_STATE_SIZE) =
-    subH.block<6, IMU_STATE_SIZE>(0, EKF::BODY_STATE_SIZE);
+    subH.block<6, IMU_STATE_SIZE>(0, BODY_STATE_SIZE);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
   R.block<3, 3>(0, 0) = minBoundDiagonal(accelerationCovariance, 1e-3);
@@ -199,9 +199,9 @@ void ImuUpdater::updateEKF(
     m_ekf->getCov().block(0, 0, updateSize, updateSize) * H.transpose() * S.inverse();
 
   Eigen::VectorXd update = K * resid;
-  Eigen::VectorXd bodyUpdate = update.segment<EKF::BODY_STATE_SIZE>(0);
+  Eigen::VectorXd bodyUpdate = update.segment<BODY_STATE_SIZE>(0);
   Eigen::VectorXd imuUpdate =
-    update.segment(EKF::BODY_STATE_SIZE, updateSize - EKF::BODY_STATE_SIZE);
+    update.segment(BODY_STATE_SIZE, updateSize - BODY_STATE_SIZE);
 
   m_ekf->getState().bodyState += bodyUpdate;
   m_ekf->getState().imuStates += imuUpdate;
