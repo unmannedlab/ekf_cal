@@ -17,7 +17,6 @@ import argparse
 import os
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import PercentFormatter
 
 import pandas as pd
 

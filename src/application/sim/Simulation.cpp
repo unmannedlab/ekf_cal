@@ -61,9 +61,12 @@ int main(int argc, char * argv[])
   unsigned int debugLogLevel =
     root["/EkfCalNode"]["ros__parameters"]["Debug_Log_Level"].as<unsigned int>();
   bool dataLoggingOn = root["/EkfCalNode"]["ros__parameters"]["Data_Logging_On"].as<bool>();
+  double rng_seed = root["/EkfCalNode"]["ros__parameters"]["SimParams"]["Seed"].as<double>();
   DebugLogger * logger = DebugLogger::getInstance();
   logger->setOutputDirectory(outDir);
   logger->setLogLevel(debugLogLevel);
+  SimRNG rng;
+  rng.SetSeed(rng_seed);
 
   // Load IMUs and generate measurements
   logger->log(LogLevel::INFO, "Loading IMUs");

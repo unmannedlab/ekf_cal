@@ -41,6 +41,7 @@ Software Work:
     - Code Maintainability Score https://codeclimate.com
     - OpenSSF Best Practices https://bestpractices.coreinfrastructure.org
     - Parameter for max frame length
+    - Include What You Use
     Simple Simulation:
         - Add parameter for feature point uncertainty
 

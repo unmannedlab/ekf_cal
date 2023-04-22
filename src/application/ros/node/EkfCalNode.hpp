@@ -96,19 +96,19 @@ public:
 
   ///
   /// @brief Declare IMU parameters
-  /// @param imuName IMU parameter namespace
+  /// @param imuName IMU parameter
   ///
   void declareImuParameters(std::string imuName);
 
   ///
   /// @brief Declare camera parameters
-  /// @param cameraName Camera parameter namespace
+  /// @param cameraName Camera parameter
   ///
   void declareCameraParameters(std::string cameraName);
 
   ///
   /// @brief Declare tracker PARAMETERS
-  /// @param trackerName Tracker parameter namespace
+  /// @param trackerName Tracker parameter
   ///
   void declareTrackerParameters(std::string trackerName);
 
