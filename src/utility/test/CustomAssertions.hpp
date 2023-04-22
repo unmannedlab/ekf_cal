@@ -38,8 +38,8 @@
 //            "mat1.cols (" << mat1.cols() << ") != mat2.cols(" << mat2.cols() << ")";
 //   }
 
-//   for (int i = 0; i < mat1.rows(); ++i) {
-//     for (int j = 0; j < mat1.cols(); ++j) {
+//   for (unsigned int i = 0; i < mat1.rows(); ++i) {
+//     for (unsigned int j = 0; j < mat1.cols(); ++j) {
 //       if (abs(mat1(i, j) - mat2(i, j)) > precision) {
 //         return ::testing::AssertionFailure() << "mat1[" << i << "," << j <<
 //                "] (" << mat1(i, j) << ") != mat2[" << i << "," << j <<

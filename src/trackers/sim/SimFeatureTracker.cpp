@@ -15,6 +15,10 @@
 
 #include "trackers/sim/SimFeatureTracker.hpp"
 
+#include <map>
+#include <memory>
+#include <vector>
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
 
@@ -126,10 +130,8 @@ std::vector<cv::KeyPoint> SimFeatureTracker::visibleKeypoints(double time)
 std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::generateMessages(
   std::vector<double> messageTimes, unsigned int sensorID)
 {
-
   m_logger->log(
-    LogLevel::INFO, "Generating " + std::to_string(
-      messageTimes.size()) + " measurements");
+    LogLevel::INFO, "Generating " + std::to_string(messageTimes.size()) + " measurements");
 
   std::map<unsigned int, std::vector<FeatureTrack>> featureTrackMap;
   std::vector<std::shared_ptr<SimFeatureTrackerMessage>> trackerMessages;
@@ -139,7 +141,7 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::genera
 
     std::vector<cv::KeyPoint> keyPoints = visibleKeypoints(messageTimes[frameID]);
 
-    for (auto & keyPoint :keyPoints) {
+    for (auto & keyPoint : keyPoints) {
       auto featureTrack = FeatureTrack{frameID, keyPoint};
       featureTrackMap[keyPoint.class_id].push_back(featureTrack);
     }

@@ -54,7 +54,7 @@ public:
   /// @brief RosCamera constructor
   /// @param cParams Camera parameters
   ///
-  RosCamera(Camera::Parameters cParams);
+  explicit RosCamera(Camera::Parameters cParams);
 
   ///
   /// @brief RosCamera callback method

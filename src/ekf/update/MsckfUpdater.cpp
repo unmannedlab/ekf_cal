@@ -15,7 +15,9 @@
 
 #include "ekf/update/MsckfUpdater.hpp"
 
+#include <algorithm>
 #include <chrono>
+#include <string>
 
 #include "utility/MathHelper.hpp"
 #include "ekf/Constants.hpp"
@@ -255,7 +257,7 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
     // See page 252, Algorithm 5.2.4 for how these two loops work
     Eigen::JacobiRotation<double> tempHo_GR;
     for (int n = 0; n < H_f.cols(); ++n) {
-      for (int m = (int)H_f.rows() - 2; m >= n; --m) {
+      for (int m = static_cast<int>(H_f.rows()) - 2; m >= n; --m) {
         // Givens matrix G
         tempHo_GR.makeGivens(H_f(m, n), H_f(m, n));
         // Multiply G to the corresponding lines (m,m) in each matrix
@@ -267,7 +269,8 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
       }
     }
 
-    // The H_f jacobian max rank is 3 if it is a 3d position, thus size of the left nullspace is Hf.rows()-3
+    // The H_f jacobian max rank is 3 if it is a 3d position,
+    // thus size of the left nullspace is Hf.rows()-3
     // NOTE: need to eigen3 eval here since this experiences aliasing!
     // H_f = H_f.block(H_f.cols(),0,H_f.rows()-H_f.cols(),H_f.cols()).eval();
     H_x = H_x.block(H_f.cols(), 0, H_x.rows() - H_f.cols(), H_x.cols()).eval();
@@ -296,7 +299,7 @@ void MsckfUpdater::updateEKF(double time, unsigned int cameraID, FeatureTracks f
     // They use "matlab" index notation, thus we need to subtract 1 from all index
     Eigen::JacobiRotation<double> tempHo_GR;
     for (int n = 0; n < Hx_big.cols(); n++) {
-      for (int m = (int)Hx_big.rows() - 2; m >= n; --m) {
+      for (int m = static_cast<int>(Hx_big.rows()) - 2; m >= n; --m) {
         // Givens matrix G
         tempHo_GR.makeGivens(Hx_big(m, n), Hx_big(m, n));
         // Multiply G to the corresponding lines (m-1,m) in each matrix

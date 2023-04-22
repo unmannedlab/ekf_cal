@@ -208,11 +208,11 @@ void EKF::augmentState(unsigned int cameraID, unsigned int frameID)
 
   // Limit augmented states to 20
   if (m_state.camStates[cameraID].augmentedStates.size() <= 20) {
-
     unsigned int augStateStart = getAugStateStartIndex(cameraID, frameID);
     Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize + 12);
 
-    /// @todo Math helper function to insert sub-matrix block
+    // Insert new state
+    /// @todo next: Use jacobian to initialize covariance
     m_cov = insertInMatrix(Eigen::MatrixXd::Identity(12, 12), m_cov, augStateStart, augStateStart);
     m_stateSize += 12;
 
@@ -226,6 +226,7 @@ void EKF::augmentState(unsigned int cameraID, unsigned int frameID)
     m_cov = removeFromMatrix(m_cov, camStateStart + 24, camStateStart + 24, 12);
 
     // Insert new state
+    /// @todo next: Use jacobian to initialize covariance
     unsigned int augStateStart = getAugStateStartIndex(cameraID, frameID);
     m_cov = insertInMatrix(Eigen::MatrixXd::Identity(12, 12), m_cov, augStateStart, augStateStart);
   }

@@ -13,10 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__SIM__SIMFeatureTRACKER_HPP_
-#define SENSORS__SIM__SIMFeatureTRACKER_HPP_
+#ifndef TRACKERS__SIM__SIMFEATURETRACKER_HPP_
+#define TRACKERS__SIM__SIMFEATURETRACKER_HPP_
 
+#include <memory>
 #include <string>
+#include <vector>
 
 #include <opencv2/core.hpp>
 #include <opencv2/calib3d.hpp>
@@ -101,4 +103,4 @@ private:
 };
 
 
-#endif  // SENSORS__SIM__SIMFeatureTRACKER_HPP_
+#endif  // TRACKERS__SIM__SIMFEATURETRACKER_HPP_

@@ -113,8 +113,11 @@ std::vector<cv::KeyPoint> FeatureTracker::gridFeatures(
   unsigned int cols)
 {
   unsigned int minPixelDistance = 20;
-  unsigned int gridCols = (int)((float)cols / (float)minPixelDistance);
-  unsigned int gridRows = (int)((float)rows / (float)minPixelDistance);
+  double double_rows = static_cast<double>(rows);
+  double double_cols = static_cast<double>(cols);
+  double double_minPixelDistance = static_cast<double>(minPixelDistance);
+  unsigned int gridRows = static_cast<unsigned int>(double_rows / double_minPixelDistance);
+  unsigned int gridCols = static_cast<unsigned int>(double_cols / double_minPixelDistance);
   cv::Size size(gridCols, gridRows);
 
   /// @todo replace this with some kind of boolean array. Eigen?
@@ -128,10 +131,10 @@ std::vector<cv::KeyPoint> FeatureTracker::gridFeatures(
   for (size_t i = 0; i < keyPoints.size(); i++) {
     // Get current left keypoint, check that it is in bounds
     cv::KeyPoint kpt = keyPoints.at(i);
-    int x = (int)kpt.pt.x;
-    int y = (int)kpt.pt.y;
-    int x_grid = (int)(kpt.pt.x / (float)minPixelDistance);
-    int y_grid = (int)(kpt.pt.y / (float)minPixelDistance);
+    int x = static_cast<int>(kpt.pt.x);
+    int y = static_cast<int>(kpt.pt.y);
+    int x_grid = static_cast<int>(kpt.pt.x / double_minPixelDistance);
+    int y_grid = static_cast<int>(kpt.pt.y / double_minPixelDistance);
     if (x_grid < 0 || x_grid >= size.width || y_grid < 0 || y_grid >= size.height || x < 0 ||
       x >= cols || y < 0 || y >= rows)
     {

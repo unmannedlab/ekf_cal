@@ -16,6 +16,7 @@
 #ifndef EKF__UPDATE__MSCKFUPDATER_HPP_
 #define EKF__UPDATE__MSCKFUPDATER_HPP_
 
+#include <string>
 #include <vector>
 
 #include "ekf/update/Updater.hpp"

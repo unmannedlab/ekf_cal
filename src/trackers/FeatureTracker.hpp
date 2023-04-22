@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__FEATURETRACKER_HPP_
-#define SENSORS__FEATURETRACKER_HPP_
+#ifndef TRACKERS__FEATURETRACKER_HPP_
+#define TRACKERS__FEATURETRACKER_HPP_
 
 #include <string>
 #include <vector>
@@ -78,8 +78,8 @@ public:
     DescriptorMatcherEnum matcher {DescriptorMatcherEnum::FLANN};       ///< @brief Matcher
     double threshold {20.0};                                            ///< @brief Threshold
     unsigned int sensorID;
-    std::string outputDirectory {""};               ///< @brief Feature Tracker data logging directory
-    bool dataLoggingOn {false};                     ///< @brief Feature Tracker data logging flag
+    std::string outputDirectory {""};  ///< @brief Feature Tracker data logging directory
+    bool dataLoggingOn {false};        ///< @brief Feature Tracker data logging flag
   } Parameters;
 
   ///
@@ -140,4 +140,4 @@ private:
   static unsigned int _trackerCount;
 };
 
-#endif  // SENSORS__FEATURETRACKER_HPP_
+#endif  // TRACKERS__FEATURETRACKER_HPP_

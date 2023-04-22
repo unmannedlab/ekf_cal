@@ -74,7 +74,7 @@ public:
   /// @brief Camera sensor constructor
   /// @param cParams Parameter struct for camera sensor
   ///
-  Camera(Camera::Parameters cParams);
+  explicit Camera(Camera::Parameters cParams);
 
   void addTracker(std::shared_ptr<FeatureTracker> tracker);
 
