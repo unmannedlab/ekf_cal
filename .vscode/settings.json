@@ -6,9 +6,6 @@
     "python.autoComplete.extraPaths": [
         "/opt/ros/humble/lib/python3.8/site-packages"
     ],
-    "python.analysis.extraPaths": [
-        "/opt/ros/humble/lib/python3.8/site-packages"
-    ],
     "files.exclude": {
         "**/__pycache__": true
     },
@@ -21,17 +18,9 @@
         "editor.defaultFormatter": "zachflower.uncrustify"
     },
     "cSpell.words": [
-        "CAMERAUPDATER",
-        "CUSTOMASSERTIONS",
-        "DATALOGGER",
-        "DEBUGLOGGER",
         "DISTRO",
         "doxyfile",
         "doxygen",
-        "EKFCALNODE",
-        "EKFHEALTHNODE",
-        "EKFVIZNODE",
-        "FEATURETRACKER",
         "GFTT",
         "htmlonly",
         "ImuUpdater",
@@ -42,29 +31,15 @@
         "MATHHELPER",
         "Mirzaei",
         "MSCKF",
-        "MSCKFUPDATER",
         "MSER",
         "Nullspace",
         "PLANTUML",
         "RCLCPP",
         "Rodrigues",
-        "ROSCAMERA",
-        "ROSIMU",
         "Roumeliotis",
         "RVIZ",
-        "SIMCAMERA",
-        "SIMFEATURETRACKER",
-        "SIMIMU",
-        "SIMRNG",
-        "SIMTYPES",
         "SSRR",
-        "STATEPUBLISHERNODE",
-        "TRUTHENGINE",
-        "TRUTHENGINECYCLIC",
-        "TRUTHENGINESPLINE",
-        "TYPEHELPER",
         "undistort",
-        "VIZNODE"
     ],
     "terminal.integrated.scrollback": 5000,
     "cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}",

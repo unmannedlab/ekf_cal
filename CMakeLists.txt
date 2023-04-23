@@ -45,17 +45,17 @@ endforeach()
 # @todo split infrastructure into separate library
 # EKF sources
 set(EKF_SRCS
-    src/ekf/EKF.cpp
-    src/ekf/Types.cpp
-    src/ekf/update/ImuUpdater.cpp
-    src/ekf/update/MsckfUpdater.cpp
-    src/ekf/update/Updater.cpp
-    src/infrastructure/DataLogger.cpp
-    src/infrastructure/DebugLogger.cpp
-    src/sensors/Camera.cpp
-    src/sensors/IMU.cpp
-    src/sensors/Sensor.cpp
-    src/trackers/FeatureTracker.cpp
+    src/ekf/ekf.cpp
+    src/ekf/types.cpp
+    src/ekf/update/imu_updater.cpp
+    src/ekf/update/msckf_updater.cpp
+    src/ekf/update/updater.cpp
+    src/infrastructure/data_logger.cpp
+    src/infrastructure/debug_logger.cpp
+    src/sensors/camera.cpp
+    src/sensors/imu.cpp
+    src/sensors/sensor.cpp
+    src/trackers/feature_tracker.cpp
 )
 
 # Create library with EKF sources
@@ -70,16 +70,16 @@ target_include_directories(EKF_LIB PUBLIC
 
 # Simulation Sources
 set(SIM_SRCS
-    src/infrastructure/DataLogger.cpp
-    src/infrastructure/DebugLogger.cpp
-    src/infrastructure/sim/SimDebugLogger.cpp
-    src/infrastructure/sim/TruthEngine.cpp
-    src/infrastructure/sim/TruthEngineCyclic.cpp
-    src/infrastructure/sim/TruthEngineSpline.cpp
-    src/sensors/sim/SimIMU.cpp
-    src/sensors/sim/SimCamera.cpp
-    src/trackers/sim/SimFeatureTracker.cpp
-    src/utility/sim/SimRNG.cpp
+    src/infrastructure/data_logger.cpp
+    src/infrastructure/debug_logger.cpp
+    src/infrastructure/sim/sim_debug_logger.cpp
+    src/infrastructure/sim/truth_engine_cyclic.cpp
+    src/infrastructure/sim/truth_engine_spline.cpp
+    src/infrastructure/sim/truth_engine.cpp
+    src/sensors/sim/sim_camera.cpp
+    src/sensors/sim/sim_imu.cpp
+    src/trackers/sim/sim_feature_tracker.cpp
+    src/utility/sim/sim_rng.cpp
 )
 
 # Create library with Sim sources
@@ -94,11 +94,11 @@ ament_target_dependencies(SIM_LIB OpenCV)
 
 # ROS Sources
 set(ROS_SRCS
-    src/infrastructure/DataLogger.cpp
-    src/infrastructure/DebugLogger.cpp
-    src/infrastructure/ros/RosDebugLogger.cpp
-    src/sensors/ros/RosCamera.cpp
-    src/sensors/ros/RosIMU.cpp
+    src/infrastructure/data_logger.cpp
+    src/infrastructure/debug_logger.cpp
+    src/infrastructure/ros/ros_debug_logger.cpp
+    src/sensors/ros/ros_camera.cpp
+    src/sensors/ros/ros_imu.cpp
 )
 
 # Create library with ROS sources
@@ -113,14 +113,14 @@ target_include_directories(ROS_LIB PUBLIC
 ament_target_dependencies(ROS_LIB ${ROS_PKGS})
 
 # EKF CAL Node
-add_library(EKF_NODE_LIB src/application/ros/node/EkfCalNode.cpp)
+add_library(EKF_NODE_LIB src/application/ros/node/ekf_cal_node.cpp)
 ament_target_dependencies(EKF_NODE_LIB ${ROS_PKGS})
 target_include_directories(EKF_NODE_LIB PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
 
-add_executable(ekf_cal_node src/application/ros/EkfCalMain.cpp)
+add_executable(ekf_cal_node src/application/ros/ekf_cal_main.cpp)
 target_include_directories(ekf_cal_node PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
@@ -129,14 +129,14 @@ ament_target_dependencies(ekf_cal_node ${ROS_PKGS})
 target_link_libraries(ekf_cal_node EKF_NODE_LIB EKF_LIB ROS_LIB)
 
 # State Publisher Node
-add_library(PUB_NODE_LIB src/application/ros/node/StatePublisherNode.cpp)
+add_library(PUB_NODE_LIB src/application/ros/node/state_publisher_node.cpp)
 ament_target_dependencies(PUB_NODE_LIB ${ROS_PKGS})
 target_include_directories(PUB_NODE_LIB PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
 
-add_executable(state_pub_node src/application/ros/StatePublisherMain.cpp)
+add_executable(state_pub_node src/application/ros/state_publisher_main.cpp)
 target_include_directories(state_pub_node PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
@@ -145,7 +145,7 @@ ament_target_dependencies(state_pub_node ${ROS_PKGS})
 target_link_libraries(state_pub_node PUB_NODE_LIB EKF_LIB ROS_LIB)
 
 # Simulation
-add_executable(sim src/application/sim/Simulation.cpp)
+add_executable(sim src/application/sim/simulation.cpp)
 target_include_directories(sim PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
@@ -175,15 +175,15 @@ if(BUILD_TESTING)
     find_package(ament_lint_auto REQUIRED)
     ament_lint_auto_find_test_dependencies()
     set(test_files
-        src/ekf/test/test_EKF.cpp
-        src/infrastructure/sim/test/test_TruthEngine.cpp
-        src/sensors/ros/test/test_RosCamera.cpp
-        src/sensors/ros/test/test_RosIMU.cpp
-        src/sensors/test/test_Camera.cpp
-        src/sensors/test/test_IMU.cpp
-        src/utility/test/test_MathHelper.cpp
-        src/utility/test/test_RosHelper.cpp
-        src/utility/test/test_TypeHelper.cpp
+        src/ekf/test/ekf_test.cpp
+        src/infrastructure/sim/test/truth_engine_test.cpp
+        src/sensors/ros/test/ros_camera_test.cpp
+        src/sensors/ros/test/ros_imu_test.cpp
+        src/sensors/test/camera_test.cpp
+        src/sensors/test/imu_test.cpp
+        src/utility/test/math_helper_test.cpp
+        src/utility/test/ros_helper_test.cpp
+        src/utility/test/type_helper_test.cpp
     )
 
     foreach(f_name IN LISTS test_files)
@@ -196,10 +196,10 @@ if(BUILD_TESTING)
         target_link_libraries(${nam} EKF_LIB ROS_LIB)
     endforeach()
 
-    ament_add_gtest(test_EkfCalNode src/application/ros/node/test/test_EkfCalNode.cpp)
-    ament_target_dependencies(test_EkfCalNode ${ROS_PKGS})
-    target_include_directories(test_EkfCalNode PUBLIC ${CMAKE_SOURCE_DIR}/src/)
-    target_link_libraries(test_EkfCalNode EKF_NODE_LIB EKF_LIB ROS_LIB)
+    ament_add_gtest(ekf_cal_node_test src/application/ros/node/test/ekf_cal_node_test.cpp)
+    ament_target_dependencies(ekf_cal_node_test ${ROS_PKGS})
+    target_include_directories(ekf_cal_node_test PUBLIC ${CMAKE_SOURCE_DIR}/src/)
+    target_link_libraries(ekf_cal_node_test EKF_NODE_LIB EKF_LIB ROS_LIB)
 
 endif()
 
