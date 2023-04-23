@@ -56,7 +56,7 @@ Eigen::VectorXd ImuUpdater::PredictMeasurement()
 {
   Eigen::VectorXd predicted_measurement(6);
   // Transform acceleration to IMU location
-  Eigen::Vector3d imuAcc = m_body_acc + GRAVITY +
+  Eigen::Vector3d imuAcc = m_body_acc + g_gravity +
     m_body_ang_acc.cross(m_pos_offset) +
     m_body_ang_vel.cross((m_body_ang_vel.cross(m_pos_offset)));
 
@@ -77,7 +77,7 @@ Eigen::VectorXd ImuUpdater::PredictMeasurement()
 Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isIntrinsic)
 {
   Eigen::MatrixXd measurement_jacobian =
-    Eigen::MatrixXd::Zero(6, BODY_STATE_SIZE + IMU_STATE_SIZE);
+    Eigen::MatrixXd::Zero(6, g_body_state_size + g_imu_state_size);
 
   // Body Acceleration
   measurement_jacobian.block<3, 3>(0, 6) = m_ang_offset.toRotationMatrix();
@@ -114,7 +114,7 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
     temp(2, 0) = m_body_ang_vel(0) * m_body_ang_vel(2);
     temp(2, 1) = m_body_ang_vel(1) * m_body_ang_vel(2);
     temp(2, 2) = -(m_body_ang_vel(0) * m_body_ang_vel(0)) - (m_body_ang_vel(1) * m_body_ang_vel(1));
-    measurement_jacobian.block<3, 3>(0, IMU_STATE_SIZE) =
+    measurement_jacobian.block<3, 3>(0, g_imu_state_size) =
       m_ang_offset * SkewSymmetric(m_body_ang_acc) + temp;
 
     // IMU Angular Offset
@@ -122,20 +122,20 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
       m_body_ang_acc.cross(m_pos_offset) +
       m_body_ang_vel.cross(m_body_ang_vel.cross(m_pos_offset));
 
-    measurement_jacobian.block<3, 3>(0, BODY_STATE_SIZE + 3) =
+    measurement_jacobian.block<3, 3>(0, g_body_state_size + 3) =
       -(m_ang_offset * SkewSymmetric(imu_acc));
 
     // IMU Angular Offset
-    measurement_jacobian.block<3, 3>(3, BODY_STATE_SIZE + 3) =
+    measurement_jacobian.block<3, 3>(3, g_body_state_size + 3) =
       -(m_ang_offset * SkewSymmetric(m_body_ang_vel));
   }
 
   if (isIntrinsic) {
     // IMU Accelerometer Bias
-    measurement_jacobian.block<3, 3>(0, BODY_STATE_SIZE + 6) = Eigen::MatrixXd::Identity(3, 3);
+    measurement_jacobian.block<3, 3>(0, g_body_state_size + 6) = Eigen::MatrixXd::Identity(3, 3);
 
     // IMU Gyroscope Bias
-    measurement_jacobian.block<3, 3>(3, BODY_STATE_SIZE + 9) = Eigen::MatrixXd::Identity(3, 3);
+    measurement_jacobian.block<3, 3>(3, g_body_state_size + 9) = Eigen::MatrixXd::Identity(3, 3);
   }
 
   return measurement_jacobian;
@@ -180,15 +180,15 @@ void ImuUpdater::UpdateEKF(
 
   unsigned int stateStartIndex = m_ekf->GetImuStateStartIndex(m_id);
 
-  unsigned int updateSize = BODY_STATE_SIZE + IMU_STATE_SIZE * m_ekf->GetImuCount();
+  unsigned int updateSize = g_body_state_size + g_imu_state_size * m_ekf->GetImuCount();
 
   Eigen::MatrixXd subH = GetMeasurementJacobian(isBaseSensor, isIntrinsic);
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, updateSize);
 
-  H.block<6, BODY_STATE_SIZE>(0, 0) = subH.block<6, BODY_STATE_SIZE>(0, 0);
+  H.block<6, g_body_state_size>(0, 0) = subH.block<6, g_body_state_size>(0, 0);
 
-  H.block(0, stateStartIndex, 6, IMU_STATE_SIZE) =
-    subH.block<6, IMU_STATE_SIZE>(0, BODY_STATE_SIZE);
+  H.block(0, stateStartIndex, 6, g_imu_state_size) =
+    subH.block<6, g_imu_state_size>(0, g_body_state_size);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
   R.block<3, 3>(0, 0) = MinBoundDiagonal(accelerationCovariance, 1e-3);
@@ -199,9 +199,9 @@ void ImuUpdater::UpdateEKF(
     m_ekf->GetCov().block(0, 0, updateSize, updateSize) * H.transpose() * S.inverse();
 
   Eigen::VectorXd update = K * resid;
-  Eigen::VectorXd body_update = update.segment<BODY_STATE_SIZE>(0);
+  Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
   Eigen::VectorXd imu_update =
-    update.segment(BODY_STATE_SIZE, updateSize - BODY_STATE_SIZE);
+    update.segment(g_body_state_size, updateSize - g_body_state_size);
 
   m_ekf->GetState().m_body_state += body_update;
   m_ekf->GetState().m_imu_states += imu_update;
@@ -214,7 +214,7 @@ void ImuUpdater::UpdateEKF(
 
   // Write outputs
   std::stringstream msg;
-  Eigen::VectorXd imu_sub_update = update.segment(stateStartIndex, IMU_STATE_SIZE);
+  Eigen::VectorXd imu_sub_update = update.segment(stateStartIndex, g_imu_state_size);
   msg << time;
   for (unsigned int i = 0; i < resid.size(); ++i) {
     msg << "," << resid[i];

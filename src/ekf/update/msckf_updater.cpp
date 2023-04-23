@@ -337,13 +337,13 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
   Eigen::MatrixXd K =
     m_ekf->GetCov().block(0, 0, state_size, state_size) * Hx_big.transpose() * S.inverse();
 
-  unsigned int imu_state_size = m_ekf->GetImuCount() * IMU_STATE_SIZE;
-  unsigned int cam_state_size = state_size - BODY_STATE_SIZE - imu_state_size;
+  unsigned int imu_state_size = m_ekf->GetImuCount() * g_imu_state_size;
+  unsigned int cam_state_size = state_size - g_body_state_size - imu_state_size;
 
   Eigen::VectorXd update = K * res_big;
-  Eigen::VectorXd body_update = update.segment<BODY_STATE_SIZE>(0);
-  Eigen::VectorXd imu_update = update.segment(BODY_STATE_SIZE, imu_state_size);
-  Eigen::VectorXd cam_update = update.segment(BODY_STATE_SIZE + imu_state_size, cam_state_size);
+  Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
+  Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_state_size);
+  Eigen::VectorXd cam_update = update.segment(g_body_state_size + imu_state_size, cam_state_size);
 
   m_ekf->GetState().m_body_state += body_update;
   m_ekf->GetState().m_imu_states += imu_update;

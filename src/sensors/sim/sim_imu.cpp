@@ -68,7 +68,7 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double maxT
     Eigen::Vector3d imu_acc_rot = m_ang_offset * imuAcc;
     Eigen::Vector3d imu_omg_rot = m_ang_offset * body_ang_vel;
 
-    imu_acc_rot += body_ang_pos * m_ang_offset * GRAVITY;
+    imu_acc_rot += body_ang_pos * m_ang_offset * g_gravity;
 
     sim_imu_msg->m_acceleration = imu_acc_rot;
     sim_imu_msg->m_acceleration[0] += m_rng.NormRand(m_acc_bias[0], m_acc_error[0]);

@@ -178,15 +178,15 @@ public:
   void AugmentState(unsigned int camera_id, unsigned int frame_id);
 
 private:
-  unsigned int m_stateSize{BODY_STATE_SIZE};
+  unsigned int m_stateSize{g_body_state_size};
   State m_state;
-  Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(BODY_STATE_SIZE, BODY_STATE_SIZE);
+  Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size);
   double m_current_time {0};
   bool m_time_initialized {false};
   DebugLogger * m_logger = DebugLogger::GetInstance();
 
   Eigen::MatrixXd m_process_noise =
-    Eigen::MatrixXd::Identity(BODY_STATE_SIZE, BODY_STATE_SIZE) * 1e-3;
+    Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-3;
 };
 
 #endif  // EKF__EKF_HPP_

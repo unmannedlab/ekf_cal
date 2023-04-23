@@ -31,7 +31,8 @@ EKF * EKF::instance_pointer = NULL;
 
 Eigen::MatrixXd EKF::GetStateTransition(double dT)
 {
-  Eigen::MatrixXd state_transition = Eigen::MatrixXd::Identity(BODY_STATE_SIZE, BODY_STATE_SIZE);
+  Eigen::MatrixXd state_transition =
+    Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size);
   state_transition.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * dT;
   state_transition.block<3, 3>(3, 6) = Eigen::MatrixXd::Identity(3, 3) * dT;
   state_transition.block<3, 3>(9, 12) = Eigen::MatrixXd::Identity(3, 3) * dT;
@@ -70,8 +71,8 @@ void EKF::ProcessModel(double time)
   m_state.m_body_state.SetState(process_update);
 
   // Process input matrix is just identity
-  m_cov.block<BODY_STATE_SIZE, BODY_STATE_SIZE>(0, 0) =
-    F * (m_cov.block<BODY_STATE_SIZE, BODY_STATE_SIZE>(0, 0) + m_process_noise) * F.transpose();
+  m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
+    F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0) + m_process_noise) * F.transpose();
 
   m_current_time = time;
 }
@@ -122,7 +123,7 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
 {
   /// @todo check that id hasn't been used before
   /// @todo replace 12s with constants from IMU class
-  unsigned int imu_state_start = BODY_STATE_SIZE + 12 * m_state.m_imu_states.size();
+  unsigned int imu_state_start = g_body_state_size + 12 * m_state.m_imu_states.size();
 
   m_cov = InsertInMatrix(covariance, m_cov, imu_state_start, imu_state_start);
   m_state.m_imu_states[imu_id] = imu_state;
@@ -148,7 +149,7 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
 /// @todo Replace this lookup with a map
 unsigned int EKF::GetImuStateStartIndex(unsigned int imu_id)
 {
-  unsigned int stateStartIndex = BODY_STATE_SIZE;
+  unsigned int stateStartIndex = g_body_state_size;
   for (auto const & imuIter : m_state.m_imu_states) {
     if (imuIter.first == imu_id) {
       break;
@@ -162,7 +163,7 @@ unsigned int EKF::GetImuStateStartIndex(unsigned int imu_id)
 /// @todo Replace this lookup with a map
 unsigned int EKF::GetCamStateStartIndex(unsigned int cam_id)
 {
-  unsigned int stateStartIndex = BODY_STATE_SIZE;
+  unsigned int stateStartIndex = g_body_state_size;
   stateStartIndex += 12 * m_state.m_imu_states.size();
   for (auto const & camIter : m_state.m_cam_states) {
     if (camIter.first == cam_id) {
@@ -177,7 +178,7 @@ unsigned int EKF::GetCamStateStartIndex(unsigned int cam_id)
 /// @todo Replace this lookup with a map
 unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, unsigned int frame_id)
 {
-  unsigned int stateStartIndex = BODY_STATE_SIZE;
+  unsigned int stateStartIndex = g_body_state_size;
   stateStartIndex += (12 * m_state.m_imu_states.size());
   for (auto const & camIter : m_state.m_cam_states) {
     stateStartIndex += 6;

@@ -29,7 +29,7 @@
 
 inline double RosHeaderToTime(std_msgs::msg::Header header)
 {
-  return header.stamp.sec + (header.stamp.nanosec * NSEC_TO_SEC);
+  return header.stamp.sec + (header.stamp.nanosec * g_nsec_to_sec);
 }
 
 inline Eigen::Vector3d RosToEigen(geometry_msgs::msg::Vector3 msg)
