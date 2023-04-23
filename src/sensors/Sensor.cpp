@@ -21,29 +21,29 @@
 #include "utility/TypeHelper.hpp"
 
 // Initialize static variable
-unsigned int Sensor::_sensorCount = 0;
+unsigned int Sensor::m_sensor_count = 0;
 
 Sensor::Sensor(std::string name)
-: m_id(++_sensorCount), m_name(name) {}
+: m_id(++m_sensor_count), m_name(name) {}
 
-unsigned int Sensor::getId()
+unsigned int Sensor::GetId()
 {
   return m_id;
 }
 
-std::string Sensor::getName()
+std::string Sensor::GetName()
 {
   return m_name;
 }
 
-void Sensor::callback(SensorMessage sensorMessage)
+void Sensor::Callback(SensorMessage sensor_message)
 {
-  m_logger->log(
+  m_logger->Log(
     LogLevel::ERROR,
-    "Callback on Base Sensor Called at Time" + std::to_string(sensorMessage.time));
+    "Callback on Base Sensor Called at Time" + std::to_string(sensor_message.m_time));
 }
 
-bool messageCompare(std::shared_ptr<SensorMessage> a, std::shared_ptr<SensorMessage> b)
+bool MessageCompare(std::shared_ptr<SensorMessage> a, std::shared_ptr<SensorMessage> b)
 {
-  return a->time < b->time;
+  return a->m_time < b->m_time;
 }

@@ -27,17 +27,17 @@
 #include "utility/Constants.hpp"
 
 
-inline double rosHeaderToTime(std_msgs::msg::Header header)
+inline double RosHeaderToTime(std_msgs::msg::Header header)
 {
   return header.stamp.sec + (header.stamp.nanosec * NSEC_TO_SEC);
 }
 
-inline Eigen::Vector3d rosToEigen(geometry_msgs::msg::Vector3 msg)
+inline Eigen::Vector3d RosToEigen(geometry_msgs::msg::Vector3 msg)
 {
   return Eigen::Vector3d {msg.x, msg.y, msg.z};
 }
 
-inline Eigen::Matrix3d rosToEigen(std::array<double, 9> msg)
+inline Eigen::Matrix3d RosToEigen(std::array<double, 9> msg)
 {
   return Eigen::Matrix3d {
     {msg[0], msg[1], msg[2]},

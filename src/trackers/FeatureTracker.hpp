@@ -68,7 +68,7 @@ public:
   };
 
   ///
-  /// @brief Feature Tracker initialization parameters structure
+  /// @brief Feature Tracker Initialization parameters structure
   ///
   typedef struct Parameters
   {
@@ -77,9 +77,9 @@ public:
     DescriptorExtractorEnum descriptor {DescriptorExtractorEnum::ORB};  ///< @brief Descriptor
     DescriptorMatcherEnum matcher {DescriptorMatcherEnum::FLANN};       ///< @brief Matcher
     double threshold {20.0};                                            ///< @brief Threshold
-    unsigned int sensorID;
-    std::string outputDirectory {""};  ///< @brief Feature Tracker data logging directory
-    bool dataLoggingOn {false};        ///< @brief Feature Tracker data logging flag
+    unsigned int sensor_id;              ///< @brief Associated sensor ID
+    std::string output_directory {""};   ///< @brief Feature Tracker data logging directory
+    bool data_logging_on {false};        ///< @brief Feature Tracker data logging flag
   } Parameters;
 
   ///
@@ -89,55 +89,52 @@ public:
   ///
   explicit FeatureTracker(FeatureTracker::Parameters params);
 
-  std::vector<cv::KeyPoint> gridFeatures(
+  std::vector<cv::KeyPoint> GridFeatures(
     std::vector<cv::KeyPoint> points,
     unsigned int rows,
     unsigned int cols);
 
-  void track(
+  void Track(
     double time,
-    unsigned int frameID, cv::Mat & imgIn, cv::Mat & imgOut,
-    FeatureTracks featureTracks);
+    unsigned int frame_id, cv::Mat & img_in, cv::Mat & img_out,
+    FeatureTracks feature_tracks);
 
-  unsigned int getID();
+  unsigned int GetID();
 
 protected:
-  DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton
+  DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
   unsigned int max_track_length{30};
   unsigned int min_track_length{2};
-  unsigned int m_cameraID;
-  MsckfUpdater m_msckfUpdater;
+  unsigned int m_camera_id;
+  MsckfUpdater m_msckf_updater;
   unsigned int m_id;
 
 private:
-  cv::Ptr<cv::FeatureDetector> initFeatureDetector(
+  cv::Ptr<cv::FeatureDetector> InitFeatureDetector(
     FeatureDetectorEnum detector,
     double threshold);
-  cv::Ptr<cv::DescriptorExtractor> initDescriptorExtractor(
+  cv::Ptr<cv::DescriptorExtractor> InitDescriptorExtractor(
     DescriptorExtractorEnum extractor,
     double threshold);
-  cv::Ptr<cv::DescriptorMatcher> initDescriptorMatcher(
+  cv::Ptr<cv::DescriptorMatcher> InitDescriptorMatcher(
     DescriptorMatcherEnum matcher);
 
-  cv::Ptr<cv::FeatureDetector> m_featureDetector;
-  cv::Ptr<cv::DescriptorExtractor> m_descriptorExtractor;
-  cv::Ptr<cv::DescriptorMatcher> m_descriptorMatcher;
+  cv::Ptr<cv::FeatureDetector> m_feature_detector;
+  cv::Ptr<cv::DescriptorExtractor> m_descriptor_extractor;
+  cv::Ptr<cv::DescriptorMatcher> m_descriptor_matcher;
 
-  std::vector<cv::KeyPoint> m_prevKeyPoints;
-  std::vector<cv::KeyPoint> m_currKeyPoints;
-  cv::Mat m_prevDescriptors;
-  cv::Mat m_currDescriptors;
+  std::vector<cv::KeyPoint> m_prev_key_points;
+  std::vector<cv::KeyPoint> m_curr_key_points;
+  cv::Mat m_prev_descriptors;
+  cv::Mat m_curr_descriptors;
 
-  std::map<unsigned int, std::vector<FeatureTrack>> m_featureTrackMap;
+  std::map<unsigned int, std::vector<FeatureTrack>> m_feature_track_map;
 
-  unsigned int generateFeatureID();
+  unsigned int GenerateFeatureID();
 
-  EKF * m_ekf = EKF::getInstance();           ///< @brief EKF singleton
+  EKF * m_ekf = EKF::GetInstance();           ///< @brief EKF singleton
 
-  /// @todo Use parameter inputs for these values
-  bool use_qr_decomposition{false};
-
-  static unsigned int _trackerCount;
+  static unsigned int m_tracker_count;
 };
 
 #endif  // TRACKERS__FEATURETRACKER_HPP_

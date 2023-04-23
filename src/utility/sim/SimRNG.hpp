@@ -36,9 +36,9 @@ public:
   ///
   /// @brief Function to return normal random number
   /// @param mean Mean of normal distribution
-  /// @param stdDev Standard deviation of normal distribution
+  /// @param std_dev Standard deviation of normal distribution
   ///
-  double NormRand(double mean, double stdDev);
+  double NormRand(double mean, double std_dev);
 
   ///
   /// @brief Uniform random number generator

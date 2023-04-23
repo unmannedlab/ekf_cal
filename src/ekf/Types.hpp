@@ -39,7 +39,7 @@ public:
   /// @brief Get EKF state as a vector
   /// @return EKF state as a vector
   ///
-  Eigen::VectorXd toVector();
+  Eigen::VectorXd ToVector();
 
   ///
   /// @brief Function to set state using vector
@@ -47,12 +47,12 @@ public:
   ///
   void SetState(Eigen::VectorXd state);
 
-  Eigen::Vector3d position{0.0, 0.0, 0.0};             ///< @brief Body state position
-  Eigen::Vector3d velocity{0.0, 0.0, 0.0};             ///< @brief Body state velocity
-  Eigen::Vector3d acceleration{0.0, 0.0, 0.0};         ///< @brief Body state acceleration
-  Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Body state orientation
-  Eigen::Vector3d angularVelocity{0.0, 0.0, 0.0};      ///< @brief Body state angular rate
-  Eigen::Vector3d angularAcceleration{0.0, 0.0, 0.0};  ///< @brief Body state angular acceleration
+  Eigen::Vector3d m_position{0.0, 0.0, 0.0};             ///< @brief Body state position
+  Eigen::Vector3d m_velocity{0.0, 0.0, 0.0};             ///< @brief Body state velocity
+  Eigen::Vector3d m_acceleration{0.0, 0.0, 0.0};         ///< @brief Body state acceleration
+  Eigen::Quaterniond m_orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Body state orientation
+  Eigen::Vector3d m_angular_velocity{0.0, 0.0, 0.0};      ///< @brief Body state angular rate
+  Eigen::Vector3d m_angular_acceleration{0.0, 0.0, 0.0};  ///< @brief Body state angular acceleration
 };
 
 ///
@@ -62,8 +62,8 @@ typedef struct ImuState
 {
   Eigen::Vector3d position{0.0, 0.0, 0.0};             ///< @brief IMU state position
   Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief IMU state orientation
-  Eigen::Vector3d accBias{0.0, 0.0, 0.0};              ///< @brief IMU state acceleration bias
-  Eigen::Vector3d omgBias{0.0, 0.0, 0.0};              ///< @brief IMU state angular rate bias
+  Eigen::Vector3d acc_bias{0.0, 0.0, 0.0};              ///< @brief IMU state acceleration bias
+  Eigen::Vector3d omg_bias{0.0, 0.0, 0.0};              ///< @brief IMU state angular rate bias
 } ImuState;
 
 ///
@@ -71,9 +71,9 @@ typedef struct ImuState
 ///
 typedef struct AugmentedState
 {
-  unsigned int frameID;                                   ///< @brief Augmented frame ID
-  Eigen::Vector3d imuPosition{0.0, 0.0, 0.0};             ///< @brief Augmented IMU position
-  Eigen::Quaterniond imuOrientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
+  unsigned int frame_id;                                   ///< @brief Augmented frame ID
+  Eigen::Vector3d imu_position{0.0, 0.0, 0.0};             ///< @brief Augmented IMU position
+  Eigen::Quaterniond imu_orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
   Eigen::Vector3d position{0.0, 0.0, 0.0};                ///< @brief Augmented position
   Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};     ///< @brief Augmented orientation
 } AugmentedState;
@@ -85,7 +85,7 @@ typedef struct CamState
 {
   Eigen::Vector3d position{0.0, 0.0, 0.0};             ///< @brief Camera state position
   Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera state orientation
-  std::vector<AugmentedState> augmentedStates;         ///< @brief Camera augmented states
+  std::vector<AugmentedState> augmented_states;         ///< @brief Camera augmented states
 } CamState;
 
 ///
@@ -94,8 +94,8 @@ typedef struct CamState
 ///
 typedef struct FeatureTrack
 {
-  unsigned int frameID;   ///< @brief Feature track frame ID
-  cv::KeyPoint keyPoint;  ///< @brief Feature track keypoint
+  unsigned int frame_id;   ///< @brief Feature track frame ID
+  cv::KeyPoint key_point;  ///< @brief Feature track key point
 } FeatureTrack;
 
 typedef std::vector<std::vector<FeatureTrack>> FeatureTracks;
@@ -117,32 +117,32 @@ public:
   /// @brief Get EKF state as a vector
   /// @return EKF state as a vector
   ///
-  Eigen::VectorXd toVector();
+  Eigen::VectorXd ToVector();
 
   ///
   /// @brief Get EKF state size
   /// @return EKF state size as an integer
   ///
-  unsigned int getStateSize();
+  unsigned int GetStateSize();
 
-  BodyState bodyState {};                        ///< @brief Body state
-  std::map<unsigned int, ImuState> imuStates{};  ///< @brief IMU states
-  std::map<unsigned int, CamState> camStates{};  ///< @brief Camera States
+  BodyState m_body_state {};                        ///< @brief Body state
+  std::map<unsigned int, ImuState> m_imu_states{};  ///< @brief IMU states
+  std::map<unsigned int, CamState> m_cam_states{};  ///< @brief Camera States
 };
 
-BodyState & operator+=(BodyState & lBodyState, BodyState & rBodyState);
-BodyState & operator+=(BodyState & lBodyState, Eigen::VectorXd & rVector);
+BodyState & operator+=(BodyState & l_body_state, BodyState & r_body_state);
+BodyState & operator+=(BodyState & l_body_state, Eigen::VectorXd & r_vector);
 std::map<unsigned int, ImuState> & operator+=(
-  std::map<unsigned int, ImuState> & lImuState,
-  Eigen::VectorXd & rVector);
+  std::map<unsigned int, ImuState> & l_imu_state,
+  Eigen::VectorXd & r_vector);
 std::map<unsigned int, CamState> & operator+=(
-  std::map<unsigned int, CamState> & lCamState,
-  Eigen::VectorXd & rVector);
+  std::map<unsigned int, CamState> & l_cam_state,
+  Eigen::VectorXd & r_vector);
 std::vector<AugmentedState> & operator+=(
-  std::vector<AugmentedState> & lAugState,
-  Eigen::VectorXd & rVector);
+  std::vector<AugmentedState> & l_augState,
+  Eigen::VectorXd & r_vector);
 
-State & operator+=(State & lState, State & rState);
-State & operator+=(State & lState, Eigen::VectorXd & rVector);
+State & operator+=(State & l_state, State & rState);
+State & operator+=(State & l_state, Eigen::VectorXd & r_vector);
 
 #endif  // EKF__TYPES_HPP_

@@ -37,47 +37,48 @@ CameraMessage::CameraMessage(cv::Mat & imgIn)
 : SensorMessage(), image(imgIn) {}
 
 /// @todo add detector/extractor parameters to input
-Camera::Camera(Camera::Parameters cParams)
-: Sensor(cParams.name)
+Camera::Camera(Camera::Parameters cam_params)
+: Sensor(cam_params.name)
 {
-  m_rate = cParams.rate;
-  m_posOffset = cParams.posOffset;
-  m_angOffset = cParams.angOffset;
+  m_rate = cam_params.rate;
 
-  CamState camState;
-  camState.position = m_posOffset;
-  camState.orientation = m_angOffset;
+  CamState cam_state;
+  cam_state.position = cam_params.pos_offset;
+  cam_state.orientation = cam_params.ang_offset;
 
-  Eigen::MatrixXd cov = minBoundVector(cParams.variance, 1e-6).asDiagonal();
+  Eigen::MatrixXd cov = MinBoundVector(cam_params.variance, 1e-6).asDiagonal();
 
-  m_ekf->registerCamera(m_id, camState, cov);
+  m_ekf->RegisterCamera(m_id, cam_state, cov);
 }
 
-void Camera::callback(std::shared_ptr<CameraMessage> cameraMessage)
+void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
 {
-  m_logger->log(
+  m_logger->Log(
     LogLevel::DEBUG, "Camera " + std::to_string(
-      cameraMessage->sensorID) + " callback called at time = " +
-    std::to_string(cameraMessage->time));
+      camera_message->m_sensor_id) + " callback called at time = " +
+    std::to_string(camera_message->m_time));
 
-  unsigned int frameID = generateFrameID();
+  unsigned int frameID = GenerateFrameID();
 
-  m_ekf->augmentState(m_id, frameID);
+  m_ekf->AugmentState(m_id, frameID);
 
-  FeatureTracks featureTracks;
-  m_trackers[0]->track(cameraMessage->time, frameID, cameraMessage->image, m_outImg, featureTracks);
+  FeatureTracks feature_tracks;
+  m_trackers[0]->Track(
+    camera_message->m_time, frameID, camera_message->image, m_out_img,
+    feature_tracks);
   /// @todo Undistort points post track?
   // cv::undistortPoints();
   /// @todo Call a EKF updater method
 }
 
-unsigned int Camera::generateFrameID()
+/// @todo apply similar function to sensor/tracker IDs
+unsigned int Camera::GenerateFrameID()
 {
-  static unsigned int FrameID = 0;
-  return FrameID++;
+  static unsigned int frame_id = 0;
+  return frame_id++;
 }
 
-void Camera::addTracker(std::shared_ptr<FeatureTracker> tracker)
+void Camera::AddTracker(std::shared_ptr<FeatureTracker> tracker)
 {
   m_trackers.push_back(tracker);
 }

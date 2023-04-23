@@ -50,36 +50,36 @@ public:
   ///
   /// @brief Publish EKF state information
   ///
-  void publishStates();
+  void PublishStates();
 
   ///
   /// @brief Publish entire vector state
   ///
-  void publishVectorState();
+  void PublishVectorState();
 
   ///
   /// @brief Publish body specific states
   ///
-  void publishBodyState();
+  void PublishBodyState();
 
   ///
   /// @brief Publish sensor extrinsic transforms
   ///
-  void publishSensorTransforms();
+  void PublishSensorTransforms();
 
 private:
   // Publishers
-  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr m_posePub;
-  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_twistPub;
-  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_statePub;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr m_pose_pub;
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_twist_pub;
+  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_state_pub;
 
   // TF2 objects
-  std::unique_ptr<tf2_ros::TransformBroadcaster> m_tfBroadcaster;
-  rclcpp::TimerBase::SharedPtr m_tfTimer;
+  std::unique_ptr<tf2_ros::TransformBroadcaster> m_tf_broadcaster;
+  rclcpp::TimerBase::SharedPtr m_tf_timer;
 
   // Singletons
-  EKF * m_ekf = EKF::getInstance();
-  DebugLogger * m_logger = DebugLogger::getInstance();
+  EKF * m_ekf = EKF::GetInstance();
+  DebugLogger * m_logger = DebugLogger::GetInstance();
 };
 
 #endif  // APPLICATION__ROS__NODE__STATEPUBLISHERNODE_HPP_

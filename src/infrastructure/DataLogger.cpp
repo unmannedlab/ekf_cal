@@ -19,34 +19,34 @@
 #include <fstream>
 
 
-DataLogger::DataLogger(std::string outputDirectory, std::string filename)
+DataLogger::DataLogger(std::string output_directory, std::string file_name)
 {
-  m_logFilePath = outputDirectory + filename;
+  m_log_file_path = output_directory + file_name;
 }
 
 
-void DataLogger::log(std::string message)
+void DataLogger::Log(std::string message)
 {
-  if (m_loggingOn) {
+  if (m_logging_on) {
     if (!m_initialized) {
       /// @todo check if path exists
-      m_logFile.open(m_logFilePath);
-      m_logFile << m_logHeader;
+      m_log_file.open(m_log_file_path);
+      m_log_file << m_log_header;
       m_initialized = true;
     }
     /// @todo Flush is not always necessary. Add as option or remove when sim is faster
-    m_logFile << message << std::flush;
+    m_log_file << message << std::flush;
   }
 }
 
 
-void DataLogger::setLogging(bool value)
+void DataLogger::SetLogging(bool value)
 {
-  m_loggingOn = value;
+  m_logging_on = value;
 }
 
 
-void DataLogger::defineHeader(std::string header)
+void DataLogger::DefineHeader(std::string header)
 {
-  m_logHeader = header;
+  m_log_header = header;
 }

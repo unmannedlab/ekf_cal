@@ -22,14 +22,14 @@ void SimRNG::SetSeed(double seed)
   m_generator = std::mt19937_64(seed);
 }
 
-double SimRNG::NormRand(double mean, double stdDev)
+double SimRNG::NormRand(double mean, double std_dev)
 {
-  std::normal_distribution<double> normDist(mean, stdDev);
-  return normDist(m_generator);
+  std::normal_distribution<double> normal_distribution(mean, std_dev);
+  return normal_distribution(m_generator);
 }
 
 double SimRNG::UniRand(double min, double max)
 {
-  std::uniform_real_distribution<double> uniDist(min, max);
-  return uniDist(m_generator);
+  std::uniform_real_distribution<double> uniform_distribution(min, max);
+  return uniform_distribution(m_generator);
 }

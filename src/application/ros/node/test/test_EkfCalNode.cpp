@@ -23,14 +23,14 @@
 #include "application/ros/node/EkfCalNode.hpp"
 
 /// @todo Write these integration tests
-class test_EkfCalNode : public ::testing::Test
+class EkfCalNode_test : public ::testing::Test
 {
 protected:
   virtual void SetUp() {rclcpp::init(0, NULL);}
   virtual void TearDown() {rclcpp::shutdown();}
 };
 
-TEST_F(test_EkfCalNode, hello_world) {
+TEST_F(EkfCalNode_test, hello_world) {
   EkfCalNode node;
 
   node.set_parameter(rclcpp::Parameter("Debug_Log_Level", 1));
@@ -38,8 +38,8 @@ TEST_F(test_EkfCalNode, hello_world) {
   node.set_parameter(rclcpp::Parameter("Camera_list", std::vector<std::string>{"TestCamera"}));
   node.set_parameter(rclcpp::Parameter("Tracker_list", std::vector<std::string>{"TestTracker"}));
 
-  node.initialize();
-  node.declareSensors();
+  node.Initialize();
+  node.DeclareSensors();
 
   node.set_parameter(rclcpp::Parameter("IMU.TestImu.BaseSensor", true));
   node.set_parameter(rclcpp::Parameter("IMU.TestImu.Intrinsic", false));
@@ -87,25 +87,25 @@ TEST_F(test_EkfCalNode, hello_world) {
   node.set_parameter(rclcpp::Parameter("Tracker.TestTracker.DescriptorMatcher", 0));
   node.set_parameter(rclcpp::Parameter("Tracker.TestTracker.DetectorThreshold", 10.0));
 
-  node.loadSensors();
-  auto imuMsg = std::make_shared<sensor_msgs::msg::Imu>();
-  unsigned int imuID = 1;
-  imuMsg->header.stamp.sec = 0;
-  imuMsg->header.stamp.nanosec = 0;
-  imuMsg->linear_acceleration.x = 0.0;
-  imuMsg->linear_acceleration.y = 0.0;
-  imuMsg->linear_acceleration.z = 0.0;
-  imuMsg->angular_velocity.x = 0.0;
-  imuMsg->angular_velocity.y = 0.0;
-  imuMsg->angular_velocity.z = 0.0;
-  imuMsg->linear_acceleration_covariance.fill(0);
-  imuMsg->angular_velocity_covariance.fill(0);
+  node.LoadSensors();
+  auto imu_msg = std::make_shared<sensor_msgs::msg::Imu>();
+  unsigned int imu_id = 1;
+  imu_msg->header.stamp.sec = 0;
+  imu_msg->header.stamp.nanosec = 0;
+  imu_msg->linear_acceleration.x = 0.0;
+  imu_msg->linear_acceleration.y = 0.0;
+  imu_msg->linear_acceleration.z = 0.0;
+  imu_msg->angular_velocity.x = 0.0;
+  imu_msg->angular_velocity.y = 0.0;
+  imu_msg->angular_velocity.z = 0.0;
+  imu_msg->linear_acceleration_covariance.fill(0);
+  imu_msg->angular_velocity_covariance.fill(0);
 
-  node.imuCallback(imuMsg, imuID);
+  node.ImuCallback(imu_msg, imu_id);
   EXPECT_TRUE(true);
 
-  imuMsg->header.stamp.nanosec = 500000000;
-  node.imuCallback(imuMsg, imuID);
+  imu_msg->header.stamp.nanosec = 500000000;
+  node.ImuCallback(imu_msg, imu_id);
   EXPECT_TRUE(true);
 
   /// @todo add image to callback

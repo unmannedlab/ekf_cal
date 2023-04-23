@@ -31,84 +31,84 @@ StatePublisherNode::StatePublisherNode()
 : Node("StatePublisherNode")
 {
   /// @todo Get publish rate from yaml
-  m_tfTimer =
+  m_tf_timer =
     this->create_wall_timer(
     std::chrono::milliseconds(100),
-    std::bind(&StatePublisherNode::publishStates, this));
-  m_tfBroadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
-  m_posePub = this->create_publisher<geometry_msgs::msg::PoseStamped>("~/pose", 10);
-  m_twistPub = this->create_publisher<geometry_msgs::msg::TwistStamped>("~/twist", 10);
-  m_statePub = this->create_publisher<std_msgs::msg::Float64MultiArray>("~/state", 10);
+    std::bind(&StatePublisherNode::PublishStates, this));
+  m_tf_broadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+  m_pose_pub = this->create_publisher<geometry_msgs::msg::PoseStamped>("~/pose", 10);
+  m_twist_pub = this->create_publisher<geometry_msgs::msg::TwistStamped>("~/twist", 10);
+  m_state_pub = this->create_publisher<std_msgs::msg::Float64MultiArray>("~/state", 10);
 }
 
-void StatePublisherNode::publishStates()
+void StatePublisherNode::PublishStates()
 {
-  publishVectorState();
-  publishBodyState();
-  publishSensorTransforms();
+  PublishVectorState();
+  PublishBodyState();
+  PublishSensorTransforms();
 }
 
-void StatePublisherNode::publishVectorState()
+void StatePublisherNode::PublishVectorState()
 {
-  Eigen::VectorXd vectorState = m_ekf->getState().toVector();
-  auto stateVecMsg = std_msgs::msg::Float64MultiArray();
+  Eigen::VectorXd vector_state = m_ekf->GetState().ToVector();
+  auto state_vec_msg = std_msgs::msg::Float64MultiArray();
 
-  for (auto & element : vectorState) {
-    stateVecMsg.data.push_back(element);
+  for (auto & element : vector_state) {
+    state_vec_msg.data.push_back(element);
   }
-  m_statePub->publish(stateVecMsg);
+  m_state_pub->publish(state_vec_msg);
 }
 
 
-void StatePublisherNode::publishBodyState()
+void StatePublisherNode::PublishBodyState()
 {
-  auto poseMsg = geometry_msgs::msg::PoseStamped();
-  auto twistMsg = geometry_msgs::msg::TwistStamped();
+  auto pose_msg = geometry_msgs::msg::PoseStamped();
+  auto twist_msg = geometry_msgs::msg::TwistStamped();
 
-  BodyState bodyState = m_ekf->getState().bodyState;
+  BodyState body_state = m_ekf->GetState().m_body_state;
 
   // Position
-  poseMsg.pose.position.x = bodyState.position(0);
-  poseMsg.pose.position.y = bodyState.position(1);
-  poseMsg.pose.position.z = bodyState.position(2);
+  pose_msg.pose.position.x = body_state.m_position(0);
+  pose_msg.pose.position.y = body_state.m_position(1);
+  pose_msg.pose.position.z = body_state.m_position(2);
 
   // Orientation
-  poseMsg.pose.orientation.w = bodyState.orientation.w();
-  poseMsg.pose.orientation.x = bodyState.orientation.x();
-  poseMsg.pose.orientation.y = bodyState.orientation.y();
-  poseMsg.pose.orientation.z = bodyState.orientation.z();
+  pose_msg.pose.orientation.w = body_state.m_orientation.w();
+  pose_msg.pose.orientation.x = body_state.m_orientation.x();
+  pose_msg.pose.orientation.y = body_state.m_orientation.y();
+  pose_msg.pose.orientation.z = body_state.m_orientation.z();
 
   // Linear Velocity
-  twistMsg.twist.linear.x = bodyState.velocity(0);
-  twistMsg.twist.linear.y = bodyState.velocity(1);
-  twistMsg.twist.linear.z = bodyState.velocity(2);
+  twist_msg.twist.linear.x = body_state.m_velocity(0);
+  twist_msg.twist.linear.y = body_state.m_velocity(1);
+  twist_msg.twist.linear.z = body_state.m_velocity(2);
 
   // Angular Velocity
-  twistMsg.twist.angular.x = bodyState.angularVelocity(0);
-  twistMsg.twist.angular.y = bodyState.angularVelocity(1);
-  twistMsg.twist.angular.z = bodyState.angularVelocity(2);
+  twist_msg.twist.angular.x = body_state.m_angular_velocity(0);
+  twist_msg.twist.angular.y = body_state.m_angular_velocity(1);
+  twist_msg.twist.angular.z = body_state.m_angular_velocity(2);
 
   rclcpp::Time now = this->get_clock()->now();
-  poseMsg.header.stamp = now;
-  twistMsg.header.stamp = now;
+  pose_msg.header.stamp = now;
+  twist_msg.header.stamp = now;
 
-  m_posePub->publish(poseMsg);
-  m_twistPub->publish(twistMsg);
+  m_pose_pub->publish(pose_msg);
+  m_twist_pub->publish(twist_msg);
 }
 
 ///
 /// @todo debug issue with future extrapolation in RVIZ
 ///
-void StatePublisherNode::publishSensorTransforms()
+void StatePublisherNode::PublishSensorTransforms()
 {
-  State ekfState = m_ekf->getState();
+  State ekfState = m_ekf->GetState();
 
   geometry_msgs::msg::TransformStamped tf;
   tf.header.stamp = this->get_clock()->now();
   tf.header.frame_id = "body";
 
   // Publish IMU transforms
-  for (auto const & imuIter : ekfState.imuStates) {
+  for (auto const & imuIter : ekfState.m_imu_states) {
     unsigned int id = imuIter.first;
     tf.child_frame_id = std::to_string(id);
 
@@ -124,7 +124,7 @@ void StatePublisherNode::publishSensorTransforms()
     tf.transform.rotation.z = imuIter.second.orientation.z();
 
     // Send the transformation
-    m_tfBroadcaster->sendTransform(tf);
+    m_tf_broadcaster->sendTransform(tf);
   }
 
   // Publish Body transforms
@@ -132,15 +132,15 @@ void StatePublisherNode::publishSensorTransforms()
   tf.child_frame_id = "body";
 
   // Body position
-  tf.transform.translation.x = ekfState.bodyState.position(0);
-  tf.transform.translation.y = ekfState.bodyState.position(1);
-  tf.transform.translation.z = ekfState.bodyState.position(2);
+  tf.transform.translation.x = ekfState.m_body_state.m_position(0);
+  tf.transform.translation.y = ekfState.m_body_state.m_position(1);
+  tf.transform.translation.z = ekfState.m_body_state.m_position(2);
 
   // Body Orientation
-  tf.transform.rotation.w = ekfState.bodyState.orientation.w();
-  tf.transform.rotation.x = ekfState.bodyState.orientation.x();
-  tf.transform.rotation.y = ekfState.bodyState.orientation.y();
-  tf.transform.rotation.z = ekfState.bodyState.orientation.z();
+  tf.transform.rotation.w = ekfState.m_body_state.m_orientation.w();
+  tf.transform.rotation.x = ekfState.m_body_state.m_orientation.x();
+  tf.transform.rotation.y = ekfState.m_body_state.m_orientation.y();
+  tf.transform.rotation.z = ekfState.m_body_state.m_orientation.z();
 
-  m_tfBroadcaster->sendTransform(tf);
+  m_tf_broadcaster->sendTransform(tf);
 }

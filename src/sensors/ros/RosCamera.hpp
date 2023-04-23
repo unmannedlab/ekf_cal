@@ -52,26 +52,26 @@ class RosCamera : public Camera
 public:
   ///
   /// @brief RosCamera constructor
-  /// @param cParams Camera parameters
+  /// @param camera_parameters Camera parameters
   ///
-  explicit RosCamera(Camera::Parameters cParams);
+  explicit RosCamera(Camera::Parameters camera_parameters);
 
   ///
   /// @brief RosCamera callback method
-  /// @param rosCameraMessage ROS image message
+  /// @param ros_camera_message ROS image message
   ///
-  void callback(std::shared_ptr<RosCameraMessage> rosCameraMessage);
+  void Callback(std::shared_ptr<RosCameraMessage> ros_camera_message);
 
   ///
   /// @brief Camera output ROS image getter method
   /// @return Camera output ROS image
   ///
-  sensor_msgs::msg::Image::SharedPtr getRosImage();
+  sensor_msgs::msg::Image::SharedPtr GetRosImage();
 
-  void addTracker(std::shared_ptr<FeatureTracker> tracker);
+  void AddTracker(std::shared_ptr<FeatureTracker> tracker);
 
 private:
-  sensor_msgs::msg::Image::SharedPtr m_outRosImg;
+  sensor_msgs::msg::Image::SharedPtr m_out_ros_img;
 };
 
 #endif  // SENSORS__ROS__ROSCAMERA_HPP_

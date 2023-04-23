@@ -38,9 +38,9 @@ class CameraMessage : public SensorMessage
 public:
   ///
   /// @brief Camera message constructor
-  /// @param imgIn Input image
+  /// @param img_in Input image
   ///
-  explicit CameraMessage(cv::Mat & imgIn);
+  explicit CameraMessage(cv::Mat & img_in);
 
   /// @brief Message image
   cv::Mat & image;
@@ -59,40 +59,40 @@ public:
   ///
   typedef struct Parameters
   {
-    std::string name;                                  ///< @brief Camera name
-    std::string topic;                                 ///< @brief Camera topic name
-    double rate{1.0};                                  ///< @brief Camera update rate
-    Eigen::Vector3d posOffset{0.0, 0.0, 0.0};          ///< @brief Camera initial position offset
-    Eigen::Quaterniond angOffset{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera initial angular offset
-    Eigen::VectorXd variance {{0, 0, 0, 0, 0, 0}};     ///< @brief Initial state variance
-    std::string tracker;                               ///< @brief Tracker name
-    std::string outputDirectory {""};                  ///< @brief IMU data logging directory
-    bool dataLoggingOn {false};                        ///< @brief IMU data logging flag
+    std::string name;                                   ///< @brief Camera name
+    std::string topic;                                  ///< @brief Camera topic name
+    double rate{1.0};                                   ///< @brief Camera update rate
+    Eigen::Vector3d pos_offset{0.0, 0.0, 0.0};          ///< @brief Camera initial position offset
+    Eigen::Quaterniond ang_offset{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera initial angular offset
+    Eigen::VectorXd variance {{0, 0, 0, 0, 0, 0}};      ///< @brief Initial state variance
+    std::string tracker;                                ///< @brief Tracker name
+    std::string output_directory {""};                  ///< @brief IMU data logging directory
+    bool data_logging_on {false};                       ///< @brief IMU data logging flag
   } Parameters;
 
   ///
   /// @brief Camera sensor constructor
-  /// @param cParams Parameter struct for camera sensor
+  /// @param cam_params Parameter struct for camera sensor
   ///
-  explicit Camera(Camera::Parameters cParams);
+  explicit Camera(Camera::Parameters cam_params);
 
-  void addTracker(std::shared_ptr<FeatureTracker> tracker);
+  void AddTracker(std::shared_ptr<FeatureTracker> tracker);
 
   ///
   /// @brief Callback method for camera
-  /// @param cameraMessage camera message
+  /// @param camera_message camera message
   ///
-  void callback(std::shared_ptr<CameraMessage> cameraMessage);
+  void Callback(std::shared_ptr<CameraMessage> camera_message);
 
 protected:
-  unsigned int generateFrameID();
-  cv::Mat m_outImg;  ///< @brief Published output test image
+  unsigned int GenerateFrameID();
+  cv::Mat m_out_img;  ///< @brief Published output test image
 
 private:
   std::vector<std::shared_ptr<FeatureTracker>> m_trackers;
 
-  std::vector<double> m_radDistortionK{0.0, 0.0, 0.0};
-  std::vector<double> m_tanDistortionD{0.0, 0.0};
+  std::vector<double> m_rad_distortion_k{0.0, 0.0, 0.0};
+  std::vector<double> m_tan_distortion_d{0.0, 0.0};
 };
 
 #endif  // SENSORS__CAMERA_HPP_

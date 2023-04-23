@@ -20,42 +20,42 @@
 #include "../DebugLogger.hpp"
 
 
-DebugLogger * DebugLogger::m_instancePointer = NULL;
+DebugLogger * DebugLogger::m_instance_pointer = NULL;
 
-void DebugLogger::setLogLevel(LogLevel level)
+void DebugLogger::SetLogLevel(LogLevel level)
 {
-  if ((m_logLevel <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {
+  if ((m_log_level <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {
     RCLCPP_INFO_STREAM(
       rclcpp::get_logger(
         "Logger"), "Log level set to: " <<
-        m_logLevelNames[static_cast<std::underlying_type<LogLevel>::type>(m_logLevel)]);
+        m_log_level_names[static_cast<std::underlying_type<LogLevel>::type>(m_log_level)]);
   }
-  m_logLevel = level;
+  m_log_level = level;
 }
 
-void DebugLogger::setLogLevel(unsigned int level)
+void DebugLogger::SetLogLevel(unsigned int level)
 {
-  if ((m_logLevel <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {
+  if ((m_log_level <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {
     RCLCPP_INFO_STREAM(
       rclcpp::get_logger("Logger"),
-      "Log level set to: " << m_logLevelNames[level]);
+      "Log level set to: " << m_log_level_names[level]);
   }
 
-  m_logLevel = static_cast<LogLevel>(level);
+  m_log_level = static_cast<LogLevel>(level);
 }
 
 DebugLogger::~DebugLogger()
 {
-  if (m_logLevel <= LogLevel::INFO) {
+  if (m_log_level <= LogLevel::INFO) {
     RCLCPP_INFO_STREAM(
       rclcpp::get_logger("Logger"), "Logger destroyed");
   }
 }
 
-void DebugLogger::log(LogLevel level, std::string message)
+void DebugLogger::Log(LogLevel level, std::string message)
 {
   const char * message_c_str = message.c_str();
-  if (m_logLevel >= level) {
+  if (m_log_level >= level) {
     switch (level) {
       case LogLevel::DEBUG:
         RCLCPP_DEBUG(rclcpp::get_logger("Logger"), message_c_str);

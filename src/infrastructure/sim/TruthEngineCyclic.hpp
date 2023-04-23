@@ -79,8 +79,8 @@ public:
   Eigen::Vector3d GetBodyAngularAcceleration(double time);
 
 private:
-  Eigen::Vector3d m_posCycleFrequency {1.0, 1.0, 1.0};
-  Eigen::Vector3d m_angCycleFrequency {1.0, 1.0, 1.0};
+  Eigen::Vector3d m_pos_cycle_frequency {1.0, 1.0, 1.0};
+  Eigen::Vector3d m_ang_cycle_frequency {1.0, 1.0, 1.0};
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTHENGINECYCLIC_HPP_

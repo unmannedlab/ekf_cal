@@ -24,7 +24,7 @@ TruthEngineSpline::TruthEngineSpline() {}
 
 Eigen::Vector3d TruthEngineSpline::GetBodyPosition(double time)
 {
-  return m_posSpline(time);
+  return m_pos_spline(time);
 }
 
 Eigen::Vector3d TruthEngineSpline::GetBodyVelocity(double time)
@@ -32,8 +32,8 @@ Eigen::Vector3d TruthEngineSpline::GetBodyVelocity(double time)
   if (IsTimeInvalid(time)) {
     return Eigen::Vector3d::Zero(3);
   } else {
-    double u = time / m_timeMax;
-    Eigen::Vector3d velocity = m_posSpline.derivatives(u, 1) / m_timeMax;
+    double u = time / m_time_max;
+    Eigen::Vector3d velocity = m_pos_spline.derivatives(u, 1) / m_time_max;
     return velocity;
   }
 }
@@ -43,15 +43,15 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAcceleration(double time)
   if (IsTimeInvalid(time)) {
     return Eigen::Vector3d::Zero(3);
   } else {
-    double u = time / m_timeMax;
-    Eigen::Vector3d acceleration = m_posSpline.derivatives(u, 2) / m_timeMax;
+    double u = time / m_time_max;
+    Eigen::Vector3d acceleration = m_pos_spline.derivatives(u, 2) / m_time_max;
     return acceleration;
   }
 }
 
 Eigen::Quaterniond TruthEngineSpline::GetBodyAngularPosition(double time)
 {
-  Eigen::Vector3d eulAng = m_angSpline(time);
+  Eigen::Vector3d eulAng = m_ang_spline(time);
 
   Eigen::Quaterniond angularPosition =
     Eigen::AngleAxisd(eulAng(0), Eigen::Vector3d::UnitX()) *
@@ -66,8 +66,8 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAngularRate(double time)
   if (IsTimeInvalid(time)) {
     return Eigen::Vector3d::Zero(3);
   } else {
-    double u = time / m_timeMax;
-    Eigen::Vector3d velocity = m_angSpline.derivatives(u, 1) / m_timeMax;
+    double u = time / m_time_max;
+    Eigen::Vector3d velocity = m_ang_spline.derivatives(u, 1) / m_time_max;
     return velocity;
   }
 }
@@ -77,8 +77,8 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAngularAcceleration(double time)
   if (IsTimeInvalid(time)) {
     return Eigen::Vector3d::Zero(3);
   } else {
-    double u = time / m_timeMax;
-    Eigen::Vector3d acceleration = m_angSpline.derivatives(u, 2) / m_timeMax;
+    double u = time / m_time_max;
+    Eigen::Vector3d acceleration = m_ang_spline.derivatives(u, 2) / m_time_max;
     return acceleration;
   }
 }
@@ -102,14 +102,14 @@ void TruthEngineSpline::SetControlPoints(
     row_index++;
   }
 
-  m_posSpline = Eigen::SplineFitting<Eigen::Spline3d>::Interpolate(pos_mat, 2);
-  m_angSpline = Eigen::SplineFitting<Eigen::Spline3d>::Interpolate(ang_mat, 2);
-  m_timeMax = static_cast<double>(positions.size());
+  m_pos_spline = Eigen::SplineFitting<Eigen::Spline3d>::Interpolate(pos_mat, 2);
+  m_ang_spline = Eigen::SplineFitting<Eigen::Spline3d>::Interpolate(ang_mat, 2);
+  m_time_max = static_cast<double>(positions.size());
 }
 
 bool TruthEngineSpline::IsTimeInvalid(double time)
 {
-  if (time < 0.0 || time > m_timeMax) {
+  if (time < 0.0 || time > m_time_max) {
     return false;
   } else {
     return true;

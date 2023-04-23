@@ -67,7 +67,7 @@ public:
   virtual Eigen::Vector3d GetBodyAngularAcceleration(double time) = 0;
 
 private:
-  DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton
+  DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTHENGINE_HPP_

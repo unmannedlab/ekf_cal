@@ -26,131 +26,131 @@
 #include "infrastructure/DebugLogger.hpp"
 #include "utility/MathHelper.hpp"
 
-// initializing instancePointer with NULL
-EKF * EKF::instancePointer = NULL;
+// initializing instance_pointer with NULL
+EKF * EKF::instance_pointer = NULL;
 
-Eigen::MatrixXd EKF::getStateTransition(double dT)
+Eigen::MatrixXd EKF::GetStateTransition(double dT)
 {
-  Eigen::MatrixXd F = Eigen::MatrixXd::Identity(BODY_STATE_SIZE, BODY_STATE_SIZE);
-  F.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * dT;
-  F.block<3, 3>(3, 6) = Eigen::MatrixXd::Identity(3, 3) * dT;
-  F.block<3, 3>(9, 12) = Eigen::MatrixXd::Identity(3, 3) * dT;
-  F.block<3, 3>(12, 15) = Eigen::MatrixXd::Identity(3, 3) * dT;
-  return F;
+  Eigen::MatrixXd state_transition = Eigen::MatrixXd::Identity(BODY_STATE_SIZE, BODY_STATE_SIZE);
+  state_transition.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * dT;
+  state_transition.block<3, 3>(3, 6) = Eigen::MatrixXd::Identity(3, 3) * dT;
+  state_transition.block<3, 3>(9, 12) = Eigen::MatrixXd::Identity(3, 3) * dT;
+  state_transition.block<3, 3>(12, 15) = Eigen::MatrixXd::Identity(3, 3) * dT;
+  return state_transition;
 }
 
-void EKF::processModel(double time)
+void EKF::ProcessModel(double time)
 {
-  m_logger->log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(time));
+  m_logger->Log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(time));
 
   // Don't predict if time is not initialized
-  if (!m_timeInitialized) {
-    m_currentTime = time;
-    m_timeInitialized = true;
-    m_logger->log(
+  if (!m_time_initialized) {
+    m_current_time = time;
+    m_time_initialized = true;
+    m_logger->Log(
       LogLevel::INFO,
       "EKF::Predict initialized time at t=" + std::to_string(time));
     return;
   }
 
-  if (time <= m_currentTime) {
-    m_logger->log(
+  if (time <= m_current_time) {
+    m_logger->Log(
       LogLevel::WARN, "Requested prediction to time in the past. Current t=" +
-      std::to_string(m_currentTime) + ", Requested t=" +
+      std::to_string(m_current_time) + ", Requested t=" +
       std::to_string(time));
     return;
   }
 
-  double dT = time - m_currentTime;
+  double dT = time - m_current_time;
 
-  Eigen::MatrixXd F = getStateTransition(dT);
+  Eigen::MatrixXd F = GetStateTransition(dT);
 
-  Eigen::VectorXd processUpdate = F * m_state.bodyState.toVector();
+  Eigen::VectorXd process_update = F * m_state.m_body_state.ToVector();
 
-  m_state.bodyState.SetState(processUpdate);
+  m_state.m_body_state.SetState(process_update);
 
   // Process input matrix is just identity
   m_cov.block<BODY_STATE_SIZE, BODY_STATE_SIZE>(0, 0) =
-    F * (m_cov.block<BODY_STATE_SIZE, BODY_STATE_SIZE>(0, 0) + m_processNoise) * F.transpose();
+    F * (m_cov.block<BODY_STATE_SIZE, BODY_STATE_SIZE>(0, 0) + m_process_noise) * F.transpose();
 
-  m_currentTime = time;
+  m_current_time = time;
 }
 
-State & EKF::getState()
+State & EKF::GetState()
 {
   return m_state;
 }
 
-BodyState EKF::getBodyState()
+BodyState EKF::GetBodyState()
 {
-  return m_state.bodyState;
+  return m_state.m_body_state;
 }
 
-ImuState EKF::getImuState(unsigned int imuID)
+ImuState EKF::GetImuState(unsigned int imu_id)
 {
-  return m_state.imuStates[imuID];
+  return m_state.m_imu_states[imu_id];
 }
 
-CamState EKF::getCamState(unsigned int camID)
+CamState EKF::GetCamState(unsigned int cam_id)
 {
-  return m_state.camStates[camID];
+  return m_state.m_cam_states[cam_id];
 }
 
-unsigned int EKF::getImuCount()
+unsigned int EKF::GetImuCount()
 {
-  return m_state.imuStates.size();
+  return m_state.m_imu_states.size();
 }
 
-unsigned int EKF::getCamCount()
+unsigned int EKF::GetCamCount()
 {
-  return m_state.camStates.size();
+  return m_state.m_cam_states.size();
 }
 
-Eigen::MatrixXd & EKF::getCov()
+Eigen::MatrixXd & EKF::GetCov()
 {
   return m_cov;
 }
 
-void EKF::initialize(double timeInit, BodyState bodyStateInit)
+void EKF::Initialize(double timeInit, BodyState body_state_init)
 {
-  m_currentTime = timeInit;
-  m_timeInitialized = true;
-  m_state.bodyState = bodyStateInit;
+  m_current_time = timeInit;
+  m_time_initialized = true;
+  m_state.m_body_state = body_state_init;
 }
 
-void EKF::registerIMU(unsigned int imuID, ImuState imuState, Eigen::MatrixXd covariance)
+void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd covariance)
 {
   /// @todo check that id hasn't been used before
   /// @todo replace 12s with constants from IMU class
-  unsigned int imuStateStart = BODY_STATE_SIZE + 12 * m_state.imuStates.size();
+  unsigned int imu_state_start = BODY_STATE_SIZE + 12 * m_state.m_imu_states.size();
 
-  m_cov = insertInMatrix(covariance, m_cov, imuStateStart, imuStateStart);
-  m_state.imuStates[imuID] = imuState;
+  m_cov = InsertInMatrix(covariance, m_cov, imu_state_start, imu_state_start);
+  m_state.m_imu_states[imu_id] = imu_state;
   m_stateSize += 12;
 
-  m_logger->log(
+  m_logger->Log(
     LogLevel::DEBUG, "Register IMU: " + std::to_string(
-      imuID) + ", stateSize: " + std::to_string(m_stateSize));
+      imu_id) + ", stateSize: " + std::to_string(m_stateSize));
 }
 
-void EKF::registerCamera(unsigned int camID, CamState camState, Eigen::MatrixXd covariance)
+void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixXd covariance)
 {
   /// @todo check that id hasn't been used before
-  m_state.camStates[camID] = camState;
-  m_cov = insertInMatrix(covariance, m_cov, 6, 6);
+  m_state.m_cam_states[cam_id] = cam_state;
+  m_cov = InsertInMatrix(covariance, m_cov, 6, 6);
   m_stateSize += 6;
 
-  m_logger->log(
+  m_logger->Log(
     LogLevel::DEBUG, "Register Cam: " + std::to_string(
-      camID) + ", stateSize: " + std::to_string(m_stateSize));
+      cam_id) + ", stateSize: " + std::to_string(m_stateSize));
 }
 
 /// @todo Replace this lookup with a map
-unsigned int EKF::getImuStateStartIndex(unsigned int imuID)
+unsigned int EKF::GetImuStateStartIndex(unsigned int imu_id)
 {
   unsigned int stateStartIndex = BODY_STATE_SIZE;
-  for (auto const & imuIter : m_state.imuStates) {
-    if (imuIter.first == imuID) {
+  for (auto const & imuIter : m_state.m_imu_states) {
+    if (imuIter.first == imu_id) {
       break;
     } else {
       stateStartIndex += 12;
@@ -160,29 +160,29 @@ unsigned int EKF::getImuStateStartIndex(unsigned int imuID)
 }
 
 /// @todo Replace this lookup with a map
-unsigned int EKF::getCamStateStartIndex(unsigned int camID)
+unsigned int EKF::GetCamStateStartIndex(unsigned int cam_id)
 {
   unsigned int stateStartIndex = BODY_STATE_SIZE;
-  stateStartIndex += 12 * m_state.imuStates.size();
-  for (auto const & camIter : m_state.camStates) {
-    if (camIter.first == camID) {
+  stateStartIndex += 12 * m_state.m_imu_states.size();
+  for (auto const & camIter : m_state.m_cam_states) {
+    if (camIter.first == cam_id) {
       break;
     } else {
-      stateStartIndex += 6 + 12 * camIter.second.augmentedStates.size();
+      stateStartIndex += 6 + 12 * camIter.second.augmented_states.size();
     }
   }
   return stateStartIndex;
 }
 
 /// @todo Replace this lookup with a map
-unsigned int EKF::getAugStateStartIndex(unsigned int camID, unsigned int frameID)
+unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, unsigned int frame_id)
 {
   unsigned int stateStartIndex = BODY_STATE_SIZE;
-  stateStartIndex += (12 * m_state.imuStates.size());
-  for (auto const & camIter : m_state.camStates) {
+  stateStartIndex += (12 * m_state.m_imu_states.size());
+  for (auto const & camIter : m_state.m_cam_states) {
     stateStartIndex += 6;
-    for (auto const & augIter : camIter.second.augmentedStates) {
-      if ((camIter.first == camID) && (augIter.frameID == frameID)) {
+    for (auto const & augIter : camIter.second.augmented_states) {
+      if ((camIter.first == cam_id) && (augIter.frame_id == frame_id)) {
         return stateStartIndex;
       } else {
         stateStartIndex += 12;
@@ -194,40 +194,43 @@ unsigned int EKF::getAugStateStartIndex(unsigned int camID, unsigned int frameID
 }
 
 /// @todo Augment covariance with Jacobian
-void EKF::augmentState(unsigned int cameraID, unsigned int frameID)
+void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
 {
-  AugmentedState augState;
-  augState.frameID = frameID;
+  AugmentedState aug_state;
+  aug_state.frame_id = frame_id;
 
-  augState.imuPosition = m_state.bodyState.position;
-  augState.imuOrientation = m_state.bodyState.orientation;
-  augState.position = m_state.bodyState.position +
-    m_state.bodyState.orientation * m_state.camStates[cameraID].position;
-  augState.orientation = m_state.camStates[cameraID].orientation * m_state.bodyState.orientation;
-  m_state.camStates[cameraID].augmentedStates.push_back(augState);
+  aug_state.imu_position = m_state.m_body_state.m_position;
+  aug_state.imu_orientation = m_state.m_body_state.m_orientation;
+  aug_state.position = m_state.m_body_state.m_position +
+    m_state.m_body_state.m_orientation * m_state.m_cam_states[camera_id].position;
+  aug_state.orientation = m_state.m_cam_states[camera_id].orientation *
+    m_state.m_body_state.m_orientation;
+  m_state.m_cam_states[camera_id].augmented_states.push_back(aug_state);
 
   // Limit augmented states to 20
-  if (m_state.camStates[cameraID].augmentedStates.size() <= 20) {
-    unsigned int augStateStart = getAugStateStartIndex(cameraID, frameID);
+  if (m_state.m_cam_states[camera_id].augmented_states.size() <= 20) {
+    unsigned int aug_stateStart = GetAugStateStartIndex(camera_id, frame_id);
     Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize + 12);
 
     // Insert new state
     /// @todo next: Use jacobian to initialize covariance
-    m_cov = insertInMatrix(Eigen::MatrixXd::Identity(12, 12), m_cov, augStateStart, augStateStart);
+    m_cov =
+      InsertInMatrix(Eigen::MatrixXd::Identity(12, 12), m_cov, aug_stateStart, aug_stateStart);
     m_stateSize += 12;
 
   } else {
     // Remove second element from state
-    m_state.camStates[cameraID].augmentedStates.erase(
-      m_state.camStates[cameraID].augmentedStates.begin() + 1);
+    m_state.m_cam_states[camera_id].augmented_states.erase(
+      m_state.m_cam_states[camera_id].augmented_states.begin() + 1);
 
     // Remove second element
-    unsigned int camStateStart = getCamStateStartIndex(cameraID);
-    m_cov = removeFromMatrix(m_cov, camStateStart + 24, camStateStart + 24, 12);
+    unsigned int camStateStart = GetCamStateStartIndex(camera_id);
+    m_cov = RemoveFromMatrix(m_cov, camStateStart + 24, camStateStart + 24, 12);
 
     // Insert new state
     /// @todo next: Use jacobian to initialize covariance
-    unsigned int augStateStart = getAugStateStartIndex(cameraID, frameID);
-    m_cov = insertInMatrix(Eigen::MatrixXd::Identity(12, 12), m_cov, augStateStart, augStateStart);
+    unsigned int aug_stateStart = GetAugStateStartIndex(camera_id, frame_id);
+    m_cov =
+      InsertInMatrix(Eigen::MatrixXd::Identity(12, 12), m_cov, aug_stateStart, aug_stateStart);
   }
 }

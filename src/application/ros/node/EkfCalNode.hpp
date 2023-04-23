@@ -56,110 +56,110 @@ public:
   ///
   /// @brief Initialize EKF calibration node
   ///
-  void initialize();
+  void Initialize();
 
   ///
   /// @brief Load lists of sensors
   ///
-  void loadSensors();
+  void LoadSensors();
 
   ///
   /// @brief Loading method for IMU sensors
-  /// @param imuName Name of IMU to find and load from YAML
+  /// @param imu_name Name of IMU to find and load from YAML
   ///
-  void loadIMU(std::string imuName);
+  void LoadIMU(std::string imu_name);
 
   ///
   /// @brief Loading method for IMU sensors
-  /// @param camName Name of IMU to find and load from YAML
+  /// @param cam_name Name of IMU to find and load from YAML
   ///
-  void loadCamera(std::string camName);
+  void LoadCamera(std::string cam_name);
 
   ///
   /// @brief Function for declaring and loading IMU parameters
-  /// @param imuName Name of parameter structure
+  /// @param imu_name Name of parameter structure
   /// @return imuParameters
   ///
-  IMU::Parameters getImuParameters(std::string imuName);
+  IMU::Parameters GetImuParameters(std::string imu_name);
 
   ///
   /// @brief Function for declaring and loading camera parameters
-  /// @param cameraName Name of parameter structure
+  /// @param camera_name Name of parameter structure
   /// @return cameraParameters
   ///
-  Camera::Parameters getCameraParameters(std::string cameraName);
+  Camera::Parameters GetCameraParameters(std::string camera_name);
 
   ///
   /// @brief Declare parameters for all sensors
   ///
-  void declareSensors();
+  void DeclareSensors();
 
   ///
   /// @brief Declare IMU parameters
-  /// @param imuName IMU parameter
+  /// @param imu_name IMU parameter
   ///
-  void declareImuParameters(std::string imuName);
+  void DeclareImuParameters(std::string imu_name);
 
   ///
   /// @brief Declare camera parameters
-  /// @param cameraName Camera parameter
+  /// @param camera_name Camera parameter
   ///
-  void declareCameraParameters(std::string cameraName);
+  void DeclareCameraParameters(std::string camera_name);
 
   ///
   /// @brief Declare tracker PARAMETERS
-  /// @param trackerName Tracker parameter
+  /// @param tracker_name Tracker parameter
   ///
-  void declareTrackerParameters(std::string trackerName);
+  void DeclareTrackerParameters(std::string tracker_name);
 
   ///
   /// @brief Function for declaring and loading tracker parameters
-  /// @param trackerName Name of parameter structure
+  /// @param tracker_name Name of parameter structure
   /// @return trackerParameters
   ///
-  FeatureTracker::Parameters getTrackerParameters(std::string trackerName);
+  FeatureTracker::Parameters GetTrackerParameters(std::string tracker_name);
   ///
   /// @brief Callback method for IMU sensor messages
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
   ///
-  void imuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id);
+  void ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id);
   ///
   /// @brief Callback method for Camera sensor messages
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
   ///
-  void cameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
+  void CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
 
   ///
   /// @brief Register IMU sensor
-  /// @param imuPtr IMU sensor shared pointer
+  /// @param imu_ptr IMU sensor shared pointer
   /// @param topic Topic to subscribe
   ///
-  void registerImu(std::shared_ptr<RosIMU> imuPtr, std::string topic);
+  void RegisterImu(std::shared_ptr<RosIMU> imu_ptr, std::string topic);
   ///
   /// @brief Register camera sensor
-  /// @param camPtr Camera sensor shared pointer
+  /// @param cam_ptr Camera sensor shared pointer
   /// @param topic Topic to subscribe
   ///
-  void registerCamera(std::shared_ptr<RosCamera> camPtr, std::string topic);
+  void RegisterCamera(std::shared_ptr<RosCamera> cam_ptr, std::string topic);
 
 private:
   /// @brief Vector of subscribers for IMU sensor messages
-  std::vector<rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr> m_IMUSubs;
+  std::vector<rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr> m_imu_subs;
 
   /// @brief Vector of subscribers for Camera sensor messages
-  std::vector<rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr> m_CameraSubs;
+  std::vector<rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr> m_camera_subs;
 
-  bool m_baseIMUAssigned {false};
-  std::vector<std::string> m_ImuList {};
-  std::vector<std::string> m_CameraList {};
-  std::vector<std::string> m_TrackerList {};
+  bool m_base_imu_assigned {false};
+  std::vector<std::string> m_imu_list {};
+  std::vector<std::string> m_camera_list {};
+  std::vector<std::string> m_tracker_list {};
 
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_imgPublisher;
-  DebugLogger * m_logger = DebugLogger::getInstance();
-  std::map<int, std::shared_ptr<RosIMU>> m_mapIMU{};
-  std::map<int, std::shared_ptr<RosCamera>> m_mapCamera{};
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_img_publisher;
+  DebugLogger * m_logger = DebugLogger::GetInstance();
+  std::map<int, std::shared_ptr<RosIMU>> m_map_imu{};
+  std::map<int, std::shared_ptr<RosCamera>> m_map_camera{};
 };
 
 #endif  // APPLICATION__ROS__NODE__EKFCALNODE_HPP_

@@ -34,10 +34,10 @@ class ImuMessage : public SensorMessage
 {
 public:
   ImuMessage() {}
-  Eigen::Vector3d acceleration;            ///< @brief IMU acceleration
-  Eigen::Vector3d angularRate;             ///< @brief IMU angular rate
-  Eigen::Matrix3d accelerationCovariance;  ///< @brief IMU acceleration covariance
-  Eigen::Matrix3d angularRateCovariance;   ///< @brief IMU angular rate covariance
+  Eigen::Vector3d m_acceleration;              ///< @brief IMU acceleration
+  Eigen::Vector3d m_angular_rate;              ///< @brief IMU angular rate
+  Eigen::Matrix3d m_acceleration_covariance;   ///< @brief IMU acceleration covariance
+  Eigen::Matrix3d m_angular_rate_covariance;   ///< @brief IMU angular rate covariance
 };
 
 
@@ -56,19 +56,19 @@ public:
   ///
   typedef struct Parameters
   {
-    std::string name {"Name"};                      ///< @brief IMU name
-    std::string topic {"Topic"};                    ///< @brief IMU topic
-    bool baseSensor{true};                          ///< @brief IMU base sensor flag
-    bool intrinsic{false};                          ///< @brief IMU intrinsic calibration
-    double rate{1.0};                               ///< @brief IMU update rate
-    Eigen::Vector3d posOffset {0, 0, 0};            ///< @brief IMU position offset vector
-    Eigen::Quaterniond angOffset {1, 0, 0, 0};      ///< @brief IMU angular offset quaternion
-    Eigen::Vector3d accBias {0, 0, 0};              ///< @brief IMU accelerometer bias vector
-    Eigen::Vector3d omgBias {0, 0, 0};              ///< @brief IMU gyroscope bias vector
-    double accBiasStability {0};                    ///< @brief IMU accelerometer bias stability
-    double omgBiasStability {0};                    ///< @brief IMU gyroscope bias stability
-    std::string outputDirectory {""};               ///< @brief IMU data logging directory
-    bool dataLoggingOn {false};                     ///< @brief IMU data logging flag
+    std::string name {"Name"};                   ///< @brief IMU name
+    std::string topic {"Topic"};                 ///< @brief IMU topic
+    bool base_sensor{true};                      ///< @brief IMU base sensor flag
+    bool intrinsic{false};                       ///< @brief IMU intrinsic calibration
+    double rate{1.0};                            ///< @brief IMU update rate
+    Eigen::Vector3d pos_offset {0, 0, 0};        ///< @brief IMU position offset vector
+    Eigen::Quaterniond ang_offset {1, 0, 0, 0};  ///< @brief IMU angular offset quaternion
+    Eigen::Vector3d acc_bias {0, 0, 0};          ///< @brief IMU accelerometer bias vector
+    Eigen::Vector3d omg_bias {0, 0, 0};          ///< @brief IMU gyroscope bias vector
+    double acc_bias_stability {0};               ///< @brief IMU accelerometer bias stability
+    double omg_bias_stability {0};               ///< @brief IMU gyroscope bias stability
+    std::string output_directory {""};           ///< @brief IMU data logging directory
+    bool data_logging_on {false};                ///< @brief IMU data logging flag
     /// @brief Initial state variance
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
   } Parameters;
@@ -81,15 +81,15 @@ public:
 
   ///
   /// @brief Callback method for IMU measurements
-  /// @param imuMessage IMU measurement message
+  /// @param imu_message IMU measurement message
   ///
-  void callback(std::shared_ptr<ImuMessage> imuMessage);
+  void Callback(std::shared_ptr<ImuMessage> imu_message);
 
 private:
-  bool m_isBaseSensor;
-  bool m_isIntrinsic;
+  bool m_is_base_sensor;
+  bool m_is_intrinsic;
 
-  ImuUpdater m_imuUpdater;
+  ImuUpdater m_imu_updater;
 };
 
 #endif  // SENSORS__IMU_HPP_

@@ -19,58 +19,58 @@
 #include "../DebugLogger.hpp"
 
 
-DebugLogger * DebugLogger::m_instancePointer = NULL;
+DebugLogger * DebugLogger::m_instance_pointer = NULL;
 
-void DebugLogger::setLogLevel(LogLevel level)
+void DebugLogger::SetLogLevel(LogLevel level)
 {
-  if ((m_logLevel <= LogLevel::INFO) ||
+  if ((m_log_level <= LogLevel::INFO) ||
     (static_cast<LogLevel>(level) <= LogLevel::INFO))
   {
     std::cout << "[" <<
-      m_logLevelNames[static_cast<std::underlying_type<LogLevel>::type>(LogLevel::INFO)
+      m_log_level_names[static_cast<std::underlying_type<LogLevel>::type>(LogLevel::INFO)
       ] << "]: " <<
       "Log level set to: " <<
-      m_logLevelNames[static_cast<std::underlying_type<LogLevel>::type>(level)] <<
+      m_log_level_names[static_cast<std::underlying_type<LogLevel>::type>(level)] <<
       std::endl;
   }
 
-  m_logLevel = level;
+  m_log_level = level;
 }
 
-void DebugLogger::setLogLevel(unsigned int level)
+void DebugLogger::SetLogLevel(unsigned int level)
 {
-  if ((m_logLevel <= LogLevel::INFO) ||
+  if ((m_log_level <= LogLevel::INFO) ||
     (static_cast<LogLevel>(level) <= LogLevel::INFO))
   {
     std::cout << "[" <<
-      m_logLevelNames[static_cast<std::underlying_type<LogLevel>::type>(LogLevel::INFO)
+      m_log_level_names[static_cast<std::underlying_type<LogLevel>::type>(LogLevel::INFO)
       ] << "]: " <<
       "Log level set to: " <<
-      m_logLevelNames[static_cast<std::underlying_type<LogLevel>::type>(level)] <<
+      m_log_level_names[static_cast<std::underlying_type<LogLevel>::type>(level)] <<
       std::endl;
   }
 
-  m_logLevel = static_cast<LogLevel>(level);
+  m_log_level = static_cast<LogLevel>(level);
 }
 
 DebugLogger::~DebugLogger()
 {
-  if (m_logLevel <= LogLevel::INFO) {
+  if (m_log_level <= LogLevel::INFO) {
     std::cout << "[" <<
-      m_logLevelNames[static_cast<std::underlying_type<LogLevel>::type>(LogLevel::INFO)
+      m_log_level_names[static_cast<std::underlying_type<LogLevel>::type>(LogLevel::INFO)
       ] << "]: " <<
       "Logger destroyed" << std::endl;
   }
 }
 
-void DebugLogger::log(LogLevel level, std::string message)
+void DebugLogger::Log(LogLevel level, std::string message)
 {
-  if (m_logLevel >= level) {
+  if (m_log_level >= level) {
     switch (level) {
       case LogLevel::DEBUG:
       case LogLevel::INFO:
         std::cout << "[" <<
-          m_logLevelNames[static_cast<std::underlying_type<LogLevel>::type>(level)] <<
+          m_log_level_names[static_cast<std::underlying_type<LogLevel>::type>(level)] <<
           "]: " <<
           message << std::endl;
         return;
@@ -78,7 +78,7 @@ void DebugLogger::log(LogLevel level, std::string message)
       case LogLevel::ERROR:
       case LogLevel::FATAL:
         std::cerr << "[" <<
-          m_logLevelNames[static_cast<std::underlying_type<LogLevel>::type>(level)] <<
+          m_log_level_names[static_cast<std::underlying_type<LogLevel>::type>(level)] <<
           "]: " <<
           message << std::endl;
         return;

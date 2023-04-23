@@ -43,13 +43,13 @@ public:
   SensorMessage() {}
 
   /// @brief Associated sensor ID of measurement
-  unsigned int sensorID;
+  unsigned int m_sensor_id;
 
   /// @brief Associated sensor type of measurement
-  SensorType sensorType;
+  SensorType m_sensor_type;
 
   /// @brief Measurement time
-  double time;
+  double m_time;
 };
 
 ///
@@ -71,36 +71,33 @@ public:
   /// @brief Sensor ID getter method
   /// @return Sensor ID
   ///
-  unsigned int getId();
+  unsigned int GetId();
 
   ///
   /// @brief Sensor name getter method
   /// @return Sensor name
   ///
-  std::string getName();
+  std::string GetName();
 
   ///
   /// @brief
-  /// @param sensorMessage
+  /// @param sensor_message
   ///
-  void callback(SensorMessage sensorMessage);
+  void Callback(SensorMessage sensor_message);
 
 protected:
-  Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};          ///< @brief Sensor position offset vector
-  Eigen::Quaterniond m_angOffset{0.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset quaternion
-
   double m_rate;                      ///< @brief Sensor measurement rate
   unsigned int m_id;                  ///< @brief Sensor id
   std::string m_name;                 ///< @brief Sensor name
 
-  EKF * m_ekf = EKF::getInstance();           ///< @brief EKF singleton
-  DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton
+  EKF * m_ekf = EKF::GetInstance();           ///< @brief EKF singleton
+  DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
 
 private:
-  static unsigned int _sensorCount;
+  static unsigned int m_sensor_count;
 };
 
 
-bool messageCompare(std::shared_ptr<SensorMessage> a, std::shared_ptr<SensorMessage> b);
+bool MessageCompare(std::shared_ptr<SensorMessage> a, std::shared_ptr<SensorMessage> b);
 
 #endif  // SENSORS__SENSOR_HPP_

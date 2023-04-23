@@ -22,36 +22,36 @@
 
 Eigen::Vector3d TruthEngine::GetBodyPosition(double time)
 {
-  m_logger->log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
+  m_logger->Log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
   return Eigen::Vector3d::Zero(3);
 }
 
 Eigen::Vector3d TruthEngine::GetBodyVelocity(double time)
 {
-  m_logger->log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
+  m_logger->Log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
   return Eigen::Vector3d::Zero(3);
 }
 
 Eigen::Vector3d TruthEngine::GetBodyAcceleration(double time)
 {
-  m_logger->log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
+  m_logger->Log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
   return Eigen::Vector3d::Zero(3);
 }
 
 Eigen::Quaterniond TruthEngine::GetBodyAngularPosition(double time)
 {
-  m_logger->log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
+  m_logger->Log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
   return Eigen::Quaterniond::Identity();
 }
 
 Eigen::Vector3d TruthEngine::GetBodyAngularRate(double time)
 {
-  m_logger->log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
+  m_logger->Log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
   return Eigen::Vector3d::Zero(3);
 }
 
 Eigen::Vector3d TruthEngine::GetBodyAngularAcceleration(double time)
 {
-  m_logger->log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
+  m_logger->Log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
   return Eigen::Vector3d::Zero(3);
 }

@@ -21,71 +21,71 @@
 #include <memory>
 #include <cmath>
 
+#include "ekf/Constants.hpp"
 #include "infrastructure/sim/TruthEngine.hpp"
 #include "utility/sim/SimRNG.hpp"
 #include "utility/MathHelper.hpp"
 
 SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngine)
-: IMU(params.imuParams)
+: IMU(params.imu_params)
 {
-  m_tBias = params.tBias;
-  m_tSkew = params.tSkew;
-  m_tError = std::max(params.tError, 1e-9);
-  m_accBias = params.accBias;
-  m_accError = minBoundVector(params.accError, 1e-9);
-  m_omgBias = params.omgBias;
-  m_omgError = minBoundVector(params.omgError, 1e-9);
-  m_posOffset = params.posOffset;
-  m_angOffset = params.angOffset;
+  m_time_bias = params.time_bias;
+  m_time_skew = params.time_skew;
+  m_time_error = std::max(params.time_error, 1e-9);
+  m_acc_bias = params.acc_bias;
+  m_acc_error = MinBoundVector(params.acc_error, 1e-9);
+  m_omg_bias = params.omg_bias;
+  m_omg_error = MinBoundVector(params.omg_error, 1e-9);
+  m_pos_offset = params.pos_offset;
+  m_ang_offset = params.ang_offset;
   m_truth = truthEngine;
 }
 
-std::vector<std::shared_ptr<SimImuMessage>> SimIMU::generateMessages(double maxTime)
+std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double maxTime)
 {
-  double nMeasurements = static_cast<int>(std::round(maxTime * m_rate / (1 + m_tSkew)));
+  double num_measurements = static_cast<int>(std::round(maxTime * m_rate / (1 + m_time_skew)));
   std::vector<std::shared_ptr<SimImuMessage>> messages;
-  m_logger->log(LogLevel::INFO, "Generating " + std::to_string(nMeasurements) + " measurements");
+  m_logger->Log(LogLevel::INFO, "Generating " + std::to_string(num_measurements) + " measurements");
 
-  for (unsigned int i = 0; i < nMeasurements; ++i) {
-    auto simImuMsg = std::make_shared<SimImuMessage>();
-    double measurementTime = (1.0 + m_tSkew) / m_rate * static_cast<double>(i);
-    simImuMsg->time = measurementTime + m_rng.NormRand(m_tBias, m_tError);
-    simImuMsg->sensorID = m_id;
-    simImuMsg->sensorType = SensorType::IMU;
+  for (unsigned int i = 0; i < num_measurements; ++i) {
+    auto sim_imu_msg = std::make_shared<SimImuMessage>();
+    double measurementTime = (1.0 + m_time_skew) / m_rate * static_cast<double>(i);
+    sim_imu_msg->m_time = measurementTime + m_rng.NormRand(m_time_bias, m_time_error);
+    sim_imu_msg->m_sensor_id = m_id;
+    sim_imu_msg->m_sensor_type = SensorType::IMU;
 
-    Eigen::Vector3d bodyAcc = m_truth->GetBodyAcceleration(measurementTime);
-    Eigen::Quaterniond bodyAngPos = m_truth->GetBodyAngularPosition(measurementTime);
-    Eigen::Vector3d bodyAngVel = m_truth->GetBodyAngularRate(measurementTime);
-    Eigen::Vector3d bodyAngAcc = m_truth->GetBodyAngularAcceleration(measurementTime);
+    Eigen::Vector3d body_acc = m_truth->GetBodyAcceleration(measurementTime);
+    Eigen::Quaterniond body_ang_pos = m_truth->GetBodyAngularPosition(measurementTime);
+    Eigen::Vector3d body_ang_vel = m_truth->GetBodyAngularRate(measurementTime);
+    Eigen::Vector3d body_ang_acc = m_truth->GetBodyAngularAcceleration(measurementTime);
 
     // Transform acceleration to IMU location
-    Eigen::Vector3d imuAcc = bodyAcc +
-      bodyAngAcc.cross(m_posOffset) +
-      bodyAngVel.cross((bodyAngVel.cross(m_posOffset)));
+    Eigen::Vector3d imuAcc = body_acc +
+      body_ang_acc.cross(m_pos_offset) +
+      body_ang_vel.cross((body_ang_vel.cross(m_pos_offset)));
 
     // Rotate measurements in place
-    Eigen::Vector3d imuAccRot = m_angOffset * imuAcc;
-    Eigen::Vector3d imuOmgRot = m_angOffset * bodyAngVel;
+    Eigen::Vector3d imu_acc_rot = m_ang_offset * imuAcc;
+    Eigen::Vector3d imu_omg_rot = m_ang_offset * body_ang_vel;
 
-    /// @todo move gravity to constants file
-    imuAccRot += bodyAngPos * m_angOffset * Eigen::Vector3d(0, 0, 9.80665);
+    imu_acc_rot += body_ang_pos * m_ang_offset * GRAVITY;
 
-    simImuMsg->acceleration = imuAccRot;
-    simImuMsg->acceleration[0] += m_rng.NormRand(m_accBias[0], m_accError[0]);
-    simImuMsg->acceleration[1] += m_rng.NormRand(m_accBias[1], m_accError[1]);
-    simImuMsg->acceleration[2] += m_rng.NormRand(m_accBias[2], m_accError[2]);
+    sim_imu_msg->m_acceleration = imu_acc_rot;
+    sim_imu_msg->m_acceleration[0] += m_rng.NormRand(m_acc_bias[0], m_acc_error[0]);
+    sim_imu_msg->m_acceleration[1] += m_rng.NormRand(m_acc_bias[1], m_acc_error[1]);
+    sim_imu_msg->m_acceleration[2] += m_rng.NormRand(m_acc_bias[2], m_acc_error[2]);
 
-    simImuMsg->angularRate = imuOmgRot;
-    simImuMsg->angularRate[0] += m_rng.NormRand(m_omgBias[0], m_omgError[0]);
-    simImuMsg->angularRate[1] += m_rng.NormRand(m_omgBias[1], m_omgError[1]);
-    simImuMsg->angularRate[2] += m_rng.NormRand(m_omgBias[2], m_omgError[2]);
+    sim_imu_msg->m_angular_rate = imu_omg_rot;
+    sim_imu_msg->m_angular_rate[0] += m_rng.NormRand(m_omg_bias[0], m_omg_error[0]);
+    sim_imu_msg->m_angular_rate[1] += m_rng.NormRand(m_omg_bias[1], m_omg_error[1]);
+    sim_imu_msg->m_angular_rate[2] += m_rng.NormRand(m_omg_bias[2], m_omg_error[2]);
 
-    Eigen::Vector3d accSigmas(m_accError[0], m_accError[1], m_accError[2]);
-    Eigen::Vector3d omgSigmas(m_omgError[0], m_omgError[1], m_omgError[2]);
+    Eigen::Vector3d accSigmas(m_acc_error[0], m_acc_error[1], m_acc_error[2]);
+    Eigen::Vector3d omgSigmas(m_omg_error[0], m_omg_error[1], m_omg_error[2]);
 
-    simImuMsg->accelerationCovariance = accSigmas.asDiagonal();
-    simImuMsg->angularRateCovariance = omgSigmas.asDiagonal();
-    messages.push_back(simImuMsg);
+    sim_imu_msg->m_acceleration_covariance = accSigmas.asDiagonal();
+    sim_imu_msg->m_angular_rate_covariance = omgSigmas.asDiagonal();
+    messages.push_back(sim_imu_msg);
   }
   return messages;
 }

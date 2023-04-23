@@ -39,7 +39,7 @@ public:
   /// @brief Define SimCameraMessage constructor with CameraMessage's
   ///
   using CameraMessage::CameraMessage;
-  std::shared_ptr<SimFeatureTrackerMessage> featureTrackMessage;
+  std::shared_ptr<SimFeatureTrackerMessage> m_feature_track_message;
 };
 
 ///
@@ -54,39 +54,39 @@ public:
   ///
   typedef struct Parameters
   {
-    double tBias {0.0};                                 ///< @brief Time offset bias
-    double tSkew {1.0};                               ///< @brief Time offset error
-    double tError {1e-9};                               ///< @brief Time offset error
-    Eigen::Vector3d posOffset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
-    Eigen::Quaterniond angOffset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
-    Camera::Parameters camParams;                              ///< @brief IMU sensor parameters
+    double time_bias {0.0};                                 ///< @brief Time offset bias
+    double time_skew {1.0};                               ///< @brief Time offset error
+    double time_error {1e-9};                               ///< @brief Time offset error
+    Eigen::Vector3d pos_offset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
+    Eigen::Quaterniond ang_offset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
+    Camera::Parameters cam_params;                              ///< @brief IMU sensor parameters
   } Parameters;
 
   ///
   /// @brief Simulation IMU constructor
   /// @param params Simulation IMU parameters
-  /// @param truthEngine Truth engine
+  /// @param truth_engine Truth engine
   ///
-  SimCamera(SimCamera::Parameters params, std::shared_ptr<TruthEngine> truthEngine);
+  SimCamera(SimCamera::Parameters params, std::shared_ptr<TruthEngine> truth_engine);
 
-  void addTracker(std::shared_ptr<SimFeatureTracker> tracker);
+  void AddTracker(std::shared_ptr<SimFeatureTracker> tracker);
 
-  std::vector<double> generateMessageTimes(double maxTime);
+  std::vector<double> GenerateMessageTimes(double max_time);
 
-  void callback(std::shared_ptr<SimCameraMessage> simCameraMessage);
+  void Callback(std::shared_ptr<SimCameraMessage> sim_camera_message);
 
   ///
   /// @brief Generate simulated IMU messages
-  /// @param maxTime Maximum time of generated messages
+  /// @param max_time Maximum time of generated messages
   ///
-  std::vector<std::shared_ptr<SimCameraMessage>> generateMessages(double maxTime);
+  std::vector<std::shared_ptr<SimCameraMessage>> GenerateMessages(double max_time);
 
 private:
-  double m_tBias{0.0};
-  double m_tSkew{0.0};
-  double m_tError{1e-9};
-  Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_angOffset{1.0, 0.0, 0.0, 0.0};
+  double m_time_bias{0.0};
+  double m_time_skew{0.0};
+  double m_time_error{1e-9};
+  Eigen::Vector3d m_pos_offset{0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_ang_offset{1.0, 0.0, 0.0, 0.0};
   SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
 

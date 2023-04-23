@@ -20,102 +20,102 @@
 
 ///
 /// @brief Produces a cross product matrix
-/// @param inVec Input vector with which to find the left hand size cross
+/// @param in_vec Input vector with which to find the left hand size cross
 /// product matrix
 /// @return Cross product matrix
 ///
-inline Eigen::Matrix3d skewSymmetric(Eigen::Vector3d inVec)
+inline Eigen::Matrix3d SkewSymmetric(Eigen::Vector3d in_vec)
 {
-  Eigen::Matrix3d outMat = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d out_mat = Eigen::Matrix3d::Zero();
 
-  outMat(0U, 1U) = -inVec(2U);
-  outMat(0U, 2U) = inVec(1U);
-  outMat(1U, 2U) = -inVec(0U);
-  outMat(1U, 0U) = inVec(2U);
-  outMat(2U, 0U) = -inVec(1U);
-  outMat(2U, 1U) = inVec(0U);
+  out_mat(0U, 1U) = -in_vec(2U);
+  out_mat(0U, 2U) = in_vec(1U);
+  out_mat(1U, 2U) = -in_vec(0U);
+  out_mat(1U, 0U) = in_vec(2U);
+  out_mat(2U, 0U) = -in_vec(1U);
+  out_mat(2U, 1U) = in_vec(0U);
 
-  return outMat;
+  return out_mat;
 }
 
 ///
 /// @brief Bound matrix diagonal by a minimum value
-/// @param inMat Input matrix to be bound
-/// @param minBound Bounding value
+/// @param in_mat Input matrix to be bound
+/// @param min_bound Bounding value
 /// @return
 ///
-inline Eigen::MatrixXd minBoundDiagonal(Eigen::MatrixXd inMat, double minBound)
+inline Eigen::MatrixXd MinBoundDiagonal(Eigen::MatrixXd in_mat, double min_bound)
 {
-  Eigen::MatrixXd outMat = inMat;
-  for (unsigned int i = 0; i < inMat.rows() && i < inMat.cols(); ++i) {
-    if (outMat(i, i) < minBound) {
-      outMat(i, i) = minBound;
+  Eigen::MatrixXd out_mat = in_mat;
+  for (unsigned int i = 0; i < in_mat.rows() && i < in_mat.cols(); ++i) {
+    if (out_mat(i, i) < min_bound) {
+      out_mat(i, i) = min_bound;
     }
   }
 
-  return outMat;
+  return out_mat;
 }
 
 ///
 /// @brief Bound vector by a minimum value
-/// @param inVec Input vector to be bound
-/// @param minBound Bounding value
+/// @param in_vec Input vector to be bound
+/// @param min_bound Bounding value
 /// @return
 ///
-inline Eigen::VectorXd minBoundVector(Eigen::VectorXd inVec, double minBound)
+inline Eigen::VectorXd MinBoundVector(Eigen::VectorXd in_vec, double min_bound)
 {
-  Eigen::VectorXd outVec = inVec;
-  for (unsigned int i = 0; i < outVec.size(); ++i) {
-    if (outVec(i) < minBound) {
-      outVec(i) = minBound;
+  Eigen::VectorXd out_vec = in_vec;
+  for (unsigned int i = 0; i < out_vec.size(); ++i) {
+    if (out_vec(i) < min_bound) {
+      out_vec(i) = min_bound;
     }
   }
 
-  return outVec;
+  return out_vec;
 }
 
-inline Eigen::MatrixXd insertInMatrix(
-  Eigen::MatrixXd subMat, Eigen::MatrixXd inMat, unsigned int row,
+inline Eigen::MatrixXd InsertInMatrix(
+  Eigen::MatrixXd sub_mat, Eigen::MatrixXd in_mat, unsigned int row,
   unsigned int col)
 {
-  unsigned int iRows = inMat.rows();
-  unsigned int iCols = inMat.cols();
-  unsigned int sRows = subMat.rows();
-  unsigned int sCols = subMat.cols();
-  unsigned int oRows = inMat.rows() + subMat.rows();
-  unsigned int oCols = inMat.cols() + subMat.cols();
+  unsigned int in_rows = in_mat.rows();
+  unsigned int in_cols = in_mat.cols();
+  unsigned int sub_rows = sub_mat.rows();
+  unsigned int sub_cols = sub_mat.cols();
+  unsigned int out_rows = in_mat.rows() + sub_mat.rows();
+  unsigned int out_cols = in_mat.cols() + sub_mat.cols();
 
-  Eigen::MatrixXd outMat = Eigen::MatrixXd::Zero(oRows, oCols);
+  Eigen::MatrixXd out_mat = Eigen::MatrixXd::Zero(out_rows, out_cols);
 
-  outMat.block(0, 0, row, col) = inMat.block(0, 0, row, col);
-  outMat.block(row, col, sRows, sCols) = subMat;
-  outMat.block(row + sRows, col + sCols, iRows - row, iCols - col) =
-    inMat.block(row, col, iRows - row, iCols - col);
+  out_mat.block(0, 0, row, col) = in_mat.block(0, 0, row, col);
+  out_mat.block(row, col, sub_rows, sub_cols) = sub_mat;
+  out_mat.block(row + sub_rows, col + sub_cols, in_rows - row, in_cols - col) =
+    in_mat.block(row, col, in_rows - row, in_cols - col);
 
-  return outMat;
+  return out_mat;
 }
 
-inline Eigen::MatrixXd removeFromMatrix(
-  Eigen::MatrixXd inMat, unsigned int row,
+inline Eigen::MatrixXd RemoveFromMatrix(
+  Eigen::MatrixXd in_mat, unsigned int row,
   unsigned int col, unsigned int size)
 {
-  unsigned int iRows = inMat.rows();
-  unsigned int iCols = inMat.cols();
+  unsigned int in_rows = in_mat.rows();
+  unsigned int in_cols = in_mat.cols();
 
-  Eigen::MatrixXd outMat = Eigen::MatrixXd::Zero(iRows - size, iCols - size);
+  Eigen::MatrixXd out_mat = Eigen::MatrixXd::Zero(in_rows - size, in_cols - size);
 
-  outMat.block(0, 0, row, col) = inMat.block(0, 0, row, col);
+  out_mat.block(0, 0, row, col) = in_mat.block(0, 0, row, col);
 
-  outMat.block(row, col, iRows - row - size, iCols - col - size) =
-    inMat.block(row + size, col + size, iRows - row - size, iCols - col - size);
+  out_mat.block(row, col, in_rows - row - size, in_cols - col - size) =
+    in_mat.block(row + size, col + size, in_rows - row - size, in_cols - col - size);
 
-  outMat.block(row, 0, iRows - row - size, col) =
-    inMat.block(row + size, 0, iRows - row - size, col);
+  out_mat.block(row, 0, in_rows - row - size, col) =
+    in_mat.block(row + size, 0, in_rows - row - size, col);
 
-  outMat.block(0, col, row, iCols - col - size) =
-    inMat.block(0, col + size, row, iCols - col - size);
+  out_mat.block(0, col, row, in_cols - col - size) =
+    in_mat.block(0, col + size, row, in_cols - col - size);
 
-  return outMat;
+  return out_mat;
 }
 
 #endif  // UTILITY__MATHHELPER_HPP_

@@ -25,62 +25,61 @@
 SimFeatureTracker::SimFeatureTracker(
   SimFeatureTracker::Parameters params,
   std::shared_ptr<TruthEngine> truthEngine)
-: FeatureTracker(params.trackerParams)
+: FeatureTracker(params.tracker_params)
 {
-  m_pxError = params.pxError;
-  m_featureCount = params.featureCount;
+  m_px_error = params.px_error;
+  m_feature_count = params.feature_count;
   m_truth = truthEngine;
 
-  m_featurePoints.push_back(cv::Point3d(1, 0, 0));
-  m_featurePoints.push_back(cv::Point3d(-1, 0, 0));
-  m_featurePoints.push_back(cv::Point3d(0, 1, 0));
-  m_featurePoints.push_back(cv::Point3d(0, -1, 0));
-  m_featurePoints.push_back(cv::Point3d(0, 0, 1));
-  m_featurePoints.push_back(cv::Point3d(0, 0, -1));
-  for (unsigned int i = 0; i < m_featureCount; ++i) {
+  m_feature_points.push_back(cv::Point3d(1, 0, 0));
+  m_feature_points.push_back(cv::Point3d(-1, 0, 0));
+  m_feature_points.push_back(cv::Point3d(0, 1, 0));
+  m_feature_points.push_back(cv::Point3d(0, -1, 0));
+  m_feature_points.push_back(cv::Point3d(0, 0, 1));
+  m_feature_points.push_back(cv::Point3d(0, 0, -1));
+  for (unsigned int i = 0; i < m_feature_count; ++i) {
     cv::Point3d vec;
-    vec.x = m_rng.UniRand(-params.roomSize, params.roomSize);
-    vec.y = m_rng.UniRand(-params.roomSize, params.roomSize);
-    vec.z = m_rng.UniRand(-params.roomSize / 10, params.roomSize / 10);
-    m_featurePoints.push_back(vec);
+    vec.x = m_rng.UniRand(-params.room_size, params.room_size);
+    vec.y = m_rng.UniRand(-params.room_size, params.room_size);
+    vec.z = m_rng.UniRand(-params.room_size / 10, params.room_size / 10);
+    m_feature_points.push_back(vec);
   }
 
-  m_projMatrix = cv::Mat(3, 3, cv::DataType<double>::type, 0.0);
-  m_projMatrix.at<double>(0, 0) = m_focalLength;
-  m_projMatrix.at<double>(1, 1) = m_focalLength;
-  m_projMatrix.at<double>(0, 2) = static_cast<double>(m_imageWidth) / 2.0;
-  m_projMatrix.at<double>(1, 2) = static_cast<double>(m_imageHeight) / 2.0;
-  m_projMatrix.at<double>(2, 2) = 1;
+  m_proj_matrix = cv::Mat(3, 3, cv::DataType<double>::type, 0.0);
+  m_proj_matrix.at<double>(0, 0) = m_focal_length;
+  m_proj_matrix.at<double>(1, 1) = m_focal_length;
+  m_proj_matrix.at<double>(0, 2) = static_cast<double>(m_image_width) / 2.0;
+  m_proj_matrix.at<double>(1, 2) = static_cast<double>(m_image_height) / 2.0;
+  m_proj_matrix.at<double>(2, 2) = 1;
 }
 
 /// @todo Write visibleKeypoints function
-std::vector<cv::KeyPoint> SimFeatureTracker::visibleKeypoints(double time)
+std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 {
-  std::vector<Eigen::Vector3d> keypoints;
-  Eigen::Vector3d bodyPos = m_truth->GetBodyPosition(time);
-  Eigen::Quaterniond bodyAng = m_truth->GetBodyAngularPosition(time);
-  Eigen::Quaterniond camAng = bodyAng * m_angOffset;
-  Eigen::Matrix3d camAngEigMat = camAng.toRotationMatrix();
-  Eigen::Vector3d camPlaneVec = camAng * Eigen::Vector3d(0, 0, 1);
+  Eigen::Vector3d body_pos = m_truth->GetBodyPosition(time);
+  Eigen::Quaterniond body_ang = m_truth->GetBodyAngularPosition(time);
+  Eigen::Quaterniond cam_ang = body_ang * m_ang_offset;
+  Eigen::Matrix3d cam_ang_eig_mat = cam_ang.toRotationMatrix();
+  Eigen::Vector3d cam_plane_vec = cam_ang * Eigen::Vector3d(0, 0, 1);
 
-  cv::Mat camAngCvMat(3, 3, cv::DataType<double>::type);
-  camAngCvMat.at<double>(0, 0) = camAngEigMat(0, 0);
-  camAngCvMat.at<double>(1, 0) = camAngEigMat(1, 0);
-  camAngCvMat.at<double>(2, 0) = camAngEigMat(2, 0);
+  cv::Mat cam_ang_cv_mat(3, 3, cv::DataType<double>::type);
+  cam_ang_cv_mat.at<double>(0, 0) = cam_ang_eig_mat(0, 0);
+  cam_ang_cv_mat.at<double>(1, 0) = cam_ang_eig_mat(1, 0);
+  cam_ang_cv_mat.at<double>(2, 0) = cam_ang_eig_mat(2, 0);
 
-  camAngCvMat.at<double>(0, 1) = camAngEigMat(0, 1);
-  camAngCvMat.at<double>(1, 1) = camAngEigMat(1, 1);
-  camAngCvMat.at<double>(2, 1) = camAngEigMat(2, 1);
+  cam_ang_cv_mat.at<double>(0, 1) = cam_ang_eig_mat(0, 1);
+  cam_ang_cv_mat.at<double>(1, 1) = cam_ang_eig_mat(1, 1);
+  cam_ang_cv_mat.at<double>(2, 1) = cam_ang_eig_mat(2, 1);
 
-  camAngCvMat.at<double>(0, 2) = camAngEigMat(0, 2);
-  camAngCvMat.at<double>(1, 2) = camAngEigMat(1, 2);
-  camAngCvMat.at<double>(2, 2) = camAngEigMat(2, 2);
+  cam_ang_cv_mat.at<double>(0, 2) = cam_ang_eig_mat(0, 2);
+  cam_ang_cv_mat.at<double>(1, 2) = cam_ang_eig_mat(1, 2);
+  cam_ang_cv_mat.at<double>(2, 2) = cam_ang_eig_mat(2, 2);
 
   // Creating Rodrigues rotation matrix
-  cv::Mat rVec(3, 1, cv::DataType<double>::type);
-  cv::Rodrigues(camAngCvMat, rVec);
+  cv::Mat rot_vec(3, 1, cv::DataType<double>::type);
+  cv::Rodrigues(cam_ang_cv_mat, rot_vec);
 
-  Eigen::Vector3d camPos = bodyPos + bodyAng * m_posOffset;
+  Eigen::Vector3d camPos = body_pos + body_ang * m_pos_offset;
   cv::Mat T(3, 1, cv::DataType<double>::type);
   T.at<double>(0) = camPos[0];
   T.at<double>(1) = camPos[1];
@@ -95,85 +94,85 @@ std::vector<cv::KeyPoint> SimFeatureTracker::visibleKeypoints(double time)
   distortion.at<double>(3) = 0;
 
   // Project points
-  std::vector<cv::Point2d> projectedPoints;
+  std::vector<cv::Point2d> projected_points;
 
   /// @todo 2D projection is not correct
-  cv::projectPoints(m_featurePoints, rVec, T, m_projMatrix, distortion, projectedPoints);
+  cv::projectPoints(m_feature_points, rot_vec, T, m_proj_matrix, distortion, projected_points);
 
   // Convert to feature points
-  std::vector<cv::KeyPoint> projectedFeatures;
-  for (unsigned int i = 0; i < projectedPoints.size(); ++i) {
-    cv::Point3d pointCV = m_featurePoints[i];
+  std::vector<cv::KeyPoint> projected_features;
+  for (unsigned int i = 0; i < projected_points.size(); ++i) {
+    cv::Point3d pointCV = m_feature_points[i];
     Eigen::Vector3d pointEig(pointCV.x, pointCV.y, pointCV.z);
 
     // Check that point is in front of camera plane
-    if (camPlaneVec.dot(pointEig) > 0) {
+    if (cam_plane_vec.dot(pointEig) > 0) {
       cv::KeyPoint feat;
-      feat.pt.x = projectedPoints[i].x;
-      feat.pt.y = projectedPoints[i].y;
+      feat.pt.x = projected_points[i].x;
+      feat.pt.y = projected_points[i].y;
       feat.class_id = i;
       if (
         feat.pt.x > 0 &&
         feat.pt.y > 0 &&
-        feat.pt.x < m_imageWidth &&
-        feat.pt.y < m_imageHeight)
+        feat.pt.x < m_image_width &&
+        feat.pt.y < m_image_height)
       {
-        projectedFeatures.push_back(feat);
+        projected_features.push_back(feat);
       }
     }
   }
 
-  return projectedFeatures;
+  return projected_features;
 }
 
 /// @todo Write generateMessages function
-std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::generateMessages(
-  std::vector<double> messageTimes, unsigned int sensorID)
+std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::GenerateMessages(
+  std::vector<double> message_times, unsigned int sensor_id)
 {
-  m_logger->log(
-    LogLevel::INFO, "Generating " + std::to_string(messageTimes.size()) + " measurements");
+  m_logger->Log(
+    LogLevel::INFO, "Generating " + std::to_string(message_times.size()) + " measurements");
 
-  std::map<unsigned int, std::vector<FeatureTrack>> featureTrackMap;
-  std::vector<std::shared_ptr<SimFeatureTrackerMessage>> trackerMessages;
+  std::map<unsigned int, std::vector<FeatureTrack>> feature_track_map;
+  std::vector<std::shared_ptr<SimFeatureTrackerMessage>> tracker_messages;
 
-  for (unsigned int frameID = 0; frameID < messageTimes.size(); ++frameID) {
-    std::vector<std::vector<FeatureTrack>> featureTracks;
+  for (unsigned int frame_id = 0; frame_id < message_times.size(); ++frame_id) {
+    std::vector<std::vector<FeatureTrack>> feature_tracks;
 
-    std::vector<cv::KeyPoint> keyPoints = visibleKeypoints(messageTimes[frameID]);
+    std::vector<cv::KeyPoint> key_points = VisibleKeypoints(message_times[frame_id]);
 
-    for (auto & keyPoint : keyPoints) {
-      auto featureTrack = FeatureTrack{frameID, keyPoint};
-      featureTrackMap[keyPoint.class_id].push_back(featureTrack);
+    for (auto & key_point : key_points) {
+      auto feature_track = FeatureTrack{frame_id, key_point};
+      feature_track_map[key_point.class_id].push_back(feature_track);
     }
 
     // Update MSCKF on features no longer detected
-    for (auto it = featureTrackMap.cbegin(); it != featureTrackMap.cend(); ) {
-      const auto & featureTrack = it->second;
+    for (auto it = feature_track_map.cbegin(); it != feature_track_map.cend(); ) {
+      const auto & feature_track = it->second;
       /// @todo get constant from tracker
-      if ((featureTrack.size() > 1) &&
-        ((featureTrack.back().frameID < frameID) || (featureTrack.size() >= 20)))
+      if ((feature_track.size() > 1) &&
+        ((feature_track.back().frame_id < frame_id) || (feature_track.size() >= 20)))
       {
         // This feature does not exist in the latest frame
-        featureTracks.push_back(featureTrack);
-        it = featureTrackMap.erase(it);
+        feature_tracks.push_back(feature_track);
+        it = feature_track_map.erase(it);
       } else {
         ++it;
       }
     }
-    auto trackerMessage = std::make_shared<SimFeatureTrackerMessage>();
-    trackerMessage->featureTracks = featureTracks;
-    trackerMessage->time = messageTimes[frameID];
-    trackerMessage->trackerID = m_id;
-    trackerMessage->sensorID = sensorID;
-    trackerMessage->sensorType = SensorType::Tracker;
-    trackerMessages.push_back(trackerMessage);
+    auto tracker_message = std::make_shared<SimFeatureTrackerMessage>();
+    tracker_message->m_feature_tracks = feature_tracks;
+    tracker_message->m_time = message_times[frame_id];
+    tracker_message->m_tracker_id = m_id;
+    tracker_message->m_sensor_id = sensor_id;
+    tracker_message->m_sensor_type = SensorType::Tracker;
+    tracker_messages.push_back(tracker_message);
   }
-  return trackerMessages;
+  return tracker_messages;
 }
 
-void SimFeatureTracker::callback(
-  double time, unsigned int cameraID,
+void SimFeatureTracker::Callback(
+  double time, unsigned int camera_id,
   std::shared_ptr<SimFeatureTrackerMessage> msg)
 {
-  m_msckfUpdater.updateEKF(time, cameraID, msg->featureTracks);
+  m_msckf_updater.UpdateEKF(time, camera_id, msg->m_feature_tracks);
 }

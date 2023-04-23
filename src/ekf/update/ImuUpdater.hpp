@@ -49,13 +49,13 @@ public:
   /// @brief Predict measurement method
   /// @return Predicted measurement vector
   ///
-  Eigen::VectorXd predictMeasurement();
+  Eigen::VectorXd PredictMeasurement();
 
   ///
   /// @brief Measurement Jacobian method
   /// @return Measurement Jacobian matrix
   ///
-  Eigen::MatrixXd getMeasurementJacobian(bool isBaseSensor, bool isIntrinsic);
+  Eigen::MatrixXd GetMeasurementJacobian(bool isBaseSensor, bool isIntrinsic);
 
   ///
   /// @brief EKF update method for IMU measurements
@@ -67,7 +67,7 @@ public:
   /// @param isBaseSensor switch if this is the base sensor
   /// @param isIntrinsic switch if imu intrinsics should be calibrated
   ///
-  void updateEKF(
+  void UpdateEKF(
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d accelerationCovariance,
     Eigen::Vector3d angularRate, Eigen::Matrix3d angularRateCovariance, bool isBaseSensor,
     bool isIntrinsic);
@@ -78,20 +78,19 @@ public:
   void RefreshStates();
 
 private:
-  static const Eigen::Vector3d GRAVITY;
-  Eigen::Vector3d m_bodyPos {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_bodyVel {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_bodyAcc {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_bodyAngPos {1.0, 0.0, 0.0, 0.0};
-  Eigen::Vector3d m_bodyAngVel {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_bodyAngAcc {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_posOffset {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_angOffset {1.0, 0.0, 0.0, 0.0};
-  Eigen::Vector3d m_accBias {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_omgBias {0.0, 0.0, 0.0};
-  double m_accBiasStability;
-  double m_omgBiasStability;
-  DataLogger m_dataLogger;
+  Eigen::Vector3d m_body_pos {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_body_vel {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_body_acc {0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_body_ang_pos {1.0, 0.0, 0.0, 0.0};
+  Eigen::Vector3d m_body_ang_vel {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_body_ang_acc {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_pos_offset {0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_ang_offset {1.0, 0.0, 0.0, 0.0};
+  Eigen::Vector3d m_acc_bias {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_omg_bias {0.0, 0.0, 0.0};
+  double m_acc_bias_stability;
+  double m_omg_bias_stability;
+  DataLogger m_data_logger;
 };
 
 #endif  // EKF__UPDATE__IMUUPDATER_HPP_

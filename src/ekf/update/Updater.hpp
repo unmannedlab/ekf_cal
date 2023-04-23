@@ -29,12 +29,12 @@ class Updater
 public:
   ///
   /// @brief EKF Updater constructor
-  /// @param sensorID Sensor ID
+  /// @param sensor_id Sensor ID
   ///
-  explicit Updater(unsigned int sensorID);
+  explicit Updater(unsigned int sensor_id);
 
   /// @todo switch to passing EKF pointer
-  // Updater(std::shared_ptr<EKF> ekf, unsigned int sensorID);
+  // Updater(std::shared_ptr<EKF> ekf, unsigned int sensor_id);
 
   /// @todo Generic Kalman Update function
   // void KalmanUpdate(
@@ -46,8 +46,8 @@ public:
 
 protected:
   unsigned int m_id;                          ///< @brief Associated sensor ID
-  EKF * m_ekf = EKF::getInstance();           ///< @brief EKF singleton
-  DebugLogger * m_logger = DebugLogger::getInstance();  ///< @brief Logger singleton
+  EKF * m_ekf = EKF::GetInstance();           ///< @brief EKF singleton
+  DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
 };
 
 #endif  // EKF__UPDATE__UPDATER_HPP_

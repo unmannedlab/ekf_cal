@@ -36,7 +36,7 @@
 class EKF
 {
 private:
-  static EKF * instancePointer;
+  static EKF * instance_pointer;
   ///
   /// @brief EKF class constructor
   ///
@@ -53,23 +53,23 @@ public:
   /// @return Pointer to singleton instance
   /// @todo Remove singleton pattern
   ///
-  static EKF * getInstance()
+  static EKF * GetInstance()
   {
     // If there is no instance of class
     // then we can create an instance.
-    if (instancePointer == NULL) {
+    if (instance_pointer == NULL) {
       // We can access private members
       // within the class.
-      instancePointer = new EKF();
+      instance_pointer = new EKF();
 
       // returning the instance pointer
-      return instancePointer;
+      return instance_pointer;
     } else {
-      // if instancePointer != NULL that means
+      // if instance_pointer != NULL that means
       // the class already have an instance.
       // So, we are returning that instance
       // and not creating new one.
-      return instancePointer;
+      return instance_pointer;
     }
   }
 
@@ -77,115 +77,115 @@ public:
   /// @brief Getter for state vector reference
   /// @return State vector reference
   ///
-  State & getState();
+  State & GetState();
 
   ///
   /// @brief Getter for the body state vector reference
   /// @return Body state vector reference
   ///
-  BodyState getBodyState();
+  BodyState GetBodyState();
 
   ///
   /// @brief Get IMU sensor state
-  /// @param imuID Sensor ID
+  /// @param imu_id Sensor ID
   /// @return IMU state
   ///
-  ImuState getImuState(unsigned int imuID);
+  ImuState GetImuState(unsigned int imu_id);
   ///
   /// @brief Get camera sensor state
-  /// @param camID Sensor ID
+  /// @param cam_id Sensor ID
   /// @return Camera state
   ///
-  CamState getCamState(unsigned int camID);
+  CamState GetCamState(unsigned int cam_id);
 
   ///
   /// @brief IMU count getter method
   /// @return IMU count
   ///
-  unsigned int getImuCount();
+  unsigned int GetImuCount();
   ///
   /// @brief Camera count getter method
   /// @return Camera count
   ///
-  unsigned int getCamCount();
+  unsigned int GetCamCount();
 
   ///
   /// @brief Getter method for state covariance matrix reference
   /// @return State covariance matrix reference
   ///
-  Eigen::MatrixXd & getCov();
+  Eigen::MatrixXd & GetCov();
 
   ///
   /// @brief Predict state to given time
   /// @param currentTime Time for prediction
   ///
-  void processModel(double currentTime);
+  void ProcessModel(double currentTime);
 
   ///
   /// @brief State transition matrix getter method
   /// @param dT State transition time
   /// @return State transition matrix
   ///
-  Eigen::MatrixXd getStateTransition(double dT);
+  Eigen::MatrixXd GetStateTransition(double dT);
 
   ///
   /// @brief Getter for IMU state start index
-  /// @param imuID IMU sensor ID
+  /// @param imu_id IMU sensor ID
   ///
-  unsigned int getImuStateStartIndex(unsigned int imuID);
+  unsigned int GetImuStateStartIndex(unsigned int imu_id);
 
   ///
   /// @brief Getter for camera state start index
-  /// @param camID Camera sensor ID
+  /// @param cam_id Camera sensor ID
   ///
-  unsigned int getCamStateStartIndex(unsigned int camID);
+  unsigned int GetCamStateStartIndex(unsigned int cam_id);
 
   ///
   /// @brief Getter for augmented state start index
-  /// @param camID Camera sensor ID
-  /// @param frameID Camera frame ID
+  /// @param cam_id Camera sensor ID
+  /// @param frame_id Camera frame ID
   ///
-  unsigned int getAugStateStartIndex(unsigned int camID, unsigned int frameID);
+  unsigned int GetAugStateStartIndex(unsigned int cam_id, unsigned int frame_id);
 
   ///
   /// @brief EKF state initialization method
   /// @param timeInit Initial time
   /// @param bodyStateInit Initial state
   ///
-  void initialize(double timeInit, BodyState bodyStateInit);
+  void Initialize(double timeInit, BodyState bodyStateInit);
 
   ///
   /// @brief
-  /// @param imuID
-  /// @param imuState
+  /// @param imu_id
+  /// @param imu_state
   /// @param covariance
   ///
-  void registerIMU(unsigned int imuID, ImuState imuState, Eigen::MatrixXd covariance);
+  void RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd covariance);
 
   ///
   /// @brief
-  /// @param camID
-  /// @param camState
+  /// @param cam_id
+  /// @param cam_state
   /// @param covariance
   ///
-  void registerCamera(unsigned int camID, CamState camState, Eigen::MatrixXd covariance);
+  void RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixXd covariance);
 
   ///
   /// @brief
-  /// @param cameraID
-  /// @param frameID
+  /// @param camera_id
+  /// @param frame_id
   ///
-  void augmentState(unsigned int cameraID, unsigned int frameID);
+  void AugmentState(unsigned int camera_id, unsigned int frame_id);
 
 private:
   unsigned int m_stateSize{BODY_STATE_SIZE};
   State m_state;
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(BODY_STATE_SIZE, BODY_STATE_SIZE);
-  double m_currentTime {0};
-  bool m_timeInitialized {false};
-  DebugLogger * m_logger = DebugLogger::getInstance();
+  double m_current_time {0};
+  bool m_time_initialized {false};
+  DebugLogger * m_logger = DebugLogger::GetInstance();
 
-  Eigen::MatrixXd m_processNoise =
+  Eigen::MatrixXd m_process_noise =
     Eigen::MatrixXd::Identity(BODY_STATE_SIZE, BODY_STATE_SIZE) * 1e-3;
 };
 

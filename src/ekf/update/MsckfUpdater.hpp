@@ -32,24 +32,24 @@ class MsckfUpdater : public Updater
 public:
   ///
   /// @brief MSCKF EKF Updater constructor
-  /// @param camID Camera sensor ID
+  /// @param cam_id Camera sensor ID
   ///
   explicit MsckfUpdater(
-    unsigned int camID, std::string logFileDirectory,
-    bool dataLoggingOn);
+    unsigned int cam_id, std::string log_file_directory,
+    bool data_logging_on);
 
   ///
   /// @brief
-  /// @param frameID
+  /// @param frame_id
   ///
-  AugmentedState matchState(unsigned int frameID);
+  AugmentedState MatchState(unsigned int frame_id);
 
   ///
   /// @brief
-  /// @param cameraID
-  /// @param featureTracks
+  /// @param camera_id
+  /// @param feature_tracks
   ///
-  void updateEKF(double time, unsigned int cameraID, FeatureTracks featureTracks);
+  void UpdateEKF(double time, unsigned int camera_id, FeatureTracks feature_tracks);
 
   ///
   /// @brief Refresh internal states with EKF values
@@ -57,16 +57,16 @@ public:
   void RefreshStates();
 
 private:
-  Eigen::Vector3d m_bodyPos {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_bodyVel {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_bodyAcc {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_bodyAngPos {1.0, 0.0, 0.0, 0.0};
-  Eigen::Vector3d m_bodyAngVel {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_bodyAngAcc {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_posOffset {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_angOffset {1.0, 0.0, 0.0, 0.0};
-  std::vector<AugmentedState> m_augStates {};
-  DataLogger m_dataLogger;
+  Eigen::Vector3d m_body_pos {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_body_vel {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_body_acc {0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_body_ang_pos {1.0, 0.0, 0.0, 0.0};
+  Eigen::Vector3d m_body_ang_vel {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_body_ang_acc {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_pos_offset {0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_ang_offset {1.0, 0.0, 0.0, 0.0};
+  std::vector<AugmentedState> m_aug_states {};
+  DataLogger m_data_logger;
 };
 
 #endif  // EKF__UPDATE__MSCKFUPDATER_HPP_

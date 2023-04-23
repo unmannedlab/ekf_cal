@@ -16,8 +16,11 @@
 #ifndef EKF__CONSTANTS_HPP_
 #define EKF__CONSTANTS_HPP_
 
+#include <eigen3/Eigen/Eigen>
+
 static constexpr unsigned int BODY_STATE_SIZE {18};
 static constexpr unsigned int IMU_STATE_SIZE {12};
+const Eigen::Vector3d GRAVITY = Eigen::Vector3d(0, 0, 9.80665);
 
 
 #endif  // EKF__CONSTANTS_HPP_

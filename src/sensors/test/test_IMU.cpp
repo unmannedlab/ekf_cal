@@ -21,20 +21,20 @@
 #include "utility/test/CustomAssertions.hpp"
 
 TEST(test_IMU, Constructor) {
-  IMU::Parameters params;
-  IMU imu(params);
+  IMU::Parameters imu_params;
+  IMU imu(imu_params);
 }
 
 TEST(test_IMU, Id) {
-  IMU::Parameters params1;
-  IMU::Parameters params2;
+  IMU::Parameters imu_params1;
+  IMU::Parameters imu_params2;
 
-  IMU imu1(params1);
-  IMU imu2(params2);
+  IMU imu1(imu_params1);
+  IMU imu2(imu_params2);
 
-  unsigned int id_one = imu1.getId();
+  unsigned int id_one = imu1.GetId();
   unsigned int id_two = id_one + 1;
 
-  EXPECT_EQ(imu1.getId(), id_one);
-  EXPECT_EQ(imu2.getId(), id_two);
+  EXPECT_EQ(imu1.GetId(), id_one);
+  EXPECT_EQ(imu2.GetId(), id_two);
 }

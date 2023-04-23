@@ -27,35 +27,35 @@
 
 
 IMU::IMU(IMU::Parameters params)
-: Sensor(params.name), m_imuUpdater(m_id, params.accBiasStability, params.omgBiasStability,
-    params.outputDirectory, params.dataLoggingOn)
+: Sensor(params.name), m_imu_updater(m_id, params.acc_bias_stability, params.omg_bias_stability,
+    params.output_directory, params.data_logging_on)
 {
-  m_isBaseSensor = params.baseSensor;
-  m_isIntrinsic = params.intrinsic;
+  m_is_base_sensor = params.base_sensor;
+  m_is_intrinsic = params.intrinsic;
   m_rate = params.rate;
 
-  ImuState imuState;
-  imuState.position = params.posOffset;
-  imuState.orientation = params.angOffset;
-  imuState.accBias = params.accBias;
-  imuState.omgBias = params.omgBias;
+  ImuState imu_state;
+  imu_state.position = params.pos_offset;
+  imu_state.orientation = params.ang_offset;
+  imu_state.acc_bias = params.acc_bias;
+  imu_state.omg_bias = params.omg_bias;
 
-  Eigen::MatrixXd cov = minBoundVector(params.variance, 1e-6).asDiagonal();
+  Eigen::MatrixXd cov = MinBoundVector(params.variance, 1e-6).asDiagonal();
 
-  m_ekf->registerIMU(m_id, imuState, cov);
+  m_ekf->RegisterIMU(m_id, imu_state, cov);
 }
 
-void IMU::callback(std::shared_ptr<ImuMessage> imuMessage)
+void IMU::Callback(std::shared_ptr<ImuMessage> imu_message)
 {
-  m_logger->log(
+  m_logger->Log(
     LogLevel::DEBUG,
-    "IMU \"" + m_name + "\" callback at time " + std::to_string(imuMessage->time));
-  m_imuUpdater.updateEKF(
-    imuMessage->time,
-    imuMessage->acceleration,
-    imuMessage->accelerationCovariance,
-    imuMessage->angularRate,
-    imuMessage->angularRateCovariance,
-    m_isBaseSensor, m_isIntrinsic);
-  m_logger->log(LogLevel::DEBUG, "IMU \"" + m_name + "\" callback complete");
+    "IMU \"" + m_name + "\" callback at time " + std::to_string(imu_message->m_time));
+  m_imu_updater.UpdateEKF(
+    imu_message->m_time,
+    imu_message->m_acceleration,
+    imu_message->m_acceleration_covariance,
+    imu_message->m_angular_rate,
+    imu_message->m_angular_rate_covariance,
+    m_is_base_sensor, m_is_intrinsic);
+  m_logger->Log(LogLevel::DEBUG, "IMU \"" + m_name + "\" callback complete");
 }

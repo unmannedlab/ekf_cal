@@ -41,8 +41,8 @@ class SimFeatureTrackerMessage : public SensorMessage
 {
 public:
   SimFeatureTrackerMessage() {}
-  unsigned int trackerID {0};
-  std::vector<std::vector<FeatureTrack>> featureTracks;
+  unsigned int m_tracker_id {0};
+  std::vector<std::vector<FeatureTrack>> m_feature_tracks;
 };
 
 ///
@@ -57,49 +57,48 @@ public:
   ///
   typedef struct Parameters
   {
-    unsigned int featureCount{0};                       ///< @brief Number of features to generate
-    double roomSize{10.0};                              ///< @brief Size of "Room" for features
-    double pxError{1.0};                                ///< @brief Pixel Error
-    FeatureTracker::Parameters trackerParams;           ///< @brief Tracker parameters
+    unsigned int feature_count{0};                       ///< @brief Number of features to generate
+    double room_size{10.0};                              ///< @brief Size of "Room" for features
+    double px_error{1.0};                                ///< @brief Pixel Error
+    FeatureTracker::Parameters tracker_params;           ///< @brief Tracker parameters
   } Parameters;
 
   ///
   /// @brief Simulation IMU constructor
   /// @param params Simulation IMU parameters
-  /// @param truthEngine Truth engine
+  /// @param truth_engine Truth engine
   ///
-  SimFeatureTracker(Parameters params, std::shared_ptr<TruthEngine> truthEngine);
+  SimFeatureTracker(Parameters params, std::shared_ptr<TruthEngine> truth_engine);
 
   ///
   /// @brief Generate simulated tracker messages
-  /// @param maxTime Maximum time of generated messages
   ///
-  std::vector<std::shared_ptr<SimFeatureTrackerMessage>> generateMessages(
-    std::vector<double> messageTimes,
-    unsigned int sensorID);
+  std::vector<std::shared_ptr<SimFeatureTrackerMessage>> GenerateMessages(
+    std::vector<double> message_times,
+    unsigned int sensor_id);
 
   ///
   /// @brief Return currently visible keypoints
   /// @param time Current time
   ///
-  std::vector<cv::KeyPoint> visibleKeypoints(double time);
+  std::vector<cv::KeyPoint> VisibleKeypoints(double time);
 
-  void callback(double time, unsigned int cameraID, std::shared_ptr<SimFeatureTrackerMessage> msg);
+  void Callback(double time, unsigned int camera_id, std::shared_ptr<SimFeatureTrackerMessage> msg);
 
 private:
-  double m_pxError{1e-9};
-  Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_angOffset{1.0, 0.0, 0.0, 0.0};
+  double m_px_error{1e-9};
+  Eigen::Vector3d m_pos_offset{0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_ang_offset{1.0, 0.0, 0.0, 0.0};
   std::shared_ptr<TruthEngine> m_truth;
   double m_rate{1.0};
   SimRNG m_rng;
-  unsigned int m_featureCount {0};
-  std::vector<cv::Point3d> m_featurePoints;
+  unsigned int m_feature_count {0};
+  std::vector<cv::Point3d> m_feature_points;
 
-  double m_focalLength {100};
-  unsigned int m_imageHeight {480};
-  unsigned int m_imageWidth {640};
-  cv::Mat m_projMatrix;
+  double m_focal_length {100};
+  unsigned int m_image_width {640};
+  unsigned int m_image_height {480};
+  cv::Mat m_proj_matrix;
 };
 
 

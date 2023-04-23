@@ -34,168 +34,168 @@ int main(int argc, char * argv[])
   const cv::String keys =
     "{help h usage ? |      | print this help message       }"
     "{@config        |<none>| Input YAML configuration file }"
-    "{@outDir        |<none>| Output directory for logs     }"
+    "{@out_dir       |<none>| Output directory for logs     }"
   ;
 
   cv::CommandLineParser parser(argc, argv, keys);
 
   std::string config = parser.get<std::string>("@config");
-  std::string outDir = parser.get<std::string>("@outDir");
+  std::string out_dir = parser.get<std::string>("@out_dir");
 
   // Define sensors to use (load config from yaml)
   YAML::Node root = YAML::LoadFile(config);
   const auto imus = root["/EkfCalNode"]["ros__parameters"]["IMU"];
-  const auto cams = root["/EkfCalNode"]["ros__parameters"]["Camera"];
-  const auto trks = root["/EkfCalNode"]["ros__parameters"]["Tracker"];
+  const auto cameras = root["/EkfCalNode"]["ros__parameters"]["Camera"];
+  const auto trackers = root["/EkfCalNode"]["ros__parameters"]["Tracker"];
 
   // Construct sensors and EKF
-  std::map<unsigned int, std::shared_ptr<Sensor>> sensorMap;
+  std::map<unsigned int, std::shared_ptr<Sensor>> sensor_map;
 
   /// @todo Select type of truth engine using parameters
-  auto truthEngine = std::static_pointer_cast<TruthEngine>(std::make_shared<TruthEngineCyclic>());
+  auto truth_engine = std::static_pointer_cast<TruthEngine>(std::make_shared<TruthEngineCyclic>());
   std::vector<std::shared_ptr<SensorMessage>> messages;
 
-  double maxTime = 10;
+  double max_time = 10;
 
   // Logging parameters
-  unsigned int debugLogLevel =
+  unsigned int debug_log_level =
     root["/EkfCalNode"]["ros__parameters"]["Debug_Log_Level"].as<unsigned int>();
-  bool dataLoggingOn = root["/EkfCalNode"]["ros__parameters"]["Data_Logging_On"].as<bool>();
+  bool data_logging_on = root["/EkfCalNode"]["ros__parameters"]["Data_Logging_On"].as<bool>();
   double rng_seed = root["/EkfCalNode"]["ros__parameters"]["SimParams"]["Seed"].as<double>();
-  DebugLogger * logger = DebugLogger::getInstance();
-  logger->setOutputDirectory(outDir);
-  logger->setLogLevel(debugLogLevel);
+  DebugLogger * logger = DebugLogger::GetInstance();
+  logger->SetOutputDirectory(out_dir);
+  logger->SetLogLevel(debug_log_level);
   SimRNG rng;
   rng.SetSeed(rng_seed);
 
   // Load IMUs and generate measurements
-  logger->log(LogLevel::INFO, "Loading IMUs");
+  logger->Log(LogLevel::INFO, "Loading IMUs");
   if (imus) {
     for (auto it = imus.begin(); it != imus.end(); ++it) {
-      YAML::Node imuNode = it->second;
-      YAML::Node simNode = imuNode["SimParams"];
+      YAML::Node imu_node = it->second;
+      YAML::Node sim_node = imu_node["SimParams"];
 
-      IMU::Parameters imuParams;
-      imuParams.name = it->first.as<std::string>();
-      imuParams.baseSensor = imuNode["BaseSensor"].as<bool>();
-      imuParams.intrinsic = imuNode["Intrinsic"].as<bool>();
-      imuParams.rate = imuNode["Rate"].as<double>();
-      imuParams.topic = imuNode["Topic"].as<std::string>();
-      imuParams.variance = stdToEigVec(imuNode["VarInit"].as<std::vector<double>>());
-      imuParams.posOffset = stdToEigVec(imuNode["PosOffInit"].as<std::vector<double>>());
-      imuParams.angOffset = stdToEigQuat(imuNode["AngOffInit"].as<std::vector<double>>());
-      imuParams.accBias = stdToEigVec(imuNode["AccBiasInit"].as<std::vector<double>>());
-      imuParams.omgBias = stdToEigVec(imuNode["OmgBiasInit"].as<std::vector<double>>());
-      imuParams.outputDirectory = outDir;
-      imuParams.dataLoggingOn = dataLoggingOn;
+      IMU::Parameters imu_params;
+      imu_params.name = it->first.as<std::string>();
+      imu_params.base_sensor = imu_node["BaseSensor"].as<bool>();
+      imu_params.intrinsic = imu_node["Intrinsic"].as<bool>();
+      imu_params.rate = imu_node["Rate"].as<double>();
+      imu_params.topic = imu_node["Topic"].as<std::string>();
+      imu_params.variance = StdToEigVec(imu_node["VarInit"].as<std::vector<double>>());
+      imu_params.pos_offset = StdToEigVec(imu_node["PosOffInit"].as<std::vector<double>>());
+      imu_params.ang_offset = StdToEigQuat(imu_node["AngOffInit"].as<std::vector<double>>());
+      imu_params.acc_bias = StdToEigVec(imu_node["AccBiasInit"].as<std::vector<double>>());
+      imu_params.omg_bias = StdToEigVec(imu_node["OmgBiasInit"].as<std::vector<double>>());
+      imu_params.output_directory = out_dir;
+      imu_params.data_logging_on = data_logging_on;
 
       // SimParams
-      SimIMU::Parameters simImuParams;
-      simImuParams.imuParams = imuParams;
-      simImuParams.tBias = simNode["timeBias"].as<double>();
-      simImuParams.tSkew = simNode["timeSkew"].as<double>();
-      simImuParams.tError = simNode["timeError"].as<double>();
-      simImuParams.accBias = stdToEigVec(simNode["accBias"].as<std::vector<double>>());
-      simImuParams.accError = stdToEigVec(simNode["accError"].as<std::vector<double>>());
-      simImuParams.omgBias = stdToEigVec(simNode["omgBias"].as<std::vector<double>>());
-      simImuParams.omgError = stdToEigVec(simNode["omgError"].as<std::vector<double>>());
-      simImuParams.posOffset = stdToEigVec(simNode["posOffset"].as<std::vector<double>>());
-      simImuParams.angOffset = stdToEigQuat(simNode["angOffset"].as<std::vector<double>>());
+      SimIMU::Parameters sim_imu_params;
+      sim_imu_params.imu_params = imu_params;
+      sim_imu_params.time_bias = sim_node["timeBias"].as<double>();
+      sim_imu_params.time_skew = sim_node["timeSkew"].as<double>();
+      sim_imu_params.time_error = sim_node["timeError"].as<double>();
+      sim_imu_params.acc_bias = StdToEigVec(sim_node["accBias"].as<std::vector<double>>());
+      sim_imu_params.acc_error = StdToEigVec(sim_node["accError"].as<std::vector<double>>());
+      sim_imu_params.omg_bias = StdToEigVec(sim_node["omgBias"].as<std::vector<double>>());
+      sim_imu_params.omg_error = StdToEigVec(sim_node["omgError"].as<std::vector<double>>());
+      sim_imu_params.pos_offset = StdToEigVec(sim_node["posOffset"].as<std::vector<double>>());
+      sim_imu_params.ang_offset = StdToEigQuat(sim_node["angOffset"].as<std::vector<double>>());
 
       // Add sensor to map
-      auto imu = std::make_shared<SimIMU>(simImuParams, truthEngine);
-      sensorMap[imu->getId()] = imu;
+      auto imu = std::make_shared<SimIMU>(sim_imu_params, truth_engine);
+      sensor_map[imu->GetId()] = imu;
 
       // Calculate sensor measurements
-      auto imuMessages = imu->generateMessages(maxTime);
-      messages.insert(messages.end(), imuMessages.begin(), imuMessages.end());
+      auto imu_messages = imu->GenerateMessages(max_time);
+      messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
     }
   }
 
   // Load tracker parameters
-  logger->log(LogLevel::INFO, "Loading Trackers");
+  logger->Log(LogLevel::INFO, "Loading Trackers");
   std::map<std::string, SimFeatureTracker::Parameters> trackerMap;
-  if (trks) {
-    for (auto it = trks.begin(); it != trks.end(); ++it) {
-      YAML::Node trkNode = it->second;
-      YAML::Node simNode = trkNode["SimParams"];
+  if (trackers) {
+    for (auto it = trackers.begin(); it != trackers.end(); ++it) {
+      YAML::Node trk_node = it->second;
+      YAML::Node sim_node = trk_node["SimParams"];
 
       FeatureTracker::Parameters trkParams;
       trkParams.name = it->first.as<std::string>();
-      trkParams.outputDirectory = outDir;
-      trkParams.dataLoggingOn = dataLoggingOn;
+      trkParams.output_directory = out_dir;
+      trkParams.data_logging_on = data_logging_on;
 
       SimFeatureTracker::Parameters simTrkParams;
-      simTrkParams.featureCount = simNode["featureCount"].as<unsigned int>();
-      simTrkParams.roomSize = simNode["roomSize"].as<double>();
-      simTrkParams.trackerParams = trkParams;
+      simTrkParams.feature_count = sim_node["featureCount"].as<unsigned int>();
+      simTrkParams.room_size = sim_node["roomSize"].as<double>();
+      simTrkParams.tracker_params = trkParams;
 
       trackerMap[trkParams.name] = simTrkParams;
     }
   }
 
   // Load cameras and generate measurements
-  logger->log(LogLevel::INFO, "Loading Cameras");
-  if (cams) {
-    for (auto it = cams.begin(); it != cams.end(); ++it) {
+  logger->Log(LogLevel::INFO, "Loading Cameras");
+  if (cameras) {
+    for (auto it = cameras.begin(); it != cameras.end(); ++it) {
       YAML::Node camNode = it->second;
-      YAML::Node simNode = camNode["SimParams"];
+      YAML::Node sim_node = camNode["SimParams"];
 
-      Camera::Parameters camParams;
-      camParams.name = it->first.as<std::string>();
-      camParams.rate = camNode["Rate"].as<double>();
-      camParams.variance = stdToEigVec(camNode["VarInit"].as<std::vector<double>>());
-      camParams.posOffset = stdToEigVec(camNode["PosOffInit"].as<std::vector<double>>());
-      camParams.angOffset = stdToEigQuat(camNode["AngOffInit"].as<std::vector<double>>());
-      camParams.outputDirectory = outDir;
-      camParams.dataLoggingOn = dataLoggingOn;
-      camParams.tracker = camNode["Tracker"].as<std::string>();
+      Camera::Parameters cam_params;
+      cam_params.name = it->first.as<std::string>();
+      cam_params.rate = camNode["Rate"].as<double>();
+      cam_params.variance = StdToEigVec(camNode["VarInit"].as<std::vector<double>>());
+      cam_params.pos_offset = StdToEigVec(camNode["PosOffInit"].as<std::vector<double>>());
+      cam_params.ang_offset = StdToEigQuat(camNode["AngOffInit"].as<std::vector<double>>());
+      cam_params.output_directory = out_dir;
+      cam_params.data_logging_on = data_logging_on;
+      cam_params.tracker = camNode["Tracker"].as<std::string>();
 
       // SimCamera::Parameters
-      SimCamera::Parameters simCamParams;
-      simCamParams.tBias = simNode["timeBias"].as<double>();
-      simCamParams.tSkew = simNode["timeSkew"].as<double>();
-      simCamParams.tError = simNode["timeError"].as<double>();
-      simCamParams.posOffset = stdToEigVec(simNode["posOffset"].as<std::vector<double>>());
-      simCamParams.angOffset = stdToEigQuat(simNode["angOffset"].as<std::vector<double>>());
-      simCamParams.camParams = camParams;
+      SimCamera::Parameters sim_cam_params;
+      sim_cam_params.time_bias = sim_node["timeBias"].as<double>();
+      sim_cam_params.time_skew = sim_node["timeSkew"].as<double>();
+      sim_cam_params.time_error = sim_node["timeError"].as<double>();
+      sim_cam_params.pos_offset = StdToEigVec(sim_node["posOffset"].as<std::vector<double>>());
+      sim_cam_params.ang_offset = StdToEigQuat(sim_node["angOffset"].as<std::vector<double>>());
+      sim_cam_params.cam_params = cam_params;
 
       // Add sensor to map
-      auto cam = std::make_shared<SimCamera>(simCamParams, truthEngine);
-      auto trkParams = trackerMap[camParams.tracker];
-      trkParams.trackerParams.sensorID = cam->getId();
-      auto trk = std::make_shared<SimFeatureTracker>(trkParams, truthEngine);
-      cam->addTracker(trk);
-      sensorMap[cam->getId()] = cam;
+      auto cam = std::make_shared<SimCamera>(sim_cam_params, truth_engine);
+      auto trk_params = trackerMap[cam_params.tracker];
+      trk_params.tracker_params.sensor_id = cam->GetId();
+      auto trk = std::make_shared<SimFeatureTracker>(trk_params, truth_engine);
+      cam->AddTracker(trk);
+      sensor_map[cam->GetId()] = cam;
 
       // Calculate sensor measurements
-      auto imuMessages = cam->generateMessages(maxTime);
-      messages.insert(messages.end(), imuMessages.begin(), imuMessages.end());
+      auto imu_messages = cam->GenerateMessages(max_time);
+      messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
     }
   }
 
   // Sort Measurements
-  sort(messages.begin(), messages.end(), messageCompare);
+  sort(messages.begin(), messages.end(), MessageCompare);
 
   // Run measurements through sensors and EKF
-  logger->log(LogLevel::INFO, "Begin Simulation");
+  logger->Log(LogLevel::INFO, "Begin Simulation");
   for (auto message : messages) {
-    auto it = sensorMap.find(message->sensorID);
-    if (it != sensorMap.end()) {
-      if (message->sensorType == SensorType::IMU) {
+    auto it = sensor_map.find(message->m_sensor_id);
+    if (it != sensor_map.end()) {
+      if (message->m_sensor_type == SensorType::IMU) {
         auto imu = std::static_pointer_cast<SimIMU>(it->second);
         auto msg = std::static_pointer_cast<SimImuMessage>(message);
-        imu->callback(msg);
-      } else if (message->sensorType == SensorType::Camera) {
+        imu->Callback(msg);
+      } else if (message->m_sensor_type == SensorType::Camera) {
         auto cam = std::static_pointer_cast<SimCamera>(it->second);
         auto msg = std::static_pointer_cast<SimCameraMessage>(message);
-        cam->callback(msg);
+        cam->Callback(msg);
       } else {
-        logger->log(LogLevel::WARN, "Unknown Message Type");
+        logger->Log(LogLevel::WARN, "Unknown Message Type");
       }
     }
   }
-  logger->log(LogLevel::INFO, "End Simulation");
+  logger->Log(LogLevel::INFO, "End Simulation");
 
   // Return
   /// @todo "Uses" input parameters to suppress compiler warning

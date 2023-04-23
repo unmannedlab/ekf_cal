@@ -51,41 +51,41 @@ public:
   ///
   typedef struct Parameters
   {
-    double tBias {0.0};                                 ///< @brief Time offset bias
-    double tSkew {1.0};                                 ///< @brief Time offset error
-    double tError {1e-9};                               ///< @brief Time offset error
-    Eigen::Vector3d accBias {0.0, 0.0, 0.0};            ///< @brief Acceleration bias
-    Eigen::Vector3d accError {1e-9, 1e-9, 1e-9};        ///< @brief Acceleration error
-    Eigen::Vector3d omgBias {0.0, 0.0, 0.0};            ///< @brief Angular rate bias
-    Eigen::Vector3d omgError {1e-9, 1e-9, 1e-9};        ///< @brief Angular rate error
-    Eigen::Vector3d posOffset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
-    Eigen::Quaterniond angOffset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
-    IMU::Parameters imuParams;                          ///< @brief IMU sensor parameters
+    double time_bias {0.0};                                 ///< @brief Time offset bias
+    double time_skew {1.0};                                 ///< @brief Time offset error
+    double time_error {1e-9};                               ///< @brief Time offset error
+    Eigen::Vector3d acc_bias {0.0, 0.0, 0.0};            ///< @brief Acceleration bias
+    Eigen::Vector3d acc_error {1e-9, 1e-9, 1e-9};        ///< @brief Acceleration error
+    Eigen::Vector3d omg_bias {0.0, 0.0, 0.0};            ///< @brief Angular rate bias
+    Eigen::Vector3d omg_error {1e-9, 1e-9, 1e-9};        ///< @brief Angular rate error
+    Eigen::Vector3d pos_offset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
+    Eigen::Quaterniond ang_offset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
+    IMU::Parameters imu_params;                          ///< @brief IMU sensor parameters
   } Parameters;
 
   ///
   /// @brief Simulation IMU constructor
   /// @param params Simulation IMU parameters
-  /// @param truthEngine Truth engine
+  /// @param truth_engine Truth engine
   ///
-  SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngine);
+  SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truth_engine);
 
   ///
   /// @brief Generate simulated IMU messages
-  /// @param maxTime Maximum time of generated messages
+  /// @param max_time Maximum time of generated messages
   ///
-  std::vector<std::shared_ptr<SimImuMessage>> generateMessages(double maxTime);
+  std::vector<std::shared_ptr<SimImuMessage>> GenerateMessages(double max_time);
 
 private:
-  double m_tBias{0.0};
-  double m_tSkew{0.0};
-  double m_tError{1e-9};
-  Eigen::Vector3d m_accBias{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_accError{1e-9, 1e-9, 1e-9};
-  Eigen::Vector3d m_omgBias{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_omgError{1e-9, 1e-9, 1e-9};
-  Eigen::Vector3d m_posOffset{0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_angOffset{1.0, 0.0, 0.0, 0.0};
+  double m_time_bias{0.0};
+  double m_time_skew{0.0};
+  double m_time_error{1e-9};
+  Eigen::Vector3d m_acc_bias{0.0, 0.0, 0.0};
+  Eigen::Vector3d m_acc_error{1e-9, 1e-9, 1e-9};
+  Eigen::Vector3d m_omg_bias{0.0, 0.0, 0.0};
+  Eigen::Vector3d m_omg_error{1e-9, 1e-9, 1e-9};
+  Eigen::Vector3d m_pos_offset{0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_ang_offset{1.0, 0.0, 0.0, 0.0};
   SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
 };

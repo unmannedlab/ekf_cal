@@ -19,7 +19,7 @@
 #include "trackers/FeatureTracker.hpp"
 
 TEST(test_Camera, Constructor) {
-  Camera::Parameters cParams;
-  Camera Camera(cParams);
+  Camera::Parameters cam_params;
+  Camera Camera(cam_params);
   EXPECT_TRUE(true);
 }

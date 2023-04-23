@@ -31,27 +31,27 @@
 RosCameraMessage::RosCameraMessage(const sensor_msgs::msg::Image::SharedPtr msg)
 : CameraMessage(cv_bridge::toCvCopy(msg)->image)
 {
-  time = rosHeaderToTime(msg->header);
+  m_time = RosHeaderToTime(msg->header);
 }
 
-RosCamera::RosCamera(Camera::Parameters cParams)
-: Camera(cParams) {}
+RosCamera::RosCamera(Camera::Parameters camera_parameters)
+: Camera(camera_parameters) {}
 
-void RosCamera::callback(std::shared_ptr<RosCameraMessage> rosCameraMessage)
+void RosCamera::Callback(std::shared_ptr<RosCameraMessage> ros_camera_message)
 {
-  Camera::callback(rosCameraMessage);
+  Camera::Callback(ros_camera_message);
 
-  m_logger->log(LogLevel::DEBUG, "Image publish ROS");
+  m_logger->Log(LogLevel::DEBUG, "Image publish ROS");
 
-  m_outRosImg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", m_outImg).toImageMsg();
+  m_out_ros_img = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", m_out_img).toImageMsg();
 }
 
-sensor_msgs::msg::Image::SharedPtr RosCamera::getRosImage()
+sensor_msgs::msg::Image::SharedPtr RosCamera::GetRosImage()
 {
-  return m_outRosImg;
+  return m_out_ros_img;
 }
 
-void RosCamera::addTracker(std::shared_ptr<FeatureTracker> tracker)
+void RosCamera::AddTracker(std::shared_ptr<FeatureTracker> tracker)
 {
-  Camera::addTracker(tracker);
+  Camera::AddTracker(tracker);
 }

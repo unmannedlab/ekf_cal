@@ -22,7 +22,7 @@
 
 TEST(test_MathHelper, SkewSymmetric) {
   Eigen::Vector3d testVec(1.0, 2.0, 3.0);
-  Eigen::Matrix3d outMat = skewSymmetric(testVec);
+  Eigen::Matrix3d outMat = SkewSymmetric(testVec);
   EXPECT_EQ(outMat(0, 0), 0.0);
   EXPECT_EQ(outMat(0, 1), -testVec(2));
   EXPECT_EQ(outMat(0, 2), testVec(1));
@@ -34,32 +34,32 @@ TEST(test_MathHelper, SkewSymmetric) {
   EXPECT_EQ(outMat(2, 2), 0.0);
 }
 
-TEST(test_MathHelper, minBoundDiagonal)
+TEST(test_MathHelper, MinBoundDiagonal)
 {
   Eigen::MatrixXd mat2 = Eigen::MatrixXd::Ones(2, 2);
-  mat2 = minBoundDiagonal(mat2, 1);
+  mat2 = MinBoundDiagonal(mat2, 1);
   EXPECT_EQ(mat2, Eigen::MatrixXd::Ones(2, 2));
 
   Eigen::MatrixXd mat3 = Eigen::MatrixXd::Zero(3, 3);
-  mat3 = minBoundDiagonal(mat3, 1);
+  mat3 = MinBoundDiagonal(mat3, 1);
   EXPECT_EQ(mat3, Eigen::MatrixXd::Identity(3, 3));
 
   Eigen::MatrixXd mat4 = Eigen::MatrixXd::Zero(4, 4);
-  mat4 = minBoundDiagonal(mat4, 1);
+  mat4 = MinBoundDiagonal(mat4, 1);
   EXPECT_EQ(mat4, Eigen::MatrixXd::Identity(4, 4));
 }
 
-TEST(test_MathHelper, minBoundVector)
+TEST(test_MathHelper, MinBoundVector)
 {
   Eigen::VectorXd vec2 = Eigen::VectorXd::Ones(2);
-  vec2 = minBoundVector(vec2, 1);
+  vec2 = MinBoundVector(vec2, 1);
   EXPECT_EQ(vec2, Eigen::VectorXd::Ones(2));
 
   Eigen::VectorXd vec3 = Eigen::VectorXd::Zero(3);
-  vec3 = minBoundVector(vec3, 1);
+  vec3 = MinBoundVector(vec3, 1);
   EXPECT_EQ(vec3, Eigen::VectorXd::Ones(3));
 
   Eigen::VectorXd vec4 = Eigen::VectorXd::Zero(4);
-  vec4 = minBoundVector(vec4, 1);
+  vec4 = MinBoundVector(vec4, 1);
   EXPECT_EQ(vec4, Eigen::VectorXd::Ones(4));
 }

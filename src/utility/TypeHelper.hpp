@@ -28,7 +28,7 @@
 /// @param in Input std::vector
 /// @return Output Eigen Vector3
 ///
-inline Eigen::VectorXd stdToEigVec(std::vector<double> const & in)
+inline Eigen::VectorXd StdToEigVec(std::vector<double> const & in)
 {
   Eigen::VectorXd out(in.size());
   for (unsigned int i = 0; i < in.size(); ++i) {
@@ -42,35 +42,35 @@ inline Eigen::VectorXd stdToEigVec(std::vector<double> const & in)
 /// @param in Input std::vector
 /// @return Output Eigen Quaternion
 ///
-inline Eigen::Quaterniond stdToEigQuat(std::vector<double> const & in)
+inline Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
 {
   if (in.size() == 4U) {
     Eigen::Quaterniond quat{in[0U], in[1U], in[2U], in[3U]};
     quat.normalize();
     return quat;
   } else {
-    DebugLogger::getInstance()->log(LogLevel::WARN, "Vector incorrect size for Eigen conversion");
+    DebugLogger::GetInstance()->Log(LogLevel::WARN, "Vector incorrect size for Eigen conversion");
     return Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
   }
 }
 
-inline Eigen::Quaterniond rotVecToQuat(Eigen::Vector3d rotVec)
+inline Eigen::Quaterniond RotVecToQuat(Eigen::Vector3d rot_vec)
 {
-  double angle = rotVec.norm();
+  double angle = rot_vec.norm();
   if (angle > 1e-9) {
-    Eigen::Vector3d axis = rotVec / rotVec.norm();
-    Eigen::AngleAxisd angAxis{angle, axis};
-    return Eigen::Quaterniond(angAxis);
+    Eigen::Vector3d axis = rot_vec / rot_vec.norm();
+    Eigen::AngleAxisd ang_axis{angle, axis};
+    return Eigen::Quaterniond(ang_axis);
   } else {
     return Eigen::Quaterniond{1, 0, 0, 0};
   }
 }
 
-inline Eigen::Vector3d quatToRotVec(Eigen::Quaterniond quat)
+inline Eigen::Vector3d QuatToRotVec(Eigen::Quaterniond quat)
 {
-  Eigen::AngleAxisd angAxis{quat};
-  Eigen::Vector3d rotVec = angAxis.axis() * angAxis.angle();
-  return rotVec;
+  Eigen::AngleAxisd ang_axis{quat};
+  Eigen::Vector3d rot_vec = ang_axis.axis() * ang_axis.angle();
+  return rot_vec;
 }
 
 #endif  // UTILITY__TYPEHELPER_HPP_

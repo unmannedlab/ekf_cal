@@ -20,8 +20,8 @@
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  auto ekfCalNode = std::make_shared<EkfCalNode>();
-  rclcpp::spin(ekfCalNode);
+  auto ekf_cal_node = std::make_shared<EkfCalNode>();
+  rclcpp::spin(ekf_cal_node);
   rclcpp::shutdown();
 
   return 0;

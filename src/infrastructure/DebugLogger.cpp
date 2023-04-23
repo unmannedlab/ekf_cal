@@ -17,7 +17,7 @@
 
 #include <string>
 
-void DebugLogger::setOutputDirectory(std::string directory)
+void DebugLogger::SetOutputDirectory(std::string directory)
 {
-  m_outputDirectory = directory;
+  m_output_directory = directory;
 }

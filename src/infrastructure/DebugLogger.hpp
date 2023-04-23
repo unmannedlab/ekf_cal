@@ -36,7 +36,7 @@ enum class LogLevel
 class DebugLogger
 {
 private:
-  static DebugLogger * m_instancePointer;
+  static DebugLogger * m_instance_pointer;
   DebugLogger() {}
 
 public:
@@ -47,7 +47,7 @@ public:
   /// @param level Level of log
   /// @param message Message contents of log
   ///
-  void log(LogLevel level, std::string message);
+  void Log(LogLevel level, std::string message);
 
 
   ///
@@ -60,23 +60,23 @@ public:
   /// @return Pointer to DebugLogger singleton
   /// @todo Remove singleton pattern to support multiple log files with mutex
   ///
-  static DebugLogger * getInstance()
+  static DebugLogger * GetInstance()
   {
     // If there is no instance of class
     // then we can create an instance.
-    if (m_instancePointer == NULL) {
+    if (m_instance_pointer == NULL) {
       // We can access private members
       // within the class.
-      m_instancePointer = new DebugLogger();
+      m_instance_pointer = new DebugLogger();
 
       // returning the instance pointer
-      return m_instancePointer;
+      return m_instance_pointer;
     } else {
-      // if m_instancePointer != NULL that means
+      // if m_instance_pointer != NULL that means
       // the class already have an instance.
       // So, we are returning that instance
       // and not creating new one.
-      return m_instancePointer;
+      return m_instance_pointer;
     }
   }
 
@@ -84,24 +84,24 @@ public:
   /// @brief Function to set the log level
   /// @param level LogLevel enumeration
   ///
-  void setLogLevel(LogLevel level);
+  void SetLogLevel(LogLevel level);
 
   ///
   /// @brief Function to set the log level
   /// @param level LogLevel integer
   ///
-  void setLogLevel(unsigned int level);
+  void SetLogLevel(unsigned int level);
 
   ///
   /// @brief Output directory setter
   /// @param directory Output directory string
   ///
-  void setOutputDirectory(std::string directory);
+  void SetOutputDirectory(std::string directory);
 
 private:
-  LogLevel m_logLevel = LogLevel::FATAL;
-  std::string m_logLevelNames[5] = {"FATAL", "ERROR", "WARN ", "INFO ", "DEBUG"};
-  std::string m_outputDirectory = "";
+  LogLevel m_log_level = LogLevel::FATAL;
+  std::string m_log_level_names[5] = {"FATAL", "ERROR", "WARN ", "INFO ", "DEBUG"};
+  std::string m_output_directory = "";
 };
 
 #endif  // INFRASTRUCTURE__DEBUGLOGGER_HPP_

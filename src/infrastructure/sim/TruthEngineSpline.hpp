@@ -81,9 +81,9 @@ public:
 private:
   bool IsTimeInvalid(double time);
 
-  double m_timeMax {0.0};
-  Eigen::Spline3d m_posSpline;
-  Eigen::Spline3d m_angSpline;
+  double m_time_max {0.0};
+  Eigen::Spline3d m_pos_spline;
+  Eigen::Spline3d m_ang_spline;
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTHENGINESPLINE_HPP_
