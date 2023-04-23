@@ -193,6 +193,48 @@ unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, unsigned int frame_
   return stateStartIndex;
 }
 
+Eigen::MatrixXd EKF::AugmentJacobian(
+  unsigned int cam_state_start,
+  unsigned int camera_id,
+  unsigned int aug_state_start)
+{
+  Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize);
+
+  unsigned int after_start = aug_state_start + 12;
+  unsigned int after_size = m_stateSize - aug_state_start - 12;
+
+  // Before augmented state jacobian
+  jacobian.block(0, 0, aug_state_start, aug_state_start) =
+    Eigen::MatrixXd::Identity(aug_state_start, aug_state_start);
+
+  // After augmented state jacobian
+  if (after_size > 0) {
+    jacobian.block(after_start, after_start, after_size, after_size) =
+      Eigen::MatrixXd::Identity(after_size, after_size);
+  }
+
+  // IMU Global Position
+  jacobian.block(aug_state_start + 0, 0, 3, 3) = Eigen::MatrixXd::Identity(3, 3);
+
+  // IMU Global Orientation
+  jacobian.block(aug_state_start + 3, 9, 3, 3) = Eigen::MatrixXd::Identity(3, 3);
+
+  // Camera Global Position
+  jacobian.block(aug_state_start + 6, 0, 3, 3) = Eigen::MatrixXd::Identity(3, 3);
+  jacobian.block(aug_state_start + 6, 9, 3, 3) =
+    SkewSymmetric(m_state.m_body_state.m_orientation * m_state.m_cam_states[camera_id].position);
+  jacobian.block(aug_state_start + 6, cam_state_start, 3, 3) =
+    m_state.m_body_state.m_orientation.toRotationMatrix();
+
+  // Camera Global Orientation
+  jacobian.block(aug_state_start + 6, 9, 3, 3) =
+    m_state.m_cam_states[camera_id].orientation.toRotationMatrix();
+  jacobian.block(aug_state_start + 6, cam_state_start + 3, 3, 3) =
+    m_state.m_body_state.m_orientation.toRotationMatrix();
+
+  return jacobian;
+}
+
 /// @todo Augment covariance with Jacobian
 void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
 {
@@ -206,31 +248,28 @@ void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
   aug_state.orientation = m_state.m_cam_states[camera_id].orientation *
     m_state.m_body_state.m_orientation;
   m_state.m_cam_states[camera_id].augmented_states.push_back(aug_state);
+  unsigned int aug_state_start;
+  unsigned int cam_state_start = GetCamStateStartIndex(camera_id);
 
   // Limit augmented states to 20
   if (m_state.m_cam_states[camera_id].augmented_states.size() <= 20) {
-    unsigned int aug_stateStart = GetAugStateStartIndex(camera_id, frame_id);
+    aug_state_start = GetAugStateStartIndex(camera_id, frame_id);
+
     Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize + 12);
 
-    // Insert new state
-    /// @todo next: Use jacobian to initialize covariance
-    m_cov =
-      InsertInMatrix(Eigen::MatrixXd::Identity(12, 12), m_cov, aug_stateStart, aug_stateStart);
     m_stateSize += 12;
-
   } else {
     // Remove second element from state
     m_state.m_cam_states[camera_id].augmented_states.erase(
       m_state.m_cam_states[camera_id].augmented_states.begin() + 1);
 
-    // Remove second element
-    unsigned int camStateStart = GetCamStateStartIndex(camera_id);
-    m_cov = RemoveFromMatrix(m_cov, camStateStart + 24, camStateStart + 24, 12);
+    // Remove second element from covariance
+    m_cov = RemoveFromMatrix(m_cov, cam_state_start + 24, cam_state_start + 24, 12);
 
-    // Insert new state
-    /// @todo next: Use jacobian to initialize covariance
-    unsigned int aug_stateStart = GetAugStateStartIndex(camera_id, frame_id);
-    m_cov =
-      InsertInMatrix(Eigen::MatrixXd::Identity(12, 12), m_cov, aug_stateStart, aug_stateStart);
+    aug_state_start = GetAugStateStartIndex(camera_id, frame_id);
   }
+
+  /// @todo next: Use jacobian to initialize covariance
+  Eigen::MatrixXd augment_jacobian = AugmentJacobian(cam_state_start, camera_id, aug_state_start);
+  m_cov = (augment_jacobian * m_cov * augment_jacobian.transpose()).eval();
 }

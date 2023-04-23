@@ -42,6 +42,7 @@ Software Work:
     - OpenSSF Best Practices https://bestpractices.coreinfrastructure.org
     - Parameter for max frame length
     - Include What You Use
+    - Eigen aliasing and eval
     Simple Simulation:
         - Add parameter for feature point uncertainty
 
