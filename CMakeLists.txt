@@ -42,14 +42,6 @@ foreach(pkg ${ROS_PKGS})
     find_package(${pkg} REQUIRED)
 endforeach()
 
-# @TODO Make IWYU optional
-find_program(IWYU_PATH NAMES include-what-you-use)
-if(NOT IWYU_PATH)
-  message(FATAL_ERROR "Could not find the program include-what-you-use")
-endif()
-set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH})
-set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU_PATH})
-
 # @todo split infrastructure into separate library
 # EKF sources
 set(EKF_SRCS
