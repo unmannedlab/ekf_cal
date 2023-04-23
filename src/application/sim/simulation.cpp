@@ -16,6 +16,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <iostream>
+#include <memory>
 #include <opencv2/core/utility.hpp>
 
 #include "infrastructure/sim/truth_engine.hpp"

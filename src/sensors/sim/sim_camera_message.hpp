@@ -17,6 +17,8 @@
 #ifndef SENSORS__SIM__SIM_CAMERA_MESSAGE_HPP_
 #define SENSORS__SIM__SIM_CAMERA_MESSAGE_HPP_
 
+#include <memory>
+
 #include "sensors/camera_message.hpp"
 #include "trackers/sim/sim_feature_tracker_message.hpp"
 

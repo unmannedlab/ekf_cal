@@ -18,16 +18,13 @@
 
 #include <tf2_ros/transform_broadcaster.h>
 
-#include <cstdio>
-#include <map>
 #include <memory>
-#include <string>
 #include <vector>
 
-#include <std_msgs/msg/float64_multi_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/float64_multi_array.hpp>
 
 #include "ekf/ekf.hpp"
 #include "infrastructure/debug_logger.hpp"

@@ -24,7 +24,6 @@
 #include "ekf/constants.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/sim/sim_imu_message.hpp"
-#include "sensors/sim/sim_imu_message.hpp"
 #include "utility/math_helper.hpp"
 #include "utility/sim/sim_rng.hpp"
 

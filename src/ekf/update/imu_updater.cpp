@@ -18,7 +18,6 @@
 #include <eigen3/Eigen/Eigen>
 #include <unistd.h>
 
-#include <memory>
 #include <string>
 #include <sstream>
 

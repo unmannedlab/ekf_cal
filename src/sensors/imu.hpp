@@ -18,8 +18,8 @@
 
 #include <eigen3/Eigen/Eigen>
 
-#include <memory>
 #include <string>
+#include <memory>
 
 #include "ekf/update/imu_updater.hpp"
 #include "infrastructure/debug_logger.hpp"

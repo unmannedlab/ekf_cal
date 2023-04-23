@@ -17,7 +17,6 @@
 
 #include <eigen3/Eigen/Eigen>
 
-#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
