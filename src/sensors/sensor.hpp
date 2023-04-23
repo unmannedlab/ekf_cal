@@ -22,35 +22,9 @@
 #include <string>
 
 #include "ekf/ekf.hpp"
+#include "sensors/sensor_message.hpp"
 #include "infrastructure/debug_logger.hpp"
 
-
-enum class SensorType
-{
-  IMU,
-  Camera,
-  Tracker
-};
-
-///
-/// @class SensorMessage
-/// @brief Sensor message base class
-///
-class SensorMessage
-{
-public:
-  /// @brief SensorMessage constructor
-  SensorMessage() {}
-
-  /// @brief Associated sensor ID of measurement
-  unsigned int m_sensor_id;
-
-  /// @brief Associated sensor type of measurement
-  SensorType m_sensor_type;
-
-  /// @brief Measurement time
-  double m_time;
-};
 
 ///
 /// @class Sensor

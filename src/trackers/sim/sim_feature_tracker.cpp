@@ -22,6 +22,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
 
+#include "trackers/sim/sim_feature_tracker_message.hpp"
+
 SimFeatureTracker::SimFeatureTracker(
   SimFeatureTracker::Parameters params,
   std::shared_ptr<TruthEngine> truthEngine)

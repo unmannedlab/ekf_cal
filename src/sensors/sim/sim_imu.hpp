@@ -28,16 +28,8 @@
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/imu.hpp"
 #include "sensors/sensor.hpp"
+#include "sensors/sim/sim_imu_message.hpp"
 #include "utility/sim/sim_rng.hpp"
-
-class SimImuMessage : public ImuMessage
-{
-public:
-  ///
-  /// @brief Define SimImuMessage constructor with ImuMessage's
-  ///
-  using ImuMessage::ImuMessage;
-};
 
 ///
 /// @class SimIMU

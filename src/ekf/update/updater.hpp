@@ -16,7 +16,7 @@
 #ifndef EKF__UPDATE__UPDATER_HPP_
 #define EKF__UPDATE__UPDATER_HPP_
 
-#include "ekf/update/updater.hpp"
+#include <string>
 
 #include "ekf/ekf.hpp"
 

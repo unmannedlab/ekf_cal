@@ -27,14 +27,12 @@
 
 #include "ekf/types.hpp"
 #include "infrastructure/debug_logger.hpp"
+#include "sensors/camera_message.hpp"
 #include "sensors/sensor.hpp"
 #include "trackers/feature_tracker.hpp"
 #include "utility/math_helper.hpp"
 #include "utility/type_helper.hpp"
 
-
-CameraMessage::CameraMessage(cv::Mat & imgIn)
-: SensorMessage(), image(imgIn) {}
 
 /// @todo add detector/extractor parameters to input
 Camera::Camera(Camera::Parameters cam_params)

@@ -23,23 +23,8 @@
 
 #include "ekf/update/imu_updater.hpp"
 #include "infrastructure/debug_logger.hpp"
+#include "sensors/imu_message.hpp"
 #include "sensors/sensor.hpp"
-
-
-///
-/// @class ImuMessage
-/// @brief Data class for IMU messages
-///
-class ImuMessage : public SensorMessage
-{
-public:
-  ImuMessage() {}
-  Eigen::Vector3d m_acceleration;              ///< @brief IMU acceleration
-  Eigen::Vector3d m_angular_rate;              ///< @brief IMU angular rate
-  Eigen::Matrix3d m_acceleration_covariance;   ///< @brief IMU acceleration covariance
-  Eigen::Matrix3d m_angular_rate_covariance;   ///< @brief IMU angular rate covariance
-};
-
 
 ///
 /// @class IMU

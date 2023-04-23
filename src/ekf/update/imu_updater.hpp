@@ -32,14 +32,10 @@ public:
   ///
   /// @brief IMU EKF Updater Constructor
   /// @param imuID IMU Sensor ID
-  /// @param accBiasStability
-  /// @param omgBiasStability
   /// @param logFileDirectory
   ///
   ImuUpdater(
     unsigned int imuID,
-    double accBiasStability,
-    double omgBiasStability,
     std::string logFileDirectory,
     bool dataLoggingOn
   );
@@ -88,8 +84,6 @@ private:
   Eigen::Quaterniond m_ang_offset {1.0, 0.0, 0.0, 0.0};
   Eigen::Vector3d m_acc_bias {0.0, 0.0, 0.0};
   Eigen::Vector3d m_omg_bias {0.0, 0.0, 0.0};
-  double m_acc_bias_stability;
-  double m_omg_bias_stability;
   DataLogger m_data_logger;
 };
 

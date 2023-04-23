@@ -13,21 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__ROS__ROS_IMU_HPP_
-#define SENSORS__ROS__ROS_IMU_HPP_
 
-#include "sensors/imu.hpp"
+#ifndef SENSORS__SIM__SIM_CAMERA_MESSAGE_HPP_
+#define SENSORS__SIM__SIM_CAMERA_MESSAGE_HPP_
 
+#include "sensors/camera_message.hpp"
+#include "trackers/sim/sim_feature_tracker_message.hpp"
 
 ///
-/// @class RosIMU
-/// @brief IMU Sensor Class
-/// @todo Add parameter input/defaults for covariance
+/// @class SimCameraMessage
+/// @brief Camera message subclass for simulated camera
 ///
-class RosIMU : public IMU
+class SimCameraMessage : public CameraMessage
 {
 public:
-  using IMU::IMU;
+  ///
+  /// @brief Define SimCameraMessage constructor with CameraMessage's
+  ///
+  using CameraMessage::CameraMessage;
+
+  /// @brief Message output from feature tracker
+  std::shared_ptr<SimFeatureTrackerMessage> m_feature_track_message;
 };
 
-#endif  // SENSORS__ROS__ROS_IMU_HPP_
+#endif  // SENSORS__SIM__SIM_CAMERA_MESSAGE_HPP_

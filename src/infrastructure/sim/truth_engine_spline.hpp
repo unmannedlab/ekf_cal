@@ -71,8 +71,9 @@ public:
   Eigen::Vector3d GetBodyAngularAcceleration(double time);
 
   ///
-  /// @brief Setter function for spline control points
-  /// @param points Control Points
+  /// @brief Setter method for position and angle spline control points
+  /// @param positions Position control points
+  /// @param angles Angular position control points
   ///
   void SetControlPoints(
     std::vector<Eigen::Vector3d> positions,

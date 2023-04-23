@@ -17,17 +17,17 @@
 #include <iostream>
 
 #include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/imu.hpp>
+#include <sensor_msgs/msg/image.hpp>
 
-#include "sensors/imu.hpp"
-#include "sensors/ros/ros_imu.hpp"
 #include "application/ros/node/ekf_cal_node.hpp"
 
 /// @todo Write these integration tests
 class EkfCalNode_test : public ::testing::Test
 {
 protected:
-  virtual void SetUp() {rclcpp::init(0, NULL);}
-  virtual void TearDown() {rclcpp::shutdown();}
+  virtual void SetUp() {rclcpp::init(0, NULL);}  ///< @brief EKF CAL Test node set up method
+  virtual void TearDown() {rclcpp::shutdown();}  ///< @brief EKF CAL Test node tear down method
 };
 
 TEST_F(EkfCalNode_test, hello_world) {

@@ -13,23 +13,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sensors/ros/ros_imu.hpp"
+#ifndef TRACKERS__SIM__SIM_FEATURE_TRACKER_MESSAGE_HPP_
+#define TRACKERS__SIM__SIM_FEATURE_TRACKER_MESSAGE_HPP_
 
-#include <eigen3/Eigen/Eigen>
-#include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/imu.hpp>
+#include "sensors/sensor_message.hpp"
+#include "ekf/types.hpp"
 
-#include "sensors/sensor.hpp"
-#include "utility/math_helper.hpp"
-#include "utility/ros_helper.hpp"
-#include "utility/type_helper.hpp"
-
-
-RosImuMessage::RosImuMessage(const sensor_msgs::msg::Imu::SharedPtr msg)
+///
+/// @class SimFeatureTrackerMessage
+/// @brief Simulated Tracker Message class
+///
+class SimFeatureTrackerMessage : public SensorMessage
 {
-  m_time = RosHeaderToTime(msg->header);
-  m_acceleration = RosToEigen(msg->linear_acceleration);
-  m_angular_rate = RosToEigen(msg->angular_velocity);
-  m_acceleration_covariance = RosToEigen(msg->linear_acceleration_covariance);
-  m_angular_rate_covariance = RosToEigen(msg->angular_velocity_covariance);
-}
+public:
+  SimFeatureTrackerMessage() {}
+  unsigned int m_tracker_id {0};                            ///< @brief Associated Tracker ID
+  std::vector<std::vector<FeatureTrack>> m_feature_tracks;  ///< @brief Feature Tracks
+};
+
+#endif  // TRACKERS__SIM__SIM_FEATURE_TRACKER_MESSAGE_HPP_

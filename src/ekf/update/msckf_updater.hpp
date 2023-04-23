@@ -33,9 +33,12 @@ public:
   ///
   /// @brief MSCKF EKF Updater constructor
   /// @param cam_id Camera sensor ID
+  /// @param log_file_directory Directory to save log files
+  /// @param data_logging_on Flag to enable data logging
   ///
   explicit MsckfUpdater(
-    unsigned int cam_id, std::string log_file_directory,
+    unsigned int cam_id,
+    std::string log_file_directory,
     bool data_logging_on);
 
   ///
@@ -46,8 +49,9 @@ public:
 
   ///
   /// @brief
-  /// @param camera_id
-  /// @param feature_tracks
+  /// @param time Time of update
+  /// @param camera_id ID of camera associated with update
+  /// @param feature_tracks Feature tracks to be used for state update
   ///
   void UpdateEKF(double time, unsigned int camera_id, FeatureTracks feature_tracks);
 

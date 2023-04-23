@@ -31,19 +31,9 @@
 #include "sensors/camera.hpp"
 #include "sensors/sensor.hpp"
 #include "trackers/feature_tracker.hpp"
+#include "trackers/sim/sim_feature_tracker_message.hpp"
 #include "utility/sim/sim_rng.hpp"
 
-///
-/// @class SimFeatureTrackerMessage
-/// @brief Simulated Tracker Message class
-///
-class SimFeatureTrackerMessage : public SensorMessage
-{
-public:
-  SimFeatureTrackerMessage() {}
-  unsigned int m_tracker_id {0};
-  std::vector<std::vector<FeatureTrack>> m_feature_tracks;
-};
 
 ///
 /// @class SimFeatureTracker
@@ -83,6 +73,12 @@ public:
   ///
   std::vector<cv::KeyPoint> VisibleKeypoints(double time);
 
+  ///
+  /// @brief
+  /// @param time Message time
+  /// @param camera_id Camera ID
+  /// @param msg Feature track message
+  ///
   void Callback(double time, unsigned int camera_id, std::shared_ptr<SimFeatureTrackerMessage> msg);
 
 private:
@@ -90,7 +86,6 @@ private:
   Eigen::Vector3d m_pos_offset{0.0, 0.0, 0.0};
   Eigen::Quaterniond m_ang_offset{1.0, 0.0, 0.0, 0.0};
   std::shared_ptr<TruthEngine> m_truth;
-  double m_rate{1.0};
   SimRNG m_rng;
   unsigned int m_feature_count {0};
   std::vector<cv::Point3d> m_feature_points;

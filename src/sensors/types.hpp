@@ -13,21 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__ROS__ROS_IMU_HPP_
-#define SENSORS__ROS__ROS_IMU_HPP_
+#ifndef SENSORS__TYPES_HPP_
+#define SENSORS__TYPES_HPP_
 
-#include "sensors/imu.hpp"
-
-
-///
-/// @class RosIMU
-/// @brief IMU Sensor Class
-/// @todo Add parameter input/defaults for covariance
-///
-class RosIMU : public IMU
+enum class SensorType
 {
-public:
-  using IMU::IMU;
+  IMU,
+  Camera,
+  Tracker
 };
 
-#endif  // SENSORS__ROS__ROS_IMU_HPP_
+#endif  // SENSORS__TYPES_HPP_

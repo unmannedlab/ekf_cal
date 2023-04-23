@@ -27,13 +27,14 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/imu.hpp>
-#include <sensor_msgs/msg/point_cloud.hpp>
 
 #include "utility/type_helper.hpp"
 #include "ekf/ekf.hpp"
 #include "sensors/camera.hpp"
 #include "sensors/imu.hpp"
+#include "sensors/ros/ros_camera_message.hpp"
 #include "sensors/ros/ros_camera.hpp"
+#include "sensors/ros/ros_imu_message.hpp"
 #include "sensors/ros/ros_imu.hpp"
 #include "infrastructure/debug_logger.hpp"
 

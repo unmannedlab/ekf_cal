@@ -25,22 +25,8 @@
 #include <std_msgs/msg/header.hpp>
 
 #include "infrastructure/debug_logger.hpp"
+#include "sensors/ros/ros_camera_message.hpp"
 #include "sensors/camera.hpp"
-
-///
-/// @class RosCameraMessage
-/// @brief Class for ROS image message data structure
-///
-class RosCameraMessage : public CameraMessage
-{
-public:
-  ///
-  /// @brief RosCameraMessage constructor
-  /// @param msg Ros image message input
-  ///
-  explicit RosCameraMessage(const sensor_msgs::msg::Image::SharedPtr msg);
-};
-
 
 ///
 /// @class RosCamera
@@ -68,6 +54,10 @@ public:
   ///
   sensor_msgs::msg::Image::SharedPtr GetRosImage();
 
+  ///
+  /// @brief Method to add tracker object to ros camera sensor
+  /// @param tracker Tracker pointer for ros camera to use during callbacks
+  ///
   void AddTracker(std::shared_ptr<FeatureTracker> tracker);
 
 private:

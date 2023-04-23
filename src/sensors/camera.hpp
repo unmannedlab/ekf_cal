@@ -26,25 +26,10 @@
 #include <opencv2/opencv.hpp>
 
 #include "ekf/types.hpp"
+#include "sensors/camera_message.hpp"
 #include "sensors/sensor.hpp"
 #include "trackers/feature_tracker.hpp"
 
-///
-/// @class CameraMessage
-/// @brief Camera message class
-///
-class CameraMessage : public SensorMessage
-{
-public:
-  ///
-  /// @brief Camera message constructor
-  /// @param img_in Input image
-  ///
-  explicit CameraMessage(cv::Mat & img_in);
-
-  /// @brief Message image
-  cv::Mat & image;
-};
 
 ///
 /// @class Camera
@@ -76,6 +61,10 @@ public:
   ///
   explicit Camera(Camera::Parameters cam_params);
 
+  ///
+  /// @brief Method to add tracker object to camera sensor
+  /// @param tracker Tracker pointer for camera to use during callbacks
+  ///
   void AddTracker(std::shared_ptr<FeatureTracker> tracker);
 
   ///

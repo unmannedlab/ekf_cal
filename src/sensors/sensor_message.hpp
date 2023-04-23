@@ -13,21 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__ROS__ROS_IMU_HPP_
-#define SENSORS__ROS__ROS_IMU_HPP_
+#ifndef SENSORS__SENSOR_MESSAGE_HPP_
+#define SENSORS__SENSOR_MESSAGE_HPP_
 
-#include "sensors/imu.hpp"
-
+#include "sensors/types.hpp"
 
 ///
-/// @class RosIMU
-/// @brief IMU Sensor Class
-/// @todo Add parameter input/defaults for covariance
+/// @class SensorMessage
+/// @brief Sensor message base class
 ///
-class RosIMU : public IMU
+class SensorMessage
 {
 public:
-  using IMU::IMU;
+  /// @brief SensorMessage constructor
+  SensorMessage() {}
+
+  /// @brief Associated sensor ID of measurement
+  unsigned int m_sensor_id;
+
+  /// @brief Associated sensor type of measurement
+  SensorType m_sensor_type;
+
+  /// @brief Measurement time
+  double m_time;
 };
 
-#endif  // SENSORS__ROS__ROS_IMU_HPP_
+#endif  // SENSORS__SENSOR_MESSAGE_HPP_

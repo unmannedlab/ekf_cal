@@ -22,8 +22,10 @@
 #include "infrastructure/sim/truth_engine_spline.hpp"
 #include "infrastructure/sim/truth_engine_cyclic.hpp"
 #include "sensors/imu.hpp"
-#include "sensors/sim/sim_imu.hpp"
+#include "sensors/sim/sim_camera_message.hpp"
 #include "sensors/sim/sim_camera.hpp"
+#include "sensors/sim/sim_imu_message.hpp"
+#include "sensors/sim/sim_imu.hpp"
 #include "trackers/sim/sim_feature_tracker.hpp"
 #include "utility/type_helper.hpp"
 

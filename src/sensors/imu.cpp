@@ -27,8 +27,7 @@
 
 
 IMU::IMU(IMU::Parameters params)
-: Sensor(params.name), m_imu_updater(m_id, params.acc_bias_stability, params.omg_bias_stability,
-    params.output_directory, params.data_logging_on)
+: Sensor(params.name), m_imu_updater(m_id, params.output_directory, params.data_logging_on)
 {
   m_is_base_sensor = params.base_sensor;
   m_is_intrinsic = params.intrinsic;

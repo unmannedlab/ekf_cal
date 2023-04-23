@@ -25,22 +25,12 @@
 #include <vector>
 
 #include "ekf/types.hpp"
-#include "infrastructure/debug_logger.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/camera.hpp"
-#include "sensors/sensor.hpp"
+#include "sensors/sim/sim_camera_message.hpp"
 #include "utility/sim/sim_rng.hpp"
 #include "trackers/sim/sim_feature_tracker.hpp"
 
-class SimCameraMessage : public CameraMessage
-{
-public:
-  ///
-  /// @brief Define SimCameraMessage constructor with CameraMessage's
-  ///
-  using CameraMessage::CameraMessage;
-  std::shared_ptr<SimFeatureTrackerMessage> m_feature_track_message;
-};
 
 ///
 /// @class SimCamera
@@ -54,12 +44,12 @@ public:
   ///
   typedef struct Parameters
   {
-    double time_bias {0.0};                                 ///< @brief Time offset bias
-    double time_skew {1.0};                               ///< @brief Time offset error
-    double time_error {1e-9};                               ///< @brief Time offset error
+    double time_bias {0.0};                              ///< @brief Time offset bias
+    double time_skew {1.0};                              ///< @brief Time offset error
+    double time_error {1e-9};                            ///< @brief Time offset error
     Eigen::Vector3d pos_offset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
     Eigen::Quaterniond ang_offset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
-    Camera::Parameters cam_params;                              ///< @brief IMU sensor parameters
+    Camera::Parameters cam_params;                       ///< @brief IMU sensor parameters
   } Parameters;
 
   ///
@@ -69,10 +59,22 @@ public:
   ///
   SimCamera(SimCamera::Parameters params, std::shared_ptr<TruthEngine> truth_engine);
 
+  ///
+  /// @brief Method to add tracker object to camera sensor
+  /// @param tracker Tracker pointer for camera to use during callbacks
+  ///
   void AddTracker(std::shared_ptr<SimFeatureTracker> tracker);
 
+  ///
+  /// @brief Generate simulated camera message times
+  /// @param max_time Maximum time to generate frame times
+  ///
   std::vector<double> GenerateMessageTimes(double max_time);
 
+  ///
+  /// @brief Callback method for simulated camera
+  /// @param sim_camera_message Simulated camera data message
+  ///
   void Callback(std::shared_ptr<SimCameraMessage> sim_camera_message);
 
   ///

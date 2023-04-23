@@ -13,21 +13,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__ROS__ROS_IMU_HPP_
-#define SENSORS__ROS__ROS_IMU_HPP_
+#ifndef SENSORS__ROS__ROS_CAMERA_MESSAGE_HPP_
+#define SENSORS__ROS__ROS_CAMERA_MESSAGE_HPP_
 
-#include "sensors/imu.hpp"
+#include <sensor_msgs/msg/image.hpp>
 
+#include "sensors/camera_message.hpp"
 
 ///
-/// @class RosIMU
-/// @brief IMU Sensor Class
-/// @todo Add parameter input/defaults for covariance
+/// @class RosCameraMessage
+/// @brief Class for ROS image message data structure
 ///
-class RosIMU : public IMU
+class RosCameraMessage : public CameraMessage
 {
 public:
-  using IMU::IMU;
+  ///
+  /// @brief RosCameraMessage constructor
+  /// @param msg Ros image message input
+  ///
+  explicit RosCameraMessage(const sensor_msgs::msg::Image::SharedPtr msg);
 };
 
-#endif  // SENSORS__ROS__ROS_IMU_HPP_
+#endif  // SENSORS__ROS__ROS_CAMERA_MESSAGE_HPP_

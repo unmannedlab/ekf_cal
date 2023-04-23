@@ -13,21 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__ROS__ROS_IMU_HPP_
-#define SENSORS__ROS__ROS_IMU_HPP_
+#include "sensors/ros/ros_camera_message.hpp"
 
-#include "sensors/imu.hpp"
+#include <cv_bridge/cv_bridge.h>
+
+#include <sensor_msgs/msg/image.hpp>
+
+#include "sensors/camera_message.hpp"
+#include "utility/ros_helper.hpp"
 
 
-///
-/// @class RosIMU
-/// @brief IMU Sensor Class
-/// @todo Add parameter input/defaults for covariance
-///
-class RosIMU : public IMU
+RosCameraMessage::RosCameraMessage(const sensor_msgs::msg::Image::SharedPtr msg)
+: CameraMessage(cv_bridge::toCvCopy(msg)->image)
 {
-public:
-  using IMU::IMU;
-};
-
-#endif  // SENSORS__ROS__ROS_IMU_HPP_
+  m_time = RosHeaderToTime(msg->header);
+}

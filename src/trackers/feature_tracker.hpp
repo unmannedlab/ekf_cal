@@ -85,29 +85,49 @@ public:
   ///
   /// @brief FeatureTracker sensor constructor
   /// @param params Parameter struct for feature tracker
-  /// @param cameraID Associated camera ID
   ///
   explicit FeatureTracker(FeatureTracker::Parameters params);
 
+  ///
+  /// @brief Down sample features to grid
+  /// @param key_points Key points to down sample
+  /// @param rows Number of final rows to consider
+  /// @param cols Number of final columns to consider
+  /// @return Down sampled key points
+  ///
   std::vector<cv::KeyPoint> GridFeatures(
-    std::vector<cv::KeyPoint> points,
+    std::vector<cv::KeyPoint> key_points,
     unsigned int rows,
     unsigned int cols);
 
+  ///
+  /// @brief Perform track on new image frame
+  /// @param time Frame time
+  /// @param frame_id Frame ID
+  /// @param img_in Input frame
+  /// @param img_out Output frame with drawn track lines
+  /// @param feature_tracks Output complete feature tracks
+  ///
   void Track(
     double time,
-    unsigned int frame_id, cv::Mat & img_in, cv::Mat & img_out,
+    unsigned int frame_id,
+    cv::Mat & img_in,
+    cv::Mat & img_out,
     FeatureTracks feature_tracks);
 
+  ///
+  /// @brief Tracker ID getter method
+  /// @return Tracker ID
+  ///
   unsigned int GetID();
 
 protected:
   DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
-  unsigned int max_track_length{30};
-  unsigned int min_track_length{2};
-  unsigned int m_camera_id;
-  MsckfUpdater m_msckf_updater;
-  unsigned int m_id;
+  unsigned int max_track_length{30};  ///< @brief Maximum track length before forced output
+  unsigned int min_track_length{2};   ///< @brief Minimum track length to consider
+  unsigned int m_camera_id;           ///< @brief Associated camera ID of tracker
+  MsckfUpdater m_msckf_updater;       ///< @brief MSCKF updater object
+  unsigned int m_id;                  ///< @brief Tracker ID
 
 private:
   cv::Ptr<cv::FeatureDetector> InitFeatureDetector(

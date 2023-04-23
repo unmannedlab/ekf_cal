@@ -23,8 +23,10 @@
 
 #include "ekf/constants.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
-#include "utility/sim/sim_rng.hpp"
+#include "sensors/sim/sim_imu_message.hpp"
+#include "sensors/sim/sim_imu_message.hpp"
 #include "utility/math_helper.hpp"
+#include "utility/sim/sim_rng.hpp"
 
 SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngine)
 : IMU(params.imu_params)

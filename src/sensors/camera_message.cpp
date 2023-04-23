@@ -13,21 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__ROS__ROS_IMU_HPP_
-#define SENSORS__ROS__ROS_IMU_HPP_
+#include "sensors/camera_message.hpp"
 
-#include "sensors/imu.hpp"
+#include <opencv2/opencv.hpp>
 
 
-///
-/// @class RosIMU
-/// @brief IMU Sensor Class
-/// @todo Add parameter input/defaults for covariance
-///
-class RosIMU : public IMU
-{
-public:
-  using IMU::IMU;
-};
-
-#endif  // SENSORS__ROS__ROS_IMU_HPP_
+CameraMessage::CameraMessage(cv::Mat & imgIn)
+: SensorMessage(), image(imgIn) {}

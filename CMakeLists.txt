@@ -27,7 +27,7 @@ endif()
 
 list(APPEND CMAKE_PREFIX_PATH /opt/ros/${ROS_DISTRO}/)
 
-# TODO Should this compile without ROS? Just make EKF library?
+# @TODO Should this compile without ROS? Just make EKF library?
 set(ROS_PKGS
     ament_cmake
     cv_bridge
@@ -42,6 +42,14 @@ foreach(pkg ${ROS_PKGS})
     find_package(${pkg} REQUIRED)
 endforeach()
 
+# @TODO Make IWYU optional
+find_program(IWYU_PATH NAMES include-what-you-use)
+if(NOT IWYU_PATH)
+  message(FATAL_ERROR "Could not find the program include-what-you-use")
+endif()
+set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH})
+set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU_PATH})
+
 # @todo split infrastructure into separate library
 # EKF sources
 set(EKF_SRCS
@@ -52,6 +60,7 @@ set(EKF_SRCS
     src/ekf/update/updater.cpp
     src/infrastructure/data_logger.cpp
     src/infrastructure/debug_logger.cpp
+    src/sensors/camera_message.cpp
     src/sensors/camera.cpp
     src/sensors/imu.cpp
     src/sensors/sensor.cpp
@@ -97,8 +106,9 @@ set(ROS_SRCS
     src/infrastructure/data_logger.cpp
     src/infrastructure/debug_logger.cpp
     src/infrastructure/ros/ros_debug_logger.cpp
+    src/sensors/ros/ros_camera_message.cpp
     src/sensors/ros/ros_camera.cpp
-    src/sensors/ros/ros_imu.cpp
+    src/sensors/ros/ros_imu_message.cpp
 )
 
 # Create library with ROS sources

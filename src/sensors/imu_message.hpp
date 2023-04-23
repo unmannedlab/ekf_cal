@@ -13,21 +13,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__ROS__ROS_IMU_HPP_
-#define SENSORS__ROS__ROS_IMU_HPP_
 
-#include "sensors/imu.hpp"
+#ifndef SENSORS__IMU_MESSAGE_HPP_
+#define SENSORS__IMU_MESSAGE_HPP_
 
+#include <eigen3/Eigen/Eigen>
+
+#include "sensors/sensor_message.hpp"
 
 ///
-/// @class RosIMU
-/// @brief IMU Sensor Class
-/// @todo Add parameter input/defaults for covariance
+/// @class ImuMessage
+/// @brief Data class for IMU messages
 ///
-class RosIMU : public IMU
+class ImuMessage : public SensorMessage
 {
 public:
-  using IMU::IMU;
+  ImuMessage() {}
+  Eigen::Vector3d m_acceleration;              ///< @brief IMU acceleration
+  Eigen::Vector3d m_angular_rate;              ///< @brief IMU angular rate
+  Eigen::Matrix3d m_acceleration_covariance;   ///< @brief IMU acceleration covariance
+  Eigen::Matrix3d m_angular_rate_covariance;   ///< @brief IMU angular rate covariance
 };
 
-#endif  // SENSORS__ROS__ROS_IMU_HPP_
+#endif  // SENSORS__IMU_MESSAGE_HPP_

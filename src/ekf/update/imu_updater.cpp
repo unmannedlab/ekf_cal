@@ -18,6 +18,7 @@
 #include <eigen3/Eigen/Eigen>
 #include <unistd.h>
 
+#include <memory>
 #include <string>
 #include <sstream>
 
@@ -28,12 +29,8 @@
 #include "utility/type_helper.hpp"
 
 /// @todo Should combine IMU with file name for multiple IMU logs
-ImuUpdater::ImuUpdater(
-  unsigned int imu_id, double acc_bias_stability, double omg_bias_stability,
-  std::string log_file_directory, bool data_logging_on)
-: Updater(imu_id), m_acc_bias_stability(acc_bias_stability),
-  m_omg_bias_stability(omg_bias_stability),
-  m_data_logger(log_file_directory, "imu_" + std::to_string(imu_id) + ".csv")
+ImuUpdater::ImuUpdater(unsigned int imu_id, std::string log_file_directory, bool data_logging_on)
+: Updater(imu_id), m_data_logger(log_file_directory, "imu_" + std::to_string(imu_id) + ".csv")
 {
   std::stringstream msg;
   msg << "time";

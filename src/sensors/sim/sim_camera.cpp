@@ -21,6 +21,7 @@
 #include <memory>
 
 #include "infrastructure/sim/truth_engine.hpp"
+#include "sensors/sim/sim_camera_message.hpp"
 #include "utility/sim/sim_rng.hpp"
 #include "utility/math_helper.hpp"
 

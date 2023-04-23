@@ -24,15 +24,10 @@
 
 #include "infrastructure/debug_logger.hpp"
 #include "sensors/camera.hpp"
+#include "sensors/ros/ros_camera_message.hpp"
 #include "utility/ros_helper.hpp"
 #include "utility/type_helper.hpp"
 
-
-RosCameraMessage::RosCameraMessage(const sensor_msgs::msg::Image::SharedPtr msg)
-: CameraMessage(cv_bridge::toCvCopy(msg)->image)
-{
-  m_time = RosHeaderToTime(msg->header);
-}
 
 RosCamera::RosCamera(Camera::Parameters camera_parameters)
 : Camera(camera_parameters) {}

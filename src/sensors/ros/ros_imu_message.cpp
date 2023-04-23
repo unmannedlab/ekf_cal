@@ -13,21 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__ROS__ROS_IMU_HPP_
-#define SENSORS__ROS__ROS_IMU_HPP_
+#include "sensors/ros/ros_imu_message.hpp"
 
-#include "sensors/imu.hpp"
+#include <sensor_msgs/msg/imu.hpp>
 
+#include "utility/ros_helper.hpp"
 
-///
-/// @class RosIMU
-/// @brief IMU Sensor Class
-/// @todo Add parameter input/defaults for covariance
-///
-class RosIMU : public IMU
+RosImuMessage::RosImuMessage(const sensor_msgs::msg::Imu::SharedPtr msg)
 {
-public:
-  using IMU::IMU;
-};
-
-#endif  // SENSORS__ROS__ROS_IMU_HPP_
+  m_time = RosHeaderToTime(msg->header);
+  m_acceleration = RosToEigen(msg->linear_acceleration);
+  m_angular_rate = RosToEigen(msg->angular_velocity);
+  m_acceleration_covariance = RosToEigen(msg->linear_acceleration_covariance);
+  m_angular_rate_covariance = RosToEigen(msg->angular_velocity_covariance);
+}

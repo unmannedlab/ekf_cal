@@ -38,7 +38,6 @@
 ///
 /// @class EkfCalNode
 /// @brief A ROS2 node for EKF-based sensor calibration
-/// @todo Camera Methods
 /// @todo Software Paper
 /// @todo Architecture Design
 /// @todo Option to publish health metrics
@@ -151,7 +150,6 @@ private:
   /// @brief Vector of subscribers for Camera sensor messages
   std::vector<rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr> m_camera_subs;
 
-  bool m_base_imu_assigned {false};
   std::vector<std::string> m_imu_list {};
   std::vector<std::string> m_camera_list {};
   std::vector<std::string> m_tracker_list {};
