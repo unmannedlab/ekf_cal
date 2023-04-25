@@ -44,6 +44,7 @@ public:
   ///
   /// @brief Find augmented state matching a frame ID
   /// @param frame_id Desired frame ID
+  /// @return Matching augmented state
   ///
   AugmentedState MatchState(unsigned int frame_id);
 
@@ -61,6 +62,13 @@ public:
   /// @param residual Measurement residual
   ///
   void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual);
+
+  ///
+  /// @brief Triangulate feature seen from multiple camera frames
+  /// @param feature_track Single feature track
+  /// @return Estimate of feature position in camera frame given observations
+  ///
+  Eigen::Vector3d TriangulateFeature(std::vector<FeatureTrack> & feature_track);
 
   ///
   /// @brief

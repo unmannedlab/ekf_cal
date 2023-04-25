@@ -56,6 +56,7 @@ AugmentedState MsckfUpdater::MatchState(
   return aug_state_match;
 }
 
+/// @todo possible move into separate source for re-compilation speed
 void MsckfUpdater::ApplyLeftNullspace(
   Eigen::MatrixXd & H_f,
   Eigen::MatrixXd & H_x,
@@ -80,6 +81,7 @@ void MsckfUpdater::ApplyLeftNullspace(
   }
 }
 
+/// @todo possible move into separate source for re-compilation speed
 void MsckfUpdater::CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual)
 {
   // Perform measurement compression
@@ -90,20 +92,66 @@ void MsckfUpdater::CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::Vecto
     // Based on "Matrix Computations 4th Edition by Golub and Van Loan"
     // See page 252, Algorithm 5.2.4 for how these two loops work
     // They use "matlab" index notation, thus we need to subtract 1 from all index
-    Eigen::JacobiRotation<double> tempHo_GR;
+    Eigen::JacobiRotation<double> temp_jac_gr;
     for (int n = 0; n < jacobian.cols(); n++) {
       for (int m = static_cast<int>(jacobian.rows()) - 2; m >= n; --m) {
         // Givens matrix G
-        tempHo_GR.makeGivens(jacobian(m, n), jacobian(m, n));
+        temp_jac_gr.makeGivens(jacobian(m, n), jacobian(m, n));
         // Multiply G to the corresponding lines (m-1,m) in each matrix
         // Note: we only apply G to the nonzero cols [n:Ho.cols()-n-1], while
         //       it is equivalent to applying G to the entire cols [0:Ho.cols()-1].
-        (jacobian.block(m, n, 2, jacobian.cols() - n)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
-        (residual.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+        (jacobian.block(m, n, 2, jacobian.cols() - n)).applyOnTheLeft(0, 1, temp_jac_gr.adjoint());
+        (residual.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, temp_jac_gr.adjoint());
       }
     }
   }
 }
+
+/// @todo possible move into separate source for re-compilation speed
+Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & feature_track)
+{
+  AugmentedState aug_state_0 = MatchState(feature_track[0].frame_id);
+
+  // 3D Cartesian Triangulation
+  Eigen::Matrix3d a = Eigen::Matrix3d::Zero();
+  Eigen::Vector3d b = Eigen::Vector3d::Zero();
+
+  const Eigen::Matrix<double, 3,
+    3> rotation_g_to_a = aug_state_0.orientation.toRotationMatrix();
+  const Eigen::Matrix<double, 3, 1> position_a_in_g = aug_state_0.position;
+
+  for (unsigned int i = 1; i < feature_track.size(); ++i) {
+    AugmentedState aug_state_i = MatchState(feature_track[i].frame_id);
+
+    const Eigen::Matrix<double, 3, 3> rotation_g_to_ci = aug_state_i.orientation.toRotationMatrix();
+    const Eigen::Vector3d position_ci_in_g = aug_state_i.position;
+
+    // Convert current position relative to anchor
+    Eigen::Matrix3d rotation_a_to_ci = rotation_g_to_ci * rotation_g_to_a.transpose();
+    Eigen::Vector3d position_ci_in_a = rotation_g_to_a * (position_ci_in_g - position_a_in_g);
+
+    // Get the UV coordinate normal
+    Eigen::Vector3d b_i;
+    b_i(0) = feature_track[i].key_point.pt.x;
+    b_i(1) = feature_track[i].key_point.pt.y;
+    b_i(2) = 1;
+
+    // Rotate and normalize
+    b_i = rotation_a_to_ci.transpose() * b_i;
+    b_i = b_i / b_i.norm();
+
+    Eigen::Matrix3d b_skew = SkewSymmetric(b_i);
+    Eigen::Matrix3d ai = b_skew.transpose() * b_skew;
+    a += ai;
+    b += ai * position_ci_in_a;
+  }
+
+  // Solve linear triangulation for 3D cartesian estimate of feature position
+  Eigen::Vector3d position_f_in_a = a.colPivHouseholderQr().solve(b);
+
+  return position_f_in_a;
+}
+
 
 void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks feature_tracks)
 {
@@ -138,54 +186,9 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
   for (auto & feature_track : feature_tracks) {
     m_logger->Log(LogLevel::DEBUG, "Feature Track size: " + std::to_string(feature_track.size()));
 
-    AugmentedState aug_state_match = MatchState(feature_track[0].frame_id);
+    // Get triangulated estimate of feature position
+    Eigen::Vector3d p_FinA = TriangulateFeature(feature_track);
 
-    // 3D Cartesian Triangulation
-    /// @todo Move into separate function
-    Eigen::Matrix3d A = Eigen::Matrix3d::Zero();
-    Eigen::Vector3d b = Eigen::Vector3d::Zero();
-
-    const Eigen::Matrix<double, 3, 3> R_GtoA = aug_state_match.orientation.toRotationMatrix();
-    const Eigen::Matrix<double, 3, 1> p_AinG = aug_state_match.position;
-
-    for (unsigned int i = 1; i < feature_track.size(); ++i) {
-      aug_state_match = MatchState(feature_track[i].frame_id);
-
-      const Eigen::Matrix<double, 3, 3> R_GtoCi = aug_state_match.orientation.toRotationMatrix();
-      const Eigen::Vector3d p_CIinG = aug_state_match.position;
-
-      // Convert current position relative to anchor
-      Eigen::Matrix3d R_AtoCi = R_GtoCi * R_GtoA.transpose();
-      Eigen::Vector3d p_CIinA = R_GtoA * (p_CIinG - p_AinG);
-
-      // Get the UV coordinate normal
-      Eigen::Vector3d b_i;
-      b_i(0) = feature_track[i].key_point.pt.x;
-      b_i(1) = feature_track[i].key_point.pt.y;
-      b_i(2) = 1;
-
-      b_i = R_AtoCi.transpose() * b_i;
-      b_i = b_i / b_i.norm();
-
-      Eigen::Matrix3d bSkew = SkewSymmetric(b_i);
-      Eigen::Matrix3d Ai = bSkew.transpose() * bSkew;
-      A += Ai;
-      b += Ai * p_CIinA;
-
-      std::stringstream msg;
-      msg << "p_CIinG: " << p_CIinG.transpose() << std::endl
-          << "p_AinG: " << p_AinG.transpose() << std::endl
-          << "p_CIinA: " << p_CIinA.transpose() << std::endl;
-      m_logger->Log(LogLevel::DEBUG, msg.str());
-    }
-
-    // Solve linear triangulation for 3D cartesian estimate of feature position
-    Eigen::Vector3d p_FinA = A.colPivHouseholderQr().solve(b);
-    std::stringstream msg;
-    msg << "MSCKF Triangulation: " << std::endl
-        << "A: " << A << std::endl
-        << "b: " << b.transpose() << std::endl;
-    m_logger->Log(LogLevel::DEBUG, msg.str());
     if (p_FinA == Eigen::Vector3d::Zero()) {
       m_logger->Log(LogLevel::INFO, "MSCKF Triangulation is Zero");
       continue;
@@ -235,15 +238,15 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
     // Get the Jacobian for this feature
     // Loop through each camera for this feature
     for (unsigned int i = 1; i < feature_track.size(); ++i) {
-      aug_state_match = MatchState(feature_track[i].frame_id);
+      AugmentedState aug_state = MatchState(feature_track[i].frame_id);
 
       // Our calibration between the IMU and CAMi frames
-      Eigen::Matrix3d R_ItoC = aug_state_match.orientation.toRotationMatrix();
-      Eigen::Vector3d p_IinC = aug_state_match.position;
+      Eigen::Matrix3d R_ItoC = aug_state.orientation.toRotationMatrix();
+      Eigen::Vector3d p_IinC = aug_state.position;
 
       // Get current IMU clone state
-      Eigen::Matrix3d R_GtoIi = aug_state_match.imu_orientation.toRotationMatrix();
-      Eigen::Vector3d p_Ii_inG = aug_state_match.imu_position;
+      Eigen::Matrix3d R_GtoIi = aug_state.imu_orientation.toRotationMatrix();
+      Eigen::Vector3d p_Ii_inG = aug_state.imu_position;
 
       // Get current feature in the IMU
       Eigen::Vector3d p_FinIi = R_GtoIi * (p_FinG - p_Ii_inG);
@@ -339,6 +342,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
   Hx_big.conservativeResize(r, Hx_big.cols());
   res_big.conservativeResize(r, res_big.cols());
 
+  /// @todo get this value from config file
   unsigned int SIGMA_PIX {1U};
   // Our noise is isotropic, so make it here after our compression
   Eigen::MatrixXd R_big = SIGMA_PIX * SIGMA_PIX * Eigen::MatrixXd::Identity(
