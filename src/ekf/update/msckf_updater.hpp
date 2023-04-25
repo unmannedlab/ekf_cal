@@ -42,10 +42,25 @@ public:
     bool data_logging_on);
 
   ///
-  /// @brief
-  /// @param frame_id
+  /// @brief Find augmented state matching a frame ID
+  /// @param frame_id Desired frame ID
   ///
   AugmentedState MatchState(unsigned int frame_id);
+
+  ///
+  /// @brief Apply left nullspace to update matrices
+  /// @param H_f Feature Jacobian
+  /// @param H_x Track Jacobian
+  /// @param res Update residual
+  ///
+  void ApplyLeftNullspace(Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::VectorXd & res);
+
+  ///
+  /// @brief Perform measurement compression
+  /// @param jacobian Measurement jacobian
+  /// @param residual Measurement residual
+  ///
+  void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual);
 
   ///
   /// @brief

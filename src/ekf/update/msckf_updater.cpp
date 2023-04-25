@@ -20,6 +20,7 @@
 #include <string>
 
 #include "utility/math_helper.hpp"
+#include "utility/string_helper.hpp"
 #include "ekf/constants.hpp"
 
 MsckfUpdater::MsckfUpdater(
@@ -27,24 +28,13 @@ MsckfUpdater::MsckfUpdater(
   bool data_logging_on)
 : Updater(cam_id), m_data_logger(log_file_directory, "msckf_" + std::to_string(cam_id) + ".csv")
 {
-  /// @todo create function for creating these headers
   std::stringstream msg;
   msg << "time";
-  for (unsigned int i = 0; i < g_body_state_size; ++i) {
-    msg << ",body_state_" + std::to_string(i);
-  }
-  for (unsigned int i = 0; i < g_imu_state_size; ++i) {
-    msg << ",cam_state_" + std::to_string(i);
-  }
-  for (unsigned int i = 0; i < g_body_state_size; ++i) {
-    msg << ",body_update_" + std::to_string(i);
-  }
-  for (unsigned int i = 0; i < g_cam_state_size; ++i) {
-    msg << ",cam_update_" + std::to_string(i);
-  }
-  for (unsigned int i = 0; i < 1; ++i) {
-    msg << ",time_" + std::to_string(i);
-  }
+  msg << EnumerateHeader("body_state", g_body_state_size);
+  msg << EnumerateHeader("cam_state", g_cam_state_size);
+  msg << EnumerateHeader("body_update", g_body_state_size);
+  msg << EnumerateHeader("cam_update", g_cam_state_size);
+  msg << EnumerateHeader("time", 1);
   msg << "\n";
 
   m_data_logger.DefineHeader(msg.str());
@@ -64,6 +54,55 @@ AugmentedState MsckfUpdater::MatchState(
   }
 
   return aug_state_match;
+}
+
+void MsckfUpdater::ApplyLeftNullspace(
+  Eigen::MatrixXd & H_f,
+  Eigen::MatrixXd & H_x,
+  Eigen::VectorXd & res)
+{
+
+  // Apply the left nullspace of H_f to all variables
+  // Based on "Matrix Computations 4th Edition by Golub and Van Loan"
+  // See page 252, Algorithm 5.2.4 for how these two loops work
+  Eigen::JacobiRotation<double> tempHo_GR;
+  for (int n = 0; n < H_f.cols(); ++n) {
+    for (int m = static_cast<int>(H_f.rows()) - 2; m >= n; --m) {
+      // Givens matrix G
+      tempHo_GR.makeGivens(H_f(m, n), H_f(m, n));
+      // Multiply G to the corresponding lines (m,m) in each matrix
+      // Note: we only apply G to the nonzero cols [n:Ho.cols()-n-1], while
+      //       it is equivalent to applying G to the entire cols [0:Ho.cols()-1].
+      (H_f.block(m, n, 2, H_f.cols() - n)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+      (H_x.block(m, 0, 2, H_x.cols())).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+      (res.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+    }
+  }
+}
+
+void MsckfUpdater::CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual)
+{
+  // Perform measurement compression
+  /// @todo verify logic here
+  // Return if jacobian is a fat matrix (there is no need to compress in this case)
+  if (jacobian.rows() > jacobian.cols()) {
+    // Do measurement compression through givens rotations
+    // Based on "Matrix Computations 4th Edition by Golub and Van Loan"
+    // See page 252, Algorithm 5.2.4 for how these two loops work
+    // They use "matlab" index notation, thus we need to subtract 1 from all index
+    Eigen::JacobiRotation<double> tempHo_GR;
+    for (int n = 0; n < jacobian.cols(); n++) {
+      for (int m = static_cast<int>(jacobian.rows()) - 2; m >= n; --m) {
+        // Givens matrix G
+        tempHo_GR.makeGivens(jacobian(m, n), jacobian(m, n));
+        // Multiply G to the corresponding lines (m-1,m) in each matrix
+        // Note: we only apply G to the nonzero cols [n:Ho.cols()-n-1], while
+        //       it is equivalent to applying G to the entire cols [0:Ho.cols()-1].
+        (jacobian.block(m, n, 2, jacobian.cols() - n)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+        (residual.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+      }
+    }
+  }
 }
 
 void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks feature_tracks)
@@ -265,22 +304,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
       H_x.block(2 * (i - 1), cam_state_start - cam_state_start, 2, 6) += dz_dPFC * dPFC_dCalib;
     }
 
-    // Apply the left nullspace of H_f to all variables
-    // Based on "Matrix Computations 4th Edition by Golub and Van Loan"
-    // See page 252, Algorithm 5.2.4 for how these two loops work
-    Eigen::JacobiRotation<double> tempHo_GR;
-    for (int n = 0; n < H_f.cols(); ++n) {
-      for (int m = static_cast<int>(H_f.rows()) - 2; m >= n; --m) {
-        // Givens matrix G
-        tempHo_GR.makeGivens(H_f(m, n), H_f(m, n));
-        // Multiply G to the corresponding lines (m,m) in each matrix
-        // Note: we only apply G to the nonzero cols [n:Ho.cols()-n-1], while
-        //       it is equivalent to applying G to the entire cols [0:Ho.cols()-1].
-        (H_f.block(m, n, 2, H_f.cols() - n)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
-        (H_x.block(m, 0, 2, H_x.cols())).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
-        (res.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
-      }
-    }
+    ApplyLeftNullspace(H_f, H_x, res);
 
     // The H_f jacobian max rank is 3 if it is a 3d position,
     // thus size of the left nullspace is Hf.rows()-3
@@ -302,27 +326,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
     return;
   }
 
-  // 5. Perform measurement compression
-  /// @todo verify logic here
-  // Return if Hx_big is a fat matrix (there is no need to compress in this case)
-  if (Hx_big.rows() > Hx_big.cols()) {
-    // Do measurement compression through givens rotations
-    // Based on "Matrix Computations 4th Edition by Golub and Van Loan"
-    // See page 252, Algorithm 5.2.4 for how these two loops work
-    // They use "matlab" index notation, thus we need to subtract 1 from all index
-    Eigen::JacobiRotation<double> tempHo_GR;
-    for (int n = 0; n < Hx_big.cols(); n++) {
-      for (int m = static_cast<int>(Hx_big.rows()) - 2; m >= n; --m) {
-        // Givens matrix G
-        tempHo_GR.makeGivens(Hx_big(m, n), Hx_big(m, n));
-        // Multiply G to the corresponding lines (m-1,m) in each matrix
-        // Note: we only apply G to the nonzero cols [n:Ho.cols()-n-1], while
-        //       it is equivalent to applying G to the entire cols [0:Ho.cols()-1].
-        (Hx_big.block(m, n, 2, Hx_big.cols() - n)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
-        (res_big.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
-      }
-    }
-  }
+  CompressMeasurements(Hx_big, res_big);
 
   // If H is a fat matrix, then use the rows
   // Else it should be same size as our state
@@ -334,7 +338,6 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
   // Construct the smaller jacobian and residual after measurement compression
   Hx_big.conservativeResize(r, Hx_big.cols());
   res_big.conservativeResize(r, res_big.cols());
-
 
   unsigned int SIGMA_PIX {1U};
   // Our noise is isotropic, so make it here after our compression
@@ -371,20 +374,11 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
   Eigen::VectorXd cam_state = m_ekf->GetState().m_cam_states[camera_id].ToVector();
   Eigen::VectorXd cam_sub_update = update.segment(cam_state_start, g_cam_state_size);
 
-  /// @todo create function for writing comma separated strings from vectors
   msg << time;
-  for (unsigned int i = 0; i < g_body_state_size; ++i) {
-    msg << "," << body_state[i];
-  }
-  for (unsigned int i = 0; i < g_cam_state_size; ++i) {
-    msg << "," << cam_state[i];
-  }
-  for (unsigned int i = 0; i < g_body_state_size; ++i) {
-    msg << "," << body_update[i];
-  }
-  for (unsigned int i = 0; i < g_cam_state_size; ++i) {
-    msg << "," << cam_update[i];
-  }
+  msg << VectorToCommaString(body_state);
+  msg << VectorToCommaString(cam_state);
+  msg << VectorToCommaString(body_update);
+  msg << VectorToCommaString(cam_update);
   msg << "," << t_execution.count();
   msg << "\n";
   m_data_logger.Log(msg.str());

@@ -26,6 +26,8 @@
 #include "infrastructure/debug_logger.hpp"
 #include "utility/math_helper.hpp"
 #include "utility/type_helper.hpp"
+#include "utility/string_helper.hpp"
+
 
 /// @todo Should combine IMU with file name for multiple IMU logs
 ImuUpdater::ImuUpdater(unsigned int imu_id, std::string log_file_directory, bool data_logging_on)
@@ -33,24 +35,12 @@ ImuUpdater::ImuUpdater(unsigned int imu_id, std::string log_file_directory, bool
 {
   std::stringstream msg;
   msg << "time";
-  for (unsigned int i = 0; i < g_body_state_size; ++i) {
-    msg << ",body_state_" + std::to_string(i);
-  }
-  for (unsigned int i = 0; i < g_imu_state_size; ++i) {
-    msg << ",imu_state_" + std::to_string(i);
-  }
-  for (unsigned int i = 0; i < 6; ++i) {
-    msg << ",residual_" + std::to_string(i);
-  }
-  for (unsigned int i = 0; i < g_body_state_size; ++i) {
-    msg << ",body_update_" + std::to_string(i);
-  }
-  for (unsigned int i = 0; i < g_imu_state_size; ++i) {
-    msg << ",imu_update_" + std::to_string(i);
-  }
-  for (unsigned int i = 0; i < 1; ++i) {
-    msg << ",time_" + std::to_string(i);
-  }
+  msg << EnumerateHeader("body_state", g_body_state_size);
+  msg << EnumerateHeader("imu_state_", g_imu_state_size);
+  msg << EnumerateHeader("residual_", 6);
+  msg << EnumerateHeader("body_update_", g_body_state_size);
+  msg << EnumerateHeader("imu_update_", g_imu_state_size);
+  msg << EnumerateHeader("time_", 1);
   msg << "\n";
 
   m_data_logger.DefineHeader(msg.str());
@@ -222,22 +212,13 @@ void ImuUpdater::UpdateEKF(
   Eigen::VectorXd body_state_vec = m_ekf->GetState().m_body_state.ToVector();
   Eigen::VectorXd imu_state_vec = m_ekf->GetState().m_imu_states[m_id].ToVector();
   Eigen::VectorXd imu_sub_update = update.segment(imu_state_start, g_imu_state_size);
+
   msg << time;
-  for (unsigned int i = 0; i < g_body_state_size; ++i) {
-    msg << "," << body_state_vec[i];
-  }
-  for (unsigned int i = 0; i < g_imu_state_size; ++i) {
-    msg << "," << imu_state_vec[i];
-  }
-  for (unsigned int i = 0; i < resid.size(); ++i) {
-    msg << "," << resid[i];
-  }
-  for (unsigned int i = 0; i < g_body_state_size; ++i) {
-    msg << "," << body_update[i];
-  }
-  for (unsigned int i = 0; i < g_imu_state_size; ++i) {
-    msg << "," << imu_sub_update[imu_state_start - g_body_state_size + i];
-  }
+  msg << VectorToCommaString(body_state_vec);
+  msg << VectorToCommaString(imu_state_vec);
+  msg << VectorToCommaString(resid);
+  msg << VectorToCommaString(body_update);
+  msg << VectorToCommaString(imu_sub_update);
   msg << "," << t_execution.count();
   msg << "\n";
   m_data_logger.Log(msg.str());
