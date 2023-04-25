@@ -198,9 +198,9 @@ Eigen::MatrixXd EKF::AugmentJacobian(
   unsigned int camera_id,
   unsigned int aug_state_start)
 {
-  Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize);
+  Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(m_stateSize, m_stateSize - 12);
 
-  unsigned int after_start = aug_state_start + 12;
+  unsigned int after_start = aug_state_start;
   unsigned int after_size = m_stateSize - aug_state_start - 12;
 
   // Before augmented state jacobian
@@ -248,14 +248,13 @@ void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
   aug_state.orientation = m_state.m_cam_states[camera_id].orientation *
     m_state.m_body_state.m_orientation;
   m_state.m_cam_states[camera_id].augmented_states.push_back(aug_state);
+
   unsigned int aug_state_start;
   unsigned int cam_state_start = GetCamStateStartIndex(camera_id);
 
   // Limit augmented states to 20
   if (m_state.m_cam_states[camera_id].augmented_states.size() <= 20) {
     aug_state_start = GetAugStateStartIndex(camera_id, frame_id);
-
-    Eigen::MatrixXd newCov = Eigen::MatrixXd::Zero(m_stateSize + 12, m_stateSize + 12);
 
     m_stateSize += 12;
   } else {

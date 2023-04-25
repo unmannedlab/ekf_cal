@@ -58,13 +58,22 @@ public:
 ///
 /// @brief ImuState structure
 ///
-typedef struct ImuState
+class ImuState
 {
+public:
+  ImuState() {}
+
+  ///
+  /// @brief Get IMU state as a vector
+  /// @return IMU state as a vector
+  ///
+  Eigen::VectorXd ToVector();
+
   Eigen::Vector3d position{0.0, 0.0, 0.0};             ///< @brief IMU state position
   Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief IMU state orientation
   Eigen::Vector3d acc_bias{0.0, 0.0, 0.0};              ///< @brief IMU state acceleration bias
   Eigen::Vector3d omg_bias{0.0, 0.0, 0.0};              ///< @brief IMU state angular rate bias
-} ImuState;
+};
 
 ///
 /// @brief AugmentedState structure
@@ -81,12 +90,21 @@ typedef struct AugmentedState
 ///
 /// @brief CamState structure
 ///
-typedef struct CamState
+class CamState
 {
+public:
+  CamState() {}
+
+  ///
+  /// @brief Get camera state as a vector
+  /// @return Camera state as a vector
+  ///
+  Eigen::VectorXd ToVector();
+
   Eigen::Vector3d position{0.0, 0.0, 0.0};             ///< @brief Camera state position
   Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera state orientation
   std::vector<AugmentedState> augmented_states;         ///< @brief Camera augmented states
-} CamState;
+};
 
 ///
 /// @brief FeatureTrack structure

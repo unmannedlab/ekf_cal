@@ -27,12 +27,19 @@ MsckfUpdater::MsckfUpdater(
   bool data_logging_on)
 : Updater(cam_id), m_data_logger(log_file_directory, "msckf_" + std::to_string(cam_id) + ".csv")
 {
+  /// @todo create function for creating these headers
   std::stringstream msg;
   msg << "time";
-  for (unsigned int i = 0; i < 18; ++i) {
+  for (unsigned int i = 0; i < g_body_state_size; ++i) {
+    msg << ",body_state_" + std::to_string(i);
+  }
+  for (unsigned int i = 0; i < g_imu_state_size; ++i) {
+    msg << ",cam_state_" + std::to_string(i);
+  }
+  for (unsigned int i = 0; i < g_body_state_size; ++i) {
     msg << ",body_update_" + std::to_string(i);
   }
-  for (unsigned int i = 0; i < 6; ++i) {
+  for (unsigned int i = 0; i < g_cam_state_size; ++i) {
     msg << ",cam_update_" + std::to_string(i);
   }
   for (unsigned int i = 0; i < 1; ++i) {
@@ -81,6 +88,8 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
 
   unsigned int ct_meas = 0;
   unsigned int state_size = m_ekf->GetState().GetStateSize();
+  unsigned int cam_state_start = m_ekf->GetCamStateStartIndex(camera_id);
+
   Eigen::VectorXd res_big = Eigen::VectorXd::Zero(max_meas_size);
   Eigen::MatrixXd Hx_big = Eigen::MatrixXd::Zero(max_meas_size, state_size);
 
@@ -158,7 +167,9 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
 
     // Allocate our residual and Jacobians
     int jacob_size = 3;
-    unsigned int aug_state_size = 12 * m_ekf->GetCamState(camera_id).augmented_states.size();
+
+    unsigned int aug_state_size = g_aug_state_size *
+      m_ekf->GetCamState(camera_id).augmented_states.size();
     Eigen::VectorXd res = Eigen::VectorXd::Zero(2 * feature_track.size());
     Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feature_track.size(), jacob_size);
     Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(2 * feature_track.size(), aug_state_size);
@@ -184,7 +195,6 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
 
     // Get the Jacobian for this feature
     // Loop through each camera for this feature
-    unsigned int cam_state_start = m_ekf->GetCamStateStartIndex(camera_id);
     for (unsigned int i = 1; i < feature_track.size(); ++i) {
       aug_state_match = MatchState(feature_track[i].frame_id);
 
@@ -337,13 +347,13 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
   Eigen::MatrixXd K =
     m_ekf->GetCov().block(0, 0, state_size, state_size) * Hx_big.transpose() * S.inverse();
 
-  unsigned int imu_state_size = m_ekf->GetImuCount() * g_imu_state_size;
-  unsigned int cam_state_size = state_size - g_body_state_size - imu_state_size;
+  unsigned int imu_states_size = m_ekf->GetImuCount() * g_imu_state_size;
+  unsigned int cam_states_size = state_size - g_body_state_size - imu_states_size;
 
   Eigen::VectorXd update = K * res_big;
   Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
-  Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_state_size);
-  Eigen::VectorXd cam_update = update.segment(g_body_state_size + imu_state_size, cam_state_size);
+  Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_states_size);
+  Eigen::VectorXd cam_update = update.segment(g_body_state_size + imu_states_size, cam_states_size);
 
   m_ekf->GetState().m_body_state += body_update;
   m_ekf->GetState().m_imu_states += imu_update;
@@ -357,11 +367,22 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
 
   // Write outputs
   std::stringstream msg;
+  Eigen::VectorXd body_state = m_ekf->GetState().m_body_state.ToVector();
+  Eigen::VectorXd cam_state = m_ekf->GetState().m_cam_states[camera_id].ToVector();
+  Eigen::VectorXd cam_sub_update = update.segment(cam_state_start, g_cam_state_size);
+
+  /// @todo create function for writing comma separated strings from vectors
   msg << time;
-  for (unsigned int i = 0; i < 18; ++i) {
+  for (unsigned int i = 0; i < g_body_state_size; ++i) {
+    msg << "," << body_state[i];
+  }
+  for (unsigned int i = 0; i < g_cam_state_size; ++i) {
+    msg << "," << cam_state[i];
+  }
+  for (unsigned int i = 0; i < g_body_state_size; ++i) {
     msg << "," << body_update[i];
   }
-  for (unsigned int i = 0; i < 6; ++i) {
+  for (unsigned int i = 0; i < g_cam_state_size; ++i) {
     msg << "," << cam_update[i];
   }
   msg << "," << t_execution.count();

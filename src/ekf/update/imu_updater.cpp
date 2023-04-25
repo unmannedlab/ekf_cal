@@ -33,11 +33,20 @@ ImuUpdater::ImuUpdater(unsigned int imu_id, std::string log_file_directory, bool
 {
   std::stringstream msg;
   msg << "time";
+  for (unsigned int i = 0; i < g_body_state_size; ++i) {
+    msg << ",body_state_" + std::to_string(i);
+  }
+  for (unsigned int i = 0; i < g_imu_state_size; ++i) {
+    msg << ",imu_state_" + std::to_string(i);
+  }
   for (unsigned int i = 0; i < 6; ++i) {
     msg << ",residual_" + std::to_string(i);
   }
-  for (unsigned int i = 0; i < 12; ++i) {
-    msg << ",update_" + std::to_string(i);
+  for (unsigned int i = 0; i < g_body_state_size; ++i) {
+    msg << ",body_update_" + std::to_string(i);
+  }
+  for (unsigned int i = 0; i < g_imu_state_size; ++i) {
+    msg << ",imu_update_" + std::to_string(i);
   }
   for (unsigned int i = 0; i < 1; ++i) {
     msg << ",time_" + std::to_string(i);
@@ -174,7 +183,7 @@ void ImuUpdater::UpdateEKF(
   msg0 << "IMU resid: " << resid.transpose() << "\n";
   m_logger->Log(LogLevel::DEBUG, msg0.str());
 
-  unsigned int stateStartIndex = m_ekf->GetImuStateStartIndex(m_id);
+  unsigned int imu_state_start = m_ekf->GetImuStateStartIndex(m_id);
 
   unsigned int updateSize = g_body_state_size + g_imu_state_size * m_ekf->GetImuCount();
 
@@ -183,7 +192,7 @@ void ImuUpdater::UpdateEKF(
 
   H.block<6, g_body_state_size>(0, 0) = subH.block<6, g_body_state_size>(0, 0);
 
-  H.block(0, stateStartIndex, 6, g_imu_state_size) =
+  H.block(0, imu_state_start, 6, g_imu_state_size) =
     subH.block<6, g_imu_state_size>(0, g_body_state_size);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
@@ -210,13 +219,24 @@ void ImuUpdater::UpdateEKF(
 
   // Write outputs
   std::stringstream msg;
-  Eigen::VectorXd imu_sub_update = update.segment(stateStartIndex, g_imu_state_size);
+  Eigen::VectorXd body_state_vec = m_ekf->GetState().m_body_state.ToVector();
+  Eigen::VectorXd imu_state_vec = m_ekf->GetState().m_imu_states[m_id].ToVector();
+  Eigen::VectorXd imu_sub_update = update.segment(imu_state_start, g_imu_state_size);
   msg << time;
+  for (unsigned int i = 0; i < g_body_state_size; ++i) {
+    msg << "," << body_state_vec[i];
+  }
+  for (unsigned int i = 0; i < g_imu_state_size; ++i) {
+    msg << "," << imu_state_vec[i];
+  }
   for (unsigned int i = 0; i < resid.size(); ++i) {
     msg << "," << resid[i];
   }
-  for (unsigned int i = 0; i < imu_sub_update.size(); ++i) {
-    msg << "," << imu_sub_update[i];
+  for (unsigned int i = 0; i < g_body_state_size; ++i) {
+    msg << "," << body_update[i];
+  }
+  for (unsigned int i = 0; i < g_imu_state_size; ++i) {
+    msg << "," << imu_sub_update[imu_state_start - g_body_state_size + i];
   }
   msg << "," << t_execution.count();
   msg << "\n";

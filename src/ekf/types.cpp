@@ -170,6 +170,28 @@ Eigen::VectorXd BodyState::ToVector()
   return out_vec;
 }
 
+Eigen::VectorXd CamState::ToVector()
+{
+  Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(6);
+
+  out_vec.segment<3>(0) = position;
+  out_vec.segment<3>(3) = QuatToRotVec(orientation);
+
+  return out_vec;
+}
+
+Eigen::VectorXd ImuState::ToVector()
+{
+  Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(12);
+
+  out_vec.segment<3>(0) = position;
+  out_vec.segment<3>(3) = QuatToRotVec(orientation);
+  out_vec.segment<3>(6) = acc_bias;
+  out_vec.segment<3>(9) = omg_bias;
+
+  return out_vec;
+}
+
 void BodyState::SetState(Eigen::VectorXd state)
 {
   m_position = state.segment<3>(0);
