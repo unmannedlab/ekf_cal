@@ -26,17 +26,31 @@
 
 #include "utility/constants.hpp"
 
-
+///
+/// @brief Convert ROS header to time
+/// @param header ROS header
+/// @return Time as a double
+///
 inline double RosHeaderToTime(std_msgs::msg::Header header)
 {
   return header.stamp.sec + (header.stamp.nanosec * g_nsec_to_sec);
 }
 
+///
+/// @brief Convert ROS vector to Eigen
+/// @param msg ROS message
+/// @return Eigen vector
+///
 inline Eigen::Vector3d RosToEigen(geometry_msgs::msg::Vector3 msg)
 {
   return Eigen::Vector3d {msg.x, msg.y, msg.z};
 }
 
+///
+/// @brief Convert ROS matrix to Eigen
+/// @param msg ROS message
+/// @return Eigen matrix
+///
 inline Eigen::Matrix3d RosToEigen(std::array<double, 9> msg)
 {
   return Eigen::Matrix3d {

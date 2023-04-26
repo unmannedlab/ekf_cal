@@ -22,6 +22,12 @@
 #include <sstream>
 
 
+///
+/// @brief Creates comma-separated enumerated list
+/// @param name Base name for the header
+/// @param size Header count
+/// @return Comma-separated, enumerated header string
+///
 inline std::string EnumerateHeader(std::string name, unsigned int size)
 {
   std::stringstream stream;
@@ -31,6 +37,11 @@ inline std::string EnumerateHeader(std::string name, unsigned int size)
   return stream.str();
 }
 
+///
+/// @brief Create comma-separated string from vector
+/// @param vec Input vector
+/// @return Comma-separated string vector
+///
 inline std::string VectorToCommaString(Eigen::VectorXd vec)
 {
   std::stringstream stream;

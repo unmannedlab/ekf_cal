@@ -31,15 +31,15 @@ class ImuUpdater : public Updater
 public:
   ///
   /// @brief IMU EKF Updater Constructor
-  /// @param imuID IMU Sensor ID
-  /// @param logFileDirectory
+  /// @param imu_id IMU Sensor ID
+  /// @param log_file_directory Logging file directory
+  /// @param data_logging_on Logging flag
   ///
   ImuUpdater(
-    unsigned int imuID,
-    std::string logFileDirectory,
-    bool dataLoggingOn
+    unsigned int imu_id,
+    std::string log_file_directory,
+    bool data_logging_on
   );
-
 
   ///
   /// @brief Predict measurement method

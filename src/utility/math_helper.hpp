@@ -74,6 +74,14 @@ inline Eigen::VectorXd MinBoundVector(Eigen::VectorXd in_vec, double min_bound)
   return out_vec;
 }
 
+///
+/// @brief Insert a diagonal matrix block into another matrix
+/// @param sub_mat Sub matrix to insert
+/// @param in_mat Input matrix
+/// @param row Insertion row
+/// @param col Insertion column
+/// @return
+///
 inline Eigen::MatrixXd InsertInMatrix(
   Eigen::MatrixXd sub_mat, Eigen::MatrixXd in_mat, unsigned int row,
   unsigned int col)
@@ -95,6 +103,14 @@ inline Eigen::MatrixXd InsertInMatrix(
   return out_mat;
 }
 
+///
+/// @brief Remove rows and columns from a matrix
+/// @param in_mat Input matrix
+/// @param row Starting row
+/// @param col Starting col
+/// @param size Size of rows and columns to be removed
+/// @return Matrix with rows and columns removed
+///
 inline Eigen::MatrixXd RemoveFromMatrix(
   Eigen::MatrixXd in_mat, unsigned int row,
   unsigned int col, unsigned int size)

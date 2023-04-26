@@ -54,6 +54,11 @@ inline Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
   }
 }
 
+///
+/// @brief Convert rotation vector to quaternion
+/// @param rot_vec Input rotation vector
+/// @return Rotation quaternion
+///
 inline Eigen::Quaterniond RotVecToQuat(Eigen::Vector3d rot_vec)
 {
   double angle = rot_vec.norm();
@@ -66,6 +71,11 @@ inline Eigen::Quaterniond RotVecToQuat(Eigen::Vector3d rot_vec)
   }
 }
 
+///
+/// @brief Convert quaternion to rotation vector
+/// @param quat Input rotation quaternion
+/// @return Rotation vector
+///
 inline Eigen::Vector3d QuatToRotVec(Eigen::Quaterniond quat)
 {
   Eigen::AngleAxisd ang_axis{quat};
