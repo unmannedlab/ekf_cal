@@ -20,7 +20,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# @todo Use this if statement to forgo building ROS components
+# @TODO Use this if statement to forgo building ROS components
 if(NOT DEFINED ${ROS_DISTRO})
     set(ROS_DISTRO humble)
 endif()
@@ -42,7 +42,40 @@ foreach(pkg ${ROS_PKGS})
     find_package(${pkg} REQUIRED)
 endforeach()
 
-# @todo split infrastructure into separate library
+set(SIM_PKGS
+    yaml-cpp
+)
+foreach(pkg ${SIM_PKGS})
+    find_package(${pkg} REQUIRED)
+endforeach()
+
+include_directories(PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:include>
+)
+
+
+# SIM Infrastructure
+set(SIM_INF_SRCS
+    src/infrastructure/data_logger.cpp
+    src/infrastructure/debug_logger.cpp
+    src/infrastructure/sim/sim_debug_logger.cpp
+    src/infrastructure/sim/truth_engine_cyclic.cpp
+    src/infrastructure/sim/truth_engine_spline.cpp
+    src/infrastructure/sim/truth_engine.cpp
+)
+add_library(SIM_INF ${SIM_INF_SRCS})
+
+
+# ROS Infrastructure
+set(ROS_INF_SRCS
+    src/infrastructure/data_logger.cpp
+    src/infrastructure/debug_logger.cpp
+    src/infrastructure/ros/ros_debug_logger.cpp
+)
+add_library(ROS_INF ${ROS_INF_SRCS})
+
+
 # EKF sources
 set(EKF_SRCS
     src/ekf/ekf.cpp
@@ -50,127 +83,65 @@ set(EKF_SRCS
     src/ekf/update/imu_updater.cpp
     src/ekf/update/msckf_updater.cpp
     src/ekf/update/updater.cpp
-    src/infrastructure/data_logger.cpp
-    src/infrastructure/debug_logger.cpp
     src/sensors/camera_message.cpp
     src/sensors/camera.cpp
     src/sensors/imu.cpp
     src/sensors/sensor.cpp
     src/trackers/feature_tracker.cpp
 )
-
-# Create library with EKF sources
 add_library(EKF_LIB ${EKF_SRCS})
+target_link_libraries(EKF_LIB ROS_INF)
 
-ament_target_dependencies(EKF_LIB OpenCV)
-
-target_include_directories(EKF_LIB PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    $<INSTALL_INTERFACE:include>
-)
 
 # Simulation Sources
 set(SIM_SRCS
-    src/infrastructure/data_logger.cpp
-    src/infrastructure/debug_logger.cpp
-    src/infrastructure/sim/sim_debug_logger.cpp
-    src/infrastructure/sim/truth_engine_cyclic.cpp
-    src/infrastructure/sim/truth_engine_spline.cpp
-    src/infrastructure/sim/truth_engine.cpp
     src/sensors/sim/sim_camera.cpp
     src/sensors/sim/sim_imu.cpp
     src/trackers/sim/sim_feature_tracker.cpp
     src/utility/sim/sim_rng.cpp
 )
-
-# Create library with Sim sources
 add_library(SIM_LIB ${SIM_SRCS})
 
-target_include_directories(SIM_LIB PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    $<INSTALL_INTERFACE:include>
-)
-
-ament_target_dependencies(SIM_LIB OpenCV)
 
 # ROS Sources
 set(ROS_SRCS
-    src/infrastructure/data_logger.cpp
-    src/infrastructure/debug_logger.cpp
-    src/infrastructure/ros/ros_debug_logger.cpp
     src/sensors/ros/ros_camera_message.cpp
     src/sensors/ros/ros_camera.cpp
     src/sensors/ros/ros_imu_message.cpp
 )
-
-# Create library with ROS sources
 add_library(ROS_LIB ${ROS_SRCS})
+target_link_libraries(ROS_LIB EKF_LIB ROS_INF)
 
-target_link_libraries(ROS_LIB EKF_LIB)
-
-target_include_directories(ROS_LIB PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    $<INSTALL_INTERFACE:include>
-)
-ament_target_dependencies(ROS_LIB ${ROS_PKGS})
 
 # EKF CAL Node
 add_library(EKF_NODE_LIB src/application/ros/node/ekf_cal_node.cpp)
-ament_target_dependencies(EKF_NODE_LIB ${ROS_PKGS})
-target_include_directories(EKF_NODE_LIB PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    $<INSTALL_INTERFACE:include>
-)
-
 add_executable(ekf_cal_node src/application/ros/ekf_cal_main.cpp)
-target_include_directories(ekf_cal_node PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    $<INSTALL_INTERFACE:include>
-)
-ament_target_dependencies(ekf_cal_node ${ROS_PKGS})
-target_link_libraries(ekf_cal_node EKF_NODE_LIB EKF_LIB ROS_LIB)
+target_link_libraries(ekf_cal_node EKF_NODE_LIB EKF_LIB ROS_LIB ROS_INF)
+
 
 # State Publisher Node
 add_library(PUB_NODE_LIB src/application/ros/node/state_publisher_node.cpp)
-ament_target_dependencies(PUB_NODE_LIB ${ROS_PKGS})
-target_include_directories(PUB_NODE_LIB PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    $<INSTALL_INTERFACE:include>
-)
-
 add_executable(state_pub_node src/application/ros/state_publisher_main.cpp)
-target_include_directories(state_pub_node PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    $<INSTALL_INTERFACE:include>
-)
-ament_target_dependencies(state_pub_node ${ROS_PKGS})
-target_link_libraries(state_pub_node PUB_NODE_LIB EKF_LIB ROS_LIB)
+target_link_libraries(state_pub_node PUB_NODE_LIB ROS_LIB)
+
 
 # Simulation
 add_executable(sim src/application/sim/simulation.cpp)
-target_include_directories(sim PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    $<INSTALL_INTERFACE:include>
-)
+include_directories(${YAML_CPP_INCLUDE_DIRS})
+target_link_libraries(sim SIM_LIB EKF_LIB SIM_INF ${YAML_CPP_LIBRARIES})
+
+
+# Add all ROS dependencies
+ament_target_dependencies(ROS_INF rclcpp)
+ament_target_dependencies(SIM_LIB OpenCV)
+ament_target_dependencies(EKF_LIB OpenCV)
+ament_target_dependencies(ROS_LIB ${ROS_PKGS})
+ament_target_dependencies(EKF_NODE_LIB ${ROS_PKGS})
+ament_target_dependencies(PUB_NODE_LIB ${ROS_PKGS})
+ament_target_dependencies(ekf_cal_node ${ROS_PKGS})
+ament_target_dependencies(state_pub_node ${ROS_PKGS})
 ament_target_dependencies(sim OpenCV)
 
-find_package(yaml-cpp REQUIRED)
-include_directories(${YAML_CPP_INCLUDE_DIRS})
-target_link_libraries(sim ${YAML_CPP_LIBRARIES})
-
-target_link_libraries(sim SIM_LIB EKF_LIB)
-
-install(TARGETS
-    ekf_cal_node
-    state_pub_node
-    DESTINATION lib/${PROJECT_NAME}
-)
-
-install(DIRECTORY
-    config
-    launch
-    DESTINATION share/${PROJECT_NAME}/
-)
 
 # gtest
 if(BUILD_TESTING)
@@ -178,7 +149,6 @@ if(BUILD_TESTING)
     ament_lint_auto_find_test_dependencies()
     set(test_files
         src/ekf/test/ekf_test.cpp
-        src/infrastructure/sim/test/truth_engine_test.cpp
         src/sensors/ros/test/ros_camera_test.cpp
         src/sensors/ros/test/ros_imu_test.cpp
         src/sensors/test/camera_test.cpp
@@ -195,15 +165,26 @@ if(BUILD_TESTING)
         target_include_directories(${nam} PUBLIC
             ${CMAKE_SOURCE_DIR}/src/
         )
-        target_link_libraries(${nam} EKF_LIB ROS_LIB)
+        target_link_libraries(${nam} EKF_LIB ROS_LIB ROS_INF)
     endforeach()
 
     ament_add_gtest(ekf_cal_node_test src/application/ros/node/test/ekf_cal_node_test.cpp)
     ament_target_dependencies(ekf_cal_node_test ${ROS_PKGS})
     target_include_directories(ekf_cal_node_test PUBLIC ${CMAKE_SOURCE_DIR}/src/)
-    target_link_libraries(ekf_cal_node_test EKF_NODE_LIB EKF_LIB ROS_LIB)
-
+    target_link_libraries(ekf_cal_node_test EKF_NODE_LIB EKF_LIB ROS_LIB ROS_INF)
 endif()
+
+install(TARGETS
+    ekf_cal_node
+    state_pub_node
+    DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY
+    config
+    launch
+    DESTINATION share/${PROJECT_NAME}
+)
 
 ament_package()
 
