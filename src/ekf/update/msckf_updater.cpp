@@ -64,7 +64,6 @@ void MsckfUpdater::ApplyLeftNullspace(
   Eigen::MatrixXd & H_x,
   Eigen::VectorXd & res)
 {
-
   // Apply the left nullspace of H_f to all variables
   // Based on "Matrix Computations 4th Edition by Golub and Van Loan"
   // See page 252, Algorithm 5.2.4 for how these two loops work
