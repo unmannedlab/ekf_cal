@@ -76,6 +76,22 @@ set(ROS_INF_SRCS
 add_library(ROS_INF ${ROS_INF_SRCS})
 
 
+# ROS Utilities
+set(ROS_UTL_SRCS
+    src/utility/ros_helper.cpp
+)
+add_library(ROS_UTL ${ROS_UTL_SRCS})
+
+
+# EKF Utilities
+set(EKF_UTL_SRCS
+    src/utility/math_helper.cpp
+    src/utility/string_helper.cpp
+    src/utility/type_helper.cpp
+)
+add_library(EKF_UTL ${EKF_UTL_SRCS})
+
+
 # EKF sources
 set(EKF_SRCS
     src/ekf/ekf.cpp
@@ -90,7 +106,7 @@ set(EKF_SRCS
     src/trackers/feature_tracker.cpp
 )
 add_library(EKF_LIB ${EKF_SRCS})
-target_link_libraries(EKF_LIB ROS_INF)
+target_link_libraries(EKF_LIB ROS_INF EKF_UTL)
 
 
 # Simulation Sources
@@ -110,31 +126,32 @@ set(ROS_SRCS
     src/sensors/ros/ros_imu_message.cpp
 )
 add_library(ROS_LIB ${ROS_SRCS})
-target_link_libraries(ROS_LIB EKF_LIB ROS_INF)
+target_link_libraries(ROS_LIB EKF_LIB ROS_INF ROS_UTL EKF_UTL)
 
 
 # EKF CAL Node
 add_library(EKF_NODE_LIB src/application/ros/node/ekf_cal_node.cpp)
 add_executable(ekf_cal_node src/application/ros/ekf_cal_main.cpp)
-target_link_libraries(ekf_cal_node EKF_NODE_LIB EKF_LIB ROS_LIB ROS_INF)
+target_link_libraries(ekf_cal_node EKF_NODE_LIB EKF_LIB ROS_LIB ROS_INF ROS_UTL EKF_UTL)
 
 
 # State Publisher Node
 add_library(PUB_NODE_LIB src/application/ros/node/state_publisher_node.cpp)
 add_executable(state_pub_node src/application/ros/state_publisher_main.cpp)
-target_link_libraries(state_pub_node PUB_NODE_LIB ROS_LIB)
+target_link_libraries(state_pub_node PUB_NODE_LIB ROS_LIB ROS_UTL EKF_UTL)
 
 
 # Simulation
 add_executable(sim src/application/sim/simulation.cpp)
 include_directories(${YAML_CPP_INCLUDE_DIRS})
-target_link_libraries(sim SIM_LIB EKF_LIB SIM_INF ${YAML_CPP_LIBRARIES})
+target_link_libraries(sim SIM_LIB EKF_LIB SIM_INF EKF_UTL ${YAML_CPP_LIBRARIES})
 
 
 # Add all ROS dependencies
 ament_target_dependencies(ROS_INF rclcpp)
 ament_target_dependencies(SIM_LIB OpenCV)
 ament_target_dependencies(EKF_LIB OpenCV)
+ament_target_dependencies(ROS_UTL ${ROS_PKGS})
 ament_target_dependencies(ROS_LIB ${ROS_PKGS})
 ament_target_dependencies(EKF_NODE_LIB ${ROS_PKGS})
 ament_target_dependencies(PUB_NODE_LIB ${ROS_PKGS})
@@ -162,16 +179,14 @@ if(BUILD_TESTING)
         get_filename_component(nam ${f_name} NAME_WE)
         ament_add_gtest(${nam} ${f_name})
         ament_target_dependencies(${nam} ${ROS_PKGS})
-        target_include_directories(${nam} PUBLIC
-            ${CMAKE_SOURCE_DIR}/src/
-        )
-        target_link_libraries(${nam} EKF_LIB ROS_LIB ROS_INF)
+        target_include_directories(${nam} PUBLIC ${CMAKE_SOURCE_DIR}/src/)
+        target_link_libraries(${nam} EKF_LIB ROS_LIB ROS_INF ROS_UTL EKF_UTL)
     endforeach()
 
     ament_add_gtest(ekf_cal_node_test src/application/ros/node/test/ekf_cal_node_test.cpp)
     ament_target_dependencies(ekf_cal_node_test ${ROS_PKGS})
     target_include_directories(ekf_cal_node_test PUBLIC ${CMAKE_SOURCE_DIR}/src/)
-    target_link_libraries(ekf_cal_node_test EKF_NODE_LIB EKF_LIB ROS_LIB ROS_INF)
+    target_link_libraries(ekf_cal_node_test EKF_NODE_LIB EKF_LIB ROS_LIB ROS_INF ROS_UTL EKF_UTL)
 endif()
 
 install(TARGETS

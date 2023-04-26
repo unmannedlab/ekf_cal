@@ -15,6 +15,8 @@
 
 #include "ekf/update/msckf_updater.hpp"
 
+#include <eigen3/Eigen/Eigen>
+
 #include <algorithm>
 #include <chrono>
 #include <string>
@@ -116,8 +118,7 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
   Eigen::Matrix3d a = Eigen::Matrix3d::Zero();
   Eigen::Vector3d b = Eigen::Vector3d::Zero();
 
-  const Eigen::Matrix<double, 3,
-    3> rotation_g_to_a = aug_state_0.orientation.toRotationMatrix();
+  const Eigen::Matrix<double, 3, 3> rotation_g_to_a = aug_state_0.orientation.toRotationMatrix();
   const Eigen::Matrix<double, 3, 1> position_a_in_g = aug_state_0.position;
 
   for (unsigned int i = 1; i < feature_track.size(); ++i) {
@@ -159,9 +160,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
   RefreshStates();
   auto t_start = std::chrono::high_resolution_clock::now();
 
-  m_logger->Log(
-    LogLevel::DEBUG,
-    "Called update_msckf for camera ID: " + std::to_string(camera_id));
+  m_logger->Log(LogLevel::DEBUG, "Called update_msckf for camera ID: " + std::to_string(camera_id));
 
   if (feature_tracks.size() == 0) {
     return;

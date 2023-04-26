@@ -13,26 +13,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef UTILITY__STRING_HELPER_HPP_
-#define UTILITY__STRING_HELPER_HPP_
-
 #include <eigen3/Eigen/Eigen>
 
-#include <string>
+#include <vector>
+#include <rclcpp/rclcpp.hpp>
+#include <geometry_msgs/msg/vector3.hpp>
+#include <std_msgs/msg/header.hpp>
 
-///
-/// @brief Creates comma-separated enumerated list
-/// @param name Base name for the header
-/// @param size Header count
-/// @return Comma-separated, enumerated header string
-///
-std::string EnumerateHeader(std::string name, unsigned int size);
+#include "utility/constants.hpp"
 
-///
-/// @brief Create comma-separated string from vector
-/// @param vec Input vector
-/// @return Comma-separated string vector
-///
-std::string VectorToCommaString(Eigen::VectorXd vec);
 
-#endif  // UTILITY__STRING_HELPER_HPP_
+double RosHeaderToTime(std_msgs::msg::Header header)
+{
+  return header.stamp.sec + (header.stamp.nanosec * g_nsec_to_sec);
+}
+
+Eigen::Vector3d RosToEigen(geometry_msgs::msg::Vector3 msg)
+{
+  return Eigen::Vector3d {msg.x, msg.y, msg.z};
+}
+
+Eigen::Matrix3d RosToEigen(std::array<double, 9> msg)
+{
+  return Eigen::Matrix3d {
+    {msg[0], msg[1], msg[2]},
+    {msg[3], msg[4], msg[5]},
+    {msg[6], msg[7], msg[8]}
+  };
+}

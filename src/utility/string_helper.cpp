@@ -13,26 +13,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef UTILITY__STRING_HELPER_HPP_
-#define UTILITY__STRING_HELPER_HPP_
-
 #include <eigen3/Eigen/Eigen>
 
 #include <string>
+#include <sstream>
 
-///
-/// @brief Creates comma-separated enumerated list
-/// @param name Base name for the header
-/// @param size Header count
-/// @return Comma-separated, enumerated header string
-///
-std::string EnumerateHeader(std::string name, unsigned int size);
 
-///
-/// @brief Create comma-separated string from vector
-/// @param vec Input vector
-/// @return Comma-separated string vector
-///
-std::string VectorToCommaString(Eigen::VectorXd vec);
+std::string EnumerateHeader(std::string name, unsigned int size)
+{
+  std::stringstream stream;
+  for (unsigned int i = 0; i < size; ++i) {
+    stream << "," << name << "_" << std::to_string(i);
+  }
+  return stream.str();
+}
 
-#endif  // UTILITY__STRING_HELPER_HPP_
+std::string VectorToCommaString(Eigen::VectorXd vec)
+{
+  std::stringstream stream;
+  for (unsigned int i = 0; i < vec.size(); ++i) {
+    stream << "," << vec[i];
+  }
+  return stream.str();
+}
