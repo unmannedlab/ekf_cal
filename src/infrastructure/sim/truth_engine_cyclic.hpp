@@ -31,6 +31,13 @@ public:
   TruthEngineCyclic() {}
 
   ///
+  /// @brief Setter for body cycle frequencies
+  /// @param pos_frequency Vector of position frequencies
+  /// @param ang_frequency Vector of angular frequencies
+  ///
+  TruthEngineCyclic(Eigen::Vector3d pos_frequency, Eigen::Vector3d ang_frequency);
+
+  ///
   /// @brief Setter for body position cycle frequency
   /// @param frequency Vector of frequencies to use
   ///
@@ -79,8 +86,8 @@ public:
   Eigen::Vector3d GetBodyAngularAcceleration(double time);
 
 private:
-  Eigen::Vector3d m_pos_cycle_frequency {1.0, 1.0, 1.0};
-  Eigen::Vector3d m_ang_cycle_frequency {1.0, 1.0, 1.0};
+  Eigen::Vector3d m_pos_cycle_frequency {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_ang_cycle_frequency {0.0, 0.0, 0.0};
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTH_ENGINE_CYCLIC_HPP_

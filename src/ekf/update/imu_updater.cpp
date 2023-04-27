@@ -36,11 +36,11 @@ ImuUpdater::ImuUpdater(unsigned int imu_id, std::string log_file_directory, bool
   std::stringstream msg;
   msg << "time";
   msg << EnumerateHeader("body_state", g_body_state_size);
-  msg << EnumerateHeader("imu_state_", g_imu_state_size);
-  msg << EnumerateHeader("residual_", 6);
-  msg << EnumerateHeader("body_update_", g_body_state_size);
-  msg << EnumerateHeader("imu_update_", g_imu_state_size);
-  msg << EnumerateHeader("time_", 1);
+  msg << EnumerateHeader("imu_state", g_imu_state_size);
+  msg << EnumerateHeader("residual", 6);
+  msg << EnumerateHeader("body_update", g_body_state_size);
+  msg << EnumerateHeader("imu_update", g_imu_state_size);
+  msg << EnumerateHeader("time", 1);
   msg << "\n";
 
   m_data_logger.DefineHeader(msg.str());

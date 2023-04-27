@@ -54,22 +54,29 @@ int main(int argc, char * argv[])
   // Construct sensors and EKF
   std::map<unsigned int, std::shared_ptr<Sensor>> sensor_map;
 
-  /// @todo Select type of truth engine using parameters
-  auto truth_engine = std::static_pointer_cast<TruthEngine>(std::make_shared<TruthEngineCyclic>());
   std::vector<std::shared_ptr<SensorMessage>> messages;
 
-  double max_time = 10;
-
   // Logging parameters
-  unsigned int debug_log_level =
-    root["/EkfCalNode"]["ros__parameters"]["Debug_Log_Level"].as<unsigned int>();
-  bool data_logging_on = root["/EkfCalNode"]["ros__parameters"]["Data_Logging_On"].as<bool>();
-  double rng_seed = root["/EkfCalNode"]["ros__parameters"]["SimParams"]["Seed"].as<double>();
+  YAML::Node ros_params = root["/EkfCalNode"]["ros__parameters"];
+  unsigned int debug_log_level = ros_params["Debug_Log_Level"].as<unsigned int>();
+  bool data_logging_on = ros_params["Data_Logging_On"].as<bool>();
+
+  // Simulation parameters
+  YAML::Node sim_params = ros_params["SimParams"];
+  double rng_seed = sim_params["Seed"].as<double>();
+  Eigen::Vector3d pos_frequency = StdToEigVec(sim_params["PosFrequency"].as<std::vector<double>>());
+  Eigen::Vector3d ang_frequency = StdToEigVec(sim_params["AngFrequency"].as<std::vector<double>>());
+  double max_time = sim_params["MaxTime"].as<double>();
+
   DebugLogger * logger = DebugLogger::GetInstance();
   logger->SetOutputDirectory(out_dir);
   logger->SetLogLevel(debug_log_level);
   SimRNG rng;
   rng.SetSeed(rng_seed);
+
+  /// @todo Select type of truth engine using parameters
+  auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(pos_frequency, ang_frequency);
+  auto truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
 
   // Load IMUs and generate measurements
   logger->Log(LogLevel::INFO, "Loading IMUs");

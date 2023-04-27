@@ -46,12 +46,12 @@ def plot_imu_residuals(imu_df):
 def plot_imu_pos_updates(imu_df):
     fig, (axs_1, axs_2) = plt.subplots(2, 1)
 
-    axs_1.plot(imu_df['time'], imu_df['update_0'], label=r'$p_x$')
-    axs_1.plot(imu_df['time'], imu_df['update_1'], label=r'$p_y$')
-    axs_1.plot(imu_df['time'], imu_df['update_2'], label=r'$p_z$')
-    axs_2.plot(imu_df['time'], imu_df['update_3'], label=r'$\theta_x$')
-    axs_2.plot(imu_df['time'], imu_df['update_4'], label=r'$\theta_y$')
-    axs_2.plot(imu_df['time'], imu_df['update_5'], label=r'$\theta_z$')
+    axs_1.plot(imu_df['time'], imu_df['imu_update_0'], label=r'$p_x$')
+    axs_1.plot(imu_df['time'], imu_df['imu_update_1'], label=r'$p_y$')
+    axs_1.plot(imu_df['time'], imu_df['imu_update_2'], label=r'$p_z$')
+    axs_2.plot(imu_df['time'], imu_df['imu_update_3'], label=r'$\theta_x$')
+    axs_2.plot(imu_df['time'], imu_df['imu_update_4'], label=r'$\theta_y$')
+    axs_2.plot(imu_df['time'], imu_df['imu_update_5'], label=r'$\theta_z$')
     axs_1.set_title('IMU State Offset Updates')
     axs_1.set_ylabel('Position Offset Update\n[m]')
     axs_2.set_ylabel('Angular Offset Update\n[red]')
@@ -68,12 +68,12 @@ def plot_imu_pos_updates(imu_df):
 def plot_imu_vel_updates(imu_df):
     fig, (axs_1, axs_2) = plt.subplots(2, 1)
 
-    axs_1.plot(imu_df['time'], imu_df['update_6'], label=r'$a_x$')
-    axs_1.plot(imu_df['time'], imu_df['update_7'], label=r'$a_y$')
-    axs_1.plot(imu_df['time'], imu_df['update_8'], label=r'$a_z$')
-    axs_2.plot(imu_df['time'], imu_df['update_9'], label=r'$\omega_x$')
-    axs_2.plot(imu_df['time'], imu_df['update_10'], label=r'$\omega_y$')
-    axs_2.plot(imu_df['time'], imu_df['update_11'], label=r'$\omega_z$')
+    axs_1.plot(imu_df['time'], imu_df['imu_update_6'], label=r'$a_x$')
+    axs_1.plot(imu_df['time'], imu_df['imu_update_7'], label=r'$a_y$')
+    axs_1.plot(imu_df['time'], imu_df['imu_update_8'], label=r'$a_z$')
+    axs_2.plot(imu_df['time'], imu_df['imu_update_9'], label=r'$\omega_x$')
+    axs_2.plot(imu_df['time'], imu_df['imu_update_10'], label=r'$\omega_y$')
+    axs_2.plot(imu_df['time'], imu_df['imu_update_11'], label=r'$\omega_z$')
     axs_1.set_title('IMU State Bias Updates')
     axs_1.set_ylabel('Acceleration Bias Update\n[m/s/s]')
     axs_2.set_ylabel('Angular Rate Bias Update\n[rad/s]')
@@ -194,32 +194,82 @@ def plot_update_timing(imu_df, msckf_df):
     return fig
 
 
+def plot_body_pos(df):
+    fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+    axs_1.plot(df['time'], df['body_state_0'], label=r'$pos_x$')
+    axs_2.plot(df['time'], df['body_state_1'], label=r'$pos_y$')
+    axs_3.plot(df['time'], df['body_state_2'], label=r'$pos_z$')
+    axs_1.set_title('Body Position')
+    axs_1.set_ylabel('X [m]')
+    axs_2.set_ylabel('Y [m]')
+    axs_3.set_ylabel('Z [m]')
+    axs_3.set_xlabel('Time [s]')
+
+
+def plot_body_vel(df):
+    fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+
+    axs_1.plot(df['time'], df['body_state_3'], label=r'$vel_x$')
+    axs_2.plot(df['time'], df['body_state_4'], label=r'$vel_y$')
+    axs_3.plot(df['time'], df['body_state_5'], label=r'$vel_z$')
+    axs_1.set_title('Body Velocity')
+    axs_1.set_ylabel('X [m/s]')
+    axs_2.set_ylabel('Y [m/s]')
+    axs_3.set_ylabel('Z [m/s]')
+    axs_3.set_xlabel('Time [s]')
+
+
+def plot_body_acc(df):
+    fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+
+    axs_1.plot(df['time'], df['body_state_6'], label=r'$acc_x$')
+    axs_2.plot(df['time'], df['body_state_7'], label=r'$acc_y$')
+    axs_3.plot(df['time'], df['body_state_8'], label=r'$acc_z$')
+    axs_1.set_title('Body Acceleration')
+    axs_1.set_ylabel('X [m/s/s]')
+    axs_2.set_ylabel('Y [m/s/s]')
+    axs_3.set_ylabel('Z [m/s/s]')
+    axs_3.set_xlabel('Time [s]')
+
+
+def plot_body_ang(df):
+    fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+
+    axs_1.plot(df['time'], df['body_state_9'], label=r'$\theta_x$')
+    axs_2.plot(df['time'], df['body_state_10'], label=r'$\theta_y$')
+    axs_3.plot(df['time'], df['body_state_11'], label=r'$\theta_z$')
+
+
 def plot_sim_results(directories):
     for directory in directories:
         imu_df = pd.read_csv(os.path.join(directory, 'imu_1.csv'))
-        msckf_df = pd.read_csv(os.path.join(directory, 'msckf_2.csv'))
+        # msckf_df = pd.read_csv(os.path.join(directory, 'msckf_2.csv'))
 
-        fig1 = plot_imu_residuals(imu_df)
-        fig2 = plot_imu_pos_updates(imu_df)
-        fig3 = plot_imu_vel_updates(imu_df)
-        fig4 = plot_msckf_body_pos_updates(msckf_df)
-        fig5 = plot_msckf_body_ang_updates(msckf_df)
-        fig6 = plot_msckf_cam_pos_updates(msckf_df)
-        fig7 = plot_msckf_cam_ang_updates(msckf_df)
-        fig8 = plot_update_timing(imu_df, msckf_df)
+        # plot_imu_residuals(imu_df)
+        # plot_imu_pos_updates(imu_df)
+        # plot_imu_vel_updates(imu_df)
+        # plot_msckf_body_pos_updates(msckf_df)
+        # plot_msckf_body_ang_updates(msckf_df)
+        # plot_msckf_cam_pos_updates(msckf_df)
+        # plot_msckf_cam_ang_updates(msckf_df)
+        # plot_update_timing(imu_df, msckf_df)
+        plot_body_pos(imu_df)
+        plot_body_vel(imu_df)
+        plot_body_acc(imu_df)
+        # plot_body_ang(imu_df)
 
         saveDir = os.path.join(directory, 'plots')
         if not os.path.isdir(saveDir):
             os.mkdir(saveDir)
 
-        fig1.savefig(os.path.join(saveDir, 'imu_residuals.png'))
-        fig2.savefig(os.path.join(saveDir, 'imu_pos_updates.png'))
-        fig3.savefig(os.path.join(saveDir, 'imu_vel_updates.png'))
-        fig4.savefig(os.path.join(saveDir, 'msckf_body_pos_updates.png'))
-        fig5.savefig(os.path.join(saveDir, 'msckf_body_ang_updates.png'))
-        fig6.savefig(os.path.join(saveDir, 'msckf_cam_pos_updates.png'))
-        fig7.savefig(os.path.join(saveDir, 'msckf_cam_ang_updates.png'))
-        fig8.savefig(os.path.join(saveDir, 'update_timing.png'))
+        # fig1.savefig(os.path.join(saveDir, 'imu_residuals.png'))
+        # fig2.savefig(os.path.join(saveDir, 'imu_pos_updates.png'))
+        # fig3.savefig(os.path.join(saveDir, 'imu_vel_updates.png'))
+        # fig4.savefig(os.path.join(saveDir, 'msckf_body_pos_updates.png'))
+        # fig5.savefig(os.path.join(saveDir, 'msckf_body_ang_updates.png'))
+        # fig6.savefig(os.path.join(saveDir, 'msckf_cam_pos_updates.png'))
+        # fig7.savefig(os.path.join(saveDir, 'msckf_cam_ang_updates.png'))
+        # fig8.savefig(os.path.join(saveDir, 'update_timing.png'))
 
         plt.show()
 
