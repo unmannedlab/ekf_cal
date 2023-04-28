@@ -202,28 +202,3 @@ install(DIRECTORY
 )
 
 ament_package()
-
-# Doxygen
-set(DOXYGEN_STUB_FILE ${PROJECT_SOURCE_DIR}/docs/empty.html)
-
-add_custom_target(DOXYGEN
-    DEPENDS ${DOXYGEN_STUB_FILE}
-)
-
-find_package(Doxygen)
-if(NOT DOXYGEN_FOUND)
-
-    message(WARNING "Doxygen is needed to build the documentation.")
-
-else()
-
-    set(DOXYFILE ${PROJECT_SOURCE_DIR}/.doxyfile)
-
-    add_custom_command(
-        OUTPUT ${DOXYGEN_STUB_FILE}
-        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE}
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-        MAIN_DEPENDENCY ${doxyfile} ${doxyfile_in}
-        COMMENT "Generating HTML documentation"
-    )
-endif()
