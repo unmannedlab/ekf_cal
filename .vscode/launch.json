@@ -34,5 +34,16 @@
             "program": "${file}",
             "console": "integratedTerminal"
         },
+        {
+            "name": "Test Plot",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/eval/plot_sim.py",
+            "args": [
+                "config/imu-cam",
+                "--no_show"
+            ],
+            "console": "integratedTerminal"
+        },
     ],
 }

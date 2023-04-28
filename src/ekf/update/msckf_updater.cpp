@@ -380,7 +380,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
   msg << VectorToCommaString(body_state);
   msg << VectorToCommaString(cam_state);
   msg << VectorToCommaString(body_update);
-  msg << VectorToCommaString(cam_update);
+  msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));
   msg << "," << t_execution.count();
   msg << "\n";
   m_data_logger.Log(msg.str());
