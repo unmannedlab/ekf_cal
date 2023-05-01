@@ -140,12 +140,12 @@ int main(int argc, char * argv[])
     trkParams.output_directory = out_dir;
     trkParams.data_logging_on = data_logging_on;
 
-    SimFeatureTracker::Parameters simTrkParams;
-    simTrkParams.feature_count = sim_node["featureCount"].as<unsigned int>();
-    simTrkParams.room_size = sim_node["roomSize"].as<double>();
-    simTrkParams.tracker_params = trkParams;
+    SimFeatureTracker::Parameters sim_tracker_params;
+    sim_tracker_params.feature_count = sim_node["featureCount"].as<unsigned int>();
+    sim_tracker_params.room_size = sim_node["roomSize"].as<double>();
+    sim_tracker_params.tracker_params = trkParams;
 
-    trackerMap[trkParams.name] = simTrkParams;
+    trackerMap[trkParams.name] = sim_tracker_params;
   }
 
   // Load cameras and generate measurements
@@ -177,6 +177,8 @@ int main(int argc, char * argv[])
     auto cam = std::make_shared<SimCamera>(sim_cam_params, truth_engine);
     auto trk_params = trackerMap[cam_params.tracker];
     trk_params.tracker_params.sensor_id = cam->GetId();
+    trk_params.pos_offset = sim_cam_params.pos_offset;
+    trk_params.ang_offset = sim_cam_params.ang_offset;
     auto trk = std::make_shared<SimFeatureTracker>(trk_params, truth_engine);
     cam->AddTracker(trk);
     sensor_map[cam->GetId()] = cam;

@@ -25,27 +25,29 @@ TruthEngineCyclic::TruthEngineCyclic(Eigen::Vector3d pos_frequency, Eigen::Vecto
 {
   m_pos_cycle_frequency = pos_frequency;
   m_ang_cycle_frequency = ang_frequency;
+  m_ang_amplitude = 0.1;
+  m_pos_amplitude = 1.0;
 }
 
 
 Eigen::Vector3d TruthEngineCyclic::GetBodyPosition(double time)
 {
   Eigen::Vector3d position;
-  position[0] = 1 + std::sin(m_pos_cycle_frequency[0] * 2 * M_PI * (time - 0.25));
-  position[1] = 1 + std::sin(m_pos_cycle_frequency[1] * 2 * M_PI * (time - 0.25));
-  position[2] = 1 + std::sin(m_pos_cycle_frequency[2] * 2 * M_PI * (time - 0.25));
+  position[0] = m_pos_amplitude * (1 - std::cos(m_pos_cycle_frequency[0] * 2 * M_PI * time));
+  position[1] = m_pos_amplitude * (1 - std::cos(m_pos_cycle_frequency[1] * 2 * M_PI * time));
+  position[2] = m_pos_amplitude * (1 - std::cos(m_pos_cycle_frequency[2] * 2 * M_PI * time));
   return position;
 }
 
 Eigen::Vector3d TruthEngineCyclic::GetBodyVelocity(double time)
 {
   Eigen::Vector3d velocity;
-  velocity[0] = m_pos_cycle_frequency[0] * 2 * M_PI * std::cos(
-    m_pos_cycle_frequency[0] * 2 * M_PI * (time - 0.25));
-  velocity[1] = m_pos_cycle_frequency[1] * 2 * M_PI * std::cos(
-    m_pos_cycle_frequency[1] * 2 * M_PI * (time - 0.25));
-  velocity[2] = m_pos_cycle_frequency[2] * 2 * M_PI * std::cos(
-    m_pos_cycle_frequency[2] * 2 * M_PI * (time - 0.25));
+  velocity[0] = m_pos_amplitude * m_pos_cycle_frequency[0] * 2 * M_PI * std::sin(
+    m_pos_cycle_frequency[0] * 2 * M_PI * time);
+  velocity[1] = m_pos_amplitude * m_pos_cycle_frequency[1] * 2 * M_PI * std::sin(
+    m_pos_cycle_frequency[1] * 2 * M_PI * time);
+  velocity[2] = m_pos_amplitude * m_pos_cycle_frequency[2] * 2 * M_PI * std::sin(
+    m_pos_cycle_frequency[2] * 2 * M_PI * time);
   Eigen::Quaterniond ang_pos = GetBodyAngularPosition(time);
   return ang_pos * velocity;
 }
@@ -53,21 +55,21 @@ Eigen::Vector3d TruthEngineCyclic::GetBodyVelocity(double time)
 Eigen::Vector3d TruthEngineCyclic::GetBodyAcceleration(double time)
 {
   Eigen::Vector3d acceleration;
-  acceleration[0] = -std::pow(m_pos_cycle_frequency[0] * 2 * M_PI, 2) * std::sin(
-    m_pos_cycle_frequency[0] * 2 * M_PI * (time - 0.25));
-  acceleration[1] = -std::pow(m_pos_cycle_frequency[1] * 2 * M_PI, 2) * std::sin(
-    m_pos_cycle_frequency[1] * 2 * M_PI * (time - 0.25));
-  acceleration[2] = -std::pow(m_pos_cycle_frequency[2] * 2 * M_PI, 2) * std::sin(
-    m_pos_cycle_frequency[2] * 2 * M_PI * (time - 0.25));
+  acceleration[0] = m_pos_amplitude * std::pow(m_pos_cycle_frequency[0] * 2 * M_PI, 2) * std::cos(
+    m_pos_cycle_frequency[0] * 2 * M_PI * time);
+  acceleration[1] = m_pos_amplitude * std::pow(m_pos_cycle_frequency[1] * 2 * M_PI, 2) * std::cos(
+    m_pos_cycle_frequency[1] * 2 * M_PI * time);
+  acceleration[2] = m_pos_amplitude * std::pow(m_pos_cycle_frequency[2] * 2 * M_PI, 2) * std::cos(
+    m_pos_cycle_frequency[2] * 2 * M_PI * time);
   Eigen::Quaterniond ang_pos = GetBodyAngularPosition(time);
   return ang_pos * acceleration;
 }
 
 Eigen::Quaterniond TruthEngineCyclic::GetBodyAngularPosition(double time)
 {
-  double a = std::sin(m_ang_cycle_frequency[0] * 2 * M_PI * (time - 0.25));
-  double b = std::sin(m_ang_cycle_frequency[1] * 2 * M_PI * (time - 0.25));
-  double g = std::sin(m_ang_cycle_frequency[2] * 2 * M_PI * (time - 0.25));
+  double a = m_ang_amplitude * (1 - std::cos(m_ang_cycle_frequency[0] * 2 * M_PI * time));
+  double b = m_ang_amplitude * (1 - std::cos(m_ang_cycle_frequency[1] * 2 * M_PI * time));
+  double g = m_ang_amplitude * (1 - std::cos(m_ang_cycle_frequency[2] * 2 * M_PI * time));
 
   Eigen::Quaterniond angular_position =
     Eigen::AngleAxisd(a, Eigen::Vector3d::UnitX()) *
@@ -80,24 +82,27 @@ Eigen::Quaterniond TruthEngineCyclic::GetBodyAngularPosition(double time)
 Eigen::Vector3d TruthEngineCyclic::GetBodyAngularRate(double time)
 {
   Eigen::Vector3d angular_rate;
-  angular_rate[0] = m_ang_cycle_frequency[0] * 2 * M_PI * std::cos(
-    m_ang_cycle_frequency[0] * 2 * M_PI * (time - 0.25));
-  angular_rate[1] = m_ang_cycle_frequency[1] * 2 * M_PI * std::cos(
-    m_ang_cycle_frequency[1] * 2 * M_PI * (time - 0.25));
-  angular_rate[2] = m_ang_cycle_frequency[2] * 2 * M_PI * std::cos(
-    m_ang_cycle_frequency[2] * 2 * M_PI * (time - 0.25));
+  angular_rate[0] = m_ang_amplitude * m_ang_cycle_frequency[0] * 2 * M_PI * std::sin(
+    m_ang_cycle_frequency[0] * 2 * M_PI * time);
+  angular_rate[1] = m_ang_amplitude * m_ang_cycle_frequency[1] * 2 * M_PI * std::sin(
+    m_ang_cycle_frequency[1] * 2 * M_PI * time);
+  angular_rate[2] = m_ang_amplitude * m_ang_cycle_frequency[2] * 2 * M_PI * std::sin(
+    m_ang_cycle_frequency[2] * 2 * M_PI * time);
   return angular_rate;
 }
 
 Eigen::Vector3d TruthEngineCyclic::GetBodyAngularAcceleration(double time)
 {
   Eigen::Vector3d angularAcceleration;
-  angularAcceleration[0] = -std::pow(m_ang_cycle_frequency[0] * 2 * M_PI, 2) * std::sin(
-    m_ang_cycle_frequency[0] * 2 * M_PI * (time - 0.25));
-  angularAcceleration[1] = -std::pow(m_ang_cycle_frequency[1] * 2 * M_PI, 2) * std::sin(
-    m_ang_cycle_frequency[1] * 2 * M_PI * (time - 0.25));
-  angularAcceleration[2] = -std::pow(m_ang_cycle_frequency[2] * 2 * M_PI, 2) * std::sin(
-    m_ang_cycle_frequency[2] * 2 * M_PI * (time - 0.25));
+  angularAcceleration[0] = m_ang_amplitude *
+    std::pow(m_ang_cycle_frequency[0] * 2 * M_PI, 2) * std::cos(
+    m_ang_cycle_frequency[0] * 2 * M_PI * time);
+  angularAcceleration[1] = m_ang_amplitude *
+    std::pow(m_ang_cycle_frequency[1] * 2 * M_PI, 2) * std::cos(
+    m_ang_cycle_frequency[1] * 2 * M_PI * time);
+  angularAcceleration[2] = m_ang_amplitude *
+    std::pow(m_ang_cycle_frequency[2] * 2 * M_PI, 2) * std::cos(
+    m_ang_cycle_frequency[2] * 2 * M_PI * time);
   return angularAcceleration;
 }
 

@@ -6,3 +6,8 @@ Use the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.ht
 following exceptions:
 - member variables are snake case with leading `m_`
 - global variables are snake case with leading `g_`
+
+Prior to pull/merge request, check the following:
+- Resolve all compiler warnings
+- Pass all unit tests
+- Resolve all doxygen warnings

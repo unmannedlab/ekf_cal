@@ -30,18 +30,21 @@ SimFeatureTracker::SimFeatureTracker(
 : FeatureTracker(params.tracker_params)
 {
   m_px_error = params.px_error;
+  m_pos_offset = params.pos_offset;
+  m_ang_offset = params.ang_offset;
   m_feature_count = params.feature_count;
   m_truth = truthEngine;
 
-  m_feature_points.push_back(cv::Point3d(1, 0, 0));
-  m_feature_points.push_back(cv::Point3d(-1, 0, 0));
-  m_feature_points.push_back(cv::Point3d(0, 1, 0));
-  m_feature_points.push_back(cv::Point3d(0, -1, 0));
-  m_feature_points.push_back(cv::Point3d(0, 0, 1));
-  m_feature_points.push_back(cv::Point3d(0, 0, -1));
+  m_feature_points.push_back(cv::Point3d(params.room_size, 0, 0));
+  m_feature_points.push_back(cv::Point3d(-params.room_size, 0, 0));
+  m_feature_points.push_back(cv::Point3d(0, params.room_size, 0));
+  m_feature_points.push_back(cv::Point3d(0, -params.room_size, 0));
+  m_feature_points.push_back(cv::Point3d(0, 0, params.room_size));
+  m_feature_points.push_back(cv::Point3d(0, 0, -params.room_size));
   for (unsigned int i = 0; i < m_feature_count; ++i) {
     cv::Point3d vec;
-    vec.x = m_rng.UniRand(-params.room_size, params.room_size);
+    vec.x = params.room_size;
+    // vec.x = m_rng.UniRand(-params.room_size, params.room_size);
     vec.y = m_rng.UniRand(-params.room_size, params.room_size);
     vec.z = m_rng.UniRand(-params.room_size / 10, params.room_size / 10);
     m_feature_points.push_back(vec);
@@ -55,14 +58,12 @@ SimFeatureTracker::SimFeatureTracker(
   m_proj_matrix.at<double>(2, 2) = 1;
 }
 
-/// @todo Write visibleKeypoints function
 std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 {
   Eigen::Vector3d body_pos = m_truth->GetBodyPosition(time);
   Eigen::Quaterniond body_ang = m_truth->GetBodyAngularPosition(time);
   Eigen::Quaterniond cam_ang = body_ang * m_ang_offset;
-  Eigen::Matrix3d cam_ang_eig_mat = cam_ang.toRotationMatrix();
-  Eigen::Vector3d cam_plane_vec = cam_ang * Eigen::Vector3d(0, 0, 1);
+  Eigen::Matrix3d cam_ang_eig_mat = cam_ang.toRotationMatrix().transpose();
 
   cv::Mat cam_ang_cv_mat(3, 3, cv::DataType<double>::type);
   cam_ang_cv_mat.at<double>(0, 0) = cam_ang_eig_mat(0, 0);
@@ -103,6 +104,7 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 
   // Convert to feature points
   std::vector<cv::KeyPoint> projected_features;
+  Eigen::Vector3d cam_plane_vec = cam_ang * Eigen::Vector3d(0, 0, 1);
   for (unsigned int i = 0; i < projected_points.size(); ++i) {
     cv::Point3d pointCV = m_feature_points[i];
     Eigen::Vector3d pointEig(pointCV.x, pointCV.y, pointCV.z);
@@ -127,7 +129,6 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
   return projected_features;
 }
 
-/// @todo Write generateMessages function
 std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::GenerateMessages(
   std::vector<double> message_times, unsigned int sensor_id)
 {

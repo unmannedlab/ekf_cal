@@ -215,6 +215,32 @@ def plot_body_ang(df):
     fig.tight_layout()
 
 
+def plot_msckf_cam_pos(msckf_df):
+    fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+    axs_1.plot(msckf_df['time'], msckf_df['cam_state_0'])
+    axs_2.plot(msckf_df['time'], msckf_df['cam_state_1'])
+    axs_3.plot(msckf_df['time'], msckf_df['cam_state_2'])
+    set_plot_titles(fig, 'Camera Offset Position')
+    axs_1.set_ylabel('X [m]')
+    axs_2.set_ylabel('Y [m]')
+    axs_3.set_ylabel('Z [m]')
+    axs_3.set_xlabel('Time [s]')
+    fig.tight_layout()
+
+
+def plot_msckf_cam_ang(msckf_df):
+    fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+    axs_1.plot(msckf_df['time'], msckf_df['cam_state_3'])
+    axs_2.plot(msckf_df['time'], msckf_df['cam_state_4'])
+    axs_3.plot(msckf_df['time'], msckf_df['cam_state_5'])
+    set_plot_titles(fig, 'Camera Offset Rotations')
+    axs_1.set_ylabel(r'$\theta_x$ [rad]')
+    axs_2.set_ylabel(r'$\theta_y$ [rad]')
+    axs_3.set_ylabel(r'$\theta_z$ [rad]')
+    axs_3.set_xlabel('Time [s]')
+    fig.tight_layout()
+
+
 def find_and_read_data_frames(directory, prefix):
     file_paths = glob.glob(os.path.join(directory, prefix + '_*.csv'))
     data_frames = []
@@ -250,6 +276,8 @@ def plot_sim_results(directories, no_show):
             plot_msckf_body_ang_updates(msckf_df)
             plot_msckf_cam_pos_updates(msckf_df)
             plot_msckf_cam_ang_updates(msckf_df)
+            plot_msckf_cam_pos(msckf_df)
+            plot_msckf_cam_ang(msckf_df)
             plot_update_timing(msckf_df)
 
         saveDir = os.path.join(directory, 'plots')

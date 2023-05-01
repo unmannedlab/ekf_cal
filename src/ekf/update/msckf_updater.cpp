@@ -187,8 +187,9 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
     // Get triangulated estimate of feature position
     Eigen::Vector3d p_FinA = TriangulateFeature(feature_track);
 
-    if (p_FinA == Eigen::Vector3d::Zero()) {
-      m_logger->Log(LogLevel::INFO, "MSCKF Triangulation is Zero");
+    /// @todo create parameter for this threshold?
+    if (p_FinA.norm() < 1e-3) {
+      m_logger->Log(LogLevel::DEBUG, "MSCKF Triangulation is Zero");
       continue;
     }
     /// @todo Additional non-linear optimization
@@ -329,8 +330,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
 
   CompressMeasurements(Hx_big, res_big);
 
-  // If H is a fat matrix, then use the rows
-  // Else it should be same size as our state
+  // If H is a fat matrix, then use the rows, else it should be same size as our state
   int r = std::min(Hx_big.rows(), Hx_big.cols());
   if (r == 1) {
     return;
@@ -347,10 +347,8 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
     res_big.rows(), res_big.rows());
 
   // 6. With all good features update the state
-  Eigen::MatrixXd S = Hx_big *
-    m_ekf->GetCov().block(0, 0, state_size, state_size) * Hx_big.transpose() + R_big;
-  Eigen::MatrixXd K =
-    m_ekf->GetCov().block(0, 0, state_size, state_size) * Hx_big.transpose() * S.inverse();
+  Eigen::MatrixXd S = Hx_big * m_ekf->GetCov() * Hx_big.transpose() + R_big;
+  Eigen::MatrixXd K = m_ekf->GetCov() * Hx_big.transpose() * S.inverse();
 
   unsigned int imu_states_size = m_ekf->GetImuCount() * g_imu_state_size;
   unsigned int cam_states_size = state_size - g_body_state_size - imu_states_size;

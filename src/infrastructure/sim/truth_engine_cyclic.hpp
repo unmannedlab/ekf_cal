@@ -88,6 +88,8 @@ public:
 private:
   Eigen::Vector3d m_pos_cycle_frequency {0.0, 0.0, 0.0};
   Eigen::Vector3d m_ang_cycle_frequency {0.0, 0.0, 0.0};
+  double m_ang_amplitude = 0.1;
+  double m_pos_amplitude = 1.0;
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTH_ENGINE_CYCLIC_HPP_

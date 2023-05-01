@@ -46,15 +46,15 @@
                 Rate: 20.0
                 Topic:  "/my_camera/pylon_ros2_camera_node/image_raw"
                 PosOffInit: [0.0, 0.0, 0.0]
-                AngOffInit: [1.0, 0.0, 0.0, 0.0]
+                AngOffInit: [0.5, -0.5, 0.5, -0.5]
                 VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 Tracker: "ORB"
                 SimParams:
                     timeBias: 0.0
                     timeSkew: 0.0
                     timeError: 1.0e-9
-                    posOffset: [0.1, 0.0, 0.0]
-                    angOffset: [1.0, 0.0, 0.0, 0.0]
+                    posOffset: [0.0, 0.0, 0.0]
+                    angOffset: [0.5, -0.5, 0.5, -0.5]
 
         Tracker:
             ORB:
