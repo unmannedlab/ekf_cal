@@ -240,13 +240,14 @@ void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
 {
   AugmentedState aug_state;
   aug_state.frame_id = frame_id;
+  Eigen::Vector3d pos_i_in_g = m_state.m_body_state.m_position;
+  Eigen::Quaterniond ang_i_to_g = m_state.m_body_state.m_orientation;
 
-  aug_state.imu_position = m_state.m_body_state.m_position;
-  aug_state.imu_orientation = m_state.m_body_state.m_orientation;
-  aug_state.position = m_state.m_body_state.m_position +
-    m_state.m_body_state.m_orientation * m_state.m_cam_states[camera_id].position;
-  aug_state.orientation = m_state.m_cam_states[camera_id].orientation *
-    m_state.m_body_state.m_orientation;
+  aug_state.imu_position = pos_i_in_g;
+  aug_state.imu_orientation = ang_i_to_g;
+
+  aug_state.position = pos_i_in_g + ang_i_to_g * m_state.m_cam_states[camera_id].position;
+  aug_state.orientation = m_state.m_cam_states[camera_id].orientation * ang_i_to_g;
   m_state.m_cam_states[camera_id].augmented_states.push_back(aug_state);
 
   unsigned int aug_state_start;

@@ -94,6 +94,8 @@ private:
   Eigen::Quaterniond m_ang_offset {1.0, 0.0, 0.0, 0.0};
   std::vector<AugmentedState> m_aug_states {};
   DataLogger m_data_logger;
+  unsigned int m_image_width {640};
+  unsigned int m_image_height {480};
 };
 
 #endif  // EKF__UPDATE__MSCKF_UPDATER_HPP_

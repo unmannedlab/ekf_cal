@@ -60,51 +60,52 @@ SimFeatureTracker::SimFeatureTracker(
 
 std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 {
-  Eigen::Vector3d body_pos = m_truth->GetBodyPosition(time);
-  Eigen::Quaterniond body_ang = m_truth->GetBodyAngularPosition(time);
-  Eigen::Quaterniond cam_ang = body_ang * m_ang_offset;
-  Eigen::Matrix3d cam_ang_eig_mat = cam_ang.toRotationMatrix().transpose();
+  Eigen::Vector3d pos_i_in_g = m_truth->GetBodyPosition(time);
+  Eigen::Quaterniond ang_i_to_g = m_truth->GetBodyAngularPosition(time);
+  Eigen::Quaterniond ang_c_to_i = m_ang_offset;
+  Eigen::Matrix3d ang_g_to_c = (ang_c_to_i * ang_i_to_g).toRotationMatrix().transpose();
 
-  cv::Mat cam_ang_cv_mat(3, 3, cv::DataType<double>::type);
-  cam_ang_cv_mat.at<double>(0, 0) = cam_ang_eig_mat(0, 0);
-  cam_ang_cv_mat.at<double>(1, 0) = cam_ang_eig_mat(1, 0);
-  cam_ang_cv_mat.at<double>(2, 0) = cam_ang_eig_mat(2, 0);
+  /// @todo put into type helper
+  cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);
+  ang_g_to_c_cv.at<double>(0, 0) = ang_g_to_c(0, 0);
+  ang_g_to_c_cv.at<double>(1, 0) = ang_g_to_c(1, 0);
+  ang_g_to_c_cv.at<double>(2, 0) = ang_g_to_c(2, 0);
 
-  cam_ang_cv_mat.at<double>(0, 1) = cam_ang_eig_mat(0, 1);
-  cam_ang_cv_mat.at<double>(1, 1) = cam_ang_eig_mat(1, 1);
-  cam_ang_cv_mat.at<double>(2, 1) = cam_ang_eig_mat(2, 1);
+  ang_g_to_c_cv.at<double>(0, 1) = ang_g_to_c(0, 1);
+  ang_g_to_c_cv.at<double>(1, 1) = ang_g_to_c(1, 1);
+  ang_g_to_c_cv.at<double>(2, 1) = ang_g_to_c(2, 1);
 
-  cam_ang_cv_mat.at<double>(0, 2) = cam_ang_eig_mat(0, 2);
-  cam_ang_cv_mat.at<double>(1, 2) = cam_ang_eig_mat(1, 2);
-  cam_ang_cv_mat.at<double>(2, 2) = cam_ang_eig_mat(2, 2);
+  ang_g_to_c_cv.at<double>(0, 2) = ang_g_to_c(0, 2);
+  ang_g_to_c_cv.at<double>(1, 2) = ang_g_to_c(1, 2);
+  ang_g_to_c_cv.at<double>(2, 2) = ang_g_to_c(2, 2);
 
   // Creating Rodrigues rotation matrix
-  cv::Mat rot_vec(3, 1, cv::DataType<double>::type);
-  cv::Rodrigues(cam_ang_cv_mat, rot_vec);
+  /// @todo put into type helper and fix names
+  cv::Mat rvec(3, 1, cv::DataType<double>::type);
+  cv::Rodrigues(ang_g_to_c_cv, rvec);
 
-  Eigen::Vector3d camPos = body_pos + body_ang * m_pos_offset;
-  cv::Mat T(3, 1, cv::DataType<double>::type);
-  T.at<double>(0) = camPos[0];
-  T.at<double>(1) = camPos[1];
-  T.at<double>(2) = camPos[2];
+  Eigen::Vector3d pos_g_in_c = ang_g_to_c * (-(pos_i_in_g + ang_i_to_g * m_pos_offset));
+
+  cv::Mat tvec(3, 1, cv::DataType<double>::type);
+  /// @todo convert to be in C
+  tvec.at<double>(0) = pos_g_in_c[0];
+  tvec.at<double>(1) = pos_g_in_c[1];
+  tvec.at<double>(2) = pos_g_in_c[2];
 
   // Create zero distortion
   /// @todo grab this from input
-  cv::Mat distortion(4, 1, cv::DataType<double>::type);
-  distortion.at<double>(0) = 0;
-  distortion.at<double>(1) = 0;
-  distortion.at<double>(2) = 0;
-  distortion.at<double>(3) = 0;
+  cv::Mat distortion(4, 1, cv::DataType<double>::type, 0.0);
 
   // Project points
   std::vector<cv::Point2d> projected_points;
 
   /// @todo 2D projection is not correct
-  cv::projectPoints(m_feature_points, rot_vec, T, m_proj_matrix, distortion, projected_points);
+  cv::projectPoints(
+    m_feature_points, rvec, tvec, m_proj_matrix, distortion, projected_points);
 
   // Convert to feature points
   std::vector<cv::KeyPoint> projected_features;
-  Eigen::Vector3d cam_plane_vec = cam_ang * Eigen::Vector3d(0, 0, 1);
+  Eigen::Vector3d cam_plane_vec = ang_g_to_c.transpose() * Eigen::Vector3d(0, 0, 1);
   for (unsigned int i = 0; i < projected_points.size(); ++i) {
     cv::Point3d pointCV = m_feature_points[i];
     Eigen::Vector3d pointEig(pointCV.x, pointCV.y, pointCV.z);

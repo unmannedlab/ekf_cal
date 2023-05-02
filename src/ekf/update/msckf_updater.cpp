@@ -114,42 +114,44 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
   AugmentedState aug_state_0 = MatchState(feature_track[0].frame_id);
 
   // 3D Cartesian Triangulation
-  Eigen::Matrix3d a = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d A = Eigen::Matrix3d::Zero();
   Eigen::Vector3d b = Eigen::Vector3d::Zero();
 
-  const Eigen::Matrix<double, 3, 3> rotation_g_to_a = aug_state_0.orientation.toRotationMatrix();
-  const Eigen::Matrix<double, 3, 1> position_a_in_g = aug_state_0.position;
+  const Eigen::Matrix<double, 3, 3> rotation_c0_to_g = aug_state_0.orientation.toRotationMatrix();
+  const Eigen::Matrix<double, 3, 3> rotation_g_to_c0 = rotation_c0_to_g.transpose();
+  const Eigen::Matrix<double, 3, 1> position_c0_in_g = aug_state_0.position;
 
-  for (unsigned int i = 1; i < feature_track.size(); ++i) {
+  for (unsigned int i = 0; i < feature_track.size(); ++i) {
     AugmentedState aug_state_i = MatchState(feature_track[i].frame_id);
 
-    const Eigen::Matrix<double, 3, 3> rotation_g_to_ci = aug_state_i.orientation.toRotationMatrix();
+    const Eigen::Matrix<double, 3, 3> rotation_ci_to_g = aug_state_i.orientation.toRotationMatrix();
     const Eigen::Vector3d position_ci_in_g = aug_state_i.position;
 
     // Convert current position relative to anchor
-    Eigen::Matrix3d rotation_a_to_ci = rotation_g_to_ci * rotation_g_to_a.transpose();
-    Eigen::Vector3d position_ci_in_a = rotation_g_to_a * (position_ci_in_g - position_a_in_g);
+    Eigen::Matrix3d rotation_ci_to_c0 = rotation_ci_to_g * rotation_g_to_c0;
+    Eigen::Vector3d position_ci_in_c0 = rotation_g_to_c0 * (position_ci_in_g - position_c0_in_g);
 
     // Get the UV coordinate normal
     Eigen::Vector3d b_i;
-    b_i(0) = feature_track[i].key_point.pt.x;
-    b_i(1) = feature_track[i].key_point.pt.y;
+    b_i(0) = (2 * feature_track[i].key_point.pt.x / static_cast<double>(m_image_width)) - 1;
+    b_i(1) = (2 * feature_track[i].key_point.pt.y / static_cast<double>(m_image_height)) - 1;
     b_i(2) = 1;
 
     // Rotate and normalize
-    b_i = rotation_a_to_ci.transpose() * b_i;
+    b_i = rotation_ci_to_c0 * b_i;
     b_i = b_i / b_i.norm();
 
     Eigen::Matrix3d b_skew = SkewSymmetric(b_i);
-    Eigen::Matrix3d ai = b_skew.transpose() * b_skew;
-    a += ai;
-    b += ai * position_ci_in_a;
+    Eigen::Matrix3d Ai = b_skew.transpose() * b_skew;
+    A += Ai;
+    b += Ai * position_ci_in_c0;
   }
 
   // Solve linear triangulation for 3D cartesian estimate of feature position
-  Eigen::Vector3d position_f_in_a = a.colPivHouseholderQr().solve(b);
+  Eigen::Vector3d position_f_in_c0 = A.colPivHouseholderQr().solve(b);
+  Eigen::Vector3d position_f_in_g = rotation_c0_to_g * position_f_in_c0 + position_c0_in_g;
 
-  return position_f_in_a;
+  return position_f_in_g;
 }
 
 
@@ -196,11 +198,11 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
 
     // Calculate the position of this feature in the global frame
     // Get calibration for our anchor camera
-    Eigen::Matrix3d R_CtoI = m_aug_states[0].orientation.toRotationMatrix().transpose();
+    Eigen::Matrix3d R_CtoI = m_aug_states[0].orientation.toRotationMatrix();
     Eigen::Vector3d p_IinC = m_aug_states[0].position;
 
     // Anchor pose orientation and position
-    Eigen::Matrix3d R_GtoI = m_aug_states[0].imu_orientation.toRotationMatrix();
+    Eigen::Matrix3d R_GtoI = m_aug_states[0].imu_orientation.toRotationMatrix().transpose();
     Eigen::Vector3d p_IinG = m_aug_states[0].imu_position;
 
     // Feature in the global frame
@@ -240,11 +242,11 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
       AugmentedState aug_state = MatchState(feature_track[i].frame_id);
 
       // Our calibration between the IMU and CAMi frames
-      Eigen::Matrix3d R_ItoC = aug_state.orientation.toRotationMatrix();
+      Eigen::Matrix3d R_ItoC = aug_state.orientation.toRotationMatrix().transpose();
       Eigen::Vector3d p_IinC = aug_state.position;
 
       // Get current IMU clone state
-      Eigen::Matrix3d R_GtoIi = aug_state.imu_orientation.toRotationMatrix();
+      Eigen::Matrix3d R_GtoIi = aug_state.imu_orientation.toRotationMatrix().transpose();
       Eigen::Vector3d p_Ii_inG = aug_state.imu_position;
 
       // Get current feature in the IMU

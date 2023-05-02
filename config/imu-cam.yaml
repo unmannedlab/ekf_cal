@@ -7,7 +7,7 @@
             Seed: 0.0
             MaxTime: 10.0
             TruthType: "Cyclic"
-            PosFrequency: [1.0, 0.0, 0.0]
+            PosFrequency: [0.0, 1.0, 0.0]
             AngFrequency: [0.0, 0.0, 0.0]
 
         IMU_list:
