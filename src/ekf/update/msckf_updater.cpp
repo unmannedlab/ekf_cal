@@ -93,7 +93,6 @@ void MsckfUpdater::ApplyLeftNullspace(
 void MsckfUpdater::CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual)
 {
   // Perform measurement compression
-  /// @todo verify logic here
   // Return if jacobian is a fat matrix (there is no need to compress in this case)
   if (jacobian.rows() > jacobian.cols()) {
     // Do measurement compression through givens rotations
@@ -221,6 +220,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
     AugmentedState aug_state_0 = MatchState(feature_track[0].frame_id);
 
     Eigen::Matrix3d rot_c0_to_g = aug_state_0.orientation.toRotationMatrix();
+    Eigen::Matrix3d rot_i0_to_g = aug_state_0.imu_orientation.toRotationMatrix();
 
     // Anchor pose orientation and position
     Eigen::Vector3d pos_i_in_g = aug_state_0.imu_position;
@@ -234,18 +234,24 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
     Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feature_track.size(), jacob_size);
     Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(2 * feature_track.size(), aug_state_size);
 
-    /// @todo CHECK
     // Jacobian for our anchor pose
     Eigen::Matrix<double, 3, 6> H_anc;
-    H_anc.block(0, 0, 3, 3).noalias() = SkewSymmetric(pos_f_in_g - pos_i_in_g);
+    H_anc.setZero();
+
+    /// @todo CHECK
+    // H_anc.block(0, 0, 3, 3).noalias() =
+    //   -rot_i0_to_g * SkewSymmetric(rot_i0_to_g.transpose() * (pos_f_in_g - pos_i_in_g));
     H_anc.block(0, 3, 3, 3).setIdentity();
 
     // Add anchor Jacobians to our return vector
 
-    /// @todo CHECK
     // Get calibration Jacobians (for anchor clone)
     Eigen::Matrix<double, 3, 6> H_calib;
-    H_calib.block(0, 0, 3, 3).noalias() = -SkewSymmetric(pos_f_in_g - pos_i_in_g);
+    H_calib.setZero();
+
+    /// @todo CHECK
+    // H_calib.block(0, 0, 3, 3).noalias() =
+    //   -rot_c0_to_g * SkewSymmetric(rot_c0_to_g.transpose() * (pos_f_in_g - pos_i_in_g));
     H_calib.block(0, 3, 3, 3) = -rot_c0_to_g;
 
     // Derivative of p_FinG in respect to feature representation.
@@ -254,7 +260,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
 
     // Get the Jacobian for this feature
     // Loop through each camera for this feature
-    for (unsigned int i = 0; i < feature_track.size(); ++i) {
+    for (unsigned int i = 1; i < feature_track.size(); ++i) {
       AugmentedState aug_state_i = MatchState(feature_track[i].frame_id);
 
       // Our calibration between the IMU and CAMi frames
@@ -271,7 +277,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
       Eigen::Vector2d uv_measured;
       uv_measured(0) = feature_track[i].key_point.pt.x;
       uv_measured(1) = feature_track[i].key_point.pt.y;
-      res.block(2 * i, 0, 2, 1) = uv_measured - uv_predicted;
+      res.block(2 * (i - 1), 0, 2, 1) = uv_measured - uv_predicted;
 
       // Normalized coordinates in respect to projection function
       Eigen::MatrixXd dzn_dPFC = Eigen::MatrixXd::Zero(2, 3);
@@ -283,7 +289,6 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
       // Derivative of p_FinCi in respect to p_FinIi
       Eigen::MatrixXd dPFC_dPFG = rot_ci_to_g.transpose();
 
-      /// @todo CHECK
       // Derivative of p_FinCi in respect to camera clone state
       Eigen::MatrixXd dPFC_dClone = Eigen::MatrixXd::Zero(3, 6);
       dPFC_dClone.block(0, 0, 3, 3) = SkewSymmetric(pos_f_in_ci);
@@ -296,19 +301,16 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
       Eigen::MatrixXd dz_dPFC = dzn_dPFC;
       Eigen::MatrixXd dz_dPFG = dz_dPFC * dPFC_dPFG;
 
-      /// @todo CHECK
       // Chain Rule: Get the total feature Jacobian
-      // H_f.block(2 * i, 0, 2, H_f.cols()) = dz_dPFG * dPFG_dLambda;
+      H_f.block(2 * (i - 1), 0, 2, H_f.cols()) = dz_dPFG * dPFG_dLambda;
 
-      /// @todo CHECK
       // Chain Rule: Get state clone Jacobian
-      // H_x.block(2 * i, 0, 2, 6) = dz_dPFC * dPFC_dClone;
+      H_x.block(2 * (i - 1), 0, 2, 6) = dz_dPFC * dPFC_dClone;
 
-      /// @todo CHECK
       // Chain Rule: loop through all extra states and add their
       // NOTE: we add the Jacobian here as we might be in the anchoring pose for this measurement
-      // H_x.block(2 * i, augStateStart - cam_state_start - 6, 2, 6) += dz_dPFG * H_anc;
-      // H_x.block(2 * i, augStateStart - cam_state_start, 2, 6) += dz_dPFG * H_calib;
+      H_x.block(2 * (i - 1), augStateStart - cam_state_start - 6, 2, 6) += dz_dPFG * H_anc;
+      // H_x.block(2 * (i - 1), augStateStart - cam_state_start, 2, 6) += dz_dPFG * H_calib;
 
       // Derivative of p_FinCi in respect to camera calibration (R_ItoC, p_IinC)
 
@@ -320,7 +322,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
       dPFC_dCalib.block(0, 3, 3, 3) = Eigen::Matrix<double, 3, 3>::Identity();
 
       // Chain Rule it and add it to the big jacobian
-      H_x.block(2 * i, cam_state_start - cam_state_start, 2, 6) += dz_dPFC * dPFC_dCalib;
+      H_x.block(2 * (i - 1), cam_state_start - cam_state_start, 2, 6) += dz_dPFC * dPFC_dCalib;
     }
 
     ApplyLeftNullspace(H_f, H_x, res);
