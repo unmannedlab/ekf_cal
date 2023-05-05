@@ -55,12 +55,12 @@ Eigen::Vector3d TruthEngineCyclic::GetBodyVelocity(double time)
 Eigen::Vector3d TruthEngineCyclic::GetBodyAcceleration(double time)
 {
   Eigen::Vector3d acceleration;
-  acceleration[0] = m_pos_amplitude * std::pow(m_pos_cycle_frequency[0] * 2 * M_PI, 2) * std::cos(
-    m_pos_cycle_frequency[0] * 2 * M_PI * time);
-  acceleration[1] = m_pos_amplitude * std::pow(m_pos_cycle_frequency[1] * 2 * M_PI, 2) * std::cos(
-    m_pos_cycle_frequency[1] * 2 * M_PI * time);
-  acceleration[2] = m_pos_amplitude * std::pow(m_pos_cycle_frequency[2] * 2 * M_PI, 2) * std::cos(
-    m_pos_cycle_frequency[2] * 2 * M_PI * time);
+  acceleration[0] = m_pos_amplitude * 4 * M_PI * M_PI * m_pos_cycle_frequency[0] *
+    m_pos_cycle_frequency[0] * std::cos(m_pos_cycle_frequency[0] * 2 * M_PI * time);
+  acceleration[1] = m_pos_amplitude * 4 * M_PI * M_PI * m_pos_cycle_frequency[1] *
+    m_pos_cycle_frequency[1] * std::cos(m_pos_cycle_frequency[1] * 2 * M_PI * time);
+  acceleration[2] = m_pos_amplitude * 4 * M_PI * M_PI * m_pos_cycle_frequency[2] *
+    m_pos_cycle_frequency[2] * std::cos(m_pos_cycle_frequency[2] * 2 * M_PI * time);
   Eigen::Quaterniond ang_pos = GetBodyAngularPosition(time);
   return ang_pos * acceleration;
 }
@@ -94,15 +94,12 @@ Eigen::Vector3d TruthEngineCyclic::GetBodyAngularRate(double time)
 Eigen::Vector3d TruthEngineCyclic::GetBodyAngularAcceleration(double time)
 {
   Eigen::Vector3d angularAcceleration;
-  angularAcceleration[0] = m_ang_amplitude *
-    std::pow(m_ang_cycle_frequency[0] * 2 * M_PI, 2) * std::cos(
-    m_ang_cycle_frequency[0] * 2 * M_PI * time);
-  angularAcceleration[1] = m_ang_amplitude *
-    std::pow(m_ang_cycle_frequency[1] * 2 * M_PI, 2) * std::cos(
-    m_ang_cycle_frequency[1] * 2 * M_PI * time);
-  angularAcceleration[2] = m_ang_amplitude *
-    std::pow(m_ang_cycle_frequency[2] * 2 * M_PI, 2) * std::cos(
-    m_ang_cycle_frequency[2] * 2 * M_PI * time);
+  angularAcceleration[0] = m_ang_amplitude * 4 * M_PI * M_PI * m_ang_cycle_frequency[0] *
+    m_ang_cycle_frequency[0] * std::cos(m_ang_cycle_frequency[0] * 2 * M_PI * time);
+  angularAcceleration[1] = m_ang_amplitude * 4 * M_PI * M_PI * m_ang_cycle_frequency[1] *
+    m_ang_cycle_frequency[1] * std::cos(m_ang_cycle_frequency[1] * 2 * M_PI * time);
+  angularAcceleration[2] = m_ang_amplitude * 4 * M_PI * M_PI * m_ang_cycle_frequency[2] *
+    m_ang_cycle_frequency[2] * std::cos(m_ang_cycle_frequency[2] * 2 * M_PI * time);
   return angularAcceleration;
 }
 
