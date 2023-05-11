@@ -211,8 +211,5 @@ int main(int argc, char * argv[])
   }
   logger->Log(LogLevel::INFO, "End Simulation");
 
-  // Return
-  /// @todo "Uses" input parameters to suppress compiler warning
-  (void)argv[argc - 1];
   return 0;
 }
