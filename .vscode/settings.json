@@ -124,7 +124,8 @@
         "*.txx": "cpp",
         "core": "cpp",
         "splines": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "*.in": "cpp"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python",

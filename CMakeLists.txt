@@ -1,10 +1,11 @@
-cmake_minimum_required(VERSION 3.5)
-project(ekf_cal)
+cmake_minimum_required(VERSION 3.10)
+project(ekf-cal)
 
 set(EKF_CAL_MAJOR_VERSION 0)
 set(EKF_CAL_MINOR_VERSION 1)
 set(EKF_CAL_PATCH_VERSION 0)
 set(EKF_CAL_VERSION ${EKF_CAL_MAJOR_VERSION}.${EKF_CAL_MINOR_VERSION}.${EKF_CAL_PATCH_VERSION})
+configure_file(src/infrastructure/ekf_cal_version.hpp.in infrastructure/ekf_cal_version.hpp)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -131,7 +132,9 @@ target_link_libraries(ROS_LIB EKF_LIB ROS_INF ROS_UTL EKF_UTL)
 
 # EKF CAL Node
 add_library(EKF_NODE_LIB src/application/ros/node/ekf_cal_node.cpp)
+target_include_directories(EKF_NODE_LIB PUBLIC "${PROJECT_BINARY_DIR}")
 add_executable(ekf_cal_node src/application/ros/ekf_cal_main.cpp)
+message(STATUS "PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR}")
 target_link_libraries(ekf_cal_node EKF_NODE_LIB EKF_LIB ROS_LIB ROS_INF ROS_UTL EKF_UTL)
 
 
@@ -140,10 +143,10 @@ add_library(PUB_NODE_LIB src/application/ros/node/state_publisher_node.cpp)
 add_executable(state_pub_node src/application/ros/state_publisher_main.cpp)
 target_link_libraries(state_pub_node PUB_NODE_LIB ROS_LIB ROS_UTL EKF_UTL)
 
-
 # Simulation
 add_executable(sim src/application/sim/simulation.cpp)
 include_directories(${YAML_CPP_INCLUDE_DIRS})
+target_include_directories(sim PUBLIC "${PROJECT_BINARY_DIR}")
 target_link_libraries(sim SIM_LIB EKF_LIB SIM_INF EKF_UTL ${YAML_CPP_LIBRARIES})
 
 

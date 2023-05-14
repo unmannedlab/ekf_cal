@@ -28,15 +28,16 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 
-#include "utility/type_helper.hpp"
 #include "ekf/ekf.hpp"
+#include "infrastructure/debug_logger.hpp"
+#include "infrastructure/ekf_cal_version.hpp"
 #include "sensors/camera.hpp"
 #include "sensors/imu.hpp"
 #include "sensors/ros/ros_camera_message.hpp"
 #include "sensors/ros/ros_camera.hpp"
 #include "sensors/ros/ros_imu_message.hpp"
 #include "sensors/ros/ros_imu.hpp"
-#include "infrastructure/debug_logger.hpp"
+#include "utility/type_helper.hpp"
 
 using std::placeholders::_1;
 
@@ -61,6 +62,7 @@ void EkfCalNode::Initialize()
   unsigned int log_level =
     static_cast<unsigned int>(this->get_parameter("Debug_Log_Level").as_int());
   m_logger->SetLogLevel(log_level);
+  m_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
 
   // Load lists of sensors
   m_imu_list = this->get_parameter("IMU_list").as_string_array();

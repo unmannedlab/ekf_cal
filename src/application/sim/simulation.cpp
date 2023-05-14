@@ -20,9 +20,10 @@
 #include <string>
 #include <opencv2/core/utility.hpp>
 
-#include "infrastructure/sim/truth_engine.hpp"
-#include "infrastructure/sim/truth_engine_spline.hpp"
+#include "infrastructure/ekf_cal_version.hpp"
 #include "infrastructure/sim/truth_engine_cyclic.hpp"
+#include "infrastructure/sim/truth_engine_spline.hpp"
+#include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/imu.hpp"
 #include "sensors/sim/sim_camera_message.hpp"
 #include "sensors/sim/sim_camera.hpp"
@@ -79,6 +80,8 @@ int main(int argc, char * argv[])
   DebugLogger * logger = DebugLogger::GetInstance();
   logger->SetOutputDirectory(out_dir);
   logger->SetLogLevel(debug_log_level);
+  logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
+
   SimRNG rng;
   rng.SetSeed(rng_seed);
 
