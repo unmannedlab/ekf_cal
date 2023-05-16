@@ -7,6 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # installing texlive and utils
 RUN apt-get update && \
     apt-get -y install \
+    cloc \
     git \
     locales && \
     rm -rf /var/lib/apt/lists/*

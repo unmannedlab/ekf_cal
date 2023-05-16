@@ -51,6 +51,7 @@
                 "cwd": "${workspaceFolder}/../../"
             },
         },
+        // Documentation Tasks
         {
             "label": "report coverage",
             "detail": "Build ekf-cal package with covereage symbols",
@@ -70,6 +71,9 @@
             "command": "doxygen .doxyfile",
             "group": "none",
             "problemMatcher": "$gcc",
+            "dependsOn": [
+                "cloc"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
@@ -87,13 +91,25 @@
             },
         },
         {
+            "label": "cloc",
+            "detail": "Count Lines of Code",
+            "type": "shell",
+            "command": "cloc . --exclude-lang=CSS,CSV,HTML,JavaScript,make,SVG,TeX --md | tail -n +5 > docs/CLOC.md && sed -i 's/--------|--------|--------|--------|--------/| | | | | |/' docs/CLOC.md",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+        },
+        {
             "label": "doxygen and coverage",
             "detail": "Build ekf-cal documentation with coverage report",
             "type": "shell",
             "command": "doxygen .doxyfile",
             "group": "none",
             "problemMatcher": "$gcc",
-            "dependsOn": "report coverage",
+            "dependsOn": [
+                "report coverage",
+                "cloc"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
