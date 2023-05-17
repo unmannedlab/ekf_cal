@@ -66,6 +66,8 @@ State & operator+=(State & l_state, State & r_state)
     for (unsigned int i = 0; i < l_state.m_cam_states[cam_id].augmented_states.size(); ++i) {
       AugmentedState & l_aug_state = l_state.m_cam_states[cam_id].augmented_states[i];
       AugmentedState & r_Aug_state = r_state.m_cam_states[cam_id].augmented_states[i];
+      l_aug_state.imu_position += r_Aug_state.imu_position;
+      l_aug_state.imu_orientation *= r_Aug_state.imu_orientation;
       l_aug_state.position += r_Aug_state.position;
       l_aug_state.orientation *= r_Aug_state.orientation;
     }
@@ -145,10 +147,10 @@ std::vector<AugmentedState> & operator+=(
 {
   unsigned int n {0};
   for (auto & aug_iter : l_aug_state) {
-    aug_iter.position += r_vector.segment<3>(n + 0);
-    aug_iter.orientation *= RotVecToQuat(r_vector.segment<3>(n + 3));
-    aug_iter.imu_position += r_vector.segment<3>(n + 6);
-    aug_iter.imu_orientation *= RotVecToQuat(r_vector.segment<3>(n + 9));
+    aug_iter.imu_position += r_vector.segment<3>(n + 0);
+    aug_iter.imu_orientation *= RotVecToQuat(r_vector.segment<3>(n + 3));
+    aug_iter.position += r_vector.segment<3>(n + 6);
+    aug_iter.orientation *= RotVecToQuat(r_vector.segment<3>(n + 9));
     n += 12;
   }
 
@@ -172,10 +174,19 @@ Eigen::VectorXd BodyState::ToVector()
 
 Eigen::VectorXd CamState::ToVector()
 {
-  Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(6);
+  Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(6 + 12 * augmented_states.size());
 
   out_vec.segment<3>(0) = position;
   out_vec.segment<3>(3) = QuatToRotVec(orientation);
+
+  unsigned int n = 6;
+  for (auto const & aug_state : augmented_states) {
+    out_vec.segment<3>(n + 0) = aug_state.imu_position;
+    out_vec.segment<3>(n + 3) = QuatToRotVec(aug_state.imu_orientation);
+    out_vec.segment<3>(n + 6) = aug_state.position;
+    out_vec.segment<3>(n + 9) = QuatToRotVec(aug_state.orientation);
+    n += 12;
+  }
 
   return out_vec;
 }
@@ -223,8 +234,10 @@ Eigen::VectorXd State::ToVector()
     out_vec.segment<3>(n + 3) = QuatToRotVec(cam_iter.second.orientation);
     n += 6;
     for (auto const & aug_state : cam_iter.second.augmented_states) {
-      out_vec.segment<3>(n + 0) = aug_state.position;
-      out_vec.segment<3>(n + 3) = QuatToRotVec(aug_state.orientation);
+      out_vec.segment<3>(n + 0) = aug_state.imu_position;
+      out_vec.segment<3>(n + 3) = QuatToRotVec(aug_state.imu_orientation);
+      out_vec.segment<3>(n + 6) = aug_state.position;
+      out_vec.segment<3>(n + 9) = QuatToRotVec(aug_state.orientation);
       n += 6;
     }
   }

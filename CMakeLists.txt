@@ -169,6 +169,7 @@ if(BUILD_TESTING)
     ament_lint_auto_find_test_dependencies()
     set(test_files
         src/ekf/test/ekf_test.cpp
+        src/ekf/test/types_test.cpp
         src/sensors/ros/test/ros_camera_test.cpp
         src/sensors/ros/test/ros_imu_test.cpp
         src/sensors/test/camera_test.cpp
