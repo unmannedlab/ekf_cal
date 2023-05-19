@@ -1,5 +1,5 @@
 ---
-title: 'EKF-CAL: A ROS Node for Extended Kalman Filter-based Calibration and Localization'
+title: 'EKF_CAL: A ROS Node for Extended Kalman Filter-based Calibration and Localization'
 tags:
   - C++
   - ROS

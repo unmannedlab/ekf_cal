@@ -55,7 +55,7 @@ Software Work:
             - CharucoDiamondTracker
 
 Documentation:
-    - Create Cake Diagram for EKF-CAL architecture
+    - Create Cake Diagram for EKF_CAL architecture
     - Paper in JOSS: Journal of Open Source Software
     - Deploy Github page for generated doxygen
     - Plant UML Functional Flow Diagrams

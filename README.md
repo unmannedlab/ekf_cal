@@ -1,9 +1,9 @@
-# EKF-CAL
+# EKF_CAL
 
 Extended Kalman Filter - Calibration and Localization
 
 ## Dependencies
-The EKF-CAL package has the following dependencies:
+The EKF_CAL package has the following dependencies:
 - OpenCV
 - Doxygen
 - Google Test

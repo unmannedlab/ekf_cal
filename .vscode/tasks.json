@@ -3,8 +3,8 @@
     "tasks": [
         // Build tasks
         {
-            "label": "build ekf-cal",
-            "detail": "Build ekf-cal package",
+            "label": "build ekf_cal",
+            "detail": "Build ekf_cal package",
             "type": "shell",
             "command": "colcon build --symlink-install --packages-select ekf_cal --event-handlers console_cohesion+ --cmake-args '-DCMAKE_EXPORT_COMPILE_COMMANDS=On'",
             "problemMatcher": "$gcc",
@@ -18,7 +18,7 @@
         },
         {
             "label": "build coverage",
-            "detail": "Build ekf-cal package with covereage symbols",
+            "detail": "Build ekf_cal package with covereage symbols",
             "type": "shell",
             "command": "colcon build --symlink-install --packages-select ekf_cal --event-handlers console_cohesion+ --cmake-args -DCMAKE_C_FLAGS='--coverage' -DCMAKE_CXX_FLAGS='--coverage'",
             "group": "build",
@@ -34,14 +34,14 @@
             "type": "shell",
             "command": "colcon test --packages-select ekf_cal --event-handlers console_direct+",
             "group": "test",
-            "dependsOn": "build ekf-cal",
+            "dependsOn": "build ekf_cal",
             "options": {
                 "cwd": "${workspaceFolder}/../../"
             },
         },
         {
             "label": "test coverage",
-            "detail": "Build ekf-cal package with covereage symbols",
+            "detail": "Build ekf_cal package with covereage symbols",
             "type": "shell",
             "command": "rm -r lcov; colcon test --packages-select ekf_cal --pytest-with-coverage --pytest-args --cov-report=term --event-handlers console_direct+",
             "group": "test",
@@ -54,7 +54,7 @@
         // Documentation Tasks
         {
             "label": "report coverage",
-            "detail": "Build ekf-cal package with covereage symbols",
+            "detail": "Build ekf_cal package with covereage symbols",
             "type": "shell",
             "command": "colcon lcov-result --packages-select ekf_cal --filter '*_test.cpp' '*_main.cpp'",
             "group": "test",
@@ -66,7 +66,7 @@
         },
         {
             "label": "doxygen",
-            "detail": "Build ekf-cal documentation",
+            "detail": "Build ekf_cal documentation",
             "type": "shell",
             "command": "doxygen .doxyfile",
             "group": "none",
@@ -80,7 +80,7 @@
         },
         {
             "label": "doxygen-pdf",
-            "detail": "Build ekf-cal documentation as single pdf",
+            "detail": "Build ekf_cal documentation as single pdf",
             "type": "shell",
             "command": "cd docs/doxygen/latex && make",
             "group": "none",
@@ -101,7 +101,7 @@
         },
         {
             "label": "doxygen and coverage",
-            "detail": "Build ekf-cal documentation with coverage report",
+            "detail": "Build ekf_cal documentation with coverage report",
             "type": "shell",
             "command": "doxygen .doxyfile",
             "group": "none",
@@ -116,8 +116,8 @@
         },
         // Debug Tasks
         {
-            "label": "debug ekf-cal",
-            "detail": "Build ekf-cal package with debug symbols",
+            "label": "debug ekf_cal",
+            "detail": "Build ekf_cal package with debug symbols",
             "type": "shell",
             "command": "colcon build --symlink-install --packages-select ekf_cal --cmake-args '-DCMAKE_BUILD_TYPE=Debug'",
             "group": "build",

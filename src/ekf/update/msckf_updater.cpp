@@ -64,27 +64,20 @@ void MsckfUpdater::ApplyLeftNullspace(
   Eigen::MatrixXd & H_x,
   Eigen::VectorXd & res)
 {
-  // Apply the left nullspace of H_f to all variables
-  // Based on "Matrix Computations 4th Edition by Golub and Van Loan"
-  // See page 252, Algorithm 5.2.4 for how these two loops work
-  Eigen::JacobiRotation<double> tempHo_GR;
+  // Apply the left nullspace of H_f to the jacobians and the residual
+  Eigen::JacobiRotation<double> givens;
   for (int n = 0; n < H_f.cols(); ++n) {
     for (int m = static_cast<int>(H_f.rows()) - 2; m >= n; --m) {
       // Givens matrix G
-      tempHo_GR.makeGivens(H_f(m, n), H_f(m, n));
-      // Multiply G to the corresponding lines (m,m) in each matrix
-      // Note: we only apply G to the nonzero cols [n:Ho.cols()-n-1], while
-      //       it is equivalent to applying G to the entire cols [0:Ho.cols()-1].
-      (H_f.block(m, n, 2, H_f.cols() - n)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
-      (H_x.block(m, 0, 2, H_x.cols())).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
-      (res.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, tempHo_GR.adjoint());
+      givens.makeGivens(H_f(m, n), H_f(m, n));
+
+      // Apply nullspace
+      (H_f.block(m, n, 2, H_f.cols() - n)).applyOnTheLeft(0, 1, givens.adjoint());
+      (H_x.block(m, 0, 2, H_x.cols())).applyOnTheLeft(0, 1, givens.adjoint());
+      (res.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, givens.adjoint());
     }
   }
 
-  // The H_f jacobian max rank is 3 if it is a 3d position,
-  // thus size of the left nullspace is Hf.rows()-3
-  // NOTE: need to eigen3 eval here since this experiences aliasing!
-  // H_f = H_f.block(H_f.cols(),0,H_f.rows()-H_f.cols(),H_f.cols()).eval();
   H_x = H_x.block(H_f.cols(), 0, H_x.rows() - H_f.cols(), H_x.cols()).eval();
   res = res.block(H_f.cols(), 0, res.rows() - H_f.cols(), res.cols()).eval();
 }
@@ -92,23 +85,18 @@ void MsckfUpdater::ApplyLeftNullspace(
 /// @todo possible move into separate source for re-compilation speed
 void MsckfUpdater::CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual)
 {
-  // Perform measurement compression
-  // Return if jacobian is a fat matrix (there is no need to compress in this case)
+  // Cannot compress fat matrices
   if (jacobian.rows() > jacobian.cols()) {
-    // Do measurement compression through givens rotations
-    // Based on "Matrix Computations 4th Edition by Golub and Van Loan"
-    // See page 252, Algorithm 5.2.4 for how these two loops work
-    // They use "matlab" index notation, thus we need to subtract 1 from all index
-    Eigen::JacobiRotation<double> temp_jac_gr;
+
+    Eigen::JacobiRotation<double> givens;
     for (int n = 0; n < jacobian.cols(); n++) {
       for (int m = static_cast<int>(jacobian.rows()) - 2; m >= n; --m) {
-        // Givens matrix G
-        temp_jac_gr.makeGivens(jacobian(m, n), jacobian(m, n));
-        // Multiply G to the corresponding lines (m-1,m) in each matrix
-        // Note: we only apply G to the nonzero cols [n:Ho.cols()-n-1], while
-        //       it is equivalent to applying G to the entire cols [0:Ho.cols()-1].
-        (jacobian.block(m, n, 2, jacobian.cols() - n)).applyOnTheLeft(0, 1, temp_jac_gr.adjoint());
-        (residual.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, temp_jac_gr.adjoint());
+        // Givens matrix
+        givens.makeGivens(jacobian(m, n), jacobian(m, n));
+
+        // Compress measurements
+        (jacobian.block(m, n, 2, jacobian.cols() - n)).applyOnTheLeft(0, 1, givens.adjoint());
+        (residual.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, givens.adjoint());
       }
     }
   }
@@ -214,13 +202,10 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
       continue;
     }
 
-    // Calculate the position of this feature in the global frame
-    // Get calibration for our anchor camera
-
     AugmentedState aug_state_0 = MatchState(feature_track[0].frame_id);
 
     Eigen::Matrix3d rot_c0_to_g = aug_state_0.orientation.toRotationMatrix();
-    Eigen::Matrix3d rot_i0_to_g = aug_state_0.imu_orientation.toRotationMatrix();
+    // Eigen::Matrix3d rot_i0_to_g = aug_state_0.imu_orientation.toRotationMatrix();
 
     // Anchor pose orientation and position
     Eigen::Vector3d pos_i_in_g = aug_state_0.imu_position;
@@ -243,8 +228,6 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
     //   -rot_i0_to_g * SkewSymmetric(rot_i0_to_g.transpose() * (pos_f_in_g - pos_i_in_g));
     H_anc.block(0, 3, 3, 3).setIdentity();
 
-    // Add anchor Jacobians to our return vector
-
     // Get calibration Jacobians (for anchor clone)
     Eigen::Matrix<double, 3, 6> H_calib;
     H_calib.setZero();
@@ -253,10 +236,6 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
     // H_calib.block(0, 0, 3, 3).noalias() =
     //   -rot_c0_to_g * SkewSymmetric(rot_c0_to_g.transpose() * (pos_f_in_g - pos_i_in_g));
     H_calib.block(0, 3, 3, 3) = -rot_c0_to_g;
-
-    // Derivative of p_FinG in respect to feature representation.
-    // This only needs to be computed once and thus we pull it out of the loop
-    Eigen::MatrixXd dPFG_dLambda = rot_c0_to_g;
 
     // Get the Jacobian for this feature
     // Loop through each camera for this feature
@@ -301,18 +280,16 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
       Eigen::MatrixXd dz_dPFC = dzn_dPFC;
       Eigen::MatrixXd dz_dPFG = dz_dPFC * dPFC_dPFG;
 
-      // Chain Rule: Get the total feature Jacobian
-      H_f.block(2 * (i - 1), 0, 2, H_f.cols()) = dz_dPFG * dPFG_dLambda;
+      // Get the total feature Jacobian
+      H_f.block(2 * (i - 1), 0, 2, H_f.cols()) = dz_dPFG * rot_c0_to_g;
 
-      // Chain Rule: Get state clone Jacobian
+      // Get state clone Jacobian
       H_x.block(2 * (i - 1), 0, 2, 6) = dz_dPFC * dPFC_dClone;
 
-      // Chain Rule: loop through all extra states and add their
+      // loop through all extra states and add their
       // NOTE: we add the Jacobian here as we might be in the anchoring pose for this measurement
       H_x.block(2 * (i - 1), augStateStart - cam_state_start - 6, 2, 6) += dz_dPFG * H_anc;
       // H_x.block(2 * (i - 1), augStateStart - cam_state_start, 2, 6) += dz_dPFG * H_calib;
-
-      // Derivative of p_FinCi in respect to camera calibration (R_ItoC, p_IinC)
 
       // Calculate the Jacobian
       Eigen::MatrixXd dPFC_dCalib = Eigen::MatrixXd::Zero(3, 6);
@@ -321,7 +298,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
 
       dPFC_dCalib.block(0, 3, 3, 3) = Eigen::Matrix<double, 3, 3>::Identity();
 
-      // Chain Rule it and add it to the big jacobian
+      // Add result to the state jacobian
       H_x.block(2 * (i - 1), cam_state_start - cam_state_start, 2, 6) += dz_dPFC * dPFC_dCalib;
     }
 
@@ -378,7 +355,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
 
   msg << time;
   msg << VectorToCommaString(body_state);
-  msg << VectorToCommaString(cam_state);
+  msg << VectorToCommaString(cam_state.segment(0, g_cam_state_size));
   msg << VectorToCommaString(body_update);
   msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));
   msg << "," << t_execution.count();

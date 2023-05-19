@@ -7,7 +7,7 @@
                 "/usr/include/**",
                 "/usr/src/googletest",
                 "${workspaceFolder}/src",
-                "${workspaceFolder}/../../build/ekf-cal/",
+                "${workspaceFolder}/../../build/ekf_cal/",
                 "/usr/include/c++/11"
             ]
         }
