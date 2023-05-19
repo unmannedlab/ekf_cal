@@ -170,6 +170,7 @@ if(BUILD_TESTING)
     set(test_files
         src/ekf/test/ekf_test.cpp
         src/ekf/test/types_test.cpp
+        src/infrastructure/sim/test/data_logger_test.cpp
         src/sensors/ros/test/ros_camera_test.cpp
         src/sensors/ros/test/ros_imu_test.cpp
         src/sensors/test/camera_test.cpp

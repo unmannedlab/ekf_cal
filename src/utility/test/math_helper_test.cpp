@@ -63,3 +63,49 @@ TEST(test_MathHelper, MinBoundVector)
   vec4 = MinBoundVector(vec4, 1);
   EXPECT_EQ(vec4, Eigen::VectorXd::Ones(4));
 }
+
+TEST(test_MathHelper, RemoveFromMatrix)
+{
+  // Remove middle
+  Eigen::MatrixXd matrix_in(4, 4);
+  Eigen::MatrixXd matrix_out(4, 4);
+
+  matrix_in << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16;
+  matrix_out = RemoveFromMatrix(matrix_in, 1, 1, 2);
+  EXPECT_EQ(matrix_out(0, 0), 1);
+  EXPECT_EQ(matrix_out(0, 1), 4);
+  EXPECT_EQ(matrix_out(1, 0), 13);
+  EXPECT_EQ(matrix_out(1, 1), 16);
+
+  // Remove top-left
+  matrix_in << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16;
+  matrix_out = RemoveFromMatrix(matrix_in, 0, 0, 2);
+  EXPECT_EQ(matrix_out(0, 0), 11);
+  EXPECT_EQ(matrix_out(0, 1), 12);
+  EXPECT_EQ(matrix_out(1, 0), 15);
+  EXPECT_EQ(matrix_out(1, 1), 16);
+
+  // Remove top-right
+  matrix_in << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16;
+  matrix_out = RemoveFromMatrix(matrix_in, 0, 2, 2);
+  EXPECT_EQ(matrix_out(0, 0), 9);
+  EXPECT_EQ(matrix_out(0, 1), 10);
+  EXPECT_EQ(matrix_out(1, 0), 13);
+  EXPECT_EQ(matrix_out(1, 1), 14);
+
+  // Remove bottom-left
+  matrix_in << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16;
+  matrix_out = RemoveFromMatrix(matrix_in, 2, 0, 2);
+  EXPECT_EQ(matrix_out(0, 0), 3);
+  EXPECT_EQ(matrix_out(0, 1), 4);
+  EXPECT_EQ(matrix_out(1, 0), 7);
+  EXPECT_EQ(matrix_out(1, 1), 8);
+
+  // Remove bottom-right
+  matrix_in << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16;
+  matrix_out = RemoveFromMatrix(matrix_in, 2, 2, 2);
+  EXPECT_EQ(matrix_out(0, 0), 1);
+  EXPECT_EQ(matrix_out(0, 1), 2);
+  EXPECT_EQ(matrix_out(1, 0), 5);
+  EXPECT_EQ(matrix_out(1, 1), 6);
+}

@@ -36,13 +36,6 @@ std::string Sensor::GetName()
   return m_name;
 }
 
-void Sensor::Callback(SensorMessage sensor_message)
-{
-  m_logger->Log(
-    LogLevel::ERROR,
-    "Callback on Base Sensor Called at Time" + std::to_string(sensor_message.m_time));
-}
-
 bool MessageCompare(std::shared_ptr<SensorMessage> a, std::shared_ptr<SensorMessage> b)
 {
   return a->m_time < b->m_time;

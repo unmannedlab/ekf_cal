@@ -15,31 +15,17 @@
 
 #include <gtest/gtest.h>
 
-#include "sensors/imu.hpp"
+#include <string>
 
-#include "utility/type_helper.hpp"
-#include "utility/test/custom_assertions.hpp"
+#include "infrastructure/data_logger.hpp"
 
-TEST(test_IMU, Constructor) {
-  IMU::Parameters imu_params;
-  IMU imu(imu_params);
-}
-
-TEST(test_IMU, ID) {
-  IMU::Parameters imu_params1;
-  IMU::Parameters imu_params2;
-
-  IMU imu1(imu_params1);
-  IMU imu2(imu_params2);
-
-  unsigned int id_one = imu1.GetId();
-  unsigned int id_two = id_one + 1;
-
-  EXPECT_EQ(imu1.GetId(), id_one);
-  EXPECT_EQ(imu2.GetId(), id_two);
-}
-
-TEST(test_IMU, IMU_message)
-{
-
+TEST(test_data_logger, log_data) {
+  std::string directory {""};
+  std::string file_name {"test.log"};
+  DataLogger data_logger(directory, file_name);
+  data_logger.SetLogging(true);
+  data_logger.DefineHeader("Val_1,Val_2,Val_3\n");
+  data_logger.Log("1,2,3\n");
+  data_logger.Log("4,5,6\n");
+  data_logger.Log("7,8,9\n");
 }

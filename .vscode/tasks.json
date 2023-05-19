@@ -59,7 +59,6 @@
             "command": "colcon lcov-result --packages-select ekf-cal --filter '*/test/*' '*Main.cpp'",
             "group": "test",
             "problemMatcher": "$gcc",
-            "dependsOn": "test coverage",
             "options": {
                 "cwd": "${workspaceFolder}/../../"
             },
