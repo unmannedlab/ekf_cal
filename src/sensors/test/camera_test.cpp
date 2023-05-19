@@ -20,6 +20,6 @@
 
 TEST(test_Camera, Constructor) {
   Camera::Parameters cam_params;
-  Camera Camera(cam_params);
+  Camera camera(cam_params);
   EXPECT_TRUE(true);
 }

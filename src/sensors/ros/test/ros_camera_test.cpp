@@ -15,12 +15,20 @@
 
 #include <gtest/gtest.h>
 
+#include <sensor_msgs/msg/image.hpp>
+
 #include "sensors/ros/ros_camera.hpp"
 #include "trackers/feature_tracker.hpp"
 
-TEST(test_RosCamera, constructor) {
+TEST(test_ros_camera, constructor) {
   Camera::Parameters cParams;
   cParams.name = "test_Camera";
   RosCamera rosCamera(cParams);
   EXPECT_TRUE(true);
+}
+
+TEST(test_ros_camera, ros_camera_message) {
+  auto image_message = std::make_shared<sensor_msgs::msg::Image>();
+  image_message->encoding = "mono16";
+  RosCameraMessage ros_camera_message(image_message);
 }

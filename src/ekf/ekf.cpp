@@ -124,6 +124,7 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
   /// @todo replace 12s with constants from IMU class
   unsigned int imu_state_start = g_body_state_size + 12 * m_state.m_imu_states.size();
 
+  /// @todo check size of matrix being inserted
   m_cov = InsertInMatrix(covariance, m_cov, imu_state_start, imu_state_start);
   m_state.m_imu_states[imu_id] = imu_state;
   m_stateSize += 12;

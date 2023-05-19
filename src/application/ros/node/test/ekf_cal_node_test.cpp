@@ -31,7 +31,8 @@ protected:
   virtual void TearDown() {rclcpp::shutdown();}  ///< @brief EKF CAL Test node tear down method
 };
 
-TEST_F(EkfCalNode_test, hello_world) {
+TEST_F(EkfCalNode_test, hello_world)
+{
   EkfCalNode node;
 
   node.set_parameter(rclcpp::Parameter("Debug_Log_Level", 1));

@@ -39,7 +39,6 @@ TEST(test_IMU, ID) {
   EXPECT_EQ(imu2.GetId(), id_two);
 }
 
-TEST(test_IMU, IMU_message)
-{
-
+TEST(test_IMU, IMU_message) {
+  ImuMessage imu_message;
 }

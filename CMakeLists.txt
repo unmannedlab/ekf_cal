@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(ekf-cal)
+project(ekf_cal)
 
 set(EKF_CAL_MAJOR_VERSION 0)
 set(EKF_CAL_MINOR_VERSION 1)
@@ -170,11 +170,13 @@ if(BUILD_TESTING)
     set(test_files
         src/ekf/test/ekf_test.cpp
         src/ekf/test/types_test.cpp
+        src/ekf/update/test/imu_updater_test.cpp
         src/infrastructure/sim/test/data_logger_test.cpp
         src/sensors/ros/test/ros_camera_test.cpp
         src/sensors/ros/test/ros_imu_test.cpp
         src/sensors/test/camera_test.cpp
         src/sensors/test/imu_test.cpp
+        src/trackers/test/feature_tracker_test.cpp
         src/utility/test/math_helper_test.cpp
         src/utility/test/ros_helper_test.cpp
         src/utility/test/type_helper_test.cpp
