@@ -87,7 +87,6 @@ void MsckfUpdater::CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::Vecto
 {
   // Cannot compress fat matrices
   if (jacobian.rows() > jacobian.cols()) {
-
     Eigen::JacobiRotation<double> givens;
     for (int n = 0; n < jacobian.cols(); n++) {
       for (int m = static_cast<int>(jacobian.rows()) - 2; m >= n; --m) {
@@ -101,7 +100,7 @@ void MsckfUpdater::CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::Vecto
     }
   }
 
-  // If H is a fat matrix, then use the rows, else it should be same size as our state
+  // Jacobian is ill-formed if either rows or columns are size 1
   int r = std::min(jacobian.rows(), jacobian.cols());
   if (r == 1) {
     return;
