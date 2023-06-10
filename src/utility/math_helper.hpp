@@ -63,4 +63,19 @@ Eigen::MatrixXd InsertInMatrix(
 Eigen::MatrixXd RemoveFromMatrix(
   Eigen::MatrixXd in_mat, unsigned int row, unsigned int col, unsigned int size);
 
+///
+/// @brief Apply left nullspace to update matrices
+/// @param H_f Feature Jacobian
+/// @param H_x Track Jacobian
+/// @param res Update residual
+///
+void ApplyLeftNullspace(Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::VectorXd & res);
+
+///
+/// @brief Perform measurement compression
+/// @param jacobian Measurement jacobian
+/// @param residual Measurement residual
+///
+void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual);
+
 #endif  // UTILITY__MATH_HELPER_HPP_

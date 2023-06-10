@@ -47,5 +47,5 @@ TEST(test_feature_tracker, initialization) {
   params.matcher = FeatureTracker::DescriptorMatcherEnum::FLANN;
   FeatureTracker feature_tracker_8 {params};
 
-  EXPECT_EQ(feature_tracker_1.GetID(), 1);
+  EXPECT_EQ(feature_tracker_1.GetID(), 1U);
 }

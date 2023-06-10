@@ -59,59 +59,6 @@ AugmentedState MsckfUpdater::MatchState(
 }
 
 /// @todo possible move into separate source for re-compilation speed
-void MsckfUpdater::ApplyLeftNullspace(
-  Eigen::MatrixXd & H_f,
-  Eigen::MatrixXd & H_x,
-  Eigen::VectorXd & res)
-{
-  // Apply the left nullspace of H_f to the jacobians and the residual
-  Eigen::JacobiRotation<double> givens;
-  for (int n = 0; n < H_f.cols(); ++n) {
-    for (int m = static_cast<int>(H_f.rows()) - 2; m >= n; --m) {
-      // Givens matrix G
-      givens.makeGivens(H_f(m, n), H_f(m, n));
-
-      // Apply nullspace
-      (H_f.block(m, n, 2, H_f.cols() - n)).applyOnTheLeft(0, 1, givens.adjoint());
-      (H_x.block(m, 0, 2, H_x.cols())).applyOnTheLeft(0, 1, givens.adjoint());
-      (res.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, givens.adjoint());
-    }
-  }
-
-  H_x = H_x.block(H_f.cols(), 0, H_x.rows() - H_f.cols(), H_x.cols()).eval();
-  res = res.block(H_f.cols(), 0, res.rows() - H_f.cols(), res.cols()).eval();
-}
-
-/// @todo possible move into separate source for re-compilation speed
-void MsckfUpdater::CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual)
-{
-  // Cannot compress fat matrices
-  if (jacobian.rows() > jacobian.cols()) {
-    Eigen::JacobiRotation<double> givens;
-    for (int n = 0; n < jacobian.cols(); n++) {
-      for (int m = static_cast<int>(jacobian.rows()) - 2; m >= n; --m) {
-        // Givens matrix
-        givens.makeGivens(jacobian(m, n), jacobian(m, n));
-
-        // Compress measurements
-        (jacobian.block(m, n, 2, jacobian.cols() - n)).applyOnTheLeft(0, 1, givens.adjoint());
-        (residual.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, givens.adjoint());
-      }
-    }
-  }
-
-  // Jacobian is ill-formed if either rows or columns are size 1
-  int r = std::min(jacobian.rows(), jacobian.cols());
-  if (r == 1) {
-    return;
-  }
-
-  // Construct the smaller jacobian and residual after measurement compression
-  jacobian.conservativeResize(r, jacobian.cols());
-  residual.conservativeResize(r, residual.cols());
-}
-
-/// @todo possible move into separate source for re-compilation speed
 Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & feature_track)
 {
   AugmentedState aug_state_0 = MatchState(feature_track[0].frame_id);

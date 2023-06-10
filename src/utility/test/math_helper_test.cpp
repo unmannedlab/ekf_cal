@@ -109,3 +109,41 @@ TEST(test_MathHelper, RemoveFromMatrix)
   EXPECT_EQ(matrix_out(1, 0), 5);
   EXPECT_EQ(matrix_out(1, 1), 6);
 }
+
+// TEST(test_MathHelper, ApplyLeftNullspace) {
+//   Eigen::MatrixXd H_f;
+//   Eigen::MatrixXd H_x;
+//   Eigen::VectorXd res;
+//   ApplyLeftNullspace(H_f, H_x, res);
+// }
+
+TEST(test_MathHelper, CompressMeasurements) {
+  Eigen::MatrixXd jacobian1(4, 2);
+  Eigen::VectorXd residual1(4);
+  jacobian1 << 1, 0, 1, 0, 0, 1, 0, 1;
+  residual1 << 1, 1, 1, 1;
+  CompressMeasurements(jacobian1, residual1);
+
+  EXPECT_EQ(jacobian1.rows(), 2U);
+  EXPECT_EQ(jacobian1.cols(), 2U);
+  EXPECT_EQ(residual1.size(), 2U);
+  EXPECT_EQ(jacobian1(0, 1), 0.0);
+  EXPECT_EQ(jacobian1(1, 0), 0.0);
+  EXPECT_NEAR(jacobian1(0, 0), 1.414214, 1e-6);
+  EXPECT_NEAR(jacobian1(1, 1), 1.414214, 1e-6);
+  EXPECT_NEAR(residual1(0), 1.414214, 1e-6);
+  EXPECT_NEAR(residual1(1), 1.414214, 1e-6);
+
+  Eigen::MatrixXd jacobian2(4, 2);
+  Eigen::VectorXd residual2(4);
+  jacobian2 << 1, 0, 1, 0, 1, 0, 1, 0;
+  residual2 << 1, 1, 1, 1;
+  CompressMeasurements(jacobian2, residual2);
+
+  EXPECT_EQ(jacobian2.rows(), 1U);
+  EXPECT_EQ(jacobian2.cols(), 2U);
+  EXPECT_EQ(residual2.size(), 1U);
+  EXPECT_NEAR(jacobian2(0, 0), 2.0, 1e-6);
+  EXPECT_NEAR(jacobian2(0, 1), 0.0, 1e-6);
+  EXPECT_NEAR(residual2(0), 2.0, 1e-6);
+}

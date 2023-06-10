@@ -16,7 +16,7 @@
 #include "utility/math_helper.hpp"
 
 #include <eigen3/Eigen/Eigen>
-
+#include <iostream>
 
 Eigen::Matrix3d SkewSymmetric(Eigen::Vector3d in_vec)
 {
@@ -98,4 +98,54 @@ Eigen::MatrixXd RemoveFromMatrix(
     in_mat.block(0, col + size, row, in_cols - col - size);
 
   return out_mat;
+}
+
+void ApplyLeftNullspace(Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::VectorXd & res)
+{
+  // Apply the left nullspace of H_f to the jacobians and the residual
+  Eigen::JacobiRotation<double> givens;
+  for (int n = 0; n < H_f.cols(); ++n) {
+    for (int m = static_cast<int>(H_f.rows()) - 2; m >= n; --m) {
+      // Givens matrix G
+      givens.makeGivens(H_f(m, n), H_f(m, n));
+
+      // Apply nullspace
+      (H_f.block(m, n, 2, H_f.cols() - n)).applyOnTheLeft(0, 1, givens.adjoint());
+      (H_x.block(m, 0, 2, H_x.cols())).applyOnTheLeft(0, 1, givens.adjoint());
+      (res.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, givens.adjoint());
+    }
+  }
+
+  H_x = H_x.block(H_f.cols(), 0, H_x.rows() - H_f.cols(), H_x.cols()).eval();
+  res = res.block(H_f.cols(), 0, res.rows() - H_f.cols(), res.cols()).eval();
+}
+
+void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual)
+{
+  unsigned int m = jacobian.rows();
+  unsigned int n = jacobian.cols();
+
+  // Cannot compress fat matrices
+  if (m >= n) {
+    Eigen::JacobiRotation<double> givens;
+    for (unsigned int j = 0; j < n; j++) {
+      for (unsigned int i = m - 1; i > j; --i) {
+        // Givens matrix
+        givens.makeGivens(jacobian(i - 1, j), jacobian(i, j));
+
+        // Compress measurements
+        (jacobian.block(i - 1, j, 2, n - j)).applyOnTheLeft(0, 1, givens.adjoint());
+        (residual.block(i - 1, 0, 2, 1)).applyOnTheLeft(0, 1, givens.adjoint());
+      }
+    }
+
+    // find non-zero columns:
+    unsigned int r = (jacobian.array().abs() > 1e-9).rowwise().any().cast<unsigned int>().sum();
+
+    // Jacobian is ill-formed if either rows or columns are size 1
+
+    // Construct the smaller jacobian and residual after measurement compression
+    jacobian.conservativeResize(r, jacobian.cols());
+    residual.conservativeResize(r, residual.cols());
+  }
 }
