@@ -125,7 +125,8 @@
         "core": "cpp",
         "splines": "cpp",
         "regex": "cpp",
-        "*.in": "cpp"
+        "*.in": "cpp",
+        "__nullptr": "cpp"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python",
