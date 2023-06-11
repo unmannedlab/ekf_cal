@@ -40,7 +40,7 @@ private:
   DebugLogger() {}
 
 public:
-  ~DebugLogger();
+  // ~DebugLogger();
 
   ///
   /// @brief Log message

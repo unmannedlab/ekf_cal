@@ -172,6 +172,8 @@ if(BUILD_TESTING)
         src/ekf/test/types_test.cpp
         src/ekf/update/test/imu_updater_test.cpp
         src/infrastructure/sim/test/data_logger_test.cpp
+        src/infrastructure/sim/test/sim_debug_logger_test.cpp
+        src/infrastructure/sim/test/truth_engine_test.cpp
         src/sensors/ros/test/ros_camera_test.cpp
         src/sensors/ros/test/ros_imu_test.cpp
         src/sensors/test/camera_test.cpp
@@ -187,8 +189,21 @@ if(BUILD_TESTING)
         ament_add_gtest(${nam} ${f_name})
         ament_target_dependencies(${nam} ${ROS_PKGS})
         target_include_directories(${nam} PUBLIC ${CMAKE_SOURCE_DIR}/src/)
+        target_link_libraries(${nam} EKF_LIB ROS_LIB SIM_INF ROS_UTL EKF_UTL)
+    endforeach()
+
+    set(ros_infrastructure_tests
+        src/infrastructure/ros/test/ros_debug_logger_test.cpp
+    )
+
+    foreach(f_name IN LISTS ros_infrastructure_tests)
+        get_filename_component(nam ${f_name} NAME_WE)
+        ament_add_gtest(${nam} ${f_name})
+        ament_target_dependencies(${nam} ${ROS_PKGS})
+        target_include_directories(${nam} PUBLIC ${CMAKE_SOURCE_DIR}/src/)
         target_link_libraries(${nam} EKF_LIB ROS_LIB ROS_INF ROS_UTL EKF_UTL)
     endforeach()
+
 
     ament_add_gtest(ekf_cal_node_test src/application/ros/node/test/ekf_cal_node_test.cpp)
     ament_target_dependencies(ekf_cal_node_test ${ROS_PKGS})

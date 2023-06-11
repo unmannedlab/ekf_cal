@@ -44,13 +44,13 @@ void DebugLogger::SetLogLevel(unsigned int level)
   m_log_level = static_cast<LogLevel>(level);
 }
 
-DebugLogger::~DebugLogger()
-{
-  if (m_log_level <= LogLevel::INFO) {
-    RCLCPP_INFO_STREAM(
-      rclcpp::get_logger("Logger"), "Logger destroyed");
-  }
-}
+// DebugLogger::~DebugLogger()
+// {
+//   if (m_log_level <= LogLevel::INFO) {
+//     RCLCPP_INFO_STREAM(
+//       rclcpp::get_logger("Logger"), "Logger destroyed");
+//   }
+// }
 
 void DebugLogger::Log(LogLevel level, std::string message)
 {
