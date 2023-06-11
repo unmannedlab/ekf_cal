@@ -53,6 +53,7 @@ void DebugLogger::SetLogLevel(unsigned int level)
   m_log_level = static_cast<LogLevel>(level);
 }
 
+/// @todo re-enable once not a singleton
 // DebugLogger::~DebugLogger()
 // {
 //   if (m_log_level <= LogLevel::INFO) {

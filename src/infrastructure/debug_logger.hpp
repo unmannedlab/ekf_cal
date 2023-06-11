@@ -40,6 +40,7 @@ private:
   DebugLogger() {}
 
 public:
+  /// @todo re-enable once not a singleton
   // ~DebugLogger();
 
   ///
