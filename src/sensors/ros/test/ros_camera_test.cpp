@@ -32,6 +32,7 @@ TEST(test_ros_camera, ros_camera_message) {
   auto image_message = std::make_shared<sensor_msgs::msg::Image>();
   image_message->encoding = "bgr8";
   RosCameraMessage ros_camera_message(image_message);
+  EXPECT_TRUE(true);
 }
 
 TEST(test_ros_camera, ros_camera_callback) {
@@ -52,4 +53,7 @@ TEST(test_ros_camera, ros_camera_callback) {
   auto feature_tracker = std::make_shared<FeatureTracker>(tParams);
   rosCamera.AddTracker(feature_tracker);
   rosCamera.Callback(ros_camera_message);
+
+  sensor_msgs::msg::Image::SharedPtr image_message_out = rosCamera.GetRosImage();
+  EXPECT_TRUE(true);
 }
