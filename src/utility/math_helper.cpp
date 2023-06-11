@@ -102,22 +102,25 @@ Eigen::MatrixXd RemoveFromMatrix(
 
 void ApplyLeftNullspace(Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::VectorXd & res)
 {
+  unsigned int m = H_f.rows();
+  unsigned int n = H_f.cols();
+
   // Apply the left nullspace of H_f to the jacobians and the residual
   Eigen::JacobiRotation<double> givens;
-  for (int n = 0; n < H_f.cols(); ++n) {
-    for (int m = static_cast<int>(H_f.rows()) - 2; m >= n; --m) {
+  for (unsigned int j = 0; j < n; ++j) {
+    for (unsigned int i = m - 1; i > j; --i) {
       // Givens matrix G
-      givens.makeGivens(H_f(m, n), H_f(m, n));
+      givens.makeGivens(H_f(i - 1, j), H_f(i, j));
 
       // Apply nullspace
-      (H_f.block(m, n, 2, H_f.cols() - n)).applyOnTheLeft(0, 1, givens.adjoint());
-      (H_x.block(m, 0, 2, H_x.cols())).applyOnTheLeft(0, 1, givens.adjoint());
-      (res.block(m, 0, 2, 1)).applyOnTheLeft(0, 1, givens.adjoint());
+      (H_f.block(i - 1, j, 2, n - j)).applyOnTheLeft(0, 1, givens.adjoint());
+      (H_x.block(i - 1, 0, 2, H_x.cols())).applyOnTheLeft(0, 1, givens.adjoint());
+      (res.block(i - 1, 0, 2, 1)).applyOnTheLeft(0, 1, givens.adjoint());
     }
   }
 
-  H_x = H_x.block(H_f.cols(), 0, H_x.rows() - H_f.cols(), H_x.cols()).eval();
-  res = res.block(H_f.cols(), 0, res.rows() - H_f.cols(), res.cols()).eval();
+  H_x = H_x.block(n, 0, H_x.rows() - n, H_x.cols()).eval();
+  res = res.block(n, 0, res.rows() - n, res.cols()).eval();
 }
 
 void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual)
@@ -139,9 +142,10 @@ void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual
       }
     }
 
-    // find non-zero columns:
+    // Count non-zero rows after compression
     unsigned int r = (jacobian.array().abs() > 1e-9).rowwise().any().cast<unsigned int>().sum();
 
+    /// @todo Add check in MSCKF updater
     // Jacobian is ill-formed if either rows or columns are size 1
 
     // Construct the smaller jacobian and residual after measurement compression

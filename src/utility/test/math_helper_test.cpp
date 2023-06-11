@@ -110,12 +110,27 @@ TEST(test_MathHelper, RemoveFromMatrix)
   EXPECT_EQ(matrix_out(1, 1), 6);
 }
 
-// TEST(test_MathHelper, ApplyLeftNullspace) {
-//   Eigen::MatrixXd H_f;
-//   Eigen::MatrixXd H_x;
-//   Eigen::VectorXd res;
-//   ApplyLeftNullspace(H_f, H_x, res);
-// }
+TEST(test_MathHelper, ApplyLeftNullspace) {
+  Eigen::MatrixXd H_f(2, 2);
+  H_f << 1, 0, 0, 1;
+  Eigen::MatrixXd H_x(5, 5);
+  H_x <<
+    1, 0, 0, 0, 0,
+    0, 1, 0, 0, 0,
+    0, 0, 1, 0, 0,
+    0, 0, 0, 1, 0,
+    0, 0, 0, 0, 1;
+  Eigen::VectorXd res(5);
+  res << 1, 2, 3, 4, 5;
+  ApplyLeftNullspace(H_f, H_x, res);
+
+  EXPECT_EQ(H_x.rows(), 3U);
+  EXPECT_EQ(H_x.cols(), 5U);
+  EXPECT_EQ(res.size(), 3U);
+  EXPECT_EQ(res(0), 3);
+  EXPECT_EQ(res(1), 4);
+  EXPECT_EQ(res(2), 5);
+}
 
 TEST(test_MathHelper, CompressMeasurements) {
   Eigen::MatrixXd jacobian1(4, 2);
