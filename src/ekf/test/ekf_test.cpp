@@ -19,14 +19,11 @@
 #include "ekf/ekf.hpp"
 #include "utility/test/custom_assertions.hpp"
 
-TEST(test_EKF, register_imu) {
-  EKF * ekf = EKF::GetInstance();
-}
 
 TEST(test_EKF, get_counts) {
   EKF * ekf = EKF::GetInstance();
-  EXPECT_EQ(ekf->GetImuCount(), 0);
-  EXPECT_EQ(ekf->GetCamCount(), 0);
+  EXPECT_EQ(ekf->GetImuCount(), 0U);
+  EXPECT_EQ(ekf->GetCamCount(), 0U);
 
   ImuState imu_state;
   Eigen::MatrixXd imu_covariance(12, 12);
@@ -44,13 +41,13 @@ TEST(test_EKF, get_counts) {
   Eigen::MatrixXd cam_covariance(12, 12);
   ekf->RegisterCamera(1, cam_state, cam_covariance);
 
-  EXPECT_EQ(ekf->GetImuCount(), 1);
-  EXPECT_EQ(ekf->GetCamCount(), 1);
+  EXPECT_EQ(ekf->GetImuCount(), 1U);
+  EXPECT_EQ(ekf->GetCamCount(), 1U);
 
-  EXPECT_EQ(ekf->GetImuStateStartIndex(0), 18);
-  EXPECT_EQ(ekf->GetCamStateStartIndex(1), 30);
-  EXPECT_EQ(ekf->GetAugStateStartIndex(1, 0), 36);
-  EXPECT_EQ(ekf->GetAugStateStartIndex(1, 1), 48);
+  EXPECT_EQ(ekf->GetImuStateStartIndex(0), 18U);
+  EXPECT_EQ(ekf->GetCamStateStartIndex(1), 30U);
+  EXPECT_EQ(ekf->GetAugStateStartIndex(1, 0), 36U);
+  EXPECT_EQ(ekf->GetAugStateStartIndex(1, 1), 48U);
 }
 
 ///

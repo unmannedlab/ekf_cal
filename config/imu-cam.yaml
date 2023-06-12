@@ -1,7 +1,7 @@
 
 /EkfCalNode:
     ros__parameters:
-        Debug_Log_Level: 3
+        Debug_Log_Level: 4
         Data_Logging_On: True
         SimParams:
             Seed: 0.0

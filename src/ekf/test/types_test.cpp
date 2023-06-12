@@ -735,20 +735,20 @@ TEST(test_ekf_types, state_to_vector) {
 TEST(test_ekf_types, state_get_state_size) {
   State state;
 
-  EXPECT_EQ(state.GetStateSize(), 18);
+  EXPECT_EQ(state.GetStateSize(), 18U);
 
   ImuState imu_state;
   state.m_imu_states[1] = imu_state;
 
-  EXPECT_EQ(state.GetStateSize(), 30);
+  EXPECT_EQ(state.GetStateSize(), 30U);
 
   CamState cam_state;
   state.m_cam_states[1] = cam_state;
 
-  EXPECT_EQ(state.GetStateSize(), 36);
+  EXPECT_EQ(state.GetStateSize(), 36U);
 
   AugmentedState aug_state;
   state.m_cam_states[1].augmented_states.push_back(aug_state);
 
-  EXPECT_EQ(state.GetStateSize(), 48);
+  EXPECT_EQ(state.GetStateSize(), 48U);
 }

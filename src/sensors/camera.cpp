@@ -55,21 +55,29 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
       camera_message->m_sensor_id) + " callback called at time = " +
     std::to_string(camera_message->m_time));
 
-  unsigned int frameID = GenerateFrameID();
+  if (!camera_message->image.empty()) {
 
-  m_ekf->AugmentState(m_id, frameID);
+    unsigned int frameID = GenerateFrameID();
 
-  if (!m_trackers.empty()) {
-    FeatureTracks feature_tracks;
-    m_trackers[0]->Track(
-      camera_message->m_time, frameID, camera_message->image, m_out_img,
-      feature_tracks);
+    m_ekf->AugmentState(m_id, frameID);
 
-    /// @todo Undistort points post track?
-    // cv::undistortPoints();
+    if (!m_trackers.empty()) {
+      FeatureTracks feature_tracks;
+      // m_trackers[0]->Track(
+      //   camera_message->m_time, frameID, camera_message->image, m_out_img,
+      //   feature_tracks);
+
+      /// @todo Undistort points post track?
+      // cv::undistortPoints();
+    } else {
+      m_logger->Log(LogLevel::WARN, "Camera has no trackers");
+    }
   } else {
-    m_logger->Log(LogLevel::WARN, "Camera has no trackers");
+    m_logger->Log(LogLevel::INFO, "Camera received empty image");
   }
+  m_logger->Log(
+    LogLevel::DEBUG, "Camera " + std::to_string(
+      camera_message->m_sensor_id) + " callback complete");
 }
 
 /// @todo apply similar function to sensor/tracker IDs

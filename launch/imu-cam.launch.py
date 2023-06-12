@@ -31,7 +31,7 @@ def generate_launch_description():
         executable='ekf_cal_node',
         output='screen',
         parameters=[os.path.join(this_dir, 'config', 'imu-cam.yaml')],
-        # arguments=['--ros-args', '--log-level', 'debug']
+        arguments=['--ros-args', '--log-level', 'debug']
     )
 
     bag_file_path = os.path.abspath(
@@ -39,7 +39,7 @@ def generate_launch_description():
     )
 
     start_bag = ExecuteProcess(
-        cmd=['ros2', 'bag', 'play', bag_file_path, '--rate', '0.2'], output='screen'
+        cmd=['ros2', 'bag', 'play', bag_file_path, '--rate', '1.0'], output='screen'
     )
 
     # Create the launch description and populate

@@ -31,10 +31,10 @@ public:
   /// @brief Camera message constructor
   /// @param img_in Input image
   ///
-  explicit CameraMessage(cv::Mat & img_in);
+  explicit CameraMessage(cv::Mat img_in);
 
   /// @brief Message image
-  cv::Mat & image;
+  cv::Mat image;
 };
 
 #endif  // SENSORS__CAMERA_MESSAGE_HPP_
