@@ -6,7 +6,7 @@
             "label": "build ekf_cal",
             "detail": "Build ekf_cal package",
             "type": "shell",
-            "command": "colcon build --symlink-install --packages-select ekf_cal",
+            "command": "colcon build --symlink-install --packages-select ekf_cal --cmake-args -DCMAKE_BUILD_TYPE=Release",
             "problemMatcher": "$gcc",
             "group": {
                 "kind": "build",

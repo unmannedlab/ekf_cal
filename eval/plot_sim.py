@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright 2023 Jacob Hartzer
 #
 # This program is free software: you can redistribute it and/or modify
@@ -152,6 +154,7 @@ def plot_msckf_cam_ang_updates(msckf_df):
     fig.tight_layout()
 
 
+# @todo Add update rate dashed-line from config file
 def plot_update_timing(df):
     fig, (axs_1) = plt.subplots(1, 1)
     axs_1.hist(df['time_0'] / 1e3, bins=10)

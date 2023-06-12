@@ -121,8 +121,9 @@ std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
   cv::Size size(grid_cols, grid_rows);
 
   /// @todo replace this with some kind of boolean array. Eigen?
-  // Eigen::  Array<bool, 1, 5> false_array(5);
+  // Eigen::Array<bool, 1, 5> false_array(5);
   // false_array = Array<bool, 1, 5>::Zero(5);
+
   /// @todo Implement non-maximal suppression instead
 
   cv::Mat grid_2d = cv::Mat::zeros(size, CV_8UC1);
@@ -178,12 +179,10 @@ void FeatureTracker::Track(
     double min_dist = 100;
 
     for (unsigned int i = 0; i < matches.size(); ++i) {
-      // for (unsigned int j = 0; j < matches[i].size(); ++j) {
       double dist = matches[i][0].distance;
 
       if (dist < min_dist && dist >= 5.0) {min_dist = dist;}
       if (dist > max_dist) {max_dist = dist;}
-      // }
     }
 
     auto goodMatches = std::vector<cv::DMatch>{};
