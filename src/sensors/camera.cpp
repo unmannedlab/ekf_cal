@@ -56,7 +56,6 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
     std::to_string(camera_message->m_time));
 
   if (!camera_message->image.empty()) {
-
     unsigned int frameID = GenerateFrameID();
 
     m_ekf->AugmentState(m_id, frameID);
