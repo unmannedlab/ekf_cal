@@ -194,6 +194,7 @@ unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, unsigned int frame_
   return stateStartIndex;
 }
 
+/// @todo Don't return a jacobian but rather just apply a jacobian to the covariance
 Eigen::MatrixXd EKF::AugmentJacobian(
   unsigned int cam_state_start,
   unsigned int camera_id,
@@ -270,7 +271,8 @@ void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
     aug_state_start = GetAugStateStartIndex(camera_id, frame_id);
   }
 
-  /// @todo next: Use jacobian to initialize covariance
   Eigen::MatrixXd augment_jacobian = AugmentJacobian(cam_state_start, camera_id, aug_state_start);
+  /// @todo doing this is very expensive. Apply Jacobian in place without large multiplications
+  /// Most elements are identity/zeros anyways
   m_cov = (augment_jacobian * m_cov * augment_jacobian.transpose()).eval();
 }

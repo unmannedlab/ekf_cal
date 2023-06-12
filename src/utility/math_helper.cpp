@@ -56,6 +56,7 @@ Eigen::VectorXd MinBoundVector(Eigen::VectorXd in_vec, double min_bound)
   return out_vec;
 }
 
+/// @todo Do in place
 Eigen::MatrixXd InsertInMatrix(
   Eigen::MatrixXd sub_mat, Eigen::MatrixXd in_mat, unsigned int row,
   unsigned int col)
@@ -77,6 +78,7 @@ Eigen::MatrixXd InsertInMatrix(
   return out_mat;
 }
 
+/// @todo Do in place
 Eigen::MatrixXd RemoveFromMatrix(
   Eigen::MatrixXd in_mat, unsigned int row,
   unsigned int col, unsigned int size)
