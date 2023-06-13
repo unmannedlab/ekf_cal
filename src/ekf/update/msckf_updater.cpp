@@ -151,7 +151,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
     AugmentedState aug_state_0 = MatchState(feature_track[0].frame_id);
 
     Eigen::Matrix3d rot_c0_to_g = aug_state_0.orientation.toRotationMatrix();
-    // Eigen::Matrix3d rot_i0_to_g = aug_state_0.imu_orientation.toRotationMatrix();
+    Eigen::Matrix3d rot_i0_to_g = aug_state_0.imu_orientation.toRotationMatrix();
 
     // Anchor pose orientation and position
     Eigen::Vector3d pos_i_in_g = aug_state_0.imu_position;
@@ -169,19 +169,20 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
     Eigen::Matrix<double, 3, 6> H_anc;
     H_anc.setZero();
 
-    /// @todo CHECK
+    /// @todo validate
     // H_anc.block(0, 0, 3, 3).noalias() =
     //   -rot_i0_to_g * SkewSymmetric(rot_i0_to_g.transpose() * (pos_f_in_g - pos_i_in_g));
     H_anc.block(0, 3, 3, 3).setIdentity();
 
-    // Get calibration Jacobians (for anchor clone)
-    Eigen::Matrix<double, 3, 6> H_calib;
-    H_calib.setZero();
+    /// @todo Calibration
+    // Get calibration Jacobians
+    // Eigen::Matrix<double, 3, 6> H_calib;
+    // H_calib.setZero();
 
-    /// @todo CHECK
+    /// @todo validate
     // H_calib.block(0, 0, 3, 3).noalias() =
     //   -rot_c0_to_g * SkewSymmetric(rot_c0_to_g.transpose() * (pos_f_in_g - pos_i_in_g));
-    H_calib.block(0, 3, 3, 3) = -rot_c0_to_g;
+    // H_calib.block(0, 3, 3, 3) = -rot_c0_to_g;
 
     // Get the Jacobian for this feature
     // Loop through each camera for this feature
@@ -235,6 +236,8 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
       // loop through all extra states and add their
       // NOTE: we add the Jacobian here as we might be in the anchoring pose for this measurement
       H_x.block(2 * (i - 1), augStateStart - cam_state_start - 6, 2, 6) += dz_dPFG * H_anc;
+
+      /// @todo Calibration jacobian once part of state
       // H_x.block(2 * (i - 1), augStateStart - cam_state_start, 2, 6) += dz_dPFG * H_calib;
 
       // Calculate the Jacobian

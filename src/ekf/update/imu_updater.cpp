@@ -109,7 +109,7 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
     temp(2, 0) = m_body_ang_vel(0) * m_body_ang_vel(2);
     temp(2, 1) = m_body_ang_vel(1) * m_body_ang_vel(2);
     temp(2, 2) = -(m_body_ang_vel(0) * m_body_ang_vel(0)) - (m_body_ang_vel(1) * m_body_ang_vel(1));
-    measurement_jacobian.block<3, 3>(0, g_imu_state_size) =
+    measurement_jacobian.block<3, 3>(0, g_body_state_size) =
       m_ang_offset * SkewSymmetric(m_body_ang_acc) + temp;
 
     // IMU Angular Offset

@@ -73,6 +73,7 @@ int main(int argc, char * argv[])
   // Simulation parameters
   YAML::Node sim_params = ros_params["SimParams"];
   double rng_seed = sim_params["Seed"].as<double>();
+  bool use_seed = sim_params["UseSeed"].as<bool>();
   Eigen::Vector3d pos_frequency = StdToEigVec(sim_params["PosFrequency"].as<std::vector<double>>());
   Eigen::Vector3d ang_frequency = StdToEigVec(sim_params["AngFrequency"].as<std::vector<double>>());
   double max_time = sim_params["MaxTime"].as<double>();
@@ -83,7 +84,9 @@ int main(int argc, char * argv[])
   logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
 
   SimRNG rng;
-  rng.SetSeed(rng_seed);
+  if (use_seed) {
+    rng.SetSeed(rng_seed);
+  }
 
   /// @todo Select type of truth engine using parameters
   auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(pos_frequency, ang_frequency);

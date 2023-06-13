@@ -42,12 +42,15 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngi
   m_truth = truthEngine;
 }
 
-std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double maxTime)
+std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_time)
 {
-  double num_measurements = static_cast<int>(std::round(maxTime * m_rate / (1 + m_time_skew)));
-  std::vector<std::shared_ptr<SimImuMessage>> messages;
-  m_logger->Log(LogLevel::INFO, "Generating " + std::to_string(num_measurements) + " measurements");
+  unsigned int num_measurements =
+    static_cast<int>(std::floor(max_time * m_rate / (1 + m_time_skew)));
 
+  m_logger->Log(
+    LogLevel::INFO, "Generating " + std::to_string(num_measurements) + " IMU measurements");
+
+  std::vector<std::shared_ptr<SimImuMessage>> messages;
   for (unsigned int i = 0; i < num_measurements; ++i) {
     auto sim_imu_msg = std::make_shared<SimImuMessage>();
     double measurementTime = (1.0 + m_time_skew) / m_rate * static_cast<double>(i);

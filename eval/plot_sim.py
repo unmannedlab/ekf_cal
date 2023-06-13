@@ -48,7 +48,7 @@ def plot_imu_residuals(imu_df):
     fig.tight_layout()
 
 
-def plot_imu_pos_updates(imu_df):
+def plot_imu_offset_updates(imu_df):
     fig, (axs_1, axs_2) = plt.subplots(2, 1)
     axs_1.plot(imu_df['time'].to_list(), imu_df['imu_update_0'].to_list(), label=r'$p_x$')
     axs_1.plot(imu_df['time'].to_list(), imu_df['imu_update_1'].to_list(), label=r'$p_y$')
@@ -56,16 +56,16 @@ def plot_imu_pos_updates(imu_df):
     axs_2.plot(imu_df['time'].to_list(), imu_df['imu_update_3'].to_list(), label=r'$\theta_x$')
     axs_2.plot(imu_df['time'].to_list(), imu_df['imu_update_4'].to_list(), label=r'$\theta_y$')
     axs_2.plot(imu_df['time'].to_list(), imu_df['imu_update_5'].to_list(), label=r'$\theta_z$')
-    set_plot_titles(fig, 'IMU State Offset Updates')
-    axs_1.set_ylabel('Position Offset Update\n[m]')
-    axs_2.set_ylabel('Angular Offset Update\n[red]')
+    set_plot_titles(fig, f'IMU {imu_df.attrs["id"]} Offset Updates')
+    axs_1.set_ylabel('Position Offset\nUpdate [m]')
+    axs_2.set_ylabel('Angular Offset\nUpdate [red]')
     axs_2.set_xlabel('Time [s]')
     axs_1.legend()
     axs_2.legend()
     fig.tight_layout()
 
 
-def plot_imu_vel_updates(imu_df):
+def plot_imu_bias_updates(imu_df):
     fig, (axs_1, axs_2) = plt.subplots(2, 1)
     axs_1.plot(imu_df['time'].to_list(), imu_df['imu_update_6'].to_list(), label=r'$a_x$')
     axs_1.plot(imu_df['time'].to_list(), imu_df['imu_update_7'].to_list(), label=r'$a_y$')
@@ -73,9 +73,9 @@ def plot_imu_vel_updates(imu_df):
     axs_2.plot(imu_df['time'].to_list(), imu_df['imu_update_9'].to_list(), label=r'$\omega_x$')
     axs_2.plot(imu_df['time'].to_list(), imu_df['imu_update_10'].to_list(), label=r'$\omega_y$')
     axs_2.plot(imu_df['time'].to_list(), imu_df['imu_update_11'].to_list(), label=r'$\omega_z$')
-    set_plot_titles(fig, 'IMU State Bias Updates')
-    axs_1.set_ylabel('Acceleration Bias Update\n[m/s/s]')
-    axs_2.set_ylabel('Angular Rate Bias Update\n[rad/s]')
+    set_plot_titles(fig, f'IMU {imu_df.attrs["id"]} Bias Updates')
+    axs_1.set_ylabel('Acceleration\nBias Update\n[m/s/s]')
+    axs_2.set_ylabel('Angular Rate\nBias Update\n[rad/s]')
     axs_2.set_xlabel('Time [s]')
     axs_1.legend()
     axs_2.legend()
@@ -118,9 +118,9 @@ def plot_msckf_body_ang_updates(msckf_df):
     axs_3.plot(time, msckf_df['body_update_16'].to_list(), label=r'$\alpha_y$')
     axs_3.plot(time, msckf_df['body_update_17'].to_list(), label=r'$\alpha_z$')
     set_plot_titles(fig, 'Body State Angular Updates')
-    axs_1.set_ylabel('Euler Angle [rad]')
-    axs_2.set_ylabel('Angular Velocity [rad/s]')
-    axs_3.set_ylabel('Angular Acceleration [rad/s/s]')
+    axs_1.set_ylabel('Euler Angle\n[rad]')
+    axs_2.set_ylabel('Angular Velocity\n[rad/s]')
+    axs_3.set_ylabel('Angular Acceleration\n[rad/s/s]')
     axs_3.set_xlabel('Time [s]')
     axs_1.legend()
     axs_2.legend()
@@ -128,29 +128,20 @@ def plot_msckf_body_ang_updates(msckf_df):
     fig.tight_layout()
 
 
-def plot_msckf_cam_pos_updates(msckf_df):
-    fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-    axs_1.plot(msckf_df['time'].to_list(), msckf_df['cam_update_0'].to_list())
-    axs_2.plot(msckf_df['time'].to_list(), msckf_df['cam_update_1'].to_list())
-    axs_3.plot(msckf_df['time'].to_list(), msckf_df['cam_update_2'].to_list())
-    set_plot_titles(fig, 'Camera Position Offset Updates')
-    axs_1.set_ylabel('X Update [m]')
-    axs_2.set_ylabel('Y Update [m]')
-    axs_3.set_ylabel('Z Update [m]')
-    axs_3.set_xlabel('Time [s]')
-    fig.tight_layout()
-
-
-def plot_msckf_cam_ang_updates(msckf_df):
-    fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-    axs_1.plot(msckf_df['time'].to_list(), msckf_df['cam_update_3'].to_list())
-    axs_2.plot(msckf_df['time'].to_list(), msckf_df['cam_update_4'].to_list())
-    axs_3.plot(msckf_df['time'].to_list(), msckf_df['cam_update_5'].to_list())
-    set_plot_titles(fig, 'Camera Angular Offset Updates')
-    axs_1.set_ylabel(r'$\theta_x$ Update [rad]')
-    axs_2.set_ylabel(r'$\theta_y$ Update [rad]')
-    axs_3.set_ylabel(r'$\theta_z$ Update [rad]')
-    axs_3.set_xlabel('Time [s]')
+def plot_msckf_cam_offset_updates(msckf_df):
+    fig, (axs_1, axs_2) = plt.subplots(2, 1)
+    axs_1.plot(msckf_df['time'].to_list(), msckf_df['cam_update_0'].to_list(), label=r'$p_x$')
+    axs_1.plot(msckf_df['time'].to_list(), msckf_df['cam_update_1'].to_list(), label=r'$p_y$')
+    axs_1.plot(msckf_df['time'].to_list(), msckf_df['cam_update_2'].to_list(), label=r'$p_z$')
+    axs_2.plot(msckf_df['time'].to_list(), msckf_df['cam_update_3'].to_list(), label=r'$\theta_x$')
+    axs_2.plot(msckf_df['time'].to_list(), msckf_df['cam_update_4'].to_list(), label=r'$\theta_y$')
+    axs_2.plot(msckf_df['time'].to_list(), msckf_df['cam_update_5'].to_list(), label=r'$\theta_z$')
+    set_plot_titles(fig, 'Camera 1 Offset Updates')
+    axs_1.set_ylabel('Position Offset\nUpdates [m]')
+    axs_2.set_ylabel('Angular Offset\nUpdates [red]')
+    axs_2.set_xlabel('Time [s]')
+    axs_1.legend()
+    axs_2.legend()
     fig.tight_layout()
 
 
@@ -266,8 +257,8 @@ def plot_sim_results(directories, no_show):
 
         for imu_df in imu_dfs:
             plot_imu_residuals(imu_df)
-            plot_imu_pos_updates(imu_df)
-            plot_imu_vel_updates(imu_df)
+            plot_imu_offset_updates(imu_df)
+            plot_imu_bias_updates(imu_df)
             plot_update_timing(imu_df)
             plot_body_pos(imu_df)
             plot_body_vel(imu_df)
@@ -277,8 +268,7 @@ def plot_sim_results(directories, no_show):
         for msckf_df in msckf_dfs:
             plot_msckf_body_pos_updates(msckf_df)
             plot_msckf_body_ang_updates(msckf_df)
-            plot_msckf_cam_pos_updates(msckf_df)
-            plot_msckf_cam_ang_updates(msckf_df)
+            plot_msckf_cam_offset_updates(msckf_df)
             plot_msckf_cam_pos(msckf_df)
             plot_msckf_cam_ang(msckf_df)
             plot_update_timing(msckf_df)
