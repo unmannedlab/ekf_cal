@@ -28,7 +28,7 @@
 MsckfUpdater::MsckfUpdater(
   unsigned int cam_id, std::string log_file_directory,
   bool data_logging_on)
-: Updater(cam_id), m_data_logger(log_file_directory, "msckf_" + std::to_string(cam_id) + ".csv")
+: Updater(cam_id), m_data_logger(log_file_directory, "camera_" + std::to_string(cam_id) + ".csv")
 {
   std::stringstream msg;
   msg << "time";
@@ -36,6 +36,7 @@ MsckfUpdater::MsckfUpdater(
   msg << EnumerateHeader("cam_state", g_cam_state_size);
   msg << EnumerateHeader("body_update", g_body_state_size);
   msg << EnumerateHeader("cam_update", g_cam_state_size);
+  msg << ",FeatureTracks";
   msg << EnumerateHeader("time", 1);
   msg << "\n";
 
@@ -307,6 +308,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
   msg << VectorToCommaString(cam_state.segment(0, g_cam_state_size));
   msg << VectorToCommaString(body_update);
   msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));
+  msg << "," << std::to_string(feature_tracks.size());
   msg << "," << t_execution.count();
   msg << "\n";
   m_data_logger.Log(msg.str());

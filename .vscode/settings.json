@@ -18,10 +18,13 @@
         "editor.defaultFormatter": "zachflower.uncrustify"
     },
     "cSpell.words": [
+        "axvline",
         "DISTRO",
         "doxyfile",
         "doxygen",
+        "fignums",
         "GFTT",
+        "ggplot",
         "htmlonly",
         "ImuUpdater",
         "IROS",
@@ -39,7 +42,7 @@
         "Roumeliotis",
         "RVIZ",
         "SSRR",
-        "undistort",
+        "undistort"
     ],
     "terminal.integrated.scrollback": 5000,
     "cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}",
@@ -130,6 +133,9 @@
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python",
+        "editor.rulers": [
+            80
+        ],
     },
     "python.linting.flake8Enabled": true,
     "cmake.configureOnOpen": true,
