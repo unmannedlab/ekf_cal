@@ -158,8 +158,8 @@ def plot_update_timing(df, rate=None):
     fig, (axs) = plt.subplots(1, 1)
     counts, bins = np.histogram(df['time_0'] / 1e6)
     axs.hist(bins[:-1], bins, weights=counts)
-    # if rate:
-    #     axs.axvline(x=1000.0 / rate, color='red', linestyle='--')
+    if rate:
+        axs.axvline(x=1000.0 / rate, color='red', linestyle='--')
     axs.set_ylabel('Count')
     df_prefix = df.attrs['prefix']
     df_id = str(df.attrs['id'])
@@ -295,7 +295,7 @@ def parse_yaml(config):
     return config_data
 
 
-def plot_sim_results(configs, no_show):
+def plot_sim_results(configs, no_show=False, ext='png'):
     for config in configs:
         config_data = parse_yaml(config)
 
@@ -307,11 +307,11 @@ def plot_sim_results(configs, no_show):
             plot_imu_residuals(imu_df)
             plot_imu_offset_updates(imu_df)
             plot_imu_bias_updates(imu_df)
-            plot_update_timing(imu_df, config_data['IMU_rates'][i])
             plot_body_pos(imu_df)
             plot_body_vel(imu_df)
             plot_body_acc(imu_df)
             plot_body_ang(imu_df)
+            plot_update_timing(imu_df, config_data['IMU_rates'][i])
 
         for i, cam_df in enumerate(cam_dfs):
             plot_camera_body_pos_updates(cam_df)
@@ -328,7 +328,7 @@ def plot_sim_results(configs, no_show):
         for i in plt.get_fignums():
             fig = plt.figure(i)
             title = fig._suptitle.get_text().replace(' ', '_').lower()
-            fig.savefig(os.path.join(saveDir, title))
+            fig.savefig(os.path.join(saveDir, f'{title}.{ext}'), format=ext)
 
         if (not no_show):
             plt.show()
@@ -338,5 +338,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('configs', nargs='+', type=str)
     parser.add_argument('--no_show', action='store_true')
+    parser.add_argument('-ext', default='png', type=str)
     args = parser.parse_args()
-    plot_sim_results(args.configs, no_show=args.no_show)
+    plot_sim_results(args.configs, no_show=args.no_show, ext=args.ext)
