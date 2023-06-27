@@ -6,7 +6,7 @@
         SimParams:
             Seed: 0.0
             UseSeed: False
-            MaxTime: 1000.0
+            MaxTime: 10.0
             TruthType: "Cyclic"
             PosFrequency: [0.0, 1.0, 0.0]
             AngFrequency: [0.0, 0.0, 0.0]

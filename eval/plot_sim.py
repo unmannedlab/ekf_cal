@@ -16,9 +16,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import argparse
+import functools
 import glob
+import math
 import os
 
+import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 
 import numpy as np
@@ -51,6 +54,7 @@ def plot_imu_residuals(imu_df):
     axs_1.legend()
     axs_2.legend()
     fig.tight_layout()
+    return fig
 
 
 def plot_imu_offset_updates(imu_df):
@@ -69,6 +73,7 @@ def plot_imu_offset_updates(imu_df):
     axs_1.legend()
     axs_2.legend()
     fig.tight_layout()
+    return fig
 
 
 def plot_imu_bias_updates(imu_df):
@@ -87,6 +92,7 @@ def plot_imu_bias_updates(imu_df):
     axs_1.legend()
     axs_2.legend()
     fig.tight_layout()
+    return fig
 
 
 def plot_camera_body_pos_updates(cam_df):
@@ -110,6 +116,7 @@ def plot_camera_body_pos_updates(cam_df):
     axs_2.legend()
     axs_3.legend()
     fig.tight_layout()
+    return fig
 
 
 def plot_camera_body_ang_updates(cam_df):
@@ -133,6 +140,7 @@ def plot_camera_body_ang_updates(cam_df):
     axs_2.legend()
     axs_3.legend()
     fig.tight_layout()
+    return fig
 
 
 def plot_camera_offset_updates(cam_df):
@@ -151,6 +159,7 @@ def plot_camera_offset_updates(cam_df):
     axs_1.legend()
     axs_2.legend()
     fig.tight_layout()
+    return fig
 
 
 # @todo Add update rate dashed-line from config file
@@ -166,6 +175,7 @@ def plot_update_timing(df, rate=None):
     set_plot_titles(fig, f'{df_prefix} {df_id} Update Time')
     axs.set_xlabel('Duration [ms]')
     fig.tight_layout()
+    return fig
 
 
 def plot_body_pos(df):
@@ -180,6 +190,48 @@ def plot_body_pos(df):
     axs_3.set_ylabel('Z [m]')
     axs_3.set_xlabel('Time [s]')
     fig.tight_layout()
+    return fig
+
+
+def plot_body_pos_3d(df):
+    fig = plt.figure()
+    axs = fig.add_subplot(projection='3d')
+    x_pos = df['body_state_0'].to_list()
+    y_pos = df['body_state_1'].to_list()
+    z_pos = df['body_state_2'].to_list()
+    axs.plot(x_pos, y_pos, z_pos)
+    set_plot_titles(fig, 'Body Position 3D')
+    axs.set_xlabel('X [m]')
+    axs.set_ylabel('Y [m]')
+    axs.set_zlabel('Z [m]')
+    fig.tight_layout()
+    return fig
+
+
+def update_3d_pos_graph(num, graph, legend, t, x, y, z, frame_count):
+    n_points = int(math.floor(len(x) * num / frame_count))
+    graph.set_data(x[0:n_points], y[0:n_points])
+    graph.set_3d_properties(z[0:n_points])
+    legend.get_texts()[0].set_text('t = {: 3.2f}'.format(t[n_points]))
+    return legend, graph
+
+
+def plot_body_pos_3d_anim(df, duration: float = 2):
+    interval = 40  # ms
+    frame_count = interval * duration
+    time = df['time'].to_list()
+    x_pos = df['body_state_0'].to_list()
+    y_pos = df['body_state_1'].to_list()
+    z_pos = df['body_state_2'].to_list()
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    title = ax.set_title('Body Position 3D')
+    graph, = ax.plot(x_pos, y_pos, z_pos, label='t = 0.00')
+    title.set_text('Body Position 3D')
+    legend = ax.legend()
+    ani = animation.FuncAnimation(fig, functools.partial(update_3d_pos_graph, graph=graph, legend=legend, t=time, x=x_pos, y=y_pos, z=z_pos, frame_count=frame_count), frame_count, interval=interval, blit=True)
+    ani._title = 'Body Position 3D'
+    return ani
 
 
 def plot_body_vel(df):
@@ -194,6 +246,7 @@ def plot_body_vel(df):
     axs_3.set_ylabel('Z [m/s]')
     axs_3.set_xlabel('Time [s]')
     fig.tight_layout()
+    return fig
 
 
 def plot_body_acc(df):
@@ -208,6 +261,7 @@ def plot_body_acc(df):
     axs_3.set_ylabel('Z [m/s/s]')
     axs_3.set_xlabel('Time [s]')
     fig.tight_layout()
+    return fig
 
 
 def plot_body_ang(df):
@@ -222,6 +276,7 @@ def plot_body_ang(df):
     axs_3.set_ylabel(r'$\theta_z$ [rad]')
     axs_3.set_xlabel('Time [s]')
     fig.tight_layout()
+    return fig
 
 
 def plot_camera_pos(cam_df):
@@ -235,6 +290,7 @@ def plot_camera_pos(cam_df):
     axs_3.set_ylabel('Z [m]')
     axs_3.set_xlabel('Time [s]')
     fig.tight_layout()
+    return fig
 
 
 def plot_camera_ang(cam_df):
@@ -248,6 +304,7 @@ def plot_camera_ang(cam_df):
     axs_3.set_ylabel(r'$\theta_z$ [rad]')
     axs_3.set_xlabel('Time [s]')
     fig.tight_layout()
+    return fig
 
 
 def format_prefix(prefix):
@@ -295,6 +352,19 @@ def parse_yaml(config):
     return config_data
 
 
+def save_figures(save_dir, figures, ext):
+    for fig in figures:
+        title = fig._suptitle.get_text().replace(' ', '_').lower()
+        fig.savefig(os.path.join(save_dir, f'{title}.{ext}'), format=ext)
+        plt.close(fig)
+
+
+def save_animations(save_dir, animations):
+    for ani in animations:
+        title = ani._title.replace(' ', '_').lower()
+        ani.save(filename=os.path.join(save_dir, f'{title}.gif'), writer='pillow')
+
+
 def plot_sim_results(configs, no_show=False, ext='png'):
     for config in configs:
         config_data = parse_yaml(config)
@@ -303,32 +373,38 @@ def plot_sim_results(configs, no_show=False, ext='png'):
         imu_dfs = find_and_read_data_frames(directory, 'imu')
         cam_dfs = find_and_read_data_frames(directory, 'camera')
 
+        save_dir = os.path.join(directory, 'plots')
+        if not os.path.isdir(save_dir):
+            os.mkdir(save_dir)
+
         for i, imu_df in enumerate(imu_dfs):
-            plot_imu_residuals(imu_df)
-            plot_imu_offset_updates(imu_df)
-            plot_imu_bias_updates(imu_df)
-            plot_body_pos(imu_df)
-            plot_body_vel(imu_df)
-            plot_body_acc(imu_df)
-            plot_body_ang(imu_df)
-            plot_update_timing(imu_df, config_data['IMU_rates'][i])
+            figures = [
+                plot_imu_residuals(imu_df),
+                plot_imu_offset_updates(imu_df),
+                plot_imu_bias_updates(imu_df),
+                plot_body_pos(imu_df),
+                plot_body_pos_3d(imu_df),
+                plot_body_vel(imu_df),
+                plot_body_acc(imu_df),
+                plot_body_ang(imu_df),
+                plot_update_timing(imu_df, config_data['IMU_rates'][i])
+            ]
+            animations = [
+                plot_body_pos_3d_anim(imu_df)
+            ]
+            save_figures(save_dir, figures, ext)
+            save_animations(save_dir, animations)
 
         for i, cam_df in enumerate(cam_dfs):
-            plot_camera_body_pos_updates(cam_df)
-            plot_camera_body_ang_updates(cam_df)
-            plot_camera_offset_updates(cam_df)
-            plot_camera_pos(cam_df)
-            plot_camera_ang(cam_df)
-            plot_update_timing(cam_df, config_data['Camera_rates'][i])
-
-        saveDir = os.path.join(directory, 'plots')
-        if not os.path.isdir(saveDir):
-            os.mkdir(saveDir)
-
-        for i in plt.get_fignums():
-            fig = plt.figure(i)
-            title = fig._suptitle.get_text().replace(' ', '_').lower()
-            fig.savefig(os.path.join(saveDir, f'{title}.{ext}'), format=ext)
+            figures = [
+                plot_camera_body_pos_updates(cam_df),
+                plot_camera_body_ang_updates(cam_df),
+                plot_camera_offset_updates(cam_df),
+                plot_camera_pos(cam_df),
+                plot_camera_ang(cam_df),
+                plot_update_timing(cam_df, config_data['Camera_rates'][i])
+            ]
+            save_figures(save_dir, figures, ext)
 
         if (not no_show):
             plt.show()

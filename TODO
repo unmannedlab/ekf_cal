@@ -15,6 +15,9 @@ Package Features:
     - Option for fixed IMU offsets - high certainty constraint update
     - IMU Time Update Equations
     - RTS-Smoothing: https://math.stackexchange.com/questions/1811214/time-complexity-of-kalman-filter-and-rts-smoother
+    - Intrinsic calibration filtering
+    - Condition and distance thresholds
+    - Check covariance matrix condition
 
     GPS Updater:
         - LLA to NED calibration
@@ -43,11 +46,18 @@ Software Work:
     - Parameter for max frame length
     - Include What You Use
     - Eigen aliasing and eval
+    - Test build on different ROS docker versions
+    - Add mutex to EKF class and have mutex locked by updaters
+    - Input file generator
+    - Add number of runs in input
+    - Output true feature locations to data logger
+    - Plot triangulated feature points vs truth
+    - Switch to reentrant callback group
+    - Show track images from simulation
     Simple Simulation:
         - Add parameter for feature point uncertainty
 
     Additional Trackers:
-        - FeatureTracker
         - FiducialTracker
             - ArucoBoardTracker
             - CharucoBoardTracker
@@ -63,5 +73,4 @@ Documentation:
     - Citation File: https://citation-file-format.github.io//
 
 Experimentation:
-    - Submit ROS bag dataset to IEEE Dataport or add as release package
-    - Test Sim with intrinsic calibration
+    - Test monte carlo simulation and plotting

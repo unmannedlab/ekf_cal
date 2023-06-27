@@ -42,7 +42,10 @@
         "Roumeliotis",
         "RVIZ",
         "SSRR",
-        "undistort"
+        "undistort",
+        "xdata",
+        "ydata",
+        "zdata"
     ],
     "terminal.integrated.scrollback": 5000,
     "cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}",
