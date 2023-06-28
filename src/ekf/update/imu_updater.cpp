@@ -35,7 +35,6 @@ ImuUpdater::ImuUpdater(unsigned int imu_id, std::string log_file_directory, bool
 {
   std::stringstream msg;
   msg << "time";
-  msg << EnumerateHeader("body_state", g_body_state_size);
   msg << EnumerateHeader("imu_state", g_imu_state_size);
   msg << EnumerateHeader("residual", 6);
   msg << EnumerateHeader("body_update", g_body_state_size);
@@ -209,12 +208,10 @@ void ImuUpdater::UpdateEKF(
 
   // Write outputs
   std::stringstream msg;
-  Eigen::VectorXd body_state_vec = m_ekf->GetState().m_body_state.ToVector();
   Eigen::VectorXd imu_state_vec = m_ekf->GetState().m_imu_states[m_id].ToVector();
   Eigen::VectorXd imu_sub_update = update.segment(imu_state_start, g_imu_state_size);
 
   msg << time;
-  msg << VectorToCommaString(body_state_vec);
   msg << VectorToCommaString(imu_state_vec);
   msg << VectorToCommaString(resid);
   msg << VectorToCommaString(body_update);

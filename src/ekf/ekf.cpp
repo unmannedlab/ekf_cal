@@ -22,11 +22,24 @@
 #include <sstream>
 
 #include "ekf/types.hpp"
+#include "infrastructure/data_logger.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "utility/math_helper.hpp"
+#include "utility/string_helper.hpp"
 
 // initializing instance_pointer with NULL
 EKF * EKF::instance_pointer = NULL;
+
+EKF::EKF()
+{
+  std::stringstream msg;
+  msg << "time";
+  msg << EnumerateHeader("body_state", g_body_state_size);
+  msg << "\n";
+
+  m_data_logger.DefineHeader(msg.str());
+  m_data_logger.SetLogging(m_data_logging_on);
+}
 
 Eigen::MatrixXd EKF::GetStateTransition(double dT)
 {
@@ -74,6 +87,20 @@ void EKF::ProcessModel(double time)
     F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0) + m_process_noise) * F.transpose();
 
   m_current_time = time;
+
+  // @todo Use modulo for determining log
+  if ((m_data_logging_on) &&
+    (m_body_data_rate) &&
+    (m_current_time > m_prev_log_time + 1 / m_body_data_rate))
+  {
+    m_prev_log_time = m_current_time;
+    std::stringstream msg;
+    Eigen::VectorXd body_state_vec = GetState().m_body_state.ToVector();
+    msg << m_current_time;
+    msg << VectorToCommaString(body_state_vec);
+    msg << "\n";
+    m_data_logger.Log(msg.str());
+  }
 }
 
 State & EKF::GetState()
@@ -275,4 +302,15 @@ void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
   /// @todo doing this is very expensive. Apply Jacobian in place without large multiplications
   /// Most elements are identity/zeros anyways
   m_cov = (augment_jacobian * m_cov * augment_jacobian.transpose()).eval();
+}
+
+void EKF::SetBodyDataRate(double rate)
+{
+  m_body_data_rate = rate;
+}
+
+void EKF::SetDataLogging(bool value)
+{
+  m_data_logging_on = value;
+  m_data_logger.SetLogging(m_data_logging_on);
 }

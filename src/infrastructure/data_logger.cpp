@@ -21,7 +21,8 @@
 
 DataLogger::DataLogger(std::string output_directory, std::string file_name)
 {
-  m_log_file_path = output_directory + file_name;
+  m_output_directory = output_directory;
+  m_file_name = file_name;
 }
 
 
@@ -30,7 +31,7 @@ void DataLogger::Log(std::string message)
   if (m_logging_on) {
     if (!m_initialized) {
       /// @todo check if path exists
-      m_log_file.open(m_log_file_path);
+      m_log_file.open(m_output_directory + m_file_name);
       m_log_file << m_log_header;
       m_initialized = true;
     }
@@ -43,6 +44,18 @@ void DataLogger::Log(std::string message)
 void DataLogger::SetLogging(bool value)
 {
   m_logging_on = value;
+}
+
+
+void DataLogger::SetOutputDirectory(std::string output_directory)
+{
+  m_output_directory = output_directory;
+}
+
+
+void DataLogger::SetOutputFileName(std::string file_name)
+{
+  m_file_name = file_name;
 }
 
 

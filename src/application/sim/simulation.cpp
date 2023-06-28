@@ -69,6 +69,14 @@ int main(int argc, char * argv[])
   YAML::Node ros_params = root["/EkfCalNode"]["ros__parameters"];
   unsigned int debug_log_level = ros_params["Debug_Log_Level"].as<unsigned int>();
   bool data_logging_on = ros_params["Data_Logging_On"].as<bool>();
+  double body_data_rate = ros_params["Body_Data_Rate"].as<double>();
+
+  // Set EKF parameters
+  EKF * ekf = EKF::GetInstance();
+  ekf->SetBodyDataRate(body_data_rate);
+  ekf->SetDataLogging(data_logging_on);
+  ekf->m_data_logger.SetOutputDirectory(out_dir);
+  ekf->m_data_logger.SetOutputFileName("body_state.csv");
 
   // Simulation parameters
   YAML::Node sim_params = ros_params["SimParams"];

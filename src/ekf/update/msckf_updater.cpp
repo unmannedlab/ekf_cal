@@ -32,7 +32,6 @@ MsckfUpdater::MsckfUpdater(
 {
   std::stringstream msg;
   msg << "time";
-  msg << EnumerateHeader("body_state", g_body_state_size);
   msg << EnumerateHeader("cam_state", g_cam_state_size);
   msg << EnumerateHeader("body_update", g_body_state_size);
   msg << EnumerateHeader("cam_update", g_cam_state_size);
@@ -299,12 +298,10 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
 
   // Write outputs
   std::stringstream msg;
-  Eigen::VectorXd body_state = m_ekf->GetState().m_body_state.ToVector();
   Eigen::VectorXd cam_state = m_ekf->GetState().m_cam_states[camera_id].ToVector();
   Eigen::VectorXd cam_sub_update = update.segment(cam_state_start, g_cam_state_size);
 
   msg << time;
-  msg << VectorToCommaString(body_state);
   msg << VectorToCommaString(cam_state.segment(0, g_cam_state_size));
   msg << VectorToCommaString(body_update);
   msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));

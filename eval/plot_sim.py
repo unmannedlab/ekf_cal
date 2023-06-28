@@ -370,6 +370,7 @@ def plot_sim_results(configs, no_show=False, ext='png'):
         config_data = parse_yaml(config)
 
         directory = config.split('.yaml')[0]
+        body_df = pd.read_csv(os.path.join(directory, 'body_state.csv'))
         imu_dfs = find_and_read_data_frames(directory, 'imu')
         cam_dfs = find_and_read_data_frames(directory, 'camera')
 
@@ -377,23 +378,27 @@ def plot_sim_results(configs, no_show=False, ext='png'):
         if not os.path.isdir(save_dir):
             os.mkdir(save_dir)
 
+        figures = [
+            plot_body_pos(body_df),
+            plot_body_pos_3d(body_df),
+            plot_body_vel(body_df),
+            plot_body_acc(body_df),
+            plot_body_ang(body_df)
+        ]
+        animations = [
+            plot_body_pos_3d_anim(body_df)
+        ]
+        save_figures(save_dir, figures, ext)
+        save_animations(save_dir, animations)
+
         for i, imu_df in enumerate(imu_dfs):
             figures = [
                 plot_imu_residuals(imu_df),
                 plot_imu_offset_updates(imu_df),
                 plot_imu_bias_updates(imu_df),
-                plot_body_pos(imu_df),
-                plot_body_pos_3d(imu_df),
-                plot_body_vel(imu_df),
-                plot_body_acc(imu_df),
-                plot_body_ang(imu_df),
                 plot_update_timing(imu_df, config_data['IMU_rates'][i])
             ]
-            animations = [
-                plot_body_pos_3d_anim(imu_df)
-            ]
             save_figures(save_dir, figures, ext)
-            save_animations(save_dir, animations)
 
         for i, cam_df in enumerate(cam_dfs):
             figures = [

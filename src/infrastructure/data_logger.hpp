@@ -25,6 +25,8 @@
 class DataLogger
 {
 public:
+  DataLogger() {}
+
   ///
   /// @brief DataLogger constructor
   /// @param output_directory Output directory for creating data log file
@@ -54,14 +56,17 @@ public:
   /// @brief Output directory setter
   /// @param directory Output directory string
   ///
-  void SetOutputDirectory(std::string directory);
+  void SetOutputDirectory(std::string output_directory);
+
+  void SetOutputFileName(std::string file_name);
 
 private:
   bool m_initialized{false};
   std::string m_log_header{"\n"};
   std::ofstream m_log_file;
   bool m_logging_on {false};
-  std::string m_log_file_path;
+  std::string m_output_directory {""};
+  std::string m_file_name {"default.log"};
 };
 
 #endif  // INFRASTRUCTURE__DATA_LOGGER_HPP_

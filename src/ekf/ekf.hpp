@@ -23,6 +23,7 @@
 #include "ekf/types.hpp"
 #include "ekf/constants.hpp"
 #include "infrastructure/debug_logger.hpp"
+#include "infrastructure/data_logger.hpp"
 
 ///
 /// @class EKF
@@ -39,7 +40,7 @@ private:
   ///
   /// @brief EKF class constructor
   ///
-  EKF() {}
+  EKF();
 
 public:
   ///
@@ -188,6 +189,19 @@ public:
   ///
   void AugmentState(unsigned int camera_id, unsigned int frame_id);
 
+  ///
+  ///
+  ///
+  void SetBodyDataRate(double rate);
+
+  ///
+  /// @brief Function to switch the logger on/off
+  /// @param value Logger on/off value
+  ///
+  void SetDataLogging(bool value);
+
+  DataLogger m_data_logger;
+
 private:
   unsigned int m_stateSize{g_body_state_size};
   State m_state;
@@ -195,6 +209,9 @@ private:
   double m_current_time {0};
   bool m_time_initialized {false};
   DebugLogger * m_logger = DebugLogger::GetInstance();
+  double m_body_data_rate {0};
+  double m_prev_log_time {0};
+  bool m_data_logging_on {false};
 
   Eigen::MatrixXd m_process_noise =
     Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-3;

@@ -149,8 +149,8 @@
     "terminal.integrated.gpuAcceleration": "off",
     "cmake.debugConfig": {
         "args": [
-            "${workspaceFolder}/config/imu-cam.yaml",
-            "${workspaceFolder}/config/imu-cam/"
+            "${workspaceFolder}/config/example.yaml",
+            "${workspaceFolder}/config/example/"
         ]
     }
 }

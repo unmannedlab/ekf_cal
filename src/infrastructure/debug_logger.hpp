@@ -97,7 +97,7 @@ public:
   /// @brief Output directory setter
   /// @param directory Output directory string
   ///
-  void SetOutputDirectory(std::string directory);
+  void SetOutputDirectory(std::string output_directory);
 
 private:
   LogLevel m_log_level = LogLevel::FATAL;
