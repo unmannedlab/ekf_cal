@@ -26,6 +26,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include "ekf/types.hpp"
+#include "infrastructure/data_logger.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/camera.hpp"
@@ -60,7 +61,11 @@ public:
   /// @param params Simulation IMU parameters
   /// @param truth_engine Truth engine
   ///
-  SimFeatureTracker(Parameters params, std::shared_ptr<TruthEngine> truth_engine);
+  SimFeatureTracker(
+    Parameters params,
+    std::shared_ptr<TruthEngine> truth_engine,
+    std::string log_file_directory,
+    bool data_logging_on);
 
   ///
   /// @brief Generate simulated tracker messages
@@ -96,6 +101,7 @@ private:
   unsigned int m_image_width {640};
   unsigned int m_image_height {480};
   cv::Mat m_proj_matrix;
+  DataLogger m_data_logger;
 };
 
 

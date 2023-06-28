@@ -28,7 +28,9 @@
 MsckfUpdater::MsckfUpdater(
   unsigned int cam_id, std::string log_file_directory,
   bool data_logging_on)
-: Updater(cam_id), m_data_logger(log_file_directory, "camera_" + std::to_string(cam_id) + ".csv")
+: Updater(cam_id),
+  m_data_logger(log_file_directory, "camera_" + std::to_string(cam_id) + ".csv"),
+  m_triangulation_logger(log_file_directory, "triangulation_" + std::to_string(cam_id) + ".csv")
 {
   std::stringstream msg;
   msg << "time";
@@ -41,6 +43,9 @@ MsckfUpdater::MsckfUpdater(
 
   m_data_logger.DefineHeader(msg.str());
   m_data_logger.SetLogging(data_logging_on);
+
+  m_triangulation_logger.DefineHeader("feature,x,y,z\n");
+  m_triangulation_logger.SetLogging(data_logging_on);
 }
 
 AugmentedState MsckfUpdater::MatchState(
@@ -104,6 +109,14 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
   /// @todo condition check
   /// @todo max and min distance check
 
+  std::stringstream msg;
+  msg << std::to_string(feature_track[0].key_point.class_id);
+  msg << "," << position_f_in_g[0];
+  msg << "," << position_f_in_g[1];
+  msg << "," << position_f_in_g[2];
+  msg << "\n";
+  m_triangulation_logger.Log(msg.str());
+
   return position_f_in_g;
 }
 
@@ -151,7 +164,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
     AugmentedState aug_state_0 = MatchState(feature_track[0].frame_id);
 
     Eigen::Matrix3d rot_c0_to_g = aug_state_0.orientation.toRotationMatrix();
-    Eigen::Matrix3d rot_i0_to_g = aug_state_0.imu_orientation.toRotationMatrix();
+    // Eigen::Matrix3d rot_i0_to_g = aug_state_0.imu_orientation.toRotationMatrix();
 
     // Anchor pose orientation and position
     Eigen::Vector3d pos_i_in_g = aug_state_0.imu_position;

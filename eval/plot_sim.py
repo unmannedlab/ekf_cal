@@ -307,6 +307,34 @@ def plot_camera_ang(cam_df):
     return fig
 
 
+# @todo include camera ID
+def total_triangulation_error(tri_df, feat_df):
+    feature = tri_df['feature'].to_list()
+    feat_x = tri_df['x'].to_list()
+    feat_y = tri_df['y'].to_list()
+    feat_z = tri_df['z'].to_list()
+
+    true_x = feat_df['x'].to_list()
+    true_y = feat_df['y'].to_list()
+    true_z = feat_df['z'].to_list()
+
+    err_x = []
+    err_y = []
+    err_z = []
+    for (f, x, y, z) in zip(feature, feat_x, feat_y, feat_z):
+        err_x.append(x - true_x[int(f)])
+        err_y.append(y - true_y[int(f)])
+        err_z.append(z - true_z[int(f)])
+
+    fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+    axs_1.plot(err_x)
+    axs_2.plot(err_y)
+    axs_3.plot(err_z)
+    set_plot_titles(fig, 'Triangulation Errors')
+
+    return fig
+
+
 def format_prefix(prefix):
     if (prefix == 'imu'):
         return 'IMU'
@@ -364,51 +392,77 @@ def save_animations(save_dir, animations):
         title = ani._title.replace(' ', '_').lower()
         ani.save(filename=os.path.join(save_dir, f'{title}.gif'), writer='pillow')
 
+def plot_body_data(body_df):
+    figures = [
+        plot_body_pos(body_df),
+        plot_body_pos_3d(body_df),
+        plot_body_vel(body_df),
+        plot_body_acc(body_df),
+        plot_body_ang(body_df)
+    ]
+    animations = [
+        plot_body_pos_3d_anim(body_df)
+    ]
+    return figures, animations
+
+
+def plot_imu_data(imu_df, config_data, i):
+    figures = [
+        plot_imu_residuals(imu_df),
+        plot_imu_offset_updates(imu_df),
+        plot_imu_bias_updates(imu_df),
+        plot_update_timing(imu_df, config_data['IMU_rates'][i])
+    ]
+    return figures
+
+
+def plot_cam_data(cam_df, config_data, i):
+    figures = [
+        plot_camera_body_pos_updates(cam_df),
+        plot_camera_body_ang_updates(cam_df),
+        plot_camera_offset_updates(cam_df),
+        plot_camera_pos(cam_df),
+        plot_camera_ang(cam_df),
+        plot_update_timing(cam_df, config_data['Camera_rates'][i])
+    ]
+    return figures
+
+
+def plot_triangulation_data(tri_df, feat_df, i):
+    figures = [
+        total_triangulation_error(tri_df, feat_df)
+    ]
+    return figures
+
 
 def plot_sim_results(configs, no_show=False, ext='png'):
     for config in configs:
         config_data = parse_yaml(config)
 
         directory = config.split('.yaml')[0]
-        body_df = pd.read_csv(os.path.join(directory, 'body_state.csv'))
-        imu_dfs = find_and_read_data_frames(directory, 'imu')
-        cam_dfs = find_and_read_data_frames(directory, 'camera')
-
         save_dir = os.path.join(directory, 'plots')
         if not os.path.isdir(save_dir):
             os.mkdir(save_dir)
 
-        figures = [
-            plot_body_pos(body_df),
-            plot_body_pos_3d(body_df),
-            plot_body_vel(body_df),
-            plot_body_acc(body_df),
-            plot_body_ang(body_df)
-        ]
-        animations = [
-            plot_body_pos_3d_anim(body_df)
-        ]
+        body_df = pd.read_csv(os.path.join(directory, 'body_state.csv'))
+        figures, animations = plot_body_data(body_df)
         save_figures(save_dir, figures, ext)
         save_animations(save_dir, animations)
 
+        imu_dfs = find_and_read_data_frames(directory, 'imu')
         for i, imu_df in enumerate(imu_dfs):
-            figures = [
-                plot_imu_residuals(imu_df),
-                plot_imu_offset_updates(imu_df),
-                plot_imu_bias_updates(imu_df),
-                plot_update_timing(imu_df, config_data['IMU_rates'][i])
-            ]
+            figures = plot_imu_data(imu_df, config_data, i)
             save_figures(save_dir, figures, ext)
 
+        cam_dfs = find_and_read_data_frames(directory, 'camera')
         for i, cam_df in enumerate(cam_dfs):
-            figures = [
-                plot_camera_body_pos_updates(cam_df),
-                plot_camera_body_ang_updates(cam_df),
-                plot_camera_offset_updates(cam_df),
-                plot_camera_pos(cam_df),
-                plot_camera_ang(cam_df),
-                plot_update_timing(cam_df, config_data['Camera_rates'][i])
-            ]
+            figures = plot_cam_data(cam_df, config_data, i)
+            save_figures(save_dir, figures, ext)
+
+        feat_df = pd.read_csv(os.path.join(directory, 'feature_points.csv'))
+        tri_dfs = find_and_read_data_frames(directory, 'triangulation')
+        for i, tri_df in enumerate(tri_dfs):
+            figures = plot_triangulation_data(tri_df, feat_df, i)
             save_figures(save_dir, figures, ext)
 
         if (not no_show):

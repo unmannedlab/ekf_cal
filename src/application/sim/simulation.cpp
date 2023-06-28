@@ -193,7 +193,8 @@ int main(int argc, char * argv[])
     trk_params.tracker_params.sensor_id = cam->GetId();
     trk_params.pos_offset = sim_cam_params.pos_offset;
     trk_params.ang_offset = sim_cam_params.ang_offset;
-    auto trk = std::make_shared<SimFeatureTracker>(trk_params, truth_engine);
+    auto trk = std::make_shared<SimFeatureTracker>(
+      trk_params, truth_engine, out_dir, data_logging_on);
     cam->AddTracker(trk);
     sensor_map[cam->GetId()] = cam;
 

@@ -26,14 +26,20 @@
 
 SimFeatureTracker::SimFeatureTracker(
   SimFeatureTracker::Parameters params,
-  std::shared_ptr<TruthEngine> truthEngine)
-: FeatureTracker(params.tracker_params)
+  std::shared_ptr<TruthEngine> truthEngine,
+  std::string log_file_directory,
+  bool data_logging_on)
+: FeatureTracker(params.tracker_params),
+  m_data_logger(log_file_directory, "feature_points.csv")
 {
   m_px_error = params.px_error;
   m_pos_offset = params.pos_offset;
   m_ang_offset = params.ang_offset;
   m_feature_count = params.feature_count;
   m_truth = truthEngine;
+
+  m_data_logger.DefineHeader("Feature,x,y,z\n");
+  m_data_logger.SetLogging(data_logging_on);
 
   m_feature_points.push_back(cv::Point3d(params.room_size, 0, 0));
   m_feature_points.push_back(cv::Point3d(-params.room_size, 0, 0));
@@ -48,6 +54,16 @@ SimFeatureTracker::SimFeatureTracker(
     vec.y = m_rng.UniRand(-params.room_size, params.room_size);
     vec.z = m_rng.UniRand(-params.room_size / 10, params.room_size / 10);
     m_feature_points.push_back(vec);
+  }
+
+  for (unsigned int i = 0; i < m_feature_points.size(); ++i) {
+    std::stringstream msg;
+    msg << std::to_string(i);
+    msg << "," << m_feature_points[i].x;
+    msg << "," << m_feature_points[i].y;
+    msg << "," << m_feature_points[i].z;
+    msg << "\n";
+    m_data_logger.Log(msg.str());
   }
 
   m_proj_matrix = cv::Mat(3, 3, cv::DataType<double>::type, 0.0);
