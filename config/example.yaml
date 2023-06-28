@@ -3,6 +3,7 @@
     ros__parameters:
         Debug_Log_Level: 2
         Data_Logging_On: True
+        Body_Data_Rate: 10.0
         SimParams:
             Seed: 0.0
             UseSeed: False
