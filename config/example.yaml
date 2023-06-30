@@ -3,18 +3,18 @@
     ros__parameters:
         Debug_Log_Level: 2
         Data_Logging_On: True
-        Body_Data_Rate: 10.0
+        Body_Data_Rate: 100.0
         SimParams:
             Seed: 0.0
             UseSeed: False
             MaxTime: 10.0
             TruthType: "Cyclic"
-            PosFrequency: [0.0, 1.0, 0.0]
+            PosFrequency: [2.0, 1.0, 0.5]
             AngFrequency: [0.0, 0.0, 0.0]
 
         IMU_list:
             - "vn300"
-            - "vn100"
+            # - "vn100"
 
         Camera_list:
             - "ace"
@@ -70,6 +70,8 @@
                 Topic:  "/my_camera/pylon_ros2_camera_node/image_raw"
                 PosOffInit: [0.0, 0.0, 0.0]
                 AngOffInit: [0.5, -0.5, 0.5, -0.5]
+                # AngOffInit: [0.5, 0.5, -0.5, 0.5]
+                # AngOffInit: [1.0, 0.0, 0.0, 0.0]
                 VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 Tracker: "ORB"
                 SimParams:
@@ -78,6 +80,8 @@
                     timeError: 1.0e-9
                     posOffset: [0.0, 0.0, 0.0]
                     angOffset: [0.5, -0.5, 0.5, -0.5]
+                    # angOffset: [0.5, 0.5, -0.5, 0.5]
+                    # angOffset: [1.0, 0.0, 0.0, 0.0]
 
         Tracker:
             ORB:

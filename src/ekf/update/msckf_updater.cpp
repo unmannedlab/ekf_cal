@@ -55,10 +55,10 @@ AugmentedState MsckfUpdater::MatchState(
 
   for (auto & aug_state : m_aug_states) {
     if (aug_state.frame_id == frame_id) {
-      aug_state_match = aug_state;
-      break;
+      return aug_state;
     }
   }
+  std::cout << "VERY BAD: " << std::to_string(frame_id) << std::endl;
 
   return aug_state_match;
 }
@@ -66,6 +66,7 @@ AugmentedState MsckfUpdater::MatchState(
 /// @todo possible move into separate source for re-compilation speed
 Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & feature_track)
 {
+  std::cout << "Tri Start: ";
   AugmentedState aug_state_0 = MatchState(feature_track[0].frame_id);
 
   // 3D Cartesian Triangulation
@@ -78,6 +79,7 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
 
   for (unsigned int i = 0; i < feature_track.size(); ++i) {
     AugmentedState aug_state_i = MatchState(feature_track[i].frame_id);
+    std::cout << feature_track[i].frame_id << std::endl;
 
     const Eigen::Matrix<double, 3, 3> rotation_ci_to_g = aug_state_i.orientation.toRotationMatrix();
     const Eigen::Vector3d position_ci_in_g = aug_state_i.position;
@@ -88,8 +90,10 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
 
     // Get the UV coordinate normal
     Eigen::Vector3d b_i;
-    b_i(0) = (feature_track[i].key_point.pt.x - (static_cast<double>(m_image_width) / 2)) / 200.0;
-    b_i(1) = (feature_track[i].key_point.pt.y - (static_cast<double>(m_image_height) / 2)) / 200.0;
+    b_i(0) = (feature_track[i].key_point.pt.x - (static_cast<double>(m_image_width) / 2)) /
+      (m_focal_length / m_pixel_size);
+    b_i(1) = (feature_track[i].key_point.pt.y - (static_cast<double>(m_image_height) / 2)) /
+      (m_focal_length / m_pixel_size);
     b_i(2) = 1;
 
     // Rotate and normalize
@@ -109,6 +113,7 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
   /// @todo condition check
   /// @todo max and min distance check
 
+  /// @todo move logger
   std::stringstream msg;
   msg << std::to_string(feature_track[0].key_point.class_id);
   msg << "," << position_f_in_g[0];
@@ -299,9 +304,9 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
   Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_states_size);
   Eigen::VectorXd cam_update = update.segment(g_body_state_size + imu_states_size, cam_states_size);
 
-  m_ekf->GetState().m_body_state += body_update;
-  m_ekf->GetState().m_imu_states += imu_update;
-  m_ekf->GetState().m_cam_states += cam_update;
+  // m_ekf->GetState().m_body_state += body_update;
+  // m_ekf->GetState().m_imu_states += imu_update;
+  // m_ekf->GetState().m_cam_states += cam_update;
 
   m_ekf->GetCov() =
     (Eigen::MatrixXd::Identity(state_size, state_size) - K * Hx_big) * m_ekf->GetCov();

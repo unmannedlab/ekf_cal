@@ -267,6 +267,7 @@ Eigen::MatrixXd EKF::AugmentJacobian(
 /// @todo Augment covariance with Jacobian
 void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
 {
+  std::cout << "Aug State Frame: " << std::to_string(frame_id) << std::endl;
   AugmentedState aug_state;
   aug_state.frame_id = frame_id;
   Eigen::Vector3d pos_i_in_g = m_state.m_body_state.m_position;
@@ -282,18 +283,18 @@ void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
   unsigned int aug_state_start;
   unsigned int cam_state_start = GetCamStateStartIndex(camera_id);
 
-  // Limit augmented states to 20
-  if (m_state.m_cam_states[camera_id].augmented_states.size() <= 20) {
+  // Limit augmented states to 20 + 1
+  if (m_state.m_cam_states[camera_id].augmented_states.size() <= 21) {
     aug_state_start = GetAugStateStartIndex(camera_id, frame_id);
 
     m_stateSize += 12;
   } else {
-    // Remove second element from state
+    // Remove first element from state
     m_state.m_cam_states[camera_id].augmented_states.erase(
-      m_state.m_cam_states[camera_id].augmented_states.begin() + 1);
+      m_state.m_cam_states[camera_id].augmented_states.begin());
 
-    // Remove second element from covariance
-    m_cov = RemoveFromMatrix(m_cov, cam_state_start + 24, cam_state_start + 24, 12);
+    // Remove first element from covariance
+    m_cov = RemoveFromMatrix(m_cov, cam_state_start + 12, cam_state_start + 12, 12);
 
     aug_state_start = GetAugStateStartIndex(camera_id, frame_id);
   }

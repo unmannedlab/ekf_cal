@@ -224,11 +224,14 @@ def plot_body_pos_3d_anim(df, duration: float = 2):
     y_pos = df['body_state_1'].to_list()
     z_pos = df['body_state_2'].to_list()
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    title = ax.set_title('Body Position 3D')
-    graph, = ax.plot(x_pos, y_pos, z_pos, label='t = 0.00')
+    axs = fig.add_subplot(111, projection='3d')
+    title = axs.set_title('Body Position 3D')
+    graph, = axs.plot(x_pos, y_pos, z_pos, label='t = 0.00')
     title.set_text('Body Position 3D')
-    legend = ax.legend()
+    axs.set_xlabel('X [m]')
+    axs.set_ylabel('Y [m]')
+    axs.set_zlabel('Z [m]')
+    legend = axs.legend()
     ani = animation.FuncAnimation(fig, functools.partial(update_3d_pos_graph, graph=graph, legend=legend, t=time, x=x_pos, y=y_pos, z=z_pos, frame_count=frame_count), frame_count, interval=interval, blit=True)
     ani._title = 'Body Position 3D'
     return ani

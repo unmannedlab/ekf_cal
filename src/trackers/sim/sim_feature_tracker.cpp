@@ -23,6 +23,7 @@
 #include <opencv2/features2d.hpp>
 
 #include "trackers/sim/sim_feature_tracker_message.hpp"
+#include "utility/constants.hpp"
 
 SimFeatureTracker::SimFeatureTracker(
   SimFeatureTracker::Parameters params,
@@ -42,10 +43,14 @@ SimFeatureTracker::SimFeatureTracker(
   m_data_logger.SetLogging(data_logging_on);
 
   m_feature_points.push_back(cv::Point3d(params.room_size, 0, 0));
+  m_feature_points.push_back(cv::Point3d(params.room_size, params.room_size / 10, 0));
+  m_feature_points.push_back(cv::Point3d(params.room_size, 0, params.room_size / 10));
   m_feature_points.push_back(cv::Point3d(-params.room_size, 0, 0));
   m_feature_points.push_back(cv::Point3d(0, params.room_size, 0));
   m_feature_points.push_back(cv::Point3d(0, -params.room_size, 0));
   m_feature_points.push_back(cv::Point3d(0, 0, params.room_size));
+  m_feature_points.push_back(cv::Point3d(params.room_size / 10, 0, params.room_size));
+  m_feature_points.push_back(cv::Point3d(0, params.room_size / 10, params.room_size));
   m_feature_points.push_back(cv::Point3d(0, 0, -params.room_size));
   for (unsigned int i = 0; i < m_feature_count; ++i) {
     cv::Point3d vec;
@@ -67,8 +72,8 @@ SimFeatureTracker::SimFeatureTracker(
   }
 
   m_proj_matrix = cv::Mat(3, 3, cv::DataType<double>::type, 0.0);
-  m_proj_matrix.at<double>(0, 0) = m_focal_length;
-  m_proj_matrix.at<double>(1, 1) = m_focal_length;
+  m_proj_matrix.at<double>(0, 0) = m_focal_length / m_pixel_size;
+  m_proj_matrix.at<double>(1, 1) = m_focal_length / m_pixel_size;
   m_proj_matrix.at<double>(0, 2) = static_cast<double>(m_image_width) / 2.0;
   m_proj_matrix.at<double>(1, 2) = static_cast<double>(m_image_height) / 2.0;
   m_proj_matrix.at<double>(2, 2) = 1;
@@ -97,16 +102,16 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 
   // Creating Rodrigues rotation matrix
   /// @todo put into type helper and fix names
-  cv::Mat rvec(3, 1, cv::DataType<double>::type);
-  cv::Rodrigues(ang_g_to_c_cv, rvec);
+  cv::Mat r_vec(3, 1, cv::DataType<double>::type);
+  cv::Rodrigues(ang_g_to_c_cv, r_vec);
 
   Eigen::Vector3d pos_g_in_c = ang_g_to_c * (-(pos_i_in_g + ang_i_to_g * m_pos_offset));
 
-  cv::Mat tvec(3, 1, cv::DataType<double>::type);
+  cv::Mat t_vec(3, 1, cv::DataType<double>::type);
   /// @todo convert to be in C
-  tvec.at<double>(0) = pos_g_in_c[0];
-  tvec.at<double>(1) = pos_g_in_c[1];
-  tvec.at<double>(2) = pos_g_in_c[2];
+  t_vec.at<double>(0) = pos_g_in_c[0];
+  t_vec.at<double>(1) = pos_g_in_c[1];
+  t_vec.at<double>(2) = pos_g_in_c[2];
 
   // Create zero distortion
   /// @todo grab this from input
@@ -117,7 +122,7 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 
   /// @todo 2D projection is not correct
   cv::projectPoints(
-    m_feature_points, rvec, tvec, m_proj_matrix, distortion, projected_points);
+    m_feature_points, r_vec, t_vec, m_proj_matrix, distortion, projected_points);
 
   // Convert to feature points
   std::vector<cv::KeyPoint> projected_features;
@@ -169,11 +174,11 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::Genera
     for (auto it = feature_track_map.cbegin(); it != feature_track_map.cend(); ) {
       const auto & feature_track = it->second;
       /// @todo get constant from tracker
-      if ((feature_track.size() > 1) &&
-        ((feature_track.back().frame_id < frame_id) || (feature_track.size() >= 20)))
-      {
+      if ((feature_track.back().frame_id < frame_id) || (feature_track.size() >= 20)) {
         // This feature does not exist in the latest frame
-        feature_tracks.push_back(feature_track);
+        if (feature_track.size() > 1) {
+          feature_tracks.push_back(feature_track);
+        }
         it = feature_track_map.erase(it);
       } else {
         ++it;

@@ -17,5 +17,6 @@
 #define UTILITY__CONSTANTS_HPP_
 
 static constexpr double g_nsec_to_sec = 1e-9;
+static constexpr double g_mm_to_m = 1e-3;
 
 #endif  // UTILITY__CONSTANTS_HPP_
