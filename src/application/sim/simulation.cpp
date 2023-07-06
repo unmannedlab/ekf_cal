@@ -84,6 +84,7 @@ int main(int argc, char * argv[])
   bool use_seed = sim_params["UseSeed"].as<bool>();
   Eigen::Vector3d pos_frequency = StdToEigVec(sim_params["PosFrequency"].as<std::vector<double>>());
   Eigen::Vector3d ang_frequency = StdToEigVec(sim_params["AngFrequency"].as<std::vector<double>>());
+  Eigen::Vector3d pos_offset = StdToEigVec(sim_params["PosOffset"].as<std::vector<double>>());
   double max_time = sim_params["MaxTime"].as<double>();
 
   DebugLogger * logger = DebugLogger::GetInstance();
@@ -97,7 +98,10 @@ int main(int argc, char * argv[])
   }
 
   /// @todo Select type of truth engine using parameters
-  auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(pos_frequency, ang_frequency);
+  auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(
+    pos_frequency,
+    ang_frequency,
+    pos_offset);
   auto truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
 
   // Load IMUs and generate measurements

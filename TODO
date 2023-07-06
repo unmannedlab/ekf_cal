@@ -51,9 +51,9 @@ Software Work:
     - Input file generator
     - Add number of runs in input
     - Output true feature locations to data logger
-    - Plot triangulated feature points vs truth
     - Switch to reentrant callback group
     - Show track images from simulation
+    - Plot body error against truth if available
     Simple Simulation:
         - Add parameter for feature point uncertainty
 

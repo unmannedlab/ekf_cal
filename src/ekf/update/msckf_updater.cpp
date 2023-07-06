@@ -58,15 +58,13 @@ AugmentedState MsckfUpdater::MatchState(
       return aug_state;
     }
   }
-  std::cout << "VERY BAD: " << std::to_string(frame_id) << std::endl;
-
+  m_logger->Log(LogLevel::WARN, "No matching augmented state");
   return aug_state_match;
 }
 
 /// @todo possible move into separate source for re-compilation speed
 Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & feature_track)
 {
-  std::cout << "Tri Start: ";
   AugmentedState aug_state_0 = MatchState(feature_track[0].frame_id);
 
   // 3D Cartesian Triangulation
@@ -79,7 +77,6 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
 
   for (unsigned int i = 0; i < feature_track.size(); ++i) {
     AugmentedState aug_state_i = MatchState(feature_track[i].frame_id);
-    std::cout << feature_track[i].frame_id << std::endl;
 
     const Eigen::Matrix<double, 3, 3> rotation_ci_to_g = aug_state_i.orientation.toRotationMatrix();
     const Eigen::Vector3d position_ci_in_g = aug_state_i.position;

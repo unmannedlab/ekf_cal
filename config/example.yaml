@@ -9,8 +9,9 @@
             UseSeed: False
             MaxTime: 10.0
             TruthType: "Cyclic"
-            PosFrequency: [2.0, 1.0, 0.5]
+            PosFrequency: [1.1, 1.2, 1.3]
             AngFrequency: [0.0, 0.0, 0.0]
+            PosOffset: [0.0, 0.0, 0.0]
 
         IMU_list:
             - "vn300"
@@ -36,11 +37,11 @@
                 SimParams:
                     timeBias: 0.0
                     timeSkew: 0.0
-                    timeError: 1.0e-9
+                    timeError: 1.0e-18
                     accBias: [0.0, 0.0, 0.0]
-                    accError: [1.0e-9, 1.0e-9, 1.0e-9]
+                    accError: [1.0e-18, 1.0e-18, 1.0e-18]
                     omgBias: [0.0, 0.0, 0.0]
-                    omgError: [1.0e-9, 1.0e-9, 1.0e-9]
+                    omgError: [1.0e-18, 1.0e-18, 1.0e-18]
                     posOffset: [0.0, 0.0, 0.0]
                     angOffset: [1.0, 0.0, 0.0, 0.0]
             vn100:
@@ -56,11 +57,11 @@
                 SimParams:
                     timeBias: 0.0
                     timeSkew: 0.0
-                    timeError: 1.0e-9
+                    timeError: 1.0e-18
                     accBias: [0.0, 0.0, 0.0]
-                    accError: [1.0e-9, 1.0e-9, 1.0e-9]
+                    accError: [1.0e-18, 1.0e-18, 1.0e-18]
                     omgBias: [0.0, 0.0, 0.0]
-                    omgError: [1.0e-9, 1.0e-9, 1.0e-9]
+                    omgError: [1.0e-18, 1.0e-18, 1.0e-18]
                     posOffset: [0.0, 0.0, 0.0]
                     angOffset: [1.0, 0.0, 0.0, 0.0]
 
@@ -70,18 +71,14 @@
                 Topic:  "/my_camera/pylon_ros2_camera_node/image_raw"
                 PosOffInit: [0.0, 0.0, 0.0]
                 AngOffInit: [0.5, -0.5, 0.5, -0.5]
-                # AngOffInit: [0.5, 0.5, -0.5, 0.5]
-                # AngOffInit: [1.0, 0.0, 0.0, 0.0]
                 VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 Tracker: "ORB"
                 SimParams:
                     timeBias: 0.0
                     timeSkew: 0.0
-                    timeError: 1.0e-9
+                    timeError: 1.0e-18
                     posOffset: [0.0, 0.0, 0.0]
                     angOffset: [0.5, -0.5, 0.5, -0.5]
-                    # angOffset: [0.5, 0.5, -0.5, 0.5]
-                    # angOffset: [1.0, 0.0, 0.0, 0.0]
 
         Tracker:
             ORB:

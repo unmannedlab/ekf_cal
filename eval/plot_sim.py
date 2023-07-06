@@ -383,14 +383,16 @@ def parse_yaml(config):
     return config_data
 
 
-def save_figures(save_dir, figures, ext):
+def save_figures(save_dir, figures, ext, no_show=False):
+    if (not no_show): plt.show()
     for fig in figures:
         title = fig._suptitle.get_text().replace(' ', '_').lower()
         fig.savefig(os.path.join(save_dir, f'{title}.{ext}'), format=ext)
         plt.close(fig)
 
 
-def save_animations(save_dir, animations):
+def save_animations(save_dir, animations, no_show=False):
+    if (not no_show): plt.show()
     for ani in animations:
         title = ani._title.replace(' ', '_').lower()
         ani.save(filename=os.path.join(save_dir, f'{title}.gif'), writer='pillow')
@@ -449,27 +451,24 @@ def plot_sim_results(configs, no_show=False, ext='png'):
 
         body_df = pd.read_csv(os.path.join(directory, 'body_state.csv'))
         figures, animations = plot_body_data(body_df)
-        save_figures(save_dir, figures, ext)
-        save_animations(save_dir, animations)
+        save_figures(save_dir, figures, ext, no_show=no_show)
+        save_animations(save_dir, animations, no_show=no_show)
 
         imu_dfs = find_and_read_data_frames(directory, 'imu')
         for i, imu_df in enumerate(imu_dfs):
             figures = plot_imu_data(imu_df, config_data, i)
-            save_figures(save_dir, figures, ext)
+            save_figures(save_dir, figures, ext, no_show=no_show)
 
         cam_dfs = find_and_read_data_frames(directory, 'camera')
         for i, cam_df in enumerate(cam_dfs):
             figures = plot_cam_data(cam_df, config_data, i)
-            save_figures(save_dir, figures, ext)
+            save_figures(save_dir, figures, ext, no_show=no_show)
 
         feat_df = pd.read_csv(os.path.join(directory, 'feature_points.csv'))
         tri_dfs = find_and_read_data_frames(directory, 'triangulation')
         for i, tri_df in enumerate(tri_dfs):
             figures = plot_triangulation_data(tri_df, feat_df, i)
-            save_figures(save_dir, figures, ext)
-
-        if (not no_show):
-            plt.show()
+            save_figures(save_dir, figures, ext, no_show=no_show)
 
 
 if __name__ == '__main__':

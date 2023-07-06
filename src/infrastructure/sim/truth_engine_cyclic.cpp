@@ -21,10 +21,14 @@
 #include <cmath>
 
 
-TruthEngineCyclic::TruthEngineCyclic(Eigen::Vector3d pos_frequency, Eigen::Vector3d ang_frequency)
+TruthEngineCyclic::TruthEngineCyclic(
+  Eigen::Vector3d pos_frequency,
+  Eigen::Vector3d ang_frequency,
+  Eigen::Vector3d pos_offset)
 {
   m_pos_cycle_frequency = pos_frequency;
   m_ang_cycle_frequency = ang_frequency;
+  m_pos_offset = pos_offset;
   m_ang_amplitude = 0.1;
   m_pos_amplitude = 1.0;
 }
@@ -33,9 +37,12 @@ TruthEngineCyclic::TruthEngineCyclic(Eigen::Vector3d pos_frequency, Eigen::Vecto
 Eigen::Vector3d TruthEngineCyclic::GetBodyPosition(double time)
 {
   Eigen::Vector3d position;
-  position[0] = m_pos_amplitude * (1 - std::cos(m_pos_cycle_frequency[0] * 2 * M_PI * time));
-  position[1] = m_pos_amplitude * (1 - std::cos(m_pos_cycle_frequency[1] * 2 * M_PI * time));
-  position[2] = m_pos_amplitude * (1 - std::cos(m_pos_cycle_frequency[2] * 2 * M_PI * time));
+  position[0] = m_pos_amplitude * (1 - std::cos(m_pos_cycle_frequency[0] * 2 * M_PI * time)) +
+    m_pos_offset[0];
+  position[1] = m_pos_amplitude * (1 - std::cos(m_pos_cycle_frequency[1] * 2 * M_PI * time)) +
+    m_pos_offset[1];
+  position[2] = m_pos_amplitude * (1 - std::cos(m_pos_cycle_frequency[2] * 2 * M_PI * time)) +
+    m_pos_offset[2];
   return position;
 }
 
