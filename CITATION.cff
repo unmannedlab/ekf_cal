@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Hartzer"
+  given-names: "Jacob"
+  orcid: "https://orcid.org/0000-0002-3051-2213"
+title: "EKF-CAL"
+version: 0.2.0
+# doi:
+# date-released:
+url: "https://github.com/JHartzer/ekf-cal"

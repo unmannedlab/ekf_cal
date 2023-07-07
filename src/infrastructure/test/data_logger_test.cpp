@@ -23,6 +23,8 @@ TEST(test_data_logger, log_data) {
   std::string directory {""};
   std::string file_name {"test.log"};
   DataLogger data_logger(directory, file_name);
+  data_logger.SetOutputDirectory(directory);
+  data_logger.SetOutputFileName(file_name);
   data_logger.SetLogging(true);
   data_logger.DefineHeader("Val_1,Val_2,Val_3\n");
   data_logger.Log("1,2,3\n");

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(ekf_cal)
 
 set(EKF_CAL_MAJOR_VERSION 0)
-set(EKF_CAL_MINOR_VERSION 1)
+set(EKF_CAL_MINOR_VERSION 2)
 set(EKF_CAL_PATCH_VERSION 0)
 set(EKF_CAL_VERSION ${EKF_CAL_MAJOR_VERSION}.${EKF_CAL_MINOR_VERSION}.${EKF_CAL_PATCH_VERSION})
 configure_file(src/infrastructure/ekf_cal_version.hpp.in infrastructure/ekf_cal_version.hpp)
@@ -171,9 +171,9 @@ if(BUILD_TESTING)
         src/ekf/test/ekf_test.cpp
         src/ekf/test/types_test.cpp
         src/ekf/update/test/imu_updater_test.cpp
-        src/infrastructure/sim/test/data_logger_test.cpp
         src/infrastructure/sim/test/sim_debug_logger_test.cpp
         src/infrastructure/sim/test/truth_engine_test.cpp
+        src/infrastructure/test/data_logger_test.cpp
         src/sensors/ros/test/ros_camera_test.cpp
         src/sensors/ros/test/ros_imu_test.cpp
         src/sensors/test/camera_test.cpp
