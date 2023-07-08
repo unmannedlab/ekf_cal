@@ -23,4 +23,16 @@ enum class SensorType
   Tracker
 };
 
+typedef struct Intrinsics
+{
+  double f_x {1.0};  ///< @brief X focal length
+  double f_y {1.0};  ///< @brief Y focal length
+  double c_x {0.0};  ///< @brief X optical center
+  double c_y {0.0};  ///< @brief Y optical center
+  double k_1 {0.0};  ///< @brief Radial coefficient 1
+  double k_2 {0.0};  ///< @brief Radial coefficient 2
+  double p_1 {0.0};  ///< @brief Tangential coefficient 1
+  double p_2 {0.0};  ///< @brief Tangential coefficient 1
+} Intrinsics;
+
 #endif  // SENSORS__TYPES_HPP_

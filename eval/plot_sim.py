@@ -197,7 +197,9 @@ class Plotter():
         axs_3.plot(time, cam_df['body_update_6'].to_list(), label=r'$a_x$')
         axs_3.plot(time, cam_df['body_update_7'].to_list(), label=r'$a_y$')
         axs_3.plot(time, cam_df['body_update_8'].to_list(), label=r'$a_z$')
-        set_plot_titles(fig, 'Body State Position Updates')
+        set_plot_titles(
+            fig, 
+            f'Camera {cam_df.attrs["id"]} Body State Position Updates')
         axs_1.set_ylabel('Position [m]')
         axs_2.set_ylabel('Velocity [m/s]')
         axs_3.set_ylabel('Acceleration [m/s/s]')
@@ -248,7 +250,9 @@ class Plotter():
             time,
             cam_df['body_update_17'].to_list(),
             label=r'$\alpha_z$')
-        set_plot_titles(fig, 'Body State Angular Updates')
+        set_plot_titles(
+            fig,
+            f'Camera {cam_df.attrs["id"]} Body State Angular Updates')
         axs_1.set_ylabel('Euler Angle\n[rad]')
         axs_2.set_ylabel('Angular Velocity\n[rad/s]')
         axs_3.set_ylabel('Angular Acceleration\n[rad/s/s]')

@@ -19,9 +19,10 @@
 #include <string>
 #include <vector>
 
-#include "ekf/update/updater.hpp"
 #include "ekf/ekf.hpp"
+#include "ekf/update/updater.hpp"
 #include "infrastructure/data_logger.hpp"
+#include "sensors/types.hpp"
 
 ///
 /// @class MsckfUpdater
@@ -61,12 +62,30 @@ public:
   /// @param camera_id ID of camera associated with update
   /// @param feature_tracks Feature tracks to be used for state update
   ///
-  void UpdateEKF(double time, unsigned int camera_id, FeatureTracks feature_tracks);
+  void UpdateEKF(
+    double time,
+    unsigned int camera_id,
+    FeatureTracks feature_tracks);
 
   ///
   /// @brief Refresh internal states with EKF values
   ///
   void RefreshStates();
+
+
+  ///
+  /// @brief Computes the derivative of raw distorted to normalized coordinate.
+  /// @param uv_norm Normalized coordinates we wish to distort
+  /// @param intrinsics Camera intrinsics
+  /// @param H_dz_dzn Derivative of measurement z in respect to normalized
+  ///
+  void distortion_jacobian(
+    const Eigen::Vector2d & uv_norm,
+    Intrinsics intrinsics,
+    Eigen::MatrixXd & H_dz_dzn);
+
+
+  void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian);
 
 private:
   Eigen::Vector3d m_body_pos {0.0, 0.0, 0.0};

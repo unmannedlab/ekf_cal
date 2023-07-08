@@ -16,27 +16,67 @@
 #include <eigen3/Eigen/Eigen>
 #include <gtest/gtest.h>
 
+#include "ekf/constants.hpp"
 #include "ekf/ekf.hpp"
 #include "ekf/update/msckf_updater.hpp"
-#include "ekf/constants.hpp"
+#include "sensors/types.hpp"
 
-TEST(test_msckf_updater, TriangulateFeature) {
-  EKF * ekf = EKF::GetInstance();
+class test_msckf_updater : public ::testing::Test
+{
+protected:
+  void SetUp() override
+  {
+    EKF * ekf = EKF::GetInstance();
 
-  double time_init = 0.0;
-  BodyState body_state;
-  body_state.m_velocity = Eigen::Vector3d::Ones();
-  ekf->Initialize(time_init, body_state);
+    double time_init = 0.0;
+    BodyState body_state;
+    body_state.m_velocity = Eigen::Vector3d::Ones();
+    ekf->Initialize(time_init, body_state);
 
-  unsigned int cam_id{1};
-  std::string log_file_directory{""};
-  bool data_logging_on {true};
+    unsigned int cam_id{1};
+    std::string log_file_directory{""};
+    bool data_logging_on {true};
 
-  CamState cam_state;
-  Eigen::MatrixXd cam_cov = Eigen::MatrixXd::Zero(6, 6);
-  ekf->RegisterCamera(cam_id, cam_state, cam_cov);
+    CamState cam_state;
+    Eigen::MatrixXd cam_cov = Eigen::MatrixXd::Zero(6, 6);
+    ekf->RegisterCamera(cam_id, cam_state, cam_cov);
 
-  MsckfUpdater msckf_updater(cam_id, log_file_directory, data_logging_on);
+    msckf_updater = MsckfUpdater(cam_id, log_file_directory, data_logging_on);
+  }
 
-  // msckf_updater.TriangulateFeature()
+  MsckfUpdater msckf_updater{0, "", false};
+};
+
+TEST_F(test_msckf_updater, projection_jacobian) {
+  Eigen::Vector3d position{2, 3, 4};
+  Eigen::MatrixXd jacobian(2, 3);
+  msckf_updater.projection_jacobian(position, jacobian);
+  EXPECT_EQ(jacobian(0, 0), 1.0 / 4.0);
+  EXPECT_EQ(jacobian(0, 1), 0);
+  EXPECT_EQ(jacobian(0, 2), -2.0 / 4.0 / 4.0);
+  EXPECT_EQ(jacobian(1, 0), 0);
+  EXPECT_EQ(jacobian(1, 1), 1.0 / 4.0);
+  EXPECT_EQ(jacobian(1, 2), -3.0 / 4.0 / 4.0);
+}
+
+TEST_F(test_msckf_updater, distortion_jacobian) {
+
+  Eigen::Vector2d uv_norm;
+  uv_norm << 1, 2;
+  Intrinsics intrinsics;
+  intrinsics.f_x = 1;
+  intrinsics.f_y = 1;
+  intrinsics.k_1 = 0.0;
+  intrinsics.k_2 = 0.0;
+  intrinsics.p_1 = 0.0;
+  intrinsics.p_2 = 0.0;
+
+  Eigen::MatrixXd jacobian;
+
+  msckf_updater.distortion_jacobian(uv_norm, intrinsics, jacobian);
+
+  EXPECT_EQ(jacobian(0, 0), 1);
+  EXPECT_EQ(jacobian(0, 1), 0);
+  EXPECT_EQ(jacobian(1, 0), 0);
+  EXPECT_EQ(jacobian(1, 1), 1);
 }

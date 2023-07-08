@@ -37,8 +37,6 @@ Software Work:
     - Move feature detection out of tracker callback
     - Option to de-register sensor
     - Add performance logging level / tracing: https://perf.wiki.kernel.org/index.php/Tutorial
-    - Log to file like tee
-    - Pick style and make it consistent
     - Add binaries to Github release
     - RQT Dashboard
     - Code Maintainability Score https://codeclimate.com
@@ -50,7 +48,6 @@ Software Work:
     - Add mutex to EKF class and have mutex locked by updaters
     - Input file generator
     - Add number of runs in input
-    - Output true feature locations to data logger
     - Switch to reentrant callback group
     - Show track images from simulation
     - Plot body error against truth if available
@@ -70,7 +67,6 @@ Documentation:
     - Deploy Github page for generated doxygen
     - Plant UML Functional Flow Diagrams
     - Simulation diagram
-    - Citation File: https://citation-file-format.github.io//
 
 Experimentation:
     - Test monte carlo simulation and plotting

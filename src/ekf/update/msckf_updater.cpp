@@ -21,9 +21,11 @@
 #include <chrono>
 #include <string>
 
+#include "ekf/constants.hpp"
+#include "sensors/camera.hpp"
+#include "sensors/types.hpp"
 #include "utility/math_helper.hpp"
 #include "utility/string_helper.hpp"
-#include "ekf/constants.hpp"
 
 MsckfUpdater::MsckfUpdater(
   unsigned int cam_id, std::string log_file_directory,
@@ -122,8 +124,71 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
   return position_f_in_g;
 }
 
+void MsckfUpdater::projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian)
+{
+  // Normalized coordinates in respect to projection function
+  jacobian(0, 0) = 1 / position(2);
+  jacobian(1, 1) = 1 / position(2);
+  jacobian(0, 1) = 0.0;
+  jacobian(1, 0) = 0.0;
+  jacobian(0, 2) = -position(0) / (position(2) * position(2));
+  jacobian(1, 2) = -position(1) / (position(2) * position(2));
+}
 
-void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks feature_tracks)
+void MsckfUpdater::distortion_jacobian(
+  const Eigen::Vector2d & uv_norm,
+  Intrinsics intrinsics,
+  Eigen::MatrixXd & H_dz_dzn)
+{
+  // Calculate distorted coordinates for radial
+  double r = std::sqrt(uv_norm(0) * uv_norm(0) + uv_norm(1) * uv_norm(1));
+  double r_2 = r * r;
+  double r_4 = r_2 * r_2;
+
+  // Jacobian of distorted pixel to normalized pixel
+  H_dz_dzn = Eigen::MatrixXd::Zero(2, 2);
+  double x = uv_norm(0);
+  double y = uv_norm(1);
+  double x_2 = uv_norm(0) * uv_norm(0);
+  double y_2 = uv_norm(1) * uv_norm(1);
+  double x_y = uv_norm(0) * uv_norm(1);
+
+  H_dz_dzn(0, 0) =
+    intrinsics.f_x * (
+    (1 + intrinsics.k_1 * r_2 + intrinsics.k_2 * r_4) +
+    (2 * intrinsics.k_1 * x_2 + 4 * intrinsics.k_2 * x_2 * r_2) +
+    (2 * intrinsics.p_1 * y) +
+    (2 * intrinsics.p_2 * x) +
+    (4 * intrinsics.p_2 * x));
+
+  H_dz_dzn(0, 1) =
+    intrinsics.f_x * (
+    (2 * intrinsics.k_1 * x_y) +
+    (4 * intrinsics.k_2 * x_y * r_2) +
+    (2 * intrinsics.p_1 * x) +
+    (2 * intrinsics.p_2 * y));
+
+  H_dz_dzn(1, 0) =
+    intrinsics.f_y * (
+    (2 * intrinsics.k_1 * x_y) +
+    (4 * intrinsics.k_2 * x_y * r_2) +
+    (2 * intrinsics.p_1 * x) +
+    (2 * intrinsics.p_2 * y));
+
+  H_dz_dzn(1, 1) =
+    intrinsics.f_y * (
+    (1 + intrinsics.k_1 * r_2 + intrinsics.k_2 * r_4) +
+    (2 * intrinsics.k_1 * y_2) +
+    (4 * intrinsics.k_2 * y_2 * r_2) +
+    (2 * intrinsics.p_2 * x) +
+    (2 * intrinsics.p_1 * y) +
+    (4 * intrinsics.p_1 * y));
+}
+
+void MsckfUpdater::UpdateEKF(
+  double time,
+  unsigned int camera_id,
+  FeatureTracks feature_tracks)
 {
   m_ekf->ProcessModel(time);
   RefreshStates();
@@ -166,7 +231,7 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
     AugmentedState aug_state_0 = MatchState(feature_track[0].frame_id);
 
     Eigen::Matrix3d rot_c0_to_g = aug_state_0.orientation.toRotationMatrix();
-    // Eigen::Matrix3d rot_i0_to_g = aug_state_0.imu_orientation.toRotationMatrix();
+    Eigen::Matrix3d rot_i0_to_g = aug_state_0.imu_orientation.toRotationMatrix();
 
     // Anchor pose orientation and position
     Eigen::Vector3d pos_i_in_g = aug_state_0.imu_position;
@@ -185,19 +250,22 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
     H_anc.setZero();
 
     /// @todo validate
-    // H_anc.block(0, 0, 3, 3).noalias() =
-    //   -rot_i0_to_g * SkewSymmetric(rot_i0_to_g.transpose() * (pos_f_in_g - pos_i_in_g));
+    H_anc.block(0, 0, 3, 3).noalias() =
+      -rot_i0_to_g * SkewSymmetric(rot_i0_to_g.transpose() * (pos_f_in_g - pos_i_in_g));
     H_anc.block(0, 3, 3, 3).setIdentity();
 
     /// @todo Calibration
     // Get calibration Jacobians
-    // Eigen::Matrix<double, 3, 6> H_calib;
-    // H_calib.setZero();
+    Eigen::Matrix<double, 3, 6> H_calib;
+    H_calib.setZero();
 
     /// @todo validate
-    // H_calib.block(0, 0, 3, 3).noalias() =
-    //   -rot_c0_to_g * SkewSymmetric(rot_c0_to_g.transpose() * (pos_f_in_g - pos_i_in_g));
-    // H_calib.block(0, 3, 3, 3) = -rot_c0_to_g;
+    H_calib.block(0, 0, 3, 3).noalias() =
+      -rot_c0_to_g * SkewSymmetric(rot_c0_to_g.transpose() * (pos_f_in_g - pos_i_in_g));
+    H_calib.block(0, 3, 3, 3) = -rot_c0_to_g;
+
+    Eigen::Vector2d uv_norm;
+    uv_norm << pos_f_in_g(0) / pos_f_in_g(2), pos_f_in_g(1) / pos_f_in_g(2);
 
     // Get the Jacobian for this feature
     // Loop through each camera for this feature
@@ -220,13 +288,6 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
       uv_measured(1) = feature_track[i].key_point.pt.y;
       res.block(2 * (i - 1), 0, 2, 1) = uv_measured - uv_predicted;
 
-      // Normalized coordinates in respect to projection function
-      Eigen::MatrixXd dzn_dPFC = Eigen::MatrixXd::Zero(2, 3);
-      dzn_dPFC(0, 0) = 1 / pos_f_in_ci(2);
-      dzn_dPFC(1, 1) = 1 / pos_f_in_ci(2);
-      dzn_dPFC(0, 2) = -pos_f_in_ci(0) / (pos_f_in_ci(2) * pos_f_in_ci(2));
-      dzn_dPFC(1, 1) = -pos_f_in_ci(1) / (pos_f_in_ci(2) * pos_f_in_ci(2));
-
       // Derivative of p_FinCi in respect to p_FinIi
       Eigen::MatrixXd dPFC_dPFG = rot_ci_to_g.transpose();
 
@@ -235,11 +296,20 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
       dPFC_dClone.block(0, 0, 3, 3) = SkewSymmetric(pos_f_in_ci);
       dPFC_dClone.block(0, 3, 3, 3) = -dPFC_dPFG;
 
-      unsigned int augStateStart =
+      unsigned int aug_state_start =
         m_ekf->GetAugStateStartIndex(camera_id, feature_track[i].frame_id);
 
+      // Normalized coordinates in respect to projection function
+      Eigen::MatrixXd dzn_dPFC(2, 3);
+      projection_jacobian(pos_f_in_ci, dzn_dPFC);
+      Eigen::MatrixXd dz_dzn(2, 2);
+
+      /// @todo Get these from input or state
+      Intrinsics intrinsics;
+      distortion_jacobian(uv_norm, intrinsics, dz_dzn);
+      Eigen::MatrixXd dz_dPFC = dz_dzn * dzn_dPFC;
+
       // Precompute some matrices
-      Eigen::MatrixXd dz_dPFC = dzn_dPFC;
       Eigen::MatrixXd dz_dPFG = dz_dPFC * dPFC_dPFG;
 
       // Get the total feature Jacobian
@@ -250,10 +320,10 @@ void MsckfUpdater::UpdateEKF(double time, unsigned int camera_id, FeatureTracks 
 
       // loop through all extra states and add their
       // NOTE: we add the Jacobian here as we might be in the anchoring pose for this measurement
-      H_x.block(2 * (i - 1), augStateStart - cam_state_start - 6, 2, 6) += dz_dPFG * H_anc;
+      H_x.block(2 * (i - 1), aug_state_start - cam_state_start - 6, 2, 6) += dz_dPFG * H_anc;
 
       /// @todo Calibration jacobian once part of state
-      // H_x.block(2 * (i - 1), augStateStart - cam_state_start, 2, 6) += dz_dPFG * H_calib;
+      H_x.block(2 * (i - 1), aug_state_start - cam_state_start, 2, 6) += dz_dPFG * H_calib;
 
       // Calculate the Jacobian
       Eigen::MatrixXd dPFC_dCalib = Eigen::MatrixXd::Zero(3, 6);

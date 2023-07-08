@@ -53,6 +53,7 @@ public:
     std::string tracker;                                ///< @brief Tracker name
     std::string output_directory {""};                  ///< @brief IMU data logging directory
     bool data_logging_on {false};                       ///< @brief IMU data logging flag
+    Intrinsics intrinsics;                              ///< @brief Camera intrinsics
   } Parameters;
 
   ///
@@ -82,6 +83,7 @@ private:
 
   std::vector<double> m_rad_distortion_k{0.0, 0.0, 0.0};
   std::vector<double> m_tan_distortion_d{0.0, 0.0};
+  Intrinsics m_intrinsics;
 };
 
 #endif  // SENSORS__CAMERA_HPP_

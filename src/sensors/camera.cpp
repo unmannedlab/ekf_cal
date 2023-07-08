@@ -38,6 +38,7 @@ Camera::Camera(Camera::Parameters cam_params)
 : Sensor(cam_params.name)
 {
   m_rate = cam_params.rate;
+  m_intrinsics = cam_params.intrinsics;
 
   CamState cam_state;
   cam_state.position = cam_params.pos_offset;

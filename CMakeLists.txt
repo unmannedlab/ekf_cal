@@ -171,6 +171,7 @@ if(BUILD_TESTING)
         src/ekf/test/ekf_test.cpp
         src/ekf/test/types_test.cpp
         src/ekf/update/test/imu_updater_test.cpp
+        src/ekf/update/test/msckf_updater_test.cpp
         src/infrastructure/sim/test/sim_debug_logger_test.cpp
         src/infrastructure/sim/test/truth_engine_test.cpp
         src/infrastructure/test/data_logger_test.cpp
