@@ -132,7 +132,9 @@
         "splines": "cpp",
         "regex": "cpp",
         "*.in": "cpp",
-        "__nullptr": "cpp"
+        "__nullptr": "cpp",
+        "queue": "cpp",
+        "stack": "cpp"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python",

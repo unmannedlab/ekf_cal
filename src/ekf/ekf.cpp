@@ -35,6 +35,7 @@ EKF::EKF()
   std::stringstream msg;
   msg << "time";
   msg << EnumerateHeader("body_state", g_body_state_size);
+  msg << EnumerateHeader("body_cov", g_body_state_size);
   msg << "\n";
 
   m_data_logger.DefineHeader(msg.str());
@@ -44,10 +45,12 @@ EKF::EKF()
 Eigen::MatrixXd EKF::GetStateTransition(double dT)
 {
   Eigen::MatrixXd state_transition =
-    Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size);
+    Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size);
   state_transition.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * dT;
   state_transition.block<3, 3>(3, 6) = Eigen::MatrixXd::Identity(3, 3) * dT;
-  state_transition.block<3, 3>(9, 12) = Eigen::MatrixXd::Identity(3, 3) * dT;
+  /// This assumes the state is body angular rates and accelerations. Others assume global frame
+  state_transition.block<3, 3>(9, 12) =
+    m_state.m_body_state.m_orientation.toRotationMatrix() * dT;
   state_transition.block<3, 3>(12, 15) = Eigen::MatrixXd::Identity(3, 3) * dT;
   return state_transition;
 }
@@ -76,11 +79,12 @@ void EKF::ProcessModel(double time)
 
   double dT = time - m_current_time;
 
-  Eigen::MatrixXd F = GetStateTransition(dT);
+  Eigen::MatrixXd dF = GetStateTransition(dT);
+  Eigen::MatrixXd F = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) + dF;
 
-  Eigen::VectorXd process_update = F * m_state.m_body_state.ToVector();
+  Eigen::VectorXd process_update = dF * m_state.m_body_state.ToVector();
 
-  m_state.m_body_state.SetState(process_update);
+  m_state.m_body_state += process_update;
 
   // Process input matrix is just identity
   m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
@@ -96,8 +100,11 @@ void EKF::ProcessModel(double time)
     m_prev_log_time = m_current_time;
     std::stringstream msg;
     Eigen::VectorXd body_state_vec = GetState().m_body_state.ToVector();
+    Eigen::VectorXd body_cov =
+      GetCov().block(0, 0, g_body_state_size, g_body_state_size).diagonal();
     msg << m_current_time;
     msg << VectorToCommaString(body_state_vec);
+    msg << VectorToCommaString(body_cov);
     msg << "\n";
     m_data_logger.Log(msg.str());
   }
@@ -267,7 +274,9 @@ Eigen::MatrixXd EKF::AugmentJacobian(
 /// @todo Augment covariance with Jacobian
 void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
 {
-  std::cout << "Aug State Frame: " << std::to_string(frame_id) << std::endl;
+  std::stringstream msg;
+  msg << "Aug State Frame: " << std::to_string(frame_id);
+  m_logger->Log(LogLevel::DEBUG, msg.str());
   AugmentedState aug_state;
   aug_state.frame_id = frame_id;
   Eigen::Vector3d pos_i_in_g = m_state.m_body_state.m_position;

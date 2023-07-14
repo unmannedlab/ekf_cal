@@ -65,6 +65,7 @@ AugmentedState MsckfUpdater::MatchState(
 }
 
 /// @todo possible move into separate source for re-compilation speed
+/// @todo remove class members from function and use reference inputs instead
 Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & feature_track)
 {
   AugmentedState aug_state_0 = MatchState(feature_track[0].frame_id);
@@ -243,16 +244,8 @@ void MsckfUpdater::UpdateEKF(
       m_ekf->GetCamState(camera_id).augmented_states.size();
     Eigen::VectorXd res = Eigen::VectorXd::Zero(2 * feature_track.size());
     Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feature_track.size(), jacob_size);
-    Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(2 * feature_track.size(), aug_state_size);
-
-    // Jacobian for our anchor pose
-    Eigen::Matrix<double, 3, 6> H_anc;
-    H_anc.setZero();
-
-    /// @todo validate
-    H_anc.block(0, 0, 3, 3).noalias() =
-      -rot_i0_to_g * SkewSymmetric(rot_i0_to_g.transpose() * (pos_f_in_g - pos_i_in_g));
-    H_anc.block(0, 3, 3, 3).setIdentity();
+    Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(
+      2 * feature_track.size(), aug_state_size + g_cam_state_size);
 
     /// @todo Calibration
     // Get calibration Jacobians
@@ -266,10 +259,16 @@ void MsckfUpdater::UpdateEKF(
 
     Eigen::Vector2d uv_norm;
     uv_norm << pos_f_in_g(0) / pos_f_in_g(2), pos_f_in_g(1) / pos_f_in_g(2);
+    Intrinsics intrinsics;
+    intrinsics.f_x = 1.0;
+    intrinsics.f_y = 1.0;
+    intrinsics.c_x = 640.0 / 2.0;
+    intrinsics.c_y = 480.0 / 2.0;
+    intrinsics.pixel_size = 0.010;
 
     // Get the Jacobian for this feature
     // Loop through each camera for this feature
-    for (unsigned int i = 1; i < feature_track.size(); ++i) {
+    for (unsigned int i = 0; i < feature_track.size(); ++i) {
       AugmentedState aug_state_i = MatchState(feature_track[i].frame_id);
 
       // Our calibration between the IMU and CAMi frames
@@ -279,14 +278,16 @@ void MsckfUpdater::UpdateEKF(
       // Project the current feature into the current frame of reference
       Eigen::Vector3d pos_f_in_ci = rot_ci_to_g.transpose() * (pos_f_in_g - pos_ci_in_g);
       Eigen::Vector2d uv_predicted;
-      uv_predicted(0) = pos_f_in_ci(0) / pos_f_in_ci(2);
-      uv_predicted(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
+      uv_predicted(0) = (pos_f_in_ci(0) / pos_f_in_ci(2)) *
+        (intrinsics.f_x / intrinsics.pixel_size) + intrinsics.c_x;
+      uv_predicted(1) = (pos_f_in_ci(1) / pos_f_in_ci(2)) *
+        (intrinsics.f_y / intrinsics.pixel_size) + intrinsics.c_y;
 
       // Our residual
       Eigen::Vector2d uv_measured;
       uv_measured(0) = feature_track[i].key_point.pt.x;
       uv_measured(1) = feature_track[i].key_point.pt.y;
-      res.block(2 * (i - 1), 0, 2, 1) = uv_measured - uv_predicted;
+      res.block(2 * i, 0, 2, 1) = uv_measured - uv_predicted;
 
       // Derivative of p_FinCi in respect to p_FinIi
       Eigen::MatrixXd dPFC_dPFG = rot_ci_to_g.transpose();
@@ -305,7 +306,6 @@ void MsckfUpdater::UpdateEKF(
       Eigen::MatrixXd dz_dzn(2, 2);
 
       /// @todo Get these from input or state
-      Intrinsics intrinsics;
       distortion_jacobian(uv_norm, intrinsics, dz_dzn);
       Eigen::MatrixXd dz_dPFC = dz_dzn * dzn_dPFC;
 
@@ -313,17 +313,13 @@ void MsckfUpdater::UpdateEKF(
       Eigen::MatrixXd dz_dPFG = dz_dPFC * dPFC_dPFG;
 
       // Get the total feature Jacobian
-      H_f.block(2 * (i - 1), 0, 2, H_f.cols()) = dz_dPFG * rot_c0_to_g;
+      H_f.block(2 * i, 0, 2, H_f.cols()) = dz_dPFG * rot_c0_to_g;
 
       // Get state clone Jacobian
-      H_x.block(2 * (i - 1), 0, 2, 6) = dz_dPFC * dPFC_dClone;
-
-      // loop through all extra states and add their
-      // NOTE: we add the Jacobian here as we might be in the anchoring pose for this measurement
-      H_x.block(2 * (i - 1), aug_state_start - cam_state_start - 6, 2, 6) += dz_dPFG * H_anc;
+      H_c.block(2 * i, aug_state_start - cam_state_start, 2, 6) = dz_dPFC * dPFC_dClone;
 
       /// @todo Calibration jacobian once part of state
-      H_x.block(2 * (i - 1), aug_state_start - cam_state_start, 2, 6) += dz_dPFG * H_calib;
+      H_c.block(2 * i, aug_state_start - cam_state_start + 6, 2, 6) += dz_dPFG * H_calib;
 
       // Calculate the Jacobian
       Eigen::MatrixXd dPFC_dCalib = Eigen::MatrixXd::Zero(3, 6);
@@ -333,25 +329,28 @@ void MsckfUpdater::UpdateEKF(
       dPFC_dCalib.block(0, 3, 3, 3) = Eigen::Matrix<double, 3, 3>::Identity();
 
       // Add result to the state jacobian
-      H_x.block(2 * (i - 1), cam_state_start - cam_state_start, 2, 6) += dz_dPFC * dPFC_dCalib;
+      H_c.block(2 * i, cam_state_start - cam_state_start, 2, 6) += dz_dPFC * dPFC_dCalib;
     }
 
-    ApplyLeftNullspace(H_f, H_x, res);
+    // std::cout << res.maxCoeff() << std::endl;
+    ApplyLeftNullspace(H_f, H_c, res);
+    // std::cout << res.maxCoeff() << std::endl << std::endl;
 
     /// @todo Chi2 distance check
 
     // Append our jacobian and residual
-    Hx_big.block(ct_meas, cam_state_start, H_x.rows(), H_x.cols()) = H_x;
+    Hx_big.block(ct_meas, cam_state_start, H_c.rows(), H_c.cols()) = H_c;
     res_big.block(ct_meas, 0, res.rows(), 1) = res;
 
-    ct_meas += H_x.rows();
+    ct_meas += H_c.rows();
   }
 
   if (ct_meas == 0) {
     return;
   }
-
+  std::cout << res_big.mean() << std::endl;
   CompressMeasurements(Hx_big, res_big);
+  std::cout << res_big.mean() << std::endl << std::endl;
 
   /// @todo get this value from config file
   unsigned int SIGMA_PIX {1U};

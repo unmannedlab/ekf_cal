@@ -49,7 +49,11 @@ std::vector<double> SimCamera::GenerateMessageTimes(double max_time)
   std::vector<double> message_times;
   for (unsigned int i = 0; i < num_measurements; ++i) {
     double measurement_time = (1.0 + m_time_skew) / m_rate * static_cast<double>(i);
-    message_times.push_back(measurement_time + m_rng.NormRand(m_time_bias, m_time_error));
+    /// @todo Add input flag to enable errors
+    if (false) {
+      measurement_time += m_rng.NormRand(m_time_bias, m_time_error);
+    }
+    message_times.push_back(measurement_time);
   }
   return message_times;
 }

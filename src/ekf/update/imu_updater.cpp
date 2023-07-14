@@ -36,6 +36,9 @@ ImuUpdater::ImuUpdater(unsigned int imu_id, std::string log_file_directory, bool
   std::stringstream msg;
   msg << "time";
   msg << EnumerateHeader("imu_state", g_imu_state_size);
+  msg << EnumerateHeader("imu_cov", g_imu_state_size);
+  msg << EnumerateHeader("acc", 3);
+  msg << EnumerateHeader("omg", 3);
   msg << EnumerateHeader("residual", 6);
   msg << EnumerateHeader("body_update", g_body_state_size);
   msg << EnumerateHeader("imu_update", g_imu_state_size);
@@ -50,7 +53,7 @@ Eigen::VectorXd ImuUpdater::PredictMeasurement()
 {
   Eigen::VectorXd predicted_measurement(6);
   // Transform acceleration to IMU location
-  Eigen::Vector3d imuAcc = m_body_acc + g_gravity +
+  Eigen::Vector3d imuAcc = m_body_ang_pos * (m_body_acc + g_gravity) +
     m_body_ang_acc.cross(m_pos_offset) +
     m_body_ang_vel.cross((m_body_ang_vel.cross(m_pos_offset)));
 
@@ -75,6 +78,10 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
 
   // Body Acceleration
   measurement_jacobian.block<3, 3>(0, 6) = m_ang_offset.toRotationMatrix();
+
+  // Body Orientation
+  measurement_jacobian.block<3, 3>(0, 9) = -m_body_ang_pos.toRotationMatrix() *
+    SkewSymmetric(m_ang_offset * g_gravity);
 
   // Body Angular Velocity
   Eigen::MatrixXd temp = Eigen::MatrixXd::Zero(3, 3);
@@ -210,9 +217,15 @@ void ImuUpdater::UpdateEKF(
   std::stringstream msg;
   Eigen::VectorXd imu_state_vec = m_ekf->GetState().m_imu_states[m_id].ToVector();
   Eigen::VectorXd imu_sub_update = update.segment(imu_state_start, g_imu_state_size);
+  Eigen::VectorXd cov_diag = m_ekf->GetCov().block(
+    imu_state_start, imu_state_start,
+    g_imu_state_size, g_imu_state_size).diagonal();
 
   msg << time;
   msg << VectorToCommaString(imu_state_vec);
+  msg << VectorToCommaString(cov_diag);
+  msg << VectorToCommaString(acceleration);
+  msg << VectorToCommaString(angularRate);
   msg << VectorToCommaString(resid);
   msg << VectorToCommaString(body_update);
   msg << VectorToCommaString(imu_sub_update);

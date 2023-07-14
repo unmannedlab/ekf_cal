@@ -71,10 +71,22 @@ public:
   Eigen::Vector3d GetBodyAcceleration(double time);
 
   ///
+  /// @brief True body Roll-Pitch-Yaw vector getter
+  /// @param time Simulation time
+  ///
+  Eigen::Vector3d GetBodyRollPitchYaw(double time);
+
+  ///
   /// @brief True body orientation quaternion getter
   /// @param time Simulation time
   ///
   Eigen::Quaterniond GetBodyAngularPosition(double time);
+
+  ///
+  /// @brief Calculate transformation matrix to convert RPY derivatives into final frame
+  /// @param rpy_vector Roll-Pitch-Yaw vector
+  ///
+  Eigen::Matrix3d EulerDerivativeTransform(Eigen::Vector3d rpy_vector);
 
   ///
   /// @brief True body angular rate getter
@@ -89,8 +101,8 @@ public:
   Eigen::Vector3d GetBodyAngularAcceleration(double time);
 
 private:
-  Eigen::Vector3d m_pos_cycle_frequency {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_ang_cycle_frequency {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_pos_frequency {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_ang_frequency {0.0, 0.0, 0.0};
   Eigen::Vector3d m_pos_offset {0.0, 0.0, 0.0};
   double m_ang_amplitude = 0.1;
   double m_pos_amplitude = 1.0;

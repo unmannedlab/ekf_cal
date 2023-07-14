@@ -21,6 +21,7 @@ import glob
 import math
 import os
 
+import matplotlib as mpl
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 
@@ -30,6 +31,7 @@ import pandas as pd
 
 import yaml
 
+mpl.rcParams['lines.marker'] = '.'
 plt.style.use('ggplot')
 
 
@@ -91,6 +93,25 @@ class Plotter():
         self.rate_line = rate_line
         self.ext = ext
 
+    def plot_imu_measurements(self, imu_df):
+        """Plot IMU residuals."""
+        t_imu = imu_df['time'].to_list()
+        fig, (axs_1, axs_2) = plt.subplots(2, 1)
+        axs_1.plot(t_imu, imu_df['acc_0'].to_list(), label=r'$a_x$')
+        axs_1.plot(t_imu, imu_df['acc_1'].to_list(), label=r'$a_y$')
+        axs_1.plot(t_imu, imu_df['acc_2'].to_list(), label=r'$a_z$')
+        axs_2.plot(t_imu, imu_df['omg_0'].to_list(), label=r'$\omega_x$')
+        axs_2.plot(t_imu, imu_df['omg_1'].to_list(), label=r'$\omega_y$')
+        axs_2.plot(t_imu, imu_df['omg_2'].to_list(), label=r'$\omega_z$')
+        set_plot_titles(fig, f'IMU {imu_df.attrs["id"]} Measurements')
+        axs_1.set_ylabel('Acceleration \nMeasurements [m]')
+        axs_2.set_ylabel('Angular Rate \nMeasurements [rad]')
+        axs_2.set_xlabel('Time [s]')
+        axs_1.legend()
+        axs_2.legend()
+        fig.tight_layout()
+        return fig
+
     def plot_imu_residuals(self, imu_df):
         """Plot IMU residuals."""
         t_imu = imu_df['time'].to_list()
@@ -102,8 +123,8 @@ class Plotter():
         axs_2.plot(t_imu, imu_df['residual_4'].to_list(), label=r'$\theta_y$')
         axs_2.plot(t_imu, imu_df['residual_5'].to_list(), label=r'$\theta_z$')
         set_plot_titles(fig, f'IMU {imu_df.attrs["id"]} Residuals')
-        axs_1.set_ylabel('Position Residual\n[m]')
-        axs_2.set_ylabel('Angular Residual\n[red]')
+        axs_1.set_ylabel('Acceleration Residual\n[m]')
+        axs_2.set_ylabel('Angular Rate Residual\n[rad]')
         axs_2.set_xlabel('Time [s]')
         axs_1.legend()
         axs_2.legend()
@@ -140,7 +161,7 @@ class Plotter():
             label=r'$\theta_z$')
         set_plot_titles(fig, f'IMU {imu_df.attrs["id"]} Offset Updates')
         axs_1.set_ylabel('Position Offset\nUpdate [m]')
-        axs_2.set_ylabel('Angular Offset\nUpdate [red]')
+        axs_2.set_ylabel('Angular Offset\nUpdate [rad]')
         axs_2.set_xlabel('Time [s]')
         axs_1.legend()
         axs_2.legend()
@@ -198,7 +219,7 @@ class Plotter():
         axs_3.plot(time, cam_df['body_update_7'].to_list(), label=r'$a_y$')
         axs_3.plot(time, cam_df['body_update_8'].to_list(), label=r'$a_z$')
         set_plot_titles(
-            fig, 
+            fig,
             f'Camera {cam_df.attrs["id"]} Body State Position Updates')
         axs_1.set_ylabel('Position [m]')
         axs_2.set_ylabel('Velocity [m/s]')
@@ -293,7 +314,7 @@ class Plotter():
             label=r'$\theta_z$')
         set_plot_titles(fig, f'Camera {cam_df.attrs["id"]} Offset Updates')
         axs_1.set_ylabel('Position Offset\nUpdates [m]')
-        axs_2.set_ylabel('Angular Offset\nUpdates [red]')
+        axs_2.set_ylabel('Angular Offset\nUpdates [rad]')
         axs_2.set_xlabel('Time [s]')
         axs_1.legend()
         axs_2.legend()
@@ -433,6 +454,48 @@ class Plotter():
         fig.tight_layout()
         return fig
 
+    def plot_body_pos_cov(self, df):
+        """Plot body covariance."""
+        time = df['time'].to_list()
+        fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        axs_1.plot(time, df['body_cov_0'].to_list(), label=r'0')
+        axs_1.plot(time, df['body_cov_1'].to_list(), label=r'1')
+        axs_1.plot(time, df['body_cov_2'].to_list(), label=r'2')
+        axs_2.plot(time, df['body_cov_3'].to_list(), label=r'3')
+        axs_2.plot(time, df['body_cov_4'].to_list(), label=r'4')
+        axs_2.plot(time, df['body_cov_5'].to_list(), label=r'5')
+        axs_3.plot(time, df['body_cov_6'].to_list(), label=r'6')
+        axs_3.plot(time, df['body_cov_7'].to_list(), label=r'7')
+        axs_3.plot(time, df['body_cov_8'].to_list(), label=r'8')
+        set_plot_titles(fig, 'Body Position Covariance')
+        axs_1.set_ylabel('Position [m]')
+        axs_2.set_ylabel('Velocity [m/s]')
+        axs_3.set_ylabel('Acceleration [m/s/s]')
+        axs_3.set_xlabel('Time [s]')
+        fig.tight_layout()
+        return fig
+
+    def plot_body_ang_cov(self, df):
+        """Plot body covariance."""
+        time = df['time'].to_list()
+        fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        axs_1.plot(time, df['body_cov_9'].to_list(), label=r'9')
+        axs_1.plot(time, df['body_cov_10'].to_list(), label=r'10')
+        axs_1.plot(time, df['body_cov_11'].to_list(), label=r'11')
+        axs_2.plot(time, df['body_cov_12'].to_list(), label=r'12')
+        axs_2.plot(time, df['body_cov_13'].to_list(), label=r'13')
+        axs_2.plot(time, df['body_cov_14'].to_list(), label=r'14')
+        axs_3.plot(time, df['body_cov_15'].to_list(), label=r'15')
+        axs_3.plot(time, df['body_cov_16'].to_list(), label=r'16')
+        axs_3.plot(time, df['body_cov_17'].to_list(), label=r'17')
+        set_plot_titles(fig, 'Body Angular Covariance')
+        axs_1.set_ylabel('Orientation [rad]')
+        axs_2.set_ylabel('Angular Rate [rad/s]')
+        axs_3.set_ylabel('Angular Acceleration [rad/s/s]')
+        axs_3.set_xlabel('Time [s]')
+        fig.tight_layout()
+        return fig
+
     def plot_camera_pos(self, cam_df):
         """Plot camera position."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
@@ -519,7 +582,9 @@ class Plotter():
             self.plot_body_pos_3d(body_df),
             self.plot_body_vel(body_df),
             self.plot_body_acc(body_df),
-            self.plot_body_ang(body_df)
+            self.plot_body_ang(body_df),
+            self.plot_body_pos_cov(body_df),
+            self.plot_body_ang_cov(body_df),
         ]
         animations = [
             self.plot_body_pos_3d_anim(body_df)
@@ -529,6 +594,7 @@ class Plotter():
     def plot_imu_data(self, imu_df, config_data, i):
         """Plot IMU data."""
         figures = [
+            self.plot_imu_measurements(imu_df),
             self.plot_imu_residuals(imu_df),
             self.plot_imu_offset_updates(imu_df),
             self.plot_imu_bias_updates(imu_df),
@@ -580,11 +646,13 @@ class Plotter():
                 figures = self.plot_cam_data(cam_df, config_data, i)
                 self.save_figures(plot_dir, figures)
 
-            feat_df = pd.read_csv(os.path.join(data_dir, 'feature_points.csv'))
-            tri_dfs = find_and_read_data_frames(data_dir, 'triangulation')
-            for i, tri_df in enumerate(tri_dfs):
-                figures = self.plot_triangulation_data(tri_df, feat_df, i)
-                self.save_figures(plot_dir, figures)
+            feat_pts_csv_path = os.path.join(data_dir, 'feature_points.csv')
+            if os.path.exists(feat_pts_csv_path):
+                feat_df = pd.read_csv(feat_pts_csv_path)
+                tri_dfs = find_and_read_data_frames(data_dir, 'triangulation')
+                for i, tri_df in enumerate(tri_dfs):
+                    figures = self.plot_triangulation_data(tri_df, feat_df, i)
+                    self.save_figures(plot_dir, figures)
 
 
 if __name__ == '__main__':

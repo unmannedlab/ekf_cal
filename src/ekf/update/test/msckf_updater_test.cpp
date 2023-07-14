@@ -60,7 +60,6 @@ TEST_F(test_msckf_updater, projection_jacobian) {
 }
 
 TEST_F(test_msckf_updater, distortion_jacobian) {
-
   Eigen::Vector2d uv_norm;
   uv_norm << 1, 2;
   Intrinsics intrinsics;

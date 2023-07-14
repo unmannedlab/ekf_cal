@@ -136,6 +136,16 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
       cv::KeyPoint feat;
       feat.pt.x = projected_points[i].x;
       feat.pt.y = projected_points[i].y;
+
+      /// @todo Get this value from input
+      unsigned int SIGMA_PIX {1U};
+      /// @todo Add input flag to enable errors
+      if (false) {
+        feat.pt.x += m_rng.NormRand(0.0, SIGMA_PIX);
+        feat.pt.y += m_rng.NormRand(0.0, SIGMA_PIX);
+      }
+      /// @todo Add rounding to nearest pixel
+
       feat.class_id = i;
       if (
         feat.pt.x > 0 &&

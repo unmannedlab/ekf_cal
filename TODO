@@ -1,6 +1,5 @@
 Package Features:
     - Constrain correleation coefficients between +/- 1
-    - Implement RK4 prediction step
     - Implement prediction IMU flag
     - Implement flag for calibration settling
     - Implement flag for calibration shifting
