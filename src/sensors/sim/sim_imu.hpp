@@ -43,9 +43,9 @@ public:
   ///
   typedef struct Parameters
   {
-    double time_bias {0.0};                                 ///< @brief Time offset bias
-    double time_skew {1.0};                                 ///< @brief Time offset error
-    double time_error {1e-9};                               ///< @brief Time offset error
+    double time_bias {0.0};                              ///< @brief Time offset bias
+    double time_skew {1.0};                              ///< @brief Time offset error
+    double time_error {1e-9};                            ///< @brief Time offset error
     Eigen::Vector3d acc_bias {0.0, 0.0, 0.0};            ///< @brief Acceleration bias
     Eigen::Vector3d acc_error {1e-9, 1e-9, 1e-9};        ///< @brief Acceleration error
     Eigen::Vector3d omg_bias {0.0, 0.0, 0.0};            ///< @brief Angular rate bias
@@ -53,6 +53,7 @@ public:
     Eigen::Vector3d pos_offset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
     Eigen::Quaterniond ang_offset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
     IMU::Parameters imu_params;                          ///< @brief IMU sensor parameters
+    bool no_errors {false};                              ///< @brief Perfect measurements flag
   } Parameters;
 
   ///
@@ -80,6 +81,7 @@ private:
   Eigen::Quaterniond m_ang_offset{1.0, 0.0, 0.0, 0.0};
   SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
+  bool m_no_errors {false};
 };
 
 

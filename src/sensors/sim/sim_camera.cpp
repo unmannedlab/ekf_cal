@@ -35,6 +35,7 @@ SimCamera::SimCamera(
   m_time_error = std::max(params.time_error, 1e-9);
   m_pos_offset = params.pos_offset;
   m_ang_offset = params.ang_offset;
+  m_no_errors = params.no_errors;
   m_truth = truth_engine;
 }
 
@@ -49,8 +50,7 @@ std::vector<double> SimCamera::GenerateMessageTimes(double max_time)
   std::vector<double> message_times;
   for (unsigned int i = 0; i < num_measurements; ++i) {
     double measurement_time = (1.0 + m_time_skew) / m_rate * static_cast<double>(i);
-    /// @todo Add input flag to enable errors
-    if (false) {
+    if (!m_no_errors) {
       measurement_time += m_rng.NormRand(m_time_bias, m_time_error);
     }
     message_times.push_back(measurement_time);

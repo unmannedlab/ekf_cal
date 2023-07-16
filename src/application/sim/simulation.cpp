@@ -82,6 +82,7 @@ int main(int argc, char * argv[])
   YAML::Node sim_params = ros_params["SimParams"];
   double rng_seed = sim_params["Seed"].as<double>();
   bool use_seed = sim_params["UseSeed"].as<bool>();
+  bool no_errors = sim_params["NoErrors"].as<bool>();
   Eigen::Vector3d pos_frequency = StdToEigVec(sim_params["PosFrequency"].as<std::vector<double>>());
   Eigen::Vector3d ang_frequency = StdToEigVec(sim_params["AngFrequency"].as<std::vector<double>>());
   Eigen::Vector3d pos_offset = StdToEigVec(sim_params["PosOffset"].as<std::vector<double>>());
@@ -123,6 +124,7 @@ int main(int argc, char * argv[])
     imu_params.omg_bias = StdToEigVec(imu_node["OmgBiasInit"].as<std::vector<double>>());
     imu_params.output_directory = out_dir;
     imu_params.data_logging_on = data_logging_on;
+    imu_params.use_for_prediction = imu_node["UseForPrediction"].as<bool>();
 
     // SimParams
     SimIMU::Parameters sim_imu_params;
@@ -136,6 +138,7 @@ int main(int argc, char * argv[])
     sim_imu_params.omg_error = StdToEigVec(sim_node["omgError"].as<std::vector<double>>());
     sim_imu_params.pos_offset = StdToEigVec(sim_node["posOffset"].as<std::vector<double>>());
     sim_imu_params.ang_offset = StdToEigQuat(sim_node["angOffset"].as<std::vector<double>>());
+    sim_imu_params.no_errors = no_errors;
 
     // Add sensor to map
     auto imu = std::make_shared<SimIMU>(sim_imu_params, truth_engine);
@@ -190,6 +193,7 @@ int main(int argc, char * argv[])
     sim_cam_params.pos_offset = StdToEigVec(sim_node["posOffset"].as<std::vector<double>>());
     sim_cam_params.ang_offset = StdToEigQuat(sim_node["angOffset"].as<std::vector<double>>());
     sim_cam_params.cam_params = cam_params;
+    sim_cam_params.no_errors = no_errors;
 
     // Add sensor to map
     auto cam = std::make_shared<SimCamera>(sim_cam_params, truth_engine);

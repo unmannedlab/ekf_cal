@@ -50,7 +50,8 @@ public:
     /// @todo update these to be indicative of "truth"
     Eigen::Vector3d pos_offset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
     Eigen::Quaterniond ang_offset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
-    Camera::Parameters cam_params;                       ///< @brief IMU sensor parameters
+    Camera::Parameters cam_params;                       ///< @brief Camera sensor parameters
+    bool no_errors {false};                              ///< @brief Perfect measurements flag
   } Parameters;
 
   ///
@@ -90,6 +91,7 @@ private:
   double m_time_error{1e-9};
   Eigen::Vector3d m_pos_offset{0.0, 0.0, 0.0};
   Eigen::Quaterniond m_ang_offset{1.0, 0.0, 0.0, 0.0};
+  bool m_no_errors {false};
   SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
 

@@ -39,6 +39,7 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngi
   m_omg_error = MinBoundVector(params.omg_error, 1e-9);
   m_pos_offset = params.pos_offset;
   m_ang_offset = params.ang_offset;
+  m_no_errors = params.no_errors;
   m_truth = truthEngine;
 }
 
@@ -76,8 +77,7 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_
     sim_imu_msg->m_acceleration = imu_acc_rot;
     sim_imu_msg->m_angular_rate = imu_omg_rot;
 
-    /// @todo Add input flag to enable errors
-    if (false) {
+    if (!m_no_errors) {
       sim_imu_msg->m_acceleration[0] += m_rng.NormRand(m_acc_bias[0], m_acc_error[0]);
       sim_imu_msg->m_acceleration[1] += m_rng.NormRand(m_acc_bias[1], m_acc_error[1]);
       sim_imu_msg->m_acceleration[2] += m_rng.NormRand(m_acc_bias[2], m_acc_error[2]);

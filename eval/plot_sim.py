@@ -489,9 +489,9 @@ class Plotter():
         axs_3.plot(time, df['body_cov_16'].to_list(), label=r'16')
         axs_3.plot(time, df['body_cov_17'].to_list(), label=r'17')
         set_plot_titles(fig, 'Body Angular Covariance')
-        axs_1.set_ylabel('Orientation [rad]')
-        axs_2.set_ylabel('Angular Rate [rad/s]')
-        axs_3.set_ylabel('Angular Acceleration [rad/s/s]')
+        axs_1.set_ylabel('Orientation\n[rad]')
+        axs_2.set_ylabel('Angular Rate\n[rad/s]')
+        axs_3.set_ylabel('Angular Acceleration\n[rad/s/s]')
         axs_3.set_xlabel('Time [s]')
         fig.tight_layout()
         return fig
