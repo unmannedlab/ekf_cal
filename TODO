@@ -28,7 +28,6 @@ Software Work:
     - Define types/transforms to force different coordinate frames
     - Define types/transforms to force different time values
     - Auto-generate rviz configuration from yaml
-    - Compile separate libraries without dependencies
     - CI/CD for unit tests
     - Set of single metrics for performance evaluation/testing
     - Integration tests
@@ -45,13 +44,14 @@ Software Work:
     - Eigen aliasing and eval
     - Test build on different ROS docker versions
     - Add mutex to EKF class and have mutex locked by updaters
-    - Input file generator
-    - Add number of runs in input
     - Switch to reentrant callback group
     - Show track images from simulation
-    - Plot body error against truth if available
-    Simple Simulation:
-        - Add parameter for feature point uncertainty
+    - Test monte carlo simulation
+    - Be explicit with quaternion inputs
+    - Add check for intrinsic IMUs without cameras
+    - Add check for multiple prediction IMUs
+    - Perf flamegraph - https://nanxiao.me/en/use-perf-and-flamegraph-to-profile-program-on-linux/
+    - Add parameter for feature point uncertainty
 
     Additional Trackers:
         - FiducialTracker
@@ -60,12 +60,16 @@ Software Work:
             - ChessBoardTracker
             - CharucoDiamondTracker
 
+Tools:
+    - Monte Carlo plotting
+    - Plot body error against truth if available
+    - Generate truth plots
+    - Input file generator
+    - Add number of runs in input
+
 Documentation:
     - Create Cake Diagram for EKF_CAL architecture
     - Paper in JOSS: Journal of Open Source Software
     - Deploy Github page for generated doxygen
     - Plant UML Functional Flow Diagrams
     - Simulation diagram
-
-Experimentation:
-    - Test monte carlo simulation and plotting

@@ -232,7 +232,6 @@ void MsckfUpdater::UpdateEKF(
     AugmentedState aug_state_0 = MatchState(feature_track[0].frame_id);
 
     Eigen::Matrix3d rot_c0_to_g = aug_state_0.orientation.toRotationMatrix();
-    Eigen::Matrix3d rot_i0_to_g = aug_state_0.imu_orientation.toRotationMatrix();
 
     // Anchor pose orientation and position
     Eigen::Vector3d pos_i_in_g = aug_state_0.imu_position;
@@ -332,9 +331,7 @@ void MsckfUpdater::UpdateEKF(
       H_c.block(2 * i, cam_state_start - cam_state_start, 2, 6) += dz_dPFC * dPFC_dCalib;
     }
 
-    // std::cout << res.maxCoeff() << std::endl;
     ApplyLeftNullspace(H_f, H_c, res);
-    // std::cout << res.maxCoeff() << std::endl << std::endl;
 
     /// @todo Chi2 distance check
 
@@ -348,9 +345,7 @@ void MsckfUpdater::UpdateEKF(
   if (ct_meas == 0) {
     return;
   }
-  std::cout << res_big.mean() << std::endl;
   CompressMeasurements(Hx_big, res_big);
-  std::cout << res_big.mean() << std::endl << std::endl;
 
   /// @todo get this value from config file
   unsigned int SIGMA_PIX {1U};

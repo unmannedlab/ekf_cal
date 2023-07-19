@@ -108,6 +108,7 @@ void EkfCalNode::DeclareImuParameters(std::string imu_name)
   std::string imu_prefix = "IMU." + imu_name;
   this->declare_parameter(imu_prefix + ".BaseSensor", false);
   this->declare_parameter(imu_prefix + ".Intrinsic", false);
+  this->declare_parameter(imu_prefix + ".UseForPrediction", false);
   this->declare_parameter(imu_prefix + ".Rate", 1.0);
   this->declare_parameter(imu_prefix + ".Topic", "Topic");
   this->declare_parameter(
@@ -125,6 +126,7 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
   std::string imu_prefix = "IMU." + imu_name;
   bool base_sensor = this->get_parameter(imu_prefix + ".BaseSensor").as_bool();
   bool intrinsic = this->get_parameter(imu_prefix + ".Intrinsic").as_bool();
+  bool use_for_prediction = this->get_parameter(imu_prefix + ".UseForPrediction").as_bool();
   double rate = this->get_parameter(imu_prefix + ".Rate").as_double();
   std::string topic = this->get_parameter(imu_prefix + ".Topic").as_string();
   std::vector<double> variance = this->get_parameter(imu_prefix + ".VarInit").as_double_array();
@@ -134,18 +136,19 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
   std::vector<double> omg_bias = this->get_parameter(imu_prefix + ".OmgBiasInit").as_double_array();
 
   // Assign parameters to struct
-  IMU::Parameters imuParams;
-  imuParams.name = imu_name;
-  imuParams.topic = topic;
-  imuParams.base_sensor = base_sensor;
-  imuParams.intrinsic = intrinsic;
-  imuParams.rate = rate;
-  imuParams.variance = StdToEigVec(variance);
-  imuParams.pos_offset = StdToEigVec(pos_off);
-  imuParams.ang_offset = StdToEigQuat(ang_off);
-  imuParams.acc_bias = StdToEigVec(acc_bias);
-  imuParams.omg_bias = StdToEigVec(omg_bias);
-  return imuParams;
+  IMU::Parameters imu_params;
+  imu_params.name = imu_name;
+  imu_params.topic = topic;
+  imu_params.base_sensor = base_sensor;
+  imu_params.intrinsic = intrinsic;
+  imu_params.use_for_prediction = use_for_prediction;
+  imu_params.rate = rate;
+  imu_params.variance = StdToEigVec(variance);
+  imu_params.pos_offset = StdToEigVec(pos_off);
+  imu_params.ang_offset = StdToEigQuat(ang_off);
+  imu_params.acc_bias = StdToEigVec(acc_bias);
+  imu_params.omg_bias = StdToEigVec(omg_bias);
+  return imu_params;
 }
 
 void EkfCalNode::DeclareCameraParameters(std::string camera_name)

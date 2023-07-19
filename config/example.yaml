@@ -7,10 +7,15 @@
         SimParams:
             Seed: 0.0
             UseSeed: False
-            MaxTime: 10.0
+            MaxTime: 5.0
             TruthType: "Cyclic"
+            # PosFrequency: [0.0, 0.0, 0.0]
             PosFrequency: [1.1, 1.2, 1.3]
-            AngFrequency: [0.0, 0.0, 0.0]
+            # AngFrequency: [0.0, 0.0, 0.0]
+            AngFrequency: [0.2, 0.2, 0.0]
+            # AngFrequency: [0.9, 0.8, 0.7]
+            # AngFrequency: [0.9, 0.8, 0.7]
+            # AngFrequency: [0.2, 0.2, 0.2]
             PosOffset: [0.0, 0.0, 0.0]
             NoErrors: True
 
@@ -26,9 +31,10 @@
 
         IMU:
             vn300:
+                UseForPrediction: False
                 BaseSensor: True
                 Intrinsic: False
-                Rate: 400.0
+                Rate: 1000.0
                 Topic: "/vn300/imu_uncompensated"
                 VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 PosOffInit: [0.0, 0.0, 0.0]
@@ -46,6 +52,7 @@
                     posOffset: [0.0, 0.0, 0.0]
                     angOffset: [1.0, 0.0, 0.0, 0.0]
             vn100:
+                UseForPrediction: False
                 BaseSensor: False
                 Intrinsic: True
                 Rate: 800.0

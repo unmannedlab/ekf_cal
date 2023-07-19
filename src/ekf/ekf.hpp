@@ -116,10 +116,22 @@ public:
   Eigen::MatrixXd & GetCov();
 
   ///
+  /// @brief Check if body data should be logged and do so if necessary
+  ///
+  void LogBodyStateIfNeeded();
+
+  ///
   /// @brief Predict state to given time
   /// @param currentTime Time for prediction
   ///
   void ProcessModel(double currentTime);
+
+  void PredictModel(
+    double time,
+    Eigen::Vector3d acceleration,
+    Eigen::Matrix3d accelerationCovariance,
+    Eigen::Vector3d angularRate,
+    Eigen::Matrix3d angularRateCovariance);
 
   ///
   /// @brief State transition matrix getter method
@@ -183,14 +195,15 @@ public:
     unsigned int aug_state_start);
 
   ///
-  /// @brief
-  /// @param camera_id
-  /// @param frame_id
+  /// @brief Function to augment current state for camera frame
+  /// @param camera_id Current camera ID
+  /// @param frame_id Current frame ID
   ///
   void AugmentState(unsigned int camera_id, unsigned int frame_id);
 
   ///
-  ///
+  /// @brief Body data logger rate setter
+  /// @param rate Body data logging rate
   ///
   void SetBodyDataRate(double rate);
 
@@ -200,7 +213,7 @@ public:
   ///
   void SetDataLogging(bool value);
 
-  DataLogger m_data_logger;
+  DataLogger m_data_logger;  ///< @brief Data logger
 
 private:
   unsigned int m_stateSize{g_body_state_size};
@@ -214,7 +227,7 @@ private:
   bool m_data_logging_on {false};
 
   Eigen::MatrixXd m_process_noise =
-    Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-3;
+    Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-2;
 };
 
 #endif  // EKF__EKF_HPP_

@@ -55,9 +55,29 @@ Eigen::MatrixXd EKF::GetStateTransition(double dT)
   return state_transition;
 }
 
+void EKF::LogBodyStateIfNeeded()
+{
+  /// @todo Use modulo for determining log
+  if ((m_data_logging_on) &&
+    (m_body_data_rate) &&
+    (m_current_time > m_prev_log_time + 1 / m_body_data_rate))
+  {
+    m_prev_log_time = m_current_time;
+    std::stringstream msg;
+    Eigen::VectorXd body_state_vec = GetState().m_body_state.ToVector();
+    Eigen::VectorXd body_cov =
+      GetCov().block(0, 0, g_body_state_size, g_body_state_size).diagonal();
+    msg << m_current_time;
+    msg << VectorToCommaString(body_state_vec);
+    msg << VectorToCommaString(body_cov);
+    msg << "\n";
+    m_data_logger.Log(msg.str());
+  }
+}
+
 void EKF::ProcessModel(double time)
 {
-  m_logger->Log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(time));
+  m_logger->Log(LogLevel::DEBUG, "ProcessModel at t=" + std::to_string(time));
 
   // Don't predict if time is not initialized
   if (!m_time_initialized) {
@@ -65,7 +85,7 @@ void EKF::ProcessModel(double time)
     m_time_initialized = true;
     m_logger->Log(
       LogLevel::INFO,
-      "EKF::Predict initialized time at t=" + std::to_string(time));
+      "ProcessModel initialized time at t=" + std::to_string(time));
     return;
   }
 
@@ -92,23 +112,80 @@ void EKF::ProcessModel(double time)
 
   m_current_time = time;
 
-  // @todo Use modulo for determining log
-  if ((m_data_logging_on) &&
-    (m_body_data_rate) &&
-    (m_current_time > m_prev_log_time + 1 / m_body_data_rate))
-  {
-    m_prev_log_time = m_current_time;
-    std::stringstream msg;
-    Eigen::VectorXd body_state_vec = GetState().m_body_state.ToVector();
-    Eigen::VectorXd body_cov =
-      GetCov().block(0, 0, g_body_state_size, g_body_state_size).diagonal();
-    msg << m_current_time;
-    msg << VectorToCommaString(body_state_vec);
-    msg << VectorToCommaString(body_cov);
-    msg << "\n";
-    m_data_logger.Log(msg.str());
-  }
+  LogBodyStateIfNeeded();
 }
+
+void EKF::PredictModel(
+  double time,
+  Eigen::Vector3d acceleration,
+  Eigen::Matrix3d accelerationCovariance,
+  Eigen::Vector3d angularRate,
+  Eigen::Matrix3d angularRateCovariance)
+{
+  m_logger->Log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(time));
+
+  // Don't predict if time is not initialized
+  if (!m_time_initialized) {
+    m_current_time = time;
+    m_time_initialized = true;
+    m_logger->Log(
+      LogLevel::INFO,
+      "EKF::Predict initialized time at t=" + std::to_string(time));
+    return;
+  }
+
+  if (time <= m_current_time) {
+    m_logger->Log(
+      LogLevel::WARN, "Requested prediction to time in the past. Current t=" +
+      std::to_string(m_current_time) + ", Requested t=" +
+      std::to_string(time));
+    return;
+  }
+
+  double dT = time - m_current_time;
+
+  Eigen::Vector3d acceleration_body =
+    m_state.m_body_state.m_orientation.inverse() * acceleration;
+  Eigen::Matrix3d accelerationCovariance_body =
+    m_state.m_body_state.m_orientation.inverse() * accelerationCovariance;
+  Eigen::Vector3d angularRate_body =
+    m_state.m_body_state.m_orientation.inverse() * angularRate;
+  Eigen::Matrix3d angularRateCovariance_body =
+    m_state.m_body_state.m_orientation.inverse() * angularRateCovariance;
+
+  Eigen::Quaterniond d_quat {
+    1.0,
+    angularRate[0] * dT / 2,
+    angularRate[1] * dT / 2,
+    angularRate[2] * dT / 2
+  };
+
+  m_state.m_body_state.m_position +=
+    dT * m_state.m_body_state.m_velocity +
+    dT * dT / 2 * acceleration_body;
+  m_state.m_body_state.m_velocity += dT * acceleration_body;
+  m_state.m_body_state.m_acceleration = acceleration_body;
+  m_state.m_body_state.m_orientation = m_state.m_body_state.m_orientation * d_quat;
+  m_state.m_body_state.m_angular_velocity = angularRate_body;
+  /// @todo replace with smoothing filter?
+  m_state.m_body_state.m_angular_acceleration.setZero();
+
+  Eigen::MatrixXd dF = GetStateTransition(dT);
+  Eigen::MatrixXd F = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) + dF;
+
+  Eigen::MatrixXd process_noise = Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size);
+  process_noise.block<3, 3>(6, 6) = accelerationCovariance_body;
+  process_noise.block<3, 3>(12, 12) = angularRateCovariance_body;
+
+  // Process input matrix is just identity
+  m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
+    F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0) + process_noise) * F.transpose();
+
+  m_current_time = time;
+
+  LogBodyStateIfNeeded();
+}
+
 
 State & EKF::GetState()
 {
@@ -271,7 +348,6 @@ Eigen::MatrixXd EKF::AugmentJacobian(
   return jacobian;
 }
 
-/// @todo Augment covariance with Jacobian
 void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
 {
   std::stringstream msg;

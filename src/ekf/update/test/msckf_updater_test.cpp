@@ -21,9 +21,16 @@
 #include "ekf/update/msckf_updater.hpp"
 #include "sensors/types.hpp"
 
+///
+/// @class test_msckf_updater
+/// @brief test harness for msckf_updater
+///
 class test_msckf_updater : public ::testing::Test
 {
 protected:
+  ///
+  /// @brief Setup method for msckf_updater test harness
+  ///
   void SetUp() override
   {
     EKF * ekf = EKF::GetInstance();
@@ -44,7 +51,7 @@ protected:
     msckf_updater = MsckfUpdater(cam_id, log_file_directory, data_logging_on);
   }
 
-  MsckfUpdater msckf_updater{0, "", false};
+  MsckfUpdater msckf_updater{0, "", false};  ///< @brief msckf_updater class for testing
 };
 
 TEST_F(test_msckf_updater, projection_jacobian) {

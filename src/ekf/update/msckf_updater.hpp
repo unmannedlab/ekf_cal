@@ -84,7 +84,11 @@ public:
     Intrinsics intrinsics,
     Eigen::MatrixXd & H_dz_dzn);
 
-
+  ///
+  /// @brief Function to calculate jacobian for camera projection function
+  /// @param position Position in camera coordinates
+  /// @param jacobian Resulting camera projection jacobian
+  ///
   void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian);
 
 private:

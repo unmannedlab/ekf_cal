@@ -54,6 +54,7 @@ public:
     double omg_bias_stability {0};               ///< @brief IMU gyroscope bias stability
     std::string output_directory {""};           ///< @brief IMU data logging directory
     bool data_logging_on {false};                ///< @brief IMU data logging flag
+    bool use_for_prediction {false};             ///< @brief Flag to use measurements for prediction
     /// @brief Initial state variance
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
   } Parameters;
@@ -73,6 +74,7 @@ public:
 private:
   bool m_is_base_sensor;
   bool m_is_intrinsic;
+  bool m_use_for_prediction;
 
   ImuUpdater m_imu_updater;
 };

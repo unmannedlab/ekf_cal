@@ -34,6 +34,7 @@ public:
   /// @brief Setter for body cycle frequencies
   /// @param pos_frequency Vector of position frequencies
   /// @param ang_frequency Vector of angular frequencies
+  /// @param pos_offset Initial position offset
   ///
   TruthEngineCyclic(
     Eigen::Vector3d pos_frequency,

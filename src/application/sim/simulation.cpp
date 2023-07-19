@@ -165,6 +165,7 @@ int main(int argc, char * argv[])
     sim_tracker_params.feature_count = sim_node["featureCount"].as<unsigned int>();
     sim_tracker_params.room_size = sim_node["roomSize"].as<double>();
     sim_tracker_params.tracker_params = trkParams;
+    sim_tracker_params.no_errors = no_errors;
 
     trackerMap[trkParams.name] = sim_tracker_params;
   }

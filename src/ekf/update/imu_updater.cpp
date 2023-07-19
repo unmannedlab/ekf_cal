@@ -163,8 +163,18 @@ void ImuUpdater::RefreshStates()
 void ImuUpdater::UpdateEKF(
   double time, Eigen::Vector3d acceleration,
   Eigen::Matrix3d accelerationCovariance, Eigen::Vector3d angularRate,
-  Eigen::Matrix3d angularRateCovariance, bool isBaseSensor, bool isIntrinsic)
+  Eigen::Matrix3d angularRateCovariance, bool isBaseSensor, bool isIntrinsic, bool useAsPredictor)
 {
+  if (useAsPredictor) {
+    m_ekf->PredictModel(
+      time,
+      acceleration,
+      accelerationCovariance,
+      angularRate,
+      angularRateCovariance);
+    return;
+  }
+
   m_ekf->ProcessModel(time);
   RefreshStates();
   auto t_start = std::chrono::high_resolution_clock::now();

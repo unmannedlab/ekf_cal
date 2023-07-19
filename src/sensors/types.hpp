@@ -23,6 +23,9 @@ enum class SensorType
   Tracker
 };
 
+///
+/// @brief Camera intrinsics data structure
+///
 typedef struct Intrinsics
 {
   double f_x {1.0};           ///< @brief X focal length

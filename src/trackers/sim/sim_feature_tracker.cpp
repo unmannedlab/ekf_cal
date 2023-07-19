@@ -18,6 +18,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <cmath>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
@@ -36,6 +37,7 @@ SimFeatureTracker::SimFeatureTracker(
   m_px_error = params.px_error;
   m_pos_offset = params.pos_offset;
   m_ang_offset = params.ang_offset;
+  m_no_errors = params.no_errors;
   m_feature_count = params.feature_count;
   m_truth = truthEngine;
 
@@ -55,6 +57,7 @@ SimFeatureTracker::SimFeatureTracker(
   for (unsigned int i = 0; i < m_feature_count; ++i) {
     cv::Point3d vec;
     vec.x = params.room_size;
+    /// @todo(jhartzer): Re-enable x-axis randomness
     // vec.x = m_rng.UniRand(-params.room_size, params.room_size);
     vec.y = m_rng.UniRand(-params.room_size, params.room_size);
     vec.z = m_rng.UniRand(-params.room_size / 10, params.room_size / 10);
@@ -133,20 +136,18 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 
     // Check that point is in front of camera plane
     if (cam_plane_vec.dot(pointEig) > 0) {
-      cv::KeyPoint feat;
-      feat.pt.x = projected_points[i].x;
-      feat.pt.y = projected_points[i].y;
-
       /// @todo Get this value from input
       unsigned int SIGMA_PIX {1U};
-      /// @todo Add input flag to enable errors
-      if (false) {
-        feat.pt.x += m_rng.NormRand(0.0, SIGMA_PIX);
-        feat.pt.y += m_rng.NormRand(0.0, SIGMA_PIX);
-      }
-      /// @todo Add rounding to nearest pixel
 
-      feat.class_id = i;
+      cv::KeyPoint feat;
+      if (m_no_errors) {
+        feat.pt.x = projected_points[i].x;
+        feat.pt.y = projected_points[i].y;
+      } else {
+        feat.pt.x = round(projected_points[i].x + m_rng.NormRand(0.0, SIGMA_PIX));
+        feat.pt.y = round(projected_points[i].y + m_rng.NormRand(0.0, SIGMA_PIX));
+      }
+
       if (
         feat.pt.x > 0 &&
         feat.pt.y > 0 &&

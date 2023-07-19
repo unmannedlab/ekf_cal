@@ -48,18 +48,21 @@ public:
   ///
   typedef struct Parameters
   {
-    unsigned int feature_count{0};                        ///< @brief Number of features to generate
-    double room_size{10.0};                               ///< @brief Size of "Room" for features
-    double px_error{1e-9};                                ///< @brief Pixel Error
+    unsigned int feature_count{0};                      ///< @brief Number of features to generate
+    double room_size{10.0};                             ///< @brief Size of "Room" for features
+    double px_error{1e-9};                              ///< @brief Pixel Error
     Eigen::Vector3d pos_offset{0.0, 0.0, 0.0};          ///< @brief Camera position offset
     Eigen::Quaterniond ang_offset{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera angular offset
-    FeatureTracker::Parameters tracker_params;            ///< @brief Tracker parameters
+    bool no_errors {false};                             ///< @brief Perfect measurements flag
+    FeatureTracker::Parameters tracker_params;          ///< @brief Tracker parameters
   } Parameters;
 
   ///
   /// @brief Simulation IMU constructor
   /// @param params Simulation IMU parameters
   /// @param truth_engine Truth engine
+  /// @param log_file_directory Directory to save data log file
+  /// @param data_logging_on Flag to enable data logging
   ///
   SimFeatureTracker(
     Parameters params,
@@ -93,6 +96,7 @@ private:
   Eigen::Vector3d m_pos_offset;
   Eigen::Quaterniond m_ang_offset;
   std::shared_ptr<TruthEngine> m_truth;
+  bool m_no_errors {false};
   SimRNG m_rng;
   unsigned int m_feature_count {0};
   std::vector<cv::Point3d> m_feature_points;

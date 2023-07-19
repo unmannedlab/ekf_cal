@@ -95,7 +95,7 @@ public:
 
   ///
   /// @brief Output directory setter
-  /// @param directory Output directory string
+  /// @param output_directory Output directory string
   ///
   void SetOutputDirectory(std::string output_directory);
 

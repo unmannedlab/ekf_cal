@@ -54,10 +54,14 @@ public:
 
   ///
   /// @brief Output directory setter
-  /// @param directory Output directory string
+  /// @param output_directory Output directory string
   ///
   void SetOutputDirectory(std::string output_directory);
 
+  ///
+  /// @brief Output file name setter
+  /// @param file_name Output file name
+  ///
   void SetOutputFileName(std::string file_name);
 
 private:

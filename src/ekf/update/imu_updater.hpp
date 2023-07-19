@@ -62,11 +62,12 @@ public:
   /// @param angularRateCovariance Estimated angular rate error
   /// @param isBaseSensor switch if this is the base sensor
   /// @param isIntrinsic switch if imu intrinsics should be calibrated
+  /// @param useAsPredictor switch to use IMU as a prediction step
   ///
   void UpdateEKF(
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d accelerationCovariance,
     Eigen::Vector3d angularRate, Eigen::Matrix3d angularRateCovariance, bool isBaseSensor,
-    bool isIntrinsic);
+    bool isIntrinsic, bool useAsPredictor);
 
   ///
   /// @brief Refresh internal states with EKF values
