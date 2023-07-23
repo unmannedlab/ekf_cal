@@ -41,7 +41,7 @@ MsckfUpdater::MsckfUpdater(
   msg << EnumerateHeader("cam_update", g_cam_state_size);
   msg << ",FeatureTracks";
   msg << EnumerateHeader("time", 1);
-  msg << "\n";
+  msg << std::endl;
 
   m_data_logger.DefineHeader(msg.str());
   m_data_logger.SetLogging(data_logging_on);
@@ -119,7 +119,7 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
   msg << "," << position_f_in_g[0];
   msg << "," << position_f_in_g[1];
   msg << "," << position_f_in_g[2];
-  msg << "\n";
+  msg << std::endl;
   m_triangulation_logger.Log(msg.str());
 
   return position_f_in_g;
@@ -386,7 +386,7 @@ void MsckfUpdater::UpdateEKF(
   msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));
   msg << "," << std::to_string(feature_tracks.size());
   msg << "," << t_execution.count();
-  msg << "\n";
+  msg << std::endl;
   m_data_logger.Log(msg.str());
 }
 

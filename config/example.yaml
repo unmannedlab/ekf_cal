@@ -6,22 +6,19 @@
         Body_Data_Rate: 100.0
         SimParams:
             Seed: 0.0
-            UseSeed: False
+            UseSeed: True
             MaxTime: 5.0
             TruthType: "Cyclic"
-            # PosFrequency: [0.0, 0.0, 0.0]
             PosFrequency: [1.1, 1.2, 1.3]
-            # AngFrequency: [0.0, 0.0, 0.0]
             AngFrequency: [0.2, 0.2, 0.0]
-            # AngFrequency: [0.9, 0.8, 0.7]
-            # AngFrequency: [0.9, 0.8, 0.7]
-            # AngFrequency: [0.2, 0.2, 0.2]
             PosOffset: [0.0, 0.0, 0.0]
-            NoErrors: True
+            NoErrors: False
+            NumberOfRuns: 10
+            RunNumber: 0
 
         IMU_list:
             - "vn300"
-            # - "vn100"
+            - "vn100"
 
         Camera_list:
             - "ace"
@@ -31,6 +28,7 @@
 
         IMU:
             vn300:
+                # @todo(jhartzer): Need to diagnose bug in UseForPrediction
                 UseForPrediction: False
                 BaseSensor: True
                 Intrinsic: False
@@ -44,11 +42,11 @@
                 SimParams:
                     timeBias: 0.0
                     timeSkew: 0.0
-                    timeError: 1.0e-18
+                    timeError: 1.0e-6
                     accBias: [0.0, 0.0, 0.0]
-                    accError: [1.0e-18, 1.0e-18, 1.0e-18]
+                    accError: [1.0e-3, 1.0e-3, 1.0e-3]
                     omgBias: [0.0, 0.0, 0.0]
-                    omgError: [1.0e-18, 1.0e-18, 1.0e-18]
+                    omgError: [1.0e-2, 1.0e-2, 1.0e-2]
                     posOffset: [0.0, 0.0, 0.0]
                     angOffset: [1.0, 0.0, 0.0, 0.0]
             vn100:
@@ -65,11 +63,11 @@
                 SimParams:
                     timeBias: 0.0
                     timeSkew: 0.0
-                    timeError: 1.0e-18
+                    timeError: 1.0e-6
                     accBias: [0.0, 0.0, 0.0]
-                    accError: [1.0e-18, 1.0e-18, 1.0e-18]
+                    accError: [1.0e-3, 1.0e-3, 1.0e-3]
                     omgBias: [0.0, 0.0, 0.0]
-                    omgError: [1.0e-18, 1.0e-18, 1.0e-18]
+                    omgError: [1.0e-2, 1.0e-2, 1.0e-2]
                     posOffset: [0.0, 0.0, 0.0]
                     angOffset: [1.0, 0.0, 0.0, 0.0]
 
@@ -84,7 +82,7 @@
                 SimParams:
                     timeBias: 0.0
                     timeSkew: 0.0
-                    timeError: 1.0e-18
+                    timeError: 1.0e-6
                     posOffset: [0.0, 0.0, 0.0]
                     angOffset: [0.5, -0.5, 0.5, -0.5]
 

@@ -15,29 +15,51 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""
+run_sim.py.
+
+A collection of function for running the multi-IMU, multi-Camera simulation
+
+Typical usage is:
+```
+python3 eval/run_sim.py config/example.yaml
+```
+
+To get help:
+```
+python3 eval/run_sim.py --help
+```
+"""
+
 import argparse
+import math
 import multiprocessing
 import os
+import random
 import subprocess
 import traceback
 from typing import List
 
+import yaml
+
 
 def print_err(err):
+    """Print errors experienced in asynchronous pool."""
     print('error_callback()', err)
     traceback.print_exception(type(err), err, err.__traceback__)
 
 
-def run_sim(yaml: str):
+def run_sim(yaml_path: str):
+    """Run simulation given an input yaml."""
     # Get (and create) yaml directory
-    yaml_dir = yaml.split('.yaml')[0] + os.sep
+    yaml_dir = yaml_path.split('.yaml')[0] + os.sep
     if (not os.path.isdir(yaml_dir)):
         os.mkdir(yaml_dir)
 
     # Run simulation
     base_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
     sim_path = os.path.join(base_path, '..', '..', 'build', 'ekf_cal', 'sim')
-    proc = subprocess.run([sim_path, yaml, yaml_dir],
+    proc = subprocess.run([sim_path, yaml_path, yaml_dir],
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE)
 
@@ -52,13 +74,59 @@ def run_sim(yaml: str):
             output.write(proc.stderr)
 
 
+def generate_mc_from_yaml(yaml_file):
+    """Generate a Monte Carlo list of inputs given a top-level yaml."""
+    with open(yaml_file, 'r') as yaml_stream:
+        try:
+            top_yaml = yaml.safe_load(yaml_stream)
+            num_runs = top_yaml['/EkfCalNode']['ros__parameters']['SimParams']['NumberOfRuns']
+            if (num_runs > 1):
+                yaml_files = []
+                top_name = os.path.basename(yaml_file).split('.yaml')[0]
+                yaml_dir = yaml_file.split('.yaml')[0] + os.sep
+                if (not os.path.isdir(yaml_dir)):
+                    os.mkdir(yaml_dir)
+                runs_dir = os.path.join(yaml_dir, 'runs')
+                if (not os.path.isdir(runs_dir)):
+                    os.mkdir(runs_dir)
+
+                use_seed = top_yaml['/EkfCalNode']['ros__parameters']['SimParams']['UseSeed']
+                seed = top_yaml['/EkfCalNode']['ros__parameters']['SimParams']['Seed']
+                if (use_seed):
+                    random.seed(seed)
+
+                n_digits = math.ceil(math.log10(num_runs + 1))
+                for i in range(num_runs):
+                    sub_yaml = top_yaml
+                    if (use_seed):
+                        new_seed = random.randint(0, 1e9)
+                        sub_yaml['/EkfCalNode']['ros__parameters']['SimParams']['Seed'] = new_seed
+                    sub_yaml['/EkfCalNode']['ros__parameters']['SimParams']['NumberOfRuns'] = 1
+                    sub_yaml['/EkfCalNode']['ros__parameters']['SimParams']['RunNumber'] += i
+                    sub_yaml['/EkfCalNode']['ros__parameters']['SimParams']['RunNumber'] *= i
+                    sub_file = os.path.join(
+                        runs_dir, '{}_{:0{:d}.0f}.yaml'.format(top_name, i, n_digits))
+                    yaml_files.append(sub_file)
+                    with open(sub_file, 'w') as f:
+                        yaml.dump(sub_yaml, f)
+            else:
+                yaml_files = [yaml_file]
+        except yaml.YAMLError as exc:
+            print(exc)
+
+    return yaml_files
+
+
 def add_jobs(inputs: List[str]):
+    """Add simulation jobs to pool given list of top-level input yaml files."""
     cpu_count = multiprocessing.cpu_count() - 1
     pool = multiprocessing.Pool(cpu_count)
 
-    for yaml in inputs:
-        yaml_path = os.path.abspath(yaml)
-        pool.apply_async(run_sim, args=(yaml_path,), error_callback=print_err)
+    for yaml_file in inputs:
+        input_yaml_path = os.path.abspath(yaml_file)
+        list_of_runs = generate_mc_from_yaml(input_yaml_path)
+        for single_run in list_of_runs:
+            pool.apply_async(run_sim, args=(single_run,), error_callback=print_err)
 
     pool.close()
     pool.join()

@@ -36,7 +36,7 @@ EKF::EKF()
   msg << "time";
   msg << EnumerateHeader("body_state", g_body_state_size);
   msg << EnumerateHeader("body_cov", g_body_state_size);
-  msg << "\n";
+  msg << std::endl;
 
   m_data_logger.DefineHeader(msg.str());
   m_data_logger.SetLogging(m_data_logging_on);
@@ -70,7 +70,7 @@ void EKF::LogBodyStateIfNeeded()
     msg << m_current_time;
     msg << VectorToCommaString(body_state_vec);
     msg << VectorToCommaString(body_cov);
-    msg << "\n";
+    msg << std::endl;
     m_data_logger.Log(msg.str());
   }
 }

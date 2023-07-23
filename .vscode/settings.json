@@ -138,14 +138,12 @@
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python",
-        "editor.rulers": [
-            80
-        ],
     },
     "python.linting.flake8Enabled": true,
     "cmake.configureOnOpen": true,
     "flake8.args": [
-        "--ignore=D100,D103"
+        "--ignore=CNL100",
+        "--max-line-length=120",
     ],
     "ros.distro": "humble",
     "terminal.integrated.gpuAcceleration": "off",
