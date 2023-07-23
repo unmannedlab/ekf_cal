@@ -38,3 +38,13 @@ std::string VectorToCommaString(Eigen::VectorXd vec)
   }
   return stream.str();
 }
+
+std::string QuaternionToCommaString(Eigen::Quaterniond quat)
+{
+  std::stringstream stream;
+  stream << "," << quat.w();
+  stream << "," << quat.x();
+  stream << "," << quat.y();
+  stream << "," << quat.z();
+  return stream.str();
+}
