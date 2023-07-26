@@ -27,6 +27,7 @@
         "ggplot",
         "htmlonly",
         "ImuUpdater",
+        "interp",
         "IROS",
         "Jacobians",
         "keypoint",

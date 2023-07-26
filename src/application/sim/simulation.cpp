@@ -66,9 +66,10 @@ void WriteTruthData(
   header << std::endl;
   data_logger.DefineHeader(header.str());
 
-  unsigned int num_measurements = static_cast<int>(std::floor(max_time * body_data_rate));
+  double truth_data_rate = body_data_rate * 10.0;
+  unsigned int num_measurements = static_cast<int>(std::floor(max_time * truth_data_rate));
   for (unsigned int i = 0; i < num_measurements; ++i) {
-    double time = static_cast<double>(i) / body_data_rate;
+    double time = static_cast<double>(i) / truth_data_rate;
     Eigen::Vector3d body_pos = truth_engine->GetBodyPosition(time);
     Eigen::Vector3d body_vel = truth_engine->GetBodyVelocity(time);
     Eigen::Vector3d body_acc = truth_engine->GetBodyAcceleration(time);
@@ -124,7 +125,7 @@ int main(int argc, char * argv[])
   ekf->SetBodyDataRate(body_data_rate);
   ekf->SetDataLogging(data_logging_on);
   ekf->m_data_logger.SetOutputDirectory(out_dir);
-  ekf->m_data_logger.SetOutputFileName("body_state_0.csv");
+  ekf->m_data_logger.SetOutputFileName("body_state.csv");
 
   // Simulation parameters
   YAML::Node sim_params = ros_params["SimParams"];

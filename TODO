@@ -46,7 +46,6 @@ Software Work:
     - Add mutex to EKF class and have mutex locked by updaters
     - Switch to reentrant callback group
     - Show track images from simulation
-    - Test monte carlo simulation
     - Be explicit with quaternion inputs
     - Add check for intrinsic IMUs without cameras
     - Add check for multiple prediction IMUs
@@ -61,7 +60,6 @@ Software Work:
             - CharucoDiamondTracker
 
 Tools:
-    - Monte Carlo plotting
     - Plot body error against truth if available
     - Generate truth plots
     - Input file generator

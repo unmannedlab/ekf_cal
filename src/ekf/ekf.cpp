@@ -32,13 +32,18 @@ EKF * EKF::instance_pointer = NULL;
 
 EKF::EKF()
 {
-  std::stringstream msg;
-  msg << "time";
-  msg << EnumerateHeader("body_state", g_body_state_size);
-  msg << EnumerateHeader("body_cov", g_body_state_size);
-  msg << std::endl;
+  std::stringstream header;
+  header << "time";
+  header << EnumerateHeader("body_pos", 3);
+  header << EnumerateHeader("body_vel", 3);
+  header << EnumerateHeader("body_acc", 3);
+  header << EnumerateHeader("body_ang_pos", 4);
+  header << EnumerateHeader("body_ang_vel", 3);
+  header << EnumerateHeader("body_ang_acc", 3);
+  header << EnumerateHeader("body_cov", g_body_state_size);
+  header << std::endl;
 
-  m_data_logger.DefineHeader(msg.str());
+  m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(m_data_logging_on);
 }
 
@@ -57,18 +62,22 @@ Eigen::MatrixXd EKF::GetStateTransition(double dT)
 
 void EKF::LogBodyStateIfNeeded()
 {
-  /// @todo Use modulo for determining log
+  /// @todo Use modulo for determining if log is needed
   if ((m_data_logging_on) &&
     (m_body_data_rate) &&
     (m_current_time > m_prev_log_time + 1 / m_body_data_rate))
   {
     m_prev_log_time = m_current_time;
     std::stringstream msg;
-    Eigen::VectorXd body_state_vec = GetState().m_body_state.ToVector();
     Eigen::VectorXd body_cov =
       GetCov().block(0, 0, g_body_state_size, g_body_state_size).diagonal();
     msg << m_current_time;
-    msg << VectorToCommaString(body_state_vec);
+    msg << VectorToCommaString(GetState().m_body_state.m_position);
+    msg << VectorToCommaString(GetState().m_body_state.m_velocity);
+    msg << VectorToCommaString(GetState().m_body_state.m_acceleration);
+    msg << QuaternionToCommaString(GetState().m_body_state.m_orientation);
+    msg << VectorToCommaString(GetState().m_body_state.m_angular_velocity);
+    msg << VectorToCommaString(GetState().m_body_state.m_angular_acceleration);
     msg << VectorToCommaString(body_cov);
     msg << std::endl;
     m_data_logger.Log(msg.str());

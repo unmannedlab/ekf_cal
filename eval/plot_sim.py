@@ -38,6 +38,10 @@ import functools
 import glob
 import math
 import os
+import re
+import multiprocessing
+
+from scipy.spatial.transform import Rotation as R
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -51,6 +55,12 @@ import yaml
 # import matplotlib as mpl
 # mpl.rcParams['lines.marker'] = '.'
 plt.style.use('ggplot')
+
+
+def interpolate_error(true_t, true_x, estimate_t, estimate_x):
+    interp_x = np.interp(estimate_t, true_t, true_x)
+    errors = [estimate - interp for estimate, interp in zip(estimate_x, interp_x)]
+    return errors
 
 
 def set_plot_titles(fig, name):
@@ -73,7 +83,7 @@ def format_prefix(prefix):
 
 def calculate_alpha(line_count: int):
     """Calculate transparency value from number of plots."""
-    alpha = 1.0 / math.sqrt(line_count)
+    alpha = 1.0 / math.pow(line_count, 0.75)
     return alpha
 
 
@@ -106,12 +116,16 @@ def find_and_read_data_frames(directories, prefix):
     """Find matching dataframes and read using pandas."""
     data_frame_sets = collections.defaultdict(list)
     for directory in directories:
-        file_paths = glob.glob(os.path.join(directory, prefix + '_*.csv'))
-        for file_path in file_paths:
+        file_paths_id = glob.glob(os.path.join(directory, prefix + '*.csv'))
+        for file_path in file_paths_id:
             file_name = os.path.basename(file_path)
-            file_id = int(file_name.split('_')[-1].split('.csv')[0])
             df = pd.read_csv(file_path)
             df.attrs['prefix'] = format_prefix(prefix)
+            matches = re.findall(r'_[0-9]*\.csv', file_name)
+            if matches:
+                file_id = int(matches[0].split('_')[1].split('.csv')[0])
+            else:
+                file_id = 0
             df.attrs['id'] = file_id
             data_frame_sets[file_id].append(df)
     return data_frame_sets
@@ -125,6 +139,13 @@ class Plotter():
         self.no_show = no_show
         self.rate_line = rate_line
         self.ext = ext
+        cpu_count = multiprocessing.cpu_count() - 1
+        self.pool = multiprocessing.Pool(cpu_count)
+
+    def print_err(err):
+        """Print errors experienced in asynchronous pool."""
+        print('error_callback()', err)
+        traceback.print_exception(type(err), err, err.__traceback__)
 
     def plot_imu_measurements(self, imu_dfs):
         """Plot detected IMU measurements."""
@@ -326,9 +347,9 @@ class Plotter():
         alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
-            axs_1.plot(time, body_df['body_state_0'].to_list(), alpha=alpha, color='tab:blue')
-            axs_2.plot(time, body_df['body_state_1'].to_list(), alpha=alpha, color='tab:orange')
-            axs_3.plot(time, body_df['body_state_2'].to_list(), alpha=alpha, color='tab:green')
+            axs_1.plot(time, body_df['body_pos_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_pos_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_pos_2'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, 'Body Position')
         axs_1.set_ylabel('X [m]')
         axs_2.set_ylabel('Y [m]')
@@ -343,9 +364,9 @@ class Plotter():
         axs = fig.add_subplot(projection='3d')
         alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
-            x_pos = body_df['body_state_0'].to_list()
-            y_pos = body_df['body_state_1'].to_list()
-            z_pos = body_df['body_state_2'].to_list()
+            x_pos = body_df['body_pos_0'].to_list()
+            y_pos = body_df['body_pos_1'].to_list()
+            z_pos = body_df['body_pos_2'].to_list()
             axs.plot(x_pos, y_pos, z_pos, alpha=alpha, color='tab:blue')
         set_plot_titles(fig, 'Body Position 3D')
         axs.set_xlabel('X [m]')
@@ -388,9 +409,9 @@ class Plotter():
         alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
-            x_pos = body_df['body_state_0'].to_list()
-            y_pos = body_df['body_state_1'].to_list()
-            z_pos = body_df['body_state_2'].to_list()
+            x_pos = body_df['body_pos_0'].to_list()
+            y_pos = body_df['body_pos_1'].to_list()
+            z_pos = body_df['body_pos_2'].to_list()
             graph, = axs.plot(x_pos, y_pos, z_pos, alpha=alpha, color='tab:blue')
             time_list.append(time)
             x_pos_list.append(x_pos)
@@ -427,9 +448,9 @@ class Plotter():
         alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
-            axs_1.plot(time, body_df['body_state_3'].to_list(), alpha=alpha, color='tab:blue')
-            axs_2.plot(time, body_df['body_state_4'].to_list(), alpha=alpha, color='tab:orange')
-            axs_3.plot(time, body_df['body_state_5'].to_list(), alpha=alpha, color='tab:green')
+            axs_1.plot(time, body_df['body_vel_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_vel_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_vel_2'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, 'Body Velocity')
         axs_1.set_ylabel('X [m/s]')
         axs_2.set_ylabel('Y [m/s]')
@@ -444,9 +465,9 @@ class Plotter():
         alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
-            axs_1.plot(time, body_df['body_state_6'].to_list(), alpha=alpha, color='tab:blue')
-            axs_2.plot(time, body_df['body_state_7'].to_list(), alpha=alpha, color='tab:orange')
-            axs_3.plot(time, body_df['body_state_8'].to_list(), alpha=alpha, color='tab:green')
+            axs_1.plot(time, body_df['body_acc_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_acc_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_acc_2'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, 'Body Acceleration')
         axs_1.set_ylabel('X [m/s/s]')
         axs_2.set_ylabel('Y [m/s/s]')
@@ -457,17 +478,53 @@ class Plotter():
 
     def plot_body_ang(self, body_dfs):
         """Plot body angular position."""
+        fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
+        alpha = calculate_alpha(len(body_dfs))
+        for body_df in body_dfs:
+            time = body_df['time'].to_list()
+            axs_1.plot(time, body_df['body_ang_pos_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_ang_pos_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_ang_pos_2'].to_list(), alpha=alpha, color='tab:green')
+            axs_4.plot(time, body_df['body_ang_pos_3'].to_list(), alpha=alpha, color='tab:green')
+        set_plot_titles(fig, 'Body Angles')
+        axs_1.set_ylabel('W')
+        axs_2.set_ylabel('X')
+        axs_3.set_ylabel('Y')
+        axs_4.set_ylabel('Z')
+        axs_4.set_xlabel('Time [s]')
+        fig.tight_layout()
+        return fig
+
+    def plot_body_ang_vel(self, body_dfs):
+        """Plot body angular position."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
-            axs_1.plot(time, body_df['body_state_9'].to_list(), alpha=alpha, color='tab:blue')
-            axs_2.plot(time, body_df['body_state_10'].to_list(), alpha=alpha, color='tab:orange')
-            axs_3.plot(time, body_df['body_state_11'].to_list(), alpha=alpha, color='tab:green')
+            axs_1.plot(time, body_df['body_ang_vel_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_ang_vel_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_ang_vel_2'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, 'Body Angles')
-        axs_1.set_ylabel(r'$\theta_x$ [rad]')
-        axs_2.set_ylabel(r'$\theta_y$ [rad]')
-        axs_3.set_ylabel(r'$\theta_z$ [rad]')
+        axs_1.set_ylabel('X [rad/s]')
+        axs_2.set_ylabel('Y [rad/s]')
+        axs_3.set_ylabel('Z [rad/s]')
+        axs_3.set_xlabel('Time [s]')
+        fig.tight_layout()
+        return fig
+
+    def plot_body_ang_acc(self, body_dfs):
+        """Plot body angular position."""
+        fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(body_dfs))
+        for body_df in body_dfs:
+            time = body_df['time'].to_list()
+            axs_1.plot(time, body_df['body_ang_acc_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_ang_acc_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_ang_acc_2'].to_list(), alpha=alpha, color='tab:green')
+        set_plot_titles(fig, 'Body Angles')
+        axs_1.set_ylabel('X [rad/s/s]')
+        axs_2.set_ylabel('Y [rad/s/s]')
+        axs_3.set_ylabel('Z [rad/s/s]')
         axs_3.set_xlabel('Time [s]')
         fig.tight_layout()
         return fig
@@ -518,6 +575,205 @@ class Plotter():
         fig.tight_layout()
         return fig
 
+    def plot_body_err_pos(self, body_state_dfs, body_truth_dfs):
+        fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(body_state_dfs))
+        for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
+            true_time = body_truth['time'].to_list()
+            true_pos_0 = body_truth['body_pos_0'].to_list()
+            true_pos_1 = body_truth['body_pos_1'].to_list()
+            true_pos_2 = body_truth['body_pos_2'].to_list()
+
+            est_time = body_state['time'].to_list()
+            est_pos_0 = body_state['body_pos_0'].to_list()
+            est_pos_1 = body_state['body_pos_1'].to_list()
+            est_pos_2 = body_state['body_pos_2'].to_list()
+
+            err_pos_0 = interpolate_error(true_time, true_pos_0, est_time, est_pos_0)
+            err_pos_1 = interpolate_error(true_time, true_pos_1, est_time, est_pos_1)
+            err_pos_2 = interpolate_error(true_time, true_pos_2, est_time, est_pos_2)
+
+            axs_1.plot(est_time, err_pos_0, alpha=alpha, color='tab:blue')
+            axs_2.plot(est_time, err_pos_1, alpha=alpha, color='tab:orange')
+            axs_3.plot(est_time, err_pos_2, alpha=alpha, color='tab:green')
+
+        set_plot_titles(fig, 'Body Position Error')
+        axs_1.set_ylabel('X Error [m]')
+        axs_2.set_ylabel('Y Error [m]')
+        axs_3.set_ylabel('Z Error [m]')
+        axs_3.set_xlabel('Time [s]')
+        fig.tight_layout()
+
+        return fig
+
+    def plot_body_err_vel(self, body_state_dfs, body_truth_dfs):
+        fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(body_state_dfs))
+        for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
+            true_time = body_truth['time'].to_list()
+            true_vel_0 = body_truth['body_vel_0'].to_list()
+            true_vel_1 = body_truth['body_vel_1'].to_list()
+            true_vel_2 = body_truth['body_vel_2'].to_list()
+
+            est_time = body_state['time'].to_list()
+            est_vel_0 = body_state['body_vel_0'].to_list()
+            est_vel_1 = body_state['body_vel_1'].to_list()
+            est_vel_2 = body_state['body_vel_2'].to_list()
+
+            err_vel_0 = interpolate_error(true_time, true_vel_0, est_time, est_vel_0)
+            err_vel_1 = interpolate_error(true_time, true_vel_1, est_time, est_vel_1)
+            err_vel_2 = interpolate_error(true_time, true_vel_2, est_time, est_vel_2)
+
+            axs_1.plot(est_time, err_vel_0, alpha=alpha, color='tab:blue')
+            axs_2.plot(est_time, err_vel_1, alpha=alpha, color='tab:orange')
+            axs_3.plot(est_time, err_vel_2, alpha=alpha, color='tab:green')
+
+        set_plot_titles(fig, 'Body Velocity Error')
+        axs_1.set_ylabel('X Error [m/s]')
+        axs_2.set_ylabel('Y Error [m/s]')
+        axs_3.set_ylabel('Z Error [m/s]')
+        axs_3.set_xlabel('Time [s]')
+        fig.tight_layout()
+
+        return fig
+
+    def plot_body_err_acc(self, body_state_dfs, body_truth_dfs):
+        fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(body_state_dfs))
+        for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
+            true_time = body_truth['time'].to_list()
+            true_acc_0 = body_truth['body_acc_0'].to_list()
+            true_acc_1 = body_truth['body_acc_1'].to_list()
+            true_acc_2 = body_truth['body_acc_2'].to_list()
+
+            est_time = body_state['time'].to_list()
+            est_acc_0 = body_state['body_acc_0'].to_list()
+            est_acc_1 = body_state['body_acc_1'].to_list()
+            est_acc_2 = body_state['body_acc_2'].to_list()
+
+            err_acc_0 = interpolate_error(true_time, true_acc_0, est_time, est_acc_0)
+            err_acc_1 = interpolate_error(true_time, true_acc_1, est_time, est_acc_1)
+            err_acc_2 = interpolate_error(true_time, true_acc_2, est_time, est_acc_2)
+
+            axs_1.plot(est_time, err_acc_0, alpha=alpha, color='tab:blue')
+            axs_2.plot(est_time, err_acc_1, alpha=alpha, color='tab:orange')
+            axs_3.plot(est_time, err_acc_2, alpha=alpha, color='tab:green')
+
+        set_plot_titles(fig, 'Body Acceleration Error')
+        axs_1.set_ylabel('X Error [m/s/s]')
+        axs_2.set_ylabel('Y Error [m/s/s]')
+        axs_3.set_ylabel('Z Error [m/s/s]')
+        axs_3.set_xlabel('Time [s]')
+        fig.tight_layout()
+
+        return fig
+
+    # def plot_body_err_ang(self, body_state_dfs, body_truth_dfs):
+    #     fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
+    #     alpha = calculate_alpha(len(body_state_dfs))
+    #     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
+    #         true_time = body_truth['time'].to_list()
+    #         true_ang_pos_w = body_truth['body_ang_pos_0'].to_list()
+    #         true_ang_pos_x = body_truth['body_ang_pos_1'].to_list()
+    #         true_ang_pos_y = body_truth['body_ang_pos_2'].to_list()
+    #         true_ang_pos_z = body_truth['body_ang_pos_3'].to_list()
+
+    #         est_time = body_state['time'].to_list()
+    #         est_ang_pos_w = body_state['body_ang_pos_0'].to_list()
+    #         est_ang_pos_x = body_state['body_ang_pos_1'].to_list()
+    #         est_ang_pos_y = body_state['body_ang_pos_2'].to_list()
+    #         est_ang_pos_z = body_state['body_ang_pos_3'].to_list()
+    #         est_ang_pos_q = list_to_quat(interp_w, interp_x, interp_y, interp_z)
+
+    #         interp_w = np.interp(est_time, true_time, true_ang_pos_w)
+    #         interp_x = np.interp(est_time, true_time, true_ang_pos_x)
+    #         interp_y = np.interp(est_time, true_time, true_ang_pos_y)
+    #         interp_z = np.interp(est_time, true_time, true_ang_pos_z)
+    #         interp_q = list_to_quat(interp_w, interp_x, interp_y, interp_z)
+
+    #         err
+    #         # err_ang_pos_w =
+    #         # err_ang_pos_x =
+    #         # err_ang_pos_y =
+    #         # err_ang_pos_z =
+
+    #         # axs_1.plot(est_time, err_ang_pos_w, alpha=alpha, color='tab:blue')
+    #         # axs_2.plot(est_time, err_ang_pos_x, alpha=alpha, color='tab:orange')
+    #         # axs_3.plot(est_time, err_ang_pos_y, alpha=alpha, color='tab:green')
+    #         # axs_4.plot(est_time, err_ang_pos_z, alpha=alpha, color='tab:red')
+
+    #     set_plot_titles(fig, 'Body Angular Error')
+    #     axs_1.set_ylabel('body_ang_pos_0')
+    #     axs_2.set_ylabel('body_ang_pos_1')
+    #     axs_3.set_ylabel('body_ang_pos_2')
+    #     axs_4.set_ylabel('body_ang_pos_3')
+    #     axs_4.set_xlabel('Time [s]')
+    #     fig.tight_layout()
+
+    #     return fig
+
+    def plot_body_err_ang_vel(self, body_state_dfs, body_truth_dfs):
+        fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(body_state_dfs))
+        for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
+            true_time = body_truth['time'].to_list()
+            true_ang_vel_0 = body_truth['body_ang_vel_0'].to_list()
+            true_ang_vel_1 = body_truth['body_ang_vel_1'].to_list()
+            true_ang_vel_2 = body_truth['body_ang_vel_2'].to_list()
+
+            est_time = body_state['time'].to_list()
+            est_ang_vel_0 = body_state['body_ang_vel_0'].to_list()
+            est_ang_vel_1 = body_state['body_ang_vel_1'].to_list()
+            est_ang_vel_2 = body_state['body_ang_vel_2'].to_list()
+
+            err_ang_vel_0 = interpolate_error(true_time, true_ang_vel_0, est_time, est_ang_vel_0)
+            err_ang_vel_1 = interpolate_error(true_time, true_ang_vel_1, est_time, est_ang_vel_1)
+            err_ang_vel_2 = interpolate_error(true_time, true_ang_vel_2, est_time, est_ang_vel_2)
+
+            axs_1.plot(est_time, err_ang_vel_0, alpha=alpha, color='tab:blue')
+            axs_2.plot(est_time, err_ang_vel_1, alpha=alpha, color='tab:orange')
+            axs_3.plot(est_time, err_ang_vel_2, alpha=alpha, color='tab:green')
+
+        set_plot_titles(fig, 'Body Angular Rate Error')
+        axs_1.set_ylabel('X Error [rad/s]')
+        axs_2.set_ylabel('Y Error [rad/s]')
+        axs_3.set_ylabel('Z Error [rad/s]')
+        axs_3.set_xlabel('Time [s]')
+        fig.tight_layout()
+
+        return fig
+
+    def plot_body_err_ang_acc(self, body_state_dfs, body_truth_dfs):
+        fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(body_state_dfs))
+        for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
+            true_time = body_truth['time'].to_list()
+            true_ang_acc_0 = body_truth['body_ang_acc_0'].to_list()
+            true_ang_acc_1 = body_truth['body_ang_acc_1'].to_list()
+            true_ang_acc_2 = body_truth['body_ang_acc_2'].to_list()
+
+            est_time = body_state['time'].to_list()
+            est_ang_acc_0 = body_state['body_ang_acc_0'].to_list()
+            est_ang_acc_1 = body_state['body_ang_acc_1'].to_list()
+            est_ang_acc_2 = body_state['body_ang_acc_2'].to_list()
+
+            err_ang_acc_0 = interpolate_error(true_time, true_ang_acc_0, est_time, est_ang_acc_0)
+            err_ang_acc_1 = interpolate_error(true_time, true_ang_acc_1, est_time, est_ang_acc_1)
+            err_ang_acc_2 = interpolate_error(true_time, true_ang_acc_2, est_time, est_ang_acc_2)
+
+            axs_1.plot(est_time, err_ang_acc_0, alpha=alpha, color='tab:blue')
+            axs_2.plot(est_time, err_ang_acc_1, alpha=alpha, color='tab:orange')
+            axs_3.plot(est_time, err_ang_acc_2, alpha=alpha, color='tab:green')
+
+        set_plot_titles(fig, 'Body Angular Acceleration Error')
+        axs_1.set_ylabel('X Error [rad/s/s]')
+        axs_2.set_ylabel('Y Error [rad/s/s]')
+        axs_3.set_ylabel('Z Error [rad/s/s]')
+        axs_3.set_xlabel('Time [s]')
+        fig.tight_layout()
+
+        return fig
+
     # @todo include camera ID
     def plot_triangulation_error(self, tri_dfs, feat_dfs):
         """Plot MSCKF feature point triangulation error."""
@@ -546,7 +802,6 @@ class Plotter():
             axs_2.plot(err_y, alpha=alpha, color='tab:orange')
             axs_3.plot(err_z, alpha=alpha, color='tab:green')
         set_plot_titles(fig, 'Triangulation Errors')
-
         return fig
 
     def save_figures(self, save_dir, figures):
@@ -566,19 +821,27 @@ class Plotter():
             title = ani._title.replace(' ', '_').lower()
             ani.save(filename=os.path.join(save_dir, f'{title}.gif'), writer='pillow')
 
-    def plot_body_data(self, body_dfs):
+    def plot_body_data(self, body_state_dfs, body_truth_dfs=None):
         """Generate plots for body data."""
         figures = [
-            self.plot_body_pos(body_dfs),
-            self.plot_body_pos_3d(body_dfs),
-            self.plot_body_vel(body_dfs),
-            self.plot_body_acc(body_dfs),
-            self.plot_body_ang(body_dfs),
-            self.plot_body_pos_cov(body_dfs),
-            self.plot_body_ang_cov(body_dfs),
+            self.plot_body_pos(body_state_dfs),
+            self.plot_body_pos_3d(body_state_dfs),
+            self.plot_body_vel(body_state_dfs),
+            self.plot_body_acc(body_state_dfs),
+            self.plot_body_ang(body_state_dfs),
+            self.plot_body_ang_vel(body_state_dfs),
+            self.plot_body_ang_acc(body_state_dfs),
+            self.plot_body_pos_cov(body_state_dfs),
+            self.plot_body_ang_cov(body_state_dfs),
+            self.plot_body_err_pos(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_vel(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_acc(body_state_dfs, body_truth_dfs),
+            # self.plot_body_err_ang(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_ang_vel(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_ang_acc(body_state_dfs, body_truth_dfs),
         ]
         animations = [
-            self.plot_body_pos_3d_anim(body_dfs)
+            self.plot_body_pos_3d_anim(body_state_dfs)
         ]
         return figures, animations
 
@@ -626,12 +889,12 @@ class Plotter():
             if not os.path.isdir(plot_dir):
                 os.mkdir(plot_dir)
 
-            body_dfs_dict = find_and_read_data_frames(data_dirs, 'body_state')
-
-            # body_df = pd.read_csv(os.path.join(data_dirs[0], 'body_state.csv'))
-            for key in body_dfs_dict:
-                body_dfs = body_dfs_dict[key]
-                figures, animations = self.plot_body_data(body_dfs)
+            body_state_dfs_dict = find_and_read_data_frames(data_dirs, 'body_state')
+            body_truth_dfs_dict = find_and_read_data_frames(data_dirs, 'body_truth')
+            for key in body_state_dfs_dict:
+                body_state_dfs = body_state_dfs_dict[key]
+                body_truth_dfs = body_truth_dfs_dict[key]
+                figures, animations = self.plot_body_data(body_state_dfs, body_truth_dfs)
                 self.save_figures(plot_dir, figures)
                 self.save_animations(plot_dir, animations)
 
