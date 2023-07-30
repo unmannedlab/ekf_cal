@@ -37,11 +37,10 @@ import collections
 import functools
 import glob
 import math
+import multiprocessing
 import os
 import re
-import multiprocessing
-
-from scipy.spatial.transform import Rotation as R
+import traceback
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -52,12 +51,11 @@ import pandas as pd
 
 import yaml
 
-# import matplotlib as mpl
-# mpl.rcParams['lines.marker'] = '.'
 plt.style.use('ggplot')
 
 
 def interpolate_error(true_t, true_x, estimate_t, estimate_x):
+    """Calculate an interpolated vector error using truth and estimate points."""
     interp_x = np.interp(estimate_t, true_t, true_x)
     errors = [estimate - interp for estimate, interp in zip(estimate_x, interp_x)]
     return errors
@@ -823,23 +821,24 @@ class Plotter():
 
     def plot_body_data(self, body_state_dfs, body_truth_dfs=None):
         """Generate plots for body data."""
-        figures = [
-            self.plot_body_pos(body_state_dfs),
-            self.plot_body_pos_3d(body_state_dfs),
-            self.plot_body_vel(body_state_dfs),
-            self.plot_body_acc(body_state_dfs),
-            self.plot_body_ang(body_state_dfs),
-            self.plot_body_ang_vel(body_state_dfs),
-            self.plot_body_ang_acc(body_state_dfs),
-            self.plot_body_pos_cov(body_state_dfs),
-            self.plot_body_ang_cov(body_state_dfs),
-            self.plot_body_err_pos(body_state_dfs, body_truth_dfs),
-            self.plot_body_err_vel(body_state_dfs, body_truth_dfs),
-            self.plot_body_err_acc(body_state_dfs, body_truth_dfs),
-            # self.plot_body_err_ang(body_state_dfs, body_truth_dfs),
-            self.plot_body_err_ang_vel(body_state_dfs, body_truth_dfs),
-            self.plot_body_err_ang_acc(body_state_dfs, body_truth_dfs),
-        ]
+        # figures = [
+        figures = []
+        self.plot_body_pos(body_state_dfs),
+        self.plot_body_pos_3d(body_state_dfs),
+        self.plot_body_vel(body_state_dfs),
+        self.plot_body_acc(body_state_dfs),
+        self.plot_body_ang(body_state_dfs),
+        self.plot_body_ang_vel(body_state_dfs),
+        self.plot_body_ang_acc(body_state_dfs),
+        self.plot_body_pos_cov(body_state_dfs),
+        self.plot_body_ang_cov(body_state_dfs),
+        self.plot_body_err_pos(body_state_dfs, body_truth_dfs),
+        self.plot_body_err_vel(body_state_dfs, body_truth_dfs),
+        self.plot_body_err_acc(body_state_dfs, body_truth_dfs),
+        # self.plot_body_err_ang(body_state_dfs, body_truth_dfs),
+        self.plot_body_err_ang_vel(body_state_dfs, body_truth_dfs),
+        self.plot_body_err_ang_acc(body_state_dfs, body_truth_dfs),
+        # ]
         animations = [
             self.plot_body_pos_3d_anim(body_state_dfs)
         ]

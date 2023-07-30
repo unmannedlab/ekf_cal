@@ -3,24 +3,24 @@
     ros__parameters:
         Debug_Log_Level: 2
         Data_Logging_On: True
-        Body_Data_Rate: 100.0
+        Body_Data_Rate: 10.0
         SimParams:
             Seed: 0.0
             UseSeed: True
-            MaxTime: 10.0
+            MaxTime: 100.0
             TruthType: "Cyclic"
             PosFrequency: [1.1, 1.2, 1.3]
             AngFrequency: [0.0, 0.0, 0.0]
             PosOffset: [0.0, 0.0, 0.0]
             NoErrors: False
-            NumberOfRuns: 10
+            NumberOfRuns: 100
             RunNumber: 0
 
         IMU_list:
             - "vn300"
             # @todo(jhartzer): Need to diagnose bug in second IMU
             # @todo(jhartzer): Update IMU not currently logging
-            # - "vn100"
+            - "vn100"
 
         Camera_list:
             # - "ace"

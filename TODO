@@ -1,6 +1,5 @@
 Package Features:
     - Constrain correleation coefficients between +/- 1
-    - Implement prediction IMU flag
     - Implement flag for calibration settling
     - Implement flag for calibration shifting
     - GPS update and notion of global frame
@@ -48,7 +47,6 @@ Software Work:
     - Show track images from simulation
     - Be explicit with quaternion inputs
     - Add check for intrinsic IMUs without cameras
-    - Add check for multiple prediction IMUs
     - Perf flamegraph - https://nanxiao.me/en/use-perf-and-flamegraph-to-profile-program-on-linux/
     - Add parameter for feature point uncertainty
 

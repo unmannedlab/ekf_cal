@@ -66,10 +66,9 @@ void WriteTruthData(
   header << std::endl;
   data_logger.DefineHeader(header.str());
 
-  double truth_data_rate = body_data_rate * 10.0;
-  unsigned int num_measurements = static_cast<int>(std::floor(max_time * truth_data_rate));
+  unsigned int num_measurements = static_cast<int>(std::floor(max_time * body_data_rate));
   for (unsigned int i = 0; i < num_measurements; ++i) {
-    double time = static_cast<double>(i) / truth_data_rate;
+    double time = static_cast<double>(i) / body_data_rate;
     Eigen::Vector3d body_pos = truth_engine->GetBodyPosition(time);
     Eigen::Vector3d body_vel = truth_engine->GetBodyVelocity(time);
     Eigen::Vector3d body_acc = truth_engine->GetBodyAcceleration(time);
@@ -157,6 +156,7 @@ int main(int argc, char * argv[])
   WriteTruthData(truth_engine, body_data_rate, max_time, out_dir, data_logging_on);
 
   // Load IMUs and generate measurements
+  bool using_imu_for_prediction {false};
   logger->Log(LogLevel::INFO, "Loading IMUs");
   for (unsigned int i = 0; i < imus.size(); ++i) {
     YAML::Node imu_node = root["/EkfCalNode"]["ros__parameters"]["IMU"][imus[i]];
@@ -176,6 +176,7 @@ int main(int argc, char * argv[])
     imu_params.output_directory = out_dir;
     imu_params.data_logging_on = data_logging_on;
     imu_params.use_for_prediction = imu_node["UseForPrediction"].as<bool>();
+    using_imu_for_prediction = using_imu_for_prediction || imu_params.use_for_prediction;
 
     // SimParams
     SimIMU::Parameters sim_imu_params;
@@ -198,6 +199,11 @@ int main(int argc, char * argv[])
     // Calculate sensor measurements
     auto imu_messages = imu->GenerateMessages(max_time);
     messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
+  }
+
+  if (using_imu_for_prediction && (imus.size() > 1)) {
+    std::cerr << "Configuration Error: Cannot use multiple IMUs and IMU prediction" << std::endl;
+    return -1;
   }
 
   // Load tracker parameters
