@@ -43,6 +43,13 @@ from typing import List
 import yaml
 
 
+def add_gitignore(directory):
+    """Add gitignore to a directory."""
+    f_path = os.path.join(directory, '.gitignore')
+    with open(f_path, 'w') as file_id:
+        file_id.write('*\n')
+
+
 def print_err(err):
     """Print errors experienced in asynchronous pool."""
     print('error_callback()', err)
@@ -86,6 +93,7 @@ def generate_mc_from_yaml(yaml_file):
                 yaml_dir = yaml_file.split('.yaml')[0] + os.sep
                 if (not os.path.isdir(yaml_dir)):
                     os.mkdir(yaml_dir)
+                add_gitignore(yaml_dir)
                 runs_dir = os.path.join(yaml_dir, 'runs')
                 if (not os.path.isdir(runs_dir)):
                     os.mkdir(runs_dir)

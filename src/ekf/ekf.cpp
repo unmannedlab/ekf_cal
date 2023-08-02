@@ -26,6 +26,7 @@
 #include "infrastructure/debug_logger.hpp"
 #include "utility/math_helper.hpp"
 #include "utility/string_helper.hpp"
+#include "utility/type_helper.hpp"
 
 // initializing instance_pointer with NULL
 EKF * EKF::instance_pointer = NULL;
@@ -127,9 +128,9 @@ void EKF::ProcessModel(double time)
 void EKF::PredictModel(
   double time,
   Eigen::Vector3d acceleration,
-  Eigen::Matrix3d accelerationCovariance,
-  Eigen::Vector3d angularRate,
-  Eigen::Matrix3d angularRateCovariance)
+  Eigen::Matrix3d acceleration_covariance,
+  Eigen::Vector3d angular_rate,
+  Eigen::Matrix3d angular_rate_covariance)
 {
   m_logger->Log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(time));
 
@@ -153,38 +154,31 @@ void EKF::PredictModel(
 
   double dT = time - m_current_time;
 
-  Eigen::Vector3d acceleration_body =
-    m_state.m_body_state.m_orientation.inverse() * acceleration;
-  Eigen::Matrix3d accelerationCovariance_body =
-    m_state.m_body_state.m_orientation.inverse() * accelerationCovariance;
-  Eigen::Vector3d angularRate_body =
-    m_state.m_body_state.m_orientation.inverse() * angularRate;
-  Eigen::Matrix3d angularRateCovariance_body =
-    m_state.m_body_state.m_orientation.inverse() * angularRateCovariance;
+  Eigen::Quaterniond ang_i_to_g = m_state.m_body_state.m_orientation;
 
-  Eigen::Quaterniond d_quat {
-    1.0,
-    angularRate[0] * dT / 2,
-    angularRate[1] * dT / 2,
-    angularRate[2] * dT / 2
-  };
+  Eigen::Vector3d acceleration_global = ang_i_to_g * acceleration;
+  Eigen::Vector3d angular_rate_global = ang_i_to_g * angular_rate;
+  Eigen::Matrix3d acceleration_covariance_global = ang_i_to_g * acceleration_covariance;
+  Eigen::Matrix3d angular_rate_covariance_global = ang_i_to_g * angular_rate_covariance;
+
+  Eigen::Vector3d rot_vec(angular_rate_global[0] * dT, angular_rate_global[1] * dT,
+    angular_rate_global[2] * dT);
+  Eigen::Quaterniond d_quat = RotVecToQuat(rot_vec);
 
   m_state.m_body_state.m_position +=
-    dT * m_state.m_body_state.m_velocity +
-    dT * dT / 2 * acceleration_body;
-  m_state.m_body_state.m_velocity += dT * acceleration_body;
-  m_state.m_body_state.m_acceleration = acceleration_body;
-  m_state.m_body_state.m_orientation = m_state.m_body_state.m_orientation * d_quat;
-  m_state.m_body_state.m_angular_velocity = angularRate_body;
-  /// @todo replace with smoothing filter?
+    dT * m_state.m_body_state.m_velocity + dT * dT / 2 * acceleration_global;
+  m_state.m_body_state.m_velocity += dT * acceleration_global;
+  m_state.m_body_state.m_acceleration = acceleration_global;
+  m_state.m_body_state.m_orientation = d_quat * m_state.m_body_state.m_orientation;
+  m_state.m_body_state.m_angular_velocity = angular_rate_global;
   m_state.m_body_state.m_angular_acceleration.setZero();
 
   Eigen::MatrixXd dF = GetStateTransition(dT);
   Eigen::MatrixXd F = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) + dF;
 
   Eigen::MatrixXd process_noise = Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size);
-  process_noise.block<3, 3>(6, 6) = accelerationCovariance_body;
-  process_noise.block<3, 3>(12, 12) = angularRateCovariance_body;
+  process_noise.block<3, 3>(6, 6) = acceleration_covariance_global;
+  process_noise.block<3, 3>(12, 12) = angular_rate_covariance_global;
 
   // Process input matrix is just identity
   m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
@@ -194,7 +188,6 @@ void EKF::PredictModel(
 
   LogBodyStateIfNeeded();
 }
-
 
 State & EKF::GetState()
 {
@@ -269,49 +262,49 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
 /// @todo Replace this lookup with a map
 unsigned int EKF::GetImuStateStartIndex(unsigned int imu_id)
 {
-  unsigned int stateStartIndex = g_body_state_size;
-  for (auto const & imuIter : m_state.m_imu_states) {
-    if (imuIter.first == imu_id) {
+  unsigned int state_start_index = g_body_state_size;
+  for (auto const & imu_iter : m_state.m_imu_states) {
+    if (imu_iter.first == imu_id) {
       break;
     } else {
-      stateStartIndex += 12;
+      state_start_index += 12;
     }
   }
-  return stateStartIndex;
+  return state_start_index;
 }
 
 /// @todo Replace this lookup with a map
 unsigned int EKF::GetCamStateStartIndex(unsigned int cam_id)
 {
-  unsigned int stateStartIndex = g_body_state_size;
-  stateStartIndex += 12 * m_state.m_imu_states.size();
-  for (auto const & camIter : m_state.m_cam_states) {
-    if (camIter.first == cam_id) {
+  unsigned int state_start_index = g_body_state_size;
+  state_start_index += 12 * m_state.m_imu_states.size();
+  for (auto const & cam_iter : m_state.m_cam_states) {
+    if (cam_iter.first == cam_id) {
       break;
     } else {
-      stateStartIndex += 6 + 12 * camIter.second.augmented_states.size();
+      state_start_index += 6 + 12 * cam_iter.second.augmented_states.size();
     }
   }
-  return stateStartIndex;
+  return state_start_index;
 }
 
 /// @todo Replace this lookup with a map
 unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, unsigned int frame_id)
 {
-  unsigned int stateStartIndex = g_body_state_size;
-  stateStartIndex += (12 * m_state.m_imu_states.size());
-  for (auto const & camIter : m_state.m_cam_states) {
-    stateStartIndex += 6;
-    for (auto const & augIter : camIter.second.augmented_states) {
-      if ((camIter.first == cam_id) && (augIter.frame_id == frame_id)) {
-        return stateStartIndex;
+  unsigned int state_start_index = g_body_state_size;
+  state_start_index += (12 * m_state.m_imu_states.size());
+  for (auto const & cam_iter : m_state.m_cam_states) {
+    state_start_index += 6;
+    for (auto const & augIter : cam_iter.second.augmented_states) {
+      if ((cam_iter.first == cam_id) && (augIter.frame_id == frame_id)) {
+        return state_start_index;
       } else {
-        stateStartIndex += 12;
+        state_start_index += 12;
       }
     }
   }
 
-  return stateStartIndex;
+  return state_start_index;
 }
 
 /// @todo Don't return a jacobian but rather just apply a jacobian to the covariance

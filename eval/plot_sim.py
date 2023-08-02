@@ -49,6 +49,8 @@ import numpy as np
 
 import pandas as pd
 
+from scipy.spatial.transform import Rotation as R
+
 import yaml
 
 plt.style.use('ggplot')
@@ -93,16 +95,19 @@ def parse_yaml(config):
     with open(config, 'r') as stream:
         try:
             yaml_dict = yaml.safe_load(stream)
-            imu_dict = yaml_dict['/EkfCalNode']['ros__parameters']['IMU']
-            cam_dict = yaml_dict['/EkfCalNode']['ros__parameters']['Camera']
+            imu_list = yaml_dict['/EkfCalNode']['ros__parameters']['IMU_list']
+            cam_list = yaml_dict['/EkfCalNode']['ros__parameters']['Camera_list']
             id_counter = 1
-            for imu_name in imu_dict:
-                config_data['IMU_rates'][id_counter] = imu_dict[imu_name]['Rate']
-                id_counter += 1
-
-            for cam_name in cam_dict:
-                config_data['Camera_rates'][id_counter] = cam_dict[cam_name]['Rate']
-                id_counter += 1
+            if imu_list:
+                imu_dict = yaml_dict['/EkfCalNode']['ros__parameters']['IMU']
+                for imu_name in imu_list:
+                    config_data['IMU_rates'][id_counter] = imu_dict[imu_name]['Rate']
+                    id_counter += 1
+            if cam_list:
+                cam_dict = yaml_dict['/EkfCalNode']['ros__parameters']['Camera']
+                for cam_name in cam_list:
+                    config_data['Camera_rates'][id_counter] = cam_dict[cam_name]['Rate']
+                    id_counter += 1
 
         except yaml.YAMLError as exc:
             print(exc)
@@ -129,16 +134,51 @@ def find_and_read_data_frames(directories, prefix):
     return data_frame_sets
 
 
+def lists_to_rot(w_list, x_list, y_list, z_list):
+    """Convert lists of quaternion elements to a list of scipy rotations."""
+    r_list = []
+    for w, x, y, z in zip(w_list, x_list, y_list, z_list):
+        r = R.from_quat([w, x, y, z])
+        r_list.append(r)
+    return r_list
+
+
+def calculate_rotation_errors(estimate, truth):
+    """Calculate errors from two lists of quaternions."""
+    w = []
+    x = []
+    y = []
+    z = []
+    for est, true in zip(estimate, truth):
+        r = est * true.inv()
+        q = r.as_quat()
+        x.append(q[0])
+        y.append(q[1])
+        z.append(q[2])
+        w.append(q[3])
+    return w, x, y, z
+
+
+def RMSE_from_vectors(x_list, y_list, z_list):
+    """Calculate the root mean square errors from list of vector elements."""
+    x_err = np.array(x_list)
+    y_err = np.array(y_list)
+    z_err = np.array(z_list)
+    rmse = np.sqrt(np.mean(x_err * x_err + y_err * y_err + z_err * z_err))
+    return rmse
+
+
 class Plotter():
     """Class for containing plotting methods and options."""
 
-    def __init__(self, no_show=False, rate_line=False, ext='png'):
+    def __init__(self, show=False, rate_line=False, ext='png'):
         """Plotter class initializer."""
-        self.no_show = no_show
+        self.show = show
         self.rate_line = rate_line
         self.ext = ext
         cpu_count = multiprocessing.cpu_count() - 1
         self.pool = multiprocessing.Pool(cpu_count)
+        self.statistics = {}
 
     def print_err(err):
         """Print errors experienced in asynchronous pool."""
@@ -502,7 +542,7 @@ class Plotter():
             axs_1.plot(time, body_df['body_ang_vel_0'].to_list(), alpha=alpha, color='tab:blue')
             axs_2.plot(time, body_df['body_ang_vel_1'].to_list(), alpha=alpha, color='tab:orange')
             axs_3.plot(time, body_df['body_ang_vel_2'].to_list(), alpha=alpha, color='tab:green')
-        set_plot_titles(fig, 'Body Angles')
+        set_plot_titles(fig, 'Body Angular Velocity')
         axs_1.set_ylabel('X [rad/s]')
         axs_2.set_ylabel('Y [rad/s]')
         axs_3.set_ylabel('Z [rad/s]')
@@ -519,7 +559,7 @@ class Plotter():
             axs_1.plot(time, body_df['body_ang_acc_0'].to_list(), alpha=alpha, color='tab:blue')
             axs_2.plot(time, body_df['body_ang_acc_1'].to_list(), alpha=alpha, color='tab:orange')
             axs_3.plot(time, body_df['body_ang_acc_2'].to_list(), alpha=alpha, color='tab:green')
-        set_plot_titles(fig, 'Body Angles')
+        set_plot_titles(fig, 'Body Angular Acceleration')
         axs_1.set_ylabel('X [rad/s/s]')
         axs_2.set_ylabel('Y [rad/s/s]')
         axs_3.set_ylabel('Z [rad/s/s]')
@@ -574,6 +614,7 @@ class Plotter():
         return fig
 
     def plot_body_err_pos(self, body_state_dfs, body_truth_dfs):
+        """Plot the body state position error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         alpha = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
@@ -590,6 +631,7 @@ class Plotter():
             err_pos_0 = interpolate_error(true_time, true_pos_0, est_time, est_pos_0)
             err_pos_1 = interpolate_error(true_time, true_pos_1, est_time, est_pos_1)
             err_pos_2 = interpolate_error(true_time, true_pos_2, est_time, est_pos_2)
+            self.statistics['Body Position'] = RMSE_from_vectors(err_pos_0, err_pos_1, err_pos_2)
 
             axs_1.plot(est_time, err_pos_0, alpha=alpha, color='tab:blue')
             axs_2.plot(est_time, err_pos_1, alpha=alpha, color='tab:orange')
@@ -605,6 +647,7 @@ class Plotter():
         return fig
 
     def plot_body_err_vel(self, body_state_dfs, body_truth_dfs):
+        """Plot the body state velocity error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         alpha = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
@@ -621,6 +664,7 @@ class Plotter():
             err_vel_0 = interpolate_error(true_time, true_vel_0, est_time, est_vel_0)
             err_vel_1 = interpolate_error(true_time, true_vel_1, est_time, est_vel_1)
             err_vel_2 = interpolate_error(true_time, true_vel_2, est_time, est_vel_2)
+            self.statistics['Body Velocity'] = RMSE_from_vectors(err_vel_0, err_vel_1, err_vel_2)
 
             axs_1.plot(est_time, err_vel_0, alpha=alpha, color='tab:blue')
             axs_2.plot(est_time, err_vel_1, alpha=alpha, color='tab:orange')
@@ -636,6 +680,7 @@ class Plotter():
         return fig
 
     def plot_body_err_acc(self, body_state_dfs, body_truth_dfs):
+        """Plot the body state acceleration error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         alpha = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
@@ -652,6 +697,8 @@ class Plotter():
             err_acc_0 = interpolate_error(true_time, true_acc_0, est_time, est_acc_0)
             err_acc_1 = interpolate_error(true_time, true_acc_1, est_time, est_acc_1)
             err_acc_2 = interpolate_error(true_time, true_acc_2, est_time, est_acc_2)
+            self.statistics['Body Acceleration'] = RMSE_from_vectors(
+                err_acc_0, err_acc_1, err_acc_2)
 
             axs_1.plot(est_time, err_acc_0, alpha=alpha, color='tab:blue')
             axs_2.plot(est_time, err_acc_1, alpha=alpha, color='tab:orange')
@@ -666,51 +713,50 @@ class Plotter():
 
         return fig
 
-    # def plot_body_err_ang(self, body_state_dfs, body_truth_dfs):
-    #     fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
-    #     alpha = calculate_alpha(len(body_state_dfs))
-    #     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
-    #         true_time = body_truth['time'].to_list()
-    #         true_ang_pos_w = body_truth['body_ang_pos_0'].to_list()
-    #         true_ang_pos_x = body_truth['body_ang_pos_1'].to_list()
-    #         true_ang_pos_y = body_truth['body_ang_pos_2'].to_list()
-    #         true_ang_pos_z = body_truth['body_ang_pos_3'].to_list()
+    def plot_body_err_ang(self, body_state_dfs, body_truth_dfs):
+        """Plot the body state angular error."""
+        fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
+        alpha = calculate_alpha(len(body_state_dfs))
+        for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
+            true_time = body_truth['time'].to_list()
+            true_ang_pos_w = body_truth['body_ang_pos_0'].to_list()
+            true_ang_pos_x = body_truth['body_ang_pos_1'].to_list()
+            true_ang_pos_y = body_truth['body_ang_pos_2'].to_list()
+            true_ang_pos_z = body_truth['body_ang_pos_3'].to_list()
 
-    #         est_time = body_state['time'].to_list()
-    #         est_ang_pos_w = body_state['body_ang_pos_0'].to_list()
-    #         est_ang_pos_x = body_state['body_ang_pos_1'].to_list()
-    #         est_ang_pos_y = body_state['body_ang_pos_2'].to_list()
-    #         est_ang_pos_z = body_state['body_ang_pos_3'].to_list()
-    #         est_ang_pos_q = list_to_quat(interp_w, interp_x, interp_y, interp_z)
+            est_time = body_state['time'].to_list()
+            est_ang_pos_w = body_state['body_ang_pos_0'].to_list()
+            est_ang_pos_x = body_state['body_ang_pos_1'].to_list()
+            est_ang_pos_y = body_state['body_ang_pos_2'].to_list()
+            est_ang_pos_z = body_state['body_ang_pos_3'].to_list()
+            est_ang_pos_r = lists_to_rot(est_ang_pos_w, est_ang_pos_x, est_ang_pos_y, est_ang_pos_z)
 
-    #         interp_w = np.interp(est_time, true_time, true_ang_pos_w)
-    #         interp_x = np.interp(est_time, true_time, true_ang_pos_x)
-    #         interp_y = np.interp(est_time, true_time, true_ang_pos_y)
-    #         interp_z = np.interp(est_time, true_time, true_ang_pos_z)
-    #         interp_q = list_to_quat(interp_w, interp_x, interp_y, interp_z)
+            interp_w = np.interp(est_time, true_time, true_ang_pos_w)
+            interp_x = np.interp(est_time, true_time, true_ang_pos_x)
+            interp_y = np.interp(est_time, true_time, true_ang_pos_y)
+            interp_z = np.interp(est_time, true_time, true_ang_pos_z)
+            interp_r = lists_to_rot(interp_w, interp_x, interp_y, interp_z)
 
-    #         err
-    #         # err_ang_pos_w =
-    #         # err_ang_pos_x =
-    #         # err_ang_pos_y =
-    #         # err_ang_pos_z =
+            err_ang_pos_w, err_ang_pos_x, err_ang_pos_y, err_ang_pos_z = \
+                calculate_rotation_errors(est_ang_pos_r, interp_r)
 
-    #         # axs_1.plot(est_time, err_ang_pos_w, alpha=alpha, color='tab:blue')
-    #         # axs_2.plot(est_time, err_ang_pos_x, alpha=alpha, color='tab:orange')
-    #         # axs_3.plot(est_time, err_ang_pos_y, alpha=alpha, color='tab:green')
-    #         # axs_4.plot(est_time, err_ang_pos_z, alpha=alpha, color='tab:red')
+            axs_1.plot(est_time, err_ang_pos_w, alpha=alpha, color='tab:blue')
+            axs_2.plot(est_time, err_ang_pos_x, alpha=alpha, color='tab:orange')
+            axs_3.plot(est_time, err_ang_pos_y, alpha=alpha, color='tab:green')
+            axs_4.plot(est_time, err_ang_pos_z, alpha=alpha, color='tab:red')
 
-    #     set_plot_titles(fig, 'Body Angular Error')
-    #     axs_1.set_ylabel('body_ang_pos_0')
-    #     axs_2.set_ylabel('body_ang_pos_1')
-    #     axs_3.set_ylabel('body_ang_pos_2')
-    #     axs_4.set_ylabel('body_ang_pos_3')
-    #     axs_4.set_xlabel('Time [s]')
-    #     fig.tight_layout()
+        set_plot_titles(fig, 'Body Angular Error')
+        axs_1.set_ylabel('W Error')
+        axs_2.set_ylabel('X Error')
+        axs_3.set_ylabel('Y Error')
+        axs_4.set_ylabel('Z Error')
+        axs_4.set_xlabel('Time [s]')
+        fig.tight_layout()
 
-    #     return fig
+        return fig
 
     def plot_body_err_ang_vel(self, body_state_dfs, body_truth_dfs):
+        """Plot the body state angular velocity error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         alpha = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
@@ -727,6 +773,8 @@ class Plotter():
             err_ang_vel_0 = interpolate_error(true_time, true_ang_vel_0, est_time, est_ang_vel_0)
             err_ang_vel_1 = interpolate_error(true_time, true_ang_vel_1, est_time, est_ang_vel_1)
             err_ang_vel_2 = interpolate_error(true_time, true_ang_vel_2, est_time, est_ang_vel_2)
+            self.statistics['Body Angular Velocity'] = RMSE_from_vectors(
+                err_ang_vel_0, err_ang_vel_1, err_ang_vel_2)
 
             axs_1.plot(est_time, err_ang_vel_0, alpha=alpha, color='tab:blue')
             axs_2.plot(est_time, err_ang_vel_1, alpha=alpha, color='tab:orange')
@@ -742,6 +790,7 @@ class Plotter():
         return fig
 
     def plot_body_err_ang_acc(self, body_state_dfs, body_truth_dfs):
+        """Plot the body state angular acceleration error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         alpha = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
@@ -758,6 +807,8 @@ class Plotter():
             err_ang_acc_0 = interpolate_error(true_time, true_ang_acc_0, est_time, est_ang_acc_0)
             err_ang_acc_1 = interpolate_error(true_time, true_ang_acc_1, est_time, est_ang_acc_1)
             err_ang_acc_2 = interpolate_error(true_time, true_ang_acc_2, est_time, est_ang_acc_2)
+            self.statistics['Body Angular Acceleration'] = RMSE_from_vectors(
+                err_ang_acc_0, err_ang_acc_1, err_ang_acc_2)
 
             axs_1.plot(est_time, err_ang_acc_0, alpha=alpha, color='tab:blue')
             axs_2.plot(est_time, err_ang_acc_1, alpha=alpha, color='tab:orange')
@@ -804,7 +855,7 @@ class Plotter():
 
     def save_figures(self, save_dir, figures):
         """Save list of figures to directory."""
-        if (not self.no_show):
+        if (self.show):
             plt.show()
         for fig in figures:
             title = fig._suptitle.get_text().replace(' ', '_').lower()
@@ -813,7 +864,7 @@ class Plotter():
 
     def save_animations(self, save_dir, animations):
         """Save list of animations to directory."""
-        if (not self.no_show):
+        if (self.show):
             plt.show()
         for ani in animations:
             title = ani._title.replace(' ', '_').lower()
@@ -821,24 +872,23 @@ class Plotter():
 
     def plot_body_data(self, body_state_dfs, body_truth_dfs=None):
         """Generate plots for body data."""
-        # figures = [
-        figures = []
-        self.plot_body_pos(body_state_dfs),
-        self.plot_body_pos_3d(body_state_dfs),
-        self.plot_body_vel(body_state_dfs),
-        self.plot_body_acc(body_state_dfs),
-        self.plot_body_ang(body_state_dfs),
-        self.plot_body_ang_vel(body_state_dfs),
-        self.plot_body_ang_acc(body_state_dfs),
-        self.plot_body_pos_cov(body_state_dfs),
-        self.plot_body_ang_cov(body_state_dfs),
-        self.plot_body_err_pos(body_state_dfs, body_truth_dfs),
-        self.plot_body_err_vel(body_state_dfs, body_truth_dfs),
-        self.plot_body_err_acc(body_state_dfs, body_truth_dfs),
-        # self.plot_body_err_ang(body_state_dfs, body_truth_dfs),
-        self.plot_body_err_ang_vel(body_state_dfs, body_truth_dfs),
-        self.plot_body_err_ang_acc(body_state_dfs, body_truth_dfs),
-        # ]
+        figures = [
+            self.plot_body_pos(body_state_dfs),
+            self.plot_body_pos_3d(body_state_dfs),
+            self.plot_body_vel(body_state_dfs),
+            self.plot_body_acc(body_state_dfs),
+            self.plot_body_ang(body_state_dfs),
+            self.plot_body_ang_vel(body_state_dfs),
+            self.plot_body_ang_acc(body_state_dfs),
+            self.plot_body_pos_cov(body_state_dfs),
+            self.plot_body_ang_cov(body_state_dfs),
+            self.plot_body_err_pos(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_vel(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_acc(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_ang(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_ang_vel(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_ang_acc(body_state_dfs, body_truth_dfs),
+        ]
         animations = [
             self.plot_body_pos_3d_anim(body_state_dfs)
         ]
@@ -885,6 +935,7 @@ class Plotter():
                     os.path.dirname(os.path.dirname(config_set[0])), 'plots')
             else:
                 plot_dir = os.path.join(data_dirs[0], 'plots')
+
             if not os.path.isdir(plot_dir):
                 os.mkdir(plot_dir)
 
@@ -917,6 +968,16 @@ class Plotter():
                 figures = self.plot_triangulation_data(tri_dfs, feat_dfs, key)
                 self.save_figures(plot_dir, figures)
 
+            self.write_summary(plot_dir)
+
+    def write_summary(self, directory):
+        """Write the error summary statistics to a file."""
+        with open(os.path.join(directory, 'stats.txt'), 'w') as f:
+            f.write('Statistic,RMSE\n')
+            for key in self.statistics:
+                f.write('{}: {:0.3f}\n'.format(key, self.statistics[key]))
+        return
+
 
 def generate_mc_lists(input_files):
     """Generate sets of yaml configuration files to plot."""
@@ -947,10 +1008,10 @@ def generate_mc_lists(input_files):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('configs', nargs='+', type=str)
-    parser.add_argument('--no_show', action='store_true')
+    parser.add_argument('--show', action='store_true')
     parser.add_argument('--rate_line', action='store_true')
     parser.add_argument('-ext', default='png', type=str)
     args = parser.parse_args()
-    plotter = Plotter(no_show=args.no_show, ext=args.ext, rate_line=args.rate_line)
+    plotter = Plotter(show=args.show, ext=args.ext, rate_line=args.rate_line)
     config_files = generate_mc_lists(args.configs)
     plotter.plot_sim_results(config_files)

@@ -32,7 +32,7 @@ SimFeatureTracker::SimFeatureTracker(
   std::string log_file_directory,
   bool data_logging_on)
 : FeatureTracker(params.tracker_params),
-  m_data_logger(log_file_directory, "feature_points_0.csv")
+  m_data_logger(log_file_directory, "feature_points.csv")
 {
   m_px_error = params.px_error;
   m_pos_offset = params.pos_offset;

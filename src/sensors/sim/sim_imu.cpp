@@ -55,7 +55,7 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_
   for (unsigned int i = 0; i < num_measurements; ++i) {
     auto sim_imu_msg = std::make_shared<SimImuMessage>();
     double measurementTime = (1.0 + m_time_skew) / m_rate * static_cast<double>(i);
-    sim_imu_msg->m_time = measurementTime + m_rng.NormRand(m_time_bias, m_time_error);
+    sim_imu_msg->m_time = measurementTime;
     sim_imu_msg->m_sensor_id = m_id;
     sim_imu_msg->m_sensor_type = SensorType::IMU;
 
@@ -78,6 +78,7 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_
     sim_imu_msg->m_angular_rate = imu_omg_rot;
 
     if (!m_no_errors) {
+      sim_imu_msg->m_time += m_rng.NormRand(m_time_bias, m_time_error);
       sim_imu_msg->m_acceleration[0] += m_rng.NormRand(m_acc_bias[0], m_acc_error[0]);
       sim_imu_msg->m_acceleration[1] += m_rng.NormRand(m_acc_bias[1], m_acc_error[1]);
       sim_imu_msg->m_acceleration[2] += m_rng.NormRand(m_acc_bias[2], m_acc_error[2]);
