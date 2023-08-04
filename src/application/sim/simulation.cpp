@@ -66,7 +66,7 @@ void WriteTruthData(
   header << std::endl;
   data_logger.DefineHeader(header.str());
 
-  unsigned int num_measurements = static_cast<int>(std::floor(max_time * body_data_rate));
+  unsigned int num_measurements = static_cast<int>(std::floor(max_time * body_data_rate)) + 100;
   for (unsigned int i = 0; i < num_measurements; ++i) {
     double time = static_cast<double>(i) / body_data_rate;
     Eigen::Vector3d body_pos = truth_engine->GetBodyPosition(time);

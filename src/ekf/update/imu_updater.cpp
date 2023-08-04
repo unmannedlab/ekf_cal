@@ -33,19 +33,22 @@
 ImuUpdater::ImuUpdater(unsigned int imu_id, std::string log_file_directory, bool data_logging_on)
 : Updater(imu_id), m_data_logger(log_file_directory, "imu_" + std::to_string(imu_id) + ".csv")
 {
-  std::stringstream msg;
-  msg << "time";
-  msg << EnumerateHeader("imu_state", g_imu_state_size);
-  msg << EnumerateHeader("imu_cov", g_imu_state_size);
-  msg << EnumerateHeader("acc", 3);
-  msg << EnumerateHeader("omg", 3);
-  msg << EnumerateHeader("residual", 6);
-  msg << EnumerateHeader("body_update", g_body_state_size);
-  msg << EnumerateHeader("imu_update", g_imu_state_size);
-  msg << EnumerateHeader("time", 1);
-  msg << std::endl;
+  std::stringstream header;
+  header << "time";
+  header << EnumerateHeader("imu_pos", 3);
+  header << EnumerateHeader("imu_ang", 4);
+  header << EnumerateHeader("imu_acc_bias", 3);
+  header << EnumerateHeader("imu_omg_bias", 3);
+  header << EnumerateHeader("imu_cov", g_imu_state_size);
+  header << EnumerateHeader("acc", 3);
+  header << EnumerateHeader("omg", 3);
+  header << EnumerateHeader("residual", 6);
+  header << EnumerateHeader("body_update", g_body_state_size);
+  header << EnumerateHeader("imu_update", g_imu_state_size);
+  header << EnumerateHeader("time", 1);
+  header << std::endl;
 
-  m_data_logger.DefineHeader(msg.str());
+  m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(data_logging_on);
 }
 
@@ -211,8 +214,7 @@ void ImuUpdater::UpdateEKF(
 
   Eigen::VectorXd update = K * resid;
   Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
-  Eigen::VectorXd imu_update =
-    update.segment(g_body_state_size, updateSize - g_body_state_size);
+  Eigen::VectorXd imu_update = update.segment(g_body_state_size, updateSize - g_body_state_size);
 
   m_ekf->GetState().m_body_state += body_update;
   m_ekf->GetState().m_imu_states += imu_update;
@@ -225,14 +227,16 @@ void ImuUpdater::UpdateEKF(
 
   // Write outputs
   std::stringstream msg;
-  Eigen::VectorXd imu_state_vec = m_ekf->GetState().m_imu_states[m_id].ToVector();
   Eigen::VectorXd imu_sub_update = update.segment(imu_state_start, g_imu_state_size);
   Eigen::VectorXd cov_diag = m_ekf->GetCov().block(
     imu_state_start, imu_state_start,
     g_imu_state_size, g_imu_state_size).diagonal();
 
   msg << time;
-  msg << VectorToCommaString(imu_state_vec);
+  msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].position);
+  msg << QuaternionToCommaString(m_ekf->GetState().m_imu_states[m_id].orientation);
+  msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].acc_bias);
+  msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].omg_bias);
   msg << VectorToCommaString(cov_diag);
   msg << VectorToCommaString(acceleration);
   msg << VectorToCommaString(angularRate);

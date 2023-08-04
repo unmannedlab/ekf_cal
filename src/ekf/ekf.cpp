@@ -54,9 +54,7 @@ Eigen::MatrixXd EKF::GetStateTransition(double dT)
     Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size);
   state_transition.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * dT;
   state_transition.block<3, 3>(3, 6) = Eigen::MatrixXd::Identity(3, 3) * dT;
-  /// This assumes the state is body angular rates and accelerations. Others assume global frame
-  state_transition.block<3, 3>(9, 12) =
-    m_state.m_body_state.m_orientation.toRotationMatrix() * dT;
+  state_transition.block<3, 3>(9, 12) = Eigen::MatrixXd::Identity(3, 3) * dT;
   state_transition.block<3, 3>(12, 15) = Eigen::MatrixXd::Identity(3, 3) * dT;
   return state_transition;
 }

@@ -54,6 +54,7 @@ from scipy.spatial.transform import Rotation as R
 import yaml
 
 plt.style.use('ggplot')
+plt.rcParams.update({'figure.max_open_warning': 0})
 
 
 def interpolate_error(true_t, true_x, estimate_t, estimate_x):
@@ -436,6 +437,7 @@ class Plotter():
         axs = fig.add_subplot(111, projection='3d')
 
         # @todo(jhartzer): get from input
+        # @todo(jhartzer): Add current time to plot
         interval = 40  # ms
         frame_count = interval * duration
 
@@ -872,6 +874,7 @@ class Plotter():
 
     def plot_body_data(self, body_state_dfs, body_truth_dfs=None):
         """Generate plots for body data."""
+        # @todo(jhartzer): Skip plot_body_err_ang_acc if prediction IMU
         figures = [
             self.plot_body_pos(body_state_dfs),
             self.plot_body_pos_3d(body_state_dfs),
@@ -890,7 +893,7 @@ class Plotter():
             self.plot_body_err_ang_acc(body_state_dfs, body_truth_dfs),
         ]
         animations = [
-            self.plot_body_pos_3d_anim(body_state_dfs)
+            # self.plot_body_pos_3d_anim(body_state_dfs)
         ]
         return figures, animations
 
@@ -908,12 +911,12 @@ class Plotter():
     def plot_cam_data(self, cam_dfs, config_data, i):
         """Generate camera plots from sets of dataframes."""
         figures = [
-            self.plot_camera_body_pos_updates(cam_dfs),
-            self.plot_camera_body_ang_updates(cam_dfs),
-            self.plot_camera_offset_updates(cam_dfs),
-            self.plot_camera_pos(cam_dfs),
-            self.plot_camera_ang(cam_dfs),
-            self.plot_update_timing(cam_dfs, config_data['Camera_rates'][i])
+            # self.plot_camera_body_pos_updates(cam_dfs),
+            # self.plot_camera_body_ang_updates(cam_dfs),
+            # self.plot_camera_offset_updates(cam_dfs),
+            # self.plot_camera_pos(cam_dfs),
+            # self.plot_camera_ang(cam_dfs),
+            # self.plot_update_timing(cam_dfs, config_data['Camera_rates'][i])
         ]
         return figures
 

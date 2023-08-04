@@ -40,7 +40,8 @@ BodyState & operator+=(BodyState & l_m_body_state, Eigen::VectorXd & r_vector)
   l_m_body_state.m_position += r_vector.segment<3>(0);
   l_m_body_state.m_velocity += r_vector.segment<3>(3);
   l_m_body_state.m_acceleration += r_vector.segment<3>(6);
-  l_m_body_state.m_orientation *= RotVecToQuat(r_vector.segment<3>(9));
+  l_m_body_state.m_orientation =
+    RotVecToQuat(r_vector.segment<3>(9)) * l_m_body_state.m_orientation;
   l_m_body_state.m_angular_velocity += r_vector.segment<3>(12);
   l_m_body_state.m_angular_acceleration += r_vector.segment<3>(15);
 
