@@ -80,6 +80,7 @@ public:
     unsigned int sensor_id;              ///< @brief Associated sensor ID
     std::string output_directory {""};   ///< @brief Feature Tracker data logging directory
     bool data_logging_on {false};        ///< @brief Feature Tracker data logging flag
+    double px_error{1e-9};               ///< @brief Pixel error standard deviation
   } Parameters;
 
   ///
@@ -154,6 +155,7 @@ private:
 
   EKF * m_ekf = EKF::GetInstance();           ///< @brief EKF singleton
 
+  double m_px_error;
   static unsigned int m_tracker_count;
 };
 

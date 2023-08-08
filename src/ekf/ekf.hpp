@@ -121,11 +121,19 @@ public:
   void LogBodyStateIfNeeded();
 
   ///
-  /// @brief Predict state to given time
+  /// @brief Process state linearly to given time
   /// @param currentTime Time for prediction
   ///
   void ProcessModel(double currentTime);
 
+  ///
+  /// @brief Predict state to given time using IMU measurements
+  /// @param time Time of measurement
+  /// @param acceleration Acceleration measurement in IMU frame
+  /// @param accelerationCovariance Acceleration covariance
+  /// @param angularRate Angular rate measurement in IMU frame
+  /// @param angularRateCovariance Angular rate covariance
+  ///
   void PredictModel(
     double time,
     Eigen::Vector3d acceleration,

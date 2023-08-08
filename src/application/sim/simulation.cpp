@@ -213,18 +213,19 @@ int main(int argc, char * argv[])
     YAML::Node trk_node = root["/EkfCalNode"]["ros__parameters"]["Tracker"][trackers[i]];
     YAML::Node sim_node = trk_node["SimParams"];
 
-    FeatureTracker::Parameters trkParams;
-    trkParams.name = trackers[i];
-    trkParams.output_directory = out_dir;
-    trkParams.data_logging_on = data_logging_on;
+    FeatureTracker::Parameters track_params;
+    track_params.name = trackers[i];
+    track_params.output_directory = out_dir;
+    track_params.data_logging_on = data_logging_on;
+    track_params.px_error = trk_node["PixelError"].as<double>();
 
     SimFeatureTracker::Parameters sim_tracker_params;
     sim_tracker_params.feature_count = sim_node["featureCount"].as<unsigned int>();
     sim_tracker_params.room_size = sim_node["roomSize"].as<double>();
-    sim_tracker_params.tracker_params = trkParams;
+    sim_tracker_params.tracker_params = track_params;
     sim_tracker_params.no_errors = no_errors;
 
-    trackerMap[trkParams.name] = sim_tracker_params;
+    trackerMap[track_params.name] = sim_tracker_params;
   }
 
   // Load cameras and generate measurements

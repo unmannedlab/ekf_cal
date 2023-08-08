@@ -46,7 +46,7 @@ MsckfUpdater::MsckfUpdater(
   m_data_logger.DefineHeader(msg.str());
   m_data_logger.SetLogging(data_logging_on);
 
-  m_triangulation_logger.DefineHeader("feature,x,y,z\n");
+  m_triangulation_logger.DefineHeader("time,feature,x,y,z\n");
   m_triangulation_logger.SetLogging(data_logging_on);
 }
 
@@ -112,15 +112,6 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
 
   /// @todo condition check
   /// @todo max and min distance check
-
-  /// @todo move logger
-  std::stringstream msg;
-  msg << std::to_string(feature_track[0].key_point.class_id);
-  msg << "," << position_f_in_g[0];
-  msg << "," << position_f_in_g[1];
-  msg << "," << position_f_in_g[2];
-  msg << std::endl;
-  m_triangulation_logger.Log(msg.str());
 
   return position_f_in_g;
 }
@@ -189,7 +180,8 @@ void MsckfUpdater::distortion_jacobian(
 void MsckfUpdater::UpdateEKF(
   double time,
   unsigned int camera_id,
-  FeatureTracks feature_tracks)
+  FeatureTracks feature_tracks,
+  double px_error)
 {
   m_ekf->ProcessModel(time);
   RefreshStates();
@@ -222,7 +214,17 @@ void MsckfUpdater::UpdateEKF(
 
     // Get triangulated estimate of feature position
     Eigen::Vector3d pos_f_in_g = TriangulateFeature(feature_track);
+
     /// @todo Additional non-linear optimization
+
+    std::stringstream msg;
+    msg << time;
+    msg << "," << std::to_string(feature_track[0].key_point.class_id);
+    msg << "," << pos_f_in_g[0];
+    msg << "," << pos_f_in_g[1];
+    msg << "," << pos_f_in_g[2];
+    msg << std::endl;
+    m_triangulation_logger.Log(msg.str());
 
     if (pos_f_in_g.norm() < 1e-3) {
       m_logger->Log(LogLevel::DEBUG, "MSCKF Triangulation is Zero");
@@ -246,12 +248,9 @@ void MsckfUpdater::UpdateEKF(
     Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(
       2 * feature_track.size(), aug_state_size + g_cam_state_size);
 
-    /// @todo Calibration
     // Get calibration Jacobians
-    Eigen::Matrix<double, 3, 6> H_calib;
-    H_calib.setZero();
-
     /// @todo validate
+    Eigen::Matrix<double, 3, 6> H_calib = Eigen::Matrix<double, 3, 6>::Zero();
     H_calib.block(0, 0, 3, 3).noalias() =
       -rot_c0_to_g * SkewSymmetric(rot_c0_to_g.transpose() * (pos_f_in_g - pos_i_in_g));
     H_calib.block(0, 3, 3, 3) = -rot_c0_to_g;
@@ -283,15 +282,14 @@ void MsckfUpdater::UpdateEKF(
         (intrinsics.f_y / intrinsics.pixel_size) + intrinsics.c_y;
 
       // Our residual
-      Eigen::Vector2d uv_measured;
+      Eigen::Vector2d uv_measured, uv_residual;
       uv_measured(0) = feature_track[i].key_point.pt.x;
       uv_measured(1) = feature_track[i].key_point.pt.y;
-      res.block(2 * i, 0, 2, 1) = uv_measured - uv_predicted;
+      uv_residual = uv_measured - uv_predicted;
+      res.block(2 * i, 0, 2, 1) = uv_residual;
 
-      // Derivative of p_FinCi in respect to p_FinIi
       Eigen::MatrixXd dPFC_dPFG = rot_ci_to_g.transpose();
 
-      // Derivative of p_FinCi in respect to camera clone state
       Eigen::MatrixXd dPFC_dClone = Eigen::MatrixXd::Zero(3, 6);
       dPFC_dClone.block(0, 0, 3, 3) = SkewSymmetric(pos_f_in_ci);
       dPFC_dClone.block(0, 3, 3, 3) = -dPFC_dPFG;
@@ -347,10 +345,7 @@ void MsckfUpdater::UpdateEKF(
   }
   CompressMeasurements(Hx_big, res_big);
 
-  /// @todo get this value from config file
-  unsigned int SIGMA_PIX {1U};
-  // Our noise is isotropic, so make it here after our compression
-  Eigen::MatrixXd R_big = SIGMA_PIX * SIGMA_PIX * Eigen::MatrixXd::Identity(
+  Eigen::MatrixXd R_big = px_error * px_error * Eigen::MatrixXd::Identity(
     res_big.rows(), res_big.rows());
 
   // 6. With all good features update the state
@@ -365,9 +360,9 @@ void MsckfUpdater::UpdateEKF(
   Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_states_size);
   Eigen::VectorXd cam_update = update.segment(g_body_state_size + imu_states_size, cam_states_size);
 
-  // m_ekf->GetState().m_body_state += body_update;
-  // m_ekf->GetState().m_imu_states += imu_update;
-  // m_ekf->GetState().m_cam_states += cam_update;
+  m_ekf->GetState().m_body_state += body_update;
+  m_ekf->GetState().m_imu_states += imu_update;
+  m_ekf->GetState().m_cam_states += cam_update;
 
   m_ekf->GetCov() =
     (Eigen::MatrixXd::Identity(state_size, state_size) - K * Hx_big) * m_ekf->GetCov();

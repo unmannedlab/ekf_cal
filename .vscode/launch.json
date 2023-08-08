@@ -37,8 +37,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/eval/plot_sim.py",
             "args": [
-                "config/example.yaml",
-                "--no_show"
+                "config/example.yaml"
             ],
             "console": "integratedTerminal"
         },

@@ -34,6 +34,7 @@ FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
   m_feature_detector = InitFeatureDetector(params.detector, params.threshold);
   m_descriptor_extractor = InitDescriptorExtractor(params.descriptor, params.threshold);
   m_descriptor_matcher = InitDescriptorMatcher(params.matcher);
+  m_px_error = params.px_error;
 }
 
 /// @todo Check what parameters are used by open_vins
@@ -232,7 +233,7 @@ void FeatureTracker::Track(
     }
   }
 
-  m_msckf_updater.UpdateEKF(time, m_camera_id, feature_tracks);
+  m_msckf_updater.UpdateEKF(time, m_camera_id, feature_tracks, m_px_error);
 
   m_prev_key_points = m_curr_key_points;
   m_prev_descriptors = m_curr_descriptors;

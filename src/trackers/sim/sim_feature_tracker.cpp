@@ -34,7 +34,7 @@ SimFeatureTracker::SimFeatureTracker(
 : FeatureTracker(params.tracker_params),
   m_data_logger(log_file_directory, "feature_points.csv")
 {
-  m_px_error = params.px_error;
+  m_px_error = params.tracker_params.px_error;
   m_pos_offset = params.pos_offset;
   m_ang_offset = params.ang_offset;
   m_no_errors = params.no_errors;
@@ -104,7 +104,8 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
   ang_g_to_c_cv.at<double>(2, 2) = ang_g_to_c(2, 2);
 
   // Creating Rodrigues rotation matrix
-  /// @todo put into type helper and fix names
+  /// @todo put into type helper
+  /// @todo(jhartzer): fix names
   cv::Mat r_vec(3, 1, cv::DataType<double>::type);
   cv::Rodrigues(ang_g_to_c_cv, r_vec);
 
@@ -136,24 +137,21 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 
     // Check that point is in front of camera plane
     if (cam_plane_vec.dot(pointEig) > 0) {
-      /// @todo Get this value from input
-      unsigned int SIGMA_PIX {1U};
-
-      cv::KeyPoint feat;
-      if (m_no_errors) {
-        feat.pt.x = projected_points[i].x;
-        feat.pt.y = projected_points[i].y;
-      } else {
-        feat.pt.x = round(projected_points[i].x + m_rng.NormRand(0.0, SIGMA_PIX));
-        feat.pt.y = round(projected_points[i].y + m_rng.NormRand(0.0, SIGMA_PIX));
-      }
-
       if (
-        feat.pt.x > 0 &&
-        feat.pt.y > 0 &&
-        feat.pt.x < m_image_width &&
-        feat.pt.y < m_image_height)
+        projected_points[i].x >= 0 &&
+        projected_points[i].y >= 0 &&
+        projected_points[i].x <= m_image_width &&
+        projected_points[i].y <= m_image_height)
       {
+        cv::KeyPoint feat;
+        feat.class_id = i;
+        if (m_no_errors) {
+          feat.pt.x = projected_points[i].x;
+          feat.pt.y = projected_points[i].y;
+        } else {
+          feat.pt.x = round(projected_points[i].x + m_rng.NormRand(0.0, m_px_error));
+          feat.pt.y = round(projected_points[i].y + m_rng.NormRand(0.0, m_px_error));
+        }
         projected_features.push_back(feat);
       }
     }
@@ -210,5 +208,5 @@ void SimFeatureTracker::Callback(
   double time, unsigned int camera_id,
   std::shared_ptr<SimFeatureTrackerMessage> msg)
 {
-  m_msckf_updater.UpdateEKF(time, camera_id, msg->m_feature_tracks);
+  m_msckf_updater.UpdateEKF(time, camera_id, msg->m_feature_tracks, m_px_error);
 }

@@ -826,6 +826,7 @@ class Plotter():
         return fig
 
     # @todo include camera ID
+    # @todo Moving average bar with shaded stddev
     def plot_triangulation_error(self, tri_dfs, feat_dfs):
         """Plot MSCKF feature point triangulation error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)

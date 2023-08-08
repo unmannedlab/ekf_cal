@@ -38,8 +38,6 @@
 ///
 /// @class EkfCalNode
 /// @brief A ROS2 node for EKF-based sensor calibration
-/// @todo Software Paper
-/// @todo Architecture Design
 /// @todo Option to publish health metrics
 /// @todo Option to publish visualization messages
 /// @todo Create generic callback that can be used to store and sort measurements

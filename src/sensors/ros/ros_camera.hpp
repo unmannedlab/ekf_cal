@@ -31,7 +31,6 @@
 ///
 /// @class RosCamera
 /// @brief ROS camera sensor class
-/// @todo Implement callback methods
 ///
 class RosCamera : public Camera
 {

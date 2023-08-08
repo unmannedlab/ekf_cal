@@ -50,7 +50,6 @@ public:
   {
     unsigned int feature_count{0};                      ///< @brief Number of features to generate
     double room_size{10.0};                             ///< @brief Size of "Room" for features
-    double px_error{1e-9};                              ///< @brief Pixel Error
     Eigen::Vector3d pos_offset{0.0, 0.0, 0.0};          ///< @brief Camera position offset
     Eigen::Quaterniond ang_offset{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera angular offset
     bool no_errors {false};                             ///< @brief Perfect measurements flag

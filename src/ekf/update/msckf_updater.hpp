@@ -61,11 +61,13 @@ public:
   /// @param time Time of update
   /// @param camera_id ID of camera associated with update
   /// @param feature_tracks Feature tracks to be used for state update
+  /// @param px_error Standard deviation of pixel error
   ///
   void UpdateEKF(
     double time,
     unsigned int camera_id,
-    FeatureTracks feature_tracks);
+    FeatureTracks feature_tracks,
+    double px_error);
 
   ///
   /// @brief Refresh internal states with EKF values
