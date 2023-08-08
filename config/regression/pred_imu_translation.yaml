@@ -1,0 +1,47 @@
+
+/EkfCalNode:
+    ros__parameters:
+        Debug_Log_Level: 2
+        Data_Logging_On: True
+        Body_Data_Rate: 100.0
+        SimParams:
+            Seed: 0.0
+            UseSeed: True
+            MaxTime: 5.0
+            TruthType: "Cyclic"
+            PosFrequency: [1.1, 1.2, 1.3]
+            AngFrequency: [0.0, 0.0, 0.0]
+            PosOffset: [0.0, 0.0, 0.0]
+            NoErrors: False
+            NumberOfRuns: 10
+            RunNumber: 0
+
+        IMU_list:
+            - "vn300"
+
+        Camera_list:
+
+        Tracker_list:
+
+        IMU:
+            vn300:
+                UseForPrediction: True
+                BaseSensor: True
+                Intrinsic: False
+                Rate: 1000.0
+                Topic: "/vn300/imu_uncompensated"
+                VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                PosOffInit: [0.0, 0.0, 0.0]
+                AngOffInit: [1.0, 0.0, 0.0, 0.0]
+                AccBiasInit: [0.0, 0.0, 0.0]
+                OmgBiasInit: [0.0, 0.0, 0.0]
+                SimParams:
+                    timeBias: 0.0
+                    timeSkew: 0.0
+                    timeError: 1.0e-6
+                    accBias: [0.0, 0.0, 0.0]
+                    accError: [1.0e-3, 1.0e-3, 1.0e-3]
+                    omgBias: [0.0, 0.0, 0.0]
+                    omgError: [1.0e-2, 1.0e-2, 1.0e-2]
+                    posOffset: [0.0, 0.0, 0.0]
+                    angOffset: [1.0, 0.0, 0.0, 0.0]

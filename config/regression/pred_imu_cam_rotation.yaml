@@ -1,0 +1,74 @@
+
+/EkfCalNode:
+    ros__parameters:
+        Debug_Log_Level: 2
+        Data_Logging_On: True
+        Body_Data_Rate: 1000.0
+        SimParams:
+            Seed: 0.0
+            UseSeed: True
+            MaxTime: 5.0
+            TruthType: "Cyclic"
+            PosFrequency: [0.0, 0.0, 0.0]
+            AngFrequency: [0.2, 0.0, 0.0]
+            PosOffset: [0.0, 0.0, 0.0]
+            NoErrors: True
+            NumberOfRuns: 5
+            RunNumber: 0
+
+        IMU_list:
+            - "vn300"
+
+        Camera_list:
+            - "ace"
+
+        Tracker_list:
+            - "ORB"
+
+        IMU:
+            vn300:
+                UseForPrediction: True
+                BaseSensor: True
+                Intrinsic: False
+                Rate: 1000.0
+                Topic: "/vn300/imu_uncompensated"
+                VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                PosOffInit: [0.0, 0.0, 0.0]
+                AngOffInit: [1.0, 0.0, 0.0, 0.0]
+                AccBiasInit: [0.0, 0.0, 0.0]
+                OmgBiasInit: [0.0, 0.0, 0.0]
+                SimParams:
+                    timeBias: 0.0
+                    timeSkew: 0.0
+                    timeError: 1.0e-6
+                    accBias: [0.0, 0.0, 0.0]
+                    accError: [1.0e-3, 1.0e-3, 1.0e-3]
+                    omgBias: [0.0, 0.0, 0.0]
+                    omgError: [1.0e-2, 1.0e-2, 1.0e-2]
+                    posOffset: [0.0, 0.0, 0.0]
+                    angOffset: [1.0, 0.0, 0.0, 0.0]
+
+        Camera:
+            ace:
+                Rate: 20.0
+                Topic:  "/my_camera/pylon_ros2_camera_node/image_raw"
+                PosOffInit: [0.0, 0.0, 0.0]
+                AngOffInit: [0.5, -0.5, 0.5, -0.5]
+                VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+                Tracker: "ORB"
+                SimParams:
+                    timeBias: 0.0
+                    timeSkew: 0.0
+                    timeError: 1.0e-6
+                    posOffset: [0.0, 0.0, 0.0]
+                    angOffset: [0.5, -0.5, 0.5, -0.5]
+
+        Tracker:
+            ORB:
+                FeatureDetector: 4
+                DescriptorExtractor: 0
+                DescriptorMatcher: 0
+                DetectorThreshold: 10.0
+                SimParams:
+                    featureCount: 1000
+                    roomSize: 10.0
