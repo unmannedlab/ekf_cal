@@ -83,8 +83,8 @@ typedef struct AugmentedState
   unsigned int frame_id {0};                               ///< @brief Augmented frame ID
   Eigen::Vector3d imu_position{0.0, 0.0, 0.0};             ///< @brief Augmented IMU position
   Eigen::Quaterniond imu_orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
-  Eigen::Vector3d position{0.0, 0.0, 0.0};                 ///< @brief Augmented position
-  Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};      ///< @brief Augmented orientation
+  Eigen::Vector3d cam_position{0.0, 0.0, 0.0};             ///< @brief Augmented camera position
+  Eigen::Quaterniond cam_orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented camera orientation
 } AugmentedState;
 
 ///

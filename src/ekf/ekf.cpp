@@ -308,7 +308,6 @@ unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, unsigned int frame_
 /// @todo Don't return a jacobian but rather just apply a jacobian to the covariance
 Eigen::MatrixXd EKF::AugmentJacobian(
   unsigned int cam_state_start,
-  unsigned int camera_id,
   unsigned int aug_state_start)
 {
   Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(m_stateSize, m_stateSize - 12);
@@ -332,18 +331,11 @@ Eigen::MatrixXd EKF::AugmentJacobian(
   // IMU Global Orientation
   jacobian.block(aug_state_start + 3, 9, 3, 3) = Eigen::MatrixXd::Identity(3, 3);
 
-  // Camera Global Position
-  jacobian.block(aug_state_start + 6, 0, 3, 3) = Eigen::MatrixXd::Identity(3, 3);
-  jacobian.block(aug_state_start + 6, 9, 3, 3) =
-    SkewSymmetric(m_state.m_body_state.m_orientation * m_state.m_cam_states[camera_id].position);
-  jacobian.block(aug_state_start + 6, cam_state_start, 3, 3) =
-    m_state.m_body_state.m_orientation.toRotationMatrix();
+  // Camera Position in IMU Frame
+  jacobian.block(aug_state_start + 6, cam_state_start + 0, 3, 3) = Eigen::MatrixXd::Identity(3, 3);
 
-  // Camera Global Orientation
-  jacobian.block(aug_state_start + 6, 9, 3, 3) =
-    m_state.m_cam_states[camera_id].orientation.toRotationMatrix();
-  jacobian.block(aug_state_start + 6, cam_state_start + 3, 3, 3) =
-    m_state.m_body_state.m_orientation.toRotationMatrix();
+  // Camera Orientation in IMU Frame
+  jacobian.block(aug_state_start + 9, cam_state_start + 3, 3, 3) = Eigen::MatrixXd::Identity(3, 3);
 
   return jacobian;
 }
@@ -361,8 +353,8 @@ void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
   aug_state.imu_position = pos_i_in_g;
   aug_state.imu_orientation = ang_i_to_g;
 
-  aug_state.position = pos_i_in_g + ang_i_to_g * m_state.m_cam_states[camera_id].position;
-  aug_state.orientation = m_state.m_cam_states[camera_id].orientation * ang_i_to_g;
+  aug_state.cam_position = m_state.m_cam_states[camera_id].position;
+  aug_state.cam_orientation = m_state.m_cam_states[camera_id].orientation;
   m_state.m_cam_states[camera_id].augmented_states.push_back(aug_state);
 
   unsigned int aug_state_start;
@@ -384,7 +376,7 @@ void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
     aug_state_start = GetAugStateStartIndex(camera_id, frame_id);
   }
 
-  Eigen::MatrixXd augment_jacobian = AugmentJacobian(cam_state_start, camera_id, aug_state_start);
+  Eigen::MatrixXd augment_jacobian = AugmentJacobian(cam_state_start, aug_state_start);
   /// @todo doing this is very expensive. Apply Jacobian in place without large multiplications
   /// Most elements are identity/zeros anyways
   m_cov = (augment_jacobian * m_cov * augment_jacobian.transpose()).eval();

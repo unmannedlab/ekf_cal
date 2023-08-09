@@ -7,7 +7,7 @@ Package Features:
     - Feature comparisons between cameras
     - Option to pre-fuse IMU measurements
     - LOST initialization: https://gtsam.org/2023/02/04/lost-triangulation.html
-    - First estimate jacobians
+    - First estimate Jacobians
     - Zero-Velocity Update / Stationary Filter
     - Option for complementary IMU filter
     - Option for fixed IMU offsets - high certainty constraint update
@@ -69,3 +69,4 @@ Documentation:
     - Deploy Github page for generated doxygen
     - Plant UML Functional Flow Diagrams
     - Simulation diagram
+    - Capitalize Jacobian

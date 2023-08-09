@@ -193,13 +193,11 @@ public:
   ///
   /// @brief Generate augmented state jacobian matrix
   /// @param cam_state_start Camera state start index
-  /// @param camera_id Camera ID
   /// @param aug_state_start Augmented state start index
   /// @return Augmented state jacobian matrix
   ///
   Eigen::MatrixXd AugmentJacobian(
     unsigned int cam_state_start,
-    unsigned int camera_id,
     unsigned int aug_state_start);
 
   ///

@@ -79,12 +79,12 @@ public:
   /// @brief Computes the derivative of raw distorted to normalized coordinate.
   /// @param uv_norm Normalized coordinates we wish to distort
   /// @param intrinsics Camera intrinsics
-  /// @param H_dz_dzn Derivative of measurement z in respect to normalized
+  /// @param H_d Derivative of measurement z in respect to normalized
   ///
   void distortion_jacobian(
     const Eigen::Vector2d & uv_norm,
     Intrinsics intrinsics,
-    Eigen::MatrixXd & H_dz_dzn);
+    Eigen::MatrixXd & H_d);
 
   ///
   /// @brief Function to calculate jacobian for camera projection function

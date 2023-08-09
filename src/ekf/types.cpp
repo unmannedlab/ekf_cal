@@ -63,14 +63,15 @@ State & operator+=(State & l_state, State & r_state)
   for (auto & cam_iter : l_state.m_cam_states) {
     unsigned int cam_id = cam_iter.first;
     l_state.m_cam_states[cam_id].position += r_state.m_cam_states[cam_id].position;
-    l_state.m_cam_states[cam_id].orientation *= r_state.m_cam_states[cam_id].orientation;
+    l_state.m_cam_states[cam_id].orientation =
+      r_state.m_cam_states[cam_id].orientation * l_state.m_cam_states[cam_id].orientation;
     for (unsigned int i = 0; i < l_state.m_cam_states[cam_id].augmented_states.size(); ++i) {
       AugmentedState & l_aug_state = l_state.m_cam_states[cam_id].augmented_states[i];
       AugmentedState & r_Aug_state = r_state.m_cam_states[cam_id].augmented_states[i];
       l_aug_state.imu_position += r_Aug_state.imu_position;
-      l_aug_state.imu_orientation *= r_Aug_state.imu_orientation;
-      l_aug_state.position += r_Aug_state.position;
-      l_aug_state.orientation *= r_Aug_state.orientation;
+      l_aug_state.imu_orientation = r_Aug_state.imu_orientation * l_aug_state.imu_orientation;
+      l_aug_state.cam_position += r_Aug_state.cam_position;
+      l_aug_state.cam_orientation = r_Aug_state.cam_orientation * l_aug_state.cam_orientation;
     }
   }
 
@@ -86,7 +87,8 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
   for (auto & imu_iter : l_state.m_imu_states) {
     unsigned int imu_id = imu_iter.first;
     l_state.m_imu_states[imu_id].position += r_vector.segment<3>(n + 0);
-    l_state.m_imu_states[imu_id].orientation *= RotVecToQuat(r_vector.segment<3>(n + 3));
+    l_state.m_imu_states[imu_id].orientation =
+      RotVecToQuat(r_vector.segment<3>(n + 3)) * l_state.m_imu_states[imu_id].orientation;
     l_state.m_imu_states[imu_id].acc_bias += r_vector.segment<3>(n + 6);
     l_state.m_imu_states[imu_id].omg_bias += r_vector.segment<3>(n + 9);
     n += 12;
@@ -98,10 +100,13 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
     n += 6;
     for (unsigned int i = 0; i < cam_iter.second.augmented_states.size(); ++i) {
       cam_iter.second.augmented_states[i].imu_position += r_vector.segment<3>(n + 0);
-      cam_iter.second.augmented_states[i].imu_orientation *=
-        RotVecToQuat(r_vector.segment<3>(n + 3));
-      cam_iter.second.augmented_states[i].position += r_vector.segment<3>(n + 6);
-      cam_iter.second.augmented_states[i].orientation *= RotVecToQuat(r_vector.segment<3>(n + 9));
+      cam_iter.second.augmented_states[i].imu_orientation =
+        RotVecToQuat(r_vector.segment<3>(n + 3)) *
+        cam_iter.second.augmented_states[i].imu_orientation;
+      cam_iter.second.augmented_states[i].cam_position += r_vector.segment<3>(n + 6);
+      cam_iter.second.augmented_states[i].cam_orientation =
+        RotVecToQuat(r_vector.segment<3>(n + 9)) *
+        cam_iter.second.augmented_states[i].cam_orientation;
       n += 12;
     }
   }
@@ -116,7 +121,8 @@ std::map<unsigned int, ImuState> & operator+=(
   for (auto & imu_iter : l_imu_state) {
     unsigned int imu_id = imu_iter.first;
     l_imu_state[imu_id].position += r_vector.segment<3>(n + 0);
-    l_imu_state[imu_id].orientation *= RotVecToQuat(r_vector.segment<3>(n + 3));
+    l_imu_state[imu_id].orientation =
+      RotVecToQuat(r_vector.segment<3>(n + 3)) * l_imu_state[imu_id].orientation;
     l_imu_state[imu_id].acc_bias += r_vector.segment<3>(n + 6);
     l_imu_state[imu_id].omg_bias += r_vector.segment<3>(n + 9);
     n += 12;
@@ -132,7 +138,8 @@ std::map<unsigned int, CamState> & operator+=(
   for (auto & cam_iter : lCamState) {
     unsigned int cam_id = cam_iter.first;
     lCamState[cam_id].position += r_vector.segment<3>(n + 0);
-    lCamState[cam_id].orientation *= RotVecToQuat(r_vector.segment<3>(n + 3));
+    lCamState[cam_id].orientation =
+      RotVecToQuat(r_vector.segment<3>(n + 3)) * lCamState[cam_id].orientation;
     unsigned int augSize = lCamState[cam_id].augmented_states.size() * 12U;
     Eigen::VectorXd augUpdate = r_vector.segment(n + 6, augSize);
     lCamState[cam_id].augmented_states += augUpdate;
@@ -149,9 +156,9 @@ std::vector<AugmentedState> & operator+=(
   unsigned int n {0};
   for (auto & aug_iter : l_aug_state) {
     aug_iter.imu_position += r_vector.segment<3>(n + 0);
-    aug_iter.imu_orientation *= RotVecToQuat(r_vector.segment<3>(n + 3));
-    aug_iter.position += r_vector.segment<3>(n + 6);
-    aug_iter.orientation *= RotVecToQuat(r_vector.segment<3>(n + 9));
+    aug_iter.imu_orientation = RotVecToQuat(r_vector.segment<3>(n + 3)) * aug_iter.imu_orientation;
+    aug_iter.cam_position += r_vector.segment<3>(n + 6);
+    aug_iter.cam_orientation = RotVecToQuat(r_vector.segment<3>(n + 9)) * aug_iter.cam_orientation;
     n += 12;
   }
 
@@ -184,8 +191,8 @@ Eigen::VectorXd CamState::ToVector()
   for (auto const & aug_state : augmented_states) {
     out_vec.segment<3>(n + 0) = aug_state.imu_position;
     out_vec.segment<3>(n + 3) = QuatToRotVec(aug_state.imu_orientation);
-    out_vec.segment<3>(n + 6) = aug_state.position;
-    out_vec.segment<3>(n + 9) = QuatToRotVec(aug_state.orientation);
+    out_vec.segment<3>(n + 6) = aug_state.cam_position;
+    out_vec.segment<3>(n + 9) = QuatToRotVec(aug_state.cam_orientation);
     n += 12;
   }
 
@@ -237,8 +244,8 @@ Eigen::VectorXd State::ToVector()
     for (auto const & aug_state : cam_iter.second.augmented_states) {
       out_vec.segment<3>(n + 0) = aug_state.imu_position;
       out_vec.segment<3>(n + 3) = QuatToRotVec(aug_state.imu_orientation);
-      out_vec.segment<3>(n + 6) = aug_state.position;
-      out_vec.segment<3>(n + 9) = QuatToRotVec(aug_state.orientation);
+      out_vec.segment<3>(n + 6) = aug_state.cam_position;
+      out_vec.segment<3>(n + 9) = QuatToRotVec(aug_state.cam_orientation);
       n += 6;
     }
   }
