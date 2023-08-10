@@ -141,22 +141,22 @@ void MsckfUpdater::projection_jacobian(const Eigen::Vector3d & position, Eigen::
 }
 
 void MsckfUpdater::distortion_jacobian(
-  const Eigen::Vector2d & uv_norm,
+  const Eigen::Vector2d & xy_norm,
   Intrinsics intrinsics,
   Eigen::MatrixXd & H_d)
 {
   // Calculate distorted coordinates for radial
-  double r = std::sqrt(uv_norm(0) * uv_norm(0) + uv_norm(1) * uv_norm(1));
+  double r = std::sqrt(xy_norm(0) * xy_norm(0) + xy_norm(1) * xy_norm(1));
   double r_2 = r * r;
   double r_4 = r_2 * r_2;
 
   // Jacobian of distorted pixel to normalized pixel
   H_d = Eigen::MatrixXd::Zero(2, 2);
-  double x = uv_norm(0);
-  double y = uv_norm(1);
-  double x_2 = uv_norm(0) * uv_norm(0);
-  double y_2 = uv_norm(1) * uv_norm(1);
-  double x_y = uv_norm(0) * uv_norm(1);
+  double x = xy_norm(0);
+  double y = xy_norm(1);
+  double x_2 = xy_norm(0) * xy_norm(0);
+  double y_2 = xy_norm(1) * xy_norm(1);
+  double x_y = xy_norm(0) * xy_norm(1);
 
   H_d(0, 0) =
     intrinsics.f_x * (
@@ -251,19 +251,15 @@ void MsckfUpdater::UpdateEKF(
     Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(
       2 * feature_track.size(), g_cam_state_size + aug_state_size);
 
-    Eigen::Vector2d uv_norm;
-    uv_norm << pos_f_in_g(0) / pos_f_in_g(2), pos_f_in_g(1) / pos_f_in_g(2);
-
     /// @todo(jhartzer): Get these values from input parameters
     Intrinsics intrinsics;
-    intrinsics.f_x = 1.0;
-    intrinsics.f_y = 1.0;
+    intrinsics.F = 1.0;
     intrinsics.c_x = 640.0 / 2.0;
     intrinsics.c_y = 480.0 / 2.0;
     intrinsics.pixel_size = 0.010;
+    intrinsics.f_x = intrinsics.F / intrinsics.pixel_size;
+    intrinsics.f_y = intrinsics.F / intrinsics.pixel_size;
 
-    // Get the Jacobian for this feature
-    // Loop through each camera for this feature
     for (unsigned int i = 0; i < feature_track.size(); ++i) {
       AugmentedState aug_state_i = MatchState(feature_track[i].frame_id);
 
@@ -279,11 +275,13 @@ void MsckfUpdater::UpdateEKF(
       // Project the current feature into the current frame of reference
       Eigen::Vector3d pos_f_in_ii = rot_ii_to_g.transpose() * (pos_f_in_g - pos_ii_in_g);
       Eigen::Vector3d pos_f_in_ci = rot_ci_to_ii.transpose() * (pos_f_in_ii - pos_ci_in_ii);
+      Eigen::Vector2d xy_norm;
+      xy_norm(0) = pos_f_in_ci(0) / pos_f_in_ci(2);
+      xy_norm(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
+
       Eigen::Vector2d uv_predicted;
-      uv_predicted(0) = (pos_f_in_ci(0) / pos_f_in_ci(2)) *
-        (intrinsics.f_x / intrinsics.pixel_size) + intrinsics.c_x;
-      uv_predicted(1) = (pos_f_in_ci(1) / pos_f_in_ci(2)) *
-        (intrinsics.f_y / intrinsics.pixel_size) + intrinsics.c_y;
+      uv_predicted(0) = xy_norm(0) * intrinsics.f_x + intrinsics.c_x;
+      uv_predicted(1) = xy_norm(1) * intrinsics.f_y + intrinsics.c_y;
 
       // Our residual
       Eigen::Vector2d uv_measured, uv_residual;
@@ -295,18 +293,16 @@ void MsckfUpdater::UpdateEKF(
       unsigned int aug_state_start =
         m_ekf->GetAugStateStartIndex(camera_id, feature_track[i].frame_id);
 
-      // Normalized coordinates in respect to projection function
+      // Projection Jacobian
       Eigen::MatrixXd H_p(2, 3);
       projection_jacobian(pos_f_in_ci, H_p);
+
+      // Distortion Jacobian
       Eigen::MatrixXd H_d(2, 2);
-
-      /// @todo Get these from input or state
-      distortion_jacobian(uv_norm, intrinsics, H_d);
-
-      Eigen::MatrixXd H_dp = H_d * H_p;
+      distortion_jacobian(xy_norm, intrinsics, H_d);
 
       // Entire feature Jacobian
-      H_f.block(2 * i, 0, 2, 3) = H_dp * rot_g_to_ci;
+      H_f.block(2 * i, 0, 2, 3) = H_d * H_p * rot_g_to_ci;
 
       // Augmented state Jacobian
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, 12);
@@ -316,10 +312,8 @@ void MsckfUpdater::UpdateEKF(
       // H_t.block(0, 6, 3, 3) = Eigen::Matrix3d::Identity();
       // H_t.block(0, 9, 3, 3) = SkewSymmetric(rot_ii_to_ci * rot_ii_to_g.transpose() * (pos_f_in_g-pos_ii_in_g));
 
-      /// @todo(jhartzer): Bad
-      H_c.block(2 * i, aug_state_start - cam_state_start, 2, 12) = H_dp * H_t;
+      H_c.block(2 * i, aug_state_start - cam_state_start, 2, 12) = H_d * H_p * H_t;
     }
-
     ApplyLeftNullspace(H_f, H_c, res_f);
 
     /// @todo Chi2 distance check
@@ -334,12 +328,14 @@ void MsckfUpdater::UpdateEKF(
   if (ct_meas == 0) {
     return;
   }
+  std::cout << res_x.mean() << std::endl;
   CompressMeasurements(H_x, res_x);
+  std::cout << res_x.mean() << std::endl;
 
   Eigen::MatrixXd R = px_error * px_error * Eigen::MatrixXd::Identity(
     res_x.rows(), res_x.rows());
 
-  // 6. With all good features update the state
+  // Apply Kalman update
   Eigen::MatrixXd S = H_x * m_ekf->GetCov() * H_x.transpose() + R;
   Eigen::MatrixXd K = m_ekf->GetCov() * H_x.transpose() * S.inverse();
 

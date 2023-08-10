@@ -28,10 +28,11 @@ enum class SensorType
 ///
 typedef struct Intrinsics
 {
-  double f_x {1.0};           ///< @brief X focal length
-  double f_y {1.0};           ///< @brief Y focal length
-  double c_x {0.0};           ///< @brief X optical center
-  double c_y {0.0};           ///< @brief Y optical center
+  double F {1.0};             ///< @brief Nominal focal length [m]
+  double f_x {1.0};           ///< @brief X focal length [px]
+  double f_y {1.0};           ///< @brief Y focal length [px]
+  double c_x {0.0};           ///< @brief X optical center [px]
+  double c_y {0.0};           ///< @brief Y optical center [px]
   double k_1 {0.0};           ///< @brief Radial coefficient 1
   double k_2 {0.0};           ///< @brief Radial coefficient 2
   double p_1 {0.0};           ///< @brief Tangential coefficient 1

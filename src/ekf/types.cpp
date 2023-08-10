@@ -28,7 +28,7 @@ BodyState & operator+=(BodyState & l_m_body_state, BodyState & r_m_body_state)
   l_m_body_state.m_position += r_m_body_state.m_position;
   l_m_body_state.m_velocity += r_m_body_state.m_velocity;
   l_m_body_state.m_acceleration += r_m_body_state.m_acceleration;
-  l_m_body_state.m_orientation *= r_m_body_state.m_orientation;
+  l_m_body_state.m_orientation = r_m_body_state.m_orientation * l_m_body_state.m_orientation;
   l_m_body_state.m_angular_velocity += r_m_body_state.m_angular_velocity;
   l_m_body_state.m_angular_acceleration += r_m_body_state.m_angular_acceleration;
 
@@ -55,7 +55,8 @@ State & operator+=(State & l_state, State & r_state)
   for (auto & imu_iter : l_state.m_imu_states) {
     unsigned int imu_id = imu_iter.first;
     l_state.m_imu_states[imu_id].position += r_state.m_imu_states[imu_id].position;
-    l_state.m_imu_states[imu_id].orientation *= r_state.m_imu_states[imu_id].orientation;
+    l_state.m_imu_states[imu_id].orientation =
+      r_state.m_imu_states[imu_id].orientation * l_state.m_imu_states[imu_id].orientation;
     l_state.m_imu_states[imu_id].acc_bias += r_state.m_imu_states[imu_id].acc_bias;
     l_state.m_imu_states[imu_id].omg_bias += r_state.m_imu_states[imu_id].omg_bias;
   }
@@ -96,7 +97,8 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
 
   for (auto & cam_iter : l_state.m_cam_states) {
     cam_iter.second.position += r_vector.segment<3>(n + 0);
-    cam_iter.second.orientation *= RotVecToQuat(r_vector.segment<3>(n + 3));
+    cam_iter.second.orientation =
+      RotVecToQuat(r_vector.segment<3>(n + 3)) * cam_iter.second.orientation;
     n += 6;
     for (unsigned int i = 0; i < cam_iter.second.augmented_states.size(); ++i) {
       cam_iter.second.augmented_states[i].imu_position += r_vector.segment<3>(n + 0);

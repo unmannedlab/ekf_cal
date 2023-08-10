@@ -34,6 +34,7 @@ SimFeatureTracker::SimFeatureTracker(
 : FeatureTracker(params.tracker_params),
   m_data_logger(log_file_directory, "feature_points.csv")
 {
+  /// @todo(jhartzer): Get camera parameters from input
   m_px_error = params.tracker_params.px_error;
   m_pos_offset = params.pos_offset;
   m_ang_offset = params.ang_offset;

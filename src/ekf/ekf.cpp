@@ -161,13 +161,12 @@ void EKF::PredictModel(
 
   Eigen::Vector3d rot_vec(angular_rate_global[0] * dT, angular_rate_global[1] * dT,
     angular_rate_global[2] * dT);
-  Eigen::Quaterniond d_quat = RotVecToQuat(rot_vec);
 
   m_state.m_body_state.m_position +=
     dT * m_state.m_body_state.m_velocity + dT * dT / 2 * acceleration_global;
   m_state.m_body_state.m_velocity += dT * acceleration_global;
   m_state.m_body_state.m_acceleration = acceleration_global;
-  m_state.m_body_state.m_orientation = d_quat * m_state.m_body_state.m_orientation;
+  m_state.m_body_state.m_orientation = RotVecToQuat(rot_vec) * m_state.m_body_state.m_orientation;
   m_state.m_body_state.m_angular_velocity = angular_rate_global;
   m_state.m_body_state.m_angular_acceleration.setZero();
 

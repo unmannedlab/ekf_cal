@@ -894,7 +894,7 @@ class Plotter():
             self.plot_body_err_ang_acc(body_state_dfs, body_truth_dfs),
         ]
         animations = [
-            # self.plot_body_pos_3d_anim(body_state_dfs)
+            self.plot_body_pos_3d_anim(body_state_dfs)
         ]
         return figures, animations
 
@@ -912,12 +912,12 @@ class Plotter():
     def plot_cam_data(self, cam_dfs, config_data, i):
         """Generate camera plots from sets of dataframes."""
         figures = [
-            # self.plot_camera_body_pos_updates(cam_dfs),
-            # self.plot_camera_body_ang_updates(cam_dfs),
-            # self.plot_camera_offset_updates(cam_dfs),
-            # self.plot_camera_pos(cam_dfs),
-            # self.plot_camera_ang(cam_dfs),
-            # self.plot_update_timing(cam_dfs, config_data['Camera_rates'][i])
+            self.plot_camera_body_pos_updates(cam_dfs),
+            self.plot_camera_body_ang_updates(cam_dfs),
+            self.plot_camera_offset_updates(cam_dfs),
+            self.plot_camera_pos(cam_dfs),
+            self.plot_camera_ang(cam_dfs),
+            self.plot_update_timing(cam_dfs, config_data['Camera_rates'][i])
         ]
         return figures
 
@@ -928,6 +928,7 @@ class Plotter():
         ]
         return figures
 
+    # @todo(jhartzer): Split for loop into thread pool
     def plot_sim_results(self, config_sets):
         """Top level function to plot simulation results from sets of config files."""
         for config_set in config_sets:
