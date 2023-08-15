@@ -10,7 +10,7 @@
             MaxTime: 10.0
             TruthType: "Cyclic"
             PosFrequency: [0.0, 0.0, 0.0]
-            AngFrequency: [0.2, 0.3, 0.4]
+            AngFrequency: [0.0, 0.0, 0.0]
             PosOffset: [0.0, 0.0, 0.0]
             NoErrors: False
             NumberOfRuns: 5

@@ -3,11 +3,11 @@
     ros__parameters:
         Debug_Log_Level: 2
         Data_Logging_On: True
-        Body_Data_Rate: 1000.0
+        Body_Data_Rate: 400.0
         SimParams:
             Seed: 0.0
             UseSeed: True
-            MaxTime: 1.0
+            MaxTime: 10.0
             TruthType: "Cyclic"
             PosFrequency: [0.0, 0.0, 0.0]
             AngFrequency: [0.2, 0.3, 0.4]
@@ -29,7 +29,7 @@
                 UseForPrediction: False
                 BaseSensor: True
                 Intrinsic: False
-                Rate: 10000.0
+                Rate: 400.0
                 Topic: "/vn300/imu_uncompensated"
                 VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 PosOffInit: [0.0, 0.0, 0.0]
@@ -50,7 +50,7 @@
                 UseForPrediction: False
                 BaseSensor: False
                 Intrinsic: False
-                Rate: 1.0
+                Rate: 100.0
                 Topic: "/vn100/imu_uncompensated"
                 VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 PosOffInit: [0.0, 0.0, 0.0]
