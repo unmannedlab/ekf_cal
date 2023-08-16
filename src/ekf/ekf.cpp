@@ -159,14 +159,14 @@ void EKF::PredictModel(
   Eigen::Matrix3d acceleration_covariance_global = ang_i_to_g * acceleration_covariance;
   Eigen::Matrix3d angular_rate_covariance_global = ang_i_to_g * angular_rate_covariance;
 
-  Eigen::Vector3d rot_vec(angular_rate_global[0] * dT, angular_rate_global[1] * dT,
-    angular_rate_global[2] * dT);
+  Eigen::Vector3d rot_vec(angular_rate[0] * dT, angular_rate[1] * dT,
+    angular_rate[2] * dT);
 
   m_state.m_body_state.m_position +=
     dT * m_state.m_body_state.m_velocity + dT * dT / 2 * acceleration_global;
   m_state.m_body_state.m_velocity += dT * acceleration_global;
   m_state.m_body_state.m_acceleration = acceleration_global;
-  m_state.m_body_state.m_orientation = RotVecToQuat(rot_vec) * m_state.m_body_state.m_orientation;
+  m_state.m_body_state.m_orientation = m_state.m_body_state.m_orientation * RotVecToQuat(rot_vec);
   m_state.m_body_state.m_angular_velocity = angular_rate_global;
   m_state.m_body_state.m_angular_acceleration.setZero();
 

@@ -56,7 +56,7 @@ Eigen::VectorXd ImuUpdater::PredictMeasurement()
 {
   Eigen::VectorXd predicted_measurement(6);
   // Transform acceleration to IMU location
-  Eigen::Vector3d imuAcc = m_body_ang_pos * (m_body_acc + g_gravity) +
+  Eigen::Vector3d imuAcc = m_body_ang_pos.inverse() * (m_body_acc + g_gravity) +
     m_body_ang_acc.cross(m_pos_offset) +
     m_body_ang_vel.cross((m_body_ang_vel.cross(m_pos_offset)));
 
@@ -80,11 +80,12 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
     Eigen::MatrixXd::Zero(6, g_body_state_size + g_imu_state_size);
 
   // Body Acceleration
-  measurement_jacobian.block<3, 3>(0, 6) = m_ang_offset.toRotationMatrix();
+  measurement_jacobian.block<3, 3>(0, 6) = m_ang_offset.toRotationMatrix() *
+    m_body_ang_pos.inverse().toRotationMatrix();
 
   // Body Orientation
-  measurement_jacobian.block<3, 3>(0, 9) = -m_body_ang_pos.toRotationMatrix() *
-    SkewSymmetric(m_ang_offset * g_gravity);
+  measurement_jacobian.block<3, 3>(0, 9) = -m_ang_offset.toRotationMatrix() *
+    SkewSymmetric(m_body_ang_pos.inverse().toRotationMatrix() * g_gravity);
 
   // Body Angular Velocity
   Eigen::MatrixXd temp = Eigen::MatrixXd::Zero(3, 3);
@@ -208,6 +209,11 @@ void ImuUpdater::UpdateEKF(
   R.block<3, 3>(0, 0) = MinBoundDiagonal(accelerationCovariance, 1e-3);
   R.block<3, 3>(3, 3) = MinBoundDiagonal(angularRateCovariance, 1e-2);
 
+  /// @todo(jhartzer): move to post update
+  Eigen::VectorXd cov_diag = m_ekf->GetCov().block(
+    imu_state_start, imu_state_start,
+    g_imu_state_size, g_imu_state_size).diagonal();
+
   Eigen::MatrixXd S = H * m_ekf->GetCov().block(0, 0, updateSize, updateSize) * H.transpose() + R;
   Eigen::MatrixXd K =
     m_ekf->GetCov().block(0, 0, updateSize, updateSize) * H.transpose() * S.inverse();
@@ -228,9 +234,6 @@ void ImuUpdater::UpdateEKF(
   // Write outputs
   std::stringstream msg;
   Eigen::VectorXd imu_sub_update = update.segment(imu_state_start, g_imu_state_size);
-  Eigen::VectorXd cov_diag = m_ekf->GetCov().block(
-    imu_state_start, imu_state_start,
-    g_imu_state_size, g_imu_state_size).diagonal();
 
   msg << time;
   msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].position);
@@ -246,4 +249,24 @@ void ImuUpdater::UpdateEKF(
   msg << "," << t_execution.count();
   msg << std::endl;
   m_data_logger.Log(msg.str());
+
+  // msg.clear();
+  // cov_diag = m_ekf->GetCov().block(
+  //   imu_state_start, imu_state_start,
+  //   g_imu_state_size, g_imu_state_size).diagonal();
+
+  // msg << time;
+  // msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].position);
+  // msg << QuaternionToCommaString(m_ekf->GetState().m_imu_states[m_id].orientation);
+  // msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].acc_bias);
+  // msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].omg_bias);
+  // msg << VectorToCommaString(cov_diag);
+  // msg << VectorToCommaString(acceleration);
+  // msg << VectorToCommaString(angularRate);
+  // msg << VectorToCommaString(resid);
+  // msg << VectorToCommaString(body_update);
+  // msg << VectorToCommaString(imu_sub_update);
+  // msg << "," << t_execution.count();
+  // msg << std::endl;
+  // m_data_logger.Log(msg.str());
 }

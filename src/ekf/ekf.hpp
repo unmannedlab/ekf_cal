@@ -233,7 +233,7 @@ private:
   bool m_data_logging_on {false};
 
   Eigen::MatrixXd m_process_noise =
-    Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-2;
+    Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-1;
 };
 
 #endif  // EKF__EKF_HPP_

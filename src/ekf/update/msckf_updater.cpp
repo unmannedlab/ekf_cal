@@ -328,9 +328,8 @@ void MsckfUpdater::UpdateEKF(
   if (ct_meas == 0) {
     return;
   }
-  std::cout << res_x.mean() << std::endl;
+
   CompressMeasurements(H_x, res_x);
-  std::cout << res_x.mean() << std::endl;
 
   Eigen::MatrixXd R = px_error * px_error * Eigen::MatrixXd::Identity(
     res_x.rows(), res_x.rows());

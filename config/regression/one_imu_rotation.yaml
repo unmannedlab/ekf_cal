@@ -10,7 +10,7 @@
             MaxTime: 10.0
             TruthType: "Cyclic"
             PosFrequency: [0.0, 0.0, 0.0]
-            AngFrequency: [0.2, 0.3, 0.4]
+            AngFrequency: [0.1, 0.2, 0.3]
             PosOffset: [0.0, 0.0, 0.0]
             NoErrors: False
             NumberOfRuns: 5
@@ -40,7 +40,7 @@
                     timeSkew: 0.0
                     timeError: 1.0e-6
                     accBias: [0.0, 0.0, 0.0]
-                    accError: [1.0e-3, 1.0e-3, 1.0e-3]
+                    accError: [1.0e-6, 1.0e-6, 1.0e-6]
                     omgBias: [0.0, 0.0, 0.0]
                     omgError: [1.0e-2, 1.0e-2, 1.0e-2]
                     posOffset: [0.0, 0.0, 0.0]

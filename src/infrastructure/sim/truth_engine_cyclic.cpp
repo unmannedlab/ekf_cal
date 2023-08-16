@@ -29,7 +29,7 @@ TruthEngineCyclic::TruthEngineCyclic(
   m_pos_frequency = pos_frequency;
   m_ang_frequency = ang_frequency;
   m_pos_offset = pos_offset;
-  m_ang_amplitude = 0.785398163;
+  m_ang_amplitude = 1.0;
   m_pos_amplitude = 1.0;
 }
 
@@ -55,8 +55,7 @@ Eigen::Vector3d TruthEngineCyclic::GetBodyVelocity(double time)
     m_pos_amplitude * m_pos_frequency[1] * M_PI * std::sin(m_pos_frequency[1] * 2 * M_PI * time);
   velocity[2] =
     m_pos_amplitude * m_pos_frequency[2] * M_PI * std::sin(m_pos_frequency[2] * 2 * M_PI * time);
-  Eigen::Quaterniond ang_pos = GetBodyAngularPosition(time);
-  return ang_pos * velocity;
+  return velocity;
 }
 
 Eigen::Vector3d TruthEngineCyclic::GetBodyAcceleration(double time)
@@ -68,8 +67,7 @@ Eigen::Vector3d TruthEngineCyclic::GetBodyAcceleration(double time)
     m_pos_frequency[1] * std::cos(m_pos_frequency[1] * 2 * M_PI * time);
   acceleration[2] = m_pos_amplitude * 2 * M_PI * M_PI * m_pos_frequency[2] *
     m_pos_frequency[2] * std::cos(m_pos_frequency[2] * 2 * M_PI * time);
-  Eigen::Quaterniond ang_pos = GetBodyAngularPosition(time);
-  return ang_pos * acceleration;
+  return acceleration;
 }
 
 Eigen::Vector3d TruthEngineCyclic::GetBodyRollPitchYaw(double time)
@@ -86,9 +84,9 @@ Eigen::Quaterniond TruthEngineCyclic::GetBodyAngularPosition(double time)
   Eigen::Vector3d rpy_vector = GetBodyRollPitchYaw(time);
 
   Eigen::Quaterniond angular_position =
-    Eigen::AngleAxisd(rpy_vector[0], Eigen::Vector3d::UnitX()) *
+    Eigen::AngleAxisd(rpy_vector[2], Eigen::Vector3d::UnitZ()) *
     Eigen::AngleAxisd(rpy_vector[1], Eigen::Vector3d::UnitY()) *
-    Eigen::AngleAxisd(rpy_vector[2], Eigen::Vector3d::UnitZ());
+    Eigen::AngleAxisd(rpy_vector[0], Eigen::Vector3d::UnitX());
 
   return angular_position;
 }
@@ -97,13 +95,14 @@ Eigen::Matrix3d TruthEngineCyclic::EulerDerivativeTransform(Eigen::Vector3d rpy_
 {
   Eigen::Matrix3d transform_matrix;
   transform_matrix.setZero();
+  double roll = rpy_vector[0];
   double pitch = rpy_vector[1];
-  double yaw = rpy_vector[2];
-  transform_matrix(0, 0) = std::cos(yaw) * std::cos(pitch);
-  transform_matrix(1, 0) = std::sin(yaw) * std::cos(pitch);
-  transform_matrix(0, 1) = -std::sin(yaw);
-  transform_matrix(1, 1) = std::cos(yaw);
-  transform_matrix(2, 2) = 1.0;
+  transform_matrix(0, 0) = 1.0;
+  transform_matrix(0, 2) = -std::sin(pitch);
+  transform_matrix(1, 1) = std::cos(roll);
+  transform_matrix(1, 2) = std::sin(roll) * std::cos(pitch);
+  transform_matrix(2, 1) = -std::sin(roll);
+  transform_matrix(2, 2) = std::cos(roll) * std::cos(pitch);
   return transform_matrix;
 }
 

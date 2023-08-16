@@ -518,20 +518,21 @@ class Plotter():
 
     def plot_body_ang(self, body_dfs):
         """Plot body angular position."""
-        fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
+        fig, (axs_1) = plt.subplots(1, 1)
+        # fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
         alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_ang_pos_0'].to_list(), alpha=alpha, color='tab:blue')
-            axs_2.plot(time, body_df['body_ang_pos_1'].to_list(), alpha=alpha, color='tab:orange')
-            axs_3.plot(time, body_df['body_ang_pos_2'].to_list(), alpha=alpha, color='tab:green')
-            axs_4.plot(time, body_df['body_ang_pos_3'].to_list(), alpha=alpha, color='tab:green')
+            axs_1.plot(time, body_df['body_ang_pos_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_1.plot(time, body_df['body_ang_pos_2'].to_list(), alpha=alpha, color='tab:green')
+            axs_1.plot(time, body_df['body_ang_pos_3'].to_list(), alpha=alpha, color='tab:red')
         set_plot_titles(fig, 'Body Angles')
-        axs_1.set_ylabel('W')
-        axs_2.set_ylabel('X')
-        axs_3.set_ylabel('Y')
-        axs_4.set_ylabel('Z')
-        axs_4.set_xlabel('Time [s]')
+        # axs_1.set_ylabel('W')
+        # axs_2.set_ylabel('X')
+        # axs_3.set_ylabel('Y')
+        # axs_4.set_ylabel('Z')
+        # axs_4.set_xlabel('Time [s]')
         fig.tight_layout()
         return fig
 
