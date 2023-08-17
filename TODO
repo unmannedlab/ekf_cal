@@ -16,6 +16,7 @@ Package Features:
     - Intrinsic calibration filtering
     - Condition and distance thresholds
     - Check covariance matrix condition
+    - Perfect prediction flag
 
     GPS Updater:
         - LLA to NED calibration
@@ -49,6 +50,7 @@ Software Work:
     - Add check for intrinsic IMUs without cameras
     - Perf flamegraph - https://nanxiao.me/en/use-perf-and-flamegraph-to-profile-program-on-linux/
     - Add parameter for feature point uncertainty
+    - Rename rotations using to/from frames
 
     Additional Trackers:
         - FiducialTracker

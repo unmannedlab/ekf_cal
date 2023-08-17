@@ -275,20 +275,16 @@ void MsckfUpdater::UpdateEKF(
       // Project the current feature into the current frame of reference
       Eigen::Vector3d pos_f_in_ii = rot_ii_to_g.transpose() * (pos_f_in_g - pos_ii_in_g);
       Eigen::Vector3d pos_f_in_ci = rot_ci_to_ii.transpose() * (pos_f_in_ii - pos_ci_in_ii);
-      Eigen::Vector2d xy_norm;
-      xy_norm(0) = pos_f_in_ci(0) / pos_f_in_ci(2);
-      xy_norm(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
-
-      Eigen::Vector2d uv_predicted;
-      uv_predicted(0) = xy_norm(0) * intrinsics.f_x + intrinsics.c_x;
-      uv_predicted(1) = xy_norm(1) * intrinsics.f_y + intrinsics.c_y;
+      Eigen::Vector2d xz_predicted;
+      xz_predicted(0) = pos_f_in_ci(0) / pos_f_in_ci(2);
+      xz_predicted(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
 
       // Our residual
-      Eigen::Vector2d uv_measured, uv_residual;
-      uv_measured(0) = feature_track[i].key_point.pt.x;
-      uv_measured(1) = feature_track[i].key_point.pt.y;
-      uv_residual = uv_measured - uv_predicted;
-      res_f.segment<2>(2 * i) = uv_residual;
+      Eigen::Vector2d xz_measured, xz_residual;
+      xz_measured(0) = (feature_track[i].key_point.pt.x - intrinsics.c_x) / intrinsics.f_x;
+      xz_measured(1) = (feature_track[i].key_point.pt.y - intrinsics.c_y) / intrinsics.f_y;
+      xz_residual = xz_measured - xz_predicted;
+      res_f.segment<2>(2 * i) = xz_residual;
 
       unsigned int aug_state_start =
         m_ekf->GetAugStateStartIndex(camera_id, feature_track[i].frame_id);
@@ -299,7 +295,7 @@ void MsckfUpdater::UpdateEKF(
 
       // Distortion Jacobian
       Eigen::MatrixXd H_d(2, 2);
-      distortion_jacobian(xy_norm, intrinsics, H_d);
+      distortion_jacobian(xz_measured, intrinsics, H_d);
 
       // Entire feature Jacobian
       H_f.block<2, 3>(2 * i, 0) = H_d * H_p * rot_g_to_ci;

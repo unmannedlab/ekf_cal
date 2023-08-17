@@ -140,6 +140,8 @@ def add_jobs(inputs: List[str]):
     pool.join()
 
 
+# @todo(jhartzer): Add argument to override number of runs
+# @todo(jhartzer): Add argument to override max simulation time
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('inputs', nargs='+', type=str)
