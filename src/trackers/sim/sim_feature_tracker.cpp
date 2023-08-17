@@ -88,7 +88,7 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
   Eigen::Vector3d pos_i_in_g = m_truth->GetBodyPosition(time);
   Eigen::Quaterniond ang_i_to_g = m_truth->GetBodyAngularPosition(time);
   Eigen::Quaterniond ang_c_to_i = m_ang_offset;
-  Eigen::Matrix3d ang_g_to_c = (ang_c_to_i * ang_i_to_g).toRotationMatrix().transpose();
+  Eigen::Matrix3d ang_g_to_c = (ang_i_to_g * ang_c_to_i).toRotationMatrix().transpose();
 
   /// @todo put into type helper
   cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);

@@ -60,22 +60,22 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_
     sim_imu_msg->m_sensor_type = SensorType::IMU;
 
     /// @todo specify frames of accelerations
-    Eigen::Vector3d body_acc = m_truth->GetBodyAcceleration(measurementTime);
-    Eigen::Quaterniond body_ang_pos = m_truth->GetBodyAngularPosition(measurementTime);
-    Eigen::Vector3d body_ang_vel = m_truth->GetBodyAngularRate(measurementTime);
-    Eigen::Vector3d body_ang_acc = m_truth->GetBodyAngularAcceleration(measurementTime);
+    Eigen::Vector3d body_acc_g = m_truth->GetBodyAcceleration(measurementTime);
+    Eigen::Quaterniond body_b_to_g = m_truth->GetBodyAngularPosition(measurementTime);
+    Eigen::Vector3d body_ang_vel_g = m_truth->GetBodyAngularRate(measurementTime);
+    Eigen::Vector3d body_ang_acc_g = m_truth->GetBodyAngularAcceleration(measurementTime);
 
     // Transform acceleration to IMU location
-    Eigen::Vector3d imuAcc = body_ang_pos * (body_acc + g_gravity) +
-      body_ang_acc.cross(m_pos_offset) +
-      body_ang_vel.cross((body_ang_vel.cross(m_pos_offset)));
+    Eigen::Vector3d imu_acc_b = body_b_to_g.inverse() * (body_acc_g + g_gravity +
+      body_ang_acc_g.cross(m_pos_offset) +
+      body_ang_vel_g.cross((body_ang_vel_g.cross(m_pos_offset))));
 
     // Rotate measurements in place
-    Eigen::Vector3d imu_acc_rot = m_ang_offset * imuAcc;
-    Eigen::Vector3d imu_omg_rot = m_ang_offset * body_ang_vel;
+    Eigen::Vector3d imu_acc_i = m_ang_offset.inverse() * imu_acc_b;
+    Eigen::Vector3d imu_omg_i = m_ang_offset.inverse() * body_ang_vel_g;
 
-    sim_imu_msg->m_acceleration = imu_acc_rot;
-    sim_imu_msg->m_angular_rate = imu_omg_rot;
+    sim_imu_msg->m_acceleration = imu_acc_i;
+    sim_imu_msg->m_angular_rate = imu_omg_i;
 
     if (!m_no_errors) {
       sim_imu_msg->m_time += m_rng.NormRand(m_time_bias, m_time_error);

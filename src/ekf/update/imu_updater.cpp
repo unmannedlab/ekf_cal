@@ -56,20 +56,16 @@ Eigen::VectorXd ImuUpdater::PredictMeasurement()
 {
   Eigen::VectorXd predicted_measurement(6);
   // Transform acceleration to IMU location
-  Eigen::Vector3d imuAcc = m_body_ang_pos.inverse() * (m_body_acc + g_gravity) +
+  Eigen::Vector3d imu_acc_b = m_body_ang_pos.inverse() * (m_body_acc + g_gravity +
     m_body_ang_acc.cross(m_pos_offset) +
-    m_body_ang_vel.cross((m_body_ang_vel.cross(m_pos_offset)));
+    m_body_ang_vel.cross((m_body_ang_vel.cross(m_pos_offset))));
 
   // Rotate measurements in place
-  Eigen::Vector3d imu_acc_rot = m_ang_offset * imuAcc;
-  Eigen::Vector3d imu_omg_rot = m_ang_offset * m_body_ang_vel;
+  Eigen::Vector3d imu_acc_i = m_acc_bias + m_ang_offset.inverse() * imu_acc_b;
+  Eigen::Vector3d imu_omg_i = m_omg_bias + m_ang_offset.inverse() * m_body_ang_vel;
 
-  // Add bias
-  imu_acc_rot += m_acc_bias;
-  imu_omg_rot += m_omg_bias;
-
-  predicted_measurement.segment<3>(0) = imu_acc_rot;
-  predicted_measurement.segment<3>(3) = imu_omg_rot;
+  predicted_measurement.segment<3>(0) = imu_acc_i;
+  predicted_measurement.segment<3>(3) = imu_omg_i;
 
   return predicted_measurement;
 }
@@ -80,11 +76,11 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
     Eigen::MatrixXd::Zero(6, g_body_state_size + g_imu_state_size);
 
   // Body Acceleration
-  measurement_jacobian.block<3, 3>(0, 6) = m_ang_offset.toRotationMatrix() *
+  measurement_jacobian.block<3, 3>(0, 6) = m_ang_offset.inverse().toRotationMatrix() *
     m_body_ang_pos.inverse().toRotationMatrix();
 
   // Body Orientation
-  measurement_jacobian.block<3, 3>(0, 9) = -m_ang_offset.toRotationMatrix() *
+  measurement_jacobian.block<3, 3>(0, 9) = -m_ang_offset.inverse().toRotationMatrix() *
     SkewSymmetric(m_body_ang_pos.inverse().toRotationMatrix() * g_gravity);
 
   // Body Angular Velocity
@@ -98,16 +94,17 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
   temp(2, 0) = m_pos_offset(0) * m_body_ang_vel(2) - 2 * m_pos_offset(2) * m_body_ang_vel(0);
   temp(2, 1) = m_pos_offset(1) * m_body_ang_vel(2) - 2 * m_pos_offset(2) * m_body_ang_vel(1);
   temp(2, 2) = m_pos_offset(0) * m_body_ang_vel(0) + 1 * m_pos_offset(1) * m_body_ang_vel(1);
-  measurement_jacobian.block<3, 3>(0, 12) = m_ang_offset * temp;
+  measurement_jacobian.block<3, 3>(0, 12) = m_ang_offset.inverse() * temp;
 
   // Body Angular Acceleration
-  measurement_jacobian.block<3, 3>(0, 15) = m_ang_offset * SkewSymmetric(
+  measurement_jacobian.block<3, 3>(0, 15) = m_ang_offset.inverse() * SkewSymmetric(
     m_pos_offset);
 
   // IMU Body Angular Velocity
-  measurement_jacobian.block<3, 3>(3, 12) = m_ang_offset.toRotationMatrix();
+  measurement_jacobian.block<3, 3>(3, 12) = m_ang_offset.inverse().toRotationMatrix();
 
   // IMU Positional Offset
+  /// @todo(jhartzer): Following Jacobians no longer appear valid
   if (!isBaseSensor) {
     temp.setZero();
     temp(0, 0) = -(m_body_ang_vel(1) * m_body_ang_vel(1)) - (m_body_ang_vel(2) * m_body_ang_vel(2));
@@ -120,7 +117,7 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
     temp(2, 1) = m_body_ang_vel(1) * m_body_ang_vel(2);
     temp(2, 2) = -(m_body_ang_vel(0) * m_body_ang_vel(0)) - (m_body_ang_vel(1) * m_body_ang_vel(1));
     measurement_jacobian.block<3, 3>(0, g_body_state_size) =
-      m_ang_offset * SkewSymmetric(m_body_ang_acc) + temp;
+      m_ang_offset.inverse() * SkewSymmetric(m_body_ang_acc) + temp;
 
     // IMU Angular Offset
     Eigen::Vector3d imu_acc = m_body_acc +
@@ -128,11 +125,11 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
       m_body_ang_vel.cross(m_body_ang_vel.cross(m_pos_offset));
 
     measurement_jacobian.block<3, 3>(0, g_body_state_size + 3) =
-      -(m_ang_offset * SkewSymmetric(imu_acc));
+      -(m_ang_offset.inverse() * SkewSymmetric(imu_acc));
 
     // IMU Angular Offset
     measurement_jacobian.block<3, 3>(3, g_body_state_size + 3) =
-      -(m_ang_offset * SkewSymmetric(m_body_ang_vel));
+      -(m_ang_offset.inverse() * SkewSymmetric(m_body_ang_vel));
   }
 
   if (isIntrinsic) {
