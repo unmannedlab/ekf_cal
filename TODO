@@ -51,6 +51,7 @@ Software Work:
     - Perf flamegraph - https://nanxiao.me/en/use-perf-and-flamegraph-to-profile-program-on-linux/
     - Add parameter for feature point uncertainty
     - Rename rotations using to/from frames
+    - Automatically check regression results
 
     Additional Trackers:
         - FiducialTracker

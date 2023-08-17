@@ -9,7 +9,7 @@
             UseSeed: True
             MaxTime: 60.0
             TruthType: "Cyclic"
-            PosFrequency: [0.0, 0.0, 0.0]
+            PosFrequency: [0.3, 0.5, 0.7]
             AngFrequency: [0.2, 0.3, 0.4]
             PosOffset: [0.0, 0.0, 0.0]
             NoErrors: False
@@ -25,7 +25,7 @@
 
         IMU:
             vn300:
-                UseForPrediction: True
+                UseForPrediction: False
                 BaseSensor: True
                 Intrinsic: False
                 Rate: 400.0
@@ -40,7 +40,7 @@
                     timeSkew: 0.0
                     timeError: 1.0e-6
                     accBias: [0.0, 0.0, 0.0]
-                    accError: [1.0e-3, 1.0e-3, 1.0e-3]
+                    accError: [1.0e-6, 1.0e-6, 1.0e-6]
                     omgBias: [0.0, 0.0, 0.0]
                     omgError: [1.0e-2, 1.0e-2, 1.0e-2]
                     posOffset: [0.0, 0.0, 0.0]

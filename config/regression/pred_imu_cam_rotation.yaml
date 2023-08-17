@@ -7,13 +7,13 @@
         SimParams:
             Seed: 0.0
             UseSeed: True
-            MaxTime: 10.0
+            MaxTime: 60.0
             TruthType: "Cyclic"
             PosFrequency: [0.0, 0.0, 0.0]
             AngFrequency: [0.2, 0.3, 0.4]
             PosOffset: [0.0, 0.0, 0.0]
             NoErrors: False
-            NumberOfRuns: 5
+            NumberOfRuns: 2
             RunNumber: 0
 
         IMU_list:
@@ -71,5 +71,5 @@
                 DetectorThreshold: 10.0
                 PixelError: 1.0
                 SimParams:
-                    featureCount: 1000
+                    featureCount: 100
                     roomSize: 10.0

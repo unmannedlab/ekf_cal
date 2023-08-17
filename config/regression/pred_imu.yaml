@@ -9,7 +9,7 @@
             UseSeed: True
             MaxTime: 60.0
             TruthType: "Cyclic"
-            PosFrequency: [0.0, 0.0, 0.0]
+            PosFrequency: [0.3, 0.5, 0.7]
             AngFrequency: [0.2, 0.3, 0.4]
             PosOffset: [0.0, 0.0, 0.0]
             NoErrors: False
@@ -33,6 +33,7 @@
                 VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 PosOffInit: [0.0, 0.0, 0.0]
                 AngOffInit: [1.0, 0.0, 0.0, 0.0]
+                # AngOffInit: [0.9238795, 0.3826834, 0, 0]
                 AccBiasInit: [0.0, 0.0, 0.0]
                 OmgBiasInit: [0.0, 0.0, 0.0]
                 SimParams:
@@ -45,3 +46,4 @@
                     omgError: [1.0e-2, 1.0e-2, 1.0e-2]
                     posOffset: [0.0, 0.0, 0.0]
                     angOffset: [1.0, 0.0, 0.0, 0.0]
+                    # angOffset: [0.9238795, 0.3826834, 0, 0]

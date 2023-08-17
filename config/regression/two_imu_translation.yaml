@@ -7,13 +7,13 @@
         SimParams:
             Seed: 0.0
             UseSeed: True
-            MaxTime: 10.0
+            MaxTime: 60.0
             TruthType: "Cyclic"
-            PosFrequency: [1.1, 1.2, 1.3]
+            PosFrequency: [0.3, 0.5, 0.7]
             AngFrequency: [0.0, 0.0, 0.0]
             PosOffset: [0.0, 0.0, 0.0]
             NoErrors: False
-            NumberOfRuns: 5
+            NumberOfRuns: 25
             RunNumber: 0
 
         IMU_list:

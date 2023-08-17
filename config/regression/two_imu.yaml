@@ -9,7 +9,7 @@
             UseSeed: True
             MaxTime: 60.0
             TruthType: "Cyclic"
-            PosFrequency: [0.0, 0.0, 0.0]
+            PosFrequency: [0.3, 0.5, 0.7]
             AngFrequency: [0.2, 0.3, 0.4]
             PosOffset: [0.0, 0.0, 0.0]
             NoErrors: False
@@ -18,6 +18,7 @@
 
         IMU_list:
             - "vn300"
+            - "vn100"
 
         Camera_list:
 
@@ -25,11 +26,32 @@
 
         IMU:
             vn300:
-                UseForPrediction: True
+                UseForPrediction: False
                 BaseSensor: True
                 Intrinsic: False
                 Rate: 400.0
                 Topic: "/vn300/imu_uncompensated"
+                VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                PosOffInit: [0.0, 0.0, 0.0]
+                AngOffInit: [1.0, 0.0, 0.0, 0.0]
+                AccBiasInit: [0.0, 0.0, 0.0]
+                OmgBiasInit: [0.0, 0.0, 0.0]
+                SimParams:
+                    timeBias: 0.0
+                    timeSkew: 0.0
+                    timeError: 1.0e-6
+                    accBias: [0.0, 0.0, 0.0]
+                    accError: [1.0e-3, 1.0e-3, 1.0e-3]
+                    omgBias: [0.0, 0.0, 0.0]
+                    omgError: [1.0e-2, 1.0e-2, 1.0e-2]
+                    posOffset: [0.0, 0.0, 0.0]
+                    angOffset: [1.0, 0.0, 0.0, 0.0]
+            vn100:
+                UseForPrediction: False
+                BaseSensor: False # @todo(jhartzer): Need to debug the not-base sensor Jacobian
+                Intrinsic: False
+                Rate: 100.0
+                Topic: "/vn100/imu_uncompensated"
                 VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 PosOffInit: [0.0, 0.0, 0.0]
                 AngOffInit: [1.0, 0.0, 0.0, 0.0]

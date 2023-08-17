@@ -9,7 +9,7 @@
             UseSeed: True
             MaxTime: 60.0
             TruthType: "Cyclic"
-            PosFrequency: [0.0, 0.0, 0.0]
+            PosFrequency: [0.3, 0.5, 0.7]
             AngFrequency: [0.2, 0.3, 0.4]
             PosOffset: [0.0, 0.0, 0.0]
             NoErrors: False
@@ -20,12 +20,14 @@
             - "vn300"
 
         Camera_list:
+            - "ace"
 
         Tracker_list:
+            - "ORB"
 
         IMU:
             vn300:
-                UseForPrediction: True
+                UseForPrediction: False
                 BaseSensor: True
                 Intrinsic: False
                 Rate: 400.0
@@ -45,3 +47,29 @@
                     omgError: [1.0e-2, 1.0e-2, 1.0e-2]
                     posOffset: [0.0, 0.0, 0.0]
                     angOffset: [1.0, 0.0, 0.0, 0.0]
+
+        Camera:
+            ace:
+                Rate: 20.0
+                Topic:  "/my_camera/pylon_ros2_camera_node/image_raw"
+                PosOffInit: [0.0, 0.0, 0.0]
+                AngOffInit: [0.5, -0.5, 0.5, -0.5]
+                VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+                Tracker: "ORB"
+                SimParams:
+                    timeBias: 0.0
+                    timeSkew: 0.0
+                    timeError: 1.0e-6
+                    posOffset: [0.0, 0.0, 0.0]
+                    angOffset: [0.5, -0.5, 0.5, -0.5]
+
+        Tracker:
+            ORB:
+                FeatureDetector: 4
+                DescriptorExtractor: 0
+                DescriptorMatcher: 0
+                DetectorThreshold: 10.0
+                PixelError: 1.0
+                SimParams:
+                    featureCount: 1000
+                    roomSize: 10.0
