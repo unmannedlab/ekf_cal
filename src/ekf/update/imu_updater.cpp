@@ -202,17 +202,12 @@ void ImuUpdater::UpdateEKF(
 
   H.block<6, g_body_state_size>(0, 0) = subH.block<6, g_body_state_size>(0, 0);
 
-  H.block(0, imu_state_start, 6, g_imu_state_size) =
+  H.block<6, g_imu_state_size>(0, imu_state_start) =
     subH.block<6, g_imu_state_size>(0, g_body_state_size);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
   R.block<3, 3>(0, 0) = MinBoundDiagonal(accelerationCovariance, 1e-3);
   R.block<3, 3>(3, 3) = MinBoundDiagonal(angularRateCovariance, 1e-2);
-
-  /// @todo(jhartzer): move to post update
-  Eigen::VectorXd cov_diag = m_ekf->GetCov().block(
-    imu_state_start, imu_state_start,
-    g_imu_state_size, g_imu_state_size).diagonal();
 
   Eigen::MatrixXd S = H * m_ekf->GetCov().block(0, 0, updateSize, updateSize) * H.transpose() + R;
   Eigen::MatrixXd K =
@@ -234,6 +229,8 @@ void ImuUpdater::UpdateEKF(
   // Write outputs
   std::stringstream msg;
   Eigen::VectorXd imu_sub_update = update.segment(imu_state_start, g_imu_state_size);
+  Eigen::VectorXd cov_diag = m_ekf->GetCov().block<g_imu_state_size, g_imu_state_size>(
+    imu_state_start, imu_state_start).diagonal();
 
   msg << time;
   msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].position);
@@ -249,24 +246,4 @@ void ImuUpdater::UpdateEKF(
   msg << "," << t_execution.count();
   msg << std::endl;
   m_data_logger.Log(msg.str());
-
-  // msg.clear();
-  // cov_diag = m_ekf->GetCov().block(
-  //   imu_state_start, imu_state_start,
-  //   g_imu_state_size, g_imu_state_size).diagonal();
-
-  // msg << time;
-  // msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].position);
-  // msg << QuaternionToCommaString(m_ekf->GetState().m_imu_states[m_id].orientation);
-  // msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].acc_bias);
-  // msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].omg_bias);
-  // msg << VectorToCommaString(cov_diag);
-  // msg << VectorToCommaString(acceleration);
-  // msg << VectorToCommaString(angularRate);
-  // msg << VectorToCommaString(resid);
-  // msg << VectorToCommaString(body_update);
-  // msg << VectorToCommaString(imu_sub_update);
-  // msg << "," << t_execution.count();
-  // msg << std::endl;
-  // m_data_logger.Log(msg.str());
 }

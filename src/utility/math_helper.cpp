@@ -117,7 +117,7 @@ void ApplyLeftNullspace(Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::Vec
       // Apply nullspace
       (H_f.block(i - 1, j, 2, n - j)).applyOnTheLeft(0, 1, givens.adjoint());
       (H_x.block(i - 1, 0, 2, H_x.cols())).applyOnTheLeft(0, 1, givens.adjoint());
-      (res.block(i - 1, 0, 2, 1)).applyOnTheLeft(0, 1, givens.adjoint());
+      (res.segment<2>(i - 1)).applyOnTheLeft(0, 1, givens.adjoint());
     }
   }
 
@@ -140,7 +140,7 @@ void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual
 
         // Compress measurements
         (jacobian.block(i - 1, j, 2, n - j)).applyOnTheLeft(0, 1, givens.adjoint());
-        (residual.block(i - 1, 0, 2, 1)).applyOnTheLeft(0, 1, givens.adjoint());
+        (residual.segment<2>(i - 1)).applyOnTheLeft(0, 1, givens.adjoint());
       }
     }
 
@@ -152,6 +152,6 @@ void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual
 
     // Construct the smaller jacobian and residual after measurement compression
     jacobian.conservativeResize(r, jacobian.cols());
-    residual.conservativeResize(r, residual.cols());
+    residual.conservativeResize(r);
   }
 }

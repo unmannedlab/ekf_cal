@@ -288,7 +288,7 @@ void MsckfUpdater::UpdateEKF(
       uv_measured(0) = feature_track[i].key_point.pt.x;
       uv_measured(1) = feature_track[i].key_point.pt.y;
       uv_residual = uv_measured - uv_predicted;
-      res_f.block(2 * i, 0, 2, 1) = uv_residual;
+      res_f.segment<2>(2 * i) = uv_residual;
 
       unsigned int aug_state_start =
         m_ekf->GetAugStateStartIndex(camera_id, feature_track[i].frame_id);
@@ -302,17 +302,18 @@ void MsckfUpdater::UpdateEKF(
       distortion_jacobian(xy_norm, intrinsics, H_d);
 
       // Entire feature Jacobian
-      H_f.block(2 * i, 0, 2, 3) = H_d * H_p * rot_g_to_ci;
+      H_f.block<2, 3>(2 * i, 0) = H_d * H_p * rot_g_to_ci;
 
       // Augmented state Jacobian
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, 12);
-      H_t.block(0, 0, 3, 3) = -rot_g_to_ci;
-      H_t.block(0, 3, 3, 3) = rot_ii_to_ci * SkewSymmetric(pos_f_in_ii);
+      /// @todo(jhartzer): The following lines are problematic
+      H_t.block<3, 3>(0, 0) = -rot_g_to_ci;
+      H_t.block<3, 3>(0, 3) = rot_ii_to_ci * SkewSymmetric(pos_f_in_ii);
       /// @todo(jhartzer): Enable calibration Jacobian
-      // H_t.block(0, 6, 3, 3) = Eigen::Matrix3d::Identity();
-      // H_t.block(0, 9, 3, 3) = SkewSymmetric(rot_ii_to_ci * rot_ii_to_g.transpose() * (pos_f_in_g-pos_ii_in_g));
+      // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity();
+      // H_t.block<3, 3>(0, 9) = SkewSymmetric(rot_ii_to_ci * rot_ii_to_g.transpose() * (pos_f_in_g-pos_ii_in_g));
 
-      H_c.block(2 * i, aug_state_start - cam_state_start, 2, 12) = H_d * H_p * H_t;
+      H_c.block<2, 12>(2 * i, aug_state_start - cam_state_start) = H_d * H_p * H_t;
     }
     ApplyLeftNullspace(H_f, H_c, res_f);
 

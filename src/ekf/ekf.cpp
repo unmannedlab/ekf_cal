@@ -69,7 +69,7 @@ void EKF::LogBodyStateIfNeeded()
     m_prev_log_time = m_current_time;
     std::stringstream msg;
     Eigen::VectorXd body_cov =
-      GetCov().block(0, 0, g_body_state_size, g_body_state_size).diagonal();
+      GetCov().block<g_body_state_size, g_body_state_size>(0, 0).diagonal();
     msg << m_current_time;
     msg << VectorToCommaString(GetState().m_body_state.m_position);
     msg << VectorToCommaString(GetState().m_body_state.m_velocity);
@@ -231,13 +231,12 @@ void EKF::Initialize(double timeInit, BodyState body_state_init)
 void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd covariance)
 {
   /// @todo check that id hasn't been used before
-  /// @todo replace 12s with constants from IMU class
-  unsigned int imu_state_start = g_body_state_size + 12 * m_state.m_imu_states.size();
+  unsigned int imu_state_start = g_body_state_size + g_imu_state_size * m_state.m_imu_states.size();
 
   /// @todo check size of matrix being inserted
   m_cov = InsertInMatrix(covariance, m_cov, imu_state_start, imu_state_start);
   m_state.m_imu_states[imu_id] = imu_state;
-  m_stateSize += 12;
+  m_stateSize += g_imu_state_size;
 
   m_logger->Log(
     LogLevel::DEBUG, "Register IMU: " + std::to_string(
@@ -248,8 +247,8 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
 {
   /// @todo check that id hasn't been used before
   m_state.m_cam_states[cam_id] = cam_state;
-  m_cov = InsertInMatrix(covariance, m_cov, 6, 6);
-  m_stateSize += 6;
+  m_cov = InsertInMatrix(covariance, m_cov, g_cam_state_size, g_cam_state_size);
+  m_stateSize += g_cam_state_size;
 
   m_logger->Log(
     LogLevel::DEBUG, "Register Cam: " + std::to_string(
@@ -264,7 +263,7 @@ unsigned int EKF::GetImuStateStartIndex(unsigned int imu_id)
     if (imu_iter.first == imu_id) {
       break;
     } else {
-      state_start_index += 12;
+      state_start_index += g_imu_state_size;
     }
   }
   return state_start_index;
@@ -274,12 +273,13 @@ unsigned int EKF::GetImuStateStartIndex(unsigned int imu_id)
 unsigned int EKF::GetCamStateStartIndex(unsigned int cam_id)
 {
   unsigned int state_start_index = g_body_state_size;
-  state_start_index += 12 * m_state.m_imu_states.size();
+  state_start_index += g_imu_state_size * m_state.m_imu_states.size();
   for (auto const & cam_iter : m_state.m_cam_states) {
     if (cam_iter.first == cam_id) {
       break;
     } else {
-      state_start_index += 6 + 12 * cam_iter.second.augmented_states.size();
+      state_start_index += g_cam_state_size +
+        g_aug_state_size * cam_iter.second.augmented_states.size();
     }
   }
   return state_start_index;
@@ -289,14 +289,14 @@ unsigned int EKF::GetCamStateStartIndex(unsigned int cam_id)
 unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, unsigned int frame_id)
 {
   unsigned int state_start_index = g_body_state_size;
-  state_start_index += (12 * m_state.m_imu_states.size());
+  state_start_index += (g_imu_state_size * m_state.m_imu_states.size());
   for (auto const & cam_iter : m_state.m_cam_states) {
-    state_start_index += 6;
+    state_start_index += g_cam_state_size;
     for (auto const & augIter : cam_iter.second.augmented_states) {
       if ((cam_iter.first == cam_id) && (augIter.frame_id == frame_id)) {
         return state_start_index;
       } else {
-        state_start_index += 12;
+        state_start_index += g_aug_state_size;
       }
     }
   }
@@ -309,10 +309,10 @@ Eigen::MatrixXd EKF::AugmentJacobian(
   unsigned int cam_state_start,
   unsigned int aug_state_start)
 {
-  Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(m_stateSize, m_stateSize - 12);
+  Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(m_stateSize, m_stateSize - g_aug_state_size);
 
   unsigned int after_start = aug_state_start;
-  unsigned int after_size = m_stateSize - aug_state_start - 12;
+  unsigned int after_size = m_stateSize - aug_state_start - g_aug_state_size;
 
   // Before augmented state jacobian
   jacobian.block(0, 0, aug_state_start, aug_state_start) =
@@ -325,16 +325,16 @@ Eigen::MatrixXd EKF::AugmentJacobian(
   }
 
   // IMU Global Position
-  jacobian.block(aug_state_start + 0, 0, 3, 3) = Eigen::MatrixXd::Identity(3, 3);
+  jacobian.block<3, 3>(aug_state_start + 0, 0) = Eigen::MatrixXd::Identity(3, 3);
 
   // IMU Global Orientation
-  jacobian.block(aug_state_start + 3, 9, 3, 3) = Eigen::MatrixXd::Identity(3, 3);
+  jacobian.block<3, 3>(aug_state_start + 3, 9) = Eigen::MatrixXd::Identity(3, 3);
 
   // Camera Position in IMU Frame
-  jacobian.block(aug_state_start + 6, cam_state_start + 0, 3, 3) = Eigen::MatrixXd::Identity(3, 3);
+  jacobian.block<3, 3>(aug_state_start + 6, cam_state_start + 0) = Eigen::MatrixXd::Identity(3, 3);
 
   // Camera Orientation in IMU Frame
-  jacobian.block(aug_state_start + 9, cam_state_start + 3, 3, 3) = Eigen::MatrixXd::Identity(3, 3);
+  jacobian.block<3, 3>(aug_state_start + 9, cam_state_start + 3) = Eigen::MatrixXd::Identity(3, 3);
 
   return jacobian;
 }
@@ -363,14 +363,17 @@ void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
   if (m_state.m_cam_states[camera_id].augmented_states.size() <= 21) {
     aug_state_start = GetAugStateStartIndex(camera_id, frame_id);
 
-    m_stateSize += 12;
+    m_stateSize += g_aug_state_size;
   } else {
+    /// @todo(jhartzer): Evaluate switching to second element / creating map
     // Remove first element from state
     m_state.m_cam_states[camera_id].augmented_states.erase(
       m_state.m_cam_states[camera_id].augmented_states.begin());
 
     // Remove first element from covariance
-    m_cov = RemoveFromMatrix(m_cov, cam_state_start + 12, cam_state_start + 12, 12);
+    m_cov = RemoveFromMatrix(
+      m_cov, cam_state_start + g_cam_state_size,
+      cam_state_start + g_cam_state_size, g_aug_state_size);
 
     aug_state_start = GetAugStateStartIndex(camera_id, frame_id);
   }
