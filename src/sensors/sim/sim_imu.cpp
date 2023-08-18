@@ -66,9 +66,9 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_
     Eigen::Vector3d body_ang_acc_g = m_truth->GetBodyAngularAcceleration(measurementTime);
 
     // Transform acceleration to IMU location
-    Eigen::Vector3d imu_acc_b = body_b_to_g.inverse() * (body_acc_g + g_gravity +
+    Eigen::Vector3d imu_acc_b = body_b_to_g.inverse() * (body_acc_g + g_gravity) +
       body_ang_acc_g.cross(m_pos_offset) +
-      body_ang_vel_g.cross((body_ang_vel_g.cross(m_pos_offset))));
+      body_ang_vel_g.cross((body_ang_vel_g.cross(m_pos_offset)));
 
     // Rotate measurements in place
     Eigen::Vector3d imu_acc_i = m_ang_offset.inverse() * imu_acc_b;

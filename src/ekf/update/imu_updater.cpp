@@ -56,9 +56,9 @@ Eigen::VectorXd ImuUpdater::PredictMeasurement()
 {
   Eigen::VectorXd predicted_measurement(6);
   // Transform acceleration to IMU location
-  Eigen::Vector3d imu_acc_b = m_body_ang_pos.inverse() * (m_body_acc + g_gravity +
+  Eigen::Vector3d imu_acc_b = m_body_ang_pos.inverse() * (m_body_acc + g_gravity) +
     m_body_ang_acc.cross(m_pos_offset) +
-    m_body_ang_vel.cross((m_body_ang_vel.cross(m_pos_offset))));
+    m_body_ang_vel.cross((m_body_ang_vel.cross(m_pos_offset)));
 
   // Rotate measurements in place
   Eigen::Vector3d imu_acc_i = m_acc_bias + m_ang_offset.inverse() * imu_acc_b;
@@ -84,52 +84,44 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
     SkewSymmetric(m_body_ang_pos.inverse().toRotationMatrix() * g_gravity);
 
   // Body Angular Velocity
-  Eigen::MatrixXd temp = Eigen::MatrixXd::Zero(3, 3);
-  temp(0, 0) = m_pos_offset(1) * m_body_ang_vel(1) + 1 * m_pos_offset(2) * m_body_ang_vel(2);
-  temp(0, 1) = m_pos_offset(1) * m_body_ang_vel(0) - 2 * m_pos_offset(0) * m_body_ang_vel(1);
-  temp(0, 2) = m_pos_offset(2) * m_body_ang_vel(0) - 2 * m_pos_offset(0) * m_body_ang_vel(2);
-  temp(1, 0) = m_pos_offset(0) * m_body_ang_vel(1) - 2 * m_pos_offset(1) * m_body_ang_vel(0);
-  temp(1, 1) = m_pos_offset(0) * m_body_ang_vel(0) + 1 * m_pos_offset(2) * m_body_ang_vel(2);
-  temp(1, 2) = m_pos_offset(2) * m_body_ang_vel(1) - 2 * m_pos_offset(1) * m_body_ang_vel(2);
-  temp(2, 0) = m_pos_offset(0) * m_body_ang_vel(2) - 2 * m_pos_offset(2) * m_body_ang_vel(0);
-  temp(2, 1) = m_pos_offset(1) * m_body_ang_vel(2) - 2 * m_pos_offset(2) * m_body_ang_vel(1);
-  temp(2, 2) = m_pos_offset(0) * m_body_ang_vel(0) + 1 * m_pos_offset(1) * m_body_ang_vel(1);
-  measurement_jacobian.block<3, 3>(0, 12) = m_ang_offset.inverse() * temp;
+  measurement_jacobian.block<3, 3>(0, 12) = m_ang_offset.inverse().toRotationMatrix() * (
+    SkewSymmetric(m_body_ang_vel) *
+    SkewSymmetric(m_pos_offset).transpose() +
+    SkewSymmetric(m_body_ang_vel.cross(m_pos_offset)).transpose()
+  );
 
   // Body Angular Acceleration
-  measurement_jacobian.block<3, 3>(0, 15) = m_ang_offset.inverse() * SkewSymmetric(
-    m_pos_offset);
+  measurement_jacobian.block<3, 3>(0, 15) = m_ang_offset.inverse().toRotationMatrix() *
+    SkewSymmetric(m_pos_offset);
 
   // IMU Body Angular Velocity
   measurement_jacobian.block<3, 3>(3, 12) = m_ang_offset.inverse().toRotationMatrix();
 
   // IMU Positional Offset
-  /// @todo(jhartzer): Following Jacobians no longer appear valid
   if (!isBaseSensor) {
-    temp.setZero();
-    temp(0, 0) = -(m_body_ang_vel(1) * m_body_ang_vel(1)) - (m_body_ang_vel(2) * m_body_ang_vel(2));
-    temp(0, 1) = m_body_ang_vel(0) * m_body_ang_vel(1);
-    temp(0, 2) = m_body_ang_vel(0) * m_body_ang_vel(2);
-    temp(1, 0) = m_body_ang_vel(0) * m_body_ang_vel(1);
-    temp(1, 1) = -(m_body_ang_vel(0) * m_body_ang_vel(0)) - (m_body_ang_vel(2) * m_body_ang_vel(2));
-    temp(1, 2) = m_body_ang_vel(1) * m_body_ang_vel(2);
-    temp(2, 0) = m_body_ang_vel(0) * m_body_ang_vel(2);
-    temp(2, 1) = m_body_ang_vel(1) * m_body_ang_vel(2);
-    temp(2, 2) = -(m_body_ang_vel(0) * m_body_ang_vel(0)) - (m_body_ang_vel(1) * m_body_ang_vel(1));
-    measurement_jacobian.block<3, 3>(0, g_body_state_size) =
-      m_ang_offset.inverse() * SkewSymmetric(m_body_ang_acc) + temp;
+    // IMU Positional Offset
+    measurement_jacobian.block<3, 3>(0, g_body_state_size) = m_ang_offset.inverse() * (
+      SkewSymmetric(m_body_ang_acc) +
+      SkewSymmetric(m_body_ang_vel) * SkewSymmetric(m_body_ang_vel)
+    );
 
     // IMU Angular Offset
-    Eigen::Vector3d imu_acc = m_body_acc +
-      m_body_ang_acc.cross(m_pos_offset) +
-      m_body_ang_vel.cross(m_body_ang_vel.cross(m_pos_offset));
-
-    measurement_jacobian.block<3, 3>(0, g_body_state_size + 3) =
-      -(m_ang_offset.inverse() * SkewSymmetric(imu_acc));
+    measurement_jacobian.block<3, 3>(0, g_body_state_size + 3) = SkewSymmetric(
+      m_ang_offset.inverse().toRotationMatrix() * (
+        m_body_ang_acc.cross(m_pos_offset) +
+        m_body_ang_vel.cross(m_body_ang_vel.cross(m_pos_offset)) +
+        m_body_ang_pos.inverse().toRotationMatrix() * (
+          m_body_acc + g_gravity
+        )
+      )
+    );
 
     // IMU Angular Offset
-    measurement_jacobian.block<3, 3>(3, g_body_state_size + 3) =
-      -(m_ang_offset.inverse() * SkewSymmetric(m_body_ang_vel));
+    measurement_jacobian.block<3, 3>(3, g_body_state_size + 3) = SkewSymmetric(
+      m_ang_offset.inverse().toRotationMatrix() *
+      m_body_ang_pos.inverse().toRotationMatrix() *
+      m_body_ang_vel
+    );
   }
 
   if (isIntrinsic) {
