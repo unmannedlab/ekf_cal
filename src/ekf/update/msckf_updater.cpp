@@ -239,8 +239,11 @@ void MsckfUpdater::UpdateEKF(
     msg << std::endl;
     m_triangulation_logger.Log(msg.str());
 
-    if (pos_f_in_g.norm() < 1e-3) {
-      m_logger->Log(LogLevel::DEBUG, "MSCKF Triangulation is Zero");
+    /// @todo(jhartzer): Get this from input file?
+    if (pos_f_in_g.norm() < 1.0) {
+      std::stringstream err_msg;
+      err_msg << "MSCKF Triangulated Point is too close. r = " << pos_f_in_g.norm() << std::endl;
+      m_logger->Log(LogLevel::DEBUG, err_msg.str());
       continue;
     }
 
