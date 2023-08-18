@@ -34,9 +34,7 @@
                 Topic: "/vn300/imu_uncompensated"
                 VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 PosOffInit: [0.0, 0.0, 0.0]
-                ngOffInit: [0.9238795, 0.3826834, 0, 0]
-                # AngOffInit: [0.9990482, 0, -0.0436194, 0]
-                # AngOffInit: [1.0, 0.0, 0.0, 0.0]
+                AngOffInit: [1.0, 0.0, 0.0, 0.0]
                 AccBiasInit: [0.0, 0.0, 0.0]
                 OmgBiasInit: [0.0, 0.0, 0.0]
                 SimParams:
@@ -48,9 +46,7 @@
                     omgBias: [0.0, 0.0, 0.0]
                     omgError: [1.0e-2, 1.0e-2, 1.0e-2]
                     posOffset: [0.0, 0.0, 0.0]
-                    ngOffset: [0.9238795, 0.3826834, 0, 0]
-                    # angOffset: [0.9990482, 0, -0.0436194, 0]
-                    # angOffset: [1.0, 0.0, 0.0, 0.0]
+                    angOffset: [1.0, 0.0, 0.0, 0.0]
 
 
 
@@ -79,7 +75,7 @@
                 DescriptorExtractor: 0
                 DescriptorMatcher: 0
                 DetectorThreshold: 10.0
-                PixelError: 1.0
+                PixelError: 0.5
                 SimParams:
                     featureCount: 1000
                     roomSize: 10.0

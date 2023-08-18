@@ -231,7 +231,7 @@ void MsckfUpdater::UpdateEKF(
     /// @todo Additional non-linear optimization
 
     std::stringstream msg;
-    msg << time;
+    msg << std::setprecision(3) << time;
     msg << "," << std::to_string(feature_track[0].key_point.class_id);
     msg << "," << pos_f_in_g[0];
     msg << "," << pos_f_in_g[1];
@@ -331,6 +331,8 @@ void MsckfUpdater::UpdateEKF(
 
   CompressMeasurements(H_x, res_x);
 
+  /// @todo(jhartzer): Get this value from input file?
+  px_error += 5.0;
   Eigen::MatrixXd R = px_error * px_error * Eigen::MatrixXd::Identity(
     res_x.rows(), res_x.rows());
 

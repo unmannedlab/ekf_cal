@@ -826,13 +826,17 @@ class Plotter():
         return fig
 
     # @todo include camera ID
-    # @todo Moving average bar with shaded stddev
     def plot_triangulation_error(self, tri_dfs, feat_dfs):
         """Plot MSCKF feature point triangulation error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
 
+        err_x = collections.defaultdict(list)
+        err_y = collections.defaultdict(list)
+        err_z = collections.defaultdict(list)
+
         alpha = calculate_alpha(len(tri_dfs))
         for tri_df, feat_df in zip(tri_dfs, feat_dfs):
+            time = tri_df['time'].to_list()
             feature = tri_df['feature'].to_list()
             feat_x = tri_df['x'].to_list()
             feat_y = tri_df['y'].to_list()
@@ -842,18 +846,57 @@ class Plotter():
             true_y = feat_df['y'].to_list()
             true_z = feat_df['z'].to_list()
 
-            err_x = []
-            err_y = []
-            err_z = []
-            for (f, x, y, z) in zip(feature, feat_x, feat_y, feat_z):
-                err_x.append(x - true_x[int(f)])
-                err_y.append(y - true_y[int(f)])
-                err_z.append(z - true_z[int(f)])
+            for (t, f, x, y, z) in zip(time, feature, feat_x, feat_y, feat_z):
+                err_x[t].append(x - true_x[int(f)])
+                err_y[t].append(y - true_y[int(f)])
+                err_z[t].append(z - true_z[int(f)])
+        times = []
+        mean_x = []
+        mean_y = []
+        mean_z = []
+        stddev_x = []
+        stddev_y = []
+        stddev_z = []
 
-            axs_1.plot(err_x, alpha=alpha, color='tab:blue')
-            axs_2.plot(err_y, alpha=alpha, color='tab:orange')
-            axs_3.plot(err_z, alpha=alpha, color='tab:green')
+        for time in err_x:
+            times.append(time)
+            mean_x.append(np.mean(err_x[time]))
+            mean_y.append(np.mean(err_y[time]))
+            mean_z.append(np.mean(err_z[time]))
+            stddev_x.append(np.std(err_x[time]))
+            stddev_y.append(np.std(err_y[time]))
+            stddev_z.append(np.std(err_z[time]))
+
+        times = np.array(times)
+        mean_x = np.array(mean_x)
+        mean_y = np.array(mean_y)
+        mean_z = np.array(mean_z)
+        stddev_x = np.array(stddev_x)
+        stddev_y = np.array(stddev_y)
+        stddev_z = np.array(stddev_z)
+
+        t_indices = times.argsort()
+        mean_x = mean_x[t_indices]
+        mean_y = mean_y[t_indices]
+        mean_z = mean_z[t_indices]
+        stddev_x = stddev_x[t_indices]
+        stddev_y = stddev_y[t_indices]
+        stddev_z = stddev_z[t_indices]
+
+        axs_1.plot(times, mean_x, color='tab:blue')
+        axs_2.plot(times, mean_y, color='tab:orange')
+        axs_3.plot(times, mean_z, color='tab:green')
+        axs_1.fill_between(times, mean_x - stddev_x, mean_x + stddev_x,
+                           alpha=alpha, color='tab:blue')
+        axs_2.fill_between(times, mean_y - stddev_y, mean_y + stddev_y,
+                           alpha=alpha, color='tab:orange')
+        axs_3.fill_between(times, mean_z - stddev_z, mean_z + stddev_z,
+                           alpha=alpha, color='tab:green')
         set_plot_titles(fig, 'Triangulation Errors')
+        axs_1.set_ylabel('X Error [m]')
+        axs_2.set_ylabel('Y Error [m]')
+        axs_3.set_ylabel('Z Error [m]')
+        axs_3.set_xlabel('Time [s]')
         return fig
 
     def save_figures(self, save_dir, figures):
@@ -938,8 +981,10 @@ class Plotter():
             if len(config_set) > 1:
                 plot_dir = os.path.join(
                     os.path.dirname(os.path.dirname(config_set[0])), 'plots')
+                stat_dir = os.path.dirname(os.path.dirname(config_set[0]))
             else:
                 plot_dir = os.path.join(data_dirs[0], 'plots')
+                stat_dir = data_dirs[0]
 
             if not os.path.isdir(plot_dir):
                 os.mkdir(plot_dir)
@@ -973,7 +1018,7 @@ class Plotter():
                 figures = self.plot_triangulation_data(tri_dfs, feat_dfs, key)
                 self.save_figures(plot_dir, figures)
 
-            self.write_summary(plot_dir)
+            self.write_summary(stat_dir)
 
     def write_summary(self, directory):
         """Write the error summary statistics to a file."""

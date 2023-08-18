@@ -69,7 +69,7 @@
                 DescriptorExtractor: 0
                 DescriptorMatcher: 0
                 DetectorThreshold: 10.0
-                PixelError: 1.0
+                PixelError: 0.5
                 SimParams:
                     featureCount: 1000
                     roomSize: 10.0
