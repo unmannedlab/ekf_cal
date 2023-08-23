@@ -16,26 +16,26 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-run_and_plot.py.
+evaluate.py.
 
-Runs and plots data in input yaml files using run_sim.py and plot_sim.py
+Runs and plots data in input yaml files using run_sim.py and plot.py
 
 Usage is:
 ```
-python3 eval/run_and_plot.py config/example.yaml
+python3 eval/evaluate.py config/example.yaml
 ```
 
 To get help:
 ```
-python3 eval/plot_sim.py --help
+python3 eval/plot.py --help
 ```
 """
 
 import argparse
 
-from plot_sim import Plotter, generate_mc_lists
+from plot import Plotter, generate_mc_lists
 
-from run_sim import add_jobs
+from run import add_jobs
 
 
 if __name__ == '__main__':

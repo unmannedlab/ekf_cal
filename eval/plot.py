@@ -179,7 +179,7 @@ class Plotter():
         self.ext = ext
         cpu_count = multiprocessing.cpu_count() - 1
         self.pool = multiprocessing.Pool(cpu_count)
-        self.statistics = {}
+        self.statistics = collections.defaultdict(list)
 
     def print_err(err):
         """Print errors experienced in asynchronous pool."""
@@ -361,7 +361,7 @@ class Plotter():
         fig.tight_layout()
         return fig
 
-    # @todo Add update rate dashed-line from config file
+    # @TODO Add update rate dashed-line from config file
     def plot_update_timing(self, data_frames, rate=None):
         """Plot histogram of update execution durations."""
         durations = np.array([])
@@ -436,8 +436,8 @@ class Plotter():
         fig = plt.figure()
         axs = fig.add_subplot(111, projection='3d')
 
-        # @todo(jhartzer): get from input
-        # @todo(jhartzer): Add current time to plot
+        # @TODO(jhartzer): get from input
+        # @TODO(jhartzer): Add current time to plot
         interval = 40  # ms
         frame_count = interval * duration
 
@@ -633,7 +633,8 @@ class Plotter():
             err_pos_0 = interpolate_error(true_time, true_pos_0, est_time, est_pos_0)
             err_pos_1 = interpolate_error(true_time, true_pos_1, est_time, est_pos_1)
             err_pos_2 = interpolate_error(true_time, true_pos_2, est_time, est_pos_2)
-            self.statistics['Body Position'] = RMSE_from_vectors(err_pos_0, err_pos_1, err_pos_2)
+            self.statistics['Body Position'].append(
+                RMSE_from_vectors(err_pos_0, err_pos_1, err_pos_2))
 
             axs_1.plot(est_time, err_pos_0, alpha=alpha, color='tab:blue')
             axs_2.plot(est_time, err_pos_1, alpha=alpha, color='tab:orange')
@@ -666,7 +667,8 @@ class Plotter():
             err_vel_0 = interpolate_error(true_time, true_vel_0, est_time, est_vel_0)
             err_vel_1 = interpolate_error(true_time, true_vel_1, est_time, est_vel_1)
             err_vel_2 = interpolate_error(true_time, true_vel_2, est_time, est_vel_2)
-            self.statistics['Body Velocity'] = RMSE_from_vectors(err_vel_0, err_vel_1, err_vel_2)
+            self.statistics['Body Velocity'].append(
+                RMSE_from_vectors(err_vel_0, err_vel_1, err_vel_2))
 
             axs_1.plot(est_time, err_vel_0, alpha=alpha, color='tab:blue')
             axs_2.plot(est_time, err_vel_1, alpha=alpha, color='tab:orange')
@@ -699,8 +701,8 @@ class Plotter():
             err_acc_0 = interpolate_error(true_time, true_acc_0, est_time, est_acc_0)
             err_acc_1 = interpolate_error(true_time, true_acc_1, est_time, est_acc_1)
             err_acc_2 = interpolate_error(true_time, true_acc_2, est_time, est_acc_2)
-            self.statistics['Body Acceleration'] = RMSE_from_vectors(
-                err_acc_0, err_acc_1, err_acc_2)
+            self.statistics['Body Acceleration'].append(
+                RMSE_from_vectors(err_acc_0, err_acc_1, err_acc_2))
 
             axs_1.plot(est_time, err_acc_0, alpha=alpha, color='tab:blue')
             axs_2.plot(est_time, err_acc_1, alpha=alpha, color='tab:orange')
@@ -775,8 +777,8 @@ class Plotter():
             err_ang_vel_0 = interpolate_error(true_time, true_ang_vel_0, est_time, est_ang_vel_0)
             err_ang_vel_1 = interpolate_error(true_time, true_ang_vel_1, est_time, est_ang_vel_1)
             err_ang_vel_2 = interpolate_error(true_time, true_ang_vel_2, est_time, est_ang_vel_2)
-            self.statistics['Body Angular Velocity'] = RMSE_from_vectors(
-                err_ang_vel_0, err_ang_vel_1, err_ang_vel_2)
+            self.statistics['Body Angular Velocity'].append(
+                RMSE_from_vectors(err_ang_vel_0, err_ang_vel_1, err_ang_vel_2))
 
             axs_1.plot(est_time, err_ang_vel_0, alpha=alpha, color='tab:blue')
             axs_2.plot(est_time, err_ang_vel_1, alpha=alpha, color='tab:orange')
@@ -809,8 +811,8 @@ class Plotter():
             err_ang_acc_0 = interpolate_error(true_time, true_ang_acc_0, est_time, est_ang_acc_0)
             err_ang_acc_1 = interpolate_error(true_time, true_ang_acc_1, est_time, est_ang_acc_1)
             err_ang_acc_2 = interpolate_error(true_time, true_ang_acc_2, est_time, est_ang_acc_2)
-            self.statistics['Body Angular Acceleration'] = RMSE_from_vectors(
-                err_ang_acc_0, err_ang_acc_1, err_ang_acc_2)
+            self.statistics['Body Angular Acceleration'].append(
+                RMSE_from_vectors(err_ang_acc_0, err_ang_acc_1, err_ang_acc_2))
 
             axs_1.plot(est_time, err_ang_acc_0, alpha=alpha, color='tab:blue')
             axs_2.plot(est_time, err_ang_acc_1, alpha=alpha, color='tab:orange')
@@ -825,7 +827,7 @@ class Plotter():
 
         return fig
 
-    # @todo include camera ID
+    # @TODO include camera ID
     def plot_triangulation_error(self, tri_dfs, feat_dfs):
         """Plot MSCKF feature point triangulation error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
@@ -876,6 +878,7 @@ class Plotter():
         stddev_z = np.array(stddev_z)
 
         t_indices = times.argsort()
+        times = times[t_indices]
         mean_x = mean_x[t_indices]
         mean_y = mean_y[t_indices]
         mean_z = mean_z[t_indices]
@@ -918,26 +921,26 @@ class Plotter():
 
     def plot_body_data(self, body_state_dfs, body_truth_dfs=None):
         """Generate plots for body data."""
-        # @todo(jhartzer): Skip plot_body_err_ang_acc if prediction IMU
+        # @TODO(jhartzer): Skip plot_body_err_ang_acc if prediction IMU
         figures = [
-            self.plot_body_pos(body_state_dfs),
-            self.plot_body_pos_3d(body_state_dfs),
-            self.plot_body_vel(body_state_dfs),
-            self.plot_body_acc(body_state_dfs),
-            self.plot_body_ang(body_state_dfs),
-            self.plot_body_ang_vel(body_state_dfs),
-            self.plot_body_ang_acc(body_state_dfs),
-            self.plot_body_pos_cov(body_state_dfs),
-            self.plot_body_ang_cov(body_state_dfs),
+            # self.plot_body_pos(body_state_dfs),
+            # self.plot_body_pos_3d(body_state_dfs),
+            # self.plot_body_vel(body_state_dfs),
+            # self.plot_body_acc(body_state_dfs),
+            # self.plot_body_ang(body_state_dfs),
+            # self.plot_body_ang_vel(body_state_dfs),
+            # self.plot_body_ang_acc(body_state_dfs),
+            # self.plot_body_pos_cov(body_state_dfs),
+            # self.plot_body_ang_cov(body_state_dfs),
             self.plot_body_err_pos(body_state_dfs, body_truth_dfs),
-            self.plot_body_err_vel(body_state_dfs, body_truth_dfs),
-            self.plot_body_err_acc(body_state_dfs, body_truth_dfs),
-            self.plot_body_err_ang(body_state_dfs, body_truth_dfs),
-            self.plot_body_err_ang_vel(body_state_dfs, body_truth_dfs),
-            self.plot_body_err_ang_acc(body_state_dfs, body_truth_dfs),
+            # self.plot_body_err_vel(body_state_dfs, body_truth_dfs),
+            # self.plot_body_err_acc(body_state_dfs, body_truth_dfs),
+            # self.plot_body_err_ang(body_state_dfs, body_truth_dfs),
+            # self.plot_body_err_ang_vel(body_state_dfs, body_truth_dfs),
+            # self.plot_body_err_ang_acc(body_state_dfs, body_truth_dfs),
         ]
         animations = [
-            self.plot_body_pos_3d_anim(body_state_dfs)
+            #     self.plot_body_pos_3d_anim(body_state_dfs)
         ]
         return figures, animations
 
@@ -971,7 +974,7 @@ class Plotter():
         ]
         return figures
 
-    # @todo(jhartzer): Split for loop into thread pool
+    # @TODO(jhartzer): Split for loop into thread pool
     def plot_sim_results(self, config_sets):
         """Top level function to plot simulation results from sets of config files."""
         for config_set in config_sets:
@@ -996,27 +999,27 @@ class Plotter():
                 body_truth_dfs = body_truth_dfs_dict[key]
                 figures, animations = self.plot_body_data(body_state_dfs, body_truth_dfs)
                 self.save_figures(plot_dir, figures)
-                self.save_animations(plot_dir, animations)
+                # self.save_animations(plot_dir, animations)
 
-            imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
-            for key in imu_dfs_dict:
-                imu_dfs = imu_dfs_dict[key]
-                figures = self.plot_imu_data(imu_dfs, config_data, key)
-                self.save_figures(plot_dir, figures)
+            # imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
+            # for key in imu_dfs_dict:
+            #     imu_dfs = imu_dfs_dict[key]
+            #     figures = self.plot_imu_data(imu_dfs, config_data, key)
+            #     self.save_figures(plot_dir, figures)
 
-            cam_dfs_dict = find_and_read_data_frames(data_dirs, 'camera')
-            for key in cam_dfs_dict:
-                cam_dfs = cam_dfs_dict[key]
-                figures = self.plot_cam_data(cam_dfs, config_data, key)
-                self.save_figures(plot_dir, figures)
+            # cam_dfs_dict = find_and_read_data_frames(data_dirs, 'camera')
+            # for key in cam_dfs_dict:
+            #     cam_dfs = cam_dfs_dict[key]
+            #     figures = self.plot_cam_data(cam_dfs, config_data, key)
+            #     self.save_figures(plot_dir, figures)
 
-            tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
-            feat_dfs_dict = find_and_read_data_frames(data_dirs, 'feature_points')
-            for key in tri_dfs_dict:
-                tri_dfs = tri_dfs_dict[key]
-                feat_dfs = feat_dfs_dict[0]
-                figures = self.plot_triangulation_data(tri_dfs, feat_dfs, key)
-                self.save_figures(plot_dir, figures)
+            # tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
+            # feat_dfs_dict = find_and_read_data_frames(data_dirs, 'feature_points')
+            # for key in tri_dfs_dict:
+            #     tri_dfs = tri_dfs_dict[key]
+            #     feat_dfs = feat_dfs_dict[0]
+            #     figures = self.plot_triangulation_data(tri_dfs, feat_dfs, key)
+            #     self.save_figures(plot_dir, figures)
 
             self.write_summary(stat_dir)
 
@@ -1025,7 +1028,10 @@ class Plotter():
         with open(os.path.join(directory, 'stats.txt'), 'w') as f:
             f.write('Statistic,RMSE\n')
             for key in self.statistics:
-                f.write('{}: {:0.3f}\n'.format(key, self.statistics[key]))
+                vals = np.array(self.statistics[key])
+                mu = np.mean(vals)
+                sig = np.std(vals)
+                f.write('{}: {:0.4f}, {:0.4f}\n'.format(key, mu, sig))
         return
 
 
