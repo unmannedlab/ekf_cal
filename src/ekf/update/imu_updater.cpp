@@ -29,7 +29,6 @@
 #include "utility/string_helper.hpp"
 
 
-/// @todo Should combine IMU with file name for multiple IMU logs
 ImuUpdater::ImuUpdater(unsigned int imu_id, std::string log_file_directory, bool data_logging_on)
 : Updater(imu_id), m_data_logger(log_file_directory, "imu_" + std::to_string(imu_id) + ".csv")
 {

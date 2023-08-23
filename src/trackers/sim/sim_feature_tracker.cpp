@@ -106,14 +106,12 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 
   // Creating Rodrigues rotation matrix
   /// @todo put into type helper
-  /// @todo(jhartzer): fix names
   cv::Mat r_vec(3, 1, cv::DataType<double>::type);
   cv::Rodrigues(ang_g_to_c_cv, r_vec);
 
   Eigen::Vector3d pos_g_in_c = ang_g_to_c * (-(pos_i_in_g + ang_i_to_g * m_pos_offset));
 
   cv::Mat t_vec(3, 1, cv::DataType<double>::type);
-  /// @todo convert to be in C
   t_vec.at<double>(0) = pos_g_in_c[0];
   t_vec.at<double>(1) = pos_g_in_c[1];
   t_vec.at<double>(2) = pos_g_in_c[2];
@@ -125,7 +123,6 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
   // Project points
   std::vector<cv::Point2d> projected_points;
 
-  /// @todo 2D projection is not correct
   cv::projectPoints(
     m_feature_points, r_vec, t_vec, m_proj_matrix, distortion, projected_points);
 

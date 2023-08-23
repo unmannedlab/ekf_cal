@@ -230,6 +230,14 @@ void MsckfUpdater::UpdateEKF(
 
     /// @todo Additional non-linear optimization
 
+    /// @todo(jhartzer): Get this from input file?
+    if (pos_f_in_g.norm() < 1.0) {
+      std::stringstream err_msg;
+      err_msg << "MSCKF Triangulated Point is too close. r = " << pos_f_in_g.norm();
+      m_logger->Log(LogLevel::INFO, err_msg.str());
+      continue;
+    }
+
     std::stringstream msg;
     msg << std::setprecision(3) << time;
     msg << "," << std::to_string(feature_track[0].key_point.class_id);
@@ -238,14 +246,6 @@ void MsckfUpdater::UpdateEKF(
     msg << "," << pos_f_in_g[2];
     msg << std::endl;
     m_triangulation_logger.Log(msg.str());
-
-    /// @todo(jhartzer): Get this from input file?
-    if (pos_f_in_g.norm() < 1.0) {
-      std::stringstream err_msg;
-      err_msg << "MSCKF Triangulated Point is too close. r = " << pos_f_in_g.norm() << std::endl;
-      m_logger->Log(LogLevel::DEBUG, err_msg.str());
-      continue;
-    }
 
     unsigned int aug_state_size = g_aug_state_size *
       m_ekf->GetCamState(camera_id).augmented_states.size();
@@ -305,7 +305,6 @@ void MsckfUpdater::UpdateEKF(
 
       // Augmented state Jacobian
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, 12);
-      /// @todo(jhartzer): The following lines are problematic
       H_t.block<3, 3>(0, 0) = -rot_g_to_ci;
       H_t.block<3, 3>(0, 3) = rot_ii_to_ci * SkewSymmetric(pos_f_in_ii);
       /// @todo(jhartzer): Enable calibration Jacobian
@@ -316,7 +315,7 @@ void MsckfUpdater::UpdateEKF(
     }
     ApplyLeftNullspace(H_f, H_c, res_f);
 
-    /// @todo Chi2 distance check
+    /// @todo Chi^2 distance check
 
     // Append our jacobian and residual
     H_x.block(ct_meas, cam_state_start, H_c.rows(), H_c.cols()) = H_c;
@@ -330,6 +329,12 @@ void MsckfUpdater::UpdateEKF(
   }
 
   CompressMeasurements(H_x, res_x);
+
+  // Jacobian is ill-formed if either rows or columns post-compression are size 1
+  if (res_x.size() == 1) {
+    m_logger->Log(LogLevel::INFO, "Compressed MSCKF Jacobian is ill-formed");
+    return;
+  }
 
   /// @todo(jhartzer): Get this value from input file?
   px_error += 5.0;

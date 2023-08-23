@@ -39,6 +39,7 @@
 ///
 /// @class SimFeatureTracker
 /// @brief Simulated Tracker class
+/// @todo Update ang_offset to be more descriptive
 ///
 class SimFeatureTracker : public FeatureTracker
 {

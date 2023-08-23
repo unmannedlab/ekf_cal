@@ -47,9 +47,11 @@ std::vector<double> SimCamera::GenerateMessageTimes(double max_time)
   m_logger->Log(
     LogLevel::INFO, "Generating " + std::to_string(num_measurements) + " Camera measurements");
 
+  double time_init = m_no_errors ? 0 : m_rng.UniRand(0.0, 1.0 / m_rate);
+
   std::vector<double> message_times;
   for (unsigned int i = 0; i < num_measurements; ++i) {
-    double measurement_time = (1.0 + m_time_skew) / m_rate * static_cast<double>(i);
+    double measurement_time = (1.0 + m_time_skew) / m_rate * static_cast<double>(i) + time_init;
     if (!m_no_errors) {
       measurement_time += m_rng.NormRand(m_time_bias, m_time_error);
     }

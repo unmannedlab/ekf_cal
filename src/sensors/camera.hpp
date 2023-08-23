@@ -34,7 +34,6 @@
 ///
 /// @class Camera
 /// @brief Camera Sensor Class
-/// @todo Implement update methods
 ///
 class Camera : public Sensor
 {

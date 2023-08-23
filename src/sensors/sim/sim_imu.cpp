@@ -51,15 +51,16 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_
   m_logger->Log(
     LogLevel::INFO, "Generating " + std::to_string(num_measurements) + " IMU measurements");
 
+  double time_init = m_no_errors ? 0 : m_rng.UniRand(0.0, 1.0 / m_rate);
+
   std::vector<std::shared_ptr<SimImuMessage>> messages;
   for (unsigned int i = 0; i < num_measurements; ++i) {
     auto sim_imu_msg = std::make_shared<SimImuMessage>();
-    double measurementTime = (1.0 + m_time_skew) / m_rate * static_cast<double>(i);
+    double measurementTime = (1.0 + m_time_skew) / m_rate * static_cast<double>(i) + time_init;
     sim_imu_msg->m_time = measurementTime;
     sim_imu_msg->m_sensor_id = m_id;
     sim_imu_msg->m_sensor_type = SensorType::IMU;
 
-    /// @todo specify frames of accelerations
     Eigen::Vector3d body_acc_g = m_truth->GetBodyAcceleration(measurementTime);
     Eigen::Quaterniond body_b_to_g = m_truth->GetBodyAngularPosition(measurementTime);
     Eigen::Vector3d body_ang_vel_g = m_truth->GetBodyAngularRate(measurementTime);
@@ -90,8 +91,8 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_
     Eigen::Vector3d accSigmas(m_acc_error[0], m_acc_error[1], m_acc_error[2]);
     Eigen::Vector3d omgSigmas(m_omg_error[0], m_omg_error[1], m_omg_error[2]);
 
-    sim_imu_msg->m_acceleration_covariance = accSigmas.asDiagonal();
-    sim_imu_msg->m_angular_rate_covariance = omgSigmas.asDiagonal();
+    sim_imu_msg->m_acceleration_covariance = accSigmas.asDiagonal() * 10.0;
+    sim_imu_msg->m_angular_rate_covariance = omgSigmas.asDiagonal() * 10.0;
     messages.push_back(sim_imu_msg);
   }
   return messages;

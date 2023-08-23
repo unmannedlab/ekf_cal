@@ -35,7 +35,7 @@
             "name": "Test Plot",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/eval/plot_sim.py",
+            "program": "${workspaceFolder}/eval/plot.py",
             "args": [
                 "config/example.yaml"
             ],

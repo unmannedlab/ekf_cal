@@ -47,7 +47,6 @@ public:
     double time_bias {0.0};                              ///< @brief Time offset bias
     double time_skew {1.0};                              ///< @brief Time offset error
     double time_error {1e-9};                            ///< @brief Time offset error
-    /// @todo update these to be indicative of "truth"
     Eigen::Vector3d pos_offset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
     Eigen::Quaterniond ang_offset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
     Camera::Parameters cam_params;                       ///< @brief Camera sensor parameters

@@ -22,7 +22,6 @@
 ///
 /// @class RosIMU
 /// @brief IMU Sensor Class
-/// @todo Add parameter input/defaults for covariance
 ///
 class RosIMU : public IMU
 {

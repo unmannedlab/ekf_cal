@@ -147,9 +147,6 @@ void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual
     // Count non-zero rows after compression
     unsigned int r = (jacobian.array().abs() > 1e-9).rowwise().any().cast<unsigned int>().sum();
 
-    /// @todo Add check in MSCKF updater
-    // Jacobian is ill-formed if either rows or columns are size 1
-
     // Construct the smaller jacobian and residual after measurement compression
     jacobian.conservativeResize(r, jacobian.cols());
     residual.conservativeResize(r);

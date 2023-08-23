@@ -66,9 +66,9 @@ using a single input is given below
 python3 eval/run_sim.py config/imu-cam.yaml
 ```
 
-The results of a run can be plotted using [plot_sim.py](eval/plot_sim.py)
+The results of a run can be plotted using [plot.py](eval/plot.py)
 ```
-python3 eval/plot_sim.py config/imu-cam
+python3 eval/plot.py config/imu-cam
 ```
 
 ## References
