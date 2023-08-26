@@ -733,7 +733,8 @@ class Plotter():
             est_ang_pos_x = body_state['body_ang_pos_1'].to_list()
             est_ang_pos_y = body_state['body_ang_pos_2'].to_list()
             est_ang_pos_z = body_state['body_ang_pos_3'].to_list()
-            est_ang_pos_r = lists_to_rot(est_ang_pos_w, est_ang_pos_x, est_ang_pos_y, est_ang_pos_z)
+            est_ang_pos_r = lists_to_rot(
+                est_ang_pos_w, est_ang_pos_x, est_ang_pos_y, est_ang_pos_z)
 
             interp_w = np.interp(est_time, true_time, true_ang_pos_w)
             interp_x = np.interp(est_time, true_time, true_ang_pos_x)
@@ -923,21 +924,21 @@ class Plotter():
         """Generate plots for body data."""
         # @TODO(jhartzer): Skip plot_body_err_ang_acc if prediction IMU
         figures = [
-            # self.plot_body_pos(body_state_dfs),
-            # self.plot_body_pos_3d(body_state_dfs),
-            # self.plot_body_vel(body_state_dfs),
-            # self.plot_body_acc(body_state_dfs),
-            # self.plot_body_ang(body_state_dfs),
-            # self.plot_body_ang_vel(body_state_dfs),
-            # self.plot_body_ang_acc(body_state_dfs),
-            # self.plot_body_pos_cov(body_state_dfs),
-            # self.plot_body_ang_cov(body_state_dfs),
+            self.plot_body_pos(body_state_dfs),
+            self.plot_body_pos_3d(body_state_dfs),
+            self.plot_body_vel(body_state_dfs),
+            self.plot_body_acc(body_state_dfs),
+            self.plot_body_ang(body_state_dfs),
+            self.plot_body_ang_vel(body_state_dfs),
+            self.plot_body_ang_acc(body_state_dfs),
+            self.plot_body_pos_cov(body_state_dfs),
+            self.plot_body_ang_cov(body_state_dfs),
             self.plot_body_err_pos(body_state_dfs, body_truth_dfs),
-            # self.plot_body_err_vel(body_state_dfs, body_truth_dfs),
-            # self.plot_body_err_acc(body_state_dfs, body_truth_dfs),
-            # self.plot_body_err_ang(body_state_dfs, body_truth_dfs),
-            # self.plot_body_err_ang_vel(body_state_dfs, body_truth_dfs),
-            # self.plot_body_err_ang_acc(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_vel(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_acc(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_ang(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_ang_vel(body_state_dfs, body_truth_dfs),
+            self.plot_body_err_ang_acc(body_state_dfs, body_truth_dfs),
         ]
         animations = [
             #     self.plot_body_pos_3d_anim(body_state_dfs)
@@ -999,27 +1000,27 @@ class Plotter():
                 body_truth_dfs = body_truth_dfs_dict[key]
                 figures, animations = self.plot_body_data(body_state_dfs, body_truth_dfs)
                 self.save_figures(plot_dir, figures)
-                # self.save_animations(plot_dir, animations)
+                self.save_animations(plot_dir, animations)
 
-            # imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
-            # for key in imu_dfs_dict:
-            #     imu_dfs = imu_dfs_dict[key]
-            #     figures = self.plot_imu_data(imu_dfs, config_data, key)
-            #     self.save_figures(plot_dir, figures)
+            imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
+            for key in imu_dfs_dict:
+                imu_dfs = imu_dfs_dict[key]
+                figures = self.plot_imu_data(imu_dfs, config_data, key)
+                self.save_figures(plot_dir, figures)
 
-            # cam_dfs_dict = find_and_read_data_frames(data_dirs, 'camera')
-            # for key in cam_dfs_dict:
-            #     cam_dfs = cam_dfs_dict[key]
-            #     figures = self.plot_cam_data(cam_dfs, config_data, key)
-            #     self.save_figures(plot_dir, figures)
+            cam_dfs_dict = find_and_read_data_frames(data_dirs, 'camera')
+            for key in cam_dfs_dict:
+                cam_dfs = cam_dfs_dict[key]
+                figures = self.plot_cam_data(cam_dfs, config_data, key)
+                self.save_figures(plot_dir, figures)
 
-            # tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
-            # feat_dfs_dict = find_and_read_data_frames(data_dirs, 'feature_points')
-            # for key in tri_dfs_dict:
-            #     tri_dfs = tri_dfs_dict[key]
-            #     feat_dfs = feat_dfs_dict[0]
-            #     figures = self.plot_triangulation_data(tri_dfs, feat_dfs, key)
-            #     self.save_figures(plot_dir, figures)
+            tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
+            feat_dfs_dict = find_and_read_data_frames(data_dirs, 'feature_points')
+            for key in tri_dfs_dict:
+                tri_dfs = tri_dfs_dict[key]
+                feat_dfs = feat_dfs_dict[0]
+                figures = self.plot_triangulation_data(tri_dfs, feat_dfs, key)
+                self.save_figures(plot_dir, figures)
 
             self.write_summary(stat_dir)
 

@@ -218,6 +218,7 @@ install(TARGETS
     DESTINATION lib/${PROJECT_NAME}
 )
 
+# @todo(jhartzer): is the config directory necessary to install?
 install(DIRECTORY
     config
     launch

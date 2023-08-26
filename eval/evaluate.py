@@ -33,7 +33,7 @@ python3 eval/plot.py --help
 
 import argparse
 
-from plot import Plotter, generate_mc_lists
+from plot import generate_mc_lists, Plotter
 
 from run import add_jobs
 
