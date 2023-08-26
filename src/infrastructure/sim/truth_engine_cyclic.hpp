@@ -34,12 +34,12 @@ public:
   /// @brief Setter for body cycle frequencies
   /// @param pos_frequency Vector of position frequencies
   /// @param ang_frequency Vector of angular frequencies
-  /// @param pos_offset Initial position offset
+  /// @param pos_b_in_g Initial position offset in the global frame
   ///
   TruthEngineCyclic(
     Eigen::Vector3d pos_frequency,
     Eigen::Vector3d ang_frequency,
-    Eigen::Vector3d pos_offset);
+    Eigen::Vector3d pos_b_in_g);
 
   ///
   /// @brief Setter for body position cycle frequency
@@ -104,7 +104,7 @@ public:
 private:
   Eigen::Vector3d m_pos_frequency {0.0, 0.0, 0.0};
   Eigen::Vector3d m_ang_frequency {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_pos_offset {0.0, 0.0, 0.0};
+  Eigen::Vector3d m_pos_b_in_g {0.0, 0.0, 0.0};
   double m_ang_amplitude = 0.1;
   double m_pos_amplitude = 1.0;
 };

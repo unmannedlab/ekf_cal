@@ -35,8 +35,8 @@ IMU::IMU(IMU::Parameters params)
   m_rate = params.rate;
 
   ImuState imu_state;
-  imu_state.position = params.pos_offset;
-  imu_state.orientation = params.ang_offset;
+  imu_state.pos_i_in_b = params.pos_i_in_b;
+  imu_state.ang_i_to_b = params.ang_i_to_b;
   imu_state.acc_bias = params.acc_bias;
   imu_state.omg_bias = params.omg_bias;
 

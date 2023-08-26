@@ -47,8 +47,8 @@ public:
     double time_bias {0.0};                              ///< @brief Time offset bias
     double time_skew {1.0};                              ///< @brief Time offset error
     double time_error {1e-9};                            ///< @brief Time offset error
-    Eigen::Vector3d pos_offset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
-    Eigen::Quaterniond ang_offset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
+    Eigen::Vector3d pos_c_in_b {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
+    Eigen::Quaterniond ang_c_to_b {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
     Camera::Parameters cam_params;                       ///< @brief Camera sensor parameters
     bool no_errors {false};                              ///< @brief Perfect measurements flag
   } Parameters;
@@ -88,8 +88,8 @@ private:
   double m_time_bias{0.0};
   double m_time_skew{0.0};
   double m_time_error{1e-9};
-  Eigen::Vector3d m_pos_offset{0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_offset{1.0, 0.0, 0.0, 0.0};
+  Eigen::Vector3d m_pos_c_in_b{0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_ang_c_to_b{1.0, 0.0, 0.0, 0.0};
   bool m_no_errors {false};
   SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;

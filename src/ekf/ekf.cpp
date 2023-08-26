@@ -74,7 +74,7 @@ void EKF::LogBodyStateIfNeeded()
     msg << VectorToCommaString(GetState().m_body_state.m_position);
     msg << VectorToCommaString(GetState().m_body_state.m_velocity);
     msg << VectorToCommaString(GetState().m_body_state.m_acceleration);
-    msg << QuaternionToCommaString(GetState().m_body_state.m_orientation);
+    msg << QuaternionToCommaString(GetState().m_body_state.m_ang_b_to_g);
     msg << VectorToCommaString(GetState().m_body_state.m_angular_velocity);
     msg << VectorToCommaString(GetState().m_body_state.m_angular_acceleration);
     msg << VectorToCommaString(body_cov);
@@ -152,12 +152,12 @@ void EKF::PredictModel(
 
   double dT = time - m_current_time;
 
-  Eigen::Quaterniond ang_i_to_g = m_state.m_body_state.m_orientation;
+  Eigen::Quaterniond ang_i_to_b = m_state.m_body_state.m_ang_b_to_g;
 
-  Eigen::Vector3d acceleration_global = ang_i_to_g * acceleration;
-  Eigen::Vector3d angular_rate_global = ang_i_to_g * angular_rate;
-  Eigen::Matrix3d acceleration_covariance_global = ang_i_to_g * acceleration_covariance;
-  Eigen::Matrix3d angular_rate_covariance_global = ang_i_to_g * angular_rate_covariance;
+  Eigen::Vector3d acceleration_global = ang_i_to_b * acceleration;
+  Eigen::Vector3d angular_rate_global = ang_i_to_b * angular_rate;
+  Eigen::Matrix3d acceleration_covariance_global = ang_i_to_b * acceleration_covariance;
+  Eigen::Matrix3d angular_rate_covariance_global = ang_i_to_b * angular_rate_covariance;
 
   Eigen::Vector3d rot_vec(angular_rate[0] * dT, angular_rate[1] * dT,
     angular_rate[2] * dT);
@@ -166,7 +166,7 @@ void EKF::PredictModel(
     dT * m_state.m_body_state.m_velocity + dT * dT / 2 * acceleration_global;
   m_state.m_body_state.m_velocity += dT * acceleration_global;
   m_state.m_body_state.m_acceleration = acceleration_global;
-  m_state.m_body_state.m_orientation = m_state.m_body_state.m_orientation * RotVecToQuat(rot_vec);
+  m_state.m_body_state.m_ang_b_to_g = m_state.m_body_state.m_ang_b_to_g * RotVecToQuat(rot_vec);
   m_state.m_body_state.m_angular_velocity = angular_rate_global;
   m_state.m_body_state.m_angular_acceleration.setZero();
 
@@ -304,7 +304,7 @@ unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, unsigned int frame_
   return state_start_index;
 }
 
-/// @todo Don't return a jacobian but rather just apply a jacobian to the covariance
+/// @todo Don't return a Jacobian but rather just apply a Jacobian to the covariance
 Eigen::MatrixXd EKF::AugmentJacobian(
   unsigned int cam_state_start,
   unsigned int aug_state_start)
@@ -314,11 +314,11 @@ Eigen::MatrixXd EKF::AugmentJacobian(
   unsigned int after_start = aug_state_start;
   unsigned int after_size = m_stateSize - aug_state_start - g_aug_state_size;
 
-  // Before augmented state jacobian
+  // Before augmented state Jacobian
   jacobian.block(0, 0, aug_state_start, aug_state_start) =
     Eigen::MatrixXd::Identity(aug_state_start, aug_state_start);
 
-  // After augmented state jacobian
+  // After augmented state Jacobian
   if (after_size > 0) {
     jacobian.block(after_start, after_start, after_size, after_size) =
       Eigen::MatrixXd::Identity(after_size, after_size);
@@ -346,14 +346,13 @@ void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
   m_logger->Log(LogLevel::DEBUG, msg.str());
   AugmentedState aug_state;
   aug_state.frame_id = frame_id;
-  Eigen::Vector3d pos_i_in_g = m_state.m_body_state.m_position;
-  Eigen::Quaterniond ang_i_to_g = m_state.m_body_state.m_orientation;
+  Eigen::Vector3d pos_b_in_g = m_state.m_body_state.m_position;
+  Eigen::Quaterniond ang_b_to_g = m_state.m_body_state.m_ang_b_to_g;
 
-  aug_state.imu_position = pos_i_in_g;
-  aug_state.imu_orientation = ang_i_to_g;
-
-  aug_state.cam_position = m_state.m_cam_states[camera_id].position;
-  aug_state.cam_orientation = m_state.m_cam_states[camera_id].orientation;
+  aug_state.pos_b_in_g = pos_b_in_g;
+  aug_state.ang_b_to_g = ang_b_to_g;
+  aug_state.pos_c_in_b = m_state.m_cam_states[camera_id].pos_c_in_b;
+  aug_state.ang_c_to_b = m_state.m_cam_states[camera_id].ang_c_to_b;
   m_state.m_cam_states[camera_id].augmented_states.push_back(aug_state);
 
   unsigned int aug_state_start;

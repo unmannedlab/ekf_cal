@@ -39,7 +39,6 @@
 ///
 /// @class SimFeatureTracker
 /// @brief Simulated Tracker class
-/// @todo Update ang_offset to be more descriptive
 ///
 class SimFeatureTracker : public FeatureTracker
 {
@@ -49,12 +48,12 @@ public:
   ///
   typedef struct Parameters
   {
-    unsigned int feature_count{0};                      ///< @brief Number of features to generate
-    double room_size{10.0};                             ///< @brief Size of "Room" for features
-    Eigen::Vector3d pos_offset{0.0, 0.0, 0.0};          ///< @brief Camera position offset
-    Eigen::Quaterniond ang_offset{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera angular offset
-    bool no_errors {false};                             ///< @brief Perfect measurements flag
-    FeatureTracker::Parameters tracker_params;          ///< @brief Tracker parameters
+    unsigned int feature_count{0};                        ///< @brief Number of features to generate
+    double room_size{10.0};                               ///< @brief Size of "Room" for features
+    Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};            ///< @brief Camera position offset
+    Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};    ///< @brief Camera angular offset
+    bool no_errors {false};                               ///< @brief Perfect measurements flag
+    FeatureTracker::Parameters tracker_params;            ///< @brief Tracker parameters
   } Parameters;
 
   ///
@@ -93,8 +92,8 @@ public:
 
 private:
   double m_px_error;
-  Eigen::Vector3d m_pos_offset;
-  Eigen::Quaterniond m_ang_offset;
+  Eigen::Vector3d m_pos_c_in_b;
+  Eigen::Quaterniond m_ang_c_to_b;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
   SimRNG m_rng;

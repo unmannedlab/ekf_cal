@@ -46,8 +46,8 @@ public:
     bool base_sensor{true};                      ///< @brief IMU base sensor flag
     bool intrinsic{false};                       ///< @brief IMU intrinsic calibration
     double rate{1.0};                            ///< @brief IMU update rate
-    Eigen::Vector3d pos_offset {0, 0, 0};        ///< @brief IMU position offset vector
-    Eigen::Quaterniond ang_offset {1, 0, 0, 0};  ///< @brief IMU angular offset quaternion
+    Eigen::Vector3d pos_i_in_b {0, 0, 0};        ///< @brief IMU position offset vector
+    Eigen::Quaterniond ang_i_to_b {1, 0, 0, 0};  ///< @brief IMU angular offset quaternion
     Eigen::Vector3d acc_bias {0, 0, 0};          ///< @brief IMU accelerometer bias vector
     Eigen::Vector3d omg_bias {0, 0, 0};          ///< @brief IMU gyroscope bias vector
     double acc_bias_stability {0};               ///< @brief IMU accelerometer bias stability

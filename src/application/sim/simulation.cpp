@@ -133,7 +133,7 @@ int main(int argc, char * argv[])
   bool no_errors = sim_params["NoErrors"].as<bool>();
   Eigen::Vector3d pos_frequency = StdToEigVec(sim_params["PosFrequency"].as<std::vector<double>>());
   Eigen::Vector3d ang_frequency = StdToEigVec(sim_params["AngFrequency"].as<std::vector<double>>());
-  Eigen::Vector3d pos_offset = StdToEigVec(sim_params["PosOffset"].as<std::vector<double>>());
+  Eigen::Vector3d pos_b_in_g = StdToEigVec(sim_params["PosOffset"].as<std::vector<double>>());
   double max_time = sim_params["MaxTime"].as<double>();
 
   DebugLogger * logger = DebugLogger::GetInstance();
@@ -150,7 +150,7 @@ int main(int argc, char * argv[])
   auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(
     pos_frequency,
     ang_frequency,
-    pos_offset);
+    pos_b_in_g);
   auto truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
 
   WriteTruthData(truth_engine, body_data_rate, max_time, out_dir, data_logging_on);
@@ -169,8 +169,8 @@ int main(int argc, char * argv[])
     imu_params.rate = imu_node["Rate"].as<double>();
     imu_params.topic = imu_node["Topic"].as<std::string>();
     imu_params.variance = StdToEigVec(imu_node["VarInit"].as<std::vector<double>>());
-    imu_params.pos_offset = StdToEigVec(imu_node["PosOffInit"].as<std::vector<double>>());
-    imu_params.ang_offset = StdToEigQuat(imu_node["AngOffInit"].as<std::vector<double>>());
+    imu_params.pos_i_in_b = StdToEigVec(imu_node["PosOffInit"].as<std::vector<double>>());
+    imu_params.ang_i_to_b = StdToEigQuat(imu_node["AngOffInit"].as<std::vector<double>>());
     imu_params.acc_bias = StdToEigVec(imu_node["AccBiasInit"].as<std::vector<double>>());
     imu_params.omg_bias = StdToEigVec(imu_node["OmgBiasInit"].as<std::vector<double>>());
     imu_params.output_directory = out_dir;
@@ -188,8 +188,8 @@ int main(int argc, char * argv[])
     sim_imu_params.acc_error = StdToEigVec(sim_node["accError"].as<std::vector<double>>());
     sim_imu_params.omg_bias = StdToEigVec(sim_node["omgBias"].as<std::vector<double>>());
     sim_imu_params.omg_error = StdToEigVec(sim_node["omgError"].as<std::vector<double>>());
-    sim_imu_params.pos_offset = StdToEigVec(sim_node["posOffset"].as<std::vector<double>>());
-    sim_imu_params.ang_offset = StdToEigQuat(sim_node["angOffset"].as<std::vector<double>>());
+    sim_imu_params.pos_i_in_b = StdToEigVec(sim_node["posOffset"].as<std::vector<double>>());
+    sim_imu_params.ang_i_to_b = StdToEigQuat(sim_node["angOffset"].as<std::vector<double>>());
     sim_imu_params.no_errors = no_errors;
 
     // Add sensor to map
@@ -238,8 +238,8 @@ int main(int argc, char * argv[])
     cam_params.name = cameras[i];
     cam_params.rate = camNode["Rate"].as<double>();
     cam_params.variance = StdToEigVec(camNode["VarInit"].as<std::vector<double>>());
-    cam_params.pos_offset = StdToEigVec(camNode["PosOffInit"].as<std::vector<double>>());
-    cam_params.ang_offset = StdToEigQuat(camNode["AngOffInit"].as<std::vector<double>>());
+    cam_params.pos_c_in_b = StdToEigVec(camNode["PosOffInit"].as<std::vector<double>>());
+    cam_params.ang_c_to_b = StdToEigQuat(camNode["AngOffInit"].as<std::vector<double>>());
     cam_params.output_directory = out_dir;
     cam_params.data_logging_on = data_logging_on;
     cam_params.tracker = camNode["Tracker"].as<std::string>();
@@ -249,8 +249,8 @@ int main(int argc, char * argv[])
     sim_cam_params.time_bias = sim_node["timeBias"].as<double>();
     sim_cam_params.time_skew = sim_node["timeSkew"].as<double>();
     sim_cam_params.time_error = sim_node["timeError"].as<double>();
-    sim_cam_params.pos_offset = StdToEigVec(sim_node["posOffset"].as<std::vector<double>>());
-    sim_cam_params.ang_offset = StdToEigQuat(sim_node["angOffset"].as<std::vector<double>>());
+    sim_cam_params.pos_c_in_b = StdToEigVec(sim_node["posOffset"].as<std::vector<double>>());
+    sim_cam_params.ang_c_to_b = StdToEigQuat(sim_node["angOffset"].as<std::vector<double>>());
     sim_cam_params.cam_params = cam_params;
     sim_cam_params.no_errors = no_errors;
 
@@ -258,8 +258,8 @@ int main(int argc, char * argv[])
     auto cam = std::make_shared<SimCamera>(sim_cam_params, truth_engine);
     auto trk_params = trackerMap[cam_params.tracker];
     trk_params.tracker_params.sensor_id = cam->GetId();
-    trk_params.pos_offset = sim_cam_params.pos_offset;
-    trk_params.ang_offset = sim_cam_params.ang_offset;
+    trk_params.pos_c_in_b = sim_cam_params.pos_c_in_b;
+    trk_params.ang_c_to_b = sim_cam_params.ang_c_to_b;
     auto trk = std::make_shared<SimFeatureTracker>(
       trk_params, truth_engine, out_dir, data_logging_on);
     cam->AddTracker(trk);

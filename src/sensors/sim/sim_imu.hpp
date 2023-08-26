@@ -50,8 +50,8 @@ public:
     Eigen::Vector3d acc_error {1e-9, 1e-9, 1e-9};        ///< @brief Acceleration error
     Eigen::Vector3d omg_bias {0.0, 0.0, 0.0};            ///< @brief Angular rate bias
     Eigen::Vector3d omg_error {1e-9, 1e-9, 1e-9};        ///< @brief Angular rate error
-    Eigen::Vector3d pos_offset {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
-    Eigen::Quaterniond ang_offset {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
+    Eigen::Vector3d pos_i_in_b {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
+    Eigen::Quaterniond ang_i_to_b {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
     IMU::Parameters imu_params;                          ///< @brief IMU sensor parameters
     bool no_errors {false};                              ///< @brief Perfect measurements flag
   } Parameters;
@@ -77,8 +77,8 @@ private:
   Eigen::Vector3d m_acc_error{1e-9, 1e-9, 1e-9};
   Eigen::Vector3d m_omg_bias{0.0, 0.0, 0.0};
   Eigen::Vector3d m_omg_error{1e-9, 1e-9, 1e-9};
-  Eigen::Vector3d m_pos_offset{0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_offset{1.0, 0.0, 0.0, 0.0};
+  Eigen::Vector3d m_pos_i_in_b{0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_ang_i_to_b{1.0, 0.0, 0.0, 0.0};
   SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};

@@ -41,8 +41,8 @@ Camera::Camera(Camera::Parameters cam_params)
   m_intrinsics = cam_params.intrinsics;
 
   CamState cam_state;
-  cam_state.position = cam_params.pos_offset;
-  cam_state.orientation = cam_params.ang_offset;
+  cam_state.pos_c_in_b = cam_params.pos_c_in_b;
+  cam_state.ang_c_to_b = cam_params.ang_c_to_b;
 
   Eigen::MatrixXd cov = MinBoundVector(cam_params.variance, 1e-6).asDiagonal();
 

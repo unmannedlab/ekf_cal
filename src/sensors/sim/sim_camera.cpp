@@ -33,8 +33,8 @@ SimCamera::SimCamera(
   m_time_bias = params.time_bias;
   m_time_skew = params.time_skew;
   m_time_error = std::max(params.time_error, 1e-9);
-  m_pos_offset = params.pos_offset;
-  m_ang_offset = params.ang_offset;
+  m_pos_c_in_b = params.pos_c_in_b;
+  m_ang_c_to_b = params.ang_c_to_b;
   m_no_errors = params.no_errors;
   m_truth = truth_engine;
 }

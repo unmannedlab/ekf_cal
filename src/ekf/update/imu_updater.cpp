@@ -55,13 +55,13 @@ Eigen::VectorXd ImuUpdater::PredictMeasurement()
 {
   Eigen::VectorXd predicted_measurement(6);
   // Transform acceleration to IMU location
-  Eigen::Vector3d imu_acc_b = m_body_ang_pos.inverse() * (m_body_acc + g_gravity) +
-    m_body_ang_acc.cross(m_pos_offset) +
-    m_body_ang_vel.cross((m_body_ang_vel.cross(m_pos_offset)));
+  Eigen::Vector3d imu_acc_b = m_ang_b_to_g.inverse() * (m_body_acc + g_gravity) +
+    m_body_ang_acc.cross(m_pos_i_in_g) +
+    m_body_ang_vel.cross((m_body_ang_vel.cross(m_pos_i_in_g)));
 
   // Rotate measurements in place
-  Eigen::Vector3d imu_acc_i = m_acc_bias + m_ang_offset.inverse() * imu_acc_b;
-  Eigen::Vector3d imu_omg_i = m_omg_bias + m_ang_offset.inverse() * m_body_ang_vel;
+  Eigen::Vector3d imu_acc_i = m_acc_bias + m_ang_i_to_b.inverse() * imu_acc_b;
+  Eigen::Vector3d imu_omg_i = m_omg_bias + m_ang_i_to_b.inverse() * m_body_ang_vel;
 
   predicted_measurement.segment<3>(0) = imu_acc_i;
   predicted_measurement.segment<3>(3) = imu_omg_i;
@@ -75,41 +75,41 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
     Eigen::MatrixXd::Zero(6, g_body_state_size + g_imu_state_size);
 
   // Body Acceleration
-  measurement_jacobian.block<3, 3>(0, 6) = m_ang_offset.inverse().toRotationMatrix() *
-    m_body_ang_pos.inverse().toRotationMatrix();
+  measurement_jacobian.block<3, 3>(0, 6) = m_ang_i_to_b.inverse().toRotationMatrix() *
+    m_ang_b_to_g.inverse().toRotationMatrix();
 
   // Body Orientation
-  measurement_jacobian.block<3, 3>(0, 9) = -m_ang_offset.inverse().toRotationMatrix() *
-    SkewSymmetric(m_body_ang_pos.inverse().toRotationMatrix() * g_gravity);
+  measurement_jacobian.block<3, 3>(0, 9) = -m_ang_i_to_b.inverse().toRotationMatrix() *
+    SkewSymmetric(m_ang_b_to_g.inverse().toRotationMatrix() * g_gravity);
 
   // Body Angular Velocity
-  measurement_jacobian.block<3, 3>(0, 12) = m_ang_offset.inverse().toRotationMatrix() * (
+  measurement_jacobian.block<3, 3>(0, 12) = m_ang_i_to_b.inverse().toRotationMatrix() * (
     SkewSymmetric(m_body_ang_vel) *
-    SkewSymmetric(m_pos_offset).transpose() +
-    SkewSymmetric(m_body_ang_vel.cross(m_pos_offset)).transpose()
+    SkewSymmetric(m_pos_i_in_g).transpose() +
+    SkewSymmetric(m_body_ang_vel.cross(m_pos_i_in_g)).transpose()
   );
 
   // Body Angular Acceleration
-  measurement_jacobian.block<3, 3>(0, 15) = m_ang_offset.inverse().toRotationMatrix() *
-    SkewSymmetric(m_pos_offset);
+  measurement_jacobian.block<3, 3>(0, 15) = m_ang_i_to_b.inverse().toRotationMatrix() *
+    SkewSymmetric(m_pos_i_in_g);
 
   // IMU Body Angular Velocity
-  measurement_jacobian.block<3, 3>(3, 12) = m_ang_offset.inverse().toRotationMatrix();
+  measurement_jacobian.block<3, 3>(3, 12) = m_ang_i_to_b.inverse().toRotationMatrix();
 
   // IMU Positional Offset
   if (!isBaseSensor) {
     // IMU Positional Offset
-    measurement_jacobian.block<3, 3>(0, g_body_state_size) = m_ang_offset.inverse() * (
+    measurement_jacobian.block<3, 3>(0, g_body_state_size) = m_ang_i_to_b.inverse() * (
       SkewSymmetric(m_body_ang_acc) +
       SkewSymmetric(m_body_ang_vel) * SkewSymmetric(m_body_ang_vel)
     );
 
     // IMU Angular Offset
     measurement_jacobian.block<3, 3>(0, g_body_state_size + 3) = SkewSymmetric(
-      m_ang_offset.inverse().toRotationMatrix() * (
-        m_body_ang_acc.cross(m_pos_offset) +
-        m_body_ang_vel.cross(m_body_ang_vel.cross(m_pos_offset)) +
-        m_body_ang_pos.inverse().toRotationMatrix() * (
+      m_ang_i_to_b.inverse().toRotationMatrix() * (
+        m_body_ang_acc.cross(m_pos_i_in_g) +
+        m_body_ang_vel.cross(m_body_ang_vel.cross(m_pos_i_in_g)) +
+        m_ang_b_to_g.inverse().toRotationMatrix() * (
           m_body_acc + g_gravity
         )
       )
@@ -117,8 +117,8 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
 
     // IMU Angular Offset
     measurement_jacobian.block<3, 3>(3, g_body_state_size + 3) = SkewSymmetric(
-      m_ang_offset.inverse().toRotationMatrix() *
-      m_body_ang_pos.inverse().toRotationMatrix() *
+      m_ang_i_to_b.inverse().toRotationMatrix() *
+      m_ang_b_to_g.inverse().toRotationMatrix() *
       m_body_ang_vel
     );
   }
@@ -140,13 +140,13 @@ void ImuUpdater::RefreshStates()
   m_body_pos = body_state.m_position;
   m_body_vel = body_state.m_velocity;
   m_body_acc = body_state.m_acceleration;
-  m_body_ang_pos = body_state.m_orientation;
+  m_ang_b_to_g = body_state.m_ang_b_to_g;
   m_body_ang_vel = body_state.m_angular_velocity;
   m_body_ang_acc = body_state.m_angular_acceleration;
 
   ImuState imu_state = m_ekf->GetImuState(m_id);
-  m_pos_offset = imu_state.position;
-  m_ang_offset = imu_state.orientation;
+  m_pos_i_in_g = imu_state.pos_i_in_b;
+  m_ang_i_to_b = imu_state.ang_i_to_b;
   m_acc_bias = imu_state.acc_bias;
   m_omg_bias = imu_state.omg_bias;
 }
@@ -221,8 +221,8 @@ void ImuUpdater::UpdateEKF(
     imu_state_start, imu_state_start).diagonal();
 
   msg << time;
-  msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].position);
-  msg << QuaternionToCommaString(m_ekf->GetState().m_imu_states[m_id].orientation);
+  msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].pos_i_in_b);
+  msg << QuaternionToCommaString(m_ekf->GetState().m_imu_states[m_id].ang_i_to_b);
   msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].acc_bias);
   msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].omg_bias);
   msg << VectorToCommaString(cov_diag);

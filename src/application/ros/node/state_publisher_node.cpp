@@ -73,10 +73,10 @@ void StatePublisherNode::PublishBodyState()
   pose_msg.pose.position.z = body_state.m_position(2);
 
   // Orientation
-  pose_msg.pose.orientation.w = body_state.m_orientation.w();
-  pose_msg.pose.orientation.x = body_state.m_orientation.x();
-  pose_msg.pose.orientation.y = body_state.m_orientation.y();
-  pose_msg.pose.orientation.z = body_state.m_orientation.z();
+  pose_msg.pose.orientation.w = body_state.m_ang_b_to_g.w();
+  pose_msg.pose.orientation.x = body_state.m_ang_b_to_g.x();
+  pose_msg.pose.orientation.y = body_state.m_ang_b_to_g.y();
+  pose_msg.pose.orientation.z = body_state.m_ang_b_to_g.z();
 
   // Linear Velocity
   twist_msg.twist.linear.x = body_state.m_velocity(0);
@@ -113,15 +113,15 @@ void StatePublisherNode::PublishSensorTransforms()
     tf.child_frame_id = std::to_string(id);
 
     // Sensor position
-    tf.transform.translation.x = imuIter.second.position(0);
-    tf.transform.translation.y = imuIter.second.position(1);
-    tf.transform.translation.z = imuIter.second.position(2);
+    tf.transform.translation.x = imuIter.second.pos_i_in_b(0);
+    tf.transform.translation.y = imuIter.second.pos_i_in_b(1);
+    tf.transform.translation.z = imuIter.second.pos_i_in_b(2);
 
     // Sensor Orientation
-    tf.transform.rotation.w = imuIter.second.orientation.w();
-    tf.transform.rotation.x = imuIter.second.orientation.x();
-    tf.transform.rotation.y = imuIter.second.orientation.y();
-    tf.transform.rotation.z = imuIter.second.orientation.z();
+    tf.transform.rotation.w = imuIter.second.ang_i_to_b.w();
+    tf.transform.rotation.x = imuIter.second.ang_i_to_b.x();
+    tf.transform.rotation.y = imuIter.second.ang_i_to_b.y();
+    tf.transform.rotation.z = imuIter.second.ang_i_to_b.z();
 
     // Send the transformation
     m_tf_broadcaster->sendTransform(tf);
@@ -137,10 +137,10 @@ void StatePublisherNode::PublishSensorTransforms()
   tf.transform.translation.z = ekfState.m_body_state.m_position(2);
 
   // Body Orientation
-  tf.transform.rotation.w = ekfState.m_body_state.m_orientation.w();
-  tf.transform.rotation.x = ekfState.m_body_state.m_orientation.x();
-  tf.transform.rotation.y = ekfState.m_body_state.m_orientation.y();
-  tf.transform.rotation.z = ekfState.m_body_state.m_orientation.z();
+  tf.transform.rotation.w = ekfState.m_body_state.m_ang_b_to_g.w();
+  tf.transform.rotation.x = ekfState.m_body_state.m_ang_b_to_g.x();
+  tf.transform.rotation.y = ekfState.m_body_state.m_ang_b_to_g.y();
+  tf.transform.rotation.z = ekfState.m_body_state.m_ang_b_to_g.z();
 
   m_tf_broadcaster->sendTransform(tf);
 }

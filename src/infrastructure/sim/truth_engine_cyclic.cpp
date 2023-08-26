@@ -24,11 +24,11 @@
 TruthEngineCyclic::TruthEngineCyclic(
   Eigen::Vector3d pos_frequency,
   Eigen::Vector3d ang_frequency,
-  Eigen::Vector3d pos_offset)
+  Eigen::Vector3d pos_b_in_g)
 {
   m_pos_frequency = pos_frequency;
   m_ang_frequency = ang_frequency;
-  m_pos_offset = pos_offset;
+  m_pos_b_in_g = pos_b_in_g;
   m_ang_amplitude = 1.0;
   m_pos_amplitude = 1.0;
 }
@@ -38,11 +38,11 @@ Eigen::Vector3d TruthEngineCyclic::GetBodyPosition(double time)
 {
   Eigen::Vector3d position;
   position[0] =
-    m_pos_amplitude / 2.0 * (1 - std::cos(m_pos_frequency[0] * 2 * M_PI * time)) + m_pos_offset[0];
+    m_pos_amplitude / 2.0 * (1 - std::cos(m_pos_frequency[0] * 2 * M_PI * time)) + m_pos_b_in_g[0];
   position[1] =
-    m_pos_amplitude / 2.0 * (1 - std::cos(m_pos_frequency[1] * 2 * M_PI * time)) + m_pos_offset[1];
+    m_pos_amplitude / 2.0 * (1 - std::cos(m_pos_frequency[1] * 2 * M_PI * time)) + m_pos_b_in_g[1];
   position[2] =
-    m_pos_amplitude / 2.0 * (1 - std::cos(m_pos_frequency[2] * 2 * M_PI * time)) + m_pos_offset[2];
+    m_pos_amplitude / 2.0 * (1 - std::cos(m_pos_frequency[2] * 2 * M_PI * time)) + m_pos_b_in_g[2];
   return position;
 }
 

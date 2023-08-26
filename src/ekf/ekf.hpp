@@ -191,10 +191,10 @@ public:
   void RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixXd covariance);
 
   ///
-  /// @brief Generate augmented state jacobian matrix
+  /// @brief Generate augmented state Jacobian matrix
   /// @param cam_state_start Camera state start index
   /// @param aug_state_start Augmented state start index
-  /// @return Augmented state jacobian matrix
+  /// @return Augmented state Jacobian matrix
   ///
   Eigen::MatrixXd AugmentJacobian(
     unsigned int cam_state_start,

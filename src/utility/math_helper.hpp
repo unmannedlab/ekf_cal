@@ -73,7 +73,7 @@ void ApplyLeftNullspace(Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::Vec
 
 ///
 /// @brief Perform measurement compression
-/// @param jacobian Measurement jacobian
+/// @param jacobian Measurement Jacobian
 /// @param residual Measurement residual
 ///
 void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual);

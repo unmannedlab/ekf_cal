@@ -36,8 +36,8 @@ SimFeatureTracker::SimFeatureTracker(
 {
   /// @todo(jhartzer): Get camera parameters from input
   m_px_error = params.tracker_params.px_error;
-  m_pos_offset = params.pos_offset;
-  m_ang_offset = params.ang_offset;
+  m_pos_c_in_b = params.pos_c_in_b;
+  m_ang_c_to_b = params.ang_c_to_b;
   m_no_errors = params.no_errors;
   m_feature_count = params.feature_count;
   m_truth = truthEngine;
@@ -85,10 +85,10 @@ SimFeatureTracker::SimFeatureTracker(
 
 std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 {
-  Eigen::Vector3d pos_i_in_g = m_truth->GetBodyPosition(time);
-  Eigen::Quaterniond ang_i_to_g = m_truth->GetBodyAngularPosition(time);
-  Eigen::Quaterniond ang_c_to_i = m_ang_offset;
-  Eigen::Matrix3d ang_g_to_c = (ang_i_to_g * ang_c_to_i).toRotationMatrix().transpose();
+  Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(time);
+  Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(time);
+  Eigen::Quaterniond ang_c_to_b = m_ang_c_to_b;
+  Eigen::Matrix3d ang_g_to_c = (ang_b_to_g * ang_c_to_b).toRotationMatrix().transpose();
 
   /// @todo put into type helper
   cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);
@@ -109,7 +109,7 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
   cv::Mat r_vec(3, 1, cv::DataType<double>::type);
   cv::Rodrigues(ang_g_to_c_cv, r_vec);
 
-  Eigen::Vector3d pos_g_in_c = ang_g_to_c * (-(pos_i_in_g + ang_i_to_g * m_pos_offset));
+  Eigen::Vector3d pos_g_in_c = ang_g_to_c * (-(pos_b_in_g + ang_b_to_g * m_pos_c_in_b));
 
   cv::Mat t_vec(3, 1, cv::DataType<double>::type);
   t_vec.at<double>(0) = pos_g_in_c[0];

@@ -50,7 +50,7 @@ public:
   Eigen::Vector3d m_position{0.0, 0.0, 0.0};              ///< @brief Body position
   Eigen::Vector3d m_velocity{0.0, 0.0, 0.0};              ///< @brief Body velocity
   Eigen::Vector3d m_acceleration{0.0, 0.0, 0.0};          ///< @brief Body acceleration
-  Eigen::Quaterniond m_orientation{1.0, 0.0, 0.0, 0.0};   ///< @brief Body orientation
+  Eigen::Quaterniond m_ang_b_to_g{1.0, 0.0, 0.0, 0.0};    ///< @brief Body orientation
   Eigen::Vector3d m_angular_velocity{0.0, 0.0, 0.0};      ///< @brief Body angular rate
   Eigen::Vector3d m_angular_acceleration{0.0, 0.0, 0.0};  ///< @brief Body angular acceleration
 };
@@ -69,8 +69,8 @@ public:
   ///
   Eigen::VectorXd ToVector();
 
-  Eigen::Vector3d position{0.0, 0.0, 0.0};             ///< @brief IMU state position
-  Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief IMU state orientation
+  Eigen::Vector3d pos_i_in_b{0.0, 0.0, 0.0};             ///< @brief IMU state position
+  Eigen::Quaterniond ang_i_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief IMU state orientation
   Eigen::Vector3d acc_bias{0.0, 0.0, 0.0};             ///< @brief IMU state acceleration bias
   Eigen::Vector3d omg_bias{0.0, 0.0, 0.0};             ///< @brief IMU state angular rate bias
 };
@@ -80,11 +80,11 @@ public:
 ///
 typedef struct AugmentedState
 {
-  unsigned int frame_id {0};                               ///< @brief Augmented frame ID
-  Eigen::Vector3d imu_position{0.0, 0.0, 0.0};             ///< @brief Augmented IMU position
-  Eigen::Quaterniond imu_orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
-  Eigen::Vector3d cam_position{0.0, 0.0, 0.0};             ///< @brief Augmented camera position
-  Eigen::Quaterniond cam_orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented camera orientation
+  unsigned int frame_id {0};                          ///< @brief Augmented frame ID
+  Eigen::Vector3d pos_b_in_g{0.0, 0.0, 0.0};          ///< @brief Augmented IMU position
+  Eigen::Quaterniond ang_b_to_g{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
+  Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Augmented camera position
+  Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented camera orientation
 } AugmentedState;
 
 ///
@@ -101,8 +101,8 @@ public:
   ///
   Eigen::VectorXd ToVector();
 
-  Eigen::Vector3d position{0.0, 0.0, 0.0};             ///< @brief Camera state position
-  Eigen::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera state orientation
+  Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};             ///< @brief Camera state position
+  Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera state orientation
   std::vector<AugmentedState> augmented_states;        ///< @brief Camera augmented states
 };
 

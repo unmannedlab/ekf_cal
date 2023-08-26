@@ -46,8 +46,8 @@ public:
     std::string name;                                   ///< @brief Camera name
     std::string topic;                                  ///< @brief Camera topic name
     double rate{1.0};                                   ///< @brief Camera update rate
-    Eigen::Vector3d pos_offset{0.0, 0.0, 0.0};          ///< @brief Camera initial position offset
-    Eigen::Quaterniond ang_offset{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera initial angular offset
+    Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Camera initial position offset
+    Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera initial angular offset
     Eigen::VectorXd variance {{0, 0, 0, 0, 0, 0}};      ///< @brief Initial state variance
     std::string tracker;                                ///< @brief Tracker name
     std::string output_directory {""};                  ///< @brief IMU data logging directory

@@ -74,10 +74,10 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
   Eigen::Matrix3d A = Eigen::Matrix3d::Zero();
   Eigen::Vector3d b = Eigen::Vector3d::Zero();
 
-  const Eigen::Vector3d position_i0_in_g = aug_state_0.imu_position;
-  const Eigen::Matrix3d rotation_i0_to_g = aug_state_0.imu_orientation.toRotationMatrix();
-  const Eigen::Vector3d position_c0_in_i0 = aug_state_0.cam_position;
-  const Eigen::Matrix3d rotation_c0_to_i0 = aug_state_0.cam_orientation.toRotationMatrix();
+  const Eigen::Vector3d position_i0_in_g = aug_state_0.pos_b_in_g;
+  const Eigen::Matrix3d rotation_i0_to_g = aug_state_0.ang_b_to_g.toRotationMatrix();
+  const Eigen::Vector3d position_c0_in_i0 = aug_state_0.pos_c_in_b;
+  const Eigen::Matrix3d rotation_c0_to_i0 = aug_state_0.ang_c_to_b.toRotationMatrix();
 
   const Eigen::Matrix3d rotation_g_to_i0 = rotation_i0_to_g.transpose();
   const Eigen::Matrix3d rotation_i0_to_c0 = rotation_c0_to_i0.transpose();
@@ -85,10 +85,11 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
   for (unsigned int i = 0; i < feature_track.size(); ++i) {
     AugmentedState aug_state_i = MatchState(feature_track[i].frame_id);
 
-    const Eigen::Vector3d position_ii_in_g = aug_state_i.imu_position;
-    const Eigen::Matrix3d rotation_ii_to_g = aug_state_i.imu_orientation.toRotationMatrix();
-    const Eigen::Vector3d position_ci_in_ii = aug_state_i.cam_position;
-    const Eigen::Matrix3d rotation_ci_to_ii = aug_state_i.cam_orientation.toRotationMatrix();
+    /// @todo(jhartzer): Need to acknowledge this isn't really an IMU orientation, but a body
+    const Eigen::Vector3d position_ii_in_g = aug_state_i.pos_b_in_g;
+    const Eigen::Matrix3d rotation_ii_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
+    const Eigen::Vector3d position_ci_in_ii = aug_state_i.pos_c_in_b;
+    const Eigen::Matrix3d rotation_ci_to_ii = aug_state_i.ang_c_to_b.toRotationMatrix();
 
     // Convert current position relative to anchor
     Eigen::Matrix3d rotation_ci_to_c0 =
@@ -267,13 +268,13 @@ void MsckfUpdater::UpdateEKF(
       AugmentedState aug_state_i = MatchState(feature_track[i].frame_id);
 
       // Our calibration between the IMU and CAMi frames
-      Eigen::Matrix3d rot_ci_to_ii = aug_state_i.cam_orientation.toRotationMatrix();
-      Eigen::Matrix3d rot_ii_to_g = aug_state_i.imu_orientation.toRotationMatrix();
+      Eigen::Matrix3d rot_ci_to_ii = aug_state_i.ang_c_to_b.toRotationMatrix();
+      Eigen::Matrix3d rot_ii_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
       Eigen::Matrix3d rot_ii_to_ci = rot_ci_to_ii.transpose();
       Eigen::Matrix3d rot_g_to_ci = rot_ii_to_ci * rot_ii_to_g.transpose();
 
-      Eigen::Vector3d pos_ci_in_ii = aug_state_i.cam_position;
-      Eigen::Vector3d pos_ii_in_g = aug_state_i.imu_position;
+      Eigen::Vector3d pos_ci_in_ii = aug_state_i.pos_c_in_b;
+      Eigen::Vector3d pos_ii_in_g = aug_state_i.pos_b_in_g;
 
       // Project the current feature into the current frame of reference
       Eigen::Vector3d pos_f_in_ii = rot_ii_to_g.transpose() * (pos_f_in_g - pos_ii_in_g);
@@ -309,7 +310,8 @@ void MsckfUpdater::UpdateEKF(
       H_t.block<3, 3>(0, 3) = rot_ii_to_ci * SkewSymmetric(pos_f_in_ii);
       /// @todo(jhartzer): Enable calibration Jacobian
       // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity();
-      // H_t.block<3, 3>(0, 9) = SkewSymmetric(rot_ii_to_ci * rot_ii_to_g.transpose() * (pos_f_in_g-pos_ii_in_g));
+      // H_t.block<3, 3>(0, 9) =
+      //   SkewSymmetric(rot_ii_to_ci * rot_ii_to_g.transpose() * (pos_f_in_g - pos_ii_in_g));
 
       H_c.block<2, 12>(2 * i, aug_state_start - cam_state_start) = H_d * H_p * H_t;
     }
@@ -317,7 +319,7 @@ void MsckfUpdater::UpdateEKF(
 
     /// @todo Chi^2 distance check
 
-    // Append our jacobian and residual
+    // Append our Jacobian and residual
     H_x.block(ct_meas, cam_state_start, H_c.rows(), H_c.cols()) = H_c;
     res_x.block(ct_meas, 0, res_f.rows(), 1) = res_f;
 
@@ -384,12 +386,12 @@ void MsckfUpdater::RefreshStates()
   m_body_pos = body_state.m_position;
   m_body_vel = body_state.m_velocity;
   m_body_acc = body_state.m_acceleration;
-  m_body_ang_pos = body_state.m_orientation;
+  m_ang_b_to_g = body_state.m_ang_b_to_g;
   m_body_ang_vel = body_state.m_angular_velocity;
   m_body_ang_acc = body_state.m_angular_acceleration;
 
   CamState cam_state = m_ekf->GetCamState(m_id);
-  m_pos_offset = cam_state.position;
-  m_ang_offset = cam_state.orientation;
+  m_pos_c_in_b = cam_state.pos_c_in_b;
+  m_ang_c_to_b = cam_state.ang_c_to_b;
   m_aug_states = cam_state.augmented_states;
 }

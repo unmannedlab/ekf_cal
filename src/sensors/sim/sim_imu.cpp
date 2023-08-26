@@ -37,8 +37,8 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngi
   m_acc_error = MinBoundVector(params.acc_error, 1e-9);
   m_omg_bias = params.omg_bias;
   m_omg_error = MinBoundVector(params.omg_error, 1e-9);
-  m_pos_offset = params.pos_offset;
-  m_ang_offset = params.ang_offset;
+  m_pos_i_in_b = params.pos_i_in_b;
+  m_ang_i_to_b = params.ang_i_to_b;
   m_no_errors = params.no_errors;
   m_truth = truthEngine;
 }
@@ -68,12 +68,12 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_
 
     // Transform acceleration to IMU location
     Eigen::Vector3d imu_acc_b = body_b_to_g.inverse() * (body_acc_g + g_gravity) +
-      body_ang_acc_g.cross(m_pos_offset) +
-      body_ang_vel_g.cross((body_ang_vel_g.cross(m_pos_offset)));
+      body_ang_acc_g.cross(m_pos_i_in_b) +
+      body_ang_vel_g.cross((body_ang_vel_g.cross(m_pos_i_in_b)));
 
     // Rotate measurements in place
-    Eigen::Vector3d imu_acc_i = m_ang_offset.inverse() * imu_acc_b;
-    Eigen::Vector3d imu_omg_i = m_ang_offset.inverse() * body_ang_vel_g;
+    Eigen::Vector3d imu_acc_i = m_ang_i_to_b.inverse() * imu_acc_b;
+    Eigen::Vector3d imu_omg_i = m_ang_i_to_b.inverse() * body_ang_vel_g;
 
     sim_imu_msg->m_acceleration = imu_acc_i;
     sim_imu_msg->m_angular_rate = imu_omg_i;
