@@ -1048,7 +1048,7 @@ def generate_mc_lists(input_files):
                     top_name = os.path.basename(input_file).split('.yaml')[0]
                     yaml_dir = input_file.split('.yaml')[0] + os.sep
                     runs_dir = os.path.join(yaml_dir, 'runs')
-                    n_digits = math.ceil(math.log10(num_runs + 1))
+                    n_digits = math.ceil(math.log10(num_runs - 1))
                     for i in range(num_runs):
                         sub_file = os.path.join(
                             runs_dir, '{}_{:0{:d}.0f}.yaml'.format(top_name, i, n_digits))

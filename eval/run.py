@@ -103,7 +103,7 @@ def generate_mc_from_yaml(yaml_file):
                 if (use_seed):
                     random.seed(seed)
 
-                n_digits = math.ceil(math.log10(num_runs + 1))
+                n_digits = math.ceil(math.log10(num_runs - 1))
                 for i in range(num_runs):
                     sub_yaml = top_yaml
                     if (use_seed):
@@ -111,7 +111,6 @@ def generate_mc_from_yaml(yaml_file):
                         sub_yaml['/EkfCalNode']['ros__parameters']['SimParams']['Seed'] = new_seed
                     sub_yaml['/EkfCalNode']['ros__parameters']['SimParams']['NumberOfRuns'] = 1
                     sub_yaml['/EkfCalNode']['ros__parameters']['SimParams']['RunNumber'] += i
-                    sub_yaml['/EkfCalNode']['ros__parameters']['SimParams']['RunNumber'] *= i
                     sub_file = os.path.join(
                         runs_dir, '{}_{:0{:d}.0f}.yaml'.format(top_name, i, n_digits))
                     yaml_files.append(sub_file)
@@ -142,6 +141,7 @@ def add_jobs(inputs: List[str]):
 
 # @todo(jhartzer): Add argument to override number of runs
 # @todo(jhartzer): Add argument to override max simulation time
+# @todo(jhartzer): Add lock file when simulation begins and delete when complete
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('inputs', nargs='+', type=str)

@@ -52,6 +52,8 @@ Software Work:
     - Add parameter for feature point uncertainty
     - Rename rotations using to/from frames
     - Automatically check regression results
+    - Run missing runs tool
+    - Script to only produce statistics
 
     Additional Trackers:
         - FiducialTracker
