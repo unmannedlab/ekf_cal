@@ -79,7 +79,7 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
     m_ang_b_to_g.inverse().toRotationMatrix();
 
   // Body Orientation
-  measurement_jacobian.block<3, 3>(0, 9) = -m_ang_i_to_b.inverse().toRotationMatrix() *
+  measurement_jacobian.block<3, 3>(0, 9) = m_ang_i_to_b.inverse().toRotationMatrix() *
     SkewSymmetric(m_ang_b_to_g.inverse().toRotationMatrix() * g_gravity);
 
   // Body Angular Velocity
@@ -99,10 +99,11 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
   // IMU Positional Offset
   if (!isBaseSensor) {
     // IMU Positional Offset
-    measurement_jacobian.block<3, 3>(0, g_body_state_size) = m_ang_i_to_b.inverse() * (
+    measurement_jacobian.block<3, 3>(0, g_body_state_size) =
+      m_ang_i_to_b.inverse().toRotationMatrix() * (
       SkewSymmetric(m_body_ang_acc) +
       SkewSymmetric(m_body_ang_vel) * SkewSymmetric(m_body_ang_vel)
-    );
+      );
 
     // IMU Angular Offset
     measurement_jacobian.block<3, 3>(0, g_body_state_size + 3) = SkewSymmetric(

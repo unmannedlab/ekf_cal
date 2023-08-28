@@ -137,12 +137,6 @@ add_executable(ekf_cal_node src/application/ros/ekf_cal_main.cpp)
 message(STATUS "PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR}")
 target_link_libraries(ekf_cal_node EKF_NODE_LIB EKF_LIB ROS_LIB ROS_INF ROS_UTL EKF_UTL)
 
-
-# State Publisher Node
-add_library(PUB_NODE_LIB src/application/ros/node/state_publisher_node.cpp)
-add_executable(state_pub_node src/application/ros/state_publisher_main.cpp)
-target_link_libraries(state_pub_node PUB_NODE_LIB ROS_LIB ROS_UTL EKF_UTL)
-
 # Simulation
 add_executable(sim src/application/sim/simulation.cpp)
 include_directories(${YAML_CPP_INCLUDE_DIRS})
@@ -157,9 +151,7 @@ ament_target_dependencies(EKF_LIB OpenCV)
 ament_target_dependencies(ROS_UTL ${ROS_PKGS})
 ament_target_dependencies(ROS_LIB ${ROS_PKGS})
 ament_target_dependencies(EKF_NODE_LIB ${ROS_PKGS})
-ament_target_dependencies(PUB_NODE_LIB ${ROS_PKGS})
 ament_target_dependencies(ekf_cal_node ${ROS_PKGS})
-ament_target_dependencies(state_pub_node ${ROS_PKGS})
 ament_target_dependencies(sim OpenCV)
 
 
@@ -214,7 +206,6 @@ endif()
 
 install(TARGETS
     ekf_cal_node
-    state_pub_node
     DESTINATION lib/${PROJECT_NAME}
 )
 

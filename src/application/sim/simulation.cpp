@@ -177,6 +177,19 @@ int main(int argc, char * argv[])
     imu_params.data_logging_on = data_logging_on;
     imu_params.use_for_prediction = imu_node["UseForPrediction"].as<bool>();
     using_imu_for_prediction = using_imu_for_prediction || imu_params.use_for_prediction;
+    if (!imu_params.base_sensor) {
+      imu_params.pos_i_in_b[0] = rng.NormRand(0, imu_params.pos_i_in_b[0]);
+      imu_params.pos_i_in_b[1] = rng.NormRand(0, imu_params.pos_i_in_b[1]);
+      imu_params.pos_i_in_b[2] = rng.NormRand(0, imu_params.pos_i_in_b[2]);
+    }
+    if (imu_params.intrinsic) {
+      imu_params.acc_bias[0] = rng.NormRand(0, imu_params.acc_bias[0]);
+      imu_params.acc_bias[1] = rng.NormRand(0, imu_params.acc_bias[1]);
+      imu_params.acc_bias[2] = rng.NormRand(0, imu_params.acc_bias[2]);
+      imu_params.omg_bias[0] = rng.NormRand(0, imu_params.omg_bias[0]);
+      imu_params.omg_bias[1] = rng.NormRand(0, imu_params.omg_bias[1]);
+      imu_params.omg_bias[2] = rng.NormRand(0, imu_params.omg_bias[2]);
+    }
 
     // SimParams
     SimIMU::Parameters sim_imu_params;
