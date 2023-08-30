@@ -262,6 +262,114 @@ class Plotter():
         fig.tight_layout()
         return fig
 
+    def plot_imu_err_pos(self, imu_dfs):
+        """TODO."""
+        fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
+        t_imu = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+        pos_0 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+        pos_1 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+        pos_2 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+
+        for i in range(len(imu_dfs)):
+            t_imu[i, :] = imu_dfs[i]['time'].to_list()
+            pos_0[i, :] = np.array(imu_dfs[i]['imu_pos_0'].to_list()) * 1000
+            pos_1[i, :] = np.array(imu_dfs[i]['imu_pos_1'].to_list()) * 1000
+            pos_2[i, :] = np.array(imu_dfs[i]['imu_pos_2'].to_list()) * 1000
+            axs_1.plot(t_imu[i, :], pos_0[i, :], alpha=alpha, color='tab:blue')
+            axs_2.plot(t_imu[i, :], pos_1[i, :], alpha=alpha, color='tab:orange')
+            axs_3.plot(t_imu[i, :], pos_2[i, :], alpha=alpha, color='tab:green')
+
+        pos_0_std = np.std(pos_0, axis=0)
+        pos_1_std = np.std(pos_1, axis=0)
+        pos_2_std = np.std(pos_2, axis=0)
+        axs_1.plot(t_imu[0, :], +3.0 * pos_0_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_2.plot(t_imu[0, :], +3.0 * pos_1_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_3.plot(t_imu[0, :], +3.0 * pos_2_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_1.plot(t_imu[0, :], -3.0 * pos_0_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_2.plot(t_imu[0, :], -3.0 * pos_1_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_3.plot(t_imu[0, :], -3.0 * pos_2_std, linestyle='--', color='tab:red', alpha=0.5)
+
+        set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Position Error')
+        axs_1.set_ylabel('X Position \nError [mm]')
+        axs_2.set_ylabel('Y Position \nError [mm]')
+        axs_3.set_ylabel('Z Position \nError [mm]')
+        axs_3.set_xlabel('Time [s]')
+        fig.tight_layout()
+        return fig
+
+    def plot_imu_err_bias_acc(self, imu_dfs):
+        """TODO."""
+        fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
+        t_imu = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+        acc_bias_0 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+        acc_bias_1 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+        acc_bias_2 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+
+        for i in range(len(imu_dfs)):
+            t_imu[i, :] = imu_dfs[i]['time'].to_list()
+            acc_bias_0[i, :] = np.array(imu_dfs[i]['imu_acc_bias_0'].to_list()) * 1000
+            acc_bias_1[i, :] = np.array(imu_dfs[i]['imu_acc_bias_1'].to_list()) * 1000
+            acc_bias_2[i, :] = np.array(imu_dfs[i]['imu_acc_bias_2'].to_list()) * 1000
+            axs_1.plot(t_imu[i, :], acc_bias_0[i, :], alpha=alpha, color='tab:blue')
+            axs_2.plot(t_imu[i, :], acc_bias_1[i, :], alpha=alpha, color='tab:orange')
+            axs_3.plot(t_imu[i, :], acc_bias_2[i, :], alpha=alpha, color='tab:green')
+
+        acc_bias_0_std = np.std(acc_bias_0, axis=0)
+        acc_bias_1_std = np.std(acc_bias_1, axis=0)
+        acc_bias_2_std = np.std(acc_bias_2, axis=0)
+        axs_1.plot(t_imu[0, :], +3.0 * acc_bias_0_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_2.plot(t_imu[0, :], +3.0 * acc_bias_1_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_3.plot(t_imu[0, :], +3.0 * acc_bias_2_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_1.plot(t_imu[0, :], -3.0 * acc_bias_0_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_2.plot(t_imu[0, :], -3.0 * acc_bias_1_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_3.plot(t_imu[0, :], -3.0 * acc_bias_2_std, linestyle='--', color='tab:red', alpha=0.5)
+
+        set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Accelerometer Bias Error')
+        axs_1.set_ylabel(r'$b_{a_x}$ Error $\left[ \frac{mm}{s^2} \right]$')
+        axs_2.set_ylabel(r'$b_{a_y}$ Error $\left[ \frac{mm}{s^2} \right]$')
+        axs_3.set_ylabel(r'$b_{a_z}$ Error $\left[ \frac{mm}{s^2} \right]$')
+        axs_3.set_xlabel('Time [s]')
+        fig.tight_layout()
+        return fig
+
+    def plot_imu_err_bias_omg(self, imu_dfs):
+        """TODO."""
+        fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
+        t_imu = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+        omg_bias_0 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+        omg_bias_1 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+        omg_bias_2 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+
+        for i in range(len(imu_dfs)):
+            t_imu[i, :] = imu_dfs[i]['time'].to_list()
+            omg_bias_0[i, :] = np.array(imu_dfs[i]['imu_omg_bias_0'].to_list()) * 1000
+            omg_bias_1[i, :] = np.array(imu_dfs[i]['imu_omg_bias_1'].to_list()) * 1000
+            omg_bias_2[i, :] = np.array(imu_dfs[i]['imu_omg_bias_2'].to_list()) * 1000
+            axs_1.plot(t_imu[i, :], omg_bias_0[i, :], alpha=alpha, color='tab:blue')
+            axs_2.plot(t_imu[i, :], omg_bias_1[i, :], alpha=alpha, color='tab:orange')
+            axs_3.plot(t_imu[i, :], omg_bias_2[i, :], alpha=alpha, color='tab:green')
+
+        omg_bias_0_std = np.std(omg_bias_0, axis=0)
+        omg_bias_1_std = np.std(omg_bias_1, axis=0)
+        omg_bias_2_std = np.std(omg_bias_2, axis=0)
+        axs_1.plot(t_imu[0, :], +3.0 * omg_bias_0_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_2.plot(t_imu[0, :], +3.0 * omg_bias_1_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_3.plot(t_imu[0, :], +3.0 * omg_bias_2_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_1.plot(t_imu[0, :], -3.0 * omg_bias_0_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_2.plot(t_imu[0, :], -3.0 * omg_bias_1_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_3.plot(t_imu[0, :], -3.0 * omg_bias_2_std, linestyle='--', color='tab:red', alpha=0.5)
+
+        set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Gyroscope Bias Error')
+        axs_1.set_ylabel(r'$b_{\omega_x}$ Error $\left[ \frac{mrad}{s} \right]$')
+        axs_2.set_ylabel(r'$b_{\omega_y}$ Error $\left[ \frac{mrad}{s} \right]$')
+        axs_3.set_ylabel(r'$b_{\omega_z}$ Error $\left[ \frac{mrad}{s} \right]$')
+        axs_3.set_xlabel('Time [s]')
+        fig.tight_layout()
+        return fig
+
     def plot_camera_body_pos_updates(self, cam_dfs):
         """Plot updates to the body position states from camera measurements."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
@@ -941,7 +1049,7 @@ class Plotter():
             self.plot_body_err_ang_acc(body_state_dfs, body_truth_dfs),
         ]
         animations = [
-            #     self.plot_body_pos_3d_anim(body_state_dfs)
+            self.plot_body_pos_3d_anim(body_state_dfs)
         ]
         return figures, animations
 
@@ -952,7 +1060,10 @@ class Plotter():
             self.plot_imu_residuals(imu_dfs),
             self.plot_imu_offset_updates(imu_dfs),
             self.plot_imu_bias_updates(imu_dfs),
-            self.plot_update_timing(imu_dfs, config_data['IMU_rates'][i])
+            self.plot_update_timing(imu_dfs, config_data['IMU_rates'][i]),
+            self.plot_imu_err_pos(imu_dfs),
+            self.plot_imu_err_bias_acc(imu_dfs),
+            self.plot_imu_err_bias_omg(imu_dfs)
         ]
         return figures
 
@@ -1062,6 +1173,8 @@ def generate_mc_lists(input_files):
     return mc_lists
 
 
+# @todo(jhartzer): Add flag for low-memory usage (load single df at a time)
+# @todo(jhartzer): Add option for saving with no title (for papers)
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('configs', nargs='+', type=str)

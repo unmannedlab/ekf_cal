@@ -21,12 +21,14 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/imu.hpp>
+#include <std_msgs/msg/float64_multi_array.hpp>
 
 #include "ekf/ekf.hpp"
 #include "infrastructure/debug_logger.hpp"
@@ -37,6 +39,7 @@
 #include "sensors/ros/ros_camera.hpp"
 #include "sensors/ros/ros_imu_message.hpp"
 #include "sensors/ros/ros_imu.hpp"
+#include "utility/string_helper.hpp"
 #include "utility/type_helper.hpp"
 
 using std::placeholders::_1;
@@ -46,7 +49,7 @@ EkfCalNode::EkfCalNode()
 {
   // Declare Parameters
   this->declare_parameter("Debug_Log_Level", 0);
-  this->declare_parameter("Data_Log_Level", 0);
+  this->declare_parameter("Data_Logging_On", false);
   this->declare_parameter("IMU_list", std::vector<std::string>{});
   this->declare_parameter("Camera_list", std::vector<std::string>{});
   this->declare_parameter("Tracker_list", std::vector<std::string>{});
@@ -54,15 +57,22 @@ EkfCalNode::EkfCalNode()
   Initialize();
   DeclareSensors();
   LoadSensors();
+
+  m_state_pub_timer =
+    this->create_wall_timer(std::chrono::seconds(1), std::bind(&EkfCalNode::PublishState, this));
 }
 
 void EkfCalNode::Initialize()
 {
   // Set logging
-  unsigned int log_level =
-    static_cast<unsigned int>(this->get_parameter("Debug_Log_Level").as_int());
-  m_logger->SetLogLevel(log_level);
+  int debug_log_level = this->get_parameter("Debug_Log_Level").as_int();
+  bool data_logging_on = this->get_parameter("Data_Logging_On").as_bool();
+  m_logger->SetLogLevel(static_cast<unsigned int>(debug_log_level));
   m_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
+  m_state_data_logger.SetLogging(data_logging_on);
+  m_state_data_logger.SetOutputDirectory("/home/jacob/log/");
+  m_state_data_logger.SetOutputFileName("state_vector.csv");
+  m_state_data_logger.DefineHeader("\n");
 
   // Load lists of sensors
   m_imu_list = this->get_parameter("IMU_list").as_string_array();
@@ -98,6 +108,7 @@ void EkfCalNode::LoadSensors()
 
   // Create publishers
   m_img_publisher = this->create_publisher<sensor_msgs::msg::Image>("~/outImg", 10);
+  m_state_pub = this->create_publisher<std_msgs::msg::Float64MultiArray>("~/state", 10);
 }
 
 void EkfCalNode::DeclareImuParameters(std::string imu_name)
@@ -276,7 +287,6 @@ void EkfCalNode::RegisterCamera(std::shared_ptr<RosCamera> camera_ptr, std::stri
       camera_ptr->GetId()) + ": " + camera_ptr->GetName());
 }
 
-
 void EkfCalNode::ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id)
 {
   auto ros_imu_iter = m_map_imu.find(id);
@@ -300,4 +310,21 @@ void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, un
   } else {
     m_logger->Log(LogLevel::WARN, "Camera ID Not Found: " + std::to_string(id));
   }
+}
+
+
+void EkfCalNode::PublishState()
+{
+  Eigen::VectorXd vector_state = m_ekf->GetState().ToVector();
+  auto state_vec_msg = std_msgs::msg::Float64MultiArray();
+
+  for (auto & element : vector_state) {
+    state_vec_msg.data.push_back(element);
+  }
+
+  m_state_pub->publish(state_vec_msg);
+
+  std::stringstream msg;
+  msg << VectorToCommaString(vector_state) << std::endl;
+  m_state_data_logger.Log(msg.str());
 }
