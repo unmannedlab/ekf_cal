@@ -24,6 +24,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
+    """Generate launch description for EKF-CAL example config."""
     this_dir = get_package_share_directory('ekf_cal')
 
     start_ekf_cal_node_cmd = Node(
@@ -31,20 +32,11 @@ def generate_launch_description():
         executable='ekf_cal_node',
         output='screen',
         parameters=[os.path.join(this_dir, 'config', 'example.yaml')],
-        arguments=['--ros-args', '--log-level', 'debug']
-    )
-
-    bag_file_path = os.path.abspath(
-        os.path.join(this_dir, '..', '..', '..', '..', 'data', 'imu_cam_2')
-    )
-
-    start_bag = ExecuteProcess(
-        cmd=['ros2', 'bag', 'play', bag_file_path, '--rate', '1.0'], output='screen'
+        # arguments=['--ros-args', '--log-level', 'debug'] # For ROS debugging
     )
 
     # Create the launch description and populate
     ld = LaunchDescription()
     ld.add_action(start_ekf_cal_node_cmd)
-    ld.add_action(start_bag)
 
     return ld
