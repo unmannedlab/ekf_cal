@@ -54,7 +54,6 @@ Software Work:
     - Automatically check regression results
     - Run missing runs tool
     - Script to only produce statistics
-    - rosdep compatibility
 
     Additional Trackers:
         - FiducialTracker
