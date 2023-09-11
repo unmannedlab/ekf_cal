@@ -80,7 +80,7 @@ public:
 ///
 typedef struct AugmentedState
 {
-  unsigned int frame_id {0};                          ///< @brief Augmented frame ID
+  int frame_id {-1};                                  ///< @brief Augmented frame ID
   Eigen::Vector3d pos_b_in_g{0.0, 0.0, 0.0};          ///< @brief Augmented IMU position
   Eigen::Quaterniond ang_b_to_g{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
   Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Augmented camera position
@@ -112,7 +112,7 @@ public:
 ///
 typedef struct FeatureTrack
 {
-  unsigned int frame_id;   ///< @brief Feature track frame ID
+  int frame_id;   ///< @brief Feature track frame ID
   cv::KeyPoint key_point;  ///< @brief Feature track key point
 } FeatureTrack;
 

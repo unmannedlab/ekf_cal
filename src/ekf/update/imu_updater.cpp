@@ -78,10 +78,6 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
   measurement_jacobian.block<3, 3>(0, 6) = m_ang_i_to_b.inverse().toRotationMatrix() *
     m_ang_b_to_g.inverse().toRotationMatrix();
 
-  // Body Orientation
-  // measurement_jacobian.block<3, 3>(0, 9) = m_ang_i_to_b.inverse().toRotationMatrix() *
-  //   SkewSymmetric(m_ang_b_to_g.inverse().toRotationMatrix() * (m_body_acc + g_gravity));
-
   // Body Angular Velocity
   measurement_jacobian.block<3, 3>(0, 12) = m_ang_i_to_b.inverse().toRotationMatrix() * (
     SkewSymmetric(m_body_ang_vel) *
@@ -92,11 +88,6 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(bool isBaseSensor, bool isInt
   // Body Angular Acceleration
   measurement_jacobian.block<3, 3>(0, 15) = m_ang_i_to_b.inverse().toRotationMatrix() *
     SkewSymmetric(m_pos_i_in_g);
-
-  // Body Orientation
-  // measurement_jacobian.block<3, 3>(3, 9) = SkewSymmetric(
-  //   m_ang_i_to_b.inverse().toRotationMatrix() *
-  //   m_ang_b_to_g.inverse().toRotationMatrix() * m_body_ang_vel);
 
   // IMU Body Angular Velocity
   measurement_jacobian.block<3, 3>(3, 12) = m_ang_i_to_b.inverse().toRotationMatrix() *
@@ -201,8 +192,8 @@ void ImuUpdater::UpdateEKF(
     subH.block<6, g_imu_state_size>(0, g_body_state_size);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-  R.block<3, 3>(0, 0) = MinBoundDiagonal(accelerationCovariance, 1e-3);
-  R.block<3, 3>(3, 3) = MinBoundDiagonal(angularRateCovariance, 1e-2);
+  R.block<3, 3>(0, 0) = MinBoundDiagonal(accelerationCovariance * 3, 1e-3);
+  R.block<3, 3>(3, 3) = MinBoundDiagonal(angularRateCovariance * 3, 1e-2);
 
   Eigen::MatrixXd S = H * m_ekf->GetCov().block(0, 0, updateSize, updateSize) * H.transpose() + R;
   Eigen::MatrixXd K =

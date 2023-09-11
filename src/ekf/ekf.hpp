@@ -165,7 +165,7 @@ public:
   /// @param cam_id Camera sensor ID
   /// @param frame_id Camera frame ID
   ///
-  unsigned int GetAugStateStartIndex(unsigned int cam_id, unsigned int frame_id);
+  unsigned int GetAugStateStartIndex(unsigned int cam_id, int frame_id);
 
   ///
   /// @brief EKF state initialization method
@@ -205,7 +205,7 @@ public:
   /// @param camera_id Current camera ID
   /// @param frame_id Current frame ID
   ///
-  void AugmentState(unsigned int camera_id, unsigned int frame_id);
+  void AugmentState(unsigned int camera_id, int frame_id);
 
   ///
   /// @brief Body data logger rate setter
@@ -233,7 +233,7 @@ private:
   bool m_data_logging_on {false};
 
   Eigen::MatrixXd m_process_noise =
-    Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-1;
+    Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 5e-2;
 };
 
 #endif  // EKF__EKF_HPP_

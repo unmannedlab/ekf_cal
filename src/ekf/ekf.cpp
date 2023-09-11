@@ -286,7 +286,7 @@ unsigned int EKF::GetCamStateStartIndex(unsigned int cam_id)
 }
 
 /// @todo Replace this lookup with a map
-unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, unsigned int frame_id)
+unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, int frame_id)
 {
   unsigned int state_start_index = g_body_state_size;
   state_start_index += (g_imu_state_size * m_state.m_imu_states.size());
@@ -339,7 +339,7 @@ Eigen::MatrixXd EKF::AugmentJacobian(
   return jacobian;
 }
 
-void EKF::AugmentState(unsigned int camera_id, unsigned int frame_id)
+void EKF::AugmentState(unsigned int camera_id, int frame_id)
 {
   std::stringstream msg;
   msg << "Aug State Frame: " << std::to_string(frame_id);

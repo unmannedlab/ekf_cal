@@ -28,8 +28,8 @@ unsigned int FeatureTracker::m_tracker_count = 0;
 
 /// @todo add detector/extractor parameters to input
 FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
-: m_msckf_updater(params.sensor_id, params.output_directory, params.data_logging_on), m_id(
-    ++m_tracker_count)
+: m_msckf_updater(params.sensor_id, params.output_directory, params.data_logging_on),
+  m_camera_id(params.sensor_id), m_id(++m_tracker_count)
 {
   m_feature_detector = InitFeatureDetector(params.detector, params.threshold);
   m_descriptor_extractor = InitDescriptorExtractor(params.descriptor, params.threshold);
@@ -60,7 +60,7 @@ cv::Ptr<cv::FeatureDetector> FeatureTracker::InitFeatureDetector(
       break;
     case FeatureDetectorEnum::ORB:
       feature_detector = cv::ORB::create(
-        500, 1.2f, 8, 31,
+        1000, 1.2f, 8, 31,
         0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
       break;
     case FeatureDetectorEnum::SIFT:
@@ -113,7 +113,7 @@ std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
   unsigned int rows,
   unsigned int cols)
 {
-  unsigned int min_pixel_distance = 20;
+  unsigned int min_pixel_distance = 10;
   double double_rows = static_cast<double>(rows);
   double double_cols = static_cast<double>(cols);
   double double_min_pixel_distance = static_cast<double>(min_pixel_distance);
@@ -156,50 +156,60 @@ std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
 
 void FeatureTracker::Track(
   double time,
-  unsigned int frame_id, cv::Mat & img_in, cv::Mat & img_out,
+  int frame_id, cv::Mat & img_in, cv::Mat & img_out,
   FeatureTracks feature_tracks)
 {
-  m_feature_detector->detect(img_in, m_curr_key_points);
-  /// @todo create occupancy grid of key_points using minimal pixel distance
-  m_curr_key_points = GridFeatures(m_curr_key_points, img_in.rows, img_in.cols);
+  // Down sample image
+  cv::Mat img_down;
+  cv::Size down_sample_size;
+  down_sample_size.height = 400;
+  down_sample_size.width = 640;
+  cv::resize(img_in, img_down, down_sample_size);
 
-  m_descriptor_extractor->compute(img_in, m_curr_key_points, m_curr_descriptors);
+  m_feature_detector->detect(img_down, m_curr_key_points);
+  /// @todo create occupancy grid of key_points using minimal pixel distance
+  m_curr_key_points = GridFeatures(m_curr_key_points, img_down.rows, img_down.cols);
+
+  double threshold_dist = 0.25 * sqrt(double(down_sample_size.height + down_sample_size.width));
+
+  m_descriptor_extractor->compute(img_down, m_curr_key_points, m_curr_descriptors);
   m_curr_descriptors.convertTo(m_curr_descriptors, CV_32F);
-  cv::drawKeypoints(img_in, m_curr_key_points, img_out);
+  cv::drawKeypoints(img_down, m_curr_key_points, img_out);
 
   m_logger->Log(LogLevel::DEBUG, "Called Tracker for frame ID: " + std::to_string(frame_id));
 
   if (m_prev_descriptors.rows > 0 && m_curr_descriptors.rows > 0) {
-    std::vector<std::vector<cv::DMatch>> matches;
+    std::vector<std::vector<cv::DMatch>> matches_forward, matches_backward;
+    std::vector<cv::DMatch> matches_good;
 
     /// @todo Mask using maximum distance from predicted IMU rotations
-    m_descriptor_matcher->knnMatch(m_prev_descriptors, m_curr_descriptors, matches, 5);
+    m_descriptor_matcher->knnMatch(m_prev_descriptors, m_curr_descriptors, matches_forward, 500);
+    m_descriptor_matcher->knnMatch(m_prev_descriptors, m_curr_descriptors, matches_backward, 500);
 
-    // Use only "good" matches (i.e. whose distance is less than 3*min_dist )
-    double max_dist = 0;
-    double min_dist = 100;
+    matches_good.reserve(matches_forward.size());
+    for (unsigned int i = 0; i < matches_forward.size(); ++i) {
+      for (unsigned int j = 0; j < matches_forward[i].size(); j++) {
+        cv::Point2f point_old = m_prev_key_points[matches_forward[i][j].queryIdx].pt;
+        cv::Point2f point_new = m_curr_key_points[matches_forward[i][j].trainIdx].pt;
 
-    for (unsigned int i = 0; i < matches.size(); ++i) {
-      double dist = matches[i][0].distance;
+        //calculate local distance for each possible match
+        double dist = sqrt(
+          (point_old.x - point_new.x) * (point_old.x - point_new.x) +
+          (point_old.y - point_new.y) * (point_old.y - point_new.y));
 
-      if (dist < min_dist && dist >= 5.0) {min_dist = dist;}
-      if (dist > max_dist) {max_dist = dist;}
-    }
-
-    auto goodMatches = std::vector<cv::DMatch>{};
-    for (unsigned int i = 0; i < matches.size(); ++i) {
-      for (unsigned int j = 0; j < matches[i].size(); ++j) {
-        if (matches[i][j].distance < 3 * min_dist) {
-          cv::Point2d point_old = m_prev_key_points[matches[i][j].queryIdx].pt;
-          cv::Point2d point_new = m_curr_key_points[matches[i][j].trainIdx].pt;
+        //save as best match if local distance is in specified area and on same height
+        if (dist < threshold_dist) {
           cv::line(img_out, point_old, point_new, cv::Scalar(0, 255, 0), 2, 8, 0);
-          goodMatches.push_back(matches[i][j]);
+          matches_good.push_back(matches_forward[i][j]);
+          j = matches_forward[i].size();
         }
       }
     }
 
+    /// @todo(jhartzer): Ratio and Symmetry testing?
+
     // Assign previous Key Point ID for each match
-    for (const auto & m : goodMatches) {
+    for (const auto & m : matches_good) {
       m_curr_key_points[m.trainIdx].class_id = m_prev_key_points[m.queryIdx].class_id;
     }
 

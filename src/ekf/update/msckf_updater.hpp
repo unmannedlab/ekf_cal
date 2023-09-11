@@ -38,7 +38,7 @@ public:
   /// @param data_logging_on Flag to enable data logging
   ///
   explicit MsckfUpdater(
-    unsigned int cam_id,
+    int cam_id,
     std::string log_file_directory,
     bool data_logging_on);
 
@@ -47,7 +47,7 @@ public:
   /// @param frame_id Desired frame ID
   /// @return Matching augmented state
   ///
-  AugmentedState MatchState(unsigned int frame_id);
+  AugmentedState MatchState(int frame_id);
 
   ///
   /// @brief Triangulate feature seen from multiple camera frames
@@ -65,7 +65,7 @@ public:
   ///
   void UpdateEKF(
     double time,
-    unsigned int camera_id,
+    int camera_id,
     FeatureTracks feature_tracks,
     double px_error);
 

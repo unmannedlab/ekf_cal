@@ -61,6 +61,7 @@ Software Work:
             - CharucoBoardTracker
             - ChessBoardTracker
             - CharucoDiamondTracker
+            - AprilGridTracker
 
 Tools:
     - Plot body error against truth if available

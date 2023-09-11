@@ -163,7 +163,8 @@ private:
   std::vector<std::string> m_tracker_list {};
 
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_img_publisher;
-  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_state_pub;
+  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_body_state_pub;
+  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_imu_state_pub;
   rclcpp::TimerBase::SharedPtr m_state_pub_timer;
 
   EKF * m_ekf = EKF::GetInstance();

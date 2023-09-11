@@ -159,7 +159,7 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 }
 
 std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::GenerateMessages(
-  std::vector<double> message_times, unsigned int sensor_id)
+  std::vector<double> message_times, int sensor_id)
 {
   m_logger->Log(
     LogLevel::INFO, "Generating " + std::to_string(message_times.size()) + " measurements");
@@ -167,7 +167,7 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::Genera
   std::map<unsigned int, std::vector<FeatureTrack>> feature_track_map;
   std::vector<std::shared_ptr<SimFeatureTrackerMessage>> tracker_messages;
 
-  for (unsigned int frame_id = 0; frame_id < message_times.size(); ++frame_id) {
+  for (int frame_id = 0; static_cast<unsigned int>(frame_id) < message_times.size(); ++frame_id) {
     std::vector<std::vector<FeatureTrack>> feature_tracks;
 
     std::vector<cv::KeyPoint> key_points = VisibleKeypoints(message_times[frame_id]);

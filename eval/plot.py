@@ -291,10 +291,45 @@ class Plotter():
         axs_3.plot(t_imu[0, :], -3.0 * pos_2_std, linestyle='--', color='tab:red', alpha=0.5)
 
         set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Position Error')
-        axs_1.set_ylabel('X Position \nError [mm]')
-        axs_2.set_ylabel('Y Position \nError [mm]')
-        axs_3.set_ylabel('Z Position \nError [mm]')
+        axs_1.set_ylim([-25, 25])
+        axs_2.set_ylim([-25, 25])
+        axs_3.set_ylim([-25, 25])
+        axs_1.set_ylabel('$p_x$ Error $[mm]$')
+        axs_2.set_ylabel('$p_y$ Error $[mm]$')
+        axs_3.set_ylabel('$p_z$ Error $[mm]$')
         axs_3.set_xlabel('Time [s]')
+        fig.tight_layout()
+        return fig
+
+    def plot_imu_err_ang(self, imu_dfs):
+        """Plot the body state angular error."""
+        fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
+        alpha = calculate_alpha(len(imu_dfs))
+        angles = np.zeros([len(imu_dfs)])
+
+        for i in range(len(imu_dfs)):
+            time = imu_dfs[i]['time'].to_list()
+            err_img_ang_w = imu_dfs[i]['imu_ang_0'].to_list()
+            err_img_ang_x = imu_dfs[i]['imu_ang_1'].to_list()
+            err_img_ang_y = imu_dfs[i]['imu_ang_2'].to_list()
+            err_img_ang_z = imu_dfs[i]['imu_ang_3'].to_list()
+
+            axs_1.plot(time, err_img_ang_w, alpha=alpha, color='tab:blue')
+            axs_2.plot(time, err_img_ang_x, alpha=alpha, color='tab:orange')
+            axs_3.plot(time, err_img_ang_y, alpha=alpha, color='tab:green')
+            axs_4.plot(time, err_img_ang_z, alpha=alpha, color='tab:red')
+            angles[i] = np.linalg.norm(R.from_quat([
+                err_img_ang_w[-1],
+                err_img_ang_x[-1],
+                err_img_ang_y[-1],
+                err_img_ang_z[-1]]).as_rotvec())
+
+        set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Angular Error')
+        axs_1.set_ylabel('W Error')
+        axs_2.set_ylabel('X Error')
+        axs_3.set_ylabel('Y Error')
+        axs_4.set_ylabel('Z Error')
+        axs_4.set_xlabel('Time [s]')
         fig.tight_layout()
         return fig
 
@@ -327,6 +362,9 @@ class Plotter():
         axs_3.plot(t_imu[0, :], -3.0 * acc_bias_2_std, linestyle='--', color='tab:red', alpha=0.5)
 
         set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Accelerometer Bias Error')
+        axs_1.set_ylim([-25, 25])
+        axs_2.set_ylim([-25, 25])
+        axs_3.set_ylim([-25, 25])
         axs_1.set_ylabel(r'$b_{a_x}$ Error $\left[ \frac{mm}{s^2} \right]$')
         axs_2.set_ylabel(r'$b_{a_y}$ Error $\left[ \frac{mm}{s^2} \right]$')
         axs_3.set_ylabel(r'$b_{a_z}$ Error $\left[ \frac{mm}{s^2} \right]$')
@@ -1062,6 +1100,7 @@ class Plotter():
             self.plot_imu_bias_updates(imu_dfs),
             self.plot_update_timing(imu_dfs, config_data['IMU_rates'][i]),
             self.plot_imu_err_pos(imu_dfs),
+            self.plot_imu_err_ang(imu_dfs),
             self.plot_imu_err_bias_acc(imu_dfs),
             self.plot_imu_err_bias_omg(imu_dfs)
         ]

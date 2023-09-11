@@ -28,7 +28,7 @@
 #include "utility/string_helper.hpp"
 
 MsckfUpdater::MsckfUpdater(
-  unsigned int cam_id, std::string log_file_directory,
+  int cam_id, std::string log_file_directory,
   bool data_logging_on)
 : Updater(cam_id),
   m_data_logger(log_file_directory, "camera_" + std::to_string(cam_id) + ".csv"),
@@ -50,8 +50,7 @@ MsckfUpdater::MsckfUpdater(
   m_triangulation_logger.SetLogging(data_logging_on);
 }
 
-AugmentedState MsckfUpdater::MatchState(
-  unsigned int frame_id)
+AugmentedState MsckfUpdater::MatchState(int frame_id)
 {
   AugmentedState aug_state_match;
 
@@ -60,7 +59,10 @@ AugmentedState MsckfUpdater::MatchState(
       return aug_state;
     }
   }
-  m_logger->Log(LogLevel::WARN, "No matching augmented state");
+
+  std::stringstream warning_msg;
+  warning_msg << "No matching augmented state for frame " << frame_id;
+  m_logger->Log(LogLevel::WARN, warning_msg.str());
   return aug_state_match;
 }
 
@@ -193,7 +195,7 @@ void MsckfUpdater::distortion_jacobian(
 
 void MsckfUpdater::UpdateEKF(
   double time,
-  unsigned int camera_id,
+  int camera_id,
   FeatureTracks feature_tracks,
   double px_error)
 {

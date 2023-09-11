@@ -73,8 +73,7 @@ public:
   /// @brief Generate simulated tracker messages
   ///
   std::vector<std::shared_ptr<SimFeatureTrackerMessage>> GenerateMessages(
-    std::vector<double> message_times,
-    unsigned int sensor_id);
+    std::vector<double> message_times, int sensor_id);
 
   ///
   /// @brief Return currently visible keypoints

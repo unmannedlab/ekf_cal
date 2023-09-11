@@ -77,7 +77,7 @@ public:
     DescriptorExtractorEnum descriptor {DescriptorExtractorEnum::ORB};  ///< @brief Descriptor
     DescriptorMatcherEnum matcher {DescriptorMatcherEnum::FLANN};       ///< @brief Matcher
     double threshold {20.0};                                            ///< @brief Threshold
-    unsigned int sensor_id;              ///< @brief Associated sensor ID
+    int sensor_id{-1};                   ///< @brief Associated sensor ID
     std::string output_directory {""};   ///< @brief Feature Tracker data logging directory
     bool data_logging_on {false};        ///< @brief Feature Tracker data logging flag
     double px_error{1e-9};               ///< @brief Pixel error standard deviation
@@ -111,7 +111,7 @@ public:
   ///
   void Track(
     double time,
-    unsigned int frame_id,
+    int frame_id,
     cv::Mat & img_in,
     cv::Mat & img_out,
     FeatureTracks feature_tracks);
@@ -124,10 +124,10 @@ public:
 
 protected:
   DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
-  unsigned int max_track_length{30};  ///< @brief Maximum track length before forced output
+  unsigned int max_track_length{20};  ///< @brief Maximum track length before forced output
   unsigned int min_track_length{2};   ///< @brief Minimum track length to consider
-  unsigned int m_camera_id;           ///< @brief Associated camera ID of tracker
   MsckfUpdater m_msckf_updater;       ///< @brief MSCKF updater object
+  int m_camera_id{-1};                ///< @brief Associated camera ID of tracker
   unsigned int m_id;                  ///< @brief Tracker ID
 
 private:

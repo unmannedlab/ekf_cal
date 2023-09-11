@@ -107,8 +107,9 @@ void EkfCalNode::LoadSensors()
   }
 
   // Create publishers
-  m_img_publisher = this->create_publisher<sensor_msgs::msg::Image>("~/outImg", 10);
-  m_state_pub = this->create_publisher<std_msgs::msg::Float64MultiArray>("~/state", 10);
+  m_img_publisher = this->create_publisher<sensor_msgs::msg::Image>("~/OutImg", 10);
+  m_body_state_pub = this->create_publisher<std_msgs::msg::Float64MultiArray>("~/BodyState", 10);
+  m_imu_state_pub = this->create_publisher<std_msgs::msg::Float64MultiArray>("~/ImuState", 10);
 }
 
 void EkfCalNode::DeclareImuParameters(std::string imu_name)
@@ -267,6 +268,7 @@ void EkfCalNode::LoadCamera(std::string camera_name)
 
   // Create new RosCamera and bind callback to ID
   std::shared_ptr<RosCamera> camera_ptr = std::make_shared<RosCamera>(camera_params);
+  tParams.sensor_id = camera_ptr->GetId();
   std::shared_ptr<FeatureTracker> trkPtr = std::make_shared<FeatureTracker>(tParams);
   camera_ptr->AddTracker(trkPtr);
 
@@ -315,16 +317,26 @@ void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, un
 
 void EkfCalNode::PublishState()
 {
-  Eigen::VectorXd vector_state = m_ekf->GetState().ToVector();
-  auto state_vec_msg = std_msgs::msg::Float64MultiArray();
+  // Body State
+  Eigen::VectorXd body_state_vector = m_ekf->GetBodyState().ToVector();
+  auto body_state_vec_msg = std_msgs::msg::Float64MultiArray();
 
-  for (auto & element : vector_state) {
-    state_vec_msg.data.push_back(element);
+  for (auto & element : body_state_vector) {
+    body_state_vec_msg.data.push_back(element);
   }
+  m_body_state_pub->publish(body_state_vec_msg);
 
-  m_state_pub->publish(state_vec_msg);
+  // IMU States
+  Eigen::VectorXd imu_state_vector = m_ekf->GetImuState(1).ToVector();
+  auto imu_state_vec_msg = std_msgs::msg::Float64MultiArray();
+
+  for (auto & element : imu_state_vector) {
+    imu_state_vec_msg.data.push_back(element);
+  }
+  m_imu_state_pub->publish(imu_state_vec_msg);
 
   std::stringstream msg;
-  msg << VectorToCommaString(vector_state) << std::endl;
+  Eigen::VectorXd state_vector = m_ekf->GetState().ToVector();
+  msg << VectorToCommaString(state_vector) << std::endl;
   m_state_data_logger.Log(msg.str());
 }

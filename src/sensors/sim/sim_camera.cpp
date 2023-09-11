@@ -89,7 +89,7 @@ void SimCamera::AddTracker(std::shared_ptr<SimFeatureTracker> tracker)
 
 void SimCamera::Callback(std::shared_ptr<SimCameraMessage> sim_camera_message)
 {
-  unsigned int frame_id = GenerateFrameID();
+  int frame_id = GenerateFrameID();
 
   m_ekf->AugmentState(m_id, frame_id);
 
