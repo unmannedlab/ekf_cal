@@ -262,7 +262,7 @@ class Plotter():
         fig.tight_layout()
         return fig
 
-    def plot_imu_err_pos(self, imu_dfs):
+    def plot_imu_pos(self, imu_dfs):
         """TODO."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         alpha = calculate_alpha(len(imu_dfs))
@@ -290,18 +290,18 @@ class Plotter():
         axs_2.plot(t_imu[0, :], -3.0 * pos_1_std, linestyle='--', color='tab:red', alpha=0.5)
         axs_3.plot(t_imu[0, :], -3.0 * pos_2_std, linestyle='--', color='tab:red', alpha=0.5)
 
-        set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Position Error')
+        set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Position')
         axs_1.set_ylim([-25, 25])
         axs_2.set_ylim([-25, 25])
         axs_3.set_ylim([-25, 25])
-        axs_1.set_ylabel('$p_x$ Error $[mm]$')
-        axs_2.set_ylabel('$p_y$ Error $[mm]$')
-        axs_3.set_ylabel('$p_z$ Error $[mm]$')
+        axs_1.set_ylabel('$p_x$ $[mm]$')
+        axs_2.set_ylabel('$p_y$ $[mm]$')
+        axs_3.set_ylabel('$p_z$ $[mm]$')
         axs_3.set_xlabel('Time [s]')
         fig.tight_layout()
         return fig
 
-    def plot_imu_err_ang(self, imu_dfs):
+    def plot_imu_ang(self, imu_dfs):
         """Plot the body state angular error."""
         fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
         alpha = calculate_alpha(len(imu_dfs))
@@ -324,16 +324,16 @@ class Plotter():
                 err_img_ang_y[-1],
                 err_img_ang_z[-1]]).as_rotvec())
 
-        set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Angular Error')
-        axs_1.set_ylabel('W Error')
-        axs_2.set_ylabel('X Error')
-        axs_3.set_ylabel('Y Error')
-        axs_4.set_ylabel('Z Error')
+        set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Angular Position')
+        axs_1.set_ylabel('$q_w$')
+        axs_2.set_ylabel('$q_x$')
+        axs_3.set_ylabel('$q_y$')
+        axs_4.set_ylabel('$q_z$')
         axs_4.set_xlabel('Time [s]')
         fig.tight_layout()
         return fig
 
-    def plot_imu_err_bias_acc(self, imu_dfs):
+    def plot_imu_bias_acc(self, imu_dfs):
         """TODO."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         alpha = calculate_alpha(len(imu_dfs))
@@ -361,18 +361,18 @@ class Plotter():
         axs_2.plot(t_imu[0, :], -3.0 * acc_bias_1_std, linestyle='--', color='tab:red', alpha=0.5)
         axs_3.plot(t_imu[0, :], -3.0 * acc_bias_2_std, linestyle='--', color='tab:red', alpha=0.5)
 
-        set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Accelerometer Bias Error')
+        set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Accelerometer Bias')
         axs_1.set_ylim([-25, 25])
         axs_2.set_ylim([-25, 25])
         axs_3.set_ylim([-25, 25])
-        axs_1.set_ylabel(r'$b_{a_x}$ Error $\left[ \frac{mm}{s^2} \right]$')
-        axs_2.set_ylabel(r'$b_{a_y}$ Error $\left[ \frac{mm}{s^2} \right]$')
-        axs_3.set_ylabel(r'$b_{a_z}$ Error $\left[ \frac{mm}{s^2} \right]$')
+        axs_1.set_ylabel(r'$b_{a_x}$ $\left[ \frac{mm}{s^2} \right]$')
+        axs_2.set_ylabel(r'$b_{a_y}$ $\left[ \frac{mm}{s^2} \right]$')
+        axs_3.set_ylabel(r'$b_{a_z}$ $\left[ \frac{mm}{s^2} \right]$')
         axs_3.set_xlabel('Time [s]')
         fig.tight_layout()
         return fig
 
-    def plot_imu_err_bias_omg(self, imu_dfs):
+    def plot_imu_bias_omg(self, imu_dfs):
         """TODO."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         alpha = calculate_alpha(len(imu_dfs))
@@ -400,10 +400,10 @@ class Plotter():
         axs_2.plot(t_imu[0, :], -3.0 * omg_bias_1_std, linestyle='--', color='tab:red', alpha=0.5)
         axs_3.plot(t_imu[0, :], -3.0 * omg_bias_2_std, linestyle='--', color='tab:red', alpha=0.5)
 
-        set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Gyroscope Bias Error')
-        axs_1.set_ylabel(r'$b_{\omega_x}$ Error $\left[ \frac{mrad}{s} \right]$')
-        axs_2.set_ylabel(r'$b_{\omega_y}$ Error $\left[ \frac{mrad}{s} \right]$')
-        axs_3.set_ylabel(r'$b_{\omega_z}$ Error $\left[ \frac{mrad}{s} \right]$')
+        set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Gyroscope Bias')
+        axs_1.set_ylabel(r'$b_{\omega_x}$ $\left[ \frac{mrad}{s} \right]$')
+        axs_2.set_ylabel(r'$b_{\omega_y}$ $\left[ \frac{mrad}{s} \right]$')
+        axs_3.set_ylabel(r'$b_{\omega_z}$ $\left[ \frac{mrad}{s} \right]$')
         axs_3.set_xlabel('Time [s]')
         fig.tight_layout()
         return fig
@@ -507,7 +507,6 @@ class Plotter():
         fig.tight_layout()
         return fig
 
-    # @TODO Add update rate dashed-line from config file
     def plot_update_timing(self, data_frames, rate=None):
         """Plot histogram of update execution durations."""
         durations = np.array([])
@@ -940,7 +939,7 @@ class Plotter():
 
         return fig
 
-    def plot_body_err_ang_acc(self, body_state_dfs, body_truth_dfs):
+    def plot_body_ang_err_acc(self, body_state_dfs, body_truth_dfs):
         """Plot the body state angular acceleration error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         alpha = calculate_alpha(len(body_state_dfs))
@@ -1068,7 +1067,7 @@ class Plotter():
 
     def plot_body_data(self, body_state_dfs, body_truth_dfs=None):
         """Generate plots for body data."""
-        # @TODO(jhartzer): Skip plot_body_err_ang_acc if prediction IMU
+        # @TODO(jhartzer): Skip plot_body_ang_acc if prediction IMU
         figures = [
             self.plot_body_pos(body_state_dfs),
             self.plot_body_pos_3d(body_state_dfs),
@@ -1099,10 +1098,10 @@ class Plotter():
             self.plot_imu_offset_updates(imu_dfs),
             self.plot_imu_bias_updates(imu_dfs),
             self.plot_update_timing(imu_dfs, config_data['IMU_rates'][i]),
-            self.plot_imu_err_pos(imu_dfs),
-            self.plot_imu_err_ang(imu_dfs),
-            self.plot_imu_err_bias_acc(imu_dfs),
-            self.plot_imu_err_bias_omg(imu_dfs)
+            self.plot_imu_pos(imu_dfs),
+            self.plot_imu_ang(imu_dfs),
+            self.plot_imu_bias_acc(imu_dfs),
+            self.plot_imu_bias_omg(imu_dfs)
         ]
         return figures
 

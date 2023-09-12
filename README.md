@@ -7,7 +7,7 @@ The EKF_CAL package has the following hard dependencies that are required for al
 - [OpenCV](https://opencv.org/)
 - [Eigen 3](https://eigen.tuxfamily.org/index.php?title=Main_Page)
 
-The following depencies are for building the ROS node and simulation, respectively
+The following dependencies are for building the ROS node and simulation, respectively
 - [ROS2](https://docs.ros.org/en/rolling/index.html)
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp)
 
