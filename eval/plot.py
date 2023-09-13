@@ -305,7 +305,6 @@ class Plotter():
         """Plot the body state angular error."""
         fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
         alpha = calculate_alpha(len(imu_dfs))
-        angles = np.zeros([len(imu_dfs)])
 
         for i in range(len(imu_dfs)):
             time = imu_dfs[i]['time'].to_list()
@@ -318,11 +317,6 @@ class Plotter():
             axs_2.plot(time, err_img_ang_x, alpha=alpha, color='tab:orange')
             axs_3.plot(time, err_img_ang_y, alpha=alpha, color='tab:green')
             axs_4.plot(time, err_img_ang_z, alpha=alpha, color='tab:red')
-            angles[i] = np.linalg.norm(R.from_quat([
-                err_img_ang_w[-1],
-                err_img_ang_x[-1],
-                err_img_ang_y[-1],
-                err_img_ang_z[-1]]).as_rotvec())
 
         set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Angular Position')
         axs_1.set_ylabel('$q_w$')
@@ -939,7 +933,7 @@ class Plotter():
 
         return fig
 
-    def plot_body_ang_err_acc(self, body_state_dfs, body_truth_dfs):
+    def plot_body_err_ang_acc(self, body_state_dfs, body_truth_dfs):
         """Plot the body state angular acceleration error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         alpha = calculate_alpha(len(body_state_dfs))
