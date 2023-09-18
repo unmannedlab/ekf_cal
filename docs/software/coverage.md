@@ -9,6 +9,7 @@
   p {height:100%;}
 </style>
 
+@todo Automatically generate this using github actions
 <embed type="text/html" src="../../../../../lcov/index.html" width="95%" height="100%"> 
 
 \endhtmlonly

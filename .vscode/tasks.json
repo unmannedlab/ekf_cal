@@ -94,7 +94,7 @@
             "label": "cloc",
             "detail": "Count Lines of Code",
             "type": "shell",
-            "command": "echo 'Count Lines of Code {#cloc}\n============\n\n' > docs/cloc.md && cloc . --exclude-lang=CSS,CSV,HTML,JavaScript,make,SVG,TeX --md | tail -n +5 >> docs/cloc.md && sed -i 's/--------|--------|--------|--------|--------/| | | | | |/' docs/cloc.md",
+            "command": "echo 'Count Lines of Code {#cloc}\n============' > docs/software/cloc.md && cloc . --exclude-lang=CSS,CSV,HTML,JavaScript,make,SVG,TeX --md | tail -n +4 >> docs/software/cloc.md && sed -i 's/--------|--------|--------|--------|--------/| | | | | |/' docs/software/cloc.md",
             "options": {
                 "cwd": "${workspaceFolder}"
             },

@@ -3,5 +3,6 @@
 */__pycache__/
 
 # Generated Docs
-docs/doxygen/
+docs/doxygen/html
+docs/doxygen/latex
 docs/software/cloc.md

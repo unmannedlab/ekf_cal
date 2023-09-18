@@ -17,6 +17,7 @@ Package Features:
     - Condition and distance thresholds
     - Check covariance matrix condition
     - Perfect prediction flag
+    - Add colcon build/test action to github
 
     GPS Updater:
         - LLA to NED calibration
