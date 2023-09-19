@@ -204,13 +204,13 @@ This will generate and run the requested number of simulation runs for the speci
 produce plots of the Monte Carlo data. Examples of the resulting plots are shown below:
 
 
-![body_acceleration_error](../../images/example/body_acceleration_error.png)
+![body_acceleration_error](images/body_acceleration_error.png)
 
-![body_acceleration_error](../../images/example/body_position_covariance.png)
+![body_acceleration_error](images/body_position_covariance.png)
 
-![body_acceleration_error](../../images/example/imu_2_residuals.png)
+![body_acceleration_error](images/imu_2_residuals.png)
 
-![body_acceleration_error](../../images/example/imu_2_position.png)
+![body_acceleration_error](images/imu_2_position.png)
 
 
 # Launch ROS2 Node
