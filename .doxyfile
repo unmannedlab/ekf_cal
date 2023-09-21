@@ -1198,7 +1198,7 @@ HTML_FILE_EXTENSION    = .html
 # of the possible markers and block names see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_HEADER            =
+HTML_HEADER            = docs/header.html
 
 # The HTML_FOOTER tag can be used to specify a user-defined HTML footer for each
 # generated HTML page. If the tag is left blank doxygen will generate a standard
@@ -1233,17 +1233,21 @@ HTML_STYLESHEET        =
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  = docs/doxygen/doxygen-awesome-css/doxygen-awesome.css
-
+HTML_EXTRA_STYLESHEET  =    docs/doxygen/doxygen-awesome-css/doxygen-awesome.css \
+                            docs/doxygen/doxygen-awesome-css/doxygen-awesome-sidebar-only.css \
+                            docs/doxygen/doxygen-awesome-css/doxygen-awesome-sidebar-only-darkmode-toggle.css
+ 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note
 # that these files will be copied to the base HTML output directory. Use the
-# $relpath^ marker in the HTML_HEADER and/or HTML_FOOTER files to load these
+# $relpath^ marker in the HTML_HEADEdoxygen-awesome-darkmode-toggle.jsR and/or HTML_FOOTER files to load these
 # files. In the HTML_STYLESHEET file, use the file name only. Also note that the
 # files will be copied as-is; there are no commands or markers available.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_FILES       =
+HTML_EXTRA_FILES       =    docs/doxygen/doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js \
+                            docs/doxygen/doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js \
+                            docs/doxygen/doxygen-awesome-css/doxygen-awesome-paragraph-link.js
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to
@@ -2448,7 +2452,7 @@ DIRECTORY_GRAPH        = YES
 # The default value is: png.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-DOT_IMAGE_FORMAT       = png
+DOT_IMAGE_FORMAT       = svg
 
 # If DOT_IMAGE_FORMAT is set to svg, then this option can be set to YES to
 # enable generation of interactive SVG images that allow zooming and panning.
@@ -2539,7 +2543,7 @@ MAX_DOT_GRAPH_DEPTH    = 0
 # The default value is: NO.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-DOT_TRANSPARENT        = NO
+DOT_TRANSPARENT        = YES
 
 # Set the DOT_MULTI_TARGETS tag to YES to allow dot to generate multiple output
 # files in one run (i.e. multiple -o and -T options on the command line). This
