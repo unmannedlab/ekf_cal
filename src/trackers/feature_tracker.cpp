@@ -170,7 +170,8 @@ void FeatureTracker::Track(
   /// @todo create occupancy grid of key_points using minimal pixel distance
   m_curr_key_points = GridFeatures(m_curr_key_points, img_down.rows, img_down.cols);
 
-  double threshold_dist = 0.25 * sqrt(double(down_sample_size.height + down_sample_size.width));
+  double threshold_dist =
+    0.25 * sqrt(static_cast<double>(down_sample_size.height + down_sample_size.width));
 
   m_descriptor_extractor->compute(img_down, m_curr_key_points, m_curr_descriptors);
   m_curr_descriptors.convertTo(m_curr_descriptors, CV_32F);
@@ -192,12 +193,12 @@ void FeatureTracker::Track(
         cv::Point2f point_old = m_prev_key_points[matches_forward[i][j].queryIdx].pt;
         cv::Point2f point_new = m_curr_key_points[matches_forward[i][j].trainIdx].pt;
 
-        //calculate local distance for each possible match
+        // Calculate local distance for each possible match
         double dist = sqrt(
           (point_old.x - point_new.x) * (point_old.x - point_new.x) +
           (point_old.y - point_new.y) * (point_old.y - point_new.y));
 
-        //save as best match if local distance is in specified area and on same height
+        // Save as best match if local distance is in specified area and on same height
         if (dist < threshold_dist) {
           cv::line(img_out, point_old, point_new, cv::Scalar(0, 255, 0), 2, 8, 0);
           matches_good.push_back(matches_forward[i][j]);
