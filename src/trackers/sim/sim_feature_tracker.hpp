@@ -48,12 +48,10 @@ public:
   ///
   typedef struct Parameters
   {
-    unsigned int feature_count{0};                        ///< @brief Number of features to generate
-    double room_size{10.0};                               ///< @brief Size of "Room" for features
-    Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};            ///< @brief Camera position offset
-    Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};    ///< @brief Camera angular offset
-    bool no_errors {false};                               ///< @brief Perfect measurements flag
-    FeatureTracker::Parameters tracker_params;            ///< @brief Tracker parameters
+    unsigned int feature_count{0};              ///< @brief Total feature count
+    double room_size{10.0};                     ///< @brief Size of "Room" for features
+    bool no_errors {false};                     ///< @brief Perfect measurements flag
+    FeatureTracker::Parameters tracker_params;  ///< @brief Tracker parameters
   } Parameters;
 
   ///
@@ -89,10 +87,12 @@ public:
   ///
   void Callback(double time, unsigned int camera_id, std::shared_ptr<SimFeatureTrackerMessage> msg);
 
+  void SetTrueOffsets(Eigen::Vector3d pos_c_in_b_true, Eigen::Quaterniond ang_c_to_b_true);
+
 private:
   double m_px_error;
-  Eigen::Vector3d m_pos_c_in_b;
-  Eigen::Quaterniond m_ang_c_to_b;
+  Eigen::Vector3d m_pos_c_in_b_true {0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_ang_c_to_b_true {1.0, 0.0, 0.0, 0.0};
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
   SimRNG m_rng;

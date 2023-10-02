@@ -30,23 +30,53 @@
 SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngine)
 : IMU(params.imu_params)
 {
-  m_time_bias = params.time_bias;
-  m_time_skew = params.time_skew;
-  m_time_error = std::max(params.time_error, 1e-9);
-  m_acc_bias = params.acc_bias;
-  m_acc_error = MinBoundVector(params.acc_error, 1e-9);
-  m_omg_bias = params.omg_bias;
-  m_omg_error = MinBoundVector(params.omg_error, 1e-9);
-  m_pos_i_in_b = params.pos_i_in_b;
-  m_ang_i_to_b = params.ang_i_to_b;
+  m_time_bias_error = params.time_bias_error;
+  m_time_skew_error = params.time_skew_error;
+  m_time_error = params.time_error;
+  m_acc_error = params.acc_error;
+  m_omg_error = params.omg_error;
+  m_acc_bias_error = params.acc_bias_error;
+  m_omg_bias_error = params.omg_bias_error;
+  m_pos_error = params.pos_error;
+  m_ang_error = params.ang_error;
   m_no_errors = params.no_errors;
   m_truth = truthEngine;
+
+  // Add extrinsic error to non-base sensor
+  if (!params.imu_params.base_sensor) {
+    m_pos_i_in_b_true[0] = m_rng.NormRand(0.0, m_pos_error[0]);
+    m_pos_i_in_b_true[1] = m_rng.NormRand(0.0, m_pos_error[1]);
+    m_pos_i_in_b_true[2] = m_rng.NormRand(0.0, m_pos_error[2]);
+    double ang_i_to_b_true_r = m_rng.NormRand(0.0, m_ang_error[0]);
+    double ang_i_to_b_true_p = m_rng.NormRand(0.0, m_ang_error[1]);
+    double ang_i_to_b_true_y = m_rng.NormRand(0.0, m_ang_error[2]);
+    m_ang_i_to_b_true =
+      Eigen::AngleAxisd(ang_i_to_b_true_y, Eigen::Vector3d::UnitZ()) *
+      Eigen::AngleAxisd(ang_i_to_b_true_p, Eigen::Vector3d::UnitY()) *
+      Eigen::AngleAxisd(ang_i_to_b_true_r, Eigen::Vector3d::UnitX());
+  } else {
+    m_pos_i_in_b_true = params.imu_params.pos_i_in_b;
+    m_ang_i_to_b_true = params.imu_params.ang_i_to_b;
+  }
+
+  // Add intrinsic error to non-calibrated sensors
+  if (params.imu_params.intrinsic) {
+    m_acc_bias_true[0] = m_rng.NormRand(0.0, m_acc_bias_error[0]);
+    m_acc_bias_true[1] = m_rng.NormRand(0.0, m_acc_bias_error[1]);
+    m_acc_bias_true[2] = m_rng.NormRand(0.0, m_acc_bias_error[2]);
+    m_omg_bias_true[0] = m_rng.NormRand(0.0, m_omg_bias_error[0]);
+    m_omg_bias_true[1] = m_rng.NormRand(0.0, m_omg_bias_error[1]);
+    m_omg_bias_true[2] = m_rng.NormRand(0.0, m_omg_bias_error[2]);
+  } else {
+    m_acc_bias_true = params.imu_params.acc_bias;
+    m_omg_bias_true = params.imu_params.omg_bias;
+  }
 }
 
 std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_time)
 {
   unsigned int num_measurements =
-    static_cast<int>(std::floor(max_time * m_rate / (1 + m_time_skew)));
+    static_cast<int>(std::floor(max_time * m_rate / (1 + m_time_skew_error)));
 
   m_logger->Log(
     LogLevel::INFO, "Generating " + std::to_string(num_measurements) + " IMU measurements");
@@ -56,7 +86,8 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_
   std::vector<std::shared_ptr<SimImuMessage>> messages;
   for (unsigned int i = 0; i < num_measurements; ++i) {
     auto sim_imu_msg = std::make_shared<SimImuMessage>();
-    double measurementTime = (1.0 + m_time_skew) / m_rate * static_cast<double>(i) + time_init;
+    double measurementTime =
+      (1.0 + m_time_skew_error) / m_rate * static_cast<double>(i) + time_init;
     sim_imu_msg->m_time = measurementTime;
     sim_imu_msg->m_sensor_id = m_id;
     sim_imu_msg->m_sensor_type = SensorType::IMU;
@@ -68,24 +99,24 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_
 
     // Transform acceleration to IMU location
     Eigen::Vector3d imu_acc_b = body_b_to_g.inverse() * (body_acc_g + g_gravity) +
-      body_ang_acc_g.cross(m_pos_i_in_b) +
-      body_ang_vel_g.cross((body_ang_vel_g.cross(m_pos_i_in_b)));
+      body_ang_acc_g.cross(m_pos_i_in_b_true) +
+      body_ang_vel_g.cross((body_ang_vel_g.cross(m_pos_i_in_b_true)));
 
     // Rotate measurements in place
-    Eigen::Vector3d imu_acc_i = m_ang_i_to_b.inverse() * imu_acc_b;
-    Eigen::Vector3d imu_omg_i = m_ang_i_to_b.inverse() * body_ang_vel_g;
+    Eigen::Vector3d imu_acc_i = m_ang_i_to_b_true.inverse() * imu_acc_b;
+    Eigen::Vector3d imu_omg_i = m_ang_i_to_b_true.inverse() * body_ang_vel_g;
 
     sim_imu_msg->m_acceleration = imu_acc_i;
     sim_imu_msg->m_angular_rate = imu_omg_i;
 
     if (!m_no_errors) {
-      sim_imu_msg->m_time += m_rng.NormRand(m_time_bias, m_time_error);
-      sim_imu_msg->m_acceleration[0] += m_rng.NormRand(m_acc_bias[0], m_acc_error[0]);
-      sim_imu_msg->m_acceleration[1] += m_rng.NormRand(m_acc_bias[1], m_acc_error[1]);
-      sim_imu_msg->m_acceleration[2] += m_rng.NormRand(m_acc_bias[2], m_acc_error[2]);
-      sim_imu_msg->m_angular_rate[0] += m_rng.NormRand(m_omg_bias[0], m_omg_error[0]);
-      sim_imu_msg->m_angular_rate[1] += m_rng.NormRand(m_omg_bias[1], m_omg_error[1]);
-      sim_imu_msg->m_angular_rate[2] += m_rng.NormRand(m_omg_bias[2], m_omg_error[2]);
+      sim_imu_msg->m_time += m_rng.NormRand(m_time_bias_error, m_time_error);
+      sim_imu_msg->m_acceleration[0] += m_rng.NormRand(m_acc_bias_true[0], m_acc_error[0]);
+      sim_imu_msg->m_acceleration[1] += m_rng.NormRand(m_acc_bias_true[1], m_acc_error[1]);
+      sim_imu_msg->m_acceleration[2] += m_rng.NormRand(m_acc_bias_true[2], m_acc_error[2]);
+      sim_imu_msg->m_angular_rate[0] += m_rng.NormRand(m_omg_bias_true[0], m_omg_error[0]);
+      sim_imu_msg->m_angular_rate[1] += m_rng.NormRand(m_omg_bias_true[1], m_omg_error[1]);
+      sim_imu_msg->m_angular_rate[2] += m_rng.NormRand(m_omg_bias_true[2], m_omg_error[2]);
     }
 
     Eigen::Vector3d accSigmas(m_acc_error[0], m_acc_error[1], m_acc_error[2]);

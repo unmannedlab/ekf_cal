@@ -43,17 +43,17 @@ public:
   ///
   typedef struct Parameters
   {
-    double time_bias {0.0};                              ///< @brief Time offset bias
-    double time_skew {1.0};                              ///< @brief Time offset error
-    double time_error {1e-9};                            ///< @brief Time offset error
-    Eigen::Vector3d acc_bias {0.0, 0.0, 0.0};            ///< @brief Acceleration bias
-    Eigen::Vector3d acc_error {1e-9, 1e-9, 1e-9};        ///< @brief Acceleration error
-    Eigen::Vector3d omg_bias {0.0, 0.0, 0.0};            ///< @brief Angular rate bias
-    Eigen::Vector3d omg_error {1e-9, 1e-9, 1e-9};        ///< @brief Angular rate error
-    Eigen::Vector3d pos_i_in_b {0.0, 0.0, 0.0};          ///< @brief Sensor position offset
-    Eigen::Quaterniond ang_i_to_b {1.0, 0.0, 0.0, 0.0};  ///< @brief Sensor angular offset
-    IMU::Parameters imu_params;                          ///< @brief IMU sensor parameters
-    bool no_errors {false};                              ///< @brief Perfect measurements flag
+    bool no_errors {false};                             ///< @brief Perfect measurements flag
+    double time_error {1e-9};                           ///< @brief Time offset error
+    double time_bias_error {1e-9};                      ///< @brief Time offset bias
+    double time_skew_error {1e-9};                      ///< @brief Time offset error
+    Eigen::Vector3d acc_error {1e-9, 1e-9, 1e-9};       ///< @brief Acceleration error
+    Eigen::Vector3d omg_error {1e-9, 1e-9, 1e-9};       ///< @brief Angular rate error
+    Eigen::Vector3d pos_error {1e-9, 1e-9, 1e-9};       ///< @brief Position offset error
+    Eigen::Vector3d ang_error {1e-9, 1e-9, 1e-9};       ///< @brief Angular offset error
+    Eigen::Vector3d acc_bias_error {1e-9, 1e-9, 1e-9};  ///< @brief Acceleration bias
+    Eigen::Vector3d omg_bias_error {1e-9, 1e-9, 1e-9};  ///< @brief Angular rate bias
+    IMU::Parameters imu_params;                         ///< @brief IMU sensor parameters
   } Parameters;
 
   ///
@@ -70,15 +70,19 @@ public:
   std::vector<std::shared_ptr<SimImuMessage>> GenerateMessages(double max_time);
 
 private:
-  double m_time_bias{0.0};
-  double m_time_skew{0.0};
   double m_time_error{1e-9};
-  Eigen::Vector3d m_acc_bias{0.0, 0.0, 0.0};
+  double m_time_bias_error{1e-9};
+  double m_time_skew_error{1e-9};
   Eigen::Vector3d m_acc_error{1e-9, 1e-9, 1e-9};
-  Eigen::Vector3d m_omg_bias{0.0, 0.0, 0.0};
   Eigen::Vector3d m_omg_error{1e-9, 1e-9, 1e-9};
-  Eigen::Vector3d m_pos_i_in_b{0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_i_to_b{1.0, 0.0, 0.0, 0.0};
+  Eigen::Vector3d m_pos_error{1e-9, 1e-9, 1e-9};
+  Eigen::Vector3d m_ang_error{1e-9, 1e-9, 1e-9};
+  Eigen::Vector3d m_acc_bias_error{1e-9, 1e-9, 1e-9};
+  Eigen::Vector3d m_omg_bias_error{1e-9, 1e-9, 1e-9};
+  Eigen::Vector3d m_acc_bias_true{0.0, 0.0, 0.0};
+  Eigen::Vector3d m_omg_bias_true{0.0, 0.0, 0.0};
+  Eigen::Vector3d m_pos_i_in_b_true{0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_ang_i_to_b_true{1.0, 0.0, 0.0, 0.0};
   SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};

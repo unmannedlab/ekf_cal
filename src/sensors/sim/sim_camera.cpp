@@ -30,19 +30,30 @@ SimCamera::SimCamera(
   std::shared_ptr<TruthEngine> truth_engine)
 : Camera(params.cam_params)
 {
-  m_time_bias = params.time_bias;
-  m_time_skew = params.time_skew;
-  m_time_error = std::max(params.time_error, 1e-9);
-  m_pos_c_in_b = params.pos_c_in_b;
-  m_ang_c_to_b = params.ang_c_to_b;
+  m_time_bias_error = params.time_bias_error;
+  m_time_skew_error = params.time_skew_error;
+  m_time_error = params.time_error;
+  m_pos_error = params.pos_error;
+  m_ang_error = params.ang_error;
   m_no_errors = params.no_errors;
   m_truth = truth_engine;
+
+  m_pos_c_in_b_true[0] = m_rng.NormRand(0.0, m_pos_error[0]);
+  m_pos_c_in_b_true[1] = m_rng.NormRand(0.0, m_pos_error[1]);
+  m_pos_c_in_b_true[2] = m_rng.NormRand(0.0, m_pos_error[2]);
+  double ang_c_to_b_true_r = m_rng.NormRand(0.0, m_ang_error[0]);
+  double ang_c_to_b_true_p = m_rng.NormRand(0.0, m_ang_error[1]);
+  double ang_c_to_b_true_y = m_rng.NormRand(0.0, m_ang_error[2]);
+  m_ang_c_to_b_true =
+    Eigen::AngleAxisd(ang_c_to_b_true_y, Eigen::Vector3d::UnitZ()) *
+    Eigen::AngleAxisd(ang_c_to_b_true_p, Eigen::Vector3d::UnitY()) *
+    Eigen::AngleAxisd(ang_c_to_b_true_r, Eigen::Vector3d::UnitX());
 }
 
 std::vector<double> SimCamera::GenerateMessageTimes(double max_time)
 {
   unsigned int num_measurements =
-    static_cast<int>(std::floor(max_time * m_rate / (1 + m_time_skew)));
+    static_cast<int>(std::floor(max_time * m_rate / (1 + m_time_skew_error)));
 
   m_logger->Log(
     LogLevel::INFO, "Generating " + std::to_string(num_measurements) + " Camera measurements");
@@ -51,9 +62,10 @@ std::vector<double> SimCamera::GenerateMessageTimes(double max_time)
 
   std::vector<double> message_times;
   for (unsigned int i = 0; i < num_measurements; ++i) {
-    double measurement_time = (1.0 + m_time_skew) / m_rate * static_cast<double>(i) + time_init;
+    double measurement_time =
+      (1.0 + m_time_skew_error) / m_rate * static_cast<double>(i) + time_init;
     if (!m_no_errors) {
-      measurement_time += m_rng.NormRand(m_time_bias, m_time_error);
+      measurement_time += m_rng.NormRand(m_time_bias_error, m_time_error);
     }
     message_times.push_back(measurement_time);
   }
@@ -84,6 +96,7 @@ std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages(doubl
 
 void SimCamera::AddTracker(std::shared_ptr<SimFeatureTracker> tracker)
 {
+  tracker->SetTrueOffsets(m_pos_c_in_b_true, m_ang_c_to_b_true);
   m_trackers[tracker->GetID()] = tracker;
 }
 
