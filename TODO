@@ -1,5 +1,6 @@
 Package Features:
     - Constrain correleation coefficients between +/- 1
+    - Implement filter status output
     - Implement flag for calibration settling
     - Implement flag for calibration shifting
     - GPS update and notion of global frame
@@ -16,7 +17,6 @@ Package Features:
     - Intrinsic calibration filtering
     - Condition and distance thresholds
     - Check covariance matrix condition
-    - Perfect prediction flag
     - Add colcon build/test action to github
 
     GPS Updater:

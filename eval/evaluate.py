@@ -41,11 +41,18 @@ from run import add_jobs
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('inputs', nargs='+', type=str)
+    parser.add_argument('-j', '--jobs', default=None, type=int)
+    parser.add_argument('-n', '--runs', default=None, type=int)
+    parser.add_argument('-t', '--time', default=None, type=float)
     parser.add_argument('--show', action='store_true')
     parser.add_argument('--rate_line', action='store_true')
     parser.add_argument('-ext', default='png', type=str)
     args = parser.parse_args()
-    add_jobs(args.inputs)
-    config_files = generate_mc_lists(args.inputs)
+    add_jobs(
+        args.inputs,
+        jobs=args.jobs,
+        runs=args.runs,
+        time=args.time)
+    config_files = generate_mc_lists(args.inputs, runs=args.runs)
     plotter = Plotter(show=args.show, ext=args.ext, rate_line=args.rate_line)
     plotter.plot_sim_results(config_files)

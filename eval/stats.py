@@ -22,5 +22,5 @@ A collection of functions for plotting results from the multi-IMU, multi-Camera 
 
 """
 
-# @TODO: Create master list of stats
-# @TODO: Only generate stats files from lists
+# TODO: Create master list of stats
+# TODO: Only generate stats files from lists

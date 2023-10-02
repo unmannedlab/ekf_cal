@@ -91,23 +91,23 @@ def calculate_alpha(line_count: int):
 def parse_yaml(config):
     """Collect sensor configuration data from input yaml."""
     config_data = {}
-    config_data['IMU_rates'] = {}
-    config_data['Camera_rates'] = {}
+    config_data['imu_rates'] = {}
+    config_data['camera_rates'] = {}
     with open(config, 'r') as stream:
         try:
             yaml_dict = yaml.safe_load(stream)
-            imu_list = yaml_dict['/EkfCalNode']['ros__parameters']['IMU_list']
-            cam_list = yaml_dict['/EkfCalNode']['ros__parameters']['Camera_list']
+            imu_list = yaml_dict['/EkfCalNode']['ros__parameters']['imu_list']
+            cam_list = yaml_dict['/EkfCalNode']['ros__parameters']['camera_list']
             id_counter = 1
             if imu_list:
-                imu_dict = yaml_dict['/EkfCalNode']['ros__parameters']['IMU']
+                imu_dict = yaml_dict['/EkfCalNode']['ros__parameters']['imu']
                 for imu_name in imu_list:
-                    config_data['IMU_rates'][id_counter] = imu_dict[imu_name]['Rate']
+                    config_data['imu_rates'][id_counter] = imu_dict[imu_name]['rate']
                     id_counter += 1
             if cam_list:
-                cam_dict = yaml_dict['/EkfCalNode']['ros__parameters']['Camera']
+                cam_dict = yaml_dict['/EkfCalNode']['ros__parameters']['camera']
                 for cam_name in cam_list:
-                    config_data['Camera_rates'][id_counter] = cam_dict[cam_name]['Rate']
+                    config_data['camera_rates'][id_counter] = cam_dict[cam_name]['rate']
                     id_counter += 1
 
         except yaml.YAMLError as exc:
@@ -172,12 +172,12 @@ def RMSE_from_vectors(x_list, y_list, z_list):
 class Plotter():
     """Class for containing plotting methods and options."""
 
-    def __init__(self, show=False, rate_line=False, ext='png'):
+    def __init__(self, show=False, rate_line=False, ext='png', jobs=None):
         """Plotter class initializer."""
         self.show = show
         self.rate_line = rate_line
         self.ext = ext
-        cpu_count = multiprocessing.cpu_count() - 1
+        cpu_count = jobs if (jobs) else multiprocessing.cpu_count() - 1
         self.pool = multiprocessing.Pool(cpu_count)
         self.statistics = collections.defaultdict(list)
 
@@ -575,8 +575,8 @@ class Plotter():
         fig = plt.figure()
         axs = fig.add_subplot(111, projection='3d')
 
-        # @TODO(jhartzer): get from input
-        # @TODO(jhartzer): Add current time to plot
+        # TODO(jhartzer): get from input
+        # TODO(jhartzer): Add current time to plot
         interval = 40  # ms
         frame_count = interval * duration
 
@@ -967,7 +967,7 @@ class Plotter():
 
         return fig
 
-    # @TODO include camera ID
+    # TODO include camera ID
     def plot_triangulation_error(self, tri_dfs, feat_dfs):
         """Plot MSCKF feature point triangulation error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
@@ -1061,7 +1061,7 @@ class Plotter():
 
     def plot_body_data(self, body_state_dfs, body_truth_dfs=None):
         """Generate plots for body data."""
-        # @TODO(jhartzer): Skip plot_body_ang_acc if prediction IMU
+        # TODO(jhartzer): Skip plot_body_ang_acc if prediction IMU
         figures = [
             self.plot_body_pos(body_state_dfs),
             self.plot_body_pos_3d(body_state_dfs),
@@ -1091,7 +1091,7 @@ class Plotter():
             self.plot_imu_residuals(imu_dfs),
             self.plot_imu_offset_updates(imu_dfs),
             self.plot_imu_bias_updates(imu_dfs),
-            self.plot_update_timing(imu_dfs, config_data['IMU_rates'][i]),
+            self.plot_update_timing(imu_dfs, config_data['imu_rates'][i]),
             self.plot_imu_pos(imu_dfs),
             self.plot_imu_ang(imu_dfs),
             self.plot_imu_bias_acc(imu_dfs),
@@ -1107,7 +1107,7 @@ class Plotter():
             self.plot_camera_offset_updates(cam_dfs),
             self.plot_camera_pos(cam_dfs),
             self.plot_camera_ang(cam_dfs),
-            self.plot_update_timing(cam_dfs, config_data['Camera_rates'][i])
+            self.plot_update_timing(cam_dfs, config_data['camera_rates'][i])
         ]
         return figures
 
@@ -1118,7 +1118,7 @@ class Plotter():
         ]
         return figures
 
-    # @TODO(jhartzer): Split for loop into thread pool
+    # TODO(jhartzer): Split for loop into thread pool
     def plot_sim_results(self, config_sets):
         """Top level function to plot simulation results from sets of config files."""
         for config_set in config_sets:
@@ -1179,7 +1179,7 @@ class Plotter():
         return
 
 
-def generate_mc_lists(input_files):
+def generate_mc_lists(input_files, runs=None):
     """Generate sets of yaml configuration files to plot."""
     mc_lists = []
     for input_file in input_files:
@@ -1187,7 +1187,10 @@ def generate_mc_lists(input_files):
         with open(input_file, 'r') as input_stream:
             try:
                 top_yaml = yaml.safe_load(input_stream)
-                num_runs = top_yaml['/EkfCalNode']['ros__parameters']['SimParams']['NumberOfRuns']
+                sim_yaml = top_yaml['/EkfCalNode']['ros__parameters']['sim_params']
+                num_runs = sim_yaml['number_of_runs']
+                if (runs):
+                    num_runs = runs
                 if (num_runs > 1):
                     top_name = os.path.basename(input_file).split('.yaml')[0]
                     yaml_dir = input_file.split('.yaml')[0] + os.sep
@@ -1205,15 +1208,22 @@ def generate_mc_lists(input_files):
     return mc_lists
 
 
-# @todo(jhartzer): Add flag for low-memory usage (load single df at a time)
-# @todo(jhartzer): Add option for saving with no title (for papers)
+# TODO(jhartzer): Add flag for low-memory usage (load single df at a time)
+# TODO(jhartzer): Add option for saving with no title (for papers)
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('configs', nargs='+', type=str)
     parser.add_argument('--show', action='store_true')
     parser.add_argument('--rate_line', action='store_true')
     parser.add_argument('-ext', default='png', type=str)
+    parser.add_argument('-j', '--jobs', default=None, type=int)
+    parser.add_argument('-n', '--runs', default=None, type=int)
     args = parser.parse_args()
-    plotter = Plotter(show=args.show, ext=args.ext, rate_line=args.rate_line)
-    config_files = generate_mc_lists(args.configs)
+    plotter = Plotter(
+        show=args.show,
+        ext=args.ext,
+        rate_line=args.rate_line,
+        jobs=args.jobs
+    )
+    config_files = generate_mc_lists(args.configs, runs=args.runs)
     plotter.plot_sim_results(config_files)

@@ -81,12 +81,19 @@ def run_sim(yaml_path: str):
             output.write(proc.stderr)
 
 
-def generate_mc_from_yaml(yaml_file):
+def generate_mc_from_yaml(
+    yaml_file,
+    runs=None,
+    time=None
+):
     """Generate a Monte Carlo list of inputs given a top-level yaml."""
     with open(yaml_file, 'r') as yaml_stream:
         try:
             top_yaml = yaml.safe_load(yaml_stream)
-            num_runs = top_yaml['/EkfCalNode']['ros__parameters']['SimParams']['NumberOfRuns']
+            if (runs):
+                num_runs = runs
+            else:
+                num_runs = top_yaml['/EkfCalNode']['ros__parameters']['sim_params']['number_of_runs']
             if (num_runs > 1):
                 yaml_files = []
                 top_name = os.path.basename(yaml_file).split('.yaml')[0]
@@ -98,8 +105,8 @@ def generate_mc_from_yaml(yaml_file):
                 if (not os.path.isdir(runs_dir)):
                     os.mkdir(runs_dir)
 
-                use_seed = top_yaml['/EkfCalNode']['ros__parameters']['SimParams']['UseSeed']
-                seed = top_yaml['/EkfCalNode']['ros__parameters']['SimParams']['Seed']
+                use_seed = top_yaml['/EkfCalNode']['ros__parameters']['sim_params']['use_seed']
+                seed = top_yaml['/EkfCalNode']['ros__parameters']['sim_params']['seed']
                 if (use_seed):
                     random.seed(seed)
 
@@ -108,9 +115,11 @@ def generate_mc_from_yaml(yaml_file):
                     sub_yaml = top_yaml
                     if (use_seed):
                         new_seed = random.randint(0, 1e9)
-                        sub_yaml['/EkfCalNode']['ros__parameters']['SimParams']['Seed'] = new_seed
-                    sub_yaml['/EkfCalNode']['ros__parameters']['SimParams']['NumberOfRuns'] = 1
-                    sub_yaml['/EkfCalNode']['ros__parameters']['SimParams']['RunNumber'] += i
+                        sub_yaml['/EkfCalNode']['ros__parameters']['sim_params']['seed'] = new_seed
+                    sub_yaml['/EkfCalNode']['ros__parameters']['sim_params']['number_of_runs'] = 1
+                    sub_yaml['/EkfCalNode']['ros__parameters']['sim_params']['run_number'] += i
+                    if (time):
+                        sub_yaml['/EkfCalNode']['ros__parameters']['sim_params']['max_time'] = time
                     sub_file = os.path.join(
                         runs_dir, '{}_{:0{:d}.0f}.yaml'.format(top_name, i, n_digits))
                     yaml_files.append(sub_file)
@@ -124,14 +133,23 @@ def generate_mc_from_yaml(yaml_file):
     return yaml_files
 
 
-def add_jobs(inputs: List[str]):
+def add_jobs(
+    inputs: List[str],
+    jobs=None,
+    runs=None,
+    time=None
+):
     """Add simulation jobs to pool given list of top-level input yaml files."""
-    cpu_count = multiprocessing.cpu_count() - 1
+    cpu_count = jobs if (jobs) else multiprocessing.cpu_count() - 1
     pool = multiprocessing.Pool(cpu_count)
 
     for yaml_file in inputs:
         input_yaml_path = os.path.abspath(yaml_file)
-        list_of_runs = generate_mc_from_yaml(input_yaml_path)
+        list_of_runs = generate_mc_from_yaml(
+            input_yaml_path,
+            runs=runs,
+            time=time
+        )
         for single_run in list_of_runs:
             pool.apply_async(run_sim, args=(single_run,), error_callback=print_err)
 
@@ -139,11 +157,18 @@ def add_jobs(inputs: List[str]):
     pool.join()
 
 
-# @todo(jhartzer): Add argument to override number of runs
-# @todo(jhartzer): Add argument to override max simulation time
-# @todo(jhartzer): Add lock file when simulation begins and delete when complete
+# TODO(jhartzer): Add lock file when simulation begins and delete when complete
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('inputs', nargs='+', type=str)
+    parser.add_argument('-j', '--jobs', default=None, type=int)
+    parser.add_argument('-n', '--runs', default=None, type=int)
+    parser.add_argument('-t', '--time', default=None, type=float)
+
     args = parser.parse_args()
-    add_jobs(args.inputs)
+    add_jobs(
+        args.inputs,
+        jobs=args.jobs,
+        runs=args.runs,
+        time=args.time
+    )

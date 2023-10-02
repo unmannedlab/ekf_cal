@@ -1,97 +1,118 @@
 
 /EkfCalNode:
     ros__parameters:
-        Debug_Log_Level: 2
-        Data_Logging_On: True
-        Body_Data_Rate: 100.0
-        SimParams:
-            Seed: 0.0
-            UseSeed: True
-            MaxTime: 10.0
-            TruthType: "Cyclic"
-            PosFrequency: [0.3, 0.5, 0.7]
-            AngFrequency: [0.2, 0.3, 0.4]
-            PosOffset: [0.0, 0.0, 0.0]
-            NoErrors: False
-            NumberOfRuns: 100
-            RunNumber: 0
+        debug_log_level: 2
+        data_logging_on: true
+        body_data_rate: 100.0
+        sim_params:
+            seed: 0.0
+            use_seed: true
+            max_time: 10.0
+            truth_type: "cyclic"
+            pos_frequency: [0.3, 0.5, 0.7]
+            ang_frequency: [0.2, 0.3, 0.4]
+            pos_offset: [0.0, 0.0, 0.0]
+            ang_offset: [0.0, 0.0, 0.0]
+            no_errors: false
+            number_of_runs: 100
+            run_number: 0
 
-        IMU_list:
+        imu_list:
             - "vn300"
             - "vn100"
+            - "deta_10"
 
-        Camera_list:
+        camera_list:
             - "ace"
 
-        Tracker_list:
-            - "ORB"
+        tracker_list:
+            - "orb"
 
-        IMU:
+        imu:
             vn300:
-                UseForPrediction: False
-                BaseSensor: True
-                Intrinsic: False
-                Rate: 400.0
-                Topic: "/vn300/imu_uncompensated"
-                VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
-                PosOffInit: [0.0, 0.0, 0.0]
-                AngOffInit: [1.0, 0.0, 0.0, 0.0]
-                AccBiasInit: [0.0, 0.0, 0.0]
-                OmgBiasInit: [0.0, 0.0, 0.0]
-                SimParams:
-                    timeBias: 0.0
-                    timeSkew: 0.0
-                    timeError: 1.0e-6
-                    accBias: [0.0, 0.0, 0.0]
-                    accError: [1.0e-3, 1.0e-3, 1.0e-3]
-                    omgBias: [0.0, 0.0, 0.0]
-                    omgError: [1.0e-2, 1.0e-2, 1.0e-2]
-                    posOffset: [0.0, 0.0, 0.0]
-                    angOffset: [1.0, 0.0, 0.0, 0.0]
+                use_for_prediction: false
+                base_sensor: true
+                intrinsic: false
+                rate: 400.0
+                topic: "/vn300/imu_uncompensated"
+                variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                pos_i_in_b: [0.0, 0.0, 0.0]
+                ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
+                acc_bias: [0.0, 0.0, 0.0]
+                omg_bias: [0.0, 0.0, 0.0]
+                sim_params:
+                    time_bias_error: 1.0e+3
+                    time_skew_error: 1.0e-9
+                    time_error: 1.0e-6
+                    pos_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    ang_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    acc_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    omg_error: [1.0e-2, 1.0e-2, 1.0e-2]
+                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
             vn100:
-                UseForPrediction: False
-                BaseSensor: False
-                Intrinsic: False
-                Rate: 100.0
-                Topic: "/vn100/imu_uncompensated"
-                VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
-                PosOffInit: [0.1, 0.0, 0.0]
-                AngOffInit: [1.0, 0.0, 0.0, 0.0]
-                AccBiasInit: [0.0, 0.0, 0.0]
-                OmgBiasInit: [0.0, 0.0, 0.0]
-                SimParams:
-                    timeBias: 0.0
-                    timeSkew: 0.0
-                    timeError: 1.0e-6
-                    accBias: [0.0, 0.0, 0.0]
-                    accError: [1.0e-3, 1.0e-3, 1.0e-3]
-                    omgBias: [0.0, 0.0, 0.0]
-                    omgError: [1.0e-2, 1.0e-2, 1.0e-2]
-                    posOffset: [0.1, 0.0, 0.0]
-                    angOffset: [1.0, 0.0, 0.0, 0.0]
+                use_for_prediction: false
+                base_sensor: false
+                intrinsic: false
+                rate: 100.0
+                topic: "/vn100/imu_uncompensated"
+                variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                pos_i_in_b: [0.1, 0.0, 0.0]
+                ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
+                acc_bias: [0.0, 0.0, 0.0]
+                omg_bias: [0.0, 0.0, 0.0]
+                sim_params:
+                    time_bias_error: 1.0e+3
+                    time_skew_error: 1.0e-9
+                    time_error: 1.0e-6
+                    pos_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    ang_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    acc_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    omg_error: [1.0e-2, 1.0e-2, 1.0e-2]
+                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
+            deta_10:
+                use_for_prediction: false
+                base_sensor: false
+                intrinsic: false
+                rate: 100.0
+                topic: "/vn100/imu_uncompensated"
+                variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                pos_i_in_b: [0.1, 0.0, 0.0]
+                ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
+                acc_bias: [0.0, 0.0, 0.0]
+                omg_bias: [0.0, 0.0, 0.0]
+                sim_params:
+                    time_bias_error: 1.0e+3
+                    time_skew_error: 1.0e-9
+                    time_error: 1.0e-6
+                    pos_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    ang_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    acc_error: [1.0e-2, 1.0e-2, 1.0e-2]
+                    omg_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
 
-        Camera:
+        camera:
             ace:
-                Rate: 20.0
-                Topic:  "/my_camera/pylon_ros2_camera_node/image_raw"
-                PosOffInit: [0.0, 0.0, 0.0]
-                AngOffInit: [0.5, -0.5, 0.5, -0.5]
-                VarInit: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-                Tracker: "ORB"
-                SimParams:
-                    timeBias: 0.0
-                    timeSkew: 0.0
-                    timeError: 1.0e-6
-                    posOffset: [0.0, 0.0, 0.0]
-                    angOffset: [0.5, -0.5, 0.5, -0.5]
+                rate: 20.0
+                topic:  "/my_camera/pylon_ros2_camera_node/image_raw"
+                pos_c_in_b: [0.0, 0.0, 0.0]
+                ang_c_to_b: [0.5, -0.5, 0.5, -0.5]
+                variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+                tracker: "orb"
+                sim_params:
+                    time_bias_error: 1.0e+3
+                    time_skew_error: 1.0e-9
+                    time_error: 1.0e-6
 
-        Tracker:
-            ORB:
-                FeatureDetector: 4
-                DescriptorExtractor: 0
-                DescriptorMatcher: 0
-                DetectorThreshold: 10.0
-                PixelError: 1.0
-                SimParams:
-                    featureCount: 100
-                    roomSize: 10.0
+        tracker:
+            orb:
+                feature_detector: 2
+                descriptor_extractor: 1
+                descriptor_matcher: 0
+                detector_threshold: 10.0
+                pixel_error: 1.0
+                sim_params:
+                    feature_count: 100
+                    room_size: 10.0
