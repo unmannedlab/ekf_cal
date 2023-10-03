@@ -8,14 +8,16 @@
             seed: 0.0
             use_seed: true
             max_time: 10.0
+            no_errors: false
+            number_of_runs: 100
+            run_number: 0
             truth_type: "cyclic"
             pos_frequency: [0.3, 0.5, 0.7]
             ang_frequency: [0.2, 0.3, 0.4]
             pos_offset: [0.0, 0.0, 0.0]
             ang_offset: [0.0, 0.0, 0.0]
-            no_errors: false
-            number_of_runs: 100
-            run_number: 0
+            ang_amplitude: 0.1
+            pos_amplitude: 1.0
 
         imu_list:
             - "vn300"

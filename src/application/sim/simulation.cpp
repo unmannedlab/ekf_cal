@@ -93,17 +93,14 @@ void WriteTruthData(
 int main(int argc, char * argv[])
 {
   const cv::String keys =
-    "{@config        |<none>| Input YAML configuration file }"
-    "{@out_dir       |<none>| Output directory for logs     }"
-    "{help h usage ? |      | print this help message       }"
+    "{@config        | | Input YAML configuration file }"
+    "{@out_dir       | | Output directory for logs     }"
+    "{help h usage ? | | print this help message       }"
   ;
 
   cv::CommandLineParser parser(argc, argv, keys);
-  /// @todo(jhartzer): Get this value from include
-  parser.about("EKF-CAL 0.2.0");
-
-  /// @todo(jhartzer): Cannot access help function
-  if (parser.has("help")) {
+  parser.about("EKF-CAL Simulation: " + std::string(EKF_CAL_VERSION));
+  if (parser.has("help") || (!parser.has("@config") || !parser.has("@out_dir"))) {
     parser.printMessage();
     return 0;
   }
@@ -143,7 +140,10 @@ int main(int argc, char * argv[])
     StdToEigVec(sim_params["pos_frequency"].as<std::vector<double>>());
   Eigen::Vector3d ang_frequency =
     StdToEigVec(sim_params["ang_frequency"].as<std::vector<double>>());
-  Eigen::Vector3d pos_b_in_g = StdToEigVec(sim_params["pos_offset"].as<std::vector<double>>());
+  Eigen::Vector3d pos_offset = StdToEigVec(sim_params["pos_offset"].as<std::vector<double>>());
+  Eigen::Vector3d ang_offset = StdToEigVec(sim_params["ang_offset"].as<std::vector<double>>());
+  double pos_amplitude = sim_params["pos_amplitude"].as<double>();
+  double ang_amplitude = sim_params["ang_amplitude"].as<double>();
   double max_time = sim_params["max_time"].as<double>();
 
   DebugLogger * logger = DebugLogger::GetInstance();
@@ -160,7 +160,10 @@ int main(int argc, char * argv[])
   auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(
     pos_frequency,
     ang_frequency,
-    pos_b_in_g);
+    pos_offset,
+    ang_offset,
+    pos_amplitude,
+    ang_amplitude);
   auto truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
 
   WriteTruthData(truth_engine, body_data_rate, max_time, out_dir, data_logging_on);
