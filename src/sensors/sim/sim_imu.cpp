@@ -30,8 +30,11 @@
 SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngine)
 : IMU(params.imu_params)
 {
-  m_time_bias_error = params.time_bias_error;
-  m_time_skew_error = params.time_skew_error;
+  /// @todo(jhartzer): Use these parameters once time filter is implemented
+  // m_time_bias_error = params.time_bias_error;
+  // m_time_skew_error = params.time_skew_error;
+  m_time_bias_error = 0.0;
+  m_time_skew_error = 0.0;
   m_time_error = params.time_error;
   m_acc_error = params.acc_error;
   m_omg_error = params.omg_error;

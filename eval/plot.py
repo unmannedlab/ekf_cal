@@ -1035,7 +1035,7 @@ class Plotter():
                            alpha=alpha, color='tab:orange')
         axs_3.fill_between(times, mean_z - stddev_z, mean_z + stddev_z,
                            alpha=alpha, color='tab:green')
-        set_plot_titles(fig, 'Triangulation Errors')
+        set_plot_titles(fig, f'Camera {tri_df.attrs["id"]} Triangulation Errors')
         axs_1.set_ylabel('X Error [m]')
         axs_2.set_ylabel('Y Error [m]')
         axs_3.set_ylabel('Z Error [m]')

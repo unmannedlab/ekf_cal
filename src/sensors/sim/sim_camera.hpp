@@ -44,13 +44,13 @@ public:
   ///
   typedef struct Parameters
   {
-    bool no_errors {false};                        ///< @brief Perfect measurements flag
-    double time_error {1e-9};                      ///< @brief Time offset error
-    double time_bias_error {1e-9};                 ///< @brief Time offset bias
-    double time_skew_error {1e-9};                 ///< @brief Time offset error
-    Eigen::Vector3d pos_error {1e-9, 1e-9, 1e-9};  ///< @brief Position offset error
-    Eigen::Vector3d ang_error {1e-9, 1e-9, 1e-9};  ///< @brief Angular offset error
-    Camera::Parameters cam_params;                 ///< @brief Camera sensor parameters
+    bool no_errors {false};                     ///< @brief Perfect measurements flag
+    double time_error {0.0};                    ///< @brief Time offset error
+    double time_bias_error {0.0};               ///< @brief Time offset bias
+    double time_skew_error {0.0};               ///< @brief Time offset error
+    Eigen::Vector3d pos_error {0.0, 0.0, 0.0};  ///< @brief Position offset error
+    Eigen::Vector3d ang_error {0.0, 0.0, 0.0};  ///< @brief Angular offset error
+    Camera::Parameters cam_params;              ///< @brief Camera sensor parameters
   } Parameters;
 
   ///
@@ -86,11 +86,11 @@ public:
 
 private:
   bool m_no_errors {false};
-  double m_time_error{1e-9};
-  double m_time_bias_error{1e-9};
-  double m_time_skew_error{1e-9};
-  Eigen::Vector3d m_pos_error{1e-9, 1e-9, 1e-9};
-  Eigen::Vector3d m_ang_error{1e-9, 1e-9, 1e-9};
+  double m_time_error{0.0};
+  double m_time_bias_error{0.0};
+  double m_time_skew_error{0.0};
+  Eigen::Vector3d m_pos_error{0.0, 0.0, 0.0};
+  Eigen::Vector3d m_ang_error{0.0, 0.0, 0.0};
   Eigen::Vector3d m_pos_c_in_b_true{0.0, 0.0, 0.0};
   Eigen::Quaterniond m_ang_c_to_b_true{1.0, 0.0, 0.0, 0.0};
   SimRNG m_rng;

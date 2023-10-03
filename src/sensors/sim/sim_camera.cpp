@@ -30,8 +30,11 @@ SimCamera::SimCamera(
   std::shared_ptr<TruthEngine> truth_engine)
 : Camera(params.cam_params)
 {
-  m_time_bias_error = params.time_bias_error;
-  m_time_skew_error = params.time_skew_error;
+  /// @todo(jhartzer): Use these parameters once time filter is implemented
+  // m_time_bias_error = params.time_bias_error;
+  // m_time_skew_error = params.time_skew_error;
+  m_time_bias_error = 0.0;
+  m_time_skew_error = 0.0;
   m_time_error = params.time_error;
   m_pos_error = params.pos_error;
   m_ang_error = params.ang_error;
