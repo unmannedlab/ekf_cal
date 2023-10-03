@@ -38,6 +38,8 @@ from plot import generate_mc_lists, Plotter
 from run import add_jobs
 
 
+# TODO(jhartzer): Write tests
+# TODO(jhartzer): Fix import error
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('inputs', nargs='+', type=str)

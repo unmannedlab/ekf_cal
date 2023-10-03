@@ -90,10 +90,11 @@ def generate_mc_from_yaml(
     with open(yaml_file, 'r') as yaml_stream:
         try:
             top_yaml = yaml.safe_load(yaml_stream)
+            sim_yaml = top_yaml['/EkfCalNode']['ros__parameters']['sim_params']
             if (runs):
                 num_runs = runs
             else:
-                num_runs = top_yaml['/EkfCalNode']['ros__parameters']['sim_params']['number_of_runs']
+                num_runs = sim_yaml['number_of_runs']
             if (num_runs > 1):
                 yaml_files = []
                 top_name = os.path.basename(yaml_file).split('.yaml')[0]
@@ -105,8 +106,8 @@ def generate_mc_from_yaml(
                 if (not os.path.isdir(runs_dir)):
                     os.mkdir(runs_dir)
 
-                use_seed = top_yaml['/EkfCalNode']['ros__parameters']['sim_params']['use_seed']
-                seed = top_yaml['/EkfCalNode']['ros__parameters']['sim_params']['seed']
+                use_seed = sim_yaml['use_seed']
+                seed = sim_yaml['seed']
                 if (use_seed):
                     random.seed(seed)
 
@@ -157,6 +158,7 @@ def add_jobs(
     pool.join()
 
 
+# TODO(jhartzer): Write tests
 # TODO(jhartzer): Add lock file when simulation begins and delete when complete
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
