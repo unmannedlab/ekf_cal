@@ -199,6 +199,8 @@ int main(int argc, char * argv[])
     sim_imu_params.time_error = sim_node["time_error"].as<double>();
     sim_imu_params.acc_error = StdToEigVec(sim_node["acc_error"].as<std::vector<double>>());
     sim_imu_params.omg_error = StdToEigVec(sim_node["omg_error"].as<std::vector<double>>());
+    sim_imu_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>());
+    sim_imu_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>());
     sim_imu_params.acc_bias_error =
       StdToEigVec(sim_node["acc_bias_error"].as<std::vector<double>>());
     sim_imu_params.omg_bias_error =
@@ -262,6 +264,8 @@ int main(int argc, char * argv[])
     sim_cam_params.time_bias_error = sim_node["time_bias_error"].as<double>();
     sim_cam_params.time_skew_error = sim_node["time_skew_error"].as<double>();
     sim_cam_params.time_error = sim_node["time_error"].as<double>();
+    sim_cam_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>());
+    sim_cam_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>());
     sim_cam_params.cam_params = cam_params;
     sim_cam_params.no_errors = no_errors;
 

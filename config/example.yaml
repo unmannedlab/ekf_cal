@@ -7,9 +7,9 @@
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 10.0
-            no_errors: true
-            number_of_runs: 25
+            max_time: 100.0
+            no_errors: false
+            number_of_runs: 10
             run_number: 0
             truth_type: "cyclic"
             pos_frequency: [0.3, 0.5, 0.7]
@@ -21,11 +21,11 @@
 
         imu_list:
             - "vn300"
-            # - "vn100"
+            - "vn100"
             # - "deta_10"
 
         camera_list:
-            - "ace"
+            # - "ace"
 
         tracker_list:
             - "orb"
@@ -46,8 +46,8 @@
                     time_bias_error: 1.0e-3
                     time_skew_error: 1.0e-9
                     time_error: 1.0e-6
-                    pos_error: [1.0e-3, 1.0e-3, 1.0e-3]
-                    ang_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    pos_error: [0.0, 0.0, 0.0]
+                    ang_error: [0.0, 0.0, 0.0]
                     acc_error: [1.0e-3, 1.0e-3, 1.0e-3]
                     omg_error: [1.0e-2, 1.0e-2, 1.0e-2]
                     acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
@@ -59,7 +59,7 @@
                 rate: 100.0
                 topic: "/vn100/imu_uncompensated"
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
-                pos_i_in_b: [0.1, 0.0, 0.0]
+                pos_i_in_b: [0.0, 0.0, 0.0]
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
                 acc_bias: [0.0, 0.0, 0.0]
                 omg_bias: [0.0, 0.0, 0.0]
@@ -67,8 +67,8 @@
                     time_bias_error: 1.0e-3
                     time_skew_error: 1.0e-9
                     time_error: 1.0e-6
-                    pos_error: [1.0e-3, 1.0e-3, 1.0e-3]
-                    ang_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    pos_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
                     acc_error: [1.0e-3, 1.0e-3, 1.0e-3]
                     omg_error: [1.0e-2, 1.0e-2, 1.0e-2]
                     acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
@@ -80,7 +80,7 @@
                 rate: 100.0
                 topic: "/vn100/imu_uncompensated"
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
-                pos_i_in_b: [0.1, 0.0, 0.0]
+                pos_i_in_b: [0.0, 0.0, 0.0]
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
                 acc_bias: [0.0, 0.0, 0.0]
                 omg_bias: [0.0, 0.0, 0.0]
@@ -88,8 +88,8 @@
                     time_bias_error: 1.0e-3
                     time_skew_error: 1.0e-9
                     time_error: 1.0e-6
-                    pos_error: [1.0e-3, 1.0e-3, 1.0e-3]
-                    ang_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    pos_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
                     acc_error: [1.0e-2, 1.0e-2, 1.0e-2]
                     omg_error: [1.0e-1, 1.0e-1, 1.0e-1]
                     acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
@@ -107,6 +107,8 @@
                     time_bias_error: 1.0e-3
                     time_skew_error: 1.0e-9
                     time_error: 1.0e-6
+                    pos_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
 
         tracker:
             orb:

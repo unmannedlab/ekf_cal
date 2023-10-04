@@ -97,11 +97,14 @@ void EKF::ProcessModel(double time)
     return;
   }
 
-  if (time <= m_current_time) {
+  if (time < m_current_time) {
     m_logger->Log(
       LogLevel::WARN, "Requested prediction to time in the past. Current t=" +
       std::to_string(m_current_time) + ", Requested t=" +
       std::to_string(time));
+    return;
+  } else if (time == m_current_time) {
+    m_logger->Log(LogLevel::DEBUG, "Requested prediction to current time.");
     return;
   }
 
@@ -115,8 +118,13 @@ void EKF::ProcessModel(double time)
   m_state.m_body_state += process_update;
 
   // Process input matrix is just identity
+  /// @todo(jhartzer): Limit covariance for angular uncertainty
+  /// @todo(jhartzer): Check matrix condition
   m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
     F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0) + m_process_noise) * F.transpose();
+
+  /// @todo(jhartzer): Refine this bounding
+  m_cov = MaxBoundMatrix(m_cov, 1e2);
 
   m_current_time = time;
 

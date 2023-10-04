@@ -56,6 +56,19 @@ Eigen::VectorXd MinBoundVector(Eigen::VectorXd in_vec, double min_bound)
   return out_vec;
 }
 
+Eigen::MatrixXd MaxBoundMatrix(Eigen::MatrixXd in_mat, double max_bound)
+{
+  Eigen::MatrixXd out_mat = in_mat;
+  for (unsigned int i = 0; i < out_mat.rows(); ++i) {
+    for (unsigned int j = 0; j < out_mat.cols(); ++j) {
+      if (out_mat(i, j) > max_bound) {
+        out_mat(i, j) = max_bound;
+      }
+    }
+  }
+  return out_mat;
+}
+
 /// @todo Do in place
 Eigen::MatrixXd InsertInMatrix(
   Eigen::MatrixXd sub_mat, Eigen::MatrixXd in_mat, unsigned int row,

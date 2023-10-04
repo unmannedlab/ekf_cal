@@ -28,6 +28,7 @@
 /// @brief Truth for simulation
 /// @todo Add initialization time to start of sim
 /// @todo Add csv reading option to set control points
+/// @todo Add unit tests
 ///
 class TruthEngineSpline : public TruthEngine
 {
