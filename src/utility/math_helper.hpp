@@ -42,6 +42,14 @@ Eigen::MatrixXd MinBoundDiagonal(Eigen::MatrixXd in_mat, double min_bound);
 Eigen::VectorXd MinBoundVector(Eigen::VectorXd in_vec, double min_bound);
 
 ///
+/// @brief Bound matrix by a minimum value
+/// @param in_mat Input matrix to be bound
+/// @param min_bound Bounding value
+/// @return
+///
+Eigen::MatrixXd MinBoundMatrix(Eigen::MatrixXd in_mat, double min_bound);
+
+///
 /// @brief Bound matrix by a maximum value
 /// @param in_mat Input matrix to be bound
 /// @param max_bound Bounding value

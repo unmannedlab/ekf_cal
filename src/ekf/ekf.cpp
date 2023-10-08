@@ -123,6 +123,8 @@ void EKF::ProcessModel(double time)
   m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
     F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0) + m_process_noise) * F.transpose();
 
+  AddSensorProccessNoise(false);
+
   /// @todo(jhartzer): Refine this bounding
   m_cov = MaxBoundMatrix(m_cov, 1e2);
 
@@ -180,6 +182,8 @@ void EKF::PredictModel(
 
   Eigen::MatrixXd dF = GetStateTransition(dT);
   Eigen::MatrixXd F = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) + dF;
+
+  AddSensorProccessNoise(true);
 
   Eigen::MatrixXd process_noise = Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size);
   process_noise.block<3, 3>(6, 6) = acceleration_covariance_global;
@@ -275,6 +279,26 @@ unsigned int EKF::GetImuStateStartIndex(unsigned int imu_id)
     }
   }
   return state_start_index;
+}
+
+/// @todo(jhartzer): Adjust process noise for offsets and biases
+void EKF::AddSensorProccessNoise(bool isPredicting)
+{
+  for (auto const & imu_iter : m_state.m_imu_states) {
+    unsigned int imu_state_start = GetImuStateStartIndex(imu_iter.first);
+    Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(12, 12);
+    /// @todo(jhartzer): Get these values from input file/sensor definition
+    /// @todo(jhartzer): Remove base sensor extrinsics from state
+    // if (!isPredicting) {
+    //   process_noise.block<3, 3>(0, 0) *= 1e-8;
+    //   process_noise.block<3, 3>(3, 3) *= 1e-8;
+    // }
+    process_noise.block<3, 3>(6, 6) *= 1e-6;
+    process_noise.block<3, 3>(9, 9) *= 1e-6;
+    m_cov.block<12, 12>(imu_state_start, imu_state_start) += process_noise;
+    m_cov.block<12, 12>(imu_state_start, imu_state_start) =
+      MinBoundDiagonal(m_cov.block<12, 12>(imu_state_start, imu_state_start), 5e-6);
+  }
 }
 
 /// @todo Replace this lookup with a map

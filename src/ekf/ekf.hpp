@@ -219,6 +219,8 @@ public:
   ///
   void SetDataLogging(bool value);
 
+  void AddSensorProccessNoise(bool isPredicting);
+
   DataLogger m_data_logger;  ///< @brief Data logger
 
 private:

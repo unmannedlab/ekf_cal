@@ -22,6 +22,7 @@
         "DISTRO",
         "doxyfile",
         "doxygen",
+        "extrinsics",
         "fignums",
         "GFTT",
         "ggplot",
