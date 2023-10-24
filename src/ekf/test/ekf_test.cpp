@@ -17,7 +17,6 @@
 #include <gtest/gtest.h>
 
 #include "ekf/ekf.hpp"
-#include "utility/test/custom_assertions.hpp"
 
 
 TEST(test_EKF, get_counts) {

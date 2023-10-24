@@ -21,20 +21,14 @@
 #include <vector>
 
 #include <opencv2/core.hpp>
-#include <opencv2/calib3d.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include <eigen3/Eigen/Eigen>
+#include <opencv2/opencv.hpp>
 
-#include "ekf/types.hpp"
 #include "infrastructure/data_logger.hpp"
-#include "infrastructure/debug_logger.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
-#include "sensors/camera.hpp"
-#include "sensors/sensor.hpp"
 #include "trackers/feature_tracker.hpp"
 #include "trackers/sim/sim_feature_tracker_message.hpp"
 #include "utility/sim/sim_rng.hpp"
-
 
 ///
 /// @class SimFeatureTracker

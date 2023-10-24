@@ -19,7 +19,7 @@
 
 /// @todo: Create grabber function from list of available debug loggers
 #include <string>
-
+#include <stddef.h>
 
 enum class LogLevel
 {

@@ -19,7 +19,6 @@
 #include <string>
 #include <vector>
 
-#include "ekf/ekf.hpp"
 #include "ekf/update/updater.hpp"
 #include "infrastructure/data_logger.hpp"
 #include "sensors/types.hpp"

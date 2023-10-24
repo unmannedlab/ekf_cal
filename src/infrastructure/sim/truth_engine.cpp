@@ -16,7 +16,7 @@
 #include "infrastructure/sim/truth_engine.hpp"
 
 #include <eigen3/Eigen/Eigen>
-#include <math.h>
+#include <string>
 
 #include "infrastructure/debug_logger.hpp"
 

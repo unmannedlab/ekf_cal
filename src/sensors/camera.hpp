@@ -18,16 +18,16 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <opencv2/features2d.hpp>
 #include <opencv2/opencv.hpp>
 
-#include "ekf/types.hpp"
 #include "sensors/camera_message.hpp"
 #include "sensors/sensor.hpp"
+#include "sensors/types.hpp"
 #include "trackers/feature_tracker.hpp"
 
 

@@ -21,7 +21,6 @@
 #include <map>
 #include <vector>
 
-#include <opencv2/features2d.hpp>
 #include <opencv2/opencv.hpp>
 
 ///

@@ -18,7 +18,7 @@
 #include <memory>
 #include <string>
 
-#include "utility/type_helper.hpp"
+#include "sensors/sensor_message.hpp"
 
 // Initialize static variable
 unsigned int Sensor::m_sensor_count = 0;

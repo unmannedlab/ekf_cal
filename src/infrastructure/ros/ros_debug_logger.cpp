@@ -16,6 +16,8 @@
 #include <string>
 
 #include <rclcpp/rclcpp.hpp>
+#include <stddef.h>
+#include <type_traits>
 
 #include "../debug_logger.hpp"
 

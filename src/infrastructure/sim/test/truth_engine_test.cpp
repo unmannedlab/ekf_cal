@@ -13,9 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
+// #include <gtest/gtest.h>
 
-#include "infrastructure/sim/truth_engine.hpp"
+// #include "infrastructure/sim/truth_engine.hpp"
 
 // TEST(test_TruthEngine, Constructor) {
 //   TruthEngine truthEngine;

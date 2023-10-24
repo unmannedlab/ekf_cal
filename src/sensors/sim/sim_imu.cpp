@@ -19,12 +19,14 @@
 
 #include <algorithm>
 #include <memory>
+#include <string>
 #include <cmath>
 
 #include "ekf/constants.hpp"
+#include "infrastructure/debug_logger.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/sim/sim_imu_message.hpp"
-#include "utility/math_helper.hpp"
+#include "sensors/types.hpp"
 #include "utility/sim/sim_rng.hpp"
 
 SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngine)

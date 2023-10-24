@@ -16,7 +16,6 @@
 #include "infrastructure/sim/truth_engine_cyclic.hpp"
 
 #include <eigen3/Eigen/Eigen>
-#include <math.h>
 
 #include <cmath>
 

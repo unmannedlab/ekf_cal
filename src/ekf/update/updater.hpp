@@ -16,9 +16,8 @@
 #ifndef EKF__UPDATE__UPDATER_HPP_
 #define EKF__UPDATE__UPDATER_HPP_
 
-#include <string>
-
 #include "ekf/ekf.hpp"
+#include "infrastructure/debug_logger.hpp"
 
 ///
 /// @class Updater

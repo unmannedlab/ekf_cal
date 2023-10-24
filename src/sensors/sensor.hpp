@@ -16,15 +16,13 @@
 #ifndef SENSORS__SENSOR_HPP_
 #define SENSORS__SENSOR_HPP_
 
-#include <eigen3/Eigen/Eigen>
-
 #include <memory>
 #include <string>
 
 #include "ekf/ekf.hpp"
-#include "sensors/sensor_message.hpp"
 #include "infrastructure/debug_logger.hpp"
 
+class SensorMessage;
 
 ///
 /// @class Sensor

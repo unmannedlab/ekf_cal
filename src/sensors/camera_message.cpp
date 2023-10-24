@@ -15,8 +15,6 @@
 
 #include "sensors/camera_message.hpp"
 
-#include <opencv2/opencv.hpp>
-
 
 CameraMessage::CameraMessage(cv::Mat img_in)
 : SensorMessage(), image(img_in) {}

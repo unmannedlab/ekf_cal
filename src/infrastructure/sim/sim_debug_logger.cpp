@@ -15,6 +15,8 @@
 
 #include <string>
 #include <iostream>
+#include <stddef.h>
+#include <type_traits>
 
 #include "../debug_logger.hpp"
 

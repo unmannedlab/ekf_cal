@@ -18,12 +18,21 @@
 #include <eigen3/Eigen/Eigen>
 
 #include <algorithm>
+#include <string>
+#include <cmath>
 #include <memory>
+#include <opencv2/opencv.hpp>
+#include <utility>
 
+#include "ekf/ekf.hpp"
+#include "infrastructure/debug_logger.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/sim/sim_camera_message.hpp"
+#include "sensors/types.hpp"
+#include "trackers/sim/sim_feature_tracker_message.hpp"
+#include "trackers/sim/sim_feature_tracker.hpp"
 #include "utility/sim/sim_rng.hpp"
-#include "utility/math_helper.hpp"
+
 
 SimCamera::SimCamera(
   Parameters params,

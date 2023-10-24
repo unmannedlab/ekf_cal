@@ -16,7 +16,6 @@
 #include "utility/math_helper.hpp"
 
 #include <eigen3/Eigen/Eigen>
-#include <iostream>
 
 Eigen::Matrix3d SkewSymmetric(Eigen::Vector3d in_vec)
 {

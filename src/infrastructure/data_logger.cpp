@@ -15,7 +15,6 @@
 
 #include "infrastructure/data_logger.hpp"
 
-#include <iostream>
 #include <fstream>
 
 

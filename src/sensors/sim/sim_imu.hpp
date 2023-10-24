@@ -20,16 +20,15 @@
 #include <eigen3/Eigen/Eigen>
 
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "ekf/types.hpp"
-#include "infrastructure/debug_logger.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/imu.hpp"
 #include "sensors/sensor.hpp"
 #include "sensors/sim/sim_imu_message.hpp"
 #include "utility/sim/sim_rng.hpp"
+
 
 ///
 /// @class SimIMU

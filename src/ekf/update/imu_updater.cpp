@@ -16,7 +16,6 @@
 #include "ekf/update/imu_updater.hpp"
 
 #include <eigen3/Eigen/Eigen>
-#include <unistd.h>
 
 #include <string>
 #include <sstream>
@@ -25,7 +24,6 @@
 #include "ekf/constants.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "utility/math_helper.hpp"
-#include "utility/type_helper.hpp"
 #include "utility/string_helper.hpp"
 
 

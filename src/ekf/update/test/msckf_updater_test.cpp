@@ -16,7 +16,8 @@
 #include <eigen3/Eigen/Eigen>
 #include <gtest/gtest.h>
 
-#include "ekf/constants.hpp"
+#include <string>
+
 #include "ekf/ekf.hpp"
 #include "ekf/update/msckf_updater.hpp"
 #include "sensors/types.hpp"

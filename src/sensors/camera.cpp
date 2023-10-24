@@ -18,19 +18,17 @@
 #include <eigen3/Eigen/Eigen>
 
 #include <string>
-#include <unordered_map>
 #include <vector>
 
-#include <opencv2/features2d.hpp>
 #include <opencv2/opencv.hpp>
 
+#include "ekf/ekf.hpp"
 #include "ekf/types.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "sensors/camera_message.hpp"
 #include "sensors/sensor.hpp"
 #include "trackers/feature_tracker.hpp"
 #include "utility/math_helper.hpp"
-#include "utility/type_helper.hpp"
 
 
 /// @todo add detector/extractor parameters to input

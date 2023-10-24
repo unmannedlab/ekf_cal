@@ -21,10 +21,8 @@
 
 #include <map>
 #include <memory>
-#include <string>
 #include <vector>
 
-#include "ekf/types.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/camera.hpp"
 #include "sensors/sim/sim_camera_message.hpp"

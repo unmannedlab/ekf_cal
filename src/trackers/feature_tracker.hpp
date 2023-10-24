@@ -24,7 +24,6 @@
 #include <opencv2/features2d.hpp>
 
 #include "infrastructure/debug_logger.hpp"
-#include "sensors/sensor.hpp"
 #include "ekf/types.hpp"
 #include "ekf/ekf.hpp"
 #include "ekf/update/msckf_updater.hpp"

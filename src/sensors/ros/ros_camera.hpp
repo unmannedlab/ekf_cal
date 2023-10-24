@@ -17,16 +17,12 @@
 #define SENSORS__ROS__ROS_CAMERA_HPP_
 
 #include <memory>
-#include <string>
 
-#include <opencv2/opencv.hpp>
-#include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
-#include <std_msgs/msg/header.hpp>
 
-#include "infrastructure/debug_logger.hpp"
 #include "sensors/ros/ros_camera_message.hpp"
 #include "sensors/camera.hpp"
+#include "trackers/feature_tracker.hpp"
 
 ///
 /// @class RosCamera

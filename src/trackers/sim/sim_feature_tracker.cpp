@@ -21,10 +21,8 @@
 #include <cmath>
 
 #include <opencv2/opencv.hpp>
-#include <opencv2/features2d.hpp>
 
 #include "trackers/sim/sim_feature_tracker_message.hpp"
-#include "utility/constants.hpp"
 
 SimFeatureTracker::SimFeatureTracker(
   SimFeatureTracker::Parameters params,

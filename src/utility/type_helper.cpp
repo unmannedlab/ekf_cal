@@ -19,7 +19,6 @@
 
 #include <vector>
 
-#include "utility/constants.hpp"
 #include "infrastructure/debug_logger.hpp"
 
 

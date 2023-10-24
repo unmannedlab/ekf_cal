@@ -18,11 +18,9 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <opencv2/core/utility.hpp>
 
 #include "infrastructure/ekf_cal_version.hpp"
 #include "infrastructure/sim/truth_engine_cyclic.hpp"
-#include "infrastructure/sim/truth_engine_spline.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/imu.hpp"
 #include "sensors/sim/sim_camera_message.hpp"

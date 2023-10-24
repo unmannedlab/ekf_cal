@@ -21,7 +21,6 @@
 #include <opencv2/features2d.hpp>
 
 #include "ekf/types.hpp"
-#include "ekf/ekf.hpp"
 
 // Initialize static variable
 unsigned int FeatureTracker::m_tracker_count = 0;

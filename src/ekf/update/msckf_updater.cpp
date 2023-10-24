@@ -17,12 +17,9 @@
 
 #include <eigen3/Eigen/Eigen>
 
-#include <algorithm>
-#include <chrono>
 #include <string>
 
 #include "ekf/constants.hpp"
-#include "sensors/camera.hpp"
 #include "sensors/types.hpp"
 #include "utility/math_helper.hpp"
 #include "utility/string_helper.hpp"

@@ -289,10 +289,10 @@ void EKF::AddSensorProccessNoise(bool isPredicting)
     Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(12, 12);
     /// @todo(jhartzer): Get these values from input file/sensor definition
     /// @todo(jhartzer): Remove base sensor extrinsics from state
-    // if (!isPredicting) {
-    //   process_noise.block<3, 3>(0, 0) *= 1e-8;
-    //   process_noise.block<3, 3>(3, 3) *= 1e-8;
-    // }
+    if (!isPredicting) {
+      // process_noise.block<3, 3>(0, 0) *= 1e-8;
+      // process_noise.block<3, 3>(3, 3) *= 1e-8;
+    }
     process_noise.block<3, 3>(6, 6) *= 1e-6;
     process_noise.block<3, 3>(9, 9) *= 1e-6;
     m_cov.block<12, 12>(imu_state_start, imu_state_start) += process_noise;

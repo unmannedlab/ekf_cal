@@ -21,6 +21,15 @@
 #include "sensors/ros/ros_camera.hpp"
 #include "trackers/feature_tracker.hpp"
 
+#include <memory>
+#include <opencv2/opencv.hpp>
+#include <string>
+#include "gtest/gtest-message.h"
+#include "gtest/gtest-test-part.h"
+#include "gtest/gtest_pred_impl.h"
+#include "sensors/camera.hpp"
+#include "sensors/ros/ros_camera_message.hpp"
+
 TEST(test_ros_camera, constructor) {
   Camera::Parameters cParams;
   cParams.name = "test_Camera";

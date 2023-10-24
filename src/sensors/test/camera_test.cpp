@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 
 #include "sensors/camera.hpp"
-#include "trackers/feature_tracker.hpp"
 
 TEST(test_Camera, Constructor) {
   Camera::Parameters cam_params;

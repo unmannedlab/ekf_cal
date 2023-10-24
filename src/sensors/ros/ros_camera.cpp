@@ -18,15 +18,12 @@
 #include <cv_bridge/cv_bridge.h>
 
 #include <memory>
-#include <opencv2/opencv.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <std_msgs/msg/header.hpp>
 
 #include "infrastructure/debug_logger.hpp"
 #include "sensors/camera.hpp"
 #include "sensors/ros/ros_camera_message.hpp"
-#include "utility/ros_helper.hpp"
-#include "utility/type_helper.hpp"
 
 
 RosCamera::RosCamera(Camera::Parameters camera_parameters)

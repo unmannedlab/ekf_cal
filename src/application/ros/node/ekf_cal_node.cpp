@@ -17,13 +17,15 @@
 
 #include <eigen3/Eigen/Eigen>
 
-#include <cstdio>
 #include <functional>
 #include <map>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <bits/chrono.h>
+#include <array>
+#include <utility>
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
@@ -31,6 +33,7 @@
 #include <std_msgs/msg/float64_multi_array.hpp>
 
 #include "ekf/ekf.hpp"
+#include "ekf/types.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "infrastructure/ekf_cal_version.hpp"
 #include "sensors/camera.hpp"
