@@ -20,8 +20,8 @@
 
 #include <sensor_msgs/msg/image.hpp>
 
-#include "sensors/ros/ros_camera_message.hpp"
 #include "sensors/camera.hpp"
+#include "sensors/ros/ros_camera_message.hpp"
 #include "trackers/feature_tracker.hpp"
 
 ///

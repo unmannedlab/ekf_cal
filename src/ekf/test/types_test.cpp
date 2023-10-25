@@ -15,9 +15,11 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <gtest/gtest.h>
+
 #include <map>
 #include <memory>
 #include <vector>
+
 #include "ekf/types.hpp"
 
 TEST(test_ekf_types, state_plus_equals_state) {

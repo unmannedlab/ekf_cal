@@ -21,8 +21,9 @@
 #include <string>
 #include <cmath>
 #include <memory>
-#include <opencv2/opencv.hpp>
 #include <utility>
+
+#include <opencv2/opencv.hpp>
 
 #include "ekf/ekf.hpp"
 #include "infrastructure/debug_logger.hpp"

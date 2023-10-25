@@ -15,16 +15,17 @@
 
 #include "trackers/feature_tracker.hpp"
 
-#include <string>
-#include <cmath>
-#include <memory>
 #include <stddef.h>
 #include <stdint.h>
+
 #include <algorithm>
+#include <cmath>
+#include <memory>
+#include <string>
 #include <utility>
 
-#include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
+#include <opencv2/opencv.hpp>
 
 #include "ekf/types.hpp"
 

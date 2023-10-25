@@ -16,9 +16,9 @@
 #include "ekf/types.hpp"
 
 #include <eigen3/Eigen/Eigen>
-#include <vector>
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "utility/type_helper.hpp"
 

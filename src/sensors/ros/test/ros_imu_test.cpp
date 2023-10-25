@@ -15,8 +15,9 @@
 
 #include <gtest/gtest.h>
 #include <memory>
-#include "sensors/ros/ros_imu.hpp"
+
 #include "sensors/imu.hpp"
+#include "sensors/ros/ros_imu.hpp"
 
 TEST(test_RosIMU, Constructor) {
   IMU::Parameters params;

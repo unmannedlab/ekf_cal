@@ -16,9 +16,9 @@
 #ifndef EKF__UPDATE__IMU_UPDATER_HPP_
 #define EKF__UPDATE__IMU_UPDATER_HPP_
 
-#include <string>
-
 #include <eigen3/Eigen/Eigen>
+
+#include <string>
 
 #include "ekf/update/updater.hpp"
 #include "infrastructure/data_logger.hpp"

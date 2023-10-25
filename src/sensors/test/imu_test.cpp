@@ -17,8 +17,8 @@
 
 #include <memory>
 
-#include "sensors/imu.hpp"
 #include "sensors/imu_message.hpp"
+#include "sensors/imu.hpp"
 
 
 TEST(test_IMU, Constructor) {

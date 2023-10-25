@@ -13,11 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <stddef.h>
+
 #include <string>
+#include <type_traits>
 
 #include <rclcpp/rclcpp.hpp>
-#include <stddef.h>
-#include <type_traits>
 
 #include "../debug_logger.hpp"
 

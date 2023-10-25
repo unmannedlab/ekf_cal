@@ -13,9 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <string>
-#include <iostream>
 #include <stddef.h>
+
+#include <iostream>
+#include <string>
 #include <type_traits>
 
 #include "../debug_logger.hpp"

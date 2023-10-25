@@ -17,9 +17,9 @@
 #define INFRASTRUCTURE__DEBUG_LOGGER_HPP_
 
 
-/// @todo: Create grabber function from list of available debug loggers
-#include <string>
 #include <stddef.h>
+
+#include <string>
 
 enum class LogLevel
 {
@@ -32,6 +32,7 @@ enum class LogLevel
 
 ///
 /// @brief DebugLogger class
+/// @todo: Create grabber function from list of available debug loggers
 ///
 class DebugLogger
 {

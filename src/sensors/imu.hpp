@@ -18,8 +18,8 @@
 
 #include <eigen3/Eigen/Eigen>
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "ekf/update/imu_updater.hpp"
 #include "sensors/imu_message.hpp"

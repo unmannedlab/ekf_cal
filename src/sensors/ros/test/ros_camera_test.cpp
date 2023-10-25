@@ -16,16 +16,16 @@
 #include <gtest/gtest.h>
 #include <cv_bridge/cv_bridge.h>
 
+#include <memory>
+#include <string>
+
+#include <opencv2/opencv.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
-#include "sensors/ros/ros_camera.hpp"
-#include "trackers/feature_tracker.hpp"
-
-#include <memory>
-#include <opencv2/opencv.hpp>
-#include <string>
 #include "sensors/camera.hpp"
 #include "sensors/ros/ros_camera_message.hpp"
+#include "sensors/ros/ros_camera.hpp"
+#include "trackers/feature_tracker.hpp"
 
 TEST(test_ros_camera, constructor) {
   Camera::Parameters cParams;

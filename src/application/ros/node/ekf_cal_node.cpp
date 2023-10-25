@@ -17,15 +17,15 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <array>
+#include <chrono>
 #include <functional>
 #include <map>
 #include <memory>
 #include <sstream>
 #include <string>
-#include <vector>
-#include <chrono>
-#include <array>
 #include <utility>
+#include <vector>
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>

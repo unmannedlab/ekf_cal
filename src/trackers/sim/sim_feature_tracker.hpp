@@ -16,12 +16,12 @@
 #ifndef TRACKERS__SIM__SIM_FEATURE_TRACKER_HPP_
 #define TRACKERS__SIM__SIM_FEATURE_TRACKER_HPP_
 
+#include <eigen3/Eigen/Eigen>
+
 #include <memory>
 #include <string>
 #include <vector>
 
-// #include <opencv2/core.hpp>
-#include <eigen3/Eigen/Eigen>
 #include <opencv2/opencv.hpp>
 
 #include "infrastructure/data_logger.hpp"

@@ -189,7 +189,6 @@ class Plotter():
     def plot_imu_measurements(self, imu_dfs):
         """Plot detected IMU measurements."""
         fig, (axs_1, axs_2) = plt.subplots(2, 1)
-        alpha = calculate_alpha(len(imu_dfs))
         for imu_df in imu_dfs:
             t_imu = imu_df['time'].to_list()
             axs_1.plot(t_imu, imu_df['acc_0'].to_list(), color='tab:blue')
@@ -208,7 +207,6 @@ class Plotter():
     def plot_imu_residuals(self, imu_dfs):
         """Plot calculated IMU residuals."""
         fig, (axs_1, axs_2) = plt.subplots(2, 1)
-        alpha = calculate_alpha(len(imu_dfs))
         for imu_df in imu_dfs:
             t_imu = imu_df['time'].to_list()
             axs_1.plot(t_imu, imu_df['residual_0'].to_list(), color='tab:blue')
@@ -227,7 +225,6 @@ class Plotter():
     def plot_imu_offset_updates(self, imu_dfs):
         """Plot IMU updates to extrinsic offsets."""
         fig, (axs_1, axs_2) = plt.subplots(2, 1)
-        alpha = calculate_alpha(len(imu_dfs))
         for imu_df in imu_dfs:
             t_imu = imu_df['time'].to_list()
             axs_1.plot(t_imu, imu_df['imu_update_0'].to_list(), color='tab:blue')
@@ -246,7 +243,6 @@ class Plotter():
     def plot_imu_bias_updates(self, imu_dfs):
         """Plot IMU updates to biases."""
         fig, (axs_1, axs_2) = plt.subplots(2, 1)
-        alpha = calculate_alpha(len(imu_dfs))
         for imu_df in imu_dfs:
             t_imu = imu_df['time'].to_list()
             axs_1.plot(t_imu, imu_df['imu_update_6'].to_list(), color='tab:blue')
@@ -304,7 +300,6 @@ class Plotter():
     def plot_imu_ang(self, imu_dfs):
         """Plot the body state angular error."""
         fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
-        alpha = calculate_alpha(len(imu_dfs))
 
         for i in range(len(imu_dfs)):
             time = imu_dfs[i]['time'].to_list()
@@ -345,15 +340,15 @@ class Plotter():
             axs_2.plot(t_imu[i, :], acc_bias_1[i, :], color='tab:orange')
             axs_3.plot(t_imu[i, :], acc_bias_2[i, :], color='tab:green')
 
-        acc_bias_0_std = np.std(acc_bias_0, axis=0)
-        acc_bias_1_std = np.std(acc_bias_1, axis=0)
-        acc_bias_2_std = np.std(acc_bias_2, axis=0)
-        axs_1.plot(t_imu[0, :], +3.0 * acc_bias_0_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_2.plot(t_imu[0, :], +3.0 * acc_bias_1_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_3.plot(t_imu[0, :], +3.0 * acc_bias_2_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_1.plot(t_imu[0, :], -3.0 * acc_bias_0_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_2.plot(t_imu[0, :], -3.0 * acc_bias_1_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_3.plot(t_imu[0, :], -3.0 * acc_bias_2_std, linestyle='--', color='tab:red', alpha=0.5)
+        a_bias_0_std = np.std(acc_bias_0, axis=0)
+        a_bias_1_std = np.std(acc_bias_1, axis=0)
+        a_bias_2_std = np.std(acc_bias_2, axis=0)
+        axs_1.plot(t_imu[0, :], +3.0 * a_bias_0_std, linestyle='--', color='tab:red', alpha=alpha)
+        axs_2.plot(t_imu[0, :], +3.0 * a_bias_1_std, linestyle='--', color='tab:red', alpha=alpha)
+        axs_3.plot(t_imu[0, :], +3.0 * a_bias_2_std, linestyle='--', color='tab:red', alpha=alpha)
+        axs_1.plot(t_imu[0, :], -3.0 * a_bias_0_std, linestyle='--', color='tab:red', alpha=alpha)
+        axs_2.plot(t_imu[0, :], -3.0 * a_bias_1_std, linestyle='--', color='tab:red', alpha=alpha)
+        axs_3.plot(t_imu[0, :], -3.0 * a_bias_2_std, linestyle='--', color='tab:red', alpha=alpha)
 
         set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Accelerometer Bias')
         axs_1.set_ylim([-25, 25])
@@ -371,28 +366,28 @@ class Plotter():
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         alpha = calculate_alpha(len(imu_dfs))
         t_imu = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
-        omg_bias_0 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
-        omg_bias_1 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
-        omg_bias_2 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+        w_bias_0 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+        w_bias_1 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
+        w_bias_2 = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
 
         for i in range(len(imu_dfs)):
             t_imu[i, :] = imu_dfs[i]['time'].to_list()
-            omg_bias_0[i, :] = np.array(imu_dfs[i]['imu_omg_bias_0'].to_list()) * 1000
-            omg_bias_1[i, :] = np.array(imu_dfs[i]['imu_omg_bias_1'].to_list()) * 1000
-            omg_bias_2[i, :] = np.array(imu_dfs[i]['imu_omg_bias_2'].to_list()) * 1000
-            axs_1.plot(t_imu[i, :], omg_bias_0[i, :], color='tab:blue')
-            axs_2.plot(t_imu[i, :], omg_bias_1[i, :], color='tab:orange')
-            axs_3.plot(t_imu[i, :], omg_bias_2[i, :], color='tab:green')
+            w_bias_0[i, :] = np.array(imu_dfs[i]['imu_omg_bias_0'].to_list()) * 1000
+            w_bias_1[i, :] = np.array(imu_dfs[i]['imu_omg_bias_1'].to_list()) * 1000
+            w_bias_2[i, :] = np.array(imu_dfs[i]['imu_omg_bias_2'].to_list()) * 1000
+            axs_1.plot(t_imu[i, :], w_bias_0[i, :], color='tab:blue')
+            axs_2.plot(t_imu[i, :], w_bias_1[i, :], color='tab:orange')
+            axs_3.plot(t_imu[i, :], w_bias_2[i, :], color='tab:green')
 
-        omg_bias_0_std = np.std(omg_bias_0, axis=0)
-        omg_bias_1_std = np.std(omg_bias_1, axis=0)
-        omg_bias_2_std = np.std(omg_bias_2, axis=0)
-        axs_1.plot(t_imu[0, :], +3.0 * omg_bias_0_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_2.plot(t_imu[0, :], +3.0 * omg_bias_1_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_3.plot(t_imu[0, :], +3.0 * omg_bias_2_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_1.plot(t_imu[0, :], -3.0 * omg_bias_0_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_2.plot(t_imu[0, :], -3.0 * omg_bias_1_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_3.plot(t_imu[0, :], -3.0 * omg_bias_2_std, linestyle='--', color='tab:red', alpha=0.5)
+        w_bias_0_std = np.std(w_bias_0, axis=0)
+        w_bias_1_std = np.std(w_bias_1, axis=0)
+        w_bias_2_std = np.std(w_bias_2, axis=0)
+        axs_1.plot(t_imu[0, :], +3.0 * w_bias_0_std, linestyle='--', color='tab:red', alpha=alpha)
+        axs_2.plot(t_imu[0, :], +3.0 * w_bias_1_std, linestyle='--', color='tab:red', alpha=alpha)
+        axs_3.plot(t_imu[0, :], +3.0 * w_bias_2_std, linestyle='--', color='tab:red', alpha=alpha)
+        axs_1.plot(t_imu[0, :], -3.0 * w_bias_0_std, linestyle='--', color='tab:red', alpha=alpha)
+        axs_2.plot(t_imu[0, :], -3.0 * w_bias_1_std, linestyle='--', color='tab:red', alpha=alpha)
+        axs_3.plot(t_imu[0, :], -3.0 * w_bias_2_std, linestyle='--', color='tab:red', alpha=alpha)
 
         set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Gyroscope Bias')
         axs_1.set_ylabel(r'$b_{\omega_x}$ $\left[ \frac{mrad}{s} \right]$')
@@ -432,7 +427,6 @@ class Plotter():
     def plot_camera_body_pos_updates(self, cam_dfs):
         """Plot updates to the body position states from camera measurements."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(cam_dfs))
         for cam_df in cam_dfs:
             time = cam_df['time'].to_list()
             axs_1.plot(time, cam_df['body_update_0'].to_list(), color='tab:blue')
@@ -455,7 +449,6 @@ class Plotter():
     def plot_camera_body_ang_updates(self, cam_dfs):
         """Plot updates to the body angular states from camera measurements."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(cam_dfs))
         for cam_df in cam_dfs:
             time = cam_df['time'].to_list()
             axs_1.plot(time, cam_df['body_update_9'].to_list(), color='tab:blue')
@@ -478,7 +471,6 @@ class Plotter():
     def plot_camera_offset_updates(self, cam_dfs):
         """Plot camera updates to extrinsic offsets."""
         fig, (axs_1, axs_2) = plt.subplots(2, 1)
-        alpha = calculate_alpha(len(cam_dfs))
         for cam_df in cam_dfs:
             t_cam = cam_df['time'].to_list()
             axs_1.plot(t_cam, cam_df['cam_update_0'].to_list(), color='tab:blue')
@@ -497,7 +489,6 @@ class Plotter():
     def plot_camera_pos(self, cam_dfs):
         """Plot camera position offsets."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(cam_dfs))
         for cam_df in cam_dfs:
             t_cam = cam_df['time'].to_list()
             axs_1.plot(t_cam, cam_df['cam_state_0'].to_list(), color='tab:blue')
@@ -514,7 +505,6 @@ class Plotter():
     def plot_camera_ang(self, cam_dfs):
         """Plot camera angular offsets."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(cam_dfs))
         for cam_df in cam_dfs:
             t_cam = cam_df['time'].to_list()
             axs_1.plot(t_cam, cam_df['cam_state_3'].to_list(), color='tab:blue')
@@ -549,7 +539,6 @@ class Plotter():
     def plot_body_pos(self, body_dfs):
         """Plot body position."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_pos_0'].to_list(), color='tab:blue')
@@ -567,7 +556,6 @@ class Plotter():
         """Plot body position in 3D."""
         fig = plt.figure()
         axs = fig.add_subplot(projection='3d')
-        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             x_pos = body_df['body_pos_0'].to_list()
             y_pos = body_df['body_pos_1'].to_list()
@@ -612,7 +600,6 @@ class Plotter():
         y_pos_list = []
         z_pos_list = []
         graph_list = []
-        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             x_pos = body_df['body_pos_0'].to_list()
@@ -651,7 +638,6 @@ class Plotter():
     def plot_body_vel(self, body_dfs):
         """Plot body velocity."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_vel_0'].to_list(), color='tab:blue')
@@ -668,7 +654,6 @@ class Plotter():
     def plot_body_acc(self, body_dfs):
         """Plot body acceleration."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_acc_0'].to_list(), color='tab:blue')
@@ -685,7 +670,6 @@ class Plotter():
     def plot_body_ang(self, body_dfs):
         """Plot body angular position."""
         fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
-        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_ang_pos_0'].to_list(), color='tab:blue')
@@ -704,7 +688,6 @@ class Plotter():
     def plot_body_ang_vel(self, body_dfs):
         """Plot body angular position."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_ang_vel_0'].to_list(), color='tab:blue')
@@ -721,7 +704,6 @@ class Plotter():
     def plot_body_ang_acc(self, body_dfs):
         """Plot body angular position."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_ang_acc_0'].to_list(), color='tab:blue')
@@ -738,7 +720,6 @@ class Plotter():
     def plot_body_pos_cov(self, body_dfs):
         """Plot body covariances for position and derivatives."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_cov_0'].to_list(), color='tab:blue')
@@ -761,7 +742,6 @@ class Plotter():
     def plot_body_ang_cov(self, body_dfs):
         """Plot body covariances for angles and derivatives."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_cov_9'].to_list(), color='tab:blue')
@@ -784,7 +764,6 @@ class Plotter():
     def plot_body_err_pos(self, body_state_dfs, body_truth_dfs):
         """Plot the body state position error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
             true_time = body_truth['time'].to_list()
             true_pos_0 = body_truth['body_pos_0'].to_list()
@@ -818,7 +797,6 @@ class Plotter():
     def plot_body_err_vel(self, body_state_dfs, body_truth_dfs):
         """Plot the body state velocity error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
             true_time = body_truth['time'].to_list()
             true_vel_0 = body_truth['body_vel_0'].to_list()
@@ -852,7 +830,6 @@ class Plotter():
     def plot_body_err_acc(self, body_state_dfs, body_truth_dfs):
         """Plot the body state acceleration error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
             true_time = body_truth['time'].to_list()
             true_acc_0 = body_truth['body_acc_0'].to_list()
@@ -886,7 +863,6 @@ class Plotter():
     def plot_body_err_ang(self, body_state_dfs, body_truth_dfs):
         """Plot the body state angular error."""
         fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
-        alpha = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
             true_time = body_truth['time'].to_list()
             true_ang_pos_w = body_truth['body_ang_pos_0'].to_list()
@@ -929,7 +905,6 @@ class Plotter():
     def plot_body_err_ang_vel(self, body_state_dfs, body_truth_dfs):
         """Plot the body state angular velocity error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
             true_time = body_truth['time'].to_list()
             true_ang_vel_0 = body_truth['body_ang_vel_0'].to_list()
@@ -963,7 +938,6 @@ class Plotter():
     def plot_body_err_ang_acc(self, body_state_dfs, body_truth_dfs):
         """Plot the body state angular acceleration error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
             true_time = body_truth['time'].to_list()
             true_ang_acc_0 = body_truth['body_ang_acc_0'].to_list()
@@ -1003,7 +977,6 @@ class Plotter():
         err_y = collections.defaultdict(list)
         err_z = collections.defaultdict(list)
 
-        alpha = calculate_alpha(len(tri_dfs))
         for tri_df, feat_df in zip(tri_dfs, feat_dfs):
             time = tri_df['time'].to_list()
             feature = tri_df['feature'].to_list()

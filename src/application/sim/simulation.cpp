@@ -13,39 +13,40 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <eigen3/Eigen/Eigen>
 #include <yaml-cpp/yaml.h>
 
-#include <iostream>
-#include <memory>
-#include <string>
 #include <algorithm>
 #include <cmath>
-#include <eigen3/Eigen/Eigen>
+#include <iostream>
 #include <map>
-#include <opencv2/opencv.hpp>
+#include <memory>
+#include <string>
 #include <utility>
 #include <vector>
+
+#include <opencv2/opencv.hpp>
 
 #include "ekf/ekf.hpp"
 #include "infrastructure/data_logger.hpp"
 #include "infrastructure/debug_logger.hpp"
-#include "sensors/camera.hpp"
-#include "sensors/sensor.hpp"
-#include "sensors/sensor_message.hpp"
-#include "sensors/types.hpp"
-#include "trackers/feature_tracker.hpp"
-#include "utility/sim/sim_rng.hpp"
 #include "infrastructure/ekf_cal_version.hpp"
 #include "infrastructure/sim/truth_engine_cyclic.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
+#include "sensors/camera.hpp"
 #include "sensors/imu.hpp"
+#include "sensors/sensor_message.hpp"
+#include "sensors/sensor.hpp"
 #include "sensors/sim/sim_camera_message.hpp"
 #include "sensors/sim/sim_camera.hpp"
 #include "sensors/sim/sim_imu_message.hpp"
 #include "sensors/sim/sim_imu.hpp"
+#include "sensors/types.hpp"
+#include "trackers/feature_tracker.hpp"
 #include "trackers/sim/sim_feature_tracker.hpp"
-#include "utility/type_helper.hpp"
+#include "utility/sim/sim_rng.hpp"
 #include "utility/string_helper.hpp"
+#include "utility/type_helper.hpp"
 
 
 std::vector<std::string> LoadNodeList(YAML::Node node)

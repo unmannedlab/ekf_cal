@@ -16,17 +16,17 @@
 #ifndef TRACKERS__FEATURE_TRACKER_HPP_
 #define TRACKERS__FEATURE_TRACKER_HPP_
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
-#include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
+#include <opencv2/opencv.hpp>
 
-#include "infrastructure/debug_logger.hpp"
-#include "ekf/types.hpp"
 #include "ekf/ekf.hpp"
+#include "ekf/types.hpp"
 #include "ekf/update/msckf_updater.hpp"
+#include "infrastructure/debug_logger.hpp"
 
 ///
 /// @class FeatureTracker

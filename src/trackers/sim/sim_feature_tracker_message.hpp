@@ -18,8 +18,8 @@
 
 #include <vector>
 
-#include "sensors/sensor_message.hpp"
 #include "ekf/types.hpp"
+#include "sensors/sensor_message.hpp"
 
 ///
 /// @class SimFeatureTrackerMessage

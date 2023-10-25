@@ -15,6 +15,7 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <gtest/gtest.h>
+
 #include <vector>
 
 #include "ekf/ekf.hpp"

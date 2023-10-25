@@ -19,10 +19,10 @@
 #include <eigen3/Eigen/Eigen>
 #include <stddef.h>
 
-#include "ekf/types.hpp"
 #include "ekf/constants.hpp"
-#include "infrastructure/debug_logger.hpp"
+#include "ekf/types.hpp"
 #include "infrastructure/data_logger.hpp"
+#include "infrastructure/debug_logger.hpp"
 
 ///
 /// @class EKF

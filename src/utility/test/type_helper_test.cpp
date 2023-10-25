@@ -14,11 +14,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+#include <eigen3/Eigen/Eigen>
 #include <gtest/gtest.h>
+#include <math.h>
 
 #include <vector>
-#include <math.h>
-#include <eigen3/Eigen/Eigen>
 
 #include "utility/type_helper.hpp"
 

@@ -17,11 +17,11 @@
 
 #include <eigen3/Eigen/Eigen>
 
-#include <string>
-#include <vector>
-#include <sstream>
 #include <map>
+#include <sstream>
+#include <string>
 #include <utility>
+#include <vector>
 
 #include "ekf/types.hpp"
 #include "infrastructure/data_logger.hpp"

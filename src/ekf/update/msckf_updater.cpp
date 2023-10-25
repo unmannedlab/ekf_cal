@@ -16,18 +16,20 @@
 #include "ekf/update/msckf_updater.hpp"
 
 #include <eigen3/Eigen/Eigen>
-#include <string>
+
 #include <chrono>
 #include <cmath>
 #include <iomanip>
 #include <map>
 #include <memory>
-#include <opencv2/opencv.hpp>
 #include <ostream>
+#include <string>
 
+#include <opencv2/opencv.hpp>
+
+#include "ekf/constants.hpp"
 #include "ekf/ekf.hpp"
 #include "infrastructure/debug_logger.hpp"
-#include "ekf/constants.hpp"
 #include "sensors/types.hpp"
 #include "utility/math_helper.hpp"
 #include "utility/string_helper.hpp"

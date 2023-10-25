@@ -16,10 +16,10 @@
 #ifndef UTILITY__ROS_HELPER_HPP_
 #define UTILITY__ROS_HELPER_HPP_
 
-
 #include <eigen3/Eigen/Eigen>
 
 #include <array>
+
 #include <geometry_msgs/msg/vector3.hpp>
 #include <std_msgs/msg/header.hpp>
 

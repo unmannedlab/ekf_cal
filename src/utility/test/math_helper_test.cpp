@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <gtest/gtest.h>
+
 #include <eigen3/Eigen/Eigen>
 #include <memory>
-
-#include <gtest/gtest.h>
 
 #include "utility/math_helper.hpp"
 

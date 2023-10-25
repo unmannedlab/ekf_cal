@@ -16,10 +16,10 @@
 #ifndef EKF__UPDATE__MSCKF_UPDATER_HPP_
 #define EKF__UPDATE__MSCKF_UPDATER_HPP_
 
+#include <eigen3/Eigen/Eigen>
+
 #include <string>
 #include <vector>
-
-#include <eigen3/Eigen/Eigen>
 
 #include "ekf/types.hpp"
 #include "ekf/update/updater.hpp"

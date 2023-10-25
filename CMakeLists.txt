@@ -7,16 +7,17 @@ set(EKF_CAL_PATCH_VERSION 0)
 set(EKF_CAL_VERSION ${EKF_CAL_MAJOR_VERSION}.${EKF_CAL_MINOR_VERSION}.${EKF_CAL_PATCH_VERSION})
 configure_file(src/infrastructure/ekf_cal_version.hpp.in infrastructure/ekf_cal_version.hpp)
 
-# Include What You Use
-find_program(IWYU_PATH NAMES include-what-you-use iwyu)
-set(IWYU_PATH_AND_OPTIONS ${IWYU_PATH} -Xiwyu --no_fwd_decls -Xiwyu --mapping_file=${CMAKE_CURRENT_SOURCE_DIR}/.vscode/iwyu.imp)
-if(IWYU_PATH)
-    message(STATUS "Using include-what-you-use")
-    set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH_AND_OPTIONS})
-    set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU_PATH_AND_OPTIONS})
-else (IWYU_PATH)
-    message(STATUS "Could not find include-what-you-use")
-endif(IWYU_PATH)
+# TODO: Enable test for IWYU
+# # Include What You Use
+# find_program(IWYU_PATH NAMES include-what-you-use iwyu)
+# set(IWYU_PATH_AND_OPTIONS ${IWYU_PATH} -Xiwyu --no_fwd_decls -Xiwyu --mapping_file=${CMAKE_CURRENT_SOURCE_DIR}/.vscode/iwyu.imp)
+# if(IWYU_PATH)
+#     message(STATUS "Using include-what-you-use")
+#     set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH_AND_OPTIONS})
+#     set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU_PATH_AND_OPTIONS})
+# else()
+#     message(STATUS "Could not find include-what-you-use")
+# endif()
 
 
 # Default to C99

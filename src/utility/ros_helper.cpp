@@ -17,8 +17,8 @@
 
 #include <eigen3/Eigen/Eigen>
 
-#include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/header.hpp>
 
 #include "utility/constants.hpp"

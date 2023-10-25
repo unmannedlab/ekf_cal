@@ -18,9 +18,9 @@
 #include <eigen3/Eigen/Eigen>
 
 #include <algorithm>
+#include <cmath>
 #include <memory>
 #include <string>
-#include <cmath>
 
 #include "ekf/constants.hpp"
 #include "infrastructure/debug_logger.hpp"

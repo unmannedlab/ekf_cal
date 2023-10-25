@@ -26,8 +26,8 @@
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/camera.hpp"
 #include "sensors/sim/sim_camera_message.hpp"
-#include "utility/sim/sim_rng.hpp"
 #include "trackers/sim/sim_feature_tracker.hpp"
+#include "utility/sim/sim_rng.hpp"
 
 
 ///

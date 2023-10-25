@@ -13,14 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <eigen3/Eigen/Eigen>
 #include <gtest/gtest.h>
 
-#include <vector>
 #include <array>
-#include <geometry_msgs/msg/vector3.hpp>
-#include <eigen3/Eigen/Eigen>
-#include <rclcpp/rclcpp.hpp>
+#include <vector>
 
+#include <geometry_msgs/msg/vector3.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/header.hpp>
 
 #include "utility/ros_helper.hpp"

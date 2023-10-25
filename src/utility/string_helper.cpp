@@ -17,8 +17,8 @@
 
 #include <eigen3/Eigen/Eigen>
 
-#include <string>
 #include <sstream>
+#include <string>
 
 
 std::string EnumerateHeader(std::string name, unsigned int size)

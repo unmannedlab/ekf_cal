@@ -15,9 +15,9 @@
 
 #include <gtest/gtest.h>
 
-#include "sensors/sim/sim_imu.hpp"
-#include "sensors/imu.hpp"
 #include "infrastructure/sim/truth_engine_cyclic.hpp"
+#include "sensors/imu.hpp"
+#include "sensors/sim/sim_imu.hpp"
 
 TEST(test_SimIMU, Constructor) {
   SimIMU::Parameters simImuParams;

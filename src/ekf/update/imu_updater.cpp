@@ -17,15 +17,14 @@
 
 #include <eigen3/Eigen/Eigen>
 
-#include <string>
-#include <sstream>
 #include <chrono>
 #include <map>
+#include <sstream>
+#include <string>
 
-#include "ekf/ekf.hpp"
-
-#include "ekf/types.hpp"
 #include "ekf/constants.hpp"
+#include "ekf/ekf.hpp"
+#include "ekf/types.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "utility/math_helper.hpp"
 #include "utility/string_helper.hpp"

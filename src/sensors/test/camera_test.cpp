@@ -14,7 +14,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <gtest/gtest.h>
+
 #include <memory>
+
 #include "trackers/feature_tracker.hpp"
 
 TEST(test_feature_tracker, initialization) {
