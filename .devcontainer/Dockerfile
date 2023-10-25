@@ -9,6 +9,8 @@ RUN apt-get update && \
     apt-get -y install \
     cloc \
     git \
+    clang-13 \
+    iwyu \
     locales && \
     rm -rf /var/lib/apt/lists/*
 
