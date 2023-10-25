@@ -18,7 +18,23 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <algorithm>
+#include <cmath>
+#include <eigen3/Eigen/Eigen>
+#include <map>
+#include <opencv2/opencv.hpp>
+#include <utility>
+#include <vector>
 
+#include "ekf/ekf.hpp"
+#include "infrastructure/data_logger.hpp"
+#include "infrastructure/debug_logger.hpp"
+#include "sensors/camera.hpp"
+#include "sensors/sensor.hpp"
+#include "sensors/sensor_message.hpp"
+#include "sensors/types.hpp"
+#include "trackers/feature_tracker.hpp"
+#include "utility/sim/sim_rng.hpp"
 #include "infrastructure/ekf_cal_version.hpp"
 #include "infrastructure/sim/truth_engine_cyclic.hpp"
 #include "infrastructure/sim/truth_engine.hpp"

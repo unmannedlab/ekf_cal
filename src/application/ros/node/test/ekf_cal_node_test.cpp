@@ -16,8 +16,14 @@
 #include <gtest/gtest.h>
 
 #include <memory>
+#include <string>
+#include <vector>
+
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/imu.hpp>
+#include <stddef.h>
+#include <geometry_msgs/msg/vector3.hpp>
+#include <std_msgs/msg/header.hpp>
 
 #include "application/ros/node/ekf_cal_node.hpp"
 

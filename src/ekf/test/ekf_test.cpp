@@ -15,8 +15,10 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <gtest/gtest.h>
+#include <vector>
 
 #include "ekf/ekf.hpp"
+#include "ekf/types.hpp"
 
 
 TEST(test_EKF, get_counts) {

@@ -20,6 +20,14 @@
 #include <vector>
 #include <cmath>
 
+#include <algorithm>
+#include <ostream>
+#include <utility>
+#include "ekf/types.hpp"
+#include "ekf/update/msckf_updater.hpp"
+#include "infrastructure/debug_logger.hpp"
+#include "sensors/types.hpp"
+
 #include <opencv2/opencv.hpp>
 
 #include "trackers/sim/sim_feature_tracker_message.hpp"

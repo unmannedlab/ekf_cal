@@ -15,10 +15,11 @@
 
 #include <gtest/gtest.h>
 
-#include "sensors/imu.hpp"
+#include <memory>
 
-#include "utility/type_helper.hpp"
-#include "utility/test/custom_assertions.hpp"
+#include "sensors/imu.hpp"
+#include "sensors/imu_message.hpp"
+
 
 TEST(test_IMU, Constructor) {
   IMU::Parameters imu_params;

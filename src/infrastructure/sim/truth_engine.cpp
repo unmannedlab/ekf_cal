@@ -55,3 +55,5 @@ Eigen::Vector3d TruthEngine::GetBodyAngularAcceleration(double time)
   m_logger->Log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
   return Eigen::Vector3d::Zero(3);
 }
+
+TruthEngine::~TruthEngine() {}

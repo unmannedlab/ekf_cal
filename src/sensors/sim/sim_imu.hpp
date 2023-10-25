@@ -22,10 +22,8 @@
 #include <memory>
 #include <vector>
 
-#include "ekf/types.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/imu.hpp"
-#include "sensors/sensor.hpp"
 #include "sensors/sim/sim_imu_message.hpp"
 #include "utility/sim/sim_rng.hpp"
 

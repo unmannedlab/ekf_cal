@@ -16,6 +16,8 @@
 #include "sensors/ros/ros_imu_message.hpp"
 
 #include <sensor_msgs/msg/imu.hpp>
+#include <eigen3/Eigen/Eigen>
+#include <memory>
 
 #include "utility/ros_helper.hpp"
 

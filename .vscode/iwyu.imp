@@ -1,26 +1,31 @@
 [
     # Eigen
-    { include: ["@<eigen3/Eigen/src/.*>", private,  "<eigen3/Eigen/Eigen>", public ]},
-    { include: ["@<eigen3/unsupported/Eigen/src/Splines/.*>", private,  "<eigen3/unsupported/Eigen/Splines>", public ]},
-    { include: ["@<src/SparseCore/.*>", private,  "<eigen3/unsupported/Eigen/Splines>", public ]},
+    { include: ["@<eigen3/Eigen/src/.*>", private, "<eigen3/Eigen/Eigen>", public ]},
+    { include: ["@<eigen3/unsupported/Eigen/src/Splines/.*>", private, "<eigen3/unsupported/Eigen/Splines>", public ]},
+    { include: ["@<src/SparseCore/.*>", private, "<eigen3/unsupported/Eigen/Splines>", public ]},
 
     # Google Test
-    { include: ["<gtest/gtest_pred_impl.h>", private,  "<gtest/gtest.h>", public ]},
-    { include: ["<gtest/gtest-message.h>", private,  "<gtest/gtest.h>", public ]},
-    { include: ["<gtest/gtest-test-part.h>", private,  "<gtest/gtest.h>", public ]},
+    { include: ['"gtest/gtest_pred_impl.h"', private, "<gtest/gtest.h>", public ]},
+    { include: ['"gtest/gtest-message.h"', private, "<gtest/gtest.h>", public ]},
+    { include: ['"gtest/gtest-test-part.h"', private, "<gtest/gtest.h>", public ]},
 
     # Yaml
-    { include: ["@<yaml-cpp/node/.*>", private,  "<yaml-cpp/yaml.h>", public ]},
+    { include: ["@<yaml-cpp/node/.*>", private, "<yaml-cpp/yaml.h>", public ]},
 
     # OpenCV
-    { include: ["@<opencv2/core/.*>", private,  "<opencv2/opencv.hpp>", public ]},
+    { include: ["@<opencv2/core/.*>", private, "<opencv2/opencv.hpp>", public ]},
+    { include: ["<opencv2/imgproc.hpp>", private, "<opencv2/opencv.hpp>", public ]},
+    { include: ["<opencv2/calib3d.hpp>", private, "<opencv2/opencv.hpp>", public ]},
 
     # ROS
-    { include: ["@<rclcpp/.*>", private,  "<rclcpp/rclcpp.hpp>", public ]},
-    { include: ["@<builtin_interfaces/msg/.*>", private,  "<rclcpp/rclcpp.hpp>", public ]},
-    { include: ["<sensor_msgs/msg/detail/image__struct.hpp>", private,  "<sensor_msgs/msg/image.hpp>", public ]},
-    { include: ["<sensor_msgs/msg/detail/imu__struct.hpp>", private,  "<sensor_msgs/msg/imu.hpp>", public ]},
-    { include: ["<std_msgs/msg/detail/float64_multi_array__struct.hpp>", private,  "<std_msgs/msg/float64_multi_array.hpp>", public ]},
-    { include: ["<geometry_msgs/msg/detail/vector3__struct.hpp>", private,  "<geometry_msgs/msg/vector3.hpp>", public ]},
-    { include: ["<std_msgs/msg/detail/header__struct.hpp>", private,  "<std_msgs/msg/header.hpp>", public ]},
+    { include: ["@<rclcpp/.*>", private, "<rclcpp/rclcpp.hpp>", public ]},
+    { include: ["@<builtin_interfaces/msg/.*>", private, "<rclcpp/rclcpp.hpp>", public ]},
+    { include: ["<sensor_msgs/msg/detail/image__struct.hpp>", private, "<sensor_msgs/msg/image.hpp>", public ]},
+    { include: ["<sensor_msgs/msg/detail/imu__struct.hpp>", private, "<sensor_msgs/msg/imu.hpp>", public ]},
+    { include: ["<std_msgs/msg/detail/float64_multi_array__struct.hpp>", private, "<std_msgs/msg/float64_multi_array.hpp>", public ]},
+    { include: ["<geometry_msgs/msg/detail/vector3__struct.hpp>", private, "<geometry_msgs/msg/vector3.hpp>", public ]},
+    { include: ["<std_msgs/msg/detail/header__struct.hpp>", private, "<std_msgs/msg/header.hpp>", public ]},
+
+    # StdLib
+    { include: ["<bits/chrono.h>", private, "<chrono>", public ]},
 ]

@@ -19,6 +19,9 @@
 #include <string>
 #include <vector>
 
+#include <eigen3/Eigen/Eigen>
+
+#include "ekf/types.hpp"
 #include "ekf/update/updater.hpp"
 #include "infrastructure/data_logger.hpp"
 #include "sensors/types.hpp"

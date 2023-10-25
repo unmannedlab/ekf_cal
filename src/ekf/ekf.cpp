@@ -20,6 +20,8 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <map>
+#include <utility>
 
 #include "ekf/types.hpp"
 #include "infrastructure/data_logger.hpp"

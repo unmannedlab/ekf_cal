@@ -17,8 +17,7 @@
 #define EKF__EKF_HPP_
 
 #include <eigen3/Eigen/Eigen>
-#include <string>
-#include <vector>
+#include <stddef.h>
 
 #include "ekf/types.hpp"
 #include "ekf/constants.hpp"

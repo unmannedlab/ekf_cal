@@ -14,11 +14,38 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <gtest/gtest.h>
+#include <memory>
+#include "trackers/feature_tracker.hpp"
 
-#include "sensors/camera.hpp"
+TEST(test_feature_tracker, initialization) {
+  FeatureTracker::Parameters params;
+  params.sensor_id = 1;
 
-TEST(test_Camera, Constructor) {
-  Camera::Parameters cam_params;
-  Camera camera(cam_params);
-  EXPECT_TRUE(true);
+  params.detector = FeatureTracker::FeatureDetectorEnum::BRISK;
+  params.descriptor = FeatureTracker::DescriptorExtractorEnum::ORB;
+  params.matcher = FeatureTracker::DescriptorMatcherEnum::BRUTE_FORCE;
+  FeatureTracker feature_tracker_1 {params};
+
+  params.detector = FeatureTracker::FeatureDetectorEnum::FAST;
+  FeatureTracker feature_tracker_2 {params};
+
+  params.detector = FeatureTracker::FeatureDetectorEnum::GFTT;
+  FeatureTracker feature_tracker_3 {params};
+
+  params.detector = FeatureTracker::FeatureDetectorEnum::MSER;
+  FeatureTracker feature_tracker_4 {params};
+
+  params.detector = FeatureTracker::FeatureDetectorEnum::ORB;
+  FeatureTracker feature_tracker_5 {params};
+
+  params.detector = FeatureTracker::FeatureDetectorEnum::SIFT;
+  FeatureTracker feature_tracker_6 {params};
+
+  params.descriptor = FeatureTracker::DescriptorExtractorEnum::SIFT;
+  FeatureTracker feature_tracker_7 {params};
+
+  params.matcher = FeatureTracker::DescriptorMatcherEnum::FLANN;
+  FeatureTracker feature_tracker_8 {params};
+
+  EXPECT_EQ(feature_tracker_1.GetID(), 1U);
 }

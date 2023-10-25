@@ -17,9 +17,8 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <vector>
-
-#include <opencv2/opencv.hpp>
-#include <opencv2/features2d.hpp>
+#include <memory>
+#include <utility>
 
 #include "utility/type_helper.hpp"
 

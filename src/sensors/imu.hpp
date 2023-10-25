@@ -22,7 +22,6 @@
 #include <memory>
 
 #include "ekf/update/imu_updater.hpp"
-#include "infrastructure/debug_logger.hpp"
 #include "sensors/imu_message.hpp"
 #include "sensors/sensor.hpp"
 

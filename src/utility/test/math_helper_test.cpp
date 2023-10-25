@@ -19,7 +19,6 @@
 #include <gtest/gtest.h>
 
 #include "utility/math_helper.hpp"
-#include "utility/test/custom_assertions.hpp"
 
 TEST(test_MathHelper, SkewSymmetric) {
   Eigen::Vector3d testVec(1.0, 2.0, 3.0);

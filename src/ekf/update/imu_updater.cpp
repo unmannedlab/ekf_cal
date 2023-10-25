@@ -19,6 +19,10 @@
 
 #include <string>
 #include <sstream>
+#include <chrono>
+#include <map>
+
+#include "ekf/ekf.hpp"
 
 #include "ekf/types.hpp"
 #include "ekf/constants.hpp"

@@ -14,7 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <gtest/gtest.h>
-
+#include <memory>
 #include "sensors/ros/ros_imu.hpp"
 #include "sensors/imu.hpp"
 

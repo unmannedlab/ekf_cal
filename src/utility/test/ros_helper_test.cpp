@@ -16,6 +16,10 @@
 #include <gtest/gtest.h>
 
 #include <vector>
+#include <array>
+#include <geometry_msgs/msg/vector3.hpp>
+#include <eigen3/Eigen/Eigen>
+#include <rclcpp/rclcpp.hpp>
 
 #include <std_msgs/msg/header.hpp>
 

@@ -30,6 +30,8 @@ class TruthEngine
 public:
   TruthEngine() {}
 
+  virtual ~TruthEngine() = 0;
+
   ///
   /// @brief True body position getter
   /// @param time Simulation time

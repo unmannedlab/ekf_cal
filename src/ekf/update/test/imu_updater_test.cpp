@@ -16,9 +16,12 @@
 #include <eigen3/Eigen/Eigen>
 #include <gtest/gtest.h>
 
-#include "ekf/ekf.hpp"
-#include "ekf/update/imu_updater.hpp"
+#include <string>
+
 #include "ekf/constants.hpp"
+#include "ekf/ekf.hpp"
+#include "ekf/types.hpp"
+#include "ekf/update/imu_updater.hpp"
 
 TEST(test_imu_updater, update) {
   EKF * ekf = EKF::GetInstance();

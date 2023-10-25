@@ -16,6 +16,12 @@
 #include "trackers/feature_tracker.hpp"
 
 #include <string>
+#include <cmath>
+#include <memory>
+#include <stddef.h>
+#include <stdint.h>
+#include <algorithm>
+#include <utility>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>

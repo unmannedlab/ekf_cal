@@ -24,9 +24,6 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <string>
-#include "gtest/gtest-message.h"
-#include "gtest/gtest-test-part.h"
-#include "gtest/gtest_pred_impl.h"
 #include "sensors/camera.hpp"
 #include "sensors/ros/ros_camera_message.hpp"
 

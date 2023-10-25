@@ -19,6 +19,7 @@
 #include <string>
 
 #include "ekf/ekf.hpp"
+#include "ekf/types.hpp"
 #include "ekf/update/msckf_updater.hpp"
 #include "sensors/types.hpp"
 

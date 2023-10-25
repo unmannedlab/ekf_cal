@@ -20,8 +20,6 @@
 #include <eigen3/Eigen/Eigen>
 
 #include <array>
-#include <vector>
-#include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
 #include <std_msgs/msg/header.hpp>
 

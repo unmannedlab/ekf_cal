@@ -18,7 +18,8 @@
 
 #include <string>
 
-#include "ekf/ekf.hpp"
+#include <eigen3/Eigen/Eigen>
+
 #include "ekf/update/updater.hpp"
 #include "infrastructure/data_logger.hpp"
 
