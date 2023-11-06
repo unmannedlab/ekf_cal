@@ -356,7 +356,7 @@ void MsckfUpdater::UpdateEKF(
   Eigen::MatrixXd S = H_x * m_ekf->GetCov() * H_x.transpose() + R;
   Eigen::MatrixXd K = m_ekf->GetCov() * H_x.transpose() * S.inverse();
 
-  unsigned int imu_states_size = m_ekf->GetImuCount() * g_imu_state_size;
+  unsigned int imu_states_size = m_ekf->GetImuStateSize();
   unsigned int cam_states_size = state_size - g_body_state_size - imu_states_size;
 
   Eigen::VectorXd update = K * res_x;

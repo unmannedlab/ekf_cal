@@ -102,6 +102,13 @@ public:
   /// @return IMU count
   ///
   unsigned int GetImuCount();
+
+  ///
+  /// @brief IMU count getter method
+  /// @return IMU count
+  ///
+  unsigned int GetImuStateSize();
+
   ///
   /// @brief Camera count getter method
   /// @return Camera count

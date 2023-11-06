@@ -48,7 +48,7 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngi
   m_truth = truthEngine;
 
   // Add extrinsic error to non-base sensor
-  if (!params.imu_params.base_sensor) {
+  if (params.imu_params.is_extrinsic) {
     m_pos_i_in_b_true[0] = m_rng.NormRand(0.0, m_pos_error[0]);
     m_pos_i_in_b_true[1] = m_rng.NormRand(0.0, m_pos_error[1]);
     m_pos_i_in_b_true[2] = m_rng.NormRand(0.0, m_pos_error[2]);
@@ -65,7 +65,7 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngi
   }
 
   // Add intrinsic error to non-calibrated sensors
-  if (params.imu_params.intrinsic) {
+  if (params.imu_params.is_intrinsic) {
     m_acc_bias_true[0] = m_rng.NormRand(0.0, m_acc_bias_error[0]);
     m_acc_bias_true[1] = m_rng.NormRand(0.0, m_acc_bias_error[1]);
     m_acc_bias_true[2] = m_rng.NormRand(0.0, m_acc_bias_error[2]);

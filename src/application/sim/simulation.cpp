@@ -192,8 +192,8 @@ int main(int argc, char * argv[])
 
     IMU::Parameters imu_params;
     imu_params.name = imus[i];
-    imu_params.base_sensor = imu_node["base_sensor"].as<bool>();
-    imu_params.intrinsic = imu_node["intrinsic"].as<bool>();
+    imu_params.is_extrinsic = imu_node["is_extrinsic"].as<bool>();
+    imu_params.is_intrinsic = imu_node["is_intrinsic"].as<bool>();
     imu_params.rate = imu_node["rate"].as<double>();
     imu_params.topic = imu_node["topic"].as<std::string>();
     imu_params.variance = StdToEigVec(imu_node["variance"].as<std::vector<double>>());

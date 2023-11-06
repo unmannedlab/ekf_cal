@@ -39,14 +39,12 @@ TEST(test_imu_updater, update) {
   Eigen::MatrixXd imu_cov = Eigen::MatrixXd::Zero(12, 12);
   ekf->RegisterIMU(imu_id, imu_state, imu_cov);
 
-  ImuUpdater imu_updater(imu_id, log_file_directory, data_logging_on);
+  ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on);
 
   Eigen::Vector3d acceleration = g_gravity;
   Eigen::Matrix3d accelerationCovariance = Eigen::Matrix3d::Zero();
   Eigen::Vector3d angularRate = Eigen::Vector3d::Zero();
   Eigen::Matrix3d angularRateCovariance = Eigen::Matrix3d::Zero();
-  bool isBaseSensor {false};
-  bool isIntrinsic {false};
   bool use_for_prediction {false};
 
   State state = ekf->GetState();
@@ -56,20 +54,18 @@ TEST(test_imu_updater, update) {
 
   double time = time_init + 1;
   imu_updater.UpdateEKF(
-    time, acceleration, accelerationCovariance, angularRate,
-    angularRateCovariance, isBaseSensor, isIntrinsic, use_for_prediction);
+    time, acceleration, accelerationCovariance, angularRate, angularRateCovariance,
+    use_for_prediction);
 
   state = ekf->GetState();
   EXPECT_EQ(state.m_body_state.m_position[0], 1);
   EXPECT_EQ(state.m_body_state.m_position[1], 1);
   EXPECT_EQ(state.m_body_state.m_position[2], 1);
 
-  isBaseSensor = true;
-  isIntrinsic = true;
   time += 1;
   imu_updater.UpdateEKF(
-    time, acceleration, accelerationCovariance, angularRate,
-    angularRateCovariance, isBaseSensor, isIntrinsic, use_for_prediction);
+    time, acceleration, accelerationCovariance, angularRate, angularRateCovariance,
+    use_for_prediction);
 
   state = ekf->GetState();
   EXPECT_EQ(state.m_body_state.m_position[0], 2);

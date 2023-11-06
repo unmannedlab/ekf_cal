@@ -121,12 +121,17 @@ std::map<unsigned int, ImuState> & operator+=(
   unsigned int n {0};
   for (auto & imu_iter : l_imu_state) {
     unsigned int imu_id = imu_iter.first;
-    l_imu_state[imu_id].pos_i_in_b += r_vector.segment<3>(n + 0);
-    l_imu_state[imu_id].ang_i_to_b =
-      l_imu_state[imu_id].ang_i_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
-    l_imu_state[imu_id].acc_bias += r_vector.segment<3>(n + 6);
-    l_imu_state[imu_id].omg_bias += r_vector.segment<3>(n + 9);
-    n += 12;
+    if (l_imu_state[imu_id].is_extrinsic) {
+      l_imu_state[imu_id].pos_i_in_b += r_vector.segment<3>(n + 0);
+      l_imu_state[imu_id].ang_i_to_b = l_imu_state[imu_id].ang_i_to_b * RotVecToQuat(
+        r_vector.segment<3>(n + 3));
+      n += 6;
+    }
+    if (l_imu_state[imu_id].is_intrinsic) {
+      l_imu_state[imu_id].acc_bias += r_vector.segment<3>(n + 0);
+      l_imu_state[imu_id].omg_bias += r_vector.segment<3>(n + 3);
+      n += 6;
+    }
   }
 
   return l_imu_state;
@@ -202,12 +207,25 @@ Eigen::VectorXd CamState::ToVector()
 
 Eigen::VectorXd ImuState::ToVector()
 {
-  Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd out_vec;
 
-  out_vec.segment<3>(0) = pos_i_in_b;
-  out_vec.segment<3>(3) = QuatToRotVec(ang_i_to_b);
-  out_vec.segment<3>(6) = acc_bias;
-  out_vec.segment<3>(9) = omg_bias;
+  if (is_extrinsic && is_intrinsic) {
+    out_vec = Eigen::VectorXd::Zero(12);
+    out_vec.segment<3>(0) = pos_i_in_b;
+    out_vec.segment<3>(3) = QuatToRotVec(ang_i_to_b);
+    out_vec.segment<3>(6) = acc_bias;
+    out_vec.segment<3>(9) = omg_bias;
+  } else if (is_extrinsic) {
+    out_vec = Eigen::VectorXd::Zero(6);
+    out_vec.segment<3>(0) = pos_i_in_b;
+    out_vec.segment<3>(3) = QuatToRotVec(ang_i_to_b);
+  } else if (is_intrinsic) {
+    out_vec = Eigen::VectorXd::Zero(6);
+    out_vec.segment<3>(6) = acc_bias;
+    out_vec.segment<3>(9) = omg_bias;
+  } else if (is_extrinsic) {
+    out_vec = Eigen::VectorXd::Zero(0);
+  }
 
   return out_vec;
 }

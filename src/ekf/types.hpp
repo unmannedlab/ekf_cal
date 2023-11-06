@@ -25,6 +25,7 @@
 
 ///
 /// @brief BodyState structure
+/// @todo Make member variable naming consistent
 ///
 class BodyState
 {
@@ -68,10 +69,12 @@ public:
   ///
   Eigen::VectorXd ToVector();
 
-  Eigen::Vector3d pos_i_in_b{0.0, 0.0, 0.0};             ///< @brief IMU state position
+  bool is_extrinsic{false};                           ///< @brief Extrinsic calibration flag
+  bool is_intrinsic{false};                           ///< @brief Intrinsic calibration flag
+  Eigen::Vector3d pos_i_in_b{0.0, 0.0, 0.0};          ///< @brief IMU state position
   Eigen::Quaterniond ang_i_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief IMU state orientation
-  Eigen::Vector3d acc_bias{0.0, 0.0, 0.0};             ///< @brief IMU state acceleration bias
-  Eigen::Vector3d omg_bias{0.0, 0.0, 0.0};             ///< @brief IMU state angular rate bias
+  Eigen::Vector3d acc_bias{0.0, 0.0, 0.0};            ///< @brief IMU state acceleration bias
+  Eigen::Vector3d omg_bias{0.0, 0.0, 0.0};            ///< @brief IMU state angular rate bias
 };
 
 ///

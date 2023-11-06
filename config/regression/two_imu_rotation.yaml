@@ -27,8 +27,8 @@
         IMU:
             vn300:
                 UseForPrediction: False
-                BaseSensor: True
-                Intrinsic: False
+                is_extrinsic: false
+                is_intrinsic: False
                 Rate: 400.0
                 Topic: "/vn300/imu_uncompensated"
                 VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
@@ -48,8 +48,8 @@
                     angOffset: [1.0, 0.0, 0.0, 0.0]
             vn100:
                 UseForPrediction: False
-                BaseSensor: False
-                Intrinsic: False
+                is_extrinsic: true
+                is_intrinsic: False
                 Rate: 100.0
                 Topic: "/vn100/imu_uncompensated"
                 VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]

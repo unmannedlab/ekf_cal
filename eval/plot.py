@@ -189,14 +189,15 @@ class Plotter():
     def plot_imu_measurements(self, imu_dfs):
         """Plot detected IMU measurements."""
         fig, (axs_1, axs_2) = plt.subplots(2, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for imu_df in imu_dfs:
             t_imu = imu_df['time'].to_list()
-            axs_1.plot(t_imu, imu_df['acc_0'].to_list(), color='tab:blue')
-            axs_1.plot(t_imu, imu_df['acc_1'].to_list(), color='tab:orange')
-            axs_1.plot(t_imu, imu_df['acc_2'].to_list(), color='tab:green')
-            axs_2.plot(t_imu, imu_df['omg_0'].to_list(), color='tab:blue')
-            axs_2.plot(t_imu, imu_df['omg_1'].to_list(), color='tab:orange')
-            axs_2.plot(t_imu, imu_df['omg_2'].to_list(), color='tab:green')
+            axs_1.plot(t_imu, imu_df['acc_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_1.plot(t_imu, imu_df['acc_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_1.plot(t_imu, imu_df['acc_2'].to_list(), alpha=alpha, color='tab:green')
+            axs_2.plot(t_imu, imu_df['omg_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(t_imu, imu_df['omg_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_2.plot(t_imu, imu_df['omg_2'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, f'IMU {imu_df.attrs["id"]} Measurements')
         axs_1.set_ylabel('Acceleration \nMeasurements ' + r'[$\frac{m}{s^2}$]')
         axs_2.set_ylabel('Angular Rate \nMeasurements [rad]')
@@ -207,14 +208,15 @@ class Plotter():
     def plot_imu_residuals(self, imu_dfs):
         """Plot calculated IMU residuals."""
         fig, (axs_1, axs_2) = plt.subplots(2, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for imu_df in imu_dfs:
             t_imu = imu_df['time'].to_list()
-            axs_1.plot(t_imu, imu_df['residual_0'].to_list(), color='tab:blue')
-            axs_1.plot(t_imu, imu_df['residual_1'].to_list(), color='tab:orange')
-            axs_1.plot(t_imu, imu_df['residual_2'].to_list(), color='tab:green')
-            axs_2.plot(t_imu, imu_df['residual_3'].to_list(), color='tab:blue')
-            axs_2.plot(t_imu, imu_df['residual_4'].to_list(), color='tab:orange')
-            axs_2.plot(t_imu, imu_df['residual_5'].to_list(), color='tab:green')
+            axs_1.plot(t_imu, imu_df['residual_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_1.plot(t_imu, imu_df['residual_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_1.plot(t_imu, imu_df['residual_2'].to_list(), alpha=alpha, color='tab:green')
+            axs_2.plot(t_imu, imu_df['residual_3'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(t_imu, imu_df['residual_4'].to_list(), alpha=alpha, color='tab:orange')
+            axs_2.plot(t_imu, imu_df['residual_5'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, f'IMU {imu_df.attrs["id"]} Residuals')
         axs_1.set_ylabel('Acceleration \nResidual ' + r'[$\frac{m}{s^2}$]')
         axs_2.set_ylabel('Angular Rate \n Residual [rad]')
@@ -225,14 +227,18 @@ class Plotter():
     def plot_imu_offset_updates(self, imu_dfs):
         """Plot IMU updates to extrinsic offsets."""
         fig, (axs_1, axs_2) = plt.subplots(2, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for imu_df in imu_dfs:
+            if ('imu_ext_update_0' not in imu_df.index):
+                continue
+
             t_imu = imu_df['time'].to_list()
-            axs_1.plot(t_imu, imu_df['imu_update_0'].to_list(), color='tab:blue')
-            axs_1.plot(t_imu, imu_df['imu_update_1'].to_list(), color='tab:orange')
-            axs_1.plot(t_imu, imu_df['imu_update_2'].to_list(), color='tab:green')
-            axs_2.plot(t_imu, imu_df['imu_update_3'].to_list(), color='tab:blue')
-            axs_2.plot(t_imu, imu_df['imu_update_4'].to_list(), color='tab:orange')
-            axs_2.plot(t_imu, imu_df['imu_update_5'].to_list(), color='tab:green')
+            axs_1.plot(t_imu, imu_df['imu_ext_update_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_1.plot(t_imu, imu_df['imu_ext_update_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_1.plot(t_imu, imu_df['imu_ext_update_2'].to_list(), alpha=alpha, color='tab:green')
+            axs_2.plot(t_imu, imu_df['imu_ext_update_3'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(t_imu, imu_df['imu_ext_update_4'].to_list(), alpha=alpha, color='tab:orange')
+            axs_2.plot(t_imu, imu_df['imu_ext_update_5'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, f'IMU {imu_df.attrs["id"]} Offset Updates')
         axs_1.set_ylabel('Position Offset\nUpdate [m]')
         axs_2.set_ylabel('Angular Offset\nUpdate [rad]')
@@ -243,14 +249,18 @@ class Plotter():
     def plot_imu_bias_updates(self, imu_dfs):
         """Plot IMU updates to biases."""
         fig, (axs_1, axs_2) = plt.subplots(2, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for imu_df in imu_dfs:
+            if ('imu_int_update_0' not in imu_df.index):
+                continue
+
             t_imu = imu_df['time'].to_list()
-            axs_1.plot(t_imu, imu_df['imu_update_6'].to_list(), color='tab:blue')
-            axs_1.plot(t_imu, imu_df['imu_update_7'].to_list(), color='tab:orange')
-            axs_1.plot(t_imu, imu_df['imu_update_8'].to_list(), color='tab:green')
-            axs_2.plot(t_imu, imu_df['imu_update_9'].to_list(), color='tab:blue')
-            axs_2.plot(t_imu, imu_df['imu_update_10'].to_list(), color='tab:orange')
-            axs_2.plot(t_imu, imu_df['imu_update_11'].to_list(), color='tab:green')
+            axs_1.plot(t_imu, imu_df['imu_int_update_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_1.plot(t_imu, imu_df['imu_int_update_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_1.plot(t_imu, imu_df['imu_int_update_2'].to_list(), alpha=alpha, color='tab:green')
+            axs_2.plot(t_imu, imu_df['imu_int_update_3'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(t_imu, imu_df['imu_int_update_4'].to_list(), alpha=alpha, color='tab:orange')
+            axs_2.plot(t_imu, imu_df['imu_int_update_5'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, f'IMU {imu_df.attrs["id"]} Bias Updates')
         axs_1.set_ylabel('Acceleration\nBias Update\n' + r'[$\frac{m}{s^2}$]')
         axs_2.set_ylabel('Angular Rate\nBias Update\n[rad/s]')
@@ -300,7 +310,7 @@ class Plotter():
     def plot_imu_ang(self, imu_dfs):
         """Plot the body state angular error."""
         fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
-
+        alpha = calculate_alpha(len(imu_dfs))
         for i in range(len(imu_dfs)):
             time = imu_dfs[i]['time'].to_list()
             err_img_ang_w = imu_dfs[i]['imu_ang_0'].to_list()
@@ -308,10 +318,10 @@ class Plotter():
             err_img_ang_y = imu_dfs[i]['imu_ang_2'].to_list()
             err_img_ang_z = imu_dfs[i]['imu_ang_3'].to_list()
 
-            axs_1.plot(time, err_img_ang_w, color='tab:blue')
-            axs_2.plot(time, err_img_ang_x, color='tab:orange')
-            axs_3.plot(time, err_img_ang_y, color='tab:green')
-            axs_4.plot(time, err_img_ang_z, color='tab:red')
+            axs_1.plot(time, err_img_ang_w, alpha=alpha, color='tab:blue')
+            axs_2.plot(time, err_img_ang_x, alpha=alpha, color='tab:orange')
+            axs_3.plot(time, err_img_ang_y, alpha=alpha, color='tab:green')
+            axs_4.plot(time, err_img_ang_z, alpha=alpha, color='tab:red')
 
         set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Angular Position')
         axs_1.set_ylabel('$q_w$')
@@ -403,18 +413,21 @@ class Plotter():
         alpha = calculate_alpha(len(imu_dfs))
         for imu_df in imu_dfs:
             time = imu_df['time'].to_list()
-            axs_1.plot(time, imu_df['imu_cov_0'].to_list(), alpha=alpha, color='tab:blue')
-            axs_1.plot(time, imu_df['imu_cov_1'].to_list(), alpha=alpha, color='tab:orange')
-            axs_1.plot(time, imu_df['imu_cov_2'].to_list(), alpha=alpha, color='tab:green')
-            axs_2.plot(time, imu_df['imu_cov_3'].to_list(), alpha=alpha, color='tab:blue')
-            axs_2.plot(time, imu_df['imu_cov_4'].to_list(), alpha=alpha, color='tab:orange')
-            axs_2.plot(time, imu_df['imu_cov_5'].to_list(), alpha=alpha, color='tab:green')
-            axs_3.plot(time, imu_df['imu_cov_6'].to_list(), alpha=alpha, color='tab:blue')
-            axs_3.plot(time, imu_df['imu_cov_7'].to_list(), alpha=alpha, color='tab:orange')
-            axs_3.plot(time, imu_df['imu_cov_8'].to_list(), alpha=alpha, color='tab:green')
-            axs_4.plot(time, imu_df['imu_cov_9'].to_list(), alpha=alpha, color='tab:blue')
-            axs_4.plot(time, imu_df['imu_cov_10'].to_list(), alpha=alpha, color='tab:orange')
-            axs_4.plot(time, imu_df['imu_cov_11'].to_list(), alpha=alpha, color='tab:green')
+            if ('imu_ext_cov_0' in imu_df.index):
+                axs_1.plot(time, imu_df['imu_ext_cov_0'].to_list(), alpha=alpha, color='tab:blue')
+                axs_1.plot(time, imu_df['imu_ext_cov_1'].to_list(), alpha=alpha, color='tab:orange')
+                axs_1.plot(time, imu_df['imu_ext_cov_2'].to_list(), alpha=alpha, color='tab:green')
+                axs_2.plot(time, imu_df['imu_ext_cov_3'].to_list(), alpha=alpha, color='tab:blue')
+                axs_2.plot(time, imu_df['imu_ext_cov_4'].to_list(), alpha=alpha, color='tab:orange')
+                axs_2.plot(time, imu_df['imu_ext_cov_5'].to_list(), alpha=alpha, color='tab:green')
+
+            if ('imu_ext_cov_0' in imu_df.index):
+                axs_3.plot(time, imu_df['imu_int_cov_0'].to_list(), alpha=alpha, color='tab:blue')
+                axs_3.plot(time, imu_df['imu_int_cov_1'].to_list(), alpha=alpha, color='tab:orange')
+                axs_3.plot(time, imu_df['imu_int_cov_2'].to_list(), alpha=alpha, color='tab:green')
+                axs_4.plot(time, imu_df['imu_int_cov_3'].to_list(), alpha=alpha, color='tab:blue')
+                axs_4.plot(time, imu_df['imu_int_cov_4'].to_list(), alpha=alpha, color='tab:orange')
+                axs_4.plot(time, imu_df['imu_int_cov_5'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, f'IMU {imu_dfs[0].attrs["id"]} Covariance')
         axs_1.set_ylabel('Position \nOffset [m]')
         axs_2.set_ylabel('Angular \nOffset [rad]')
@@ -427,17 +440,18 @@ class Plotter():
     def plot_camera_body_pos_updates(self, cam_dfs):
         """Plot updates to the body position states from camera measurements."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for cam_df in cam_dfs:
             time = cam_df['time'].to_list()
-            axs_1.plot(time, cam_df['body_update_0'].to_list(), color='tab:blue')
-            axs_1.plot(time, cam_df['body_update_1'].to_list(), color='tab:orange')
-            axs_1.plot(time, cam_df['body_update_2'].to_list(), color='tab:green')
-            axs_2.plot(time, cam_df['body_update_3'].to_list(), color='tab:blue')
-            axs_2.plot(time, cam_df['body_update_4'].to_list(), color='tab:orange')
-            axs_2.plot(time, cam_df['body_update_5'].to_list(), color='tab:green')
-            axs_3.plot(time, cam_df['body_update_6'].to_list(), color='tab:blue')
-            axs_3.plot(time, cam_df['body_update_7'].to_list(), color='tab:orange')
-            axs_3.plot(time, cam_df['body_update_8'].to_list(), color='tab:green')
+            axs_1.plot(time, cam_df['body_update_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_1.plot(time, cam_df['body_update_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_1.plot(time, cam_df['body_update_2'].to_list(), alpha=alpha, color='tab:green')
+            axs_2.plot(time, cam_df['body_update_3'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, cam_df['body_update_4'].to_list(), alpha=alpha, color='tab:orange')
+            axs_2.plot(time, cam_df['body_update_5'].to_list(), alpha=alpha, color='tab:green')
+            axs_3.plot(time, cam_df['body_update_6'].to_list(), alpha=alpha, color='tab:blue')
+            axs_3.plot(time, cam_df['body_update_7'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, cam_df['body_update_8'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, f'Camera {cam_df.attrs["id"]} Body State Position Updates')
         axs_1.set_ylabel('Position [m]')
         axs_2.set_ylabel(r'Velocity [$\frac{m}{s}$]')
@@ -449,17 +463,18 @@ class Plotter():
     def plot_camera_body_ang_updates(self, cam_dfs):
         """Plot updates to the body angular states from camera measurements."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for cam_df in cam_dfs:
             time = cam_df['time'].to_list()
-            axs_1.plot(time, cam_df['body_update_9'].to_list(), color='tab:blue')
-            axs_1.plot(time, cam_df['body_update_10'].to_list(), color='tab:orange')
-            axs_1.plot(time, cam_df['body_update_11'].to_list(), color='tab:green')
-            axs_2.plot(time, cam_df['body_update_12'].to_list(), color='tab:blue')
-            axs_2.plot(time, cam_df['body_update_13'].to_list(), color='tab:orange')
-            axs_2.plot(time, cam_df['body_update_14'].to_list(), color='tab:green')
-            axs_3.plot(time, cam_df['body_update_15'].to_list(), color='tab:blue')
-            axs_3.plot(time, cam_df['body_update_16'].to_list(), color='tab:orange')
-            axs_3.plot(time, cam_df['body_update_17'].to_list(), color='tab:green')
+            axs_1.plot(time, cam_df['body_update_9'].to_list(), alpha=alpha, color='tab:blue')
+            axs_1.plot(time, cam_df['body_update_10'].to_list(), alpha=alpha, color='tab:orange')
+            axs_1.plot(time, cam_df['body_update_11'].to_list(), alpha=alpha, color='tab:green')
+            axs_2.plot(time, cam_df['body_update_12'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, cam_df['body_update_13'].to_list(), alpha=alpha, color='tab:orange')
+            axs_2.plot(time, cam_df['body_update_14'].to_list(), alpha=alpha, color='tab:green')
+            axs_3.plot(time, cam_df['body_update_15'].to_list(), alpha=alpha, color='tab:blue')
+            axs_3.plot(time, cam_df['body_update_16'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, cam_df['body_update_17'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, f'Camera {cam_df.attrs["id"]} Body State Angular Updates')
         axs_1.set_ylabel('Euler Angle\n[rad]')
         axs_2.set_ylabel('Angular Velocity\n[rad/s]')
@@ -471,14 +486,15 @@ class Plotter():
     def plot_camera_offset_updates(self, cam_dfs):
         """Plot camera updates to extrinsic offsets."""
         fig, (axs_1, axs_2) = plt.subplots(2, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for cam_df in cam_dfs:
             t_cam = cam_df['time'].to_list()
-            axs_1.plot(t_cam, cam_df['cam_update_0'].to_list(), color='tab:blue')
-            axs_1.plot(t_cam, cam_df['cam_update_1'].to_list(), color='tab:orange')
-            axs_1.plot(t_cam, cam_df['cam_update_2'].to_list(), color='tab:green')
-            axs_2.plot(t_cam, cam_df['cam_update_3'].to_list(), color='tab:blue')
-            axs_2.plot(t_cam, cam_df['cam_update_4'].to_list(), color='tab:orange')
-            axs_2.plot(t_cam, cam_df['cam_update_5'].to_list(), color='tab:green')
+            axs_1.plot(t_cam, cam_df['cam_update_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_1.plot(t_cam, cam_df['cam_update_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_1.plot(t_cam, cam_df['cam_update_2'].to_list(), alpha=alpha, color='tab:green')
+            axs_2.plot(t_cam, cam_df['cam_update_3'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(t_cam, cam_df['cam_update_4'].to_list(), alpha=alpha, color='tab:orange')
+            axs_2.plot(t_cam, cam_df['cam_update_5'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, f'Camera {cam_df.attrs["id"]} Offset Updates')
         axs_1.set_ylabel('Position Offset\nUpdates [m]')
         axs_2.set_ylabel('Angular Offset\nUpdates [rad]')
@@ -489,11 +505,12 @@ class Plotter():
     def plot_camera_pos(self, cam_dfs):
         """Plot camera position offsets."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for cam_df in cam_dfs:
             t_cam = cam_df['time'].to_list()
-            axs_1.plot(t_cam, cam_df['cam_state_0'].to_list(), color='tab:blue')
-            axs_2.plot(t_cam, cam_df['cam_state_1'].to_list(), color='tab:orange')
-            axs_3.plot(t_cam, cam_df['cam_state_2'].to_list(), color='tab:green')
+            axs_1.plot(t_cam, cam_df['cam_state_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(t_cam, cam_df['cam_state_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(t_cam, cam_df['cam_state_2'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, f'Camera {cam_df.attrs["id"]} Offset Position')
         axs_1.set_ylabel('X [m]')
         axs_2.set_ylabel('Y [m]')
@@ -505,11 +522,12 @@ class Plotter():
     def plot_camera_ang(self, cam_dfs):
         """Plot camera angular offsets."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for cam_df in cam_dfs:
             t_cam = cam_df['time'].to_list()
-            axs_1.plot(t_cam, cam_df['cam_state_3'].to_list(), color='tab:blue')
-            axs_2.plot(t_cam, cam_df['cam_state_4'].to_list(), color='tab:orange')
-            axs_3.plot(t_cam, cam_df['cam_state_5'].to_list(), color='tab:green')
+            axs_1.plot(t_cam, cam_df['cam_state_3'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(t_cam, cam_df['cam_state_4'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(t_cam, cam_df['cam_state_5'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, f'Camera {cam_df.attrs["id"]} Offset Rotations')
         axs_1.set_ylabel(r'$\theta_x$ [rad]')
         axs_2.set_ylabel(r'$\theta_y$ [rad]')
@@ -539,11 +557,12 @@ class Plotter():
     def plot_body_pos(self, body_dfs):
         """Plot body position."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
-            axs_1.plot(time, body_df['body_pos_0'].to_list(), color='tab:blue')
-            axs_2.plot(time, body_df['body_pos_1'].to_list(), color='tab:orange')
-            axs_3.plot(time, body_df['body_pos_2'].to_list(), color='tab:green')
+            axs_1.plot(time, body_df['body_pos_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_pos_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_pos_2'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, 'Body Position')
         axs_1.set_ylabel('X [m]')
         axs_2.set_ylabel('Y [m]')
@@ -638,11 +657,12 @@ class Plotter():
     def plot_body_vel(self, body_dfs):
         """Plot body velocity."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
-            axs_1.plot(time, body_df['body_vel_0'].to_list(), color='tab:blue')
-            axs_2.plot(time, body_df['body_vel_1'].to_list(), color='tab:orange')
-            axs_3.plot(time, body_df['body_vel_2'].to_list(), color='tab:green')
+            axs_1.plot(time, body_df['body_vel_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_vel_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_vel_2'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, 'Body Velocity')
         axs_1.set_ylabel(r'X [$\frac{m}{s}$]')
         axs_2.set_ylabel(r'Y [$\frac{m}{s}$]')
@@ -654,11 +674,12 @@ class Plotter():
     def plot_body_acc(self, body_dfs):
         """Plot body acceleration."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
-            axs_1.plot(time, body_df['body_acc_0'].to_list(), color='tab:blue')
-            axs_2.plot(time, body_df['body_acc_1'].to_list(), color='tab:orange')
-            axs_3.plot(time, body_df['body_acc_2'].to_list(), color='tab:green')
+            axs_1.plot(time, body_df['body_acc_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_acc_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_acc_2'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, 'Body Acceleration')
         axs_1.set_ylabel(r'X [$\frac{m}{s^2}$]')
         axs_2.set_ylabel(r'Y [$\frac{m}{s^2}$]')
@@ -670,12 +691,13 @@ class Plotter():
     def plot_body_ang(self, body_dfs):
         """Plot body angular position."""
         fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
-            axs_1.plot(time, body_df['body_ang_pos_0'].to_list(), color='tab:blue')
-            axs_2.plot(time, body_df['body_ang_pos_1'].to_list(), color='tab:orange')
-            axs_3.plot(time, body_df['body_ang_pos_2'].to_list(), color='tab:green')
-            axs_4.plot(time, body_df['body_ang_pos_3'].to_list(), color='tab:red')
+            axs_1.plot(time, body_df['body_ang_pos_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_ang_pos_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_ang_pos_2'].to_list(), alpha=alpha, color='tab:green')
+            axs_4.plot(time, body_df['body_ang_pos_3'].to_list(), alpha=alpha, color='tab:red')
         set_plot_titles(fig, 'Body Angles')
         axs_1.set_ylabel('W')
         axs_2.set_ylabel('X')
@@ -688,11 +710,12 @@ class Plotter():
     def plot_body_ang_vel(self, body_dfs):
         """Plot body angular position."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
-            axs_1.plot(time, body_df['body_ang_vel_0'].to_list(), color='tab:blue')
-            axs_2.plot(time, body_df['body_ang_vel_1'].to_list(), color='tab:orange')
-            axs_3.plot(time, body_df['body_ang_vel_2'].to_list(), color='tab:green')
+            axs_1.plot(time, body_df['body_ang_vel_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_ang_vel_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_ang_vel_2'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, 'Body Angular Velocity')
         axs_1.set_ylabel('X [rad/s]')
         axs_2.set_ylabel('Y [rad/s]')
@@ -704,11 +727,12 @@ class Plotter():
     def plot_body_ang_acc(self, body_dfs):
         """Plot body angular position."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
-            axs_1.plot(time, body_df['body_ang_acc_0'].to_list(), color='tab:blue')
-            axs_2.plot(time, body_df['body_ang_acc_1'].to_list(), color='tab:orange')
-            axs_3.plot(time, body_df['body_ang_acc_2'].to_list(), color='tab:green')
+            axs_1.plot(time, body_df['body_ang_acc_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_ang_acc_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_ang_acc_2'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, 'Body Angular Acceleration')
         axs_1.set_ylabel('X [rad/s/s]')
         axs_2.set_ylabel('Y [rad/s/s]')
@@ -720,17 +744,18 @@ class Plotter():
     def plot_body_pos_cov(self, body_dfs):
         """Plot body covariances for position and derivatives."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
-            axs_1.plot(time, body_df['body_cov_0'].to_list(), color='tab:blue')
-            axs_1.plot(time, body_df['body_cov_1'].to_list(), color='tab:orange')
-            axs_1.plot(time, body_df['body_cov_2'].to_list(), color='tab:green')
-            axs_2.plot(time, body_df['body_cov_3'].to_list(), color='tab:blue')
-            axs_2.plot(time, body_df['body_cov_4'].to_list(), color='tab:orange')
-            axs_2.plot(time, body_df['body_cov_5'].to_list(), color='tab:green')
-            axs_3.plot(time, body_df['body_cov_6'].to_list(), color='tab:blue')
-            axs_3.plot(time, body_df['body_cov_7'].to_list(), color='tab:orange')
-            axs_3.plot(time, body_df['body_cov_8'].to_list(), color='tab:green')
+            axs_1.plot(time, body_df['body_cov_0'].to_list(), alpha=alpha, color='tab:blue')
+            axs_1.plot(time, body_df['body_cov_1'].to_list(), alpha=alpha, color='tab:orange')
+            axs_1.plot(time, body_df['body_cov_2'].to_list(), alpha=alpha, color='tab:green')
+            axs_2.plot(time, body_df['body_cov_3'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_cov_4'].to_list(), alpha=alpha, color='tab:orange')
+            axs_2.plot(time, body_df['body_cov_5'].to_list(), alpha=alpha, color='tab:green')
+            axs_3.plot(time, body_df['body_cov_6'].to_list(), alpha=alpha, color='tab:blue')
+            axs_3.plot(time, body_df['body_cov_7'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_cov_8'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, 'Body Position Covariance')
         axs_1.set_ylabel('Position [m]')
         axs_2.set_ylabel(r'Velocity [$\frac{m}{s}$]')
@@ -742,17 +767,18 @@ class Plotter():
     def plot_body_ang_cov(self, body_dfs):
         """Plot body covariances for angles and derivatives."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        alpha = calculate_alpha(len(imu_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
-            axs_1.plot(time, body_df['body_cov_9'].to_list(), color='tab:blue')
-            axs_1.plot(time, body_df['body_cov_10'].to_list(), color='tab:orange')
-            axs_1.plot(time, body_df['body_cov_11'].to_list(), color='tab:green')
-            axs_2.plot(time, body_df['body_cov_12'].to_list(), color='tab:blue')
-            axs_2.plot(time, body_df['body_cov_13'].to_list(), color='tab:orange')
-            axs_2.plot(time, body_df['body_cov_14'].to_list(), color='tab:green')
-            axs_3.plot(time, body_df['body_cov_15'].to_list(), color='tab:blue')
-            axs_3.plot(time, body_df['body_cov_16'].to_list(), color='tab:orange')
-            axs_3.plot(time, body_df['body_cov_17'].to_list(), color='tab:green')
+            axs_1.plot(time, body_df['body_cov_9'].to_list(), alpha=alpha, color='tab:blue')
+            axs_1.plot(time, body_df['body_cov_10'].to_list(), alpha=alpha, color='tab:orange')
+            axs_1.plot(time, body_df['body_cov_11'].to_list(), alpha=alpha, color='tab:green')
+            axs_2.plot(time, body_df['body_cov_12'].to_list(), alpha=alpha, color='tab:blue')
+            axs_2.plot(time, body_df['body_cov_13'].to_list(), alpha=alpha, color='tab:orange')
+            axs_2.plot(time, body_df['body_cov_14'].to_list(), alpha=alpha, color='tab:green')
+            axs_3.plot(time, body_df['body_cov_15'].to_list(), alpha=alpha, color='tab:blue')
+            axs_3.plot(time, body_df['body_cov_16'].to_list(), alpha=alpha, color='tab:orange')
+            axs_3.plot(time, body_df['body_cov_17'].to_list(), alpha=alpha, color='tab:green')
         set_plot_titles(fig, 'Body Angular Covariance')
         axs_1.set_ylabel('Orientation\n[rad]')
         axs_2.set_ylabel('Angular Rate\n[rad/s]')

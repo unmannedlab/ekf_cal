@@ -42,8 +42,8 @@ public:
   {
     std::string name {"Name"};                   ///< @brief IMU name
     std::string topic {"Topic"};                 ///< @brief IMU topic
-    bool base_sensor{true};                      ///< @brief IMU base sensor flag
-    bool intrinsic{false};                       ///< @brief IMU intrinsic calibration
+    bool is_extrinsic{false};                    ///< @brief IMU extrinsic calibration
+    bool is_intrinsic{false};                    ///< @brief IMU intrinsic calibration
     double rate{1.0};                            ///< @brief IMU update rate
     Eigen::Vector3d pos_i_in_b {0, 0, 0};        ///< @brief IMU position offset vector
     Eigen::Quaterniond ang_i_to_b {1, 0, 0, 0};  ///< @brief IMU angular offset quaternion
@@ -71,7 +71,7 @@ public:
   void Callback(std::shared_ptr<ImuMessage> imu_message);
 
 private:
-  bool m_is_base_sensor;
+  bool m_is_extrinsic;
   bool m_is_intrinsic;
   bool m_use_for_prediction;
 

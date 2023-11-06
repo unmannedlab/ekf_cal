@@ -28,14 +28,17 @@
 
 
 IMU::IMU(IMU::Parameters params)
-: Sensor(params.name), m_imu_updater(m_id, params.output_directory, params.data_logging_on)
+: Sensor(params.name), m_imu_updater(m_id, params.is_extrinsic, params.is_intrinsic,
+    params.output_directory, params.data_logging_on)
 {
-  m_is_base_sensor = params.base_sensor;
-  m_is_intrinsic = params.intrinsic;
+  m_is_extrinsic = params.is_extrinsic;
+  m_is_intrinsic = params.is_intrinsic;
   m_use_for_prediction = params.use_for_prediction;
   m_rate = params.rate;
 
   ImuState imu_state;
+  imu_state.is_extrinsic = params.is_extrinsic;
+  imu_state.is_intrinsic = params.is_intrinsic;
   imu_state.pos_i_in_b = params.pos_i_in_b;
   imu_state.ang_i_to_b = params.ang_i_to_b;
   imu_state.acc_bias = params.acc_bias;
@@ -57,6 +60,6 @@ void IMU::Callback(std::shared_ptr<ImuMessage> imu_message)
     imu_message->m_acceleration_covariance,
     imu_message->m_angular_rate,
     imu_message->m_angular_rate_covariance,
-    m_is_base_sensor, m_is_intrinsic, m_use_for_prediction);
+    m_use_for_prediction);
   m_logger->Log(LogLevel::DEBUG, "IMU \"" + m_name + "\" callback complete");
 }

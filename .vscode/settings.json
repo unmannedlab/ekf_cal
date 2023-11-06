@@ -139,7 +139,8 @@
         "queue": "cpp",
         "stack": "cpp",
         "coroutine": "cpp",
-        "source_location": "cpp"
+        "source_location": "cpp",
+        "__locale": "cpp"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.python",

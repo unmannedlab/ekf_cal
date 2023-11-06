@@ -139,8 +139,8 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
 {
   // Load parameters
   std::string imu_prefix = "IMU." + imu_name;
-  bool base_sensor = this->get_parameter(imu_prefix + ".BaseSensor").as_bool();
-  bool intrinsic = this->get_parameter(imu_prefix + ".Intrinsic").as_bool();
+  bool is_extrinsic = this->get_parameter(imu_prefix + ".is_extrinsic").as_bool();
+  bool is_intrinsic = this->get_parameter(imu_prefix + ".is_intrinsic").as_bool();
   bool use_for_prediction = this->get_parameter(imu_prefix + ".UseForPrediction").as_bool();
   double rate = this->get_parameter(imu_prefix + ".Rate").as_double();
   std::string topic = this->get_parameter(imu_prefix + ".Topic").as_string();
@@ -156,8 +156,8 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
   IMU::Parameters imu_params;
   imu_params.name = imu_name;
   imu_params.topic = topic;
-  imu_params.base_sensor = base_sensor;
-  imu_params.intrinsic = intrinsic;
+  imu_params.is_extrinsic = is_extrinsic;
+  imu_params.is_intrinsic = is_intrinsic;
   imu_params.use_for_prediction = use_for_prediction;
   imu_params.rate = rate;
   imu_params.variance = StdToEigVec(variance);

@@ -101,8 +101,8 @@ The following is an example of an IMU input configuration.
         IMU:
             example_imu:
                 UseForPrediction: False  # Flag to use IMU in the prediction step of filter
-                BaseSensor: True         # Flag to use IMU frame as base body frame
-                Intrinsic: False         # Flag to calibrate IMU intrinsics
+                is_extrinsic: false         # Flag to use IMU frame as base body frame
+                is_intrinsic: False         # Flag to calibrate IMU intrinsics
                 Rate: 400.0              # Update rate
                 Topic: "/example_imu"    # ROS topic
                 # Initial variance

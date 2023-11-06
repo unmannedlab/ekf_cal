@@ -225,6 +225,17 @@ unsigned int EKF::GetImuCount()
   return m_state.m_imu_states.size();
 }
 
+unsigned int EKF::GetImuStateSize()
+{
+  unsigned int imu_state_size {0};
+  for (auto & imu_iter : m_state.m_imu_states) {
+    unsigned int imu_id = imu_iter.first;
+    if (m_state.m_imu_states[imu_id].is_extrinsic) {imu_state_size += g_imu_extrinsic_state_size;}
+    if (m_state.m_imu_states[imu_id].is_intrinsic) {imu_state_size += g_imu_intrinsic_state_size;}
+  }
+  return imu_state_size;
+}
+
 unsigned int EKF::GetCamCount()
 {
   return m_state.m_cam_states.size();
@@ -244,13 +255,20 @@ void EKF::Initialize(double timeInit, BodyState body_state_init)
 
 void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd covariance)
 {
-  /// @todo check that id hasn't been used before
-  unsigned int imu_state_start = g_body_state_size + g_imu_state_size * m_state.m_imu_states.size();
+  // Check that ID hasn't been used before
+  if (m_state.m_imu_states.find(imu_id) != m_state.m_imu_states.end()) {
+    std::stringstream imu_id_used_warning;
+    imu_id_used_warning << "IMU ID " << imu_id << " has already been registered.";
+    m_logger->Log(LogLevel::WARN, imu_id_used_warning.str());
+  }
+
+  unsigned int imu_state_start = g_body_state_size + GetImuStateSize();
 
   /// @todo check size of matrix being inserted
   m_cov = InsertInMatrix(covariance, m_cov, imu_state_start, imu_state_start);
   m_state.m_imu_states[imu_id] = imu_state;
-  m_stateSize += g_imu_state_size;
+  if (imu_state.is_extrinsic) {m_stateSize += g_imu_extrinsic_state_size;}
+  if (imu_state.is_intrinsic) {m_stateSize += g_imu_intrinsic_state_size;}
 
   m_logger->Log(
     LogLevel::DEBUG, "Register IMU: " + std::to_string(
@@ -259,7 +277,13 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
 
 void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixXd covariance)
 {
-  /// @todo check that id hasn't been used before
+  // Check that ID hasn't been used before
+  if (m_state.m_cam_states.find(cam_id) != m_state.m_cam_states.end()) {
+    std::stringstream cam_id_used_warning;
+    cam_id_used_warning << "Camera ID " << cam_id << " has already been registered.";
+    m_logger->Log(LogLevel::WARN, cam_id_used_warning.str());
+  }
+
   m_state.m_cam_states[cam_id] = cam_state;
   m_cov = InsertInMatrix(covariance, m_cov, g_cam_state_size, g_cam_state_size);
   m_stateSize += g_cam_state_size;
@@ -277,7 +301,12 @@ unsigned int EKF::GetImuStateStartIndex(unsigned int imu_id)
     if (imu_iter.first == imu_id) {
       break;
     } else {
-      state_start_index += g_imu_state_size;
+      if (m_state.m_imu_states[imu_iter.first].is_extrinsic) {
+        state_start_index += g_imu_extrinsic_state_size;
+      }
+      if (m_state.m_imu_states[imu_iter.first].is_intrinsic) {
+        state_start_index += g_imu_intrinsic_state_size;
+      }
     }
   }
   return state_start_index;
@@ -307,7 +336,7 @@ void EKF::AddSensorProccessNoise(bool isPredicting)
 unsigned int EKF::GetCamStateStartIndex(unsigned int cam_id)
 {
   unsigned int state_start_index = g_body_state_size;
-  state_start_index += g_imu_state_size * m_state.m_imu_states.size();
+  state_start_index += GetImuStateSize();
   for (auto const & cam_iter : m_state.m_cam_states) {
     if (cam_iter.first == cam_id) {
       break;
@@ -323,7 +352,7 @@ unsigned int EKF::GetCamStateStartIndex(unsigned int cam_id)
 unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, int frame_id)
 {
   unsigned int state_start_index = g_body_state_size;
-  state_start_index += (g_imu_state_size * m_state.m_imu_states.size());
+  state_start_index += GetImuStateSize();
   for (auto const & cam_iter : m_state.m_cam_states) {
     state_start_index += g_cam_state_size;
     for (auto const & augIter : cam_iter.second.augmented_states) {
