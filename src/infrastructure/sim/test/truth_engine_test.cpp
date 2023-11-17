@@ -1,4 +1,4 @@
-// Copyright 2022 Jacob Hartzer
+// Copyright 2023 Jacob Hartzer
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,10 +13,42 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-// #include <gtest/gtest.h>
+#include <gtest/gtest.h>
 
-// #include "infrastructure/sim/truth_engine.hpp"
+#include <eigen3/Eigen/Eigen>
 
-// TEST(test_TruthEngine, Constructor) {
-//   TruthEngine truthEngine;
-// }
+#include "infrastructure/sim/truth_engine_spline.hpp"
+#include "infrastructure/sim/truth_engine_cyclic.hpp"
+
+TEST(test_TruthEngineCyclic, Constructor) {
+  Eigen::Vector3d pos_frequency{1, 2, 3};
+  Eigen::Vector3d ang_frequency{4, 5, 6};
+  Eigen::Vector3d pos_offset{1, 2, 3};
+  Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
+  double pos_amplitude = 1.0;
+  double ang_amplitude = 0.1;
+
+  TruthEngineCyclic truth_engine_cyclic(
+    pos_frequency,
+    ang_frequency,
+    pos_offset,
+    ang_offset,
+    pos_amplitude,
+    ang_amplitude
+  );
+}
+
+TEST(test_TruthEngineSpline, Constructor) {
+  std::vector<Eigen::Vector3d> positions;
+  std::vector<Eigen::Vector3d> angles;
+
+  positions.push_back(Eigen::Vector3d{0, 0, 0});
+  positions.push_back(Eigen::Vector3d{1, 1, 1});
+  positions.push_back(Eigen::Vector3d{2, 2, 2});
+
+  angles.push_back(Eigen::Vector3d{0, 0, 0});
+  angles.push_back(Eigen::Vector3d{1, 1, 1});
+  angles.push_back(Eigen::Vector3d{2, 2, 2});
+
+  TruthEngineSpline truth_engine_spline(positions, angles);
+}

@@ -33,7 +33,14 @@
 class TruthEngineSpline : public TruthEngine
 {
 public:
-  TruthEngineSpline();
+  ///
+  /// @brief
+  /// @param positions Position control points
+  /// @param angles Angular position control points
+  ///
+  TruthEngineSpline(
+    std::vector<Eigen::Vector3d> positions,
+    std::vector<Eigen::Vector3d> angles);
 
   ///
   /// @brief True body position getter
@@ -70,15 +77,6 @@ public:
   /// @param time Simulation time
   ///
   Eigen::Vector3d GetBodyAngularAcceleration(double time);
-
-  ///
-  /// @brief Setter method for position and angle spline control points
-  /// @param positions Position control points
-  /// @param angles Angular position control points
-  ///
-  void SetControlPoints(
-    std::vector<Eigen::Vector3d> positions,
-    std::vector<Eigen::Vector3d> angles);
 
 private:
   bool IsTimeInvalid(double time);

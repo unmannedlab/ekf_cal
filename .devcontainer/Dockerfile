@@ -11,6 +11,7 @@ RUN apt-get update && \
     git \
     clang-13 \
     iwyu \
+    gdb \
     locales && \
     rm -rf /var/lib/apt/lists/*
 

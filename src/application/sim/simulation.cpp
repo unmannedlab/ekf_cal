@@ -175,15 +175,31 @@ int main(int argc, char * argv[])
   }
 
   /// @todo Select type of truth engine using parameters
-  auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(
-    pos_frequency,
-    ang_frequency,
-    pos_offset,
-    ang_offset,
-    pos_amplitude,
-    ang_amplitude);
-  auto truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
-
+  std::string truth_type = sim_params["truth_type"].as<std::string>();
+  std::shared_ptr<TruthEngine> truth_engine;
+  if (truth_type == "cyclic") {
+    auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(
+      pos_frequency,
+      ang_frequency,
+      pos_offset,
+      ang_offset,
+      pos_amplitude,
+      ang_amplitude);
+    truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
+  } else if (truth_type == "spline") {
+    auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(
+      pos_frequency,
+      ang_frequency,
+      pos_offset,
+      ang_offset,
+      pos_amplitude,
+      ang_amplitude);
+    truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
+  } else {
+    std::stringstream msg;
+    msg << "Unknown truth engine type: " << truth_type << std::endl;
+    logger->Log(LogLevel::ERROR, msg.str());
+  }
   WriteTruthData(truth_engine, body_data_rate, max_time, out_dir, data_logging_on);
 
   // Load IMUs and generate measurements

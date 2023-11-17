@@ -28,8 +28,6 @@
 class TruthEngineCyclic : public TruthEngine
 {
 public:
-  TruthEngineCyclic() {}
-
   ///
   /// @brief Setter for body cycle frequencies
   /// @param pos_frequency Vector of position frequencies
