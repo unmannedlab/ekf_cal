@@ -1,0 +1,124 @@
+
+/EkfCalNode:
+    ros__parameters:
+        debug_log_level: 2
+        data_logging_on: true
+        body_data_rate: 100.0
+        sim_params:
+            seed: 0.0
+            use_seed: true
+            max_time: 50.0
+            no_errors: true
+            number_of_runs: 20
+            run_number: 0
+            truth_type: "spline"
+            positions:
+                - [0,0,0]
+                - [1,1,1]
+                - [2,2,2]
+            angles:
+                - [0.0,0.0,0.0]
+                - [0.1,0.1,0.1]
+                - [0.2,0.2,0.2]
+
+        imu_list:
+            - "vn300"
+            - "vn100"
+            # - "deta_10"
+
+        camera_list:
+            # - "ace"
+
+        tracker_list:
+            - "orb"
+
+        imu:
+            vn300:
+                use_for_prediction: false
+                base_sensor: true
+                intrinsic: false
+                rate: 400.0
+                topic: "/vn300/imu_uncompensated"
+                variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                pos_i_in_b: [0.0, 0.0, 0.0]
+                ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
+                acc_bias: [0.0, 0.0, 0.0]
+                omg_bias: [0.0, 0.0, 0.0]
+                sim_params:
+                    time_bias_error: 1.0e-3
+                    time_skew_error: 1.0e-9
+                    time_error: 1.0e-6
+                    pos_error: [0.0, 0.0, 0.0]
+                    ang_error: [0.0, 0.0, 0.0]
+                    acc_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    omg_error: [1.0e-2, 1.0e-2, 1.0e-2]
+                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
+            vn100:
+                use_for_prediction: false
+                base_sensor: false
+                intrinsic: false
+                rate: 100.0
+                topic: "/vn100/imu_uncompensated"
+                variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                pos_i_in_b: [0.0, 0.0, 0.0]
+                ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
+                acc_bias: [0.0, 0.0, 0.0]
+                omg_bias: [0.0, 0.0, 0.0]
+                sim_params:
+                    time_bias_error: 1.0e-3
+                    time_skew_error: 1.0e-9
+                    time_error: 1.0e-6
+                    pos_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    acc_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    omg_error: [1.0e-2, 1.0e-2, 1.0e-2]
+                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
+            deta_10:
+                use_for_prediction: false
+                base_sensor: false
+                intrinsic: false
+                rate: 100.0
+                topic: "/vn100/imu_uncompensated"
+                variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                pos_i_in_b: [0.0, 0.0, 0.0]
+                ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
+                acc_bias: [0.0, 0.0, 0.0]
+                omg_bias: [0.0, 0.0, 0.0]
+                sim_params:
+                    time_bias_error: 1.0e-3
+                    time_skew_error: 1.0e-9
+                    time_error: 1.0e-6
+                    pos_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    acc_error: [1.0e-2, 1.0e-2, 1.0e-2]
+                    omg_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
+
+        camera:
+            ace:
+                rate: 20.0
+                topic:  "/my_camera/pylon_ros2_camera_node/image_raw"
+                pos_c_in_b: [0.0, 0.0, 0.0]
+                ang_c_to_b: [0.5, -0.5, 0.5, -0.5]
+                variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+                tracker: "orb"
+                sim_params:
+                    time_bias_error: 1.0e-3
+                    time_skew_error: 1.0e-9
+                    time_error: 1.0e-6
+                    pos_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
+
+        tracker:
+            orb:
+                feature_detector: 2
+                descriptor_extractor: 1
+                descriptor_matcher: 0
+                detector_threshold: 10.0
+                pixel_error: 1.0
+                sim_params:
+                    feature_count: 100
+                    room_size: 10.0

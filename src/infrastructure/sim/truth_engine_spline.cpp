@@ -80,6 +80,7 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAngularAcceleration(double time)
   }
 }
 
+/// @todo Check sizes before use
 TruthEngineSpline::TruthEngineSpline(
   std::vector<Eigen::Vector3d> positions,
   std::vector<Eigen::Vector3d> angles)

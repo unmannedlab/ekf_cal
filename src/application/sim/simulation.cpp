@@ -32,6 +32,7 @@
 #include "infrastructure/debug_logger.hpp"
 #include "infrastructure/ekf_cal_version.hpp"
 #include "infrastructure/sim/truth_engine_cyclic.hpp"
+#include "infrastructure/sim/truth_engine_spline.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/camera.hpp"
 #include "sensors/imu.hpp"
@@ -178,6 +179,14 @@ int main(int argc, char * argv[])
   std::string truth_type = sim_params["truth_type"].as<std::string>();
   std::shared_ptr<TruthEngine> truth_engine;
   if (truth_type == "cyclic") {
+    Eigen::Vector3d pos_frequency =
+      StdToEigVec(sim_params["pos_frequency"].as<std::vector<double>>());
+    Eigen::Vector3d ang_frequency =
+      StdToEigVec(sim_params["ang_frequency"].as<std::vector<double>>());
+    Eigen::Vector3d pos_offset = StdToEigVec(sim_params["pos_offset"].as<std::vector<double>>());
+    Eigen::Vector3d ang_offset = StdToEigVec(sim_params["ang_offset"].as<std::vector<double>>());
+    double pos_amplitude = sim_params["pos_amplitude"].as<double>();
+    double ang_amplitude = sim_params["ang_amplitude"].as<double>();
     auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(
       pos_frequency,
       ang_frequency,
@@ -187,14 +196,15 @@ int main(int argc, char * argv[])
       ang_amplitude);
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
   } else if (truth_type == "spline") {
-    auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(
-      pos_frequency,
-      ang_frequency,
-      pos_offset,
-      ang_offset,
-      pos_amplitude,
-      ang_amplitude);
-    truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
+    auto positions = sim_params["positions"].as<std::vector<std::vector<double>>>();
+    auto angles = sim_params["angles"].as<std::vector<std::vector<double>>>();
+
+    std::vector<Eigen::Vector3d> positions_eigen;
+    std::vector<Eigen::Vector3d> angles_eigen;
+
+    /// @todo Convert inputs before using them
+    auto truth_engine_spline = std::make_shared<TruthEngineSpline>(positions_eigen, angles_eigen);
+    truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_spline);
   } else {
     std::stringstream msg;
     msg << "Unknown truth engine type: " << truth_type << std::endl;

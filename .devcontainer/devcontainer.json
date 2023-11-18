@@ -11,7 +11,8 @@
                 "ms-vscode.cpptools",
                 "streetsidesoftware.code-spell-checker",
                 "twxs.cmake",
-                "zachflower.uncrustify"
+                "zachflower.uncrustify",
+                "ms-python.flake8"
             ]
         }
     },
