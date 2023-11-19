@@ -229,7 +229,7 @@ class Plotter():
         fig, (axs_1, axs_2) = plt.subplots(2, 1)
         alpha = calculate_alpha(len(imu_dfs))
         for imu_df in imu_dfs:
-            if ('imu_ext_update_0' not in imu_df.index):
+            if ('imu_ext_update_0' not in imu_df.keys()):
                 continue
 
             t_imu = imu_df['time'].to_list()
@@ -251,7 +251,7 @@ class Plotter():
         fig, (axs_1, axs_2) = plt.subplots(2, 1)
         alpha = calculate_alpha(len(imu_dfs))
         for imu_df in imu_dfs:
-            if ('imu_int_update_0' not in imu_df.index):
+            if ('imu_int_update_0' not in imu_df.keys()):
                 continue
 
             t_imu = imu_df['time'].to_list()
@@ -413,7 +413,7 @@ class Plotter():
         alpha = calculate_alpha(len(imu_dfs))
         for imu_df in imu_dfs:
             time = imu_df['time'].to_list()
-            if ('imu_ext_cov_0' in imu_df.index):
+            if ('imu_ext_cov_0' in imu_df.keys()):
                 axs_1.plot(time, imu_df['imu_ext_cov_0'].to_list(), alpha=alpha, color='tab:blue')
                 axs_1.plot(time, imu_df['imu_ext_cov_1'].to_list(), alpha=alpha, color='tab:orange')
                 axs_1.plot(time, imu_df['imu_ext_cov_2'].to_list(), alpha=alpha, color='tab:green')
@@ -421,7 +421,7 @@ class Plotter():
                 axs_2.plot(time, imu_df['imu_ext_cov_4'].to_list(), alpha=alpha, color='tab:orange')
                 axs_2.plot(time, imu_df['imu_ext_cov_5'].to_list(), alpha=alpha, color='tab:green')
 
-            if ('imu_ext_cov_0' in imu_df.index):
+            if ('imu_int_cov_0' in imu_df.keys()):
                 axs_3.plot(time, imu_df['imu_int_cov_0'].to_list(), alpha=alpha, color='tab:blue')
                 axs_3.plot(time, imu_df['imu_int_cov_1'].to_list(), alpha=alpha, color='tab:orange')
                 axs_3.plot(time, imu_df['imu_int_cov_2'].to_list(), alpha=alpha, color='tab:green')
@@ -557,7 +557,7 @@ class Plotter():
     def plot_body_pos(self, body_dfs):
         """Plot body position."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(imu_dfs))
+        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_pos_0'].to_list(), alpha=alpha, color='tab:blue')
@@ -657,7 +657,7 @@ class Plotter():
     def plot_body_vel(self, body_dfs):
         """Plot body velocity."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(imu_dfs))
+        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_vel_0'].to_list(), alpha=alpha, color='tab:blue')
@@ -674,7 +674,7 @@ class Plotter():
     def plot_body_acc(self, body_dfs):
         """Plot body acceleration."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(imu_dfs))
+        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_acc_0'].to_list(), alpha=alpha, color='tab:blue')
@@ -691,7 +691,7 @@ class Plotter():
     def plot_body_ang(self, body_dfs):
         """Plot body angular position."""
         fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
-        alpha = calculate_alpha(len(imu_dfs))
+        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_ang_pos_0'].to_list(), alpha=alpha, color='tab:blue')
@@ -710,7 +710,7 @@ class Plotter():
     def plot_body_ang_vel(self, body_dfs):
         """Plot body angular position."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(imu_dfs))
+        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_ang_vel_0'].to_list(), alpha=alpha, color='tab:blue')
@@ -727,7 +727,7 @@ class Plotter():
     def plot_body_ang_acc(self, body_dfs):
         """Plot body angular position."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(imu_dfs))
+        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_ang_acc_0'].to_list(), alpha=alpha, color='tab:blue')
@@ -744,7 +744,7 @@ class Plotter():
     def plot_body_pos_cov(self, body_dfs):
         """Plot body covariances for position and derivatives."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(imu_dfs))
+        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_cov_0'].to_list(), alpha=alpha, color='tab:blue')
@@ -767,7 +767,7 @@ class Plotter():
     def plot_body_ang_cov(self, body_dfs):
         """Plot body covariances for angles and derivatives."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        alpha = calculate_alpha(len(imu_dfs))
+        alpha = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             axs_1.plot(time, body_df['body_cov_9'].to_list(), alpha=alpha, color='tab:blue')
@@ -1163,14 +1163,14 @@ class Plotter():
             if not os.path.isdir(plot_dir):
                 os.mkdir(plot_dir)
 
-            # body_state_dfs_dict = find_and_read_data_frames(data_dirs, 'body_state')
-            # body_truth_dfs_dict = find_and_read_data_frames(data_dirs, 'body_truth')
-            # for key in body_state_dfs_dict:
-            #     body_state_dfs = body_state_dfs_dict[key]
-            #     body_truth_dfs = body_truth_dfs_dict[key]
-            #     figures, animations = self.plot_body_data(body_state_dfs, body_truth_dfs)
-            #     self.save_figures(plot_dir, figures)
-            #     self.save_animations(plot_dir, animations)
+            body_state_dfs_dict = find_and_read_data_frames(data_dirs, 'body_state')
+            body_truth_dfs_dict = find_and_read_data_frames(data_dirs, 'body_truth')
+            for key in body_state_dfs_dict:
+                body_state_dfs = body_state_dfs_dict[key]
+                body_truth_dfs = body_truth_dfs_dict[key]
+                figures, animations = self.plot_body_data(body_state_dfs, body_truth_dfs)
+                self.save_figures(plot_dir, figures)
+                self.save_animations(plot_dir, animations)
 
             imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
             for key in imu_dfs_dict:
@@ -1178,19 +1178,19 @@ class Plotter():
                 figures = self.plot_imu_data(imu_dfs, config_data, key)
                 self.save_figures(plot_dir, figures)
 
-            # cam_dfs_dict = find_and_read_data_frames(data_dirs, 'camera')
-            # for key in cam_dfs_dict:
-            #     cam_dfs = cam_dfs_dict[key]
-            #     figures = self.plot_cam_data(cam_dfs, config_data, key)
-            #     self.save_figures(plot_dir, figures)
+            cam_dfs_dict = find_and_read_data_frames(data_dirs, 'camera')
+            for key in cam_dfs_dict:
+                cam_dfs = cam_dfs_dict[key]
+                figures = self.plot_cam_data(cam_dfs, config_data, key)
+                self.save_figures(plot_dir, figures)
 
-            # tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
-            # feat_dfs_dict = find_and_read_data_frames(data_dirs, 'feature_points')
-            # for key in tri_dfs_dict:
-            #     tri_dfs = tri_dfs_dict[key]
-            #     feat_dfs = feat_dfs_dict[0]
-            #     figures = self.plot_triangulation_data(tri_dfs, feat_dfs, key)
-            #     self.save_figures(plot_dir, figures)
+            tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
+            feat_dfs_dict = find_and_read_data_frames(data_dirs, 'feature_points')
+            for key in tri_dfs_dict:
+                tri_dfs = tri_dfs_dict[key]
+                feat_dfs = feat_dfs_dict[0]
+                figures = self.plot_triangulation_data(tri_dfs, feat_dfs, key)
+                self.save_figures(plot_dir, figures)
 
             self.write_summary(stat_dir)
 
