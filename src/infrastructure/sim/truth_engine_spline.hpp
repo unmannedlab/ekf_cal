@@ -34,13 +34,14 @@ class TruthEngineSpline : public TruthEngine
 {
 public:
   ///
-  /// @brief
+  /// @brief TODO
   /// @param positions Position control points
   /// @param angles Angular position control points
   ///
   TruthEngineSpline(
-    std::vector<Eigen::Vector3d> positions,
-    std::vector<Eigen::Vector3d> angles);
+    double max_time,
+    std::vector<std::vector<double>> positions,
+    std::vector<std::vector<double>> angles);
 
   ///
   /// @brief True body position getter

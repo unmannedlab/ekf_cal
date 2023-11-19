@@ -39,16 +39,21 @@ TEST(test_TruthEngineCyclic, Constructor) {
 }
 
 TEST(test_TruthEngineSpline, Constructor) {
-  std::vector<Eigen::Vector3d> positions;
-  std::vector<Eigen::Vector3d> angles;
+  double max_time {2.0};
+  std::vector<std::vector<double>> positions;
+  std::vector<std::vector<double>> angles;
 
-  positions.push_back(Eigen::Vector3d{0, 0, 0});
-  positions.push_back(Eigen::Vector3d{1, 1, 1});
-  positions.push_back(Eigen::Vector3d{2, 2, 2});
+  positions.push_back(std::vector<double>{0, 0, 0});
+  positions.push_back(std::vector<double>{1, 1, 1});
+  positions.push_back(std::vector<double>{2, 2, 2});
 
-  angles.push_back(Eigen::Vector3d{0, 0, 0});
-  angles.push_back(Eigen::Vector3d{1, 1, 1});
-  angles.push_back(Eigen::Vector3d{2, 2, 2});
+  angles.push_back(std::vector<double>{0, 0, 0});
+  angles.push_back(std::vector<double>{1, 1, 1});
+  angles.push_back(std::vector<double>{2, 2, 2});
 
-  TruthEngineSpline truth_engine_spline(positions, angles);
+  TruthEngineSpline truth_engine_spline(max_time, positions, angles);
+
+  Eigen::Vector3d pos_0 = truth_engine_spline.GetBodyPosition(0.0);
+  Eigen::Vector3d pos_1 = truth_engine_spline.GetBodyPosition(1.0);
+  Eigen::Vector3d pos_2 = truth_engine_spline.GetBodyPosition(2.0);
 }

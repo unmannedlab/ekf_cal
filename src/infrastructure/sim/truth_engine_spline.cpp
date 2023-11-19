@@ -21,7 +21,7 @@
 
 Eigen::Vector3d TruthEngineSpline::GetBodyPosition(double time)
 {
-  return m_pos_spline(time);
+  return m_pos_spline(time / m_time_max);
 }
 
 Eigen::Vector3d TruthEngineSpline::GetBodyVelocity(double time)
@@ -82,8 +82,9 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAngularAcceleration(double time)
 
 /// @todo Check sizes before use
 TruthEngineSpline::TruthEngineSpline(
-  std::vector<Eigen::Vector3d> positions,
-  std::vector<Eigen::Vector3d> angles)
+  double max_time,
+  std::vector<std::vector<double>> positions,
+  std::vector<std::vector<double>> angles)
 {
   Eigen::MatrixXd pos_mat(3, positions.size());
   int row_index;
@@ -102,7 +103,7 @@ TruthEngineSpline::TruthEngineSpline(
 
   m_pos_spline = Eigen::SplineFitting<Eigen::Spline3d>::Interpolate(pos_mat, 2);
   m_ang_spline = Eigen::SplineFitting<Eigen::Spline3d>::Interpolate(ang_mat, 2);
-  m_time_max = static_cast<double>(positions.size());
+  m_time_max = max_time;
 }
 
 bool TruthEngineSpline::IsTimeInvalid(double time)

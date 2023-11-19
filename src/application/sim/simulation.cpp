@@ -198,12 +198,7 @@ int main(int argc, char * argv[])
   } else if (truth_type == "spline") {
     auto positions = sim_params["positions"].as<std::vector<std::vector<double>>>();
     auto angles = sim_params["angles"].as<std::vector<std::vector<double>>>();
-
-    std::vector<Eigen::Vector3d> positions_eigen;
-    std::vector<Eigen::Vector3d> angles_eigen;
-
-    /// @todo Convert inputs before using them
-    auto truth_engine_spline = std::make_shared<TruthEngineSpline>(positions_eigen, angles_eigen);
+    auto truth_engine_spline = std::make_shared<TruthEngineSpline>(max_time, positions, angles);
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_spline);
   } else {
     std::stringstream msg;
