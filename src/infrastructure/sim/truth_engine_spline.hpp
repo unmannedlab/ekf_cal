@@ -35,11 +35,12 @@ class TruthEngineSpline : public TruthEngine
 public:
   ///
   /// @brief TODO
+  /// @param delta_time Delta time between each control point
   /// @param positions Position control points
   /// @param angles Angular position control points
   ///
   TruthEngineSpline(
-    double max_time,
+    double delta_time,
     std::vector<std::vector<double>> positions,
     std::vector<std::vector<double>> angles);
 
@@ -83,6 +84,7 @@ private:
   bool IsTimeInvalid(double time);
 
   double m_time_max {0.0};
+  double m_delta_time {0.0};
   Eigen::Spline3d m_pos_spline;
   Eigen::Spline3d m_ang_spline;
 };

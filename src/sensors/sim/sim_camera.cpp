@@ -33,6 +33,7 @@
 #include "trackers/sim/sim_feature_tracker_message.hpp"
 #include "trackers/sim/sim_feature_tracker.hpp"
 #include "utility/sim/sim_rng.hpp"
+#include "utility/type_helper.hpp"
 
 
 SimCamera::SimCamera(
@@ -54,13 +55,11 @@ SimCamera::SimCamera(
   m_pos_c_in_b_true[0] = m_rng.NormRand(0.0, m_pos_error[0]);
   m_pos_c_in_b_true[1] = m_rng.NormRand(0.0, m_pos_error[1]);
   m_pos_c_in_b_true[2] = m_rng.NormRand(0.0, m_pos_error[2]);
-  double ang_c_to_b_true_r = m_rng.NormRand(0.0, m_ang_error[0]);
-  double ang_c_to_b_true_p = m_rng.NormRand(0.0, m_ang_error[1]);
-  double ang_c_to_b_true_y = m_rng.NormRand(0.0, m_ang_error[2]);
-  m_ang_c_to_b_true =
-    Eigen::AngleAxisd(ang_c_to_b_true_y, Eigen::Vector3d::UnitZ()) *
-    Eigen::AngleAxisd(ang_c_to_b_true_p, Eigen::Vector3d::UnitY()) *
-    Eigen::AngleAxisd(ang_c_to_b_true_r, Eigen::Vector3d::UnitX());
+  Eigen::Vector3d ang_c_to_b_true_rpy;
+  ang_c_to_b_true_rpy(0) = m_rng.NormRand(0.0, m_ang_error[0]);
+  ang_c_to_b_true_rpy(1) = m_rng.NormRand(0.0, m_ang_error[1]);
+  ang_c_to_b_true_rpy(2) = m_rng.NormRand(0.0, m_ang_error[2]);
+  m_ang_c_to_b_true = EigVecToQuat(ang_c_to_b_true_rpy);
 }
 
 std::vector<double> SimCamera::GenerateMessageTimes(double max_time)

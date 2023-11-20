@@ -19,6 +19,8 @@
 
 #include <cmath>
 
+#include "utility/type_helper.hpp"
+
 
 TruthEngineCyclic::TruthEngineCyclic(
   Eigen::Vector3d pos_frequency,
@@ -85,10 +87,7 @@ Eigen::Quaterniond TruthEngineCyclic::GetBodyAngularPosition(double time)
 {
   Eigen::Vector3d rpy_vector = GetBodyRollPitchYaw(time);
 
-  Eigen::Quaterniond angular_position =
-    Eigen::AngleAxisd(rpy_vector[2], Eigen::Vector3d::UnitZ()) *
-    Eigen::AngleAxisd(rpy_vector[1], Eigen::Vector3d::UnitY()) *
-    Eigen::AngleAxisd(rpy_vector[0], Eigen::Vector3d::UnitX());
+  Eigen::Quaterniond angular_position = EigVecToQuat(rpy_vector);
 
   return angular_position;
 }

@@ -28,6 +28,7 @@
 #include "sensors/sim/sim_imu_message.hpp"
 #include "sensors/types.hpp"
 #include "utility/sim/sim_rng.hpp"
+#include "utility/type_helper.hpp"
 
 SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngine)
 : IMU(params.imu_params)
@@ -52,13 +53,11 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngi
     m_pos_i_in_b_true[0] = m_rng.NormRand(0.0, m_pos_error[0]);
     m_pos_i_in_b_true[1] = m_rng.NormRand(0.0, m_pos_error[1]);
     m_pos_i_in_b_true[2] = m_rng.NormRand(0.0, m_pos_error[2]);
-    double ang_i_to_b_true_r = m_rng.NormRand(0.0, m_ang_error[0]);
-    double ang_i_to_b_true_p = m_rng.NormRand(0.0, m_ang_error[1]);
-    double ang_i_to_b_true_y = m_rng.NormRand(0.0, m_ang_error[2]);
-    m_ang_i_to_b_true =
-      Eigen::AngleAxisd(ang_i_to_b_true_y, Eigen::Vector3d::UnitZ()) *
-      Eigen::AngleAxisd(ang_i_to_b_true_p, Eigen::Vector3d::UnitY()) *
-      Eigen::AngleAxisd(ang_i_to_b_true_r, Eigen::Vector3d::UnitX());
+    Eigen::Vector3d ang_i_to_b_true_rpy;
+    ang_i_to_b_true_rpy(0) = m_rng.NormRand(0.0, m_ang_error[0]);
+    ang_i_to_b_true_rpy(1) = m_rng.NormRand(0.0, m_ang_error[1]);
+    ang_i_to_b_true_rpy(2) = m_rng.NormRand(0.0, m_ang_error[2]);
+    m_ang_i_to_b_true = EigVecToQuat(ang_i_to_b_true_rpy);
   } else {
     m_pos_i_in_b_true = params.imu_params.pos_i_in_b;
     m_ang_i_to_b_true = params.imu_params.ang_i_to_b;

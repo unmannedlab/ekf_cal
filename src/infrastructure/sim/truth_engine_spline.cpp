@@ -19,9 +19,15 @@
 
 #include <vector>
 
+#include "utility/type_helper.hpp"
+
 Eigen::Vector3d TruthEngineSpline::GetBodyPosition(double time)
 {
-  return m_pos_spline(time / m_time_max);
+  if (IsTimeInvalid(time)) {
+    return Eigen::Vector3d::Zero(3);
+  } else {
+    return m_pos_spline(time / m_time_max);
+  }
 }
 
 Eigen::Vector3d TruthEngineSpline::GetBodyVelocity(double time)
@@ -29,8 +35,10 @@ Eigen::Vector3d TruthEngineSpline::GetBodyVelocity(double time)
   if (IsTimeInvalid(time)) {
     return Eigen::Vector3d::Zero(3);
   } else {
+    unsigned int order {1};
     double u = time / m_time_max;
-    Eigen::Vector3d velocity = m_pos_spline.derivatives(u, 1) / m_time_max;
+    Eigen::Vector3d velocity;
+    velocity = m_pos_spline.derivatives(u, order).block<3, 1>(0, order) / m_time_max;
     return velocity;
   }
 }
@@ -40,22 +48,27 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAcceleration(double time)
   if (IsTimeInvalid(time)) {
     return Eigen::Vector3d::Zero(3);
   } else {
+    unsigned int order {2};
     double u = time / m_time_max;
-    Eigen::Vector3d acceleration = m_pos_spline.derivatives(u, 2) / m_time_max;
+    Eigen::Vector3d acceleration;
+    acceleration =
+      m_pos_spline.derivatives(u, order).block<3, 1>(0, order) / m_time_max / m_time_max;
     return acceleration;
   }
 }
 
 Eigen::Quaterniond TruthEngineSpline::GetBodyAngularPosition(double time)
 {
-  Eigen::Vector3d eulAng = m_ang_spline(time);
+  if (IsTimeInvalid(time)) {
+    return Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
+  } else {
+    double u = time / m_time_max;
+    Eigen::Vector3d euler_angles = m_ang_spline(u);
 
-  Eigen::Quaterniond angularPosition =
-    Eigen::AngleAxisd(eulAng(0), Eigen::Vector3d::UnitX()) *
-    Eigen::AngleAxisd(eulAng(1), Eigen::Vector3d::UnitY()) *
-    Eigen::AngleAxisd(eulAng(2), Eigen::Vector3d::UnitZ());
+    Eigen::Quaterniond angular_position = EigVecToQuat(euler_angles);
 
-  return angularPosition;
+    return angular_position;
+  }
 }
 
 Eigen::Vector3d TruthEngineSpline::GetBodyAngularRate(double time)
@@ -63,8 +76,10 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAngularRate(double time)
   if (IsTimeInvalid(time)) {
     return Eigen::Vector3d::Zero(3);
   } else {
+    unsigned int order {1};
     double u = time / m_time_max;
-    Eigen::Vector3d velocity = m_ang_spline.derivatives(u, 1) / m_time_max;
+    Eigen::Vector3d velocity;
+    velocity = m_ang_spline.derivatives(u, order).block<3, 1>(0, order) / m_time_max;
     return velocity;
   }
 }
@@ -74,15 +89,18 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAngularAcceleration(double time)
   if (IsTimeInvalid(time)) {
     return Eigen::Vector3d::Zero(3);
   } else {
+    unsigned int order {2};
     double u = time / m_time_max;
-    Eigen::Vector3d acceleration = m_ang_spline.derivatives(u, 2) / m_time_max;
+    Eigen::Vector3d acceleration;
+    acceleration =
+      m_ang_spline.derivatives(u, order).block<3, 1>(0, order) / m_time_max / m_time_max;
     return acceleration;
   }
 }
 
 /// @todo Check sizes before use
 TruthEngineSpline::TruthEngineSpline(
-  double max_time,
+  double delta_time,
   std::vector<std::vector<double>> positions,
   std::vector<std::vector<double>> angles)
 {
@@ -97,20 +115,21 @@ TruthEngineSpline::TruthEngineSpline(
   Eigen::MatrixXd ang_mat(3, angles.size());
   row_index = 0;
   for (auto const & ang : angles) {
-    pos_mat.col(row_index) << ang[0], ang[1], ang[2];
+    ang_mat.col(row_index) << ang[0], ang[1], ang[2];
     row_index++;
   }
 
   m_pos_spline = Eigen::SplineFitting<Eigen::Spline3d>::Interpolate(pos_mat, 2);
   m_ang_spline = Eigen::SplineFitting<Eigen::Spline3d>::Interpolate(ang_mat, 2);
-  m_time_max = max_time;
+  m_delta_time = delta_time;
+  m_time_max = (positions.size() - 1) / delta_time;
 }
 
 bool TruthEngineSpline::IsTimeInvalid(double time)
 {
   if (time < 0.0 || time > m_time_max) {
-    return false;
-  } else {
     return true;
+  } else {
+    return false;
   }
 }

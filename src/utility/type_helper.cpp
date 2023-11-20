@@ -61,3 +61,12 @@ Eigen::Vector3d QuatToRotVec(Eigen::Quaterniond quat)
   Eigen::Vector3d rot_vec = ang_axis.axis() * ang_axis.angle();
   return rot_vec;
 }
+
+Eigen::Quaterniond EigVecToQuat(Eigen::Vector3d euler_angles)
+{
+  Eigen::Quaterniond quaternion =
+    Eigen::AngleAxisd(euler_angles(2), Eigen::Vector3d::UnitZ()) *
+    Eigen::AngleAxisd(euler_angles(1), Eigen::Vector3d::UnitY()) *
+    Eigen::AngleAxisd(euler_angles(0), Eigen::Vector3d::UnitX());
+  return quaternion;
+}

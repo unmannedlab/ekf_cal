@@ -60,7 +60,7 @@ public:
   Eigen::Vector3d TriangulateFeature(std::vector<FeatureTrack> & feature_track);
 
   ///
-  /// @brief
+  /// @brief EKF updater function
   /// @param time Time of update
   /// @param camera_id ID of camera associated with update
   /// @param feature_tracks Feature tracks to be used for state update

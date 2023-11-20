@@ -52,8 +52,8 @@ public:
   std::string GetName();
 
   ///
-  /// @brief
-  /// @param sensor_message
+  /// @brief Sensor callback function
+  /// @param sensor_message callback message
   ///
   void Callback(SensorMessage sensor_message);
 

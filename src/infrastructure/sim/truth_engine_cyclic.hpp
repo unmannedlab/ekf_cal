@@ -34,6 +34,8 @@ public:
   /// @param ang_frequency Vector of angular frequencies
   /// @param pos_offset Initial position offset in the global frame
   /// @param ang_offset Initial angular offset to the global frame rpy
+  /// @param pos_amplitude Amplitude of position cycle
+  /// @param ang_amplitude Amplitude of angular cycle
   ///
   TruthEngineCyclic(
     Eigen::Vector3d pos_frequency,

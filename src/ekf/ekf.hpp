@@ -181,18 +181,18 @@ public:
   void Initialize(double timeInit, BodyState bodyStateInit);
 
   ///
-  /// @brief
-  /// @param imu_id
-  /// @param imu_state
-  /// @param covariance
+  /// @brief IMU Registration function
+  /// @param imu_id IMU ID
+  /// @param imu_state Initial IMU state
+  /// @param covariance Initial IMU covariance
   ///
   void RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd covariance);
 
   ///
-  /// @brief
-  /// @param cam_id
-  /// @param cam_state
-  /// @param covariance
+  /// @brief Camera Registration function
+  /// @param cam_id IMU ID
+  /// @param cam_state Initial camera state
+  /// @param covariance Initial camera covariance
   ///
   void RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixXd covariance);
 

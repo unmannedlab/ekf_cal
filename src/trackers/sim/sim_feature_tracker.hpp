@@ -75,13 +75,18 @@ public:
   std::vector<cv::KeyPoint> VisibleKeypoints(double time);
 
   ///
-  /// @brief
+  /// @brief Callback for feature tracker
   /// @param time Message time
   /// @param camera_id Camera ID
   /// @param msg Feature track message
   ///
   void Callback(double time, unsigned int camera_id, std::shared_ptr<SimFeatureTrackerMessage> msg);
 
+  ///
+  /// @brief True offset setter
+  /// @param pos_c_in_b_true True position offset of camera in body frame
+  /// @param ang_c_to_b_true True angular offset of camera in body frame
+  ///
   void SetTrueOffsets(Eigen::Vector3d pos_c_in_b_true, Eigen::Quaterniond ang_c_to_b_true);
 
 private:

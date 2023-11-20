@@ -50,4 +50,30 @@
 //   return testing::AssertionSuccess();
 // }
 
+static testing::AssertionResult EXPECT_EIGEN_NEAR(
+  Eigen::Vector3d vec1, Eigen::Vector3d vec2, double precision)
+{
+  for (unsigned int i = 0; i < 3; ++i) {
+    if (abs(vec1[i] - vec2[i]) > precision) {
+      return ::testing::AssertionFailure() << "vec1[" << i <<
+             "] (" << vec1[i] << ") != vec2[" << i <<
+             "] (" << vec2[i] << ") Diff:" << abs(vec1[i] - vec2[i]);
+    }
+  }
+  return testing::AssertionSuccess();
+}
+
+static testing::AssertionResult EXPECT_EIGEN_NEAR(
+  Eigen::Quaterniond quat1, Eigen::Quaterniond quat2, double precision)
+{
+  Eigen::Quaterniond delta_quat = quat1.inverse() * quat2;
+  double angle = atan2(delta_quat.vec().norm(), delta_quat.w());
+  if (angle > precision) {
+    return testing::AssertionFailure()
+           << "quat1 (" << quat1 << ") != quat2 (" << quat2 << ") Diff:" << angle;
+  } else {
+    return testing::AssertionSuccess();
+  }
+}
+
 #endif  // CUSTOM_ASSERTIONS_HPP_

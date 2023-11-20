@@ -48,4 +48,12 @@ Eigen::Quaterniond RotVecToQuat(Eigen::Vector3d rot_vec);
 ///
 Eigen::Vector3d QuatToRotVec(Eigen::Quaterniond quat);
 
+
+///
+/// @brief Convert Euler angles to quaternion
+/// @param euler_angles Input Euler angles
+/// @return Resulting quaternion
+///
+Eigen::Quaterniond EigVecToQuat(Eigen::Vector3d euler_angles);
+
 #endif  // UTILITY__TYPE_HELPER_HPP_
