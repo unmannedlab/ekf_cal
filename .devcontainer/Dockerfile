@@ -12,6 +12,9 @@ RUN apt-get update && \
     clang-13 \
     iwyu \
     gdb \
+    doxygen \
+    lcov \
+    python3-colcon-lcov-result \
     locales && \
     rm -rf /var/lib/apt/lists/*
 

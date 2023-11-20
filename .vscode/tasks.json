@@ -71,9 +71,7 @@
             "command": "doxygen .doxyfile",
             "group": "none",
             "problemMatcher": "$gcc",
-            "dependsOn": [
-                "cloc"
-            ],
+            "dependsOn": "cloc",
             "options": {
                 "cwd": "${workspaceFolder}"
             },

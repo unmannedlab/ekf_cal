@@ -6,13 +6,13 @@
                 "fabiospampinato.vscode-todo-plus",
                 "mhutchie.git-graph",
                 "ms-iot.vscode-ros",
+                "ms-python.flake8",
                 "ms-python.python",
                 "ms-vscode.cpptools-extension-pack",
                 "ms-vscode.cpptools",
                 "streetsidesoftware.code-spell-checker",
                 "twxs.cmake",
-                "zachflower.uncrustify",
-                "ms-python.flake8"
+                "zachflower.uncrustify"
             ]
         }
     },
