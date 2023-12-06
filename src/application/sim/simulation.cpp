@@ -135,9 +135,9 @@ int main(int argc, char * argv[])
 
   // Logging parameters
   YAML::Node ros_params = root["/EkfCalNode"]["ros__parameters"];
-  unsigned int debug_log_level = ros_params["debug_log_level"].as<unsigned int>();
-  bool data_logging_on = ros_params["data_logging_on"].as<bool>();
-  double body_data_rate = ros_params["body_data_rate"].as<double>();
+  unsigned int debug_log_level = ros_params["debug_log_level"].as<unsigned int>(0U);
+  bool data_logging_on = ros_params["data_logging_on"].as<bool>(true);
+  double body_data_rate = ros_params["body_data_rate"].as<double>(1.0);
 
   // Set EKF parameters
   EKF * ekf = EKF::GetInstance();
@@ -148,9 +148,9 @@ int main(int argc, char * argv[])
 
   // Simulation parameters
   YAML::Node sim_params = ros_params["sim_params"];
-  double rng_seed = sim_params["seed"].as<double>();
-  bool use_seed = sim_params["use_seed"].as<bool>();
-  bool no_errors = sim_params["no_errors"].as<bool>();
+  double rng_seed = sim_params["seed"].as<double>(0.0);
+  bool use_seed = sim_params["use_seed"].as<bool>(false);
+  bool no_errors = sim_params["no_errors"].as<bool>(false);
   Eigen::Vector3d pos_frequency =
     StdToEigVec(sim_params["pos_frequency"].as<std::vector<double>>());
   Eigen::Vector3d ang_frequency =
@@ -192,8 +192,8 @@ int main(int argc, char * argv[])
 
     IMU::Parameters imu_params;
     imu_params.name = imus[i];
-    imu_params.is_extrinsic = imu_node["is_extrinsic"].as<bool>();
-    imu_params.is_intrinsic = imu_node["is_intrinsic"].as<bool>();
+    imu_params.is_extrinsic = imu_node["is_extrinsic"].as<bool>(false);
+    imu_params.is_intrinsic = imu_node["is_intrinsic"].as<bool>(false);
     imu_params.rate = imu_node["rate"].as<double>();
     imu_params.topic = imu_node["topic"].as<std::string>();
     imu_params.variance = StdToEigVec(imu_node["variance"].as<std::vector<double>>());
@@ -201,17 +201,21 @@ int main(int argc, char * argv[])
     imu_params.ang_i_to_b = StdToEigQuat(imu_node["ang_i_to_b"].as<std::vector<double>>());
     imu_params.acc_bias = StdToEigVec(imu_node["acc_bias"].as<std::vector<double>>());
     imu_params.omg_bias = StdToEigVec(imu_node["omg_bias"].as<std::vector<double>>());
+    imu_params.pos_stability = imu_node["pos_stability"].as<double>(1.0e-9);
+    imu_params.ang_stability = imu_node["ang_stability"].as<double>(1.0e-9);
+    imu_params.acc_bias_stability = imu_node["acc_bias_stability"].as<double>(1.0e-9);
+    imu_params.omg_bias_stability = imu_node["omg_bias_stability"].as<double>(1.0e-9);
     imu_params.output_directory = out_dir;
     imu_params.data_logging_on = data_logging_on;
-    imu_params.use_for_prediction = imu_node["use_for_prediction"].as<bool>();
+    imu_params.use_for_prediction = imu_node["use_for_prediction"].as<bool>(false);
     using_any_imu_for_prediction = using_any_imu_for_prediction || imu_params.use_for_prediction;
 
     // SimParams
     SimIMU::Parameters sim_imu_params;
     sim_imu_params.imu_params = imu_params;
-    sim_imu_params.time_bias_error = sim_node["time_bias_error"].as<double>();
-    sim_imu_params.time_skew_error = sim_node["time_skew_error"].as<double>();
-    sim_imu_params.time_error = sim_node["time_error"].as<double>();
+    sim_imu_params.time_bias_error = sim_node["time_bias_error"].as<double>(1.0e-9);
+    sim_imu_params.time_skew_error = sim_node["time_skew_error"].as<double>(1.0e-9);
+    sim_imu_params.time_error = sim_node["time_error"].as<double>(1.0e-9);
     sim_imu_params.acc_error = StdToEigVec(sim_node["acc_error"].as<std::vector<double>>());
     sim_imu_params.omg_error = StdToEigVec(sim_node["omg_error"].as<std::vector<double>>());
     sim_imu_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>());

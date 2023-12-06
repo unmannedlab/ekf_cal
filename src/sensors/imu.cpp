@@ -39,6 +39,10 @@ IMU::IMU(IMU::Parameters params)
   ImuState imu_state;
   imu_state.is_extrinsic = params.is_extrinsic;
   imu_state.is_intrinsic = params.is_intrinsic;
+  imu_state.pos_stability = params.pos_stability;
+  imu_state.ang_stability = params.ang_stability;
+  imu_state.acc_bias_stability = params.acc_bias_stability;
+  imu_state.omg_bias_stability = params.omg_bias_stability;
   imu_state.pos_i_in_b = params.pos_i_in_b;
   imu_state.ang_i_to_b = params.ang_i_to_b;
   imu_state.acc_bias = params.acc_bias;

@@ -40,19 +40,21 @@ public:
   ///
   typedef struct Parameters
   {
-    std::string name {"Name"};                   ///< @brief IMU name
-    std::string topic {"Topic"};                 ///< @brief IMU topic
-    bool is_extrinsic{false};                    ///< @brief IMU extrinsic calibration
-    bool is_intrinsic{false};                    ///< @brief IMU intrinsic calibration
-    double rate{1.0};                            ///< @brief IMU update rate
-    Eigen::Vector3d pos_i_in_b {0, 0, 0};        ///< @brief IMU position offset vector
-    Eigen::Quaterniond ang_i_to_b {1, 0, 0, 0};  ///< @brief IMU angular offset quaternion
-    Eigen::Vector3d acc_bias {0, 0, 0};          ///< @brief IMU accelerometer bias vector
-    Eigen::Vector3d omg_bias {0, 0, 0};          ///< @brief IMU gyroscope bias vector
-    double acc_bias_stability {0};               ///< @brief IMU accelerometer bias stability
-    double omg_bias_stability {0};               ///< @brief IMU gyroscope bias stability
-    std::string output_directory {""};           ///< @brief IMU data logging directory
-    bool data_logging_on {false};                ///< @brief IMU data logging flag
+    std::string name {"Name"};                   ///< @brief Name
+    std::string topic {"Topic"};                 ///< @brief Topic
+    bool is_extrinsic{false};                    ///< @brief Extrinsic calibration
+    bool is_intrinsic{false};                    ///< @brief Intrinsic calibration
+    double rate{1.0};                            ///< @brief Update rate
+    Eigen::Vector3d pos_i_in_b {0, 0, 0};        ///< @brief Position offset vector
+    Eigen::Quaterniond ang_i_to_b {1, 0, 0, 0};  ///< @brief Angular offset quaternion
+    Eigen::Vector3d acc_bias {0, 0, 0};          ///< @brief Accelerometer bias vector
+    Eigen::Vector3d omg_bias {0, 0, 0};          ///< @brief Gyroscope bias vector
+    double pos_stability {1e-9};                 ///< @brief Position stability
+    double ang_stability {1e-9};                 ///< @brief Angular stability
+    double acc_bias_stability {1e-9};            ///< @brief Accelerometer bias stability
+    double omg_bias_stability {1e-9};            ///< @brief Gyroscope bias stability
+    std::string output_directory {""};           ///< @brief Data logging directory
+    bool data_logging_on {false};                ///< @brief Data logging flag
     bool use_for_prediction {false};             ///< @brief Flag to use measurements for prediction
     /// @brief Initial state variance
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};

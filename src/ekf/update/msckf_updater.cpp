@@ -347,10 +347,7 @@ void MsckfUpdater::UpdateEKF(
     return;
   }
 
-  /// @todo(jhartzer): Get this value from input file?
-  px_error += 5.0;
-  Eigen::MatrixXd R = px_error * px_error * Eigen::MatrixXd::Identity(
-    res_x.rows(), res_x.rows());
+  Eigen::MatrixXd R = px_error * px_error * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
   // Apply Kalman update
   Eigen::MatrixXd S = H_x * m_ekf->GetCov() * H_x.transpose() + R;

@@ -71,6 +71,10 @@ public:
 
   bool is_extrinsic{false};                           ///< @brief Extrinsic calibration flag
   bool is_intrinsic{false};                           ///< @brief Intrinsic calibration flag
+  double pos_stability {1e-9};
+  double ang_stability {1e-9};
+  double acc_bias_stability {1e-9};
+  double omg_bias_stability {1e-9};
   Eigen::Vector3d pos_i_in_b{0.0, 0.0, 0.0};          ///< @brief IMU state position
   Eigen::Quaterniond ang_i_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief IMU state orientation
   Eigen::Vector3d acc_bias{0.0, 0.0, 0.0};            ///< @brief IMU state acceleration bias
@@ -103,9 +107,9 @@ public:
   ///
   Eigen::VectorXd ToVector();
 
-  Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};             ///< @brief Camera state position
+  Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Camera state position
   Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera state orientation
-  std::vector<AugmentedState> augmented_states;        ///< @brief Camera augmented states
+  std::vector<AugmentedState> augmented_states;       ///< @brief Camera augmented states
 };
 
 ///
