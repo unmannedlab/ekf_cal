@@ -21,7 +21,7 @@
         },
         {
             "name": "ROS: Attach",
-            "type": "ros",
+            "type": "node",
             "request": "attach"
         },
         {

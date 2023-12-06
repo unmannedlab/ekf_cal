@@ -240,8 +240,8 @@ void ImuUpdater::UpdateEKF(
     m_ekf->GetCov().block(0, 0, update_size, update_size);
 
   /// @todo(jhartzer): Should we lower bound IMU calibration covariance?
-  // m_ekf->GetCov().block<12, 12>(imu_state_start, imu_state_start) =
-  //   MinBoundDiagonal(m_ekf->GetCov().block<6, 6>(imu_state_start, imu_state_start), 1e-12);
+  m_ekf->GetCov().block<12, 12>(imu_state_start, imu_state_start) =
+    MinBoundDiagonal(m_ekf->GetCov().block<6, 6>(imu_state_start, imu_state_start), 1e-12);
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);

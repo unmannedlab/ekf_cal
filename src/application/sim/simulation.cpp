@@ -155,14 +155,6 @@ int main(int argc, char * argv[])
   double rng_seed = sim_params["seed"].as<double>(0.0);
   bool use_seed = sim_params["use_seed"].as<bool>(false);
   bool no_errors = sim_params["no_errors"].as<bool>(false);
-  Eigen::Vector3d pos_frequency =
-    StdToEigVec(sim_params["pos_frequency"].as<std::vector<double>>());
-  Eigen::Vector3d ang_frequency =
-    StdToEigVec(sim_params["ang_frequency"].as<std::vector<double>>());
-  Eigen::Vector3d pos_offset = StdToEigVec(sim_params["pos_offset"].as<std::vector<double>>());
-  Eigen::Vector3d ang_offset = StdToEigVec(sim_params["ang_offset"].as<std::vector<double>>());
-  double pos_amplitude = sim_params["pos_amplitude"].as<double>();
-  double ang_amplitude = sim_params["ang_amplitude"].as<double>();
   double max_time = sim_params["max_time"].as<double>();
 
   DebugLogger * logger = DebugLogger::GetInstance();

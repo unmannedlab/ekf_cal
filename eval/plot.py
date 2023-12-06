@@ -53,7 +53,7 @@ from scipy.spatial.transform import Rotation as R
 
 import yaml
 
-plt.style.use('ggplot')
+# plt.style.use('seaborn-whitegrid')
 plt.rcParams.update({'figure.max_open_warning': 0})
 
 
@@ -289,12 +289,12 @@ class Plotter():
         pos_0_std = np.std(pos_0, axis=0)
         pos_1_std = np.std(pos_1, axis=0)
         pos_2_std = np.std(pos_2, axis=0)
-        axs_1.plot(t_imu[0, :], +3.0 * pos_0_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_2.plot(t_imu[0, :], +3.0 * pos_1_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_3.plot(t_imu[0, :], +3.0 * pos_2_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_1.plot(t_imu[0, :], -3.0 * pos_0_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_2.plot(t_imu[0, :], -3.0 * pos_1_std, linestyle='--', color='tab:red', alpha=0.5)
-        axs_3.plot(t_imu[0, :], -3.0 * pos_2_std, linestyle='--', color='tab:red', alpha=0.5)
+        axs_1.plot(t_imu[0, :], +3.0 * pos_0_std, linestyle='--', color='tab:red', alpha=a)
+        axs_2.plot(t_imu[0, :], +3.0 * pos_1_std, linestyle='--', color='tab:red', alpha=a)
+        axs_3.plot(t_imu[0, :], +3.0 * pos_2_std, linestyle='--', color='tab:red', alpha=a)
+        axs_1.plot(t_imu[0, :], -3.0 * pos_0_std, linestyle='--', color='tab:red', alpha=a)
+        axs_2.plot(t_imu[0, :], -3.0 * pos_1_std, linestyle='--', color='tab:red', alpha=a)
+        axs_3.plot(t_imu[0, :], -3.0 * pos_2_std, linestyle='--', color='tab:red', alpha=a)
 
         set_plot_titles(fig, f'IMU {imu_dfs[i].attrs["id"]} Position')
         axs_1.set_ylabel('$p_x$ $[mm]$')
@@ -569,11 +569,12 @@ class Plotter():
         """Plot body position in 3D."""
         fig = plt.figure()
         axs = fig.add_subplot(projection='3d')
+        a = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             x_pos = body_df['body_pos_0'].to_list()
             y_pos = body_df['body_pos_1'].to_list()
             z_pos = body_df['body_pos_2'].to_list()
-            axs.plot(x_pos, y_pos, z_pos, color='tab:blue')
+            axs.plot(x_pos, y_pos, z_pos, color='tab:blue', alpha=a)
         set_plot_titles(fig, 'Body Position 3D')
         axs.set_xlabel('X [m]')
         axs.set_ylabel('Y [m]')
@@ -613,12 +614,13 @@ class Plotter():
         y_pos_list = []
         z_pos_list = []
         graph_list = []
+        a = calculate_alpha(len(body_dfs))
         for body_df in body_dfs:
             time = body_df['time'].to_list()
             x_pos = body_df['body_pos_0'].to_list()
             y_pos = body_df['body_pos_1'].to_list()
             z_pos = body_df['body_pos_2'].to_list()
-            graph, = axs.plot(x_pos, y_pos, z_pos, color='tab:blue')
+            graph, = axs.plot(x_pos, y_pos, z_pos, color='tab:blue', alpha=a)
             time_list.append(time)
             x_pos_list.append(x_pos)
             y_pos_list.append(y_pos)
@@ -784,6 +786,7 @@ class Plotter():
     def plot_body_err_pos(self, body_state_dfs, body_truth_dfs):
         """Plot the body state position error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        a = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
             true_time = body_truth['time'].to_list()
             true_pos_0 = body_truth['body_pos_0'].to_list()
@@ -801,9 +804,9 @@ class Plotter():
             self.statistics['Body Position'].append(
                 RMSE_from_vectors(err_pos_0, err_pos_1, err_pos_2))
 
-            axs_1.plot(est_time, err_pos_0, color='tab:blue')
-            axs_2.plot(est_time, err_pos_1, color='tab:orange')
-            axs_3.plot(est_time, err_pos_2, color='tab:green')
+            axs_1.plot(est_time, err_pos_0, alpha=a, color='tab:blue')
+            axs_2.plot(est_time, err_pos_1, alpha=a, color='tab:orange')
+            axs_3.plot(est_time, err_pos_2, alpha=a, color='tab:green')
 
         set_plot_titles(fig, 'Body Position Error')
         axs_1.set_ylabel('X Error [m]')
@@ -817,6 +820,7 @@ class Plotter():
     def plot_body_err_vel(self, body_state_dfs, body_truth_dfs):
         """Plot the body state velocity error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        a = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
             true_time = body_truth['time'].to_list()
             true_vel_0 = body_truth['body_vel_0'].to_list()
@@ -834,9 +838,9 @@ class Plotter():
             self.statistics['Body Velocity'].append(
                 RMSE_from_vectors(err_vel_0, err_vel_1, err_vel_2))
 
-            axs_1.plot(est_time, err_vel_0, color='tab:blue')
-            axs_2.plot(est_time, err_vel_1, color='tab:orange')
-            axs_3.plot(est_time, err_vel_2, color='tab:green')
+            axs_1.plot(est_time, err_vel_0, alpha=a, color='tab:blue')
+            axs_2.plot(est_time, err_vel_1, alpha=a, color='tab:orange')
+            axs_3.plot(est_time, err_vel_2, alpha=a, color='tab:green')
 
         set_plot_titles(fig, 'Body Velocity Error')
         axs_1.set_ylabel(r'X Error [$\frac{m}{s}$]')
@@ -850,6 +854,7 @@ class Plotter():
     def plot_body_err_acc(self, body_state_dfs, body_truth_dfs):
         """Plot the body state acceleration error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        a = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
             true_time = body_truth['time'].to_list()
             true_acc_0 = body_truth['body_acc_0'].to_list()
@@ -867,9 +872,9 @@ class Plotter():
             self.statistics['Body Acceleration'].append(
                 RMSE_from_vectors(err_acc_0, err_acc_1, err_acc_2))
 
-            axs_1.plot(est_time, err_acc_0, color='tab:blue')
-            axs_2.plot(est_time, err_acc_1, color='tab:orange')
-            axs_3.plot(est_time, err_acc_2, color='tab:green')
+            axs_1.plot(est_time, err_acc_0, alpha=a, color='tab:blue')
+            axs_2.plot(est_time, err_acc_1, alpha=a, color='tab:orange')
+            axs_3.plot(est_time, err_acc_2, alpha=a, color='tab:green')
 
         set_plot_titles(fig, 'Body Acceleration Error')
         axs_1.set_ylabel(r'X Error [$\frac{m}{s^2}$]')
@@ -883,6 +888,7 @@ class Plotter():
     def plot_body_err_ang(self, body_state_dfs, body_truth_dfs):
         """Plot the body state angular error."""
         fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
+        a = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
             true_time = body_truth['time'].to_list()
             true_ang_pos_w = body_truth['body_ang_pos_0'].to_list()
@@ -907,10 +913,10 @@ class Plotter():
             err_ang_pos_w, err_ang_pos_x, err_ang_pos_y, err_ang_pos_z = \
                 calculate_rotation_errors(est_ang_pos_r, interp_r)
 
-            axs_1.plot(est_time, err_ang_pos_w, color='tab:blue')
-            axs_2.plot(est_time, err_ang_pos_x, color='tab:orange')
-            axs_3.plot(est_time, err_ang_pos_y, color='tab:green')
-            axs_4.plot(est_time, err_ang_pos_z, color='tab:red')
+            axs_1.plot(est_time, err_ang_pos_w, alpha=a, color='tab:blue')
+            axs_2.plot(est_time, err_ang_pos_x, alpha=a, color='tab:orange')
+            axs_3.plot(est_time, err_ang_pos_y, alpha=a, color='tab:green')
+            axs_4.plot(est_time, err_ang_pos_z, alpha=a, color='tab:red')
 
         set_plot_titles(fig, 'Body Angular Error')
         axs_1.set_ylabel('W Error')
@@ -925,6 +931,7 @@ class Plotter():
     def plot_body_err_ang_vel(self, body_state_dfs, body_truth_dfs):
         """Plot the body state angular velocity error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        a = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
             true_time = body_truth['time'].to_list()
             true_ang_vel_0 = body_truth['body_ang_vel_0'].to_list()
@@ -942,9 +949,9 @@ class Plotter():
             self.statistics['Body Angular Velocity'].append(
                 RMSE_from_vectors(err_ang_vel_0, err_ang_vel_1, err_ang_vel_2))
 
-            axs_1.plot(est_time, err_ang_vel_0, color='tab:blue')
-            axs_2.plot(est_time, err_ang_vel_1, color='tab:orange')
-            axs_3.plot(est_time, err_ang_vel_2, color='tab:green')
+            axs_1.plot(est_time, err_ang_vel_0, alpha=a, color='tab:blue')
+            axs_2.plot(est_time, err_ang_vel_1, alpha=a, color='tab:orange')
+            axs_3.plot(est_time, err_ang_vel_2, alpha=a, color='tab:green')
 
         set_plot_titles(fig, 'Body Angular Rate Error')
         axs_1.set_ylabel('X Error [rad/s]')
@@ -958,6 +965,7 @@ class Plotter():
     def plot_body_err_ang_acc(self, body_state_dfs, body_truth_dfs):
         """Plot the body state angular acceleration error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        a = calculate_alpha(len(body_state_dfs))
         for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
             true_time = body_truth['time'].to_list()
             true_ang_acc_0 = body_truth['body_ang_acc_0'].to_list()
@@ -975,9 +983,9 @@ class Plotter():
             self.statistics['Body Angular Acceleration'].append(
                 RMSE_from_vectors(err_ang_acc_0, err_ang_acc_1, err_ang_acc_2))
 
-            axs_1.plot(est_time, err_ang_acc_0, color='tab:blue')
-            axs_2.plot(est_time, err_ang_acc_1, color='tab:orange')
-            axs_3.plot(est_time, err_ang_acc_2, color='tab:green')
+            axs_1.plot(est_time, err_ang_acc_0, alpha=a, color='tab:blue')
+            axs_2.plot(est_time, err_ang_acc_1, alpha=a, color='tab:orange')
+            axs_3.plot(est_time, err_ang_acc_2, alpha=a, color='tab:green')
 
         set_plot_titles(fig, 'Body Angular Acceleration Error')
         axs_1.set_ylabel('X Error [rad/s/s]')

@@ -150,8 +150,8 @@
     "terminal.integrated.gpuAcceleration": "off",
     "cmake.debugConfig": {
         "args": [
-            "${workspaceFolder}/config/spline.yaml",
-            "${workspaceFolder}/config/spline/"
+            "${workspaceFolder}/config/example.yaml",
+            "${workspaceFolder}/config/example/"
         ]
     },
     "todo.embedded.exclude": [
