@@ -123,9 +123,9 @@ void EKF::ProcessModel(double time)
   /// @todo(jhartzer): Limit covariance for angular uncertainty
   /// @todo(jhartzer): Check matrix condition
   m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-    F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0) + m_process_noise) * F.transpose();
+    F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose();
 
-  AddSensorProccessNoise();
+  m_cov += m_process_noise;
 
   /// @todo(jhartzer): Refine this bounding
   m_cov = MaxBoundMatrix(m_cov, 1e2);
@@ -185,7 +185,7 @@ void EKF::PredictModel(
   Eigen::MatrixXd dF = GetStateTransition(dT);
   Eigen::MatrixXd F = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) + dF;
 
-  AddSensorProccessNoise();
+  m_cov += m_process_noise;
 
   Eigen::MatrixXd process_noise = Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size);
   process_noise.block<3, 3>(6, 6) = acceleration_covariance_global;
@@ -270,6 +270,28 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
   if (imu_state.is_extrinsic) {m_stateSize += g_imu_extrinsic_state_size;}
   if (imu_state.is_intrinsic) {m_stateSize += g_imu_intrinsic_state_size;}
 
+  if (imu_state.is_extrinsic && imu_state.is_intrinsic) {
+    Eigen::MatrixXd imu_process_noise = Eigen::MatrixXd::Identity(12, 12);
+    imu_process_noise.block<3, 3>(0, 0) *= imu_state.pos_stability;
+    imu_process_noise.block<3, 3>(3, 3) *= imu_state.ang_stability;
+    imu_process_noise.block<3, 3>(6, 6) *= imu_state.acc_bias_stability;
+    imu_process_noise.block<3, 3>(9, 9) *= imu_state.omg_bias_stability;
+    m_process_noise =
+      InsertInMatrix(imu_process_noise, m_process_noise, imu_state_start, imu_state_start);
+  } else if (imu_state.is_extrinsic) {
+    Eigen::MatrixXd imu_process_noise = Eigen::MatrixXd::Identity(6, 6);
+    imu_process_noise.block<3, 3>(0, 0) *= imu_state.pos_stability;
+    imu_process_noise.block<3, 3>(3, 3) *= imu_state.ang_stability;
+    m_process_noise =
+      InsertInMatrix(imu_process_noise, m_process_noise, imu_state_start, imu_state_start);
+  } else if (imu_state.is_intrinsic) {
+    Eigen::MatrixXd imu_process_noise = Eigen::MatrixXd::Identity(6, 6);
+    imu_process_noise.block<3, 3>(0, 0) *= imu_state.acc_bias_stability;
+    imu_process_noise.block<3, 3>(3, 3) *= imu_state.omg_bias_stability;
+    m_process_noise =
+      InsertInMatrix(imu_process_noise, m_process_noise, imu_state_start, imu_state_start);
+  }
+
   m_logger->Log(
     LogLevel::DEBUG, "Register IMU: " + std::to_string(
       imu_id) + ", stateSize: " + std::to_string(m_stateSize));
@@ -286,6 +308,12 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
 
   m_state.m_cam_states[cam_id] = cam_state;
   m_cov = InsertInMatrix(covariance, m_cov, g_cam_state_size, g_cam_state_size);
+
+  Eigen::MatrixXd cam_process_noise = Eigen::MatrixXd::Identity(6, 6);
+  cam_process_noise.block<3, 3>(0, 0) *= cam_state.pos_stability;
+  cam_process_noise.block<3, 3>(3, 3) *= cam_state.ang_stability;
+  m_process_noise = InsertInMatrix(cam_process_noise, m_process_noise, m_stateSize, m_stateSize);
+
   m_stateSize += g_cam_state_size;
 
   m_logger->Log(
@@ -310,48 +338,6 @@ unsigned int EKF::GetImuStateStartIndex(unsigned int imu_id)
     }
   }
   return state_start_index;
-}
-
-/// @todo(jhartzer): Adjust process noise for offsets and biases
-void EKF::AddSensorProccessNoise()
-{
-  for (auto const & imu_iter : m_state.m_imu_states) {
-
-    if (imu_iter.second.is_intrinsic && imu_iter.second.is_extrinsic) {
-      unsigned int imu_state_start = GetImuStateStartIndex(imu_iter.first);
-      Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(12, 12);
-
-      process_noise.block<3, 3>(0, 0) *= imu_iter.second.pos_stability;
-      process_noise.block<3, 3>(3, 3) *= imu_iter.second.ang_stability;
-      process_noise.block<3, 3>(6, 6) *= imu_iter.second.acc_bias_stability;
-      process_noise.block<3, 3>(9, 9) *= imu_iter.second.omg_bias_stability;
-
-      m_cov.block<12, 12>(imu_state_start, imu_state_start) += process_noise;
-
-    } else if (imu_iter.second.is_intrinsic) {
-      unsigned int imu_state_start = GetImuStateStartIndex(imu_iter.first);
-      Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
-
-      process_noise.block<3, 3>(0, 0) *= imu_iter.second.acc_bias_stability;
-      process_noise.block<3, 3>(3, 3) *= imu_iter.second.omg_bias_stability;
-
-      m_cov.block<6, 6>(imu_state_start, imu_state_start) += process_noise;
-
-    } else if (imu_iter.second.is_extrinsic) {
-      unsigned int imu_state_start = GetImuStateStartIndex(imu_iter.first);
-      Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
-
-      process_noise.block<3, 3>(0, 0) *= imu_iter.second.pos_stability;
-      process_noise.block<3, 3>(3, 3) *= imu_iter.second.ang_stability;
-
-      m_cov.block<6, 6>(imu_state_start, imu_state_start) += process_noise;
-    }
-
-    /// @todo(jhartzer): Remove base sensor extrinsics from state
-    /// @todo(jhartzer): Should this bounding be happening?
-    // m_cov.block<12, 12>(imu_state_start, imu_state_start) =
-    //   MinBoundDiagonal(m_cov.block<12, 12>(imu_state_start, imu_state_start), 5e-6);
-  }
 }
 
 /// @todo Replace this lookup with a map
@@ -477,4 +463,9 @@ void EKF::SetDataLogging(bool value)
 {
   m_data_logging_on = value;
   m_data_logger.SetLogging(m_data_logging_on);
+}
+
+void EKF::SetProcessNoise(Eigen::VectorXd process_noise)
+{
+  m_process_noise = process_noise.asDiagonal();
 }

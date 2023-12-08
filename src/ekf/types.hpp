@@ -107,6 +107,8 @@ public:
   ///
   Eigen::VectorXd ToVector();
 
+  double pos_stability {1e-9};
+  double ang_stability {1e-9};
   Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Camera state position
   Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera state orientation
   std::vector<AugmentedState> augmented_states;       ///< @brief Camera augmented states

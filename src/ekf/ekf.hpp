@@ -225,7 +225,7 @@ public:
   ///
   void SetDataLogging(bool value);
 
-  void AddSensorProccessNoise();
+  void SetProcessNoise(Eigen::VectorXd process_noise);
 
   DataLogger m_data_logger;  ///< @brief Data logger
 
@@ -239,9 +239,8 @@ private:
   double m_body_data_rate {0};
   double m_prev_log_time {0};
   bool m_data_logging_on {false};
-
   Eigen::MatrixXd m_process_noise =
-    Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 5e-2;
+    Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-9;
 };
 
 #endif  // EKF__EKF_HPP_

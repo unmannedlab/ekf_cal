@@ -48,6 +48,8 @@ public:
     double rate{1.0};                                   ///< @brief Camera update rate
     Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Camera initial position offset
     Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera initial angular offset
+    double pos_stability {1e-9};                        ///< @brief Position stability
+    double ang_stability {1e-9};                        ///< @brief Angular stability
     Eigen::VectorXd variance {{0, 0, 0, 0, 0, 0}};      ///< @brief Initial state variance
     std::string tracker;                                ///< @brief Tracker name
     std::string output_directory {""};                  ///< @brief IMU data logging directory

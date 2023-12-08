@@ -138,11 +138,14 @@ int main(int argc, char * argv[])
   unsigned int debug_log_level = ros_params["debug_log_level"].as<unsigned int>(0U);
   bool data_logging_on = ros_params["data_logging_on"].as<bool>(true);
   double body_data_rate = ros_params["body_data_rate"].as<double>(1.0);
+  std::vector<double> process_noise =
+    ros_params["filter_params"]["process_noise"].as<std::vector<double>>();
 
   // Set EKF parameters
   EKF * ekf = EKF::GetInstance();
   ekf->SetBodyDataRate(body_data_rate);
   ekf->SetDataLogging(data_logging_on);
+  ekf->SetProcessNoise(StdToEigVec(process_noise));
   ekf->m_data_logger.SetOutputDirectory(out_dir);
   ekf->m_data_logger.SetOutputFileName("body_state.csv");
 
@@ -265,18 +268,20 @@ int main(int argc, char * argv[])
   // Load cameras and generate measurements
   logger->Log(LogLevel::INFO, "Loading Cameras");
   for (unsigned int i = 0; i < cameras.size(); ++i) {
-    YAML::Node camNode = root["/EkfCalNode"]["ros__parameters"]["camera"][cameras[i]];
-    YAML::Node sim_node = camNode["sim_params"];
+    YAML::Node cam_node = root["/EkfCalNode"]["ros__parameters"]["camera"][cameras[i]];
+    YAML::Node sim_node = cam_node["sim_params"];
 
     Camera::Parameters cam_params;
     cam_params.name = cameras[i];
-    cam_params.rate = camNode["rate"].as<double>();
-    cam_params.variance = StdToEigVec(camNode["variance"].as<std::vector<double>>());
-    cam_params.pos_c_in_b = StdToEigVec(camNode["pos_c_in_b"].as<std::vector<double>>());
-    cam_params.ang_c_to_b = StdToEigQuat(camNode["ang_c_to_b"].as<std::vector<double>>());
+    cam_params.rate = cam_node["rate"].as<double>();
+    cam_params.variance = StdToEigVec(cam_node["variance"].as<std::vector<double>>());
+    cam_params.pos_c_in_b = StdToEigVec(cam_node["pos_c_in_b"].as<std::vector<double>>());
+    cam_params.ang_c_to_b = StdToEigQuat(cam_node["ang_c_to_b"].as<std::vector<double>>());
+    cam_params.pos_stability = cam_node["pos_stability"].as<double>(1.0e-9);
+    cam_params.ang_stability = cam_node["ang_stability"].as<double>(1.0e-9);
     cam_params.output_directory = out_dir;
     cam_params.data_logging_on = data_logging_on;
-    cam_params.tracker = camNode["tracker"].as<std::string>();
+    cam_params.tracker = cam_node["tracker"].as<std::string>();
 
     // SimCamera::Parameters
     SimCamera::Parameters sim_cam_params;

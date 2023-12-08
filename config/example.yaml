@@ -7,7 +7,7 @@
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 10.0
+            max_time: 60.0
             no_errors: true
             number_of_runs: 10
             run_number: 0
@@ -51,8 +51,8 @@
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
                 acc_bias: [0.0, 0.0, 0.0]
                 omg_bias: [0.0, 0.0, 0.0]
-                pos_stability: 1.0e-6
-                ang_stability: 1.0e-6
+                pos_stability: 1.0e-2
+                ang_stability: 1.0e-2
                 acc_bias_stability: 1.0e-3
                 omg_bias_stability: 1.0e-3
                 sim_params:
@@ -76,8 +76,8 @@
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
                 acc_bias: [0.0, 0.0, 0.0]
                 omg_bias: [0.0, 0.0, 0.0]
-                pos_stability: 1.0e-6
-                ang_stability: 1.0e-6
+                pos_stability: 1.0e-2
+                ang_stability: 1.0e-2
                 acc_bias_stability: 1.0e-3
                 omg_bias_stability: 1.0e-3
                 sim_params:
@@ -99,6 +99,8 @@
                 ang_c_to_b: [0.5, -0.5, 0.5, -0.5]
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 tracker: "orb"
+                pos_stability: 1.0e-9
+                ang_stability: 1.0e-9
                 sim_params:
                     time_bias_error: 1.0e-3
                     time_skew_error: 1.0e-9
