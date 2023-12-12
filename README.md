@@ -16,8 +16,14 @@ For full documentation, please see below:
 This package is [Treeware](https://treeware.earth). If you use it in production, then we ask that you [**buy the world a tree**](https://plant.treeware.earth/ekf-cal) to thank us for our work. By contributing to the Treeware forest you’ll be creating employment for local families and restoring wildlife habitats.
 
 ## References
-1. J. Hartzer and S. Saripalli, "
-   Online Multi Camera-IMU Calibration", 
-   IEEE International Symposium on Safety, Security, and Rescue Robotics (SSRR), 2022.
-   [IEEE](https://doi.org/10.1109/SSRR56537.2022.10018692),
-   [arXiv](https://arxiv.org/abs/2209.13821)
+
+```bibtex
+@inproceedings{2022_Multi_Cal,
+  author    = {Hartzer, Jacob and Saripalli, Srikanth},
+  booktitle = {2022 IEEE International Symposium on Safety, Security, and Rescue Robotics (SSRR)},
+  title     = {Online Multi Camera-IMU Calibration},
+  year      = {2022},
+  pages     = {360-365},
+  doi       = {10.1109/SSRR56537.2022.10018692},
+}
+```
