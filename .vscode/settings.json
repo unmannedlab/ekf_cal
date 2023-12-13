@@ -10,7 +10,7 @@
         "**/__pycache__": true
     },
     "[cpp]": {
-        "editor.wordBasedSuggestions": false,
+        "editor.wordBasedSuggestions": "off",
         "editor.suggest.insertMode": "replace",
         "editor.semanticHighlighting.enabled": true,
         "editor.tabSize": 2,
@@ -150,7 +150,6 @@
         "--ignore=CNL100",
         "--max-line-length=100",
     ],
-    "ros.distro": "humble",
     "terminal.integrated.gpuAcceleration": "off",
     "cmake.debugConfig": {
         "args": [
@@ -185,5 +184,8 @@
         "docs/doxygen/latex/**",
         "docs/software/todo.md",
         "uncrustify.cfg"
-    ]
+    ],
+    "search.exclude": {
+        ".git/": true
+    }
 }

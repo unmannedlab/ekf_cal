@@ -282,6 +282,14 @@ int main(int argc, char * argv[])
     cam_params.output_directory = out_dir;
     cam_params.data_logging_on = data_logging_on;
     cam_params.tracker = cam_node["tracker"].as<std::string>();
+    cam_params.intrinsics.F = cam_node["intrinsics"]["F"].as<double>(1.0);
+    cam_params.intrinsics.c_x = cam_node["intrinsics"]["c_x"].as<double>(0.0);
+    cam_params.intrinsics.c_y = cam_node["intrinsics"]["c_y"].as<double>(0.0);
+    cam_params.intrinsics.k_1 = cam_node["intrinsics"]["k_1"].as<double>(0.0);
+    cam_params.intrinsics.k_2 = cam_node["intrinsics"]["k_2"].as<double>(0.0);
+    cam_params.intrinsics.p_1 = cam_node["intrinsics"]["p_1"].as<double>(0.0);
+    cam_params.intrinsics.p_2 = cam_node["intrinsics"]["p_2"].as<double>(0.0);
+    cam_params.intrinsics.pixel_size = cam_node["intrinsics"]["pixel_size"].as<double>(1e-2);
 
     // SimCamera::Parameters
     SimCamera::Parameters sim_cam_params;
@@ -297,6 +305,7 @@ int main(int argc, char * argv[])
     auto cam = std::make_shared<SimCamera>(sim_cam_params, truth_engine);
     auto trk_params = trackerMap[cam_params.tracker];
     trk_params.tracker_params.sensor_id = cam->GetId();
+    trk_params.tracker_params.intrinsics = cam_params.intrinsics;
     auto trk = std::make_shared<SimFeatureTracker>(
       trk_params, truth_engine, out_dir, data_logging_on);
     cam->AddTracker(trk);

@@ -13,7 +13,7 @@
             run_number: 0
             truth_type: "cyclic"
             pos_frequency: [0.3, 0.5, 0.7]
-            ang_frequency: [0.2, 0.3, 0.4]
+            ang_frequency: [0.0, 0.0, 0.0]
             pos_offset: [0.0, 0.0, 0.0]
             ang_offset: [0.0, 0.0, 0.0]
             ang_amplitude: 0.1
@@ -34,7 +34,7 @@
             - "vn100"
 
         camera_list:
-            # - "ace"
+            - "ace"
 
         tracker_list:
             - "orb"
@@ -101,6 +101,15 @@
                 tracker: "orb"
                 pos_stability: 1.0e-9
                 ang_stability: 1.0e-9
+                intrinsics:
+                    F: 1.0
+                    c_x: 320.0
+                    c_y: 240.0
+                    k_1: 0.0
+                    k_2: 0.0
+                    p_1: 0.0
+                    p_2: 0.0
+                    pixel_size: 1.0e-2
                 sim_params:
                     time_bias_error: 1.0e-3
                     time_skew_error: 1.0e-9

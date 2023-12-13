@@ -35,8 +35,7 @@
 #include "utility/string_helper.hpp"
 
 MsckfUpdater::MsckfUpdater(
-  int cam_id, std::string log_file_directory,
-  bool data_logging_on)
+  int cam_id, Intrinsics intrinsics, std::string log_file_directory, bool data_logging_on)
 : Updater(cam_id),
   m_data_logger(log_file_directory, "camera_" + std::to_string(cam_id) + ".csv"),
   m_triangulation_logger(log_file_directory, "triangulation_" + std::to_string(cam_id) + ".csv")
@@ -55,6 +54,10 @@ MsckfUpdater::MsckfUpdater(
 
   m_triangulation_logger.DefineHeader("time,feature,x,y,z\n");
   m_triangulation_logger.SetLogging(data_logging_on);
+
+  m_intrinsics = intrinsics;
+  m_intrinsics.f_x = m_intrinsics.F / m_intrinsics.pixel_size;
+  m_intrinsics.f_y = m_intrinsics.F / m_intrinsics.pixel_size;
 }
 
 AugmentedState MsckfUpdater::MatchState(int frame_id)
@@ -264,15 +267,6 @@ void MsckfUpdater::UpdateEKF(
     Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(
       2 * feature_track.size(), g_cam_state_size + aug_state_size);
 
-    /// @todo(jhartzer): Get these values from input parameters
-    Intrinsics intrinsics;
-    intrinsics.F = 1.0;
-    intrinsics.c_x = 640.0 / 2.0;
-    intrinsics.c_y = 480.0 / 2.0;
-    intrinsics.pixel_size = 0.010;
-    intrinsics.f_x = intrinsics.F / intrinsics.pixel_size;
-    intrinsics.f_y = intrinsics.F / intrinsics.pixel_size;
-
     for (unsigned int i = 0; i < feature_track.size(); ++i) {
       AugmentedState aug_state_i = MatchState(feature_track[i].frame_id);
 
@@ -294,8 +288,8 @@ void MsckfUpdater::UpdateEKF(
 
       // Our residual
       Eigen::Vector2d xz_measured, xz_residual;
-      xz_measured(0) = (feature_track[i].key_point.pt.x - intrinsics.c_x) / intrinsics.f_x;
-      xz_measured(1) = (feature_track[i].key_point.pt.y - intrinsics.c_y) / intrinsics.f_y;
+      xz_measured(0) = (feature_track[i].key_point.pt.x - m_intrinsics.c_x) / m_intrinsics.f_x;
+      xz_measured(1) = (feature_track[i].key_point.pt.y - m_intrinsics.c_y) / m_intrinsics.f_y;
       xz_residual = xz_measured - xz_predicted;
       res_f.segment<2>(2 * i) = xz_residual;
 
@@ -308,7 +302,7 @@ void MsckfUpdater::UpdateEKF(
 
       // Distortion Jacobian
       Eigen::MatrixXd H_d(2, 2);
-      distortion_jacobian(xz_measured, intrinsics, H_d);
+      distortion_jacobian(xz_measured, m_intrinsics, H_d);
 
       // Entire feature Jacobian
       H_f.block<2, 3>(2 * i, 0) = H_d * H_p * rot_g_to_ci;

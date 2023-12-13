@@ -86,12 +86,17 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
   unsigned int n = 18;
   for (auto & imu_iter : l_state.m_imu_states) {
     unsigned int imu_id = imu_iter.first;
-    l_state.m_imu_states[imu_id].pos_i_in_b += r_vector.segment<3>(n + 0);
-    l_state.m_imu_states[imu_id].ang_i_to_b =
-      l_state.m_imu_states[imu_id].ang_i_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
-    l_state.m_imu_states[imu_id].acc_bias += r_vector.segment<3>(n + 6);
-    l_state.m_imu_states[imu_id].omg_bias += r_vector.segment<3>(n + 9);
-    n += 12;
+    if (imu_iter.second.is_extrinsic) {
+      l_state.m_imu_states[imu_id].pos_i_in_b += r_vector.segment<3>(n + 0);
+      l_state.m_imu_states[imu_id].ang_i_to_b =
+        l_state.m_imu_states[imu_id].ang_i_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
+      n += 6;
+    }
+    if (imu_iter.second.is_intrinsic) {
+      l_state.m_imu_states[imu_id].acc_bias += r_vector.segment<3>(n + 0);
+      l_state.m_imu_states[imu_id].omg_bias += r_vector.segment<3>(n + 3);
+      n += 6;
+    }
   }
 
   for (auto & cam_iter : l_state.m_cam_states) {
@@ -249,11 +254,16 @@ Eigen::VectorXd State::ToVector()
   unsigned int n = 18;
 
   for (auto const & imu_iter : m_imu_states) {
-    out_vec.segment<3>(n + 0) = imu_iter.second.pos_i_in_b;
-    out_vec.segment<3>(n + 3) = QuatToRotVec(imu_iter.second.ang_i_to_b);
-    out_vec.segment<3>(n + 6) = imu_iter.second.acc_bias;
-    out_vec.segment<3>(n + 9) = imu_iter.second.omg_bias;
-    n += 12;
+    if (imu_iter.second.is_extrinsic) {
+      out_vec.segment<3>(n + 0) = imu_iter.second.pos_i_in_b;
+      out_vec.segment<3>(n + 3) = QuatToRotVec(imu_iter.second.ang_i_to_b);
+      n += 6;
+    }
+    if (imu_iter.second.is_intrinsic) {
+      out_vec.segment<3>(n + 6) = imu_iter.second.acc_bias;
+      out_vec.segment<3>(n + 9) = imu_iter.second.omg_bias;
+      n += 6;
+    }
   }
 
   for (auto const & cam_iter : m_cam_states) {
@@ -276,7 +286,14 @@ Eigen::VectorXd State::ToVector()
 unsigned int State::GetStateSize()
 {
   unsigned int state_size = 18;
-  state_size += 12 * m_imu_states.size();
+
+  for (auto const & imu_iter : m_imu_states) {
+    if (imu_iter.second.is_extrinsic && imu_iter.second.is_intrinsic) {
+      state_size += 12;
+    } else if (imu_iter.second.is_extrinsic || imu_iter.second.is_intrinsic) {
+      state_size += 6;
+    }
+  }
 
   for (auto const & cam_iter : m_cam_states) {
     state_size += 6 + 12 * cam_iter.second.augmented_states.size();

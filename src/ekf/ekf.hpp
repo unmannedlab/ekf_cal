@@ -225,6 +225,8 @@ public:
   ///
   void SetDataLogging(bool value);
 
+  void AddProccessNoise();
+
   void SetProcessNoise(Eigen::VectorXd process_noise);
 
   DataLogger m_data_logger;  ///< @brief Data logger

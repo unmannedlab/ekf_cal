@@ -27,6 +27,7 @@
 #include "ekf/types.hpp"
 #include "ekf/update/msckf_updater.hpp"
 #include "infrastructure/debug_logger.hpp"
+#include "sensors/types.hpp"
 
 ///
 /// @class FeatureTracker
@@ -80,6 +81,7 @@ public:
     std::string output_directory {""};   ///< @brief Feature Tracker data logging directory
     bool data_logging_on {false};        ///< @brief Feature Tracker data logging flag
     double px_error{1e-9};               ///< @brief Pixel error standard deviation
+    Intrinsics intrinsics;
   } Parameters;
 
   ///

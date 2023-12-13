@@ -269,7 +269,7 @@ class Plotter():
         return fig
 
     def plot_imu_pos(self, imu_dfs):
-        """TODO."""
+        # TODO(jhartzer): Add description
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         a = calculate_alpha(len(imu_dfs))
         t_imu = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
@@ -330,7 +330,7 @@ class Plotter():
         return fig
 
     def plot_imu_bias_acc(self, imu_dfs):
-        """TODO."""
+        # TODO(jhartzer): Add description
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         a = calculate_alpha(len(imu_dfs))
         t_imu = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
@@ -366,7 +366,7 @@ class Plotter():
         return fig
 
     def plot_imu_bias_omg(self, imu_dfs):
-        """TODO."""
+        # TODO(jhartzer): Add description
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
         a = calculate_alpha(len(imu_dfs))
         t_imu = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
@@ -402,7 +402,7 @@ class Plotter():
         return fig
 
     def plot_imu_cov(self, imu_dfs):
-        """TODO."""
+        # TODO(jhartzer): Add description
         fig, (axs_1, axs_2, axs_3, axs_4) = plt.subplots(4, 1)
         a = calculate_alpha(len(imu_dfs))
         for imu_df in imu_dfs:
@@ -434,7 +434,7 @@ class Plotter():
     def plot_camera_body_pos_updates(self, cam_dfs):
         """Plot updates to the body position states from camera measurements."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        a = calculate_alpha(len(imu_dfs))
+        a = calculate_alpha(len(cam_dfs))
         for cam_df in cam_dfs:
             time = cam_df['time'].to_list()
             axs_1.plot(time, cam_df['body_update_0'].to_list(), alpha=a, color='tab:blue')
@@ -457,7 +457,7 @@ class Plotter():
     def plot_camera_body_ang_updates(self, cam_dfs):
         """Plot updates to the body angular states from camera measurements."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        a = calculate_alpha(len(imu_dfs))
+        a = calculate_alpha(len(cam_dfs))
         for cam_df in cam_dfs:
             time = cam_df['time'].to_list()
             axs_1.plot(time, cam_df['body_update_9'].to_list(), alpha=a, color='tab:blue')
@@ -480,7 +480,7 @@ class Plotter():
     def plot_camera_offset_updates(self, cam_dfs):
         """Plot camera updates to extrinsic offsets."""
         fig, (axs_1, axs_2) = plt.subplots(2, 1)
-        a = calculate_alpha(len(imu_dfs))
+        a = calculate_alpha(len(cam_dfs))
         for cam_df in cam_dfs:
             t_cam = cam_df['time'].to_list()
             axs_1.plot(t_cam, cam_df['cam_update_0'].to_list(), alpha=a, color='tab:blue')
@@ -499,7 +499,7 @@ class Plotter():
     def plot_camera_pos(self, cam_dfs):
         """Plot camera position offsets."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        a = calculate_alpha(len(imu_dfs))
+        a = calculate_alpha(len(cam_dfs))
         for cam_df in cam_dfs:
             t_cam = cam_df['time'].to_list()
             axs_1.plot(t_cam, cam_df['cam_state_0'].to_list(), alpha=a, color='tab:blue')
@@ -516,7 +516,7 @@ class Plotter():
     def plot_camera_ang(self, cam_dfs):
         """Plot camera angular offsets."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
-        a = calculate_alpha(len(imu_dfs))
+        a = calculate_alpha(len(cam_dfs))
         for cam_df in cam_dfs:
             t_cam = cam_df['time'].to_list()
             axs_1.plot(t_cam, cam_df['cam_state_3'].to_list(), alpha=a, color='tab:blue')

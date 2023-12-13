@@ -41,6 +41,7 @@ public:
   ///
   explicit MsckfUpdater(
     int cam_id,
+    Intrinsics intrinsics,
     std::string log_file_directory,
     bool data_logging_on);
 
@@ -113,6 +114,7 @@ private:
   unsigned int m_image_height {480};
   double m_focal_length {1};
   double m_pixel_size {0.010};
+  Intrinsics m_intrinsics;
 };
 
 #endif  // EKF__UPDATE__MSCKF_UPDATER_HPP_
