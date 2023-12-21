@@ -36,7 +36,8 @@ TEST(test_TruthEngineCyclic, Constructor) {
     pos_offset,
     ang_offset,
     pos_amplitude,
-    ang_amplitude
+    ang_amplitude,
+    0.0
   );
 }
 
@@ -51,7 +52,7 @@ TEST(test_TruthEngineSpline, Constructor) {
   angles.push_back(std::vector<double>{0.0, 0.0, 0.0});
   angles.push_back(std::vector<double>{0.0, 0.0, 0.0});
 
-  TruthEngineSpline truth_engine_spline(delta_time, positions, angles);
+  TruthEngineSpline truth_engine_spline(delta_time, positions, angles, 0.0);
 }
 
 TEST(test_TruthEngineSpline, Constant_Velocity) {
@@ -69,7 +70,7 @@ TEST(test_TruthEngineSpline, Constant_Velocity) {
   angles.push_back(std::vector<double>{0.2, 0.2, 0.2});
   angles.push_back(std::vector<double>{0.3, 0.3, 0.3});
 
-  TruthEngineSpline truth_engine_spline(delta_time, positions, angles);
+  TruthEngineSpline truth_engine_spline(delta_time, positions, angles, 0.0);
 
   Eigen::Vector3d pos_n = truth_engine_spline.GetBodyPosition(-1.0);
   Eigen::Vector3d pos_0 = truth_engine_spline.GetBodyPosition(0.0);
@@ -176,7 +177,7 @@ TEST(test_TruthEngineSpline, Oscillating) {
   angles.push_back(std::vector<double>{0.0, 0.0, 0.0});
   angles.push_back(std::vector<double>{0.1, 0.1, 0.1});
 
-  TruthEngineSpline truth_engine_spline(delta_time, positions, angles);
+  TruthEngineSpline truth_engine_spline(delta_time, positions, angles, 0.0);
 
   Eigen::Vector3d pos_n = truth_engine_spline.GetBodyPosition(-1.0);
   Eigen::Vector3d pos_0 = truth_engine_spline.GetBodyPosition(0.0);

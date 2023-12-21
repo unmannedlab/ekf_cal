@@ -36,6 +36,7 @@ public:
   /// @param ang_offset Initial angular offset to the global frame rpy
   /// @param pos_amplitude Amplitude of position cycle
   /// @param ang_amplitude Amplitude of angular cycle
+  /// @param stationary_time Time to be stationary before beginning motion
   ///
   TruthEngineCyclic(
     Eigen::Vector3d pos_frequency,
@@ -43,7 +44,8 @@ public:
     Eigen::Vector3d pos_offset,
     Eigen::Vector3d ang_offset,
     double pos_amplitude,
-    double ang_amplitude);
+    double ang_amplitude,
+    double stationary_time);
 
   ///
   /// @brief Setter for body position cycle frequency
@@ -112,6 +114,7 @@ private:
   Eigen::Vector3d m_ang_offset {0.0, 0.0, 0.0};
   double m_ang_amplitude = 0.1;
   double m_pos_amplitude = 1.0;
+  double m_stationary_time {0.0};
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTH_ENGINE_CYCLIC_HPP_

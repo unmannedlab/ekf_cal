@@ -783,6 +783,23 @@ class Plotter():
         fig.tight_layout()
         return fig
 
+    def plot_body_pos_truth(self, body_truth_dfs):
+        """Plot true body position."""
+        fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
+        a = calculate_alpha(len(body_truth_dfs))
+        for body_truth in body_truth_dfs:
+            time = body_truth['time'].to_list()
+            axs_1.plot(time, body_truth['body_pos_0'].to_list(), alpha=a, color='tab:blue')
+            axs_2.plot(time, body_truth['body_pos_1'].to_list(), alpha=a, color='tab:orange')
+            axs_3.plot(time, body_truth['body_pos_2'].to_list(), alpha=a, color='tab:green')
+        set_plot_titles(fig, 'Body Position Truth')
+        axs_1.set_ylabel('X [m]')
+        axs_2.set_ylabel('Y [m]')
+        axs_3.set_ylabel('Z [m]')
+        axs_3.set_xlabel('Time [s]')
+        fig.tight_layout()
+        return fig
+
     def plot_body_err_pos(self, body_state_dfs, body_truth_dfs):
         """Plot the body state position error."""
         fig, (axs_1, axs_2, axs_3) = plt.subplots(3, 1)
@@ -1100,6 +1117,7 @@ class Plotter():
             self.plot_body_ang_acc(body_state_dfs),
             self.plot_body_pos_cov(body_state_dfs),
             self.plot_body_ang_cov(body_state_dfs),
+            self.plot_body_pos_truth(body_truth_dfs),
             self.plot_body_err_pos(body_state_dfs, body_truth_dfs),
             self.plot_body_err_vel(body_state_dfs, body_truth_dfs),
             self.plot_body_err_acc(body_state_dfs, body_truth_dfs),

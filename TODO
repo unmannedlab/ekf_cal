@@ -55,6 +55,7 @@ Software Work:
     - Automatically check regression results
     - Run missing runs tool
     - Script to only produce statistics
+    - Add errors/devations to spline model
 
     Additional Trackers:
         - FiducialTracker

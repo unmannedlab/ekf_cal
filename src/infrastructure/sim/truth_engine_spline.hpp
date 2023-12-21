@@ -38,11 +38,13 @@ public:
   /// @param delta_time Delta time between each control point
   /// @param positions Position control points
   /// @param angles Angular position control points
+  /// @param stationary_time Time to be stationary before beginning motion
   ///
   TruthEngineSpline(
     double delta_time,
     std::vector<std::vector<double>> positions,
-    std::vector<std::vector<double>> angles);
+    std::vector<std::vector<double>> angles,
+    double stationary_time);
 
   ///
   /// @brief True body position getter
@@ -85,6 +87,7 @@ private:
 
   double m_time_max {0.0};
   double m_delta_time {0.0};
+  double m_stationary_time {0.0};
   Eigen::Spline3d m_pos_spline;
   Eigen::Spline3d m_ang_spline;
 };

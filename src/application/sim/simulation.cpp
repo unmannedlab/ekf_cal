@@ -155,7 +155,7 @@ int main(int argc, char * argv[])
   double rng_seed = sim_params["seed"].as<double>(0.0);
   bool use_seed = sim_params["use_seed"].as<bool>(false);
   bool no_errors = sim_params["no_errors"].as<bool>(false);
-  double max_time = sim_params["max_time"].as<double>();
+  double max_time = sim_params["max_time"].as<double>(10.0);
 
   DebugLogger * logger = DebugLogger::GetInstance();
   logger->SetOutputDirectory(out_dir);
@@ -168,7 +168,8 @@ int main(int argc, char * argv[])
   }
 
   /// @todo Select type of truth engine using parameters
-  std::string truth_type = sim_params["truth_type"].as<std::string>();
+  std::string truth_type = sim_params["truth_type"].as<std::string>("cyclic");
+  double stationary_time = sim_params["stationary_time"].as<double>(0.0);
   std::shared_ptr<TruthEngine> truth_engine;
   if (truth_type == "cyclic") {
     Eigen::Vector3d pos_frequency =
@@ -177,28 +178,31 @@ int main(int argc, char * argv[])
       StdToEigVec(sim_params["ang_frequency"].as<std::vector<double>>());
     Eigen::Vector3d pos_offset = StdToEigVec(sim_params["pos_offset"].as<std::vector<double>>());
     Eigen::Vector3d ang_offset = StdToEigVec(sim_params["ang_offset"].as<std::vector<double>>());
-    double pos_amplitude = sim_params["pos_amplitude"].as<double>();
-    double ang_amplitude = sim_params["ang_amplitude"].as<double>();
+    double pos_amplitude = sim_params["pos_amplitude"].as<double>(1.0);
+    double ang_amplitude = sim_params["ang_amplitude"].as<double>(0.1);
     auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(
       pos_frequency,
       ang_frequency,
       pos_offset,
       ang_offset,
       pos_amplitude,
-      ang_amplitude);
+      ang_amplitude,
+      stationary_time);
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
   } else if (truth_type == "spline") {
     auto positions = sim_params["positions"].as<std::vector<std::vector<double>>>();
     auto angles = sim_params["angles"].as<std::vector<std::vector<double>>>();
     double delta_time = max_time / (static_cast<double>(positions.size()) - 1.0);
-    auto truth_engine_spline = std::make_shared<TruthEngineSpline>(delta_time, positions, angles);
+    auto truth_engine_spline = std::make_shared<TruthEngineSpline>(
+      delta_time, positions, angles, stationary_time);
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_spline);
   } else {
     std::stringstream msg;
     msg << "Unknown truth engine type: " << truth_type << std::endl;
     logger->Log(LogLevel::ERROR, msg.str());
   }
-  WriteTruthData(truth_engine, body_data_rate, max_time, out_dir, data_logging_on);
+  WriteTruthData(
+    truth_engine, body_data_rate, max_time + stationary_time, out_dir, data_logging_on);
 
   // Load IMUs and generate measurements
   bool using_any_imu_for_prediction {false};
@@ -211,8 +215,8 @@ int main(int argc, char * argv[])
     imu_params.name = imus[i];
     imu_params.is_extrinsic = imu_node["is_extrinsic"].as<bool>(false);
     imu_params.is_intrinsic = imu_node["is_intrinsic"].as<bool>(false);
-    imu_params.rate = imu_node["rate"].as<double>();
-    imu_params.topic = imu_node["topic"].as<std::string>();
+    imu_params.rate = imu_node["rate"].as<double>(100.0);
+    imu_params.topic = imu_node["topic"].as<std::string>("");
     imu_params.variance = StdToEigVec(imu_node["variance"].as<std::vector<double>>());
     imu_params.pos_i_in_b = StdToEigVec(imu_node["pos_i_in_b"].as<std::vector<double>>());
     imu_params.ang_i_to_b = StdToEigQuat(imu_node["ang_i_to_b"].as<std::vector<double>>());
@@ -268,11 +272,11 @@ int main(int argc, char * argv[])
     track_params.name = trackers[i];
     track_params.output_directory = out_dir;
     track_params.data_logging_on = data_logging_on;
-    track_params.px_error = trk_node["pixel_error"].as<double>();
+    track_params.px_error = trk_node["pixel_error"].as<double>(1.0);
 
     SimFeatureTracker::Parameters sim_tracker_params;
-    sim_tracker_params.feature_count = sim_node["feature_count"].as<unsigned int>();
-    sim_tracker_params.room_size = sim_node["room_size"].as<double>();
+    sim_tracker_params.feature_count = sim_node["feature_count"].as<unsigned int>(1.0e2);
+    sim_tracker_params.room_size = sim_node["room_size"].as<double>(10.0);
     sim_tracker_params.tracker_params = track_params;
     sim_tracker_params.no_errors = no_errors;
 
@@ -287,7 +291,7 @@ int main(int argc, char * argv[])
 
     Camera::Parameters cam_params;
     cam_params.name = cameras[i];
-    cam_params.rate = cam_node["rate"].as<double>();
+    cam_params.rate = cam_node["rate"].as<double>(10.0);
     cam_params.variance = StdToEigVec(cam_node["variance"].as<std::vector<double>>());
     cam_params.pos_c_in_b = StdToEigVec(cam_node["pos_c_in_b"].as<std::vector<double>>());
     cam_params.ang_c_to_b = StdToEigQuat(cam_node["ang_c_to_b"].as<std::vector<double>>());
@@ -295,7 +299,7 @@ int main(int argc, char * argv[])
     cam_params.ang_stability = cam_node["ang_stability"].as<double>(1.0e-9);
     cam_params.output_directory = out_dir;
     cam_params.data_logging_on = data_logging_on;
-    cam_params.tracker = cam_node["tracker"].as<std::string>();
+    cam_params.tracker = cam_node["tracker"].as<std::string>("");
     cam_params.intrinsics.F = cam_node["intrinsics"]["F"].as<double>(1.0);
     cam_params.intrinsics.c_x = cam_node["intrinsics"]["c_x"].as<double>(0.0);
     cam_params.intrinsics.c_y = cam_node["intrinsics"]["c_y"].as<double>(0.0);
@@ -307,9 +311,9 @@ int main(int argc, char * argv[])
 
     // SimCamera::Parameters
     SimCamera::Parameters sim_cam_params;
-    sim_cam_params.time_bias_error = sim_node["time_bias_error"].as<double>();
-    sim_cam_params.time_skew_error = sim_node["time_skew_error"].as<double>();
-    sim_cam_params.time_error = sim_node["time_error"].as<double>();
+    sim_cam_params.time_bias_error = sim_node["time_bias_error"].as<double>(1.0e-9);
+    sim_cam_params.time_skew_error = sim_node["time_skew_error"].as<double>(1.0e-9);
+    sim_cam_params.time_error = sim_node["time_error"].as<double>(1.0e-9);
     sim_cam_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>());
     sim_cam_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>());
     sim_cam_params.cam_params = cam_params;
