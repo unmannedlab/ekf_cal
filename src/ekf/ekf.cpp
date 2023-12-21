@@ -242,7 +242,6 @@ void EKF::AddProccessNoise()
   }
 
   for (auto const & cam_iter : m_state.m_cam_states) {
-
     unsigned int cam_state_start = GetCamStateStartIndex(cam_iter.first);
     Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
 

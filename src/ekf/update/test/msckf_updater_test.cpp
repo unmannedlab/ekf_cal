@@ -43,6 +43,7 @@ protected:
     ekf->Initialize(time_init, body_state);
 
     unsigned int cam_id{1};
+    Intrinsics intrinsics;
     std::string log_file_directory{""};
     bool data_logging_on {true};
 
@@ -50,10 +51,11 @@ protected:
     Eigen::MatrixXd cam_cov = Eigen::MatrixXd::Zero(6, 6);
     ekf->RegisterCamera(cam_id, cam_state, cam_cov);
 
-    msckf_updater = MsckfUpdater(cam_id, log_file_directory, data_logging_on);
+    msckf_updater = MsckfUpdater(cam_id, intrinsics, log_file_directory, data_logging_on);
   }
 
-  MsckfUpdater msckf_updater{0, "", false};  ///< @brief msckf_updater class for testing
+  /// @brief msckf_updater class for testing
+  MsckfUpdater msckf_updater{0, Intrinsics(), "", false};
 };
 
 TEST_F(test_msckf_updater, projection_jacobian) {
