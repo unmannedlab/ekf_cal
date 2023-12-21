@@ -119,10 +119,17 @@ TruthEngineSpline::TruthEngineSpline(
     row_index++;
   }
 
-  m_pos_spline = Eigen::SplineFitting<Eigen::Spline3d>::Interpolate(pos_mat, 2);
-  m_ang_spline = Eigen::SplineFitting<Eigen::Spline3d>::Interpolate(ang_mat, 2);
+  Eigen::MatrixXd derivatives(3, 1);
+  Eigen::VectorXd indices(1);
+  derivatives.setZero();
+  indices.setZero();
+
+  m_pos_spline = Eigen::SplineFitting<Eigen::Spline3d>::InterpolateWithDerivatives(
+    pos_mat, derivatives, indices, 2);
+  m_ang_spline = Eigen::SplineFitting<Eigen::Spline3d>::InterpolateWithDerivatives(
+    ang_mat, derivatives, indices, 2);
   m_delta_time = delta_time;
-  m_time_max = (positions.size() - 1) / delta_time;
+  m_time_max = (positions.size() - 1) * delta_time;
 }
 
 bool TruthEngineSpline::IsTimeInvalid(double time)

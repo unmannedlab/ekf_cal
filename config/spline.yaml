@@ -7,24 +7,34 @@
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 50.0
+            max_time: 1.0
             no_errors: true
-            number_of_runs: 20
+            number_of_runs: 2
             run_number: 0
             truth_type: "spline"
             positions:
-                - [0,0,0]
-                - [1,1,1]
-                - [2,2,2]
+                - [0.0, 0.0, 0.0]
+                - [0.1, 0.1, 0.1]
+                - [-0.1, -0.1, -0.1]
+                - [0.0, 0.0, 0.0]
             angles:
-                - [0.0,0.0,0.0]
-                - [0.1,0.1,0.1]
-                - [0.2,0.2,0.2]
+                - [0.00, 0.00, 0.00]
+                - [0.01, 0.01, 0.01]
+                - [0.00, 0.00, 0.00]
+
+        filter_params:
+            process_noise: [
+                0.0, 0.0, 0.0, # Position
+                0.0, 0.0, 0.0, # Velocity
+                1.0e-2, 1.0e-2, 1.0e-2, # Acceleration
+                0.0, 0.0, 0.0, # Angular Position
+                1.0e-2, 1.0e-2, 1.0e-2, # Angular Velocity
+                0.0, 0.0, 0.0, # Angular Acceleration
+            ]
 
         imu_list:
             - "vn300"
-            - "vn100"
-            # - "deta_10"
+            # - "vn100"
 
         camera_list:
             # - "ace"
@@ -44,6 +54,10 @@
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
                 acc_bias: [0.0, 0.0, 0.0]
                 omg_bias: [0.0, 0.0, 0.0]
+                pos_stability: 1.0e-2
+                ang_stability: 1.0e-2
+                acc_bias_stability: 1.0e-3
+                omg_bias_stability: 1.0e-3
                 sim_params:
                     time_bias_error: 1.0e-3
                     time_skew_error: 1.0e-9
@@ -65,6 +79,10 @@
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
                 acc_bias: [0.0, 0.0, 0.0]
                 omg_bias: [0.0, 0.0, 0.0]
+                pos_stability: 1.0e-2
+                ang_stability: 1.0e-2
+                acc_bias_stability: 1.0e-3
+                omg_bias_stability: 1.0e-3
                 sim_params:
                     time_bias_error: 1.0e-3
                     time_skew_error: 1.0e-9
@@ -73,27 +91,6 @@
                     ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
                     acc_error: [1.0e-3, 1.0e-3, 1.0e-3]
                     omg_error: [1.0e-2, 1.0e-2, 1.0e-2]
-                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
-                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
-            deta_10:
-                use_for_prediction: false
-                base_sensor: false
-                intrinsic: false
-                rate: 100.0
-                topic: "/vn100/imu_uncompensated"
-                variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
-                pos_i_in_b: [0.0, 0.0, 0.0]
-                ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
-                acc_bias: [0.0, 0.0, 0.0]
-                omg_bias: [0.0, 0.0, 0.0]
-                sim_params:
-                    time_bias_error: 1.0e-3
-                    time_skew_error: 1.0e-9
-                    time_error: 1.0e-6
-                    pos_error: [1.0e-1, 1.0e-1, 1.0e-1]
-                    ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
-                    acc_error: [1.0e-2, 1.0e-2, 1.0e-2]
-                    omg_error: [1.0e-1, 1.0e-1, 1.0e-1]
                     acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
                     omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
 
@@ -105,6 +102,8 @@
                 ang_c_to_b: [0.5, -0.5, 0.5, -0.5]
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 tracker: "orb"
+                pos_stability: 1.0e-9
+                ang_stability: 1.0e-9
                 sim_params:
                     time_bias_error: 1.0e-3
                     time_skew_error: 1.0e-9
