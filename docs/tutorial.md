@@ -58,15 +58,28 @@ parameters that are only relevant to the simulation.
             Seed: 0.0                      # Seed to provide to random number generator
             UseSeed: True                  # Flag to use seed (required for deterministic runs)
             MaxTime: 10.0                  # Maximum simulation time
-            TruthType: "Cyclic"            # TruthType:
+            NumberOfRuns: 10               # Number of runs for Multi-Threaded Simulation
+            RunNumber: 0                   # Start run number (also used to initialize seed)
+            NoErrors: False                # Flag to disable errors
+            stationary_time: 5.0           # Time to be stationary before motion begins
+            TruthType: "Cyclic"            # TruthType: 
                                            #   "Cyclic"
-                                           #   "Spline" - Not yet implemented
+                                           #   "Spline"
+            # Cyclic Parameters:
             PosFrequency: [0.3, 0.5, 0.7]  # Cyclic position frequencies
             AngFrequency: [0.2, 0.3, 0.4]  # Cyclic angular frequencies
             PosOffset: [0.0, 0.0, 0.0]     # Position offset for cyclic position
-            NoErrors: False                # Flag to disable errors
-            NumberOfRuns: 10               # Number of runs for Multi-Threaded Simulation
-            RunNumber: 0                   # Start run number (also used to initialize seed)
+
+            # Spline Parameters:
+            positions:
+                - [0.0, 0.0, 0.0]
+                - [0.1, 0.1, 0.1]
+                - [-0.1, -0.1, -0.1]
+                - [0.0, 0.0, 0.0]
+            angles:
+                - [0.00, 0.00, 0.00]
+                - [0.01, 0.01, 0.01]
+                - [0.00, 0.00, 0.00]
 ```
 
 Sensors and parameters can be dynamically declared with a bit of tomfoolery. To achieve this, we

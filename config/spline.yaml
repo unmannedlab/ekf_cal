@@ -11,8 +11,8 @@
             no_errors: true
             number_of_runs: 10
             run_number: 0
-            truth_type: "spline"
             stationary_time: 5.0
+            truth_type: "spline"
             positions:
                 - [0.0, 0.0, 0.0]
                 - [0.1, 0.1, 0.1]
