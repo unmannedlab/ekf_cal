@@ -38,6 +38,8 @@ typedef struct Intrinsics
   double p_1 {0.0};           ///< @brief Tangential coefficient 1
   double p_2 {0.0};           ///< @brief Tangential coefficient 1
   double pixel_size {0.010};  ///< @brief Pixel size
+  unsigned int width {640};   ///< @brief Image width
+  unsigned int height {480};  ///< @brief Image height
 } Intrinsics;
 
 #endif  // SENSORS__TYPES_HPP_

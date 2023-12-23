@@ -170,7 +170,7 @@ void FeatureTracker::Track(
   // Down sample image
   cv::Mat img_down;
   cv::Size down_sample_size;
-  down_sample_size.height = 400;
+  down_sample_size.height = 480;
   down_sample_size.width = 640;
   cv::resize(img_in, img_down, down_sample_size);
 
@@ -223,27 +223,27 @@ void FeatureTracker::Track(
     }
 
     // Only generate feature IDs for unmatched features
-    for (auto & keyPoint : m_curr_key_points) {
-      if (keyPoint.class_id == -1) {
-        keyPoint.class_id = GenerateFeatureID();
+    for (auto & key_point : m_curr_key_points) {
+      if (key_point.class_id == -1) {
+        key_point.class_id = GenerateFeatureID();
       }
     }
 
     // Store feature tracks
-    for (const auto & keyPoint : m_curr_key_points) {
-      auto featureTrack = FeatureTrack{frame_id, keyPoint};
-      m_feature_track_map[keyPoint.class_id].push_back(featureTrack);
+    for (const auto & key_point : m_curr_key_points) {
+      auto feature_track = FeatureTrack{frame_id, key_point};
+      m_feature_track_map[key_point.class_id].push_back(feature_track);
     }
 
     // Update MSCKF on features no longer detected
     for (auto it = m_feature_track_map.cbegin(); it != m_feature_track_map.cend(); ) {
-      const auto & featureTrack = it->second;
-      if ((featureTrack.back().frame_id < frame_id) ||
-        (featureTrack.size() >= max_track_length))
+      const auto & feature_track = it->second;
+      if ((feature_track.back().frame_id < frame_id) ||
+        (feature_track.size() >= max_track_length))
       {
         // This feature does not exist in the latest frame
-        if (featureTrack.size() >= min_track_length) {
-          feature_tracks.push_back(featureTrack);
+        if (feature_track.size() >= min_track_length) {
+          feature_tracks.push_back(feature_track);
         }
         it = m_feature_track_map.erase(it);
       } else {

@@ -99,10 +99,7 @@ private:
   unsigned int m_feature_count {0};
   std::vector<cv::Point3d> m_feature_points;
 
-  double m_focal_length {1};
-  double m_pixel_size {0.010};
-  unsigned int m_image_width {640};
-  unsigned int m_image_height {480};
+  Intrinsics m_intrinsics;
   cv::Mat m_proj_matrix;
   DataLogger m_data_logger;
 };

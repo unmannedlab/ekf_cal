@@ -56,8 +56,6 @@ MsckfUpdater::MsckfUpdater(
   m_triangulation_logger.SetLogging(data_logging_on);
 
   m_intrinsics = intrinsics;
-  m_intrinsics.f_x = m_intrinsics.F / m_intrinsics.pixel_size;
-  m_intrinsics.f_y = m_intrinsics.F / m_intrinsics.pixel_size;
 }
 
 AugmentedState MsckfUpdater::MatchState(int frame_id)
@@ -114,10 +112,10 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
 
     // Get the UV coordinate normal
     Eigen::Vector3d b_i;
-    b_i(0) = (feature_track[i].key_point.pt.x - (static_cast<double>(m_image_width) / 2)) /
-      (m_focal_length / m_pixel_size);
-    b_i(1) = (feature_track[i].key_point.pt.y - (static_cast<double>(m_image_height) / 2)) /
-      (m_focal_length / m_pixel_size);
+    b_i(0) = (feature_track[i].key_point.pt.x - (static_cast<double>(m_intrinsics.width) / 2)) /
+      (m_intrinsics.f_x / m_intrinsics.pixel_size);
+    b_i(1) = (feature_track[i].key_point.pt.y - (static_cast<double>(m_intrinsics.height) / 2)) /
+      (m_intrinsics.f_y / m_intrinsics.pixel_size);
     b_i(2) = 1;
 
     // Rotate and normalize

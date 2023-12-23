@@ -39,7 +39,6 @@ SimFeatureTracker::SimFeatureTracker(
 : FeatureTracker(params.tracker_params),
   m_data_logger(log_file_directory, "feature_points.csv")
 {
-  /// @todo(jhartzer): Get camera parameters from input
   m_px_error = params.tracker_params.px_error;
   m_no_errors = params.no_errors;
   m_feature_count = params.feature_count;
@@ -78,11 +77,12 @@ SimFeatureTracker::SimFeatureTracker(
     m_data_logger.Log(msg.str());
   }
 
+  m_intrinsics = params.tracker_params.intrinsics;
   m_proj_matrix = cv::Mat(3, 3, cv::DataType<double>::type, 0.0);
-  m_proj_matrix.at<double>(0, 0) = m_focal_length / m_pixel_size;
-  m_proj_matrix.at<double>(1, 1) = m_focal_length / m_pixel_size;
-  m_proj_matrix.at<double>(0, 2) = static_cast<double>(m_image_width) / 2.0;
-  m_proj_matrix.at<double>(1, 2) = static_cast<double>(m_image_height) / 2.0;
+  m_proj_matrix.at<double>(0, 0) = m_intrinsics.f_x / m_intrinsics.pixel_size;
+  m_proj_matrix.at<double>(1, 1) = m_intrinsics.f_y / m_intrinsics.pixel_size;
+  m_proj_matrix.at<double>(0, 2) = static_cast<double>(m_intrinsics.width) / 2.0;
+  m_proj_matrix.at<double>(1, 2) = static_cast<double>(m_intrinsics.height) / 2.0;
   m_proj_matrix.at<double>(2, 2) = 1;
 }
 
@@ -141,8 +141,8 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
       if (
         projected_points[i].x >= 0 &&
         projected_points[i].y >= 0 &&
-        projected_points[i].x <= m_image_width &&
-        projected_points[i].y <= m_image_height)
+        projected_points[i].x <= m_intrinsics.width &&
+        projected_points[i].y <= m_intrinsics.height)
       {
         cv::KeyPoint feat;
         feat.class_id = i;

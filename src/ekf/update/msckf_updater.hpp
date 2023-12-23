@@ -110,10 +110,6 @@ private:
 
   DataLogger m_data_logger;
   DataLogger m_triangulation_logger;
-  unsigned int m_image_width {640};
-  unsigned int m_image_height {480};
-  double m_focal_length {1};
-  double m_pixel_size {0.010};
   Intrinsics m_intrinsics;
 };
 

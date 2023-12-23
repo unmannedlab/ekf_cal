@@ -308,6 +308,8 @@ int main(int argc, char * argv[])
     cam_params.intrinsics.p_1 = cam_node["intrinsics"]["p_1"].as<double>(0.0);
     cam_params.intrinsics.p_2 = cam_node["intrinsics"]["p_2"].as<double>(0.0);
     cam_params.intrinsics.pixel_size = cam_node["intrinsics"]["pixel_size"].as<double>(1e-2);
+    cam_params.intrinsics.f_x = cam_params.intrinsics.F / cam_params.intrinsics.pixel_size;
+    cam_params.intrinsics.f_y = cam_params.intrinsics.F / cam_params.intrinsics.pixel_size;
 
     // SimCamera::Parameters
     SimCamera::Parameters sim_cam_params;
