@@ -45,6 +45,7 @@
 #include "sensors/types.hpp"
 #include "trackers/feature_tracker.hpp"
 #include "trackers/sim/sim_feature_tracker.hpp"
+#include "trackers/sim/sim_fiducial_tracker.hpp"
 #include "utility/sim/sim_rng.hpp"
 #include "utility/string_helper.hpp"
 #include "utility/type_helper.hpp"
@@ -129,6 +130,7 @@ int main(int argc, char * argv[])
   auto imus = LoadNodeList(root["/EkfCalNode"]["ros__parameters"]["imu_list"]);
   auto cameras = LoadNodeList(root["/EkfCalNode"]["ros__parameters"]["camera_list"]);
   auto trackers = LoadNodeList(root["/EkfCalNode"]["ros__parameters"]["tracker_list"]);
+  auto fiducials = LoadNodeList(root["/EkfCalNode"]["ros__parameters"]["fiducial_list"]);
 
   // Construct sensors and EKF
   std::map<unsigned int, std::shared_ptr<Sensor>> sensor_map;
@@ -263,7 +265,7 @@ int main(int argc, char * argv[])
 
   // Load tracker parameters
   logger->Log(LogLevel::INFO, "Loading Trackers");
-  std::map<std::string, SimFeatureTracker::Parameters> trackerMap;
+  std::map<std::string, SimFeatureTracker::Parameters> tracker_map;
   for (unsigned int i = 0; i < trackers.size(); ++i) {
     YAML::Node trk_node = root["/EkfCalNode"]["ros__parameters"]["tracker"][trackers[i]];
     YAML::Node sim_node = trk_node["sim_params"];
@@ -280,7 +282,31 @@ int main(int argc, char * argv[])
     sim_tracker_params.tracker_params = track_params;
     sim_tracker_params.no_errors = no_errors;
 
-    trackerMap[track_params.name] = sim_tracker_params;
+    tracker_map[track_params.name] = sim_tracker_params;
+  }
+
+  // Load board detectors
+  logger->Log(LogLevel::INFO, "Loading Board Detectors");
+  std::map<std::string, SimFiducialTracker::Parameters> board_detector_map;
+  for (unsigned int i = 0; i < fiducials.size(); ++i) {
+    YAML::Node fid_node = root["/EkfCalNode"]["ros__parameters"]["fiducial"][fiducials[i]];
+    YAML::Node sim_node = fid_node["sim_params"];
+
+    FiducialTracker::Parameters fiducial_params;
+    fiducial_params.name = fiducials[i];
+    fiducial_params.output_directory = out_dir;
+    fiducial_params.data_logging_on = data_logging_on;
+    fiducial_params.pos_error = fid_node["pos_error"].as<double>(1e-2);
+    fiducial_params.ang_error = fid_node["ang_error"].as<double>(1e-3);
+    fiducial_params.initial_id = fid_node["initial_id"].as<unsigned int>(0);
+
+    SimFiducialTracker::Parameters sim_fiducial_params;
+    sim_fiducial_params.board_position = StdToEigVec(
+      sim_node["board_position"].as<std::vector<double>>());
+    sim_fiducial_params.board_orientation = StdToEigQuat(
+      sim_node["board_orientation"].as<std::vector<double>>());
+    sim_fiducial_params.no_errors = no_errors;
+    sim_fiducial_params.tracker_params = fiducial_params;
   }
 
   // Load cameras and generate measurements
@@ -323,7 +349,7 @@ int main(int argc, char * argv[])
 
     // Add sensor to map
     auto cam = std::make_shared<SimCamera>(sim_cam_params, truth_engine);
-    auto trk_params = trackerMap[cam_params.tracker];
+    auto trk_params = tracker_map[cam_params.tracker];
     trk_params.tracker_params.sensor_id = cam->GetId();
     trk_params.tracker_params.intrinsics = cam_params.intrinsics;
     auto trk = std::make_shared<SimFeatureTracker>(

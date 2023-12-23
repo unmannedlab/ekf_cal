@@ -18,6 +18,7 @@
         "editor.defaultFormatter": "zachflower.uncrustify"
     },
     "cSpell.words": [
+        "ARUCO",
         "axvline",
         "DISTRO",
         "doxyfile",
