@@ -28,10 +28,8 @@ Building can be done simply with the following command:
 colcon build --symlink-install --packages-select ekf_cal
 ```
 
-For full CMake support, the following environment variables are expected:
-- PLANTUML_INSTALL_DIR
-- ROS_DISTRO
-
+## Docker
+Alternatively, a Dockerfile is provided, which can be used either inside a VS Code [devcontainer](https://code.visualstudio.com/docs/devcontainers/containers), or a standalone container.
 
 # Input Files
 
