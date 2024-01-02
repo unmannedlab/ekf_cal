@@ -27,6 +27,7 @@
 #include "sensors/camera.hpp"
 #include "sensors/sim/sim_camera_message.hpp"
 #include "trackers/sim/sim_feature_tracker.hpp"
+#include "trackers/sim/sim_fiducial_tracker.hpp"
 #include "utility/sim/sim_rng.hpp"
 
 
@@ -65,6 +66,12 @@ public:
   void AddTracker(std::shared_ptr<SimFeatureTracker> tracker);
 
   ///
+  /// @brief Method to add fiducial object to camera sensor
+  /// @param fiducial Fiducial pointer for camera to use during callbacks
+  ///
+  void AddFiducial(std::shared_ptr<SimFiducialTracker> fiducial);
+
+  ///
   /// @brief Generate simulated camera message times
   /// @param max_time Maximum time to generate frame times
   ///
@@ -95,6 +102,7 @@ private:
   std::shared_ptr<TruthEngine> m_truth;
 
   std::map<unsigned int, std::shared_ptr<SimFeatureTracker>> m_trackers;
+  std::map<unsigned int, std::shared_ptr<SimFiducialTracker>> m_fiducials;
 };
 
 

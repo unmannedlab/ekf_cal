@@ -49,9 +49,9 @@ public:
   /// @param time Time of update
   /// @param camera_id ID of camera associated with update
   /// @param board_track Board track to be used for state update
-  /// @param px_error Standard deviation of pixel error
+  /// @param intrinsics Camera intrinsics for update
   ///
-  void UpdateEKF(double time, int camera_id, BoardTrack board_track, double px_error);
+  void UpdateEKF(double time, int camera_id, BoardTrack board_track, Intrinsics intrinsics);
 
   ///
   /// @brief Refresh internal states with EKF values

@@ -52,6 +52,7 @@ public:
     double ang_stability {1e-9};                        ///< @brief Angular stability
     Eigen::VectorXd variance {{0, 0, 0, 0, 0, 0}};      ///< @brief Initial state variance
     std::string tracker;                                ///< @brief Tracker name
+    std::string fiducial;                               ///< @brief Fiducial name
     std::string output_directory {""};                  ///< @brief IMU data logging directory
     bool data_logging_on {false};                       ///< @brief IMU data logging flag
     Intrinsics intrinsics;                              ///< @brief Camera intrinsics

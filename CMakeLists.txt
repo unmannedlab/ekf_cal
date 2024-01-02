@@ -110,6 +110,7 @@ add_library(EKF_UTL ${EKF_UTL_SRCS})
 set(EKF_SRCS
     src/ekf/ekf.cpp
     src/ekf/types.cpp
+    src/ekf/update/fiducial_updater.cpp
     src/ekf/update/imu_updater.cpp
     src/ekf/update/msckf_updater.cpp
     src/ekf/update/updater.cpp
@@ -118,6 +119,7 @@ set(EKF_SRCS
     src/sensors/imu.cpp
     src/sensors/sensor.cpp
     src/trackers/feature_tracker.cpp
+    src/trackers/fiducial_tracker.cpp
 )
 add_library(EKF_LIB ${EKF_SRCS})
 target_link_libraries(EKF_LIB ROS_INF EKF_UTL)
@@ -128,6 +130,7 @@ set(SIM_SRCS
     src/sensors/sim/sim_camera.cpp
     src/sensors/sim/sim_imu.cpp
     src/trackers/sim/sim_feature_tracker.cpp
+    src/trackers/sim/sim_fiducial_tracker.cpp
     src/utility/sim/sim_rng.cpp
 )
 add_library(SIM_LIB ${SIM_SRCS})
@@ -185,6 +188,7 @@ if(BUILD_TESTING)
         src/sensors/test/camera_test.cpp
         src/sensors/test/imu_test.cpp
         src/trackers/test/feature_tracker_test.cpp
+        src/trackers/test/fiducial_tracker_test.cpp
         src/utility/test/math_helper_test.cpp
         src/utility/test/ros_helper_test.cpp
         src/utility/test/type_helper_test.cpp

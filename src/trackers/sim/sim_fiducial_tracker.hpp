@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef TRACKERS__SIM__SIM_fiducial_TRACKER_HPP_
-#define TRACKERS__SIM__SIM_fiducial_TRACKER_HPP_
+#ifndef TRACKERS__SIM__SIM_FIDUCIAL_TRACKER_HPP_
+#define TRACKERS__SIM__SIM_FIDUCIAL_TRACKER_HPP_
 
 #include <eigen3/Eigen/Eigen>
 
@@ -43,10 +43,10 @@ public:
   ///
   typedef struct Parameters
   {
-    bool no_errors {false};                      ///< @brief Perfect measurements flag
-    Eigen::Vector3d board_position;              ///< @brief Board position
-    Eigen::Quaterniond board_orientation;        ///< @brief Board orientation
-    FiducialTracker::Parameters tracker_params;  ///< @brief Tracker parameters
+    bool no_errors {false};                       ///< @brief Perfect measurements flag
+    Eigen::Vector3d pos_b_in_g;                   ///< @brief Board position
+    Eigen::Quaterniond ang_b_to_g;                ///< @brief Board orientation
+    FiducialTracker::Parameters fiducial_params;  ///< @brief Tracker parameters
   } Parameters;
 
   ///
@@ -106,4 +106,4 @@ private:
 };
 
 
-#endif  // TRACKERS__SIM__SIM_fiducial_TRACKER_HPP_
+#endif  // TRACKERS__SIM__SIM_FIDUCIAL_TRACKER_HPP_

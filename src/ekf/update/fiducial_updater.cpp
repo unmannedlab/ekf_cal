@@ -51,13 +51,16 @@ FiducialUpdater::FiducialUpdater(
   m_data_logger.SetLogging(data_logging_on);
 }
 
-void FiducialUpdater::UpdateEKF(double time, int camera_id, BoardTrack board_track, double px_error)
+void FiducialUpdater::UpdateEKF(
+  double time, int camera_id, BoardTrack board_track,
+  Intrinsics intrinsics)
 {
   m_ekf->ProcessModel(time);
   RefreshStates();
   auto t_start = std::chrono::high_resolution_clock::now();
 
-  // m_logger->Log(LogLevel::DEBUG, "Called update_msckf for camera ID: " + std::to_string(camera_id));
+  // m_logger->Log(LogLevel::DEBUG, "Called update_msckf for camera ID: "
+  // + std::to_string(camera_id));
 
   // if (feature_tracks.size() == 0) {
   //   return;
@@ -91,7 +94,8 @@ void FiducialUpdater::UpdateEKF(double time, int camera_id, BoardTrack board_tra
   //   return;
   // }
 
-  // Eigen::MatrixXd R = px_error * px_error * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
+  // Eigen::MatrixXd R = px_error * px_error *
+  // Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
   // // Apply Kalman update
   // Eigen::MatrixXd S = H_x * m_ekf->GetCov() * H_x.transpose() + R;
@@ -103,7 +107,8 @@ void FiducialUpdater::UpdateEKF(double time, int camera_id, BoardTrack board_tra
   // Eigen::VectorXd update = K * res_x;
   // Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
   // Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_states_size);
-  // Eigen::VectorXd cam_update = update.segment(g_body_state_size + imu_states_size, cam_states_size);
+  // Eigen::VectorXd cam_update = update.segment(g_body_state_size +
+  // imu_states_size, cam_states_size);
 
   // m_ekf->GetState().m_body_state += body_update;
   // m_ekf->GetState().m_imu_states += imu_update;

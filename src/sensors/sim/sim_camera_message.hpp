@@ -21,6 +21,7 @@
 
 #include "sensors/camera_message.hpp"
 #include "trackers/sim/sim_feature_tracker_message.hpp"
+#include "trackers/sim/sim_fiducial_tracker_message.hpp"
 
 ///
 /// @class SimCameraMessage
@@ -36,6 +37,7 @@ public:
 
   /// @brief Message output from feature tracker
   std::shared_ptr<SimFeatureTrackerMessage> m_feature_track_message;
+  std::shared_ptr<SimFiducialTrackerMessage> m_fiducial_track_message;
 };
 
 #endif  // SENSORS__SIM__SIM_CAMERA_MESSAGE_HPP_

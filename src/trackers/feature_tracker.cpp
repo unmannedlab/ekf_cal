@@ -30,6 +30,7 @@
 #include "ekf/types.hpp"
 #include "sensors/types.hpp"
 
+/// @todo make generic tracker counter?
 // Initialize static variable
 unsigned int FeatureTracker::m_tracker_count = 0;
 

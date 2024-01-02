@@ -37,7 +37,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/eval/plot.py",
             "args": [
-                "config/example.yaml"
+                "config/fiducial.yaml"
             ],
             "console": "integratedTerminal"
         },

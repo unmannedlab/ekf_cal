@@ -1,4 +1,4 @@
-// Copyright 2023 Jacob Hartzer
+// Copyright 2022 Jacob Hartzer
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,29 +13,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "trackers/fiducial_tracker.hpp"
+#include <eigen3/Eigen/Eigen>
+#include <gtest/gtest.h>
 
-FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
-: m_fiducial_updater(
-    params.sensor_id,
-    params.output_directory,
-    params.data_logging_on
-)
-{
-  m_camera_id = params.sensor_id;
-  m_intrinsics = params.intrinsics;
-  m_detector_type = params.detector_type;
-}
+#include "ekf/update/fiducial_updater.hpp"
 
-void FiducialTracker::Track(
-  double time,
-  int frame_id,
-  cv::Mat & img_in,
-  cv::Mat & img_out,
-  BoardTrack board_track)
-{}
+TEST(test_imu_updater, constructor) {
+  int cam_id {1U};
+  std::string log_file_directory("");
+  bool data_logging_on {false};
 
-unsigned int FiducialTracker::GetID()
-{
-  return m_id;
+  FiducialUpdater fiducial_updater(cam_id, log_file_directory, data_logging_on);
 }

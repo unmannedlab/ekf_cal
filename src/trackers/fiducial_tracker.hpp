@@ -39,7 +39,7 @@ public:
   ///
   /// @brief Detector Enumerations
   ///
-  enum class FiducialDetectorEnum
+  enum class FiducialTypeEnum
   {
     ARUCO_BOARD,
     CHARUCO_BOARD,
@@ -57,7 +57,11 @@ public:
     bool data_logging_on {false};        ///< @brief Feature Tracker data logging flag
     double pos_error{1e-9};              ///< @brief Position error standard deviation
     double ang_error{1e-9};              ///< @brief Angular error standard deviation
-    FiducialDetectorEnum detector_type;  ///< @brief Detector type
+    FiducialTypeEnum detector_type;      ///< @brief Detector type
+    unsigned int squares_x {1U};
+    unsigned int squares_y {1U};
+    double square_length {1.0};
+    double marker_length {1.0};
     unsigned int initial_id{0};          ///< @brief Initial ID
     Intrinsics intrinsics;
   } Parameters;
@@ -91,15 +95,16 @@ public:
 
 protected:
   DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
-  unsigned int max_track_length{20};  ///< @brief Maximum track length before forced output
-  unsigned int min_track_length{2};   ///< @brief Minimum track length to consider
+  unsigned int max_track_length{20};     ///< @brief Maximum track length before forced output
+  unsigned int min_track_length{2};      ///< @brief Minimum track length to consider
   FiducialUpdater m_fiducial_updater;    ///< @brief MSCKF updater object
-  int m_camera_id{-1};                ///< @brief Associated camera ID of tracker
-  unsigned int m_id;                  ///< @brief Tracker ID
-  double m_px_error;
+  int m_camera_id{-1};                   ///< @brief Associated camera ID of tracker
+  unsigned int m_id;                     ///< @brief Tracker ID
+  Intrinsics m_intrinsics;               ///< @brief Camera intrinsics
+  FiducialTypeEnum m_detector_type;  ///< @brief Detector type
 
 private:
-  void InitFiducialDetector(FiducialDetectorEnum detector);
+  void InitFiducialDetector(FiducialTypeEnum detector);
 
   EKF * m_ekf = EKF::GetInstance();           ///< @brief EKF singleton
 

@@ -23,7 +23,7 @@ SimFiducialTracker::SimFiducialTracker(
   std::shared_ptr<TruthEngine> truthEngine,
   std::string log_file_directory,
   bool data_logging_on)
-: FiducialTracker(params.tracker_params),
+: FiducialTracker(params.fiducial_params),
   m_data_logger(log_file_directory, "feature_points.csv")
 {
   m_no_errors = params.no_errors;
@@ -31,8 +31,10 @@ SimFiducialTracker::SimFiducialTracker(
 
   m_data_logger.DefineHeader("Feature,x,y,z\n");
   m_data_logger.SetLogging(data_logging_on);
+  m_pos_error = params.fiducial_params.pos_error;
+  m_ang_error = params.fiducial_params.ang_error;
 
-  m_intrinsics = params.tracker_params.intrinsics;
+  m_intrinsics = params.fiducial_params.intrinsics;
 }
 
 bool SimFiducialTracker::IsBoardVisible(double time)
@@ -79,7 +81,7 @@ void SimFiducialTracker::Callback(
   double time, unsigned int camera_id,
   std::shared_ptr<SimFiducialTrackerMessage> msg)
 {
-  m_fiducial_updater.UpdateEKF(time, camera_id, msg->m_board_track, m_px_error);
+  m_fiducial_updater.UpdateEKF(time, camera_id, msg->m_board_track, m_intrinsics);
 }
 
 void SimFiducialTracker::SetTrueOffsets(
