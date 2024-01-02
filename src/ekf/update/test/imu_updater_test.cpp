@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 
 #include <string>
+#include <iostream>
 
 #include "ekf/constants.hpp"
 #include "ekf/ekf.hpp"
@@ -36,15 +37,17 @@ TEST(test_imu_updater, update) {
   bool data_logging_on {true};
 
   ImuState imu_state;
+  imu_state.is_extrinsic = true;
+  imu_state.is_intrinsic = true;
   Eigen::MatrixXd imu_cov = Eigen::MatrixXd::Zero(12, 12);
   ekf->RegisterIMU(imu_id, imu_state, imu_cov);
 
   ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on);
 
   Eigen::Vector3d acceleration = g_gravity;
-  Eigen::Matrix3d accelerationCovariance = Eigen::Matrix3d::Zero();
-  Eigen::Vector3d angularRate = Eigen::Vector3d::Zero();
-  Eigen::Matrix3d angularRateCovariance = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Zero();
+  Eigen::Vector3d angular_rate = Eigen::Vector3d::Zero();
+  Eigen::Matrix3d angular_rate_covariance = Eigen::Matrix3d::Zero();
   bool use_for_prediction {false};
 
   State state = ekf->GetState();
@@ -54,7 +57,7 @@ TEST(test_imu_updater, update) {
 
   double time = time_init + 1;
   imu_updater.UpdateEKF(
-    time, acceleration, accelerationCovariance, angularRate, angularRateCovariance,
+    time, acceleration, acceleration_cov, angular_rate, angular_rate_covariance,
     use_for_prediction);
 
   state = ekf->GetState();
@@ -64,7 +67,7 @@ TEST(test_imu_updater, update) {
 
   time += 1;
   imu_updater.UpdateEKF(
-    time, acceleration, accelerationCovariance, angularRate, angularRateCovariance,
+    time, acceleration, acceleration_cov, angular_rate, angular_rate_covariance,
     use_for_prediction);
 
   state = ekf->GetState();

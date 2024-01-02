@@ -40,59 +40,60 @@ TEST_F(EkfCalNode_test, hello_world)
 {
   EkfCalNode node;
 
-  node.set_parameter(rclcpp::Parameter("Debug_Log_Level", 1));
-  node.set_parameter(rclcpp::Parameter("IMU_list", std::vector<std::string>{"TestImu"}));
-  node.set_parameter(rclcpp::Parameter("Camera_list", std::vector<std::string>{"TestCamera"}));
-  node.set_parameter(rclcpp::Parameter("Tracker_list", std::vector<std::string>{"TestTracker"}));
+  node.set_parameter(rclcpp::Parameter("debug_log_level", 1));
+  node.set_parameter(rclcpp::Parameter("data_logging_on", true));
+  node.set_parameter(rclcpp::Parameter("imu_list", std::vector<std::string>{"TestImu"}));
+  node.set_parameter(rclcpp::Parameter("camera_list", std::vector<std::string>{"TestCamera"}));
+  node.set_parameter(rclcpp::Parameter("tracker_list", std::vector<std::string>{"TestTracker"}));
 
   node.Initialize();
   node.DeclareSensors();
 
-  node.set_parameter(rclcpp::Parameter("IMU.TestImu.BaseSensor", true));
-  node.set_parameter(rclcpp::Parameter("IMU.TestImu.Intrinsic", false));
-  node.set_parameter(rclcpp::Parameter("IMU.TestImu.Rate", 400.0));
-  node.set_parameter(rclcpp::Parameter("IMU.TestImu.Topic", "/ImuTopic"));
+  node.set_parameter(rclcpp::Parameter("imu.TestImu.is_extrinsic", false));
+  node.set_parameter(rclcpp::Parameter("imu.TestImu.is_intrinsic", false));
+  node.set_parameter(rclcpp::Parameter("imu.TestImu.rate", 400.0));
+  node.set_parameter(rclcpp::Parameter("imu.TestImu.topic", "/ImuTopic"));
   node.set_parameter(
     rclcpp::Parameter(
-      "IMU.TestImu.VarInit",
+      "imu.TestImu.variance",
       std::vector<double>{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01}));
   node.set_parameter(
     rclcpp::Parameter(
-      "IMU.TestImu.PosOffInit",
+      "imu.TestImu.pos_i_in_b",
       std::vector<double>{0.0, 0.0, 0.0}));
   node.set_parameter(
     rclcpp::Parameter(
-      "IMU.TestImu.AngOffInit",
+      "imu.TestImu.ang_i_to_b",
       std::vector<double>{1.0, 0.0, 0.0, 0.0}));
   node.set_parameter(
     rclcpp::Parameter(
-      "IMU.TestImu.AccBiasInit", std::vector<double>{0.0, 0.0,
+      "imu.TestImu.acc_bias", std::vector<double>{0.0, 0.0,
         0.0}));
   node.set_parameter(
     rclcpp::Parameter(
-      "IMU.TestImu.OmgBiasInit", std::vector<double>{0.0, 0.0,
+      "imu.TestImu.omg_bias", std::vector<double>{0.0, 0.0,
         0.0}));
 
-  node.set_parameter(rclcpp::Parameter("Camera.TestCamera.Rate", 5.0));
-  node.set_parameter(rclcpp::Parameter("Camera.TestCamera.Topic", "/CameraTopic"));
+  node.set_parameter(rclcpp::Parameter("camera.TestCamera.rate", 5.0));
+  node.set_parameter(rclcpp::Parameter("camera.TestCamera.topic", "/CameraTopic"));
   node.set_parameter(
     rclcpp::Parameter(
-      "Camera.TestCamera.PosOffInit",
+      "camera.TestCamera.pos_c_in_b",
       std::vector<double>{0.0, 0.0, 0.0}));
   node.set_parameter(
     rclcpp::Parameter(
-      "Camera.TestCamera.AngOffInit",
+      "camera.TestCamera.ang_c_to_b",
       std::vector<double>{1.0, 0.0, 0.0, 0.0}));
   node.set_parameter(
     rclcpp::Parameter(
-      "Camera.TestCamera.VarInit",
+      "camera.TestCamera.variance",
       std::vector<double>{0.1, 0.1, 0.1, 0.1, 0.1, 0.1}));
-  node.set_parameter(rclcpp::Parameter("Camera.TestCamera.Tracker", "TestTracker"));
+  node.set_parameter(rclcpp::Parameter("camera.TestCamera.tracker", "TestTracker"));
 
-  node.set_parameter(rclcpp::Parameter("Tracker.TestTracker.FeatureDetector", 4));
-  node.set_parameter(rclcpp::Parameter("Tracker.TestTracker.DescriptorExtractor", 0));
-  node.set_parameter(rclcpp::Parameter("Tracker.TestTracker.DescriptorMatcher", 0));
-  node.set_parameter(rclcpp::Parameter("Tracker.TestTracker.DetectorThreshold", 10.0));
+  node.set_parameter(rclcpp::Parameter("tracker.TestTracker.feature_detector", 4));
+  node.set_parameter(rclcpp::Parameter("tracker.TestTracker.descriptor_extractor", 0));
+  node.set_parameter(rclcpp::Parameter("tracker.TestTracker.descriptor_matcher", 0));
+  node.set_parameter(rclcpp::Parameter("tracker.TestTracker.detector_threshold", 10.0));
 
   node.LoadSensors();
   auto imu_msg = std::make_shared<sensor_msgs::msg::Imu>();

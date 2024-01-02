@@ -20,6 +20,7 @@
 #include <utility>
 #include <vector>
 
+#include "ekf/constants.hpp"
 #include "utility/type_helper.hpp"
 
 BodyState & operator+=(BodyState & l_m_body_state, BodyState & r_m_body_state)
@@ -250,32 +251,32 @@ Eigen::VectorXd State::ToVector()
 {
   Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(GetStateSize());
 
-  out_vec.segment<18>(0) = m_body_state.ToVector();
-  unsigned int n = 18;
+  out_vec.segment<g_body_state_size>(0) = m_body_state.ToVector();
+  unsigned int n = g_body_state_size;
 
   for (auto const & imu_iter : m_imu_states) {
     if (imu_iter.second.is_extrinsic) {
       out_vec.segment<3>(n + 0) = imu_iter.second.pos_i_in_b;
       out_vec.segment<3>(n + 3) = QuatToRotVec(imu_iter.second.ang_i_to_b);
-      n += 6;
+      n += g_imu_extrinsic_state_size;
     }
     if (imu_iter.second.is_intrinsic) {
-      out_vec.segment<3>(n + 6) = imu_iter.second.acc_bias;
-      out_vec.segment<3>(n + 9) = imu_iter.second.omg_bias;
-      n += 6;
+      out_vec.segment<3>(n + 0) = imu_iter.second.acc_bias;
+      out_vec.segment<3>(n + 3) = imu_iter.second.omg_bias;
+      n += g_imu_intrinsic_state_size;
     }
   }
 
   for (auto const & cam_iter : m_cam_states) {
     out_vec.segment<3>(n + 0) = cam_iter.second.pos_c_in_b;
     out_vec.segment<3>(n + 3) = QuatToRotVec(cam_iter.second.ang_c_to_b);
-    n += 6;
+    n += g_cam_state_size;
     for (auto const & aug_state : cam_iter.second.augmented_states) {
       out_vec.segment<3>(n + 0) = aug_state.pos_b_in_g;
       out_vec.segment<3>(n + 3) = QuatToRotVec(aug_state.ang_b_to_g);
       out_vec.segment<3>(n + 6) = aug_state.pos_c_in_b;
       out_vec.segment<3>(n + 9) = QuatToRotVec(aug_state.ang_c_to_b);
-      n += 6;
+      n += g_aug_state_size;
     }
   }
 
@@ -285,13 +286,14 @@ Eigen::VectorXd State::ToVector()
 
 unsigned int State::GetStateSize()
 {
-  unsigned int state_size = 18;
+  unsigned int state_size = g_body_state_size;
 
   for (auto const & imu_iter : m_imu_states) {
-    if (imu_iter.second.is_extrinsic && imu_iter.second.is_intrinsic) {
-      state_size += 12;
-    } else if (imu_iter.second.is_extrinsic || imu_iter.second.is_intrinsic) {
-      state_size += 6;
+    if (imu_iter.second.is_extrinsic) {
+      state_size += g_imu_extrinsic_state_size;
+    }
+    if (imu_iter.second.is_intrinsic) {
+      state_size += g_imu_intrinsic_state_size;
     }
   }
 

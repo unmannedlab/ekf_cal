@@ -23,6 +23,9 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
   auto ekf_cal_node = std::make_shared<EkfCalNode>();
+  ekf_cal_node->Initialize();
+  ekf_cal_node->DeclareSensors();
+  ekf_cal_node->LoadSensors();
   rclcpp::spin(ekf_cal_node);
   rclcpp::shutdown();
 

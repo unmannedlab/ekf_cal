@@ -141,7 +141,8 @@
         "stack": "cpp",
         "coroutine": "cpp",
         "source_location": "cpp",
-        "__locale": "cpp"
+        "__locale": "cpp",
+        "__node_handle": "cpp"
     },
     "cmake.configureOnOpen": true,
     "flake8.args": [

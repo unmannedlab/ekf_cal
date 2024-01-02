@@ -28,6 +28,8 @@ TEST(test_EKF, get_counts) {
   EXPECT_EQ(ekf->GetCamCount(), 0U);
 
   ImuState imu_state;
+  imu_state.is_intrinsic = true;
+  imu_state.is_extrinsic = false;
   Eigen::MatrixXd imu_covariance(12, 12);
   ekf->RegisterIMU(0, imu_state, imu_covariance);
 
@@ -47,9 +49,9 @@ TEST(test_EKF, get_counts) {
   EXPECT_EQ(ekf->GetCamCount(), 1U);
 
   EXPECT_EQ(ekf->GetImuStateStartIndex(0), 18U);
-  EXPECT_EQ(ekf->GetCamStateStartIndex(1), 30U);
-  EXPECT_EQ(ekf->GetAugStateStartIndex(1, 0), 36U);
-  EXPECT_EQ(ekf->GetAugStateStartIndex(1, 1), 48U);
+  EXPECT_EQ(ekf->GetCamStateStartIndex(1), 24U);
+  EXPECT_EQ(ekf->GetAugStateStartIndex(1, 0), 30U);
+  EXPECT_EQ(ekf->GetAugStateStartIndex(1, 1), 42U);
 }
 
 ///

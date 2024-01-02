@@ -51,15 +51,11 @@ EkfCalNode::EkfCalNode()
 : Node("EkfCalNode")
 {
   // Declare Parameters
-  this->declare_parameter("Debug_Log_Level", 0);
-  this->declare_parameter("Data_Logging_On", false);
-  this->declare_parameter("IMU_list", std::vector<std::string>{});
-  this->declare_parameter("Camera_list", std::vector<std::string>{});
-  this->declare_parameter("Tracker_list", std::vector<std::string>{});
-
-  Initialize();
-  DeclareSensors();
-  LoadSensors();
+  this->declare_parameter("debug_log_level", 0);
+  this->declare_parameter("data_logging_on", false);
+  this->declare_parameter("imu_list", std::vector<std::string>{});
+  this->declare_parameter("camera_list", std::vector<std::string>{});
+  this->declare_parameter("tracker_list", std::vector<std::string>{});
 
   m_state_pub_timer =
     this->create_wall_timer(std::chrono::seconds(1), std::bind(&EkfCalNode::PublishState, this));
@@ -68,19 +64,19 @@ EkfCalNode::EkfCalNode()
 void EkfCalNode::Initialize()
 {
   // Set logging
-  int debug_log_level = this->get_parameter("Debug_Log_Level").as_int();
-  bool data_logging_on = this->get_parameter("Data_Logging_On").as_bool();
+  int debug_log_level = this->get_parameter("debug_log_level").as_int();
+  bool data_logging_on = this->get_parameter("data_logging_on").as_bool();
   m_logger->SetLogLevel(static_cast<unsigned int>(debug_log_level));
   m_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
   m_state_data_logger.SetLogging(data_logging_on);
-  m_state_data_logger.SetOutputDirectory("/home/jacob/log/");
+  m_state_data_logger.SetOutputDirectory("~/log/");
   m_state_data_logger.SetOutputFileName("state_vector.csv");
   m_state_data_logger.DefineHeader("\n");
 
   // Load lists of sensors
-  m_imu_list = this->get_parameter("IMU_list").as_string_array();
-  m_camera_list = this->get_parameter("Camera_list").as_string_array();
-  m_tracker_list = this->get_parameter("Tracker_list").as_string_array();
+  m_imu_list = this->get_parameter("imu_list").as_string_array();
+  m_camera_list = this->get_parameter("camera_list").as_string_array();
+  m_tracker_list = this->get_parameter("tracker_list").as_string_array();
 }
 
 void EkfCalNode::DeclareSensors()
@@ -120,37 +116,45 @@ void EkfCalNode::DeclareImuParameters(std::string imu_name)
   m_logger->Log(LogLevel::INFO, "Declare IMU: " + imu_name);
 
   // Declare parameters
-  std::string imu_prefix = "IMU." + imu_name;
-  this->declare_parameter(imu_prefix + ".BaseSensor", false);
-  this->declare_parameter(imu_prefix + ".Intrinsic", false);
-  this->declare_parameter(imu_prefix + ".UseForPrediction", false);
-  this->declare_parameter(imu_prefix + ".Rate", 1.0);
-  this->declare_parameter(imu_prefix + ".Topic", "Topic");
+  std::string imu_prefix = "imu." + imu_name;
+  this->declare_parameter(imu_prefix + ".is_extrinsic", false);
+  this->declare_parameter(imu_prefix + ".is_intrinsic", false);
+  this->declare_parameter(imu_prefix + ".use_for_prediction", false);
+  this->declare_parameter(imu_prefix + ".rate", 1.0);
+  this->declare_parameter(imu_prefix + ".topic", "");
   this->declare_parameter(
-    imu_prefix + ".VarInit", std::vector<double>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1});
-  this->declare_parameter(imu_prefix + ".PosOffInit", std::vector<double>{0, 0, 0});
-  this->declare_parameter(imu_prefix + ".AngOffInit", std::vector<double>{1, 0, 0, 0});
-  this->declare_parameter(imu_prefix + ".AccBiasInit", std::vector<double>{0, 0, 0});
-  this->declare_parameter(imu_prefix + ".OmgBiasInit", std::vector<double>{0, 0, 0});
+    imu_prefix + ".variance", std::vector<double>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1});
+  this->declare_parameter(imu_prefix + ".pos_i_in_b", std::vector<double>{0, 0, 0});
+  this->declare_parameter(imu_prefix + ".ang_i_to_b", std::vector<double>{1, 0, 0, 0});
+  this->declare_parameter(imu_prefix + ".acc_bias", std::vector<double>{0, 0, 0});
+  this->declare_parameter(imu_prefix + ".omg_bias", std::vector<double>{0, 0, 0});
+  this->declare_parameter(imu_prefix + ".pos_stability", 1e-9);
+  this->declare_parameter(imu_prefix + ".ang_stability", 1e-9);
+  this->declare_parameter(imu_prefix + ".acc_bias_stability", 1e-9);
+  this->declare_parameter(imu_prefix + ".omg_bias_stability", 1e-9);
 }
 
 /// @todo Move these getters into ROS helper?
 IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
 {
   // Load parameters
-  std::string imu_prefix = "IMU." + imu_name;
+  std::string imu_prefix = "imu." + imu_name;
   bool is_extrinsic = this->get_parameter(imu_prefix + ".is_extrinsic").as_bool();
   bool is_intrinsic = this->get_parameter(imu_prefix + ".is_intrinsic").as_bool();
-  bool use_for_prediction = this->get_parameter(imu_prefix + ".UseForPrediction").as_bool();
-  double rate = this->get_parameter(imu_prefix + ".Rate").as_double();
-  std::string topic = this->get_parameter(imu_prefix + ".Topic").as_string();
-  std::vector<double> variance = this->get_parameter(imu_prefix + ".VarInit").as_double_array();
+  bool use_for_prediction = this->get_parameter(imu_prefix + ".use_for_prediction").as_bool();
+  double rate = this->get_parameter(imu_prefix + ".rate").as_double();
+  std::string topic = this->get_parameter(imu_prefix + ".topic").as_string();
+  std::vector<double> variance = this->get_parameter(imu_prefix + ".variance").as_double_array();
   std::vector<double> pos_b_in_g =
-    this->get_parameter(imu_prefix + ".PosOffInit").as_double_array();
+    this->get_parameter(imu_prefix + ".pos_i_in_b").as_double_array();
   std::vector<double> ang_b_to_g =
-    this->get_parameter(imu_prefix + ".AngOffInit").as_double_array();
-  std::vector<double> acc_bias = this->get_parameter(imu_prefix + ".AccBiasInit").as_double_array();
-  std::vector<double> omg_bias = this->get_parameter(imu_prefix + ".OmgBiasInit").as_double_array();
+    this->get_parameter(imu_prefix + ".ang_i_to_b").as_double_array();
+  std::vector<double> acc_bias = this->get_parameter(imu_prefix + ".acc_bias").as_double_array();
+  std::vector<double> omg_bias = this->get_parameter(imu_prefix + ".omg_bias").as_double_array();
+  double pos_stability = this->get_parameter(imu_prefix + ".pos_stability").as_double();
+  double ang_stability = this->get_parameter(imu_prefix + ".ang_stability").as_double();
+  double acc_bias_stability = this->get_parameter(imu_prefix + ".acc_bias_stability").as_double();
+  double omg_bias_stability = this->get_parameter(imu_prefix + ".omg_bias_stability").as_double();
 
   // Assign parameters to struct
   IMU::Parameters imu_params;
@@ -165,33 +169,37 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
   imu_params.ang_i_to_b = StdToEigQuat(ang_b_to_g);
   imu_params.acc_bias = StdToEigVec(acc_bias);
   imu_params.omg_bias = StdToEigVec(omg_bias);
+  imu_params.pos_stability = pos_stability;
+  imu_params.ang_stability = ang_stability;
+  imu_params.acc_bias_stability = acc_bias_stability;
+  imu_params.omg_bias_stability = omg_bias_stability;
   return imu_params;
 }
 
 void EkfCalNode::DeclareCameraParameters(std::string camera_name)
 {
   // Declare parameters
-  std::string cam_prefix = "Camera." + camera_name;
-  this->declare_parameter(cam_prefix + ".Rate", 1.0);
-  this->declare_parameter(cam_prefix + ".Topic", "Topic");
-  this->declare_parameter(cam_prefix + ".PosOffInit", std::vector<double>{0, 0, 0});
-  this->declare_parameter(cam_prefix + ".AngOffInit", std::vector<double>{1, 0, 0, 0});
-  this->declare_parameter(cam_prefix + ".VarInit", std::vector<double>{1, 1, 1, 1, 1, 1});
-  this->declare_parameter(cam_prefix + ".Tracker", "Tracker");
+  std::string cam_prefix = "camera." + camera_name;
+  this->declare_parameter(cam_prefix + ".rate", 1.0);
+  this->declare_parameter(cam_prefix + ".topic", "");
+  this->declare_parameter(cam_prefix + ".pos_c_in_b", std::vector<double>{0, 0, 0});
+  this->declare_parameter(cam_prefix + ".ang_c_to_b", std::vector<double>{1, 0, 0, 0});
+  this->declare_parameter(cam_prefix + ".variance", std::vector<double>{1, 1, 1, 1, 1, 1});
+  this->declare_parameter(cam_prefix + ".tracker", "");
 }
 
 Camera::Parameters EkfCalNode::GetCameraParameters(std::string camera_name)
 {
   // Load parameters
-  std::string cam_prefix = "Camera." + camera_name;
-  double rate = this->get_parameter(cam_prefix + ".Rate").as_double();
-  std::string topic = this->get_parameter(cam_prefix + ".Topic").as_string();
+  std::string cam_prefix = "camera." + camera_name;
+  double rate = this->get_parameter(cam_prefix + ".rate").as_double();
+  std::string topic = this->get_parameter(cam_prefix + ".topic").as_string();
   std::vector<double> pos_b_in_g =
-    this->get_parameter(cam_prefix + ".PosOffInit").as_double_array();
+    this->get_parameter(cam_prefix + ".pos_c_in_b").as_double_array();
   std::vector<double> ang_b_to_g =
-    this->get_parameter(cam_prefix + ".AngOffInit").as_double_array();
-  std::vector<double> variance = this->get_parameter(cam_prefix + ".VarInit").as_double_array();
-  std::string tracker_name = this->get_parameter(cam_prefix + ".Tracker").as_string();
+    this->get_parameter(cam_prefix + ".ang_c_to_b").as_double_array();
+  std::vector<double> variance = this->get_parameter(cam_prefix + ".variance").as_double_array();
+  std::string tracker_name = this->get_parameter(cam_prefix + ".tracker").as_string();
 
   // Assign parameters to struct
   Camera::Parameters camera_params;
@@ -209,26 +217,27 @@ Camera::Parameters EkfCalNode::GetCameraParameters(std::string camera_name)
 void EkfCalNode::DeclareTrackerParameters(std::string tracker_name)
 {
   // Declare parameters
-  std::string tracker_prefix = "Tracker." + tracker_name;
-  this->declare_parameter(tracker_prefix + ".FeatureDetector", 0);
-  this->declare_parameter(tracker_prefix + ".DescriptorExtractor", 0);
-  this->declare_parameter(tracker_prefix + ".DescriptorMatcher", 0);
-  this->declare_parameter(tracker_prefix + ".DetectorThreshold", 20.0);
+  std::string tracker_prefix = "tracker." + tracker_name;
+  this->declare_parameter(tracker_prefix + ".feature_detector", 0);
+  this->declare_parameter(tracker_prefix + ".descriptor_extractor", 0);
+  this->declare_parameter(tracker_prefix + ".descriptor_matcher", 0);
+  this->declare_parameter(tracker_prefix + ".detector_threshold", 20.0);
 }
 
 FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_name)
 {
   // Get parameters
-  std::string tracker_prefix = "Tracker." + tracker_name;
-  int detector = this->get_parameter(tracker_prefix + ".FeatureDetector").as_int();
-  int extractor = this->get_parameter(tracker_prefix + ".DescriptorExtractor").as_int();
-  int matcher = this->get_parameter(tracker_prefix + ".DescriptorMatcher").as_int();
+  std::string tracker_prefix = "tracker." + tracker_name;
+  int detector = this->get_parameter(tracker_prefix + ".feature_detector").as_int();
+  int extractor = this->get_parameter(tracker_prefix + ".descriptor_extractor").as_int();
+  int matcher = this->get_parameter(tracker_prefix + ".descriptor_matcher").as_int();
 
   FeatureTracker::Parameters tracker_params;
   tracker_params.detector = static_cast<FeatureTracker::FeatureDetectorEnum>(detector);
   tracker_params.descriptor = static_cast<FeatureTracker::DescriptorExtractorEnum>(extractor);
   tracker_params.matcher = static_cast<FeatureTracker::DescriptorMatcherEnum>(matcher);
-  tracker_params.threshold = this->get_parameter(tracker_prefix + ".DetectorThreshold").as_double();
+  tracker_params.threshold =
+    this->get_parameter(tracker_prefix + ".detector_threshold").as_double();
   return tracker_params;
 }
 

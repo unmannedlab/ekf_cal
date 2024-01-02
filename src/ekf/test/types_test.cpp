@@ -136,6 +136,8 @@ TEST(test_ekf_types, state_plus_equals_vector) {
   quat.z() = 0.0;
 
   ImuState imu_state;
+  imu_state.is_intrinsic = true;
+  imu_state.is_extrinsic = true;
   imu_state.pos_i_in_b = Eigen::Vector3d::Ones() * 6.0;
   imu_state.ang_i_to_b = quat;
   imu_state.acc_bias = Eigen::Vector3d::Ones() * 7.0;
@@ -365,6 +367,8 @@ TEST(test_ekf_types, body_state_plus_equals_vector) {
 
 TEST(test_ekf_types, imu_map_plus_equals) {
   ImuState imu_state;
+  imu_state.is_intrinsic = true;
+  imu_state.is_extrinsic = true;
   imu_state.pos_i_in_b = Eigen::Vector3d::Ones() * 1.0;
   imu_state.acc_bias = Eigen::Vector3d::Ones() * 2.0;
   imu_state.omg_bias = Eigen::Vector3d::Ones() * 3.0;
@@ -620,6 +624,8 @@ TEST(test_ekf_types, cam_state_to_vector) {
 
 TEST(test_ekf_types, imu_state_to_vector) {
   ImuState imu_state;
+  imu_state.is_intrinsic = true;
+  imu_state.is_extrinsic = true;
   imu_state.pos_i_in_b = Eigen::Vector3d::Ones() * 1.0;
   imu_state.ang_i_to_b.w() = 1.0;
   imu_state.ang_i_to_b.x() = 0.0;
@@ -657,6 +663,8 @@ TEST(test_ekf_types, state_to_vector) {
   quat.z() = 0.0;
 
   ImuState imu_state;
+  imu_state.is_intrinsic = true;
+  imu_state.is_extrinsic = true;
   imu_state.pos_i_in_b = Eigen::Vector3d::Ones() * 6.0;
   imu_state.ang_i_to_b = quat;
   imu_state.acc_bias = Eigen::Vector3d::Ones() * 7.0;
@@ -738,6 +746,8 @@ TEST(test_ekf_types, state_get_state_size) {
   EXPECT_EQ(state.GetStateSize(), 18U);
 
   ImuState imu_state;
+  imu_state.is_intrinsic = true;
+  imu_state.is_extrinsic = true;
   state.m_imu_states[1] = imu_state;
 
   EXPECT_EQ(state.GetStateSize(), 30U);
