@@ -225,8 +225,15 @@ public:
   ///
   void SetDataLogging(bool value);
 
+  ///
+  /// @brief Function to add process noise to covariance
+  ///
   void AddProccessNoise();
 
+  ///
+  /// @brief Process noise setter
+  /// @param process_noise Process noise diagonal elements
+  ///
   void SetProcessNoise(Eigen::VectorXd process_noise);
 
   DataLogger m_data_logger;  ///< @brief Data logger

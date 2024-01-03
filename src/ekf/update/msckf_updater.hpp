@@ -36,6 +36,7 @@ public:
   ///
   /// @brief MSCKF EKF Updater constructor
   /// @param cam_id Camera sensor ID
+  /// @param intrinsics Camera intrinsic parameters
   /// @param log_file_directory Directory to save log files
   /// @param data_logging_on Flag to enable data logging
   ///

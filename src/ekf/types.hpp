@@ -71,14 +71,14 @@ public:
 
   bool is_extrinsic{false};                           ///< @brief Extrinsic calibration flag
   bool is_intrinsic{false};                           ///< @brief Intrinsic calibration flag
-  double pos_stability {1e-9};
-  double ang_stability {1e-9};
-  double acc_bias_stability {1e-9};
-  double omg_bias_stability {1e-9};
-  Eigen::Vector3d pos_i_in_b{0.0, 0.0, 0.0};          ///< @brief IMU state position
-  Eigen::Quaterniond ang_i_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief IMU state orientation
-  Eigen::Vector3d acc_bias{0.0, 0.0, 0.0};            ///< @brief IMU state acceleration bias
-  Eigen::Vector3d omg_bias{0.0, 0.0, 0.0};            ///< @brief IMU state angular rate bias
+  double pos_stability {1e-9};                        ///< @brief Extrinsic position stability
+  double ang_stability {1e-9};                        ///< @brief Extrinsic orientation stability
+  double acc_bias_stability {1e-9};                   ///< @brief Accelerometer bias stability
+  double omg_bias_stability {1e-9};                   ///< @brief Gyroscope bias stability
+  Eigen::Vector3d pos_i_in_b{0.0, 0.0, 0.0};          ///< @brief Position
+  Eigen::Quaterniond ang_i_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Orientation
+  Eigen::Vector3d acc_bias{0.0, 0.0, 0.0};            ///< @brief Acceleration bias
+  Eigen::Vector3d omg_bias{0.0, 0.0, 0.0};            ///< @brief Angular rate bias
 };
 
 ///
@@ -107,8 +107,8 @@ public:
   ///
   Eigen::VectorXd ToVector();
 
-  double pos_stability {1e-9};
-  double ang_stability {1e-9};
+  double pos_stability {1e-9};                        ///< @brief Extrinsic position stability
+  double ang_stability {1e-9};                        ///< @brief Extrinsic orientation stability
   Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Camera state position
   Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera state orientation
   std::vector<AugmentedState> augmented_states;       ///< @brief Camera augmented states
@@ -126,11 +126,14 @@ typedef struct FeatureTrack
 
 typedef std::vector<std::vector<FeatureTrack>> FeatureTracks;
 
+///
+/// @brief BoardDetection structure
+///
 typedef struct BoardDetection
 {
-  int frame_id;
-  cv::Vec3d r_vec;  ///< @brief Output vector corresponding to the rotation vector of the board
-  cv::Vec3d t_vec;  ///< @brief Output vector corresponding to the translation vector of the board
+  int frame_id;          ///< @brief Image frame ID
+  cv::Vec3d pos_b_in_c;  ///< @brief Rotation vector of the board
+  cv::Vec3d pos_b_to_c;  ///< @brief Translation vector of the board
 } BoardDetection;
 
 typedef std::vector<BoardDetection> BoardTrack;

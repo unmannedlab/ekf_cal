@@ -81,7 +81,7 @@ public:
     std::string output_directory {""};   ///< @brief Feature Tracker data logging directory
     bool data_logging_on {false};        ///< @brief Feature Tracker data logging flag
     double px_error{1e-9};               ///< @brief Pixel error standard deviation
-    Intrinsics intrinsics;
+    Intrinsics intrinsics;               ///< @brief Camera intrinsic parameters
   } Parameters;
 
   ///

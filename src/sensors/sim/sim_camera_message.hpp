@@ -37,6 +37,8 @@ public:
 
   /// @brief Message output from feature tracker
   std::shared_ptr<SimFeatureTrackerMessage> m_feature_track_message;
+
+  /// @brief Message output from fiducial tracker
   std::shared_ptr<SimFiducialTrackerMessage> m_fiducial_track_message;
 };
 

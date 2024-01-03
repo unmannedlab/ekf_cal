@@ -58,12 +58,12 @@ public:
     double pos_error{1e-9};              ///< @brief Position error standard deviation
     double ang_error{1e-9};              ///< @brief Angular error standard deviation
     FiducialTypeEnum detector_type;      ///< @brief Detector type
-    unsigned int squares_x {1U};
-    unsigned int squares_y {1U};
-    double square_length {1.0};
-    double marker_length {1.0};
+    unsigned int squares_x {1U};         ///< @brief Number of squares in the x direction
+    unsigned int squares_y {1U};         ///< @brief Number of squares in the y direction
+    double square_length {1.0};          ///< @brief Checkerboard square length
+    double marker_length {1.0};          ///< @brief Marker length
     unsigned int initial_id{0};          ///< @brief Initial ID
-    Intrinsics intrinsics;
+    Intrinsics intrinsics;               ///< @brief Camera intrinsic parameters
   } Parameters;
 
   ///
@@ -78,7 +78,7 @@ public:
   /// @param frame_id Frame ID
   /// @param img_in Input frame
   /// @param img_out Output frame with drawn track lines
-  /// @param feature_tracks Output complete feature tracks
+  /// @param board_track Output complete board track
   ///
   void Track(
     double time,
