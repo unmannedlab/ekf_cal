@@ -54,14 +54,15 @@ SimCamera::SimCamera(
   m_no_errors = params.no_errors;
   m_truth = truth_engine;
 
-  m_pos_c_in_b_true[0] = m_rng.NormRand(0.0, m_pos_error[0]);
-  m_pos_c_in_b_true[1] = m_rng.NormRand(0.0, m_pos_error[1]);
-  m_pos_c_in_b_true[2] = m_rng.NormRand(0.0, m_pos_error[2]);
-  Eigen::Vector3d ang_c_to_b_true_rpy;
-  ang_c_to_b_true_rpy(0) = m_rng.NormRand(0.0, m_ang_error[0]);
-  ang_c_to_b_true_rpy(1) = m_rng.NormRand(0.0, m_ang_error[1]);
-  ang_c_to_b_true_rpy(2) = m_rng.NormRand(0.0, m_ang_error[2]);
-  m_ang_c_to_b_true = EigVecToQuat(ang_c_to_b_true_rpy);
+  m_pos_c_in_b_true[0] = m_rng.NormRand(params.cam_params.pos_c_in_b[0], m_pos_error[0]);
+  m_pos_c_in_b_true[1] = m_rng.NormRand(params.cam_params.pos_c_in_b[1], m_pos_error[1]);
+  m_pos_c_in_b_true[2] = m_rng.NormRand(params.cam_params.pos_c_in_b[2], m_pos_error[2]);
+
+  Eigen::Vector3d ang_c_to_b_error_rpy;
+  ang_c_to_b_error_rpy(0) = m_rng.NormRand(0.0, m_ang_error[0]);
+  ang_c_to_b_error_rpy(1) = m_rng.NormRand(0.0, m_ang_error[1]);
+  ang_c_to_b_error_rpy(2) = m_rng.NormRand(0.0, m_ang_error[2]);
+  m_ang_c_to_b_true = EigVecToQuat(ang_c_to_b_error_rpy) * params.cam_params.ang_c_to_b;
 }
 
 std::vector<double> SimCamera::GenerateMessageTimes(double max_time)
@@ -127,13 +128,13 @@ std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages(doubl
 
 void SimCamera::AddTracker(std::shared_ptr<SimFeatureTracker> tracker)
 {
-  tracker->SetTrueOffsets(m_pos_c_in_b_true, m_ang_c_to_b_true);
+  tracker->SetTrueCameraOffsets(m_pos_c_in_b_true, m_ang_c_to_b_true);
   m_trackers[tracker->GetID()] = tracker;
 }
 
 void SimCamera::AddFiducial(std::shared_ptr<SimFiducialTracker> fiducial)
 {
-  fiducial->SetTrueOffsets(m_pos_c_in_b_true, m_ang_c_to_b_true);
+  fiducial->SetTrueCameraOffsets(m_pos_c_in_b_true, m_ang_c_to_b_true);
   m_fiducials[fiducial->GetID()] = fiducial;
 }
 
@@ -143,9 +144,15 @@ void SimCamera::Callback(std::shared_ptr<SimCameraMessage> sim_camera_message)
 
   m_ekf->AugmentState(m_id, frame_id);
 
-  if (sim_camera_message->m_feature_track_message->m_feature_tracks.size() > 0) {
-    m_trackers[sim_camera_message->m_feature_track_message->m_tracker_id]->Callback(
+  if (sim_camera_message->m_feature_track_message != NULL) {
+    if (sim_camera_message->m_feature_track_message->m_feature_tracks.size() > 0) {
+      m_trackers[sim_camera_message->m_feature_track_message->m_tracker_id]->Callback(
+        sim_camera_message->m_time, sim_camera_message->m_sensor_id,
+        sim_camera_message->m_feature_track_message);
+    }
+  } else if (sim_camera_message->m_fiducial_track_message != NULL) {
+    m_fiducials[sim_camera_message->m_fiducial_track_message->m_tracker_id]->Callback(
       sim_camera_message->m_time, sim_camera_message->m_sensor_id,
-      sim_camera_message->m_feature_track_message);
+      sim_camera_message->m_fiducial_track_message);
   }
 }

@@ -20,6 +20,8 @@
 
 #include <vector>
 
+#include <opencv2/opencv.hpp>
+
 ///
 /// @brief Converts std::vector into Eigen Quaternion
 /// @param in Input std::vector
@@ -48,12 +50,25 @@ Eigen::Quaterniond RotVecToQuat(Eigen::Vector3d rot_vec);
 ///
 Eigen::Vector3d QuatToRotVec(Eigen::Quaterniond quat);
 
-
 ///
 /// @brief Convert Euler angles to quaternion
 /// @param euler_angles Input Euler angles
 /// @return Resulting quaternion
 ///
 Eigen::Quaterniond EigVecToQuat(Eigen::Vector3d euler_angles);
+
+///
+/// @brief Convert Eigen matrix to cv matrix
+/// @param matrix_eigen Input Eigen matrix
+/// @param matrix_cv Output CV matrix
+///
+void EigenMatrixToCv(Eigen::Matrix3d matrix_eigen, cv::Mat & matrix_cv);
+
+///
+/// @brief Convert quaternion to Rodrigues rotation vector
+/// @param quat Input rotation quaternion
+/// @return Rodrigues rotation vector
+///
+cv::Mat QuatToRodrigues(Eigen::Quaterniond quat);
 
 #endif  // UTILITY__TYPE_HELPER_HPP_

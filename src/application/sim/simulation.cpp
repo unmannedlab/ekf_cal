@@ -296,16 +296,17 @@ int main(int argc, char * argv[])
     fiducial_params.name = fiducials[i];
     fiducial_params.output_directory = out_dir;
     fiducial_params.data_logging_on = data_logging_on;
-    fiducial_params.pos_error = fid_node["pos_error"].as<double>(1e-2);
-    fiducial_params.ang_error = fid_node["ang_error"].as<double>(1e-3);
+    fiducial_params.pos_b_in_g = StdToEigVec(fid_node["pos_b_in_g"].as<std::vector<double>>());
+    fiducial_params.ang_b_to_g = StdToEigQuat(fid_node["ang_b_to_g"].as<std::vector<double>>());
+    fiducial_params.variance = StdToEigVec(fid_node["variance"].as<std::vector<double>>());
     fiducial_params.squares_x = fid_node["squares_x"].as<unsigned int>(1U);
     fiducial_params.squares_y = fid_node["squares_y"].as<unsigned int>(1U);
     fiducial_params.square_length = fid_node["square_length"].as<double>(0.0);
     fiducial_params.marker_length = fid_node["marker_length"].as<double>(0.0);
 
     SimFiducialTracker::Parameters sim_fiducial_params;
-    sim_fiducial_params.pos_b_in_g = StdToEigVec(sim_node["pos_b_in_g"].as<std::vector<double>>());
-    sim_fiducial_params.ang_b_to_g = StdToEigQuat(sim_node["ang_b_to_g"].as<std::vector<double>>());
+    sim_fiducial_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>());
+    sim_fiducial_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>());
     sim_fiducial_params.no_errors = no_errors;
     sim_fiducial_params.fiducial_params = fiducial_params;
 
@@ -357,16 +358,14 @@ int main(int argc, char * argv[])
       auto trk_params = tracker_map[cam_params.tracker];
       trk_params.tracker_params.sensor_id = cam->GetId();
       trk_params.tracker_params.intrinsics = cam_params.intrinsics;
-      auto trk = std::make_shared<SimFeatureTracker>(
-        trk_params, truth_engine, out_dir, data_logging_on);
+      auto trk = std::make_shared<SimFeatureTracker>(trk_params, truth_engine);
       cam->AddTracker(trk);
     }
     if (!cam_params.fiducial.empty()) {
       auto fid_params = fiducial_map[cam_params.fiducial];
       fid_params.fiducial_params.sensor_id = cam->GetId();
       fid_params.fiducial_params.intrinsics = cam_params.intrinsics;
-      auto fid = std::make_shared<SimFiducialTracker>(
-        fid_params, truth_engine, out_dir, data_logging_on);
+      auto fid = std::make_shared<SimFiducialTracker>(fid_params, truth_engine);
       cam->AddFiducial(fid);
     }
 

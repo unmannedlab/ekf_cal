@@ -30,14 +30,13 @@
 #include "infrastructure/debug_logger.hpp"
 #include "sensors/types.hpp"
 #include "trackers/sim/sim_feature_tracker_message.hpp"
+#include "utility/type_helper.hpp"
 
 SimFeatureTracker::SimFeatureTracker(
   SimFeatureTracker::Parameters params,
-  std::shared_ptr<TruthEngine> truthEngine,
-  std::string log_file_directory,
-  bool data_logging_on)
+  std::shared_ptr<TruthEngine> truthEngine)
 : FeatureTracker(params.tracker_params),
-  m_data_logger(log_file_directory, "feature_points.csv")
+  m_data_logger(params.tracker_params.output_directory, "feature_points.csv")
 {
   m_px_error = params.tracker_params.px_error;
   m_no_errors = params.no_errors;
@@ -45,7 +44,7 @@ SimFeatureTracker::SimFeatureTracker(
   m_truth = truthEngine;
 
   m_data_logger.DefineHeader("Feature,x,y,z\n");
-  m_data_logger.SetLogging(data_logging_on);
+  m_data_logger.SetLogging(params.tracker_params.data_logging_on);
 
   m_feature_points.push_back(cv::Point3d(params.room_size, 0, 0));
   m_feature_points.push_back(cv::Point3d(params.room_size, params.room_size / 10, 0));
@@ -92,23 +91,10 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
   Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(time);
   Eigen::Quaterniond ang_c_to_b = m_ang_c_to_b_true;
   Eigen::Matrix3d ang_g_to_c = (ang_b_to_g * ang_c_to_b).toRotationMatrix().transpose();
-
-  /// @todo put into type helper
   cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);
-  ang_g_to_c_cv.at<double>(0, 0) = ang_g_to_c(0, 0);
-  ang_g_to_c_cv.at<double>(1, 0) = ang_g_to_c(1, 0);
-  ang_g_to_c_cv.at<double>(2, 0) = ang_g_to_c(2, 0);
-
-  ang_g_to_c_cv.at<double>(0, 1) = ang_g_to_c(0, 1);
-  ang_g_to_c_cv.at<double>(1, 1) = ang_g_to_c(1, 1);
-  ang_g_to_c_cv.at<double>(2, 1) = ang_g_to_c(2, 1);
-
-  ang_g_to_c_cv.at<double>(0, 2) = ang_g_to_c(0, 2);
-  ang_g_to_c_cv.at<double>(1, 2) = ang_g_to_c(1, 2);
-  ang_g_to_c_cv.at<double>(2, 2) = ang_g_to_c(2, 2);
+  EigenMatrixToCv(ang_g_to_c, ang_g_to_c_cv);
 
   // Creating Rodrigues rotation matrix
-  /// @todo put into type helper
   cv::Mat r_vec(3, 1, cv::DataType<double>::type);
   cv::Rodrigues(ang_g_to_c_cv, r_vec);
 
@@ -212,7 +198,7 @@ void SimFeatureTracker::Callback(
   m_msckf_updater.UpdateEKF(time, camera_id, msg->m_feature_tracks, m_px_error);
 }
 
-void SimFeatureTracker::SetTrueOffsets(
+void SimFeatureTracker::SetTrueCameraOffsets(
   Eigen::Vector3d pos_c_in_b_true,
   Eigen::Quaterniond ang_c_to_b_true)
 {

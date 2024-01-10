@@ -19,6 +19,8 @@
 
 #include <vector>
 
+#include <opencv2/opencv.hpp>
+
 #include "infrastructure/debug_logger.hpp"
 
 
@@ -69,4 +71,24 @@ Eigen::Quaterniond EigVecToQuat(Eigen::Vector3d euler_angles)
     Eigen::AngleAxisd(euler_angles(1), Eigen::Vector3d::UnitY()) *
     Eigen::AngleAxisd(euler_angles(0), Eigen::Vector3d::UnitX());
   return quaternion;
+}
+
+void EigenMatrixToCv(Eigen::Matrix3d matrix_eigen, cv::Mat & matrix_cv)
+{
+  for (unsigned int i = 0; i < 3; ++i) {
+    for (unsigned int j = 0; j < 3; ++j) {
+      matrix_cv.at<double>(i, j) = matrix_eigen(i, j);
+    }
+  }
+}
+
+cv::Mat QuatToRodrigues(Eigen::Quaterniond quat)
+{
+  Eigen::Matrix3d rotation_matrix_eigen = quat.toRotationMatrix();
+  cv::Mat rotation_matrix_cv(3, 3, cv::DataType<double>::type);
+  EigenMatrixToCv(rotation_matrix_eigen, rotation_matrix_cv);
+  cv::Mat rodrigues_vector(3, 1, cv::DataType<double>::type);
+  cv::Rodrigues(rotation_matrix_cv, rodrigues_vector);
+
+  return rodrigues_vector;
 }

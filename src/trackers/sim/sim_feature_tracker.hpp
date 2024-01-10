@@ -58,9 +58,7 @@ public:
   ///
   SimFeatureTracker(
     Parameters params,
-    std::shared_ptr<TruthEngine> truth_engine,
-    std::string log_file_directory,
-    bool data_logging_on);
+    std::shared_ptr<TruthEngine> truth_engine);
 
   ///
   /// @brief Generate simulated tracker messages
@@ -87,7 +85,7 @@ public:
   /// @param pos_c_in_b_true True position offset of camera in body frame
   /// @param ang_c_to_b_true True angular offset of camera in body frame
   ///
-  void SetTrueOffsets(Eigen::Vector3d pos_c_in_b_true, Eigen::Quaterniond ang_c_to_b_true);
+  void SetTrueCameraOffsets(Eigen::Vector3d pos_c_in_b_true, Eigen::Quaterniond ang_c_to_b_true);
 
 private:
   double m_px_error;

@@ -51,19 +51,20 @@ public:
   ///
   typedef struct Parameters
   {
-    std::string name {""};               ///< @brief Feature Tracker name
-    int sensor_id{-1};                   ///< @brief Associated sensor ID
-    std::string output_directory {""};   ///< @brief Feature Tracker data logging directory
-    bool data_logging_on {false};        ///< @brief Feature Tracker data logging flag
-    double pos_error{1e-9};              ///< @brief Position error standard deviation
-    double ang_error{1e-9};              ///< @brief Angular error standard deviation
-    FiducialTypeEnum detector_type;      ///< @brief Detector type
-    unsigned int squares_x {1U};         ///< @brief Number of squares in the x direction
-    unsigned int squares_y {1U};         ///< @brief Number of squares in the y direction
-    double square_length {1.0};          ///< @brief Checkerboard square length
-    double marker_length {1.0};          ///< @brief Marker length
-    unsigned int initial_id{0};          ///< @brief Initial ID
-    Intrinsics intrinsics;               ///< @brief Camera intrinsic parameters
+    std::string name {""};                          ///< @brief Feature Tracker name
+    int sensor_id{-1};                              ///< @brief Associated sensor ID
+    std::string output_directory {""};              ///< @brief Feature Tracker data logging directory
+    bool data_logging_on {false};                   ///< @brief Feature Tracker data logging flag
+    FiducialTypeEnum detector_type;                 ///< @brief Detector type
+    unsigned int squares_x {1U};                    ///< @brief Number of squares in the x direction
+    unsigned int squares_y {1U};                    ///< @brief Number of squares in the y direction
+    double square_length {1.0};                     ///< @brief Checkerboard square length
+    double marker_length {1.0};                     ///< @brief Marker length
+    unsigned int initial_id{0};                     ///< @brief Initial ID
+    Intrinsics intrinsics;                          ///< @brief Camera intrinsic parameters
+    Eigen::Vector3d pos_b_in_g;                     ///< @brief Board position
+    Eigen::Quaterniond ang_b_to_g;                  ///< @brief Board orientation
+    Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1}};  ///< @brief Fiducial marker variance
   } Parameters;
 
   ///

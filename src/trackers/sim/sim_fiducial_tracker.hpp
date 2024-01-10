@@ -44,8 +44,8 @@ public:
   typedef struct Parameters
   {
     bool no_errors {false};                       ///< @brief Perfect measurements flag
-    Eigen::Vector3d pos_b_in_g;                   ///< @brief Board position
-    Eigen::Quaterniond ang_b_to_g;                ///< @brief Board orientation
+    Eigen::Vector3d pos_error{1e-9, 1e-9, 1e-9};  ///< @brief Position error standard deviation
+    Eigen::Vector3d ang_error{1e-9, 1e-9, 1e-9};  ///< @brief Angular error standard deviation
     FiducialTracker::Parameters fiducial_params;  ///< @brief Tracker parameters
   } Parameters;
 
@@ -58,9 +58,7 @@ public:
   ///
   SimFiducialTracker(
     Parameters params,
-    std::shared_ptr<TruthEngine> truth_engine,
-    std::string log_file_directory,
-    bool data_logging_on);
+    std::shared_ptr<TruthEngine> truth_engine);
 
   ///
   /// @brief Generate simulated tracker messages
@@ -85,17 +83,21 @@ public:
     std::shared_ptr<SimFiducialTrackerMessage> msg);
 
   ///
-  /// @brief True offset setter
+  /// @brief True camera offset setter
   /// @param pos_c_in_b_true True position offset of camera in body frame
   /// @param ang_c_to_b_true True angular offset of camera in body frame
   ///
-  void SetTrueOffsets(Eigen::Vector3d pos_c_in_b_true, Eigen::Quaterniond ang_c_to_b_true);
+  void SetTrueCameraOffsets(
+    Eigen::Vector3d pos_c_in_b_true,
+    Eigen::Quaterniond ang_c_to_b_true);
 
 private:
-  double m_pos_error;
-  double m_ang_error;
+  Eigen::Vector3d m_pos_error;
+  Eigen::Vector3d m_ang_error;
   Eigen::Vector3d m_pos_c_in_b_true {0.0, 0.0, 0.0};
   Eigen::Quaterniond m_ang_c_to_b_true {1.0, 0.0, 0.0, 0.0};
+  Eigen::Vector3d m_pos_b_in_g_true {0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_ang_b_to_g_true {1.0, 0.0, 0.0, 0.0};
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
   SimRNG m_rng;

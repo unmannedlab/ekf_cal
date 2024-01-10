@@ -36,15 +36,12 @@
 
 FiducialUpdater::FiducialUpdater(
   int cam_id, std::string log_file_directory, bool data_logging_on)
-: Updater(cam_id), m_data_logger(log_file_directory, "camera_" + std::to_string(cam_id) + ".csv")
+: Updater(cam_id), m_data_logger(log_file_directory, "fiducial_" + std::to_string(cam_id) + ".csv")
 {
   std::stringstream msg;
   msg << "time";
-  msg << EnumerateHeader("cam_state", g_cam_state_size);
-  msg << EnumerateHeader("body_update", g_body_state_size);
-  msg << EnumerateHeader("cam_update", g_cam_state_size);
-  msg << ",FeatureTracks";
-  msg << EnumerateHeader("time", 1);
+  msg << ",BoardTracks";
+  msg << EnumerateHeader("duration", 1);
   msg << std::endl;
 
   m_data_logger.DefineHeader(msg.str());
@@ -121,18 +118,12 @@ void FiducialUpdater::UpdateEKF(
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
   // // Write outputs
-  // std::stringstream msg;
-  // Eigen::VectorXd cam_state = m_ekf->GetState().m_cam_states[camera_id].ToVector();
-  // Eigen::VectorXd cam_sub_update = update.segment(cam_state_start, g_cam_state_size);
-
-  // msg << time;
-  // msg << VectorToCommaString(cam_state.segment(0, g_cam_state_size));
-  // msg << VectorToCommaString(body_update);
-  // msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));
-  // msg << "," << std::to_string(feature_tracks.size());
-  // msg << "," << t_execution.count();
-  // msg << std::endl;
-  // m_data_logger.Log(msg.str());
+  std::stringstream msg;
+  msg << time;
+  msg << "," << std::to_string(board_track.size());
+  msg << "," << t_execution.count();
+  msg << std::endl;
+  m_data_logger.Log(msg.str());
 }
 
 void FiducialUpdater::RefreshStates()

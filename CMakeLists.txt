@@ -162,8 +162,10 @@ target_link_libraries(sim SIM_LIB EKF_LIB SIM_INF EKF_UTL ${YAML_CPP_LIBRARIES})
 
 # Add all ROS dependencies
 ament_target_dependencies(ROS_INF rclcpp)
-ament_target_dependencies(SIM_LIB OpenCV)
 ament_target_dependencies(EKF_LIB OpenCV)
+ament_target_dependencies(EKF_UTL OpenCV)
+ament_target_dependencies(SIM_INF OpenCV)
+ament_target_dependencies(SIM_LIB OpenCV)
 ament_target_dependencies(ROS_UTL ${ROS_PKGS})
 ament_target_dependencies(ROS_LIB ${ROS_PKGS})
 ament_target_dependencies(EKF_NODE_LIB ${ROS_PKGS})

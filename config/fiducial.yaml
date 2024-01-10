@@ -36,7 +36,7 @@
         camera_list:
             - "ace"
 
-        tracker_list:
+        fiducial_list:
             - "charuco"
 
         imu:
@@ -99,6 +99,9 @@
                 squares_y: 7
                 square_length: 0.04
                 marker_length: 0.02
+                pos_b_in_g: [5.0, 0.0, 0.0]
+                ang_b_to_g: [1.0, 0.0, 0.0, 0.0]
+                variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 sim_params:
-                    pos_b_in_g: [0.0, 0.0, 0.0]
-                    ang_b_to_g: [1.0, 0.0, 0.0, 0.0]
+                    pos_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
