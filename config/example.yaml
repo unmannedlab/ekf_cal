@@ -7,7 +7,7 @@
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 5.0
+            max_time: 10.0
             no_errors: false
             number_of_runs: 10
             run_number: 0
@@ -115,8 +115,8 @@
                     time_bias_error: 1.0e-3
                     time_skew_error: 1.0e-9
                     time_error: 1.0e-6
-                    pos_error: [1.0e-1, 1.0e-1, 1.0e-1]
-                    ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    pos_error: [1.0e-2, 1.0e-2, 1.0e-2]
+                    ang_error: [1.0e-2, 1.0e-2, 1.0e-2]
 
         tracker:
             orb:

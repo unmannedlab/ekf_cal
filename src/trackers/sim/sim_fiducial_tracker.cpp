@@ -30,20 +30,21 @@ SimFiducialTracker::SimFiducialTracker(
   m_data_logger.SetLogging(params.fiducial_params.data_logging_on);
   m_pos_error = params.pos_error;
   m_ang_error = params.ang_error;
-  m_pos_b_in_g_true = params.fiducial_params.pos_b_in_g;
-  Eigen::Vector3d ang_b_to_g_error_rpy(0.0, 0.0, 0.0);
 
   if (!params.no_errors) {
-    m_pos_b_in_g_true[0] = m_rng.NormRand(0.0, m_pos_error[0]);
-    m_pos_b_in_g_true[1] = m_rng.NormRand(0.0, m_pos_error[1]);
-    m_pos_b_in_g_true[2] = m_rng.NormRand(0.0, m_pos_error[2]);
+    m_pos_b_in_g_true[0] = m_rng.NormRand(params.fiducial_params.pos_b_in_g[0], m_pos_error[0]);
+    m_pos_b_in_g_true[1] = m_rng.NormRand(params.fiducial_params.pos_b_in_g[1], m_pos_error[1]);
+    m_pos_b_in_g_true[2] = m_rng.NormRand(params.fiducial_params.pos_b_in_g[2], m_pos_error[2]);
 
+    Eigen::Vector3d ang_b_to_g_error_rpy(0.0, 0.0, 0.0);
     ang_b_to_g_error_rpy(0) = m_rng.NormRand(0.0, m_ang_error[0]);
     ang_b_to_g_error_rpy(1) = m_rng.NormRand(0.0, m_ang_error[1]);
     ang_b_to_g_error_rpy(2) = m_rng.NormRand(0.0, m_ang_error[2]);
+    m_ang_b_to_g_true = EigVecToQuat(ang_b_to_g_error_rpy) * params.fiducial_params.ang_b_to_g;
+  } else {
+    m_pos_b_in_g_true = params.fiducial_params.pos_b_in_g;
+    m_ang_b_to_g_true = params.fiducial_params.ang_b_to_g;
   }
-
-  m_ang_b_to_g_true = EigVecToQuat(ang_b_to_g_error_rpy) * params.fiducial_params.ang_b_to_g;
 
   m_intrinsics = params.fiducial_params.intrinsics;
   m_proj_matrix = cv::Mat(3, 3, cv::DataType<double>::type, 0.0);
@@ -160,8 +161,8 @@ void SimFiducialTracker::Callback(
 
 void SimFiducialTracker::SetTrueCameraOffsets(
   Eigen::Vector3d pos_c_in_b_true,
-  Eigen::Quaterniond ang_b_to_g_true)
+  Eigen::Quaterniond ang_c_to_b_true)
 {
   m_pos_c_in_b_true = pos_c_in_b_true;
-  m_ang_b_to_g_true = ang_b_to_g_true;
+  m_ang_c_to_b_true = ang_c_to_b_true;
 }

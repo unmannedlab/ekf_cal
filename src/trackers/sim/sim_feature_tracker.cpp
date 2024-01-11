@@ -22,6 +22,7 @@
 #include <ostream>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #include <opencv2/opencv.hpp>
 
@@ -122,25 +123,24 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
     cv::Point3d pointCV = m_feature_points[i];
     Eigen::Vector3d pointEig(pointCV.x, pointCV.y, pointCV.z);
 
-    // Check that point is in front of camera plane
-    if (cam_plane_vec.dot(pointEig) > 0) {
-      if (
-        projected_points[i].x >= 0 &&
-        projected_points[i].y >= 0 &&
-        projected_points[i].x <= m_intrinsics.width &&
-        projected_points[i].y <= m_intrinsics.height)
-      {
-        cv::KeyPoint feat;
-        feat.class_id = i;
-        if (m_no_errors) {
-          feat.pt.x = projected_points[i].x;
-          feat.pt.y = projected_points[i].y;
-        } else {
-          feat.pt.x = round(projected_points[i].x + m_rng.NormRand(0.0, m_px_error));
-          feat.pt.y = round(projected_points[i].y + m_rng.NormRand(0.0, m_px_error));
-        }
-        projected_features.push_back(feat);
+    // Check that point is in front of camera plane and within sensor limits
+    if (
+      cam_plane_vec.dot(pointEig) > 0 &&
+      projected_points[i].x >= 0 &&
+      projected_points[i].y >= 0 &&
+      projected_points[i].x <= m_intrinsics.width &&
+      projected_points[i].y <= m_intrinsics.height)
+    {
+      cv::KeyPoint feat;
+      feat.class_id = i;
+      if (m_no_errors) {
+        feat.pt.x = projected_points[i].x;
+        feat.pt.y = projected_points[i].y;
+      } else {
+        feat.pt.x = round(m_rng.NormRand(projected_points[i].x, m_px_error));
+        feat.pt.y = round(m_rng.NormRand(projected_points[i].y, m_px_error));
       }
+      projected_features.push_back(feat);
     }
   }
 

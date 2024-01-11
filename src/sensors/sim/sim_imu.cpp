@@ -33,11 +33,6 @@
 SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngine)
 : IMU(params.imu_params)
 {
-  /// @todo(jhartzer): Use these parameters once time filter is implemented
-  // m_time_bias_error = params.time_bias_error;
-  // m_time_skew_error = params.time_skew_error;
-  m_time_bias_error = 0.0;
-  m_time_skew_error = 0.0;
   m_time_error = params.time_error;
   m_acc_error = params.acc_error;
   m_omg_error = params.omg_error;
@@ -49,28 +44,36 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngi
   m_truth = truthEngine;
 
   // Add extrinsic error to non-base sensor
-  if (params.imu_params.is_extrinsic) {
-    m_pos_i_in_b_true[0] = m_rng.NormRand(0.0, m_pos_error[0]);
-    m_pos_i_in_b_true[1] = m_rng.NormRand(0.0, m_pos_error[1]);
-    m_pos_i_in_b_true[2] = m_rng.NormRand(0.0, m_pos_error[2]);
-    Eigen::Vector3d ang_i_to_b_true_rpy;
-    ang_i_to_b_true_rpy(0) = m_rng.NormRand(0.0, m_ang_error[0]);
-    ang_i_to_b_true_rpy(1) = m_rng.NormRand(0.0, m_ang_error[1]);
-    ang_i_to_b_true_rpy(2) = m_rng.NormRand(0.0, m_ang_error[2]);
-    m_ang_i_to_b_true = EigVecToQuat(ang_i_to_b_true_rpy);
+  if (params.imu_params.is_extrinsic && !params.no_errors) {
+    m_pos_i_in_b_true[0] = m_rng.NormRand(params.imu_params.pos_i_in_b[0], m_pos_error[0]);
+    m_pos_i_in_b_true[1] = m_rng.NormRand(params.imu_params.pos_i_in_b[1], m_pos_error[1]);
+    m_pos_i_in_b_true[2] = m_rng.NormRand(params.imu_params.pos_i_in_b[2], m_pos_error[2]);
+    Eigen::Vector3d ang_i_to_b_error_rpy;
+    ang_i_to_b_error_rpy(0) = m_rng.NormRand(0.0, m_ang_error[0]);
+    ang_i_to_b_error_rpy(1) = m_rng.NormRand(0.0, m_ang_error[1]);
+    ang_i_to_b_error_rpy(2) = m_rng.NormRand(0.0, m_ang_error[2]);
+    m_ang_i_to_b_true = EigVecToQuat(ang_i_to_b_error_rpy) * params.imu_params.ang_i_to_b;
   } else {
     m_pos_i_in_b_true = params.imu_params.pos_i_in_b;
     m_ang_i_to_b_true = params.imu_params.ang_i_to_b;
   }
 
+  if (params.no_errors) {
+    m_time_bias_error = 0.0;
+    m_time_skew_error = 0.0;
+  } else {
+    m_time_bias_error = params.time_bias_error;
+    m_time_skew_error = params.time_skew_error;
+  }
+
   // Add intrinsic error to non-calibrated sensors
-  if (params.imu_params.is_intrinsic) {
-    m_acc_bias_true[0] = m_rng.NormRand(0.0, m_acc_bias_error[0]);
-    m_acc_bias_true[1] = m_rng.NormRand(0.0, m_acc_bias_error[1]);
-    m_acc_bias_true[2] = m_rng.NormRand(0.0, m_acc_bias_error[2]);
-    m_omg_bias_true[0] = m_rng.NormRand(0.0, m_omg_bias_error[0]);
-    m_omg_bias_true[1] = m_rng.NormRand(0.0, m_omg_bias_error[1]);
-    m_omg_bias_true[2] = m_rng.NormRand(0.0, m_omg_bias_error[2]);
+  if (params.imu_params.is_intrinsic && !params.no_errors) {
+    m_acc_bias_true[0] = m_rng.NormRand(params.imu_params.acc_bias[0], m_acc_bias_error[0]);
+    m_acc_bias_true[1] = m_rng.NormRand(params.imu_params.acc_bias[1], m_acc_bias_error[1]);
+    m_acc_bias_true[2] = m_rng.NormRand(params.imu_params.acc_bias[2], m_acc_bias_error[2]);
+    m_omg_bias_true[0] = m_rng.NormRand(params.imu_params.omg_bias[0], m_omg_bias_error[0]);
+    m_omg_bias_true[1] = m_rng.NormRand(params.imu_params.omg_bias[1], m_omg_bias_error[1]);
+    m_omg_bias_true[2] = m_rng.NormRand(params.imu_params.omg_bias[2], m_omg_bias_error[2]);
   } else {
     m_acc_bias_true = params.imu_params.acc_bias;
     m_omg_bias_true = params.imu_params.omg_bias;
