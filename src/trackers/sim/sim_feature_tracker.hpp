@@ -53,8 +53,6 @@ public:
   /// @brief Simulation IMU constructor
   /// @param params Simulation IMU parameters
   /// @param truth_engine Truth engine
-  /// @param log_file_directory Directory to save data log file
-  /// @param data_logging_on Flag to enable data logging
   ///
   SimFeatureTracker(
     Parameters params,

@@ -53,8 +53,8 @@ public:
   {
     std::string name {""};                          ///< @brief Feature Tracker name
     int sensor_id{-1};                              ///< @brief Associated sensor ID
-    std::string output_directory {""};              ///< @brief Feature Tracker data logging directory
-    bool data_logging_on {false};                   ///< @brief Feature Tracker data logging flag
+    std::string output_directory {""};              ///< @brief Feature Tracker data log directory
+    bool data_logging_on {false};                   ///< @brief Feature Tracker data log flag
     FiducialTypeEnum detector_type;                 ///< @brief Detector type
     unsigned int squares_x {1U};                    ///< @brief Number of squares in the x direction
     unsigned int squares_y {1U};                    ///< @brief Number of squares in the y direction
