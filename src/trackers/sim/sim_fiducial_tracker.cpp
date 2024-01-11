@@ -118,7 +118,8 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
   for (int frame_id = 0; static_cast<unsigned int>(frame_id) < message_times.size(); ++frame_id) {
     std::vector<std::vector<FeatureTrack>> feature_tracks;
 
-    if (IsBoardVisible(message_times[frame_id])) {
+    bool is_board_visible = IsBoardVisible(message_times[frame_id]);
+    if (is_board_visible) {
       BoardDetection board_detection;
 
       board_detection.frame_id = frame_id;
@@ -134,19 +135,21 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
       board_detection.r_vec_b_to_c = QuatToRodrigues(ang_b_to_c);
 
       board_track.push_back(board_detection);
-    } else {
-      /// @todo(jhartzer): Implement minimum board track detections
-      if (board_track.size() == 1) {
-        board_track.clear();
-      } else {
-        auto tracker_message = std::make_shared<SimFiducialTrackerMessage>();
-        tracker_message->m_board_track = board_track;
-        tracker_message->m_time = message_times[frame_id];
-        tracker_message->m_tracker_id = m_id;
-        tracker_message->m_sensor_id = sensor_id;
-        tracker_message->m_sensor_type = SensorType::Tracker;
-        fiducial_tracker_messages.push_back(tracker_message);
-      }
+      /// @todo(jhartzer): Get minimum board track detections from input
+    } else if (board_track.size() < 2) {
+      board_track.clear();
+    }
+
+    /// @todo(jhartzer): Get maximum board track detections from input
+    if (!is_board_visible || board_track.size() >= 20) {
+      auto tracker_message = std::make_shared<SimFiducialTrackerMessage>();
+      tracker_message->m_board_track = board_track;
+      tracker_message->m_time = message_times[frame_id];
+      tracker_message->m_tracker_id = m_id;
+      tracker_message->m_sensor_id = sensor_id;
+      tracker_message->m_sensor_type = SensorType::Tracker;
+      fiducial_tracker_messages.push_back(tracker_message);
+      board_track.clear();
     }
   }
   return fiducial_tracker_messages;
