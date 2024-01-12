@@ -152,12 +152,10 @@ void SimCamera::Callback(std::shared_ptr<SimCameraMessage> sim_camera_message)
   if (sim_camera_message->m_feature_track_message != NULL) {
     if (sim_camera_message->m_feature_track_message->m_feature_tracks.size() > 0) {
       m_trackers[sim_camera_message->m_feature_track_message->m_tracker_id]->Callback(
-        sim_camera_message->m_time, sim_camera_message->m_sensor_id,
-        sim_camera_message->m_feature_track_message);
+        sim_camera_message->m_time, sim_camera_message->m_feature_track_message);
     }
   } else if (sim_camera_message->m_fiducial_track_message != NULL) {
     m_fiducials[sim_camera_message->m_fiducial_track_message->m_tracker_id]->Callback(
-      sim_camera_message->m_time, sim_camera_message->m_sensor_id,
-      sim_camera_message->m_fiducial_track_message);
+      sim_camera_message->m_time, sim_camera_message->m_fiducial_track_message);
   }
 }

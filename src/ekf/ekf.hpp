@@ -236,6 +236,14 @@ public:
   ///
   void SetProcessNoise(Eigen::VectorXd process_noise);
 
+  ///
+  /// @brief Find augmented state matching a camera and frame ID pair
+  /// @param frame_id Desired camera ID
+  /// @param frame_id Desired frame ID
+  /// @return Matching augmented state
+  ///
+  AugmentedState MatchState(int camera_id, int frame_id);
+
   DataLogger m_data_logger;  ///< @brief Data logger
 
 private:

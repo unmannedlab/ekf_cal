@@ -253,7 +253,7 @@ void FeatureTracker::Track(
     }
   }
 
-  m_msckf_updater.UpdateEKF(time, m_camera_id, feature_tracks, m_px_error);
+  m_msckf_updater.UpdateEKF(time, feature_tracks, m_px_error);
 
   m_prev_key_points = m_curr_key_points;
   m_prev_descriptors = m_curr_descriptors;

@@ -47,13 +47,6 @@ public:
     bool data_logging_on);
 
   ///
-  /// @brief Find augmented state matching a frame ID
-  /// @param frame_id Desired frame ID
-  /// @return Matching augmented state
-  ///
-  AugmentedState MatchState(int frame_id);
-
-  ///
   /// @brief Triangulate feature seen from multiple camera frames
   /// @param feature_track Single feature track
   /// @return Estimate of feature position in camera frame given observations
@@ -63,13 +56,11 @@ public:
   ///
   /// @brief EKF updater function
   /// @param time Time of update
-  /// @param camera_id ID of camera associated with update
   /// @param feature_tracks Feature tracks to be used for state update
   /// @param px_error Standard deviation of pixel error
   ///
   void UpdateEKF(
     double time,
-    int camera_id,
     FeatureTracks feature_tracks,
     double px_error);
 
@@ -77,7 +68,6 @@ public:
   /// @brief Refresh internal states with EKF values
   ///
   void RefreshStates();
-
 
   ///
   /// @brief Computes the derivative of raw distorted to normalized coordinate.

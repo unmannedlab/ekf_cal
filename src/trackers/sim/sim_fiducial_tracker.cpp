@@ -155,11 +155,9 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
   return fiducial_tracker_messages;
 }
 
-void SimFiducialTracker::Callback(
-  double time, unsigned int camera_id,
-  std::shared_ptr<SimFiducialTrackerMessage> msg)
+void SimFiducialTracker::Callback(double time, std::shared_ptr<SimFiducialTrackerMessage> msg)
 {
-  m_fiducial_updater.UpdateEKF(time, camera_id, msg->m_board_track, m_intrinsics);
+  m_fiducial_updater.UpdateEKF(time, msg->m_board_track, m_intrinsics);
 }
 
 void SimFiducialTracker::SetTrueCameraOffsets(

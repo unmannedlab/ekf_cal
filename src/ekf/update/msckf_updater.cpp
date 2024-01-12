@@ -58,27 +58,11 @@ MsckfUpdater::MsckfUpdater(
   m_intrinsics = intrinsics;
 }
 
-AugmentedState MsckfUpdater::MatchState(int frame_id)
-{
-  AugmentedState aug_state_match;
-
-  for (auto & aug_state : m_aug_states) {
-    if (aug_state.frame_id == frame_id) {
-      return aug_state;
-    }
-  }
-
-  std::stringstream warning_msg;
-  warning_msg << "No matching augmented state for frame " << frame_id;
-  m_logger->Log(LogLevel::WARN, warning_msg.str());
-  return aug_state_match;
-}
-
 /// @todo possible move into separate source for re-compilation speed
 /// @todo remove class members from function and use reference inputs instead
 Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & feature_track)
 {
-  AugmentedState aug_state_0 = MatchState(feature_track[0].frame_id);
+  AugmentedState aug_state_0 = m_ekf->MatchState(m_id, feature_track[0].frame_id);
 
   // 3D Cartesian Triangulation
   Eigen::Matrix3d A = Eigen::Matrix3d::Zero();
@@ -93,7 +77,7 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
   const Eigen::Matrix3d rotation_i0_to_c0 = rotation_c0_to_i0.transpose();
 
   for (unsigned int i = 0; i < feature_track.size(); ++i) {
-    AugmentedState aug_state_i = MatchState(feature_track[i].frame_id);
+    AugmentedState aug_state_i = m_ekf->MatchState(m_id, feature_track[i].frame_id);
 
     /// @todo(jhartzer): Need to acknowledge this isn't really an IMU orientation, but a body
     const Eigen::Vector3d position_ii_in_g = aug_state_i.pos_b_in_g;
@@ -203,7 +187,6 @@ void MsckfUpdater::distortion_jacobian(
 
 void MsckfUpdater::UpdateEKF(
   double time,
-  int camera_id,
   FeatureTracks feature_tracks,
   double px_error)
 {
@@ -211,7 +194,7 @@ void MsckfUpdater::UpdateEKF(
   RefreshStates();
   auto t_start = std::chrono::high_resolution_clock::now();
 
-  m_logger->Log(LogLevel::DEBUG, "Called update_msckf for camera ID: " + std::to_string(camera_id));
+  m_logger->Log(LogLevel::DEBUG, "Called update_msckf for camera ID: " + std::to_string(m_id));
 
   if (feature_tracks.size() == 0) {
     return;
@@ -225,7 +208,7 @@ void MsckfUpdater::UpdateEKF(
 
   unsigned int ct_meas = 0;
   unsigned int state_size = m_ekf->GetState().GetStateSize();
-  unsigned int cam_state_start = m_ekf->GetCamStateStartIndex(camera_id);
+  unsigned int cam_state_start = m_ekf->GetCamStateStartIndex(m_id);
 
   Eigen::VectorXd res_x = Eigen::VectorXd::Zero(max_meas_size);
   Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(max_meas_size, state_size);
@@ -259,14 +242,14 @@ void MsckfUpdater::UpdateEKF(
     m_triangulation_logger.Log(msg.str());
 
     unsigned int aug_state_size = g_aug_state_size *
-      m_ekf->GetCamState(camera_id).augmented_states.size();
+      m_ekf->GetCamState(m_id).augmented_states.size();
     Eigen::VectorXd res_f = Eigen::VectorXd::Zero(2 * feature_track.size());
     Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feature_track.size(), 3);
     Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(
       2 * feature_track.size(), g_cam_state_size + aug_state_size);
 
     for (unsigned int i = 0; i < feature_track.size(); ++i) {
-      AugmentedState aug_state_i = MatchState(feature_track[i].frame_id);
+      AugmentedState aug_state_i = m_ekf->MatchState(m_id, feature_track[i].frame_id);
 
       // Our calibration between the IMU and CAMi frames
       Eigen::Matrix3d rot_ci_to_ii = aug_state_i.ang_c_to_b.toRotationMatrix();
@@ -291,8 +274,7 @@ void MsckfUpdater::UpdateEKF(
       xz_residual = xz_measured - xz_predicted;
       res_f.segment<2>(2 * i) = xz_residual;
 
-      unsigned int aug_state_start =
-        m_ekf->GetAugStateStartIndex(camera_id, feature_track[i].frame_id);
+      unsigned int aug_state_start = m_ekf->GetAugStateStartIndex(m_id, feature_track[i].frame_id);
 
       // Projection Jacobian
       Eigen::MatrixXd H_p(2, 3);
@@ -365,7 +347,7 @@ void MsckfUpdater::UpdateEKF(
 
   // Write outputs
   std::stringstream msg;
-  Eigen::VectorXd cam_state = m_ekf->GetState().m_cam_states[camera_id].ToVector();
+  Eigen::VectorXd cam_state = m_ekf->GetState().m_cam_states[m_id].ToVector();
   Eigen::VectorXd cam_sub_update = update.segment(cam_state_start, g_cam_state_size);
 
   msg << time;

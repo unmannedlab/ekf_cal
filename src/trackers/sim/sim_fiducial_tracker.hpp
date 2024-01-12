@@ -73,12 +73,9 @@ public:
   ///
   /// @brief Callback for feature tracker
   /// @param time Message time
-  /// @param camera_id Camera ID
   /// @param msg Feature track message
   ///
-  void Callback(
-    double time, unsigned int camera_id,
-    std::shared_ptr<SimFiducialTrackerMessage> msg);
+  void Callback(double time, std::shared_ptr<SimFiducialTrackerMessage> msg);
 
   ///
   /// @brief True camera offset setter

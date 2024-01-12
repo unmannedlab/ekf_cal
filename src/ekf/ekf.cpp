@@ -493,3 +493,19 @@ void EKF::SetProcessNoise(Eigen::VectorXd process_noise)
 {
   m_process_noise = process_noise.asDiagonal();
 }
+
+AugmentedState EKF::MatchState(int camera_id, int frame_id)
+{
+  AugmentedState aug_state_match;
+
+  for (auto & aug_state : m_state.m_cam_states[camera_id].augmented_states) {
+    if (aug_state.frame_id == frame_id) {
+      return aug_state;
+    }
+  }
+
+  std::stringstream warning_msg;
+  warning_msg << "No matching augmented state for frame " << frame_id;
+  m_logger->Log(LogLevel::WARN, warning_msg.str());
+  return aug_state_match;
+}

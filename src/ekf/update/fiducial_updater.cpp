@@ -49,12 +49,22 @@ FiducialUpdater::FiducialUpdater(
 }
 
 void FiducialUpdater::UpdateEKF(
-  double time, int camera_id, BoardTrack board_track,
+  double time, BoardTrack board_track,
   Intrinsics intrinsics)
 {
   m_ekf->ProcessModel(time);
   RefreshStates();
   auto t_start = std::chrono::high_resolution_clock::now();
+
+  for (auto board_detection : board_track) {
+    AugmentedState aug_state_i = m_ekf->MatchState(m_id, board_detection.frame_id);
+
+    /// @todo(jhartzer): Need to acknowledge this isn't really an IMU orientation, but a body
+    const Eigen::Vector3d position_bi_in_g = aug_state_i.pos_b_in_g;
+    const Eigen::Matrix3d rotation_bi_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
+    const Eigen::Vector3d position_ci_in_bi = aug_state_i.pos_c_in_b;
+    const Eigen::Matrix3d rotation_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
+  }
 
   // m_logger->Log(LogLevel::DEBUG, "Called update_msckf for camera ID: "
   // + std::to_string(camera_id));
