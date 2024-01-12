@@ -232,3 +232,35 @@ TEST(test_MathHelper, average_quaternions) {
   EXPECT_EQ(average_quaternion_3.y(), 0.0);
   EXPECT_EQ(average_quaternion_3.z(), 0.0);
 }
+
+TEST(test_MathHelper, average_vectors) {
+  std::vector<Eigen::Vector3d> vectors_1;
+  vectors_1.push_back(Eigen::Vector3d(9.0, 0.0, 0.0));
+  vectors_1.push_back(Eigen::Vector3d(0.0, 6.0, 0.0));
+  vectors_1.push_back(Eigen::Vector3d(0.0, 0.0, 3.0));
+
+  std::vector<double> weights_1;
+  weights_1.push_back(1.0);
+  weights_1.push_back(1.0);
+  weights_1.push_back(1.0);
+
+  Eigen::Vector3d average_vector_1 = average_vectors(vectors_1, weights_1);
+  EXPECT_EQ(average_vector_1[0], 3.0);
+  EXPECT_EQ(average_vector_1[1], 2.0);
+  EXPECT_EQ(average_vector_1[2], 1.0);
+
+  std::vector<Eigen::Vector3d> vectors_2;
+  vectors_2.push_back(Eigen::Vector3d(6.0, 0.0, 0.0));
+  vectors_2.push_back(Eigen::Vector3d(0.0, 6.0, 0.0));
+  vectors_2.push_back(Eigen::Vector3d(0.0, 0.0, 6.0));
+
+  std::vector<double> weights_2;
+  weights_2.push_back(1.0);
+  weights_2.push_back(2.0);
+  weights_2.push_back(3.0);
+
+  Eigen::Vector3d average_vector_2 = average_vectors(vectors_2, weights_2);
+  EXPECT_EQ(average_vector_2[0], 1.0);
+  EXPECT_EQ(average_vector_2[1], 2.0);
+  EXPECT_EQ(average_vector_2[2], 3.0);
+}

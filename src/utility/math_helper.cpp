@@ -218,3 +218,17 @@ Eigen::Quaterniond average_quaternions(
 
   return average_quaternion;
 }
+
+
+Eigen::Vector3d average_vectors(
+  std::vector<Eigen::Vector3d> vectors, std::vector<double> weights)
+{
+  Eigen::Vector3d average_vector {0.0, 0.0, 0.0};
+  double weights_sum {0.0};
+
+  for (unsigned int i = 0; i < vectors.size(); ++i) {
+    average_vector += weights[i] * vectors[i];
+    weights_sum += weights[i];
+  }
+  return average_vector / weights_sum;
+}

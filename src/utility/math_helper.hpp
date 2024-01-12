@@ -98,12 +98,20 @@ void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual
 
 ///
 /// @brief Find average of multiple quaternions
-/// @param jacobian Vector of quaternions to average
-/// @param residual Vector of weights
+/// @param quaternions Vector of quaternions to average
+/// @param weights Vector of weights
 /// @return Average quaternion
 ///
 Eigen::Quaterniond average_quaternions(
   std::vector<Eigen::Quaterniond> quaternions,
   std::vector<double> weights);
+
+///
+/// @brief Find average of multiple vectors
+/// @param vectors Vector of vectors to average
+/// @param weights Vector of weights
+/// @return Average quaternion
+///
+Eigen::Vector3d average_vectors(std::vector<Eigen::Vector3d> vectors, std::vector<double> weights);
 
 #endif  // UTILITY__MATH_HELPER_HPP_
