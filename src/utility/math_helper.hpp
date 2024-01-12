@@ -18,6 +18,8 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <vector>
+
 ///
 /// @brief Produces a cross product matrix
 /// @param in_vec Input vector with which to find the left hand size cross product matrix
@@ -93,5 +95,15 @@ void ApplyLeftNullspace(Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::Vec
 /// @param residual Measurement residual
 ///
 void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual);
+
+///
+/// @brief Find average of multiple quaternions
+/// @param jacobian Vector of quaternions to average
+/// @param residual Vector of weights
+/// @return Average quaternion
+///
+Eigen::Quaterniond average_quaternions(
+  std::vector<Eigen::Quaterniond> quaternions,
+  std::vector<double> weights);
 
 #endif  // UTILITY__MATH_HELPER_HPP_

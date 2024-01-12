@@ -17,6 +17,8 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <vector>
+
 Eigen::Matrix3d SkewSymmetric(Eigen::Vector3d in_vec)
 {
   Eigen::Matrix3d out_mat = Eigen::Matrix3d::Zero();
@@ -176,4 +178,43 @@ void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual
     jacobian.conservativeResize(r, jacobian.cols());
     residual.conservativeResize(r);
   }
+}
+
+
+Eigen::Quaterniond average_quaternions(
+  std::vector<Eigen::Quaterniond> quaternions,
+  std::vector<double> weights)
+{
+  Eigen::Quaterniond average_quaternion{1.0, 0.0, 0.0, 0.0};
+  Eigen::MatrixXd accum_matrix(4, quaternions.size());
+
+  /// @todo(jhartzer): Check that the vectors are equally sized. Log warning otherwise
+  for (unsigned int i = 0; i < quaternions.size(); ++i) {
+    if (quaternions[i].w() < 0) {
+      weights[i] *= -1;
+    }
+    accum_matrix(0, i) = weights[i] * quaternions[i].w();
+    accum_matrix(1, i) = weights[i] * quaternions[i].x();
+    accum_matrix(2, i) = weights[i] * quaternions[i].y();
+    accum_matrix(3, i) = weights[i] * quaternions[i].z();
+  }
+
+  Eigen::Matrix4d A_matrix = accum_matrix * accum_matrix.transpose();
+
+  Eigen::SelfAdjointEigenSolver<Eigen::Matrix4d> eigen_solver(A_matrix);
+
+  if (eigen_solver.info() == Eigen::Success) {
+    Eigen::Vector4d eigen_values = eigen_solver.eigenvalues();
+    Eigen::Matrix4d eigen_vectors = eigen_solver.eigenvectors();
+    unsigned int max_eigen_index;
+    eigen_values.maxCoeff(&max_eigen_index);
+
+    average_quaternion.w() = eigen_vectors(0, max_eigen_index);
+    average_quaternion.x() = eigen_vectors(1, max_eigen_index);
+    average_quaternion.y() = eigen_vectors(2, max_eigen_index);
+    average_quaternion.z() = eigen_vectors(3, max_eigen_index);
+    average_quaternion.normalize();
+  }
+
+  return average_quaternion;
 }

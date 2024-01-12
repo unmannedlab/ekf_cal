@@ -162,3 +162,73 @@ TEST(test_MathHelper, CompressMeasurements) {
   EXPECT_NEAR(jacobian2(0, 1), 0.0, 1e-6);
   EXPECT_NEAR(residual2(0), 2.0, 1e-6);
 }
+
+TEST(test_MathHelper, average_quaternions) {
+  std::vector<Eigen::Quaterniond> quaternions_1;
+  quaternions_1.push_back(Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0));
+  quaternions_1.push_back(Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0));
+  quaternions_1.push_back(Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0));
+  quaternions_1.push_back(Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0));
+  quaternions_1.push_back(Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0));
+
+  std::vector<double> weights_1;
+  weights_1.push_back(1.0);
+  weights_1.push_back(1.0);
+  weights_1.push_back(1.0);
+  weights_1.push_back(1.0);
+  weights_1.push_back(1.0);
+
+  Eigen::Quaterniond average_quaternion_1 = average_quaternions(quaternions_1, weights_1);
+  EXPECT_EQ(average_quaternion_1.w(), 1.0);
+  EXPECT_EQ(average_quaternion_1.x(), 0.0);
+  EXPECT_EQ(average_quaternion_1.y(), 0.0);
+  EXPECT_EQ(average_quaternion_1.z(), 0.0);
+
+  std::vector<Eigen::Quaterniond> quaternions_2;
+  quaternions_2.push_back(Eigen::Quaterniond(0.9990482, 0.0436194, 0, 0));
+  quaternions_2.push_back(Eigen::Quaterniond(0.9990482, -0.0436194, 0, 0));
+  quaternions_2.push_back(Eigen::Quaterniond(0.9990482, 0, 0.0436194, 0));
+  quaternions_2.push_back(Eigen::Quaterniond(0.9990482, 0, -0.0436194, 0));
+  quaternions_2.push_back(Eigen::Quaterniond(0.9990482, 0, 0, 0.0436194));
+  quaternions_2.push_back(Eigen::Quaterniond(0.9990482, 0, 0, -0.0436194));
+
+  std::vector<double> weights_2;
+  weights_2.push_back(1.0);
+  weights_2.push_back(1.0);
+  weights_2.push_back(1.0);
+  weights_2.push_back(1.0);
+  weights_2.push_back(1.0);
+  weights_2.push_back(1.0);
+
+  Eigen::Quaterniond average_quaternion_2 = average_quaternions(quaternions_2, weights_2);
+  EXPECT_EQ(average_quaternion_2.w(), 1.0);
+  EXPECT_EQ(average_quaternion_2.x(), 0.0);
+  EXPECT_EQ(average_quaternion_2.y(), 0.0);
+  EXPECT_EQ(average_quaternion_2.z(), 0.0);
+
+  std::vector<Eigen::Quaterniond> quaternions_3;
+  quaternions_3.push_back(Eigen::Quaterniond(0.9914449, 0.1305262, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(0.9238795, 0.3826834, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(0.7372773, 0.6755902, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(0.6755902, 0.7372773, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(0.6755902, -0.7372773, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(0.7372773, -0.6755902, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(0.9238795, -0.3826834, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(0.9914449, -0.1305262, 0.0, 0.0));
+
+  std::vector<double> weights_3;
+  weights_3.push_back(1.0);
+  weights_3.push_back(1.0);
+  weights_3.push_back(1.0);
+  weights_3.push_back(1.0);
+  weights_3.push_back(1.0);
+  weights_3.push_back(1.0);
+  weights_3.push_back(1.0);
+  weights_3.push_back(1.0);
+
+  Eigen::Quaterniond average_quaternion_3 = average_quaternions(quaternions_3, weights_3);
+  EXPECT_EQ(average_quaternion_3.w(), 1.0);
+  EXPECT_EQ(average_quaternion_3.x(), 0.0);
+  EXPECT_EQ(average_quaternion_3.y(), 0.0);
+  EXPECT_EQ(average_quaternion_3.z(), 0.0);
+}
