@@ -33,6 +33,7 @@
 #include "sensors/types.hpp"
 #include "utility/math_helper.hpp"
 #include "utility/string_helper.hpp"
+#include "utility/type_helper.hpp"
 
 FiducialUpdater::FiducialUpdater(
   int cam_id, std::string log_file_directory, bool data_logging_on)
@@ -48,30 +49,46 @@ FiducialUpdater::FiducialUpdater(
   m_data_logger.SetLogging(data_logging_on);
 }
 
-void FiducialUpdater::UpdateEKF(
-  double time, BoardTrack board_track,
-  Intrinsics intrinsics)
+void FiducialUpdater::UpdateEKF(double time, BoardTrack board_track, Intrinsics intrinsics)
 {
+  m_logger->Log(
+    LogLevel::DEBUG, "Called update_msckf for camera ID: " + std::to_string(m_id));
+
+  if (board_track.size() == 0) {
+    return;
+  }
+
   m_ekf->ProcessModel(time);
   RefreshStates();
   auto t_start = std::chrono::high_resolution_clock::now();
 
+  std::vector<double> pos_weights;
+  std::vector<double> ang_weights;
+  std::vector<Eigen::Vector3d> pos_b_in_g_vec;
+  std::vector<Eigen::Quaterniond> ang_b_to_g_vec;
   for (auto board_detection : board_track) {
     AugmentedState aug_state_i = m_ekf->MatchState(m_id, board_detection.frame_id);
 
-    /// @todo(jhartzer): Need to acknowledge this isn't really an IMU orientation, but a body
-    const Eigen::Vector3d position_bi_in_g = aug_state_i.pos_b_in_g;
-    const Eigen::Matrix3d rotation_bi_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
-    const Eigen::Vector3d position_ci_in_bi = aug_state_i.pos_c_in_b;
-    const Eigen::Matrix3d rotation_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
+    const Eigen::Vector3d pos_bi_in_g = aug_state_i.pos_b_in_g;
+    const Eigen::Matrix3d rot_bi_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
+    const Eigen::Vector3d pos_ci_in_bi = aug_state_i.pos_c_in_b;
+    const Eigen::Matrix3d rot_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
+
+    Eigen::Vector3d pos_b_in_c;
+    CvVectorToEigen(board_detection.t_vec_b_in_c, pos_b_in_c);
+    Eigen::Vector3d pos_b_in_g =
+      rot_bi_to_g * ((rot_ci_to_bi * pos_b_in_c) + pos_ci_in_bi) + pos_bi_in_g;
+    pos_b_in_g_vec.push_back(pos_b_in_g);
+
+    Eigen::Quaterniond ang_b_to_c = RodriguesToQuat(board_detection.r_vec_b_to_c);
+    Eigen::Quaterniond ang_b_to_g = aug_state_i.ang_b_to_g * aug_state_i.ang_c_to_b * ang_b_to_c;
+    ang_b_to_g_vec.push_back(ang_b_to_g);
+    pos_weights.push_back(1.0);
+    ang_weights.push_back(1.0);
   }
 
-  // m_logger->Log(LogLevel::DEBUG, "Called update_msckf for camera ID: "
-  // + std::to_string(camera_id));
-
-  // if (feature_tracks.size() == 0) {
-  //   return;
-  // }
+  Eigen::Vector3d pos_b_in_g_est = average_vectors(pos_b_in_g_vec, pos_weights);
+  Eigen::Quaterniond ang_b_to_g_est = average_quaternions(ang_b_to_g_vec, ang_weights);
 
   // Eigen::VectorXd res_x = Eigen::VectorXd::Zero(max_meas_size);
   // Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(max_meas_size, state_size);
@@ -80,7 +97,7 @@ void FiducialUpdater::UpdateEKF(
 
   // ApplyLeftNullspace(H_f, H_c, res_f);
 
-  // /// @todo Chi^2 distance check
+  /// @todo Chi^2 distance check
 
   // // Append our Jacobian and residual
   // H_x.block(ct_meas, cam_state_start, H_c.rows(), H_c.cols()) = H_c;
