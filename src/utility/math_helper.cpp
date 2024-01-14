@@ -19,6 +19,8 @@
 
 #include <vector>
 
+#include "utility/type_helper.hpp"
+
 Eigen::Matrix3d SkewSymmetric(Eigen::Vector3d in_vec)
 {
   Eigen::Matrix3d out_mat = Eigen::Matrix3d::Zero();
@@ -231,4 +233,33 @@ Eigen::Vector3d average_vectors(
     weights_sum += weights[i];
   }
   return average_vector / weights_sum;
+}
+
+Eigen::MatrixXd quaternion_jacobian(Eigen::Quaterniond quat)
+{
+  Eigen::Vector3d rot_vec = QuatToRotVec(quat);
+  Eigen::Matrix3d skew_mat = SkewSymmetric(rot_vec);
+  double vec_norm = rot_vec.norm();
+  double coeff_one = (1 - std::cos(vec_norm)) / std::pow(vec_norm, 2);
+  double coeff_two = (vec_norm - std::sin(vec_norm)) / std::pow(vec_norm, 3);
+  Eigen::Matrix3d jacobian =
+    Eigen::Matrix3d::Identity() -
+    coeff_one * skew_mat +
+    coeff_two * skew_mat * skew_mat;
+  return jacobian;
+}
+
+Eigen::MatrixXd quaternion_jacobian_inv(Eigen::Quaterniond quat)
+{
+  Eigen::Vector3d rot_vec = QuatToRotVec(quat);
+  Eigen::Matrix3d skew_mat = SkewSymmetric(rot_vec);
+  double vec_norm = rot_vec.norm();
+  double coeff_one = 0.5;
+  double coeff_two =
+    std::pow(vec_norm, -2) - (1 + std::cos(vec_norm)) / (2 * vec_norm * std::sin(vec_norm));
+  Eigen::Matrix3d jacobian =
+    Eigen::Matrix3d::Identity() +
+    coeff_one * skew_mat +
+    coeff_two * skew_mat * skew_mat;
+  return jacobian;
 }

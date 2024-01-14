@@ -251,7 +251,6 @@ void MsckfUpdater::UpdateEKF(
     for (unsigned int i = 0; i < feature_track.size(); ++i) {
       AugmentedState aug_state_i = m_ekf->MatchState(m_id, feature_track[i].frame_id);
 
-      // Our calibration between the IMU and CAMi frames
       Eigen::Matrix3d rot_ci_to_ii = aug_state_i.ang_c_to_b.toRotationMatrix();
       Eigen::Matrix3d rot_ii_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
       Eigen::Matrix3d rot_ii_to_ci = rot_ci_to_ii.transpose();
@@ -267,7 +266,6 @@ void MsckfUpdater::UpdateEKF(
       xz_predicted(0) = pos_f_in_ci(0) / pos_f_in_ci(2);
       xz_predicted(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
 
-      // Our residual
       Eigen::Vector2d xz_measured, xz_residual;
       xz_measured(0) = (feature_track[i].key_point.pt.x - m_intrinsics.c_x) / m_intrinsics.f_x;
       xz_measured(1) = (feature_track[i].key_point.pt.y - m_intrinsics.c_y) / m_intrinsics.f_y;
@@ -302,7 +300,7 @@ void MsckfUpdater::UpdateEKF(
 
     /// @todo Chi^2 distance check
 
-    // Append our Jacobian and residual
+    // Append Jacobian and residual
     H_x.block(ct_meas, cam_state_start, H_c.rows(), H_c.cols()) = H_c;
     res_x.block(ct_meas, 0, res_f.rows(), 1) = res_f;
 

@@ -142,7 +142,8 @@
         "coroutine": "cpp",
         "source_location": "cpp",
         "__locale": "cpp",
-        "__node_handle": "cpp"
+        "__node_handle": "cpp",
+        "ios": "cpp"
     },
     "cmake.configureOnOpen": true,
     "flake8.args": [

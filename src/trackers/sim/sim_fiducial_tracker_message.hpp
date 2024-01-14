@@ -16,6 +16,8 @@
 #ifndef TRACKERS__SIM__SIM_FIDUCIAL_TRACKER_MESSAGE_HPP_
 #define TRACKERS__SIM__SIM_FIDUCIAL_TRACKER_MESSAGE_HPP_
 
+#include <eigen3/Eigen/Eigen>
+
 #include "ekf/types.hpp"
 #include "sensors/sensor_message.hpp"
 
@@ -29,6 +31,8 @@ public:
   SimFiducialTrackerMessage() {}
   unsigned int m_tracker_id {0};  ///< @brief Associated Tracker ID
   BoardTrack m_board_track;       ///< @brief Board track
+  Eigen::Vector3d pos_error {1e-9, 1e-9, 1e-9};  ///< @brief Position detection error
+  Eigen::Vector3d ang_error {1e-9, 1e-9, 1e-9};  ///< @brief Angular detection error
 };
 
 #endif  // TRACKERS__SIM__SIM_FIDUCIAL_TRACKER_MESSAGE_HPP_

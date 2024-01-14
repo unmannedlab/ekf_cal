@@ -48,9 +48,11 @@ public:
   /// @brief EKF updater function
   /// @param time Time of update
   /// @param board_track Board track to be used for state update
-  /// @param intrinsics Camera intrinsics for update
+  /// @param pos_error Standard deviation of the position error
+  /// @param ang_error Standard deviation of the angle error
   ///
-  void UpdateEKF(double time, BoardTrack board_track, Intrinsics intrinsics);
+  void UpdateEKF(
+    double time, BoardTrack board_track, Eigen::Vector3d pos_error, Eigen::Vector3d ang_error);
 
   ///
   /// @brief Refresh internal states with EKF values

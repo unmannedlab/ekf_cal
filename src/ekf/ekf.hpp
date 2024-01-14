@@ -238,7 +238,7 @@ public:
 
   ///
   /// @brief Find augmented state matching a camera and frame ID pair
-  /// @param frame_id Desired camera ID
+  /// @param camera_id Desired camera ID
   /// @param frame_id Desired frame ID
   /// @return Matching augmented state
   ///
