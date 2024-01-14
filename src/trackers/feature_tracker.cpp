@@ -163,10 +163,7 @@ std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
   return grid_key_points;
 }
 
-void FeatureTracker::Track(
-  double time,
-  int frame_id, cv::Mat & img_in, cv::Mat & img_out,
-  FeatureTracks feature_tracks)
+void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat & img_out)
 {
   // Down sample image
   cv::Mat img_down;
@@ -174,6 +171,7 @@ void FeatureTracker::Track(
   down_sample_size.height = 480;
   down_sample_size.width = 640;
   cv::resize(img_in, img_down, down_sample_size);
+  FeatureTracks feature_tracks;
 
   m_feature_detector->detect(img_down, m_curr_key_points);
   /// @todo create occupancy grid of key_points using minimal pixel distance

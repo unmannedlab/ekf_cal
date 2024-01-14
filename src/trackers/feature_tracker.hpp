@@ -110,12 +110,7 @@ public:
   /// @param img_out Output frame with drawn track lines
   /// @param feature_tracks Output complete feature tracks
   ///
-  void Track(
-    double time,
-    int frame_id,
-    cv::Mat & img_in,
-    cv::Mat & img_out,
-    FeatureTracks feature_tracks);
+  void Track(double time, int frame_id, cv::Mat & img_in, cv::Mat & img_out);
 
   ///
   /// @brief Tracker ID getter method

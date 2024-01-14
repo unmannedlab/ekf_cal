@@ -79,14 +79,8 @@ public:
   /// @param frame_id Frame ID
   /// @param img_in Input frame
   /// @param img_out Output frame with drawn track lines
-  /// @param board_track Output complete board track
   ///
-  void Track(
-    double time,
-    int frame_id,
-    cv::Mat & img_in,
-    cv::Mat & img_out,
-    BoardTrack board_track);
+  void Track(double time, int frame_id, cv::Mat & img_in, cv::Mat & img_out);
 
   ///
   /// @brief Tracker ID getter method
@@ -102,14 +96,17 @@ protected:
   int m_camera_id{-1};                   ///< @brief Associated camera ID of tracker
   unsigned int m_id;                     ///< @brief Tracker ID
   Intrinsics m_intrinsics;               ///< @brief Camera intrinsics
-  FiducialTypeEnum m_detector_type;  ///< @brief Detector type
+  FiducialTypeEnum m_detector_type;      ///< @brief Detector type
 
 private:
   void InitFiducialDetector(FiducialTypeEnum detector);
 
   EKF * m_ekf = EKF::GetInstance();           ///< @brief EKF singleton
 
-  static unsigned int m_tracker_count;
+  BoardTrack m_board_track;
+  /// @todo(jhartzer): Get these values from inputs
+  Eigen::Vector3d m_pos_error {1e-9, 1e-9, 1e-9};
+  Eigen::Vector3d m_ang_error {1e-9, 1e-9, 1e-9};
 };
 
 #endif  // TRACKERS__FIDUCIAL_TRACKER_HPP_

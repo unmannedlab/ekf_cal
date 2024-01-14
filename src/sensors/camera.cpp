@@ -63,10 +63,7 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
     m_ekf->AugmentState(m_id, frameID);
 
     if (!m_trackers.empty()) {
-      FeatureTracks feature_tracks;
-      m_trackers[0]->Track(
-        camera_message->m_time, frameID, camera_message->image, m_out_img,
-        feature_tracks);
+      m_trackers[0]->Track(camera_message->m_time, frameID, camera_message->image, m_out_img);
 
       /// @todo Undistort points post track?
       // cv::undistortPoints();
