@@ -79,19 +79,18 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & fea
   for (unsigned int i = 0; i < feature_track.size(); ++i) {
     AugmentedState aug_state_i = m_ekf->MatchState(m_id, feature_track[i].frame_id);
 
-    /// @todo(jhartzer): Need to acknowledge this isn't really an IMU orientation, but a body
-    const Eigen::Vector3d position_ii_in_g = aug_state_i.pos_b_in_g;
-    const Eigen::Matrix3d rotation_ii_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
-    const Eigen::Vector3d position_ci_in_ii = aug_state_i.pos_c_in_b;
-    const Eigen::Matrix3d rotation_ci_to_ii = aug_state_i.ang_c_to_b.toRotationMatrix();
+    const Eigen::Vector3d position_bi_in_g = aug_state_i.pos_b_in_g;
+    const Eigen::Matrix3d rotation_bi_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
+    const Eigen::Vector3d position_ci_in_bi = aug_state_i.pos_c_in_b;
+    const Eigen::Matrix3d rotation_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
 
     // Convert current position relative to anchor
     Eigen::Matrix3d rotation_ci_to_c0 =
-      rotation_i0_to_c0 * rotation_g_to_i0 * rotation_ii_to_g * rotation_ci_to_ii;
+      rotation_i0_to_c0 * rotation_g_to_i0 * rotation_bi_to_g * rotation_ci_to_bi;
     Eigen::Vector3d position_ci_in_c0 =
       rotation_i0_to_c0 * rotation_g_to_i0 *
       (
-      (rotation_ii_to_g * position_ci_in_ii + position_ii_in_g) -
+      (rotation_bi_to_g * position_ci_in_bi + position_bi_in_g) -
       (rotation_i0_to_g * position_c0_in_i0 + position_i0_in_g));
 
     // Get the UV coordinate normal
@@ -251,17 +250,17 @@ void MsckfUpdater::UpdateEKF(
     for (unsigned int i = 0; i < feature_track.size(); ++i) {
       AugmentedState aug_state_i = m_ekf->MatchState(m_id, feature_track[i].frame_id);
 
-      Eigen::Matrix3d rot_ci_to_ii = aug_state_i.ang_c_to_b.toRotationMatrix();
-      Eigen::Matrix3d rot_ii_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
-      Eigen::Matrix3d rot_ii_to_ci = rot_ci_to_ii.transpose();
-      Eigen::Matrix3d rot_g_to_ci = rot_ii_to_ci * rot_ii_to_g.transpose();
+      Eigen::Matrix3d rot_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
+      Eigen::Matrix3d rot_bi_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
+      Eigen::Matrix3d rot_bi_to_ci = rot_ci_to_bi.transpose();
+      Eigen::Matrix3d rot_g_to_ci = rot_bi_to_ci * rot_bi_to_g.transpose();
 
-      Eigen::Vector3d pos_ci_in_ii = aug_state_i.pos_c_in_b;
-      Eigen::Vector3d pos_ii_in_g = aug_state_i.pos_b_in_g;
+      Eigen::Vector3d pos_ci_in_bi = aug_state_i.pos_c_in_b;
+      Eigen::Vector3d pos_bi_in_g = aug_state_i.pos_b_in_g;
 
       // Project the current feature into the current frame of reference
-      Eigen::Vector3d pos_f_in_ii = rot_ii_to_g.transpose() * (pos_f_in_g - pos_ii_in_g);
-      Eigen::Vector3d pos_f_in_ci = rot_ci_to_ii.transpose() * (pos_f_in_ii - pos_ci_in_ii);
+      Eigen::Vector3d pos_f_in_bi = rot_bi_to_g.transpose() * (pos_f_in_g - pos_bi_in_g);
+      Eigen::Vector3d pos_f_in_ci = rot_ci_to_bi.transpose() * (pos_f_in_bi - pos_ci_in_bi);
       Eigen::Vector2d xz_predicted;
       xz_predicted(0) = pos_f_in_ci(0) / pos_f_in_ci(2);
       xz_predicted(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
@@ -288,11 +287,11 @@ void MsckfUpdater::UpdateEKF(
       // Augmented state Jacobian
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, 12);
       H_t.block<3, 3>(0, 0) = -rot_g_to_ci;
-      H_t.block<3, 3>(0, 3) = rot_ii_to_ci * SkewSymmetric(pos_f_in_ii);
+      H_t.block<3, 3>(0, 3) = rot_bi_to_ci * SkewSymmetric(pos_f_in_bi);
       /// @todo(jhartzer): Enable calibration Jacobian
       // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity();
       // H_t.block<3, 3>(0, 9) =
-      //   SkewSymmetric(rot_ii_to_ci * rot_ii_to_g.transpose() * (pos_f_in_g - pos_ii_in_g));
+      //   SkewSymmetric(rot_bi_to_ci * rot_bi_to_g.transpose() * (pos_f_in_g - pos_bi_in_g));
 
       H_c.block<2, 12>(2 * i, aug_state_start - cam_state_start) = H_d * H_p * H_t;
     }
