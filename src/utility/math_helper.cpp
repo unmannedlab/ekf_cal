@@ -253,7 +253,7 @@ Eigen::MatrixXd quaternion_jacobian_inv(Eigen::Quaterniond quat)
 {
   Eigen::Vector3d rot_vec = QuatToRotVec(quat);
   Eigen::Matrix3d skew_mat = SkewSymmetric(rot_vec);
-  double vec_norm = rot_vec.norm();
+  double vec_norm = std::max(rot_vec.norm(), 1e-9);
   double coeff_one = 0.5;
   double coeff_two =
     std::pow(vec_norm, -2) - (1 + std::cos(vec_norm)) / (2 * vec_norm * std::sin(vec_norm));

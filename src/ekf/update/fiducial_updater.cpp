@@ -39,13 +39,15 @@ FiducialUpdater::FiducialUpdater(
   int cam_id, std::string log_file_directory, bool data_logging_on)
 : Updater(cam_id), m_data_logger(log_file_directory, "fiducial_" + std::to_string(cam_id) + ".csv")
 {
-  std::stringstream msg;
-  msg << "time";
-  msg << ",BoardTracks";
-  msg << EnumerateHeader("duration", 1);
-  msg << std::endl;
+  std::stringstream header;
+  header << "time";
+  header << ",track_size";
+  header << EnumerateHeader("body_update", g_body_state_size);
+  header << EnumerateHeader("cam_update", g_cam_state_size);
+  header << EnumerateHeader("duration", 1);
+  header << std::endl;
 
-  m_data_logger.DefineHeader(msg.str());
+  m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(data_logging_on);
 }
 
@@ -103,7 +105,7 @@ void FiducialUpdater::UpdateEKF(
   Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(max_meas_size, state_size);
 
   Eigen::VectorXd res_f = Eigen::VectorXd::Zero(max_meas_size);
-  Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(max_meas_size, 3);
+  Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(max_meas_size, 6);
   Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(max_meas_size, g_cam_state_size + aug_state_size);
 
   for (unsigned int i = 0; i < board_track.size(); ++i) {
@@ -149,7 +151,12 @@ void FiducialUpdater::UpdateEKF(
       rot_bi_to_ci * quaternion_jacobian_inv(aug_state_i.ang_b_to_g) * rot_f_to_g_est;
     H_c.block<3, 3>(6 * i + 3, aug_state_start - cam_state_start + 9) =
       quaternion_jacobian_inv(aug_state_i.ang_b_to_g) * rot_g_to_bi * rot_f_to_g_est;
+
+    H_f.block<3, 3>(6 * i + 0, 0) = rot_bi_to_ci * rot_g_to_bi;
+    H_f.block<3, 3>(6 * i + 3, 3) =
+      rot_bi_to_ci * rot_g_to_bi * quaternion_jacobian_inv(ang_f_to_g_est);
   }
+
   ApplyLeftNullspace(H_f, H_c, res_f);
 
   /// @todo Chi^2 distance check
@@ -166,9 +173,9 @@ void FiducialUpdater::UpdateEKF(
     return;
   }
 
-  Eigen::MatrixXd R(6, 6);
-  R.block<3, 3>(0, 0) = pos_error.asDiagonal();
-  R.block<3, 3>(0, 0) = ang_error.asDiagonal();
+  /// @todo(jhartzer): This doesn't account for angular errors
+  double position_sigma = pos_error[0] * ang_error[0];
+  Eigen::MatrixXd R = position_sigma * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
   // Apply Kalman update
   Eigen::MatrixXd S = H_x * m_ekf->GetCov() * H_x.transpose() + R;
@@ -186,8 +193,7 @@ void FiducialUpdater::UpdateEKF(
   m_ekf->GetState().m_imu_states += imu_update;
   m_ekf->GetState().m_cam_states += cam_update;
 
-  m_ekf->GetCov() =
-    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * m_ekf->GetCov();
+  m_ekf->GetCov() = (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * m_ekf->GetCov();
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
@@ -196,6 +202,8 @@ void FiducialUpdater::UpdateEKF(
   std::stringstream msg;
   msg << time;
   msg << "," << std::to_string(board_track.size());
+  msg << VectorToCommaString(body_update);
+  msg << VectorToCommaString(cam_update);
   msg << "," << t_execution.count();
   msg << std::endl;
   m_data_logger.Log(msg.str());

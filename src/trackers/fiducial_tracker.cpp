@@ -80,7 +80,7 @@ void FiducialTracker::Track(
   bool update_ekf {false};
   if (detection_made) {
     /// @todo(jhartzer): Get maximum board track detections from input
-    if (m_board_track.size() >= 20) {
+    if (m_board_track.size() >= 5) {
       update_ekf = true;
     }
   } else {

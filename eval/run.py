@@ -62,6 +62,8 @@ def run_sim(yaml_path: str):
     yaml_dir = yaml_path.split('.yaml')[0] + os.sep
     if (not os.path.isdir(yaml_dir)):
         os.mkdir(yaml_dir)
+        with open(os.path.join(yaml_dir, '.gitignore'), 'w') as f_git_ignore:
+            f_git_ignore.write('*\n')
 
     # Run simulation
     base_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')

@@ -279,9 +279,9 @@ class Plotter():
 
         for i in range(len(imu_dfs)):
             t_imu[i, :] = imu_dfs[i]['time'].to_list()
-            pos_0[i, :] = np.array(imu_dfs[i]['imu_pos_0'].to_list()) * 1000
-            pos_1[i, :] = np.array(imu_dfs[i]['imu_pos_1'].to_list()) * 1000
-            pos_2[i, :] = np.array(imu_dfs[i]['imu_pos_2'].to_list()) * 1000
+            pos_0[i, :] = np.array(imu_dfs[i]['imu_pos_0'].to_list()) * 1e3
+            pos_1[i, :] = np.array(imu_dfs[i]['imu_pos_1'].to_list()) * 1e3
+            pos_2[i, :] = np.array(imu_dfs[i]['imu_pos_2'].to_list()) * 1e3
             axs_1.plot(t_imu[i, :], pos_0[i, :], alpha=a, color='tab:blue')
             axs_2.plot(t_imu[i, :], pos_1[i, :], alpha=a, color='tab:orange')
             axs_3.plot(t_imu[i, :], pos_2[i, :], alpha=a, color='tab:green')
@@ -340,9 +340,9 @@ class Plotter():
 
         for i in range(len(imu_dfs)):
             t_imu[i, :] = imu_dfs[i]['time'].to_list()
-            acc_bias_0[i, :] = np.array(imu_dfs[i]['imu_acc_bias_0'].to_list()) * 1000
-            acc_bias_1[i, :] = np.array(imu_dfs[i]['imu_acc_bias_1'].to_list()) * 1000
-            acc_bias_2[i, :] = np.array(imu_dfs[i]['imu_acc_bias_2'].to_list()) * 1000
+            acc_bias_0[i, :] = np.array(imu_dfs[i]['imu_acc_bias_0'].to_list()) * 1e3
+            acc_bias_1[i, :] = np.array(imu_dfs[i]['imu_acc_bias_1'].to_list()) * 1e3
+            acc_bias_2[i, :] = np.array(imu_dfs[i]['imu_acc_bias_2'].to_list()) * 1e3
             axs_1.plot(t_imu[i, :], acc_bias_0[i, :], color='tab:blue')
             axs_2.plot(t_imu[i, :], acc_bias_1[i, :], color='tab:orange')
             axs_3.plot(t_imu[i, :], acc_bias_2[i, :], color='tab:green')
@@ -376,9 +376,9 @@ class Plotter():
 
         for i in range(len(imu_dfs)):
             t_imu[i, :] = imu_dfs[i]['time'].to_list()
-            w_bias_0[i, :] = np.array(imu_dfs[i]['imu_omg_bias_0'].to_list()) * 1000
-            w_bias_1[i, :] = np.array(imu_dfs[i]['imu_omg_bias_1'].to_list()) * 1000
-            w_bias_2[i, :] = np.array(imu_dfs[i]['imu_omg_bias_2'].to_list()) * 1000
+            w_bias_0[i, :] = np.array(imu_dfs[i]['imu_omg_bias_0'].to_list()) * 1e3
+            w_bias_1[i, :] = np.array(imu_dfs[i]['imu_omg_bias_1'].to_list()) * 1e3
+            w_bias_2[i, :] = np.array(imu_dfs[i]['imu_omg_bias_2'].to_list()) * 1e3
             axs_1.plot(t_imu[i, :], w_bias_0[i, :], color='tab:blue')
             axs_2.plot(t_imu[i, :], w_bias_1[i, :], color='tab:orange')
             axs_3.plot(t_imu[i, :], w_bias_2[i, :], color='tab:green')

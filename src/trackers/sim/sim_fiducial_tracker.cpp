@@ -117,6 +117,11 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
   BoardTrack board_track;
   for (int frame_id = 0; static_cast<unsigned int>(frame_id) < message_times.size(); ++frame_id) {
     std::vector<std::vector<FeatureTrack>> feature_tracks;
+    auto tracker_message = std::make_shared<SimFiducialTrackerMessage>();
+    tracker_message->m_time = message_times[frame_id];
+    tracker_message->m_tracker_id = m_id;
+    tracker_message->m_sensor_id = sensor_id;
+    tracker_message->m_sensor_type = SensorType::Tracker;
 
     bool is_board_visible = IsBoardVisible(message_times[frame_id]);
     if (is_board_visible) {
@@ -142,15 +147,11 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
 
     /// @todo(jhartzer): Get maximum board track detections from input
     if (!is_board_visible || board_track.size() >= 20) {
-      auto tracker_message = std::make_shared<SimFiducialTrackerMessage>();
       tracker_message->m_board_track = board_track;
-      tracker_message->m_time = message_times[frame_id];
-      tracker_message->m_tracker_id = m_id;
-      tracker_message->m_sensor_id = sensor_id;
-      tracker_message->m_sensor_type = SensorType::Tracker;
-      fiducial_tracker_messages.push_back(tracker_message);
       board_track.clear();
     }
+
+    fiducial_tracker_messages.push_back(tracker_message);
   }
   return fiducial_tracker_messages;
 }
