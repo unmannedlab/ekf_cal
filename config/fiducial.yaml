@@ -7,9 +7,9 @@
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 7.0
+            max_time: 10.0
             no_errors: true
-            number_of_runs: 10
+            number_of_runs: 3
             run_number: 0
             truth_type: "cyclic"
             stationary_time: 0.001
@@ -18,7 +18,7 @@
             pos_offset: [0.0, 0.0, 0.0]
             ang_offset: [0.0, 0.0, 0.0]
             ang_amplitude: 0.1
-            pos_amplitude: 0.1
+            pos_amplitude: 1.0
 
         filter_params:
             process_noise: [
@@ -99,9 +99,9 @@
                 squares_y: 7
                 square_length: 0.04
                 marker_length: 0.02
-                pos_b_in_g: [5.0, 0.0, 0.0]
-                ang_b_to_g: [1.0, 0.0, 0.0, 0.0]
+                pos_f_in_g: [5.0, 0.0, 0.0]
+                ang_f_to_g: [1.0, 0.0, 0.0, 0.0]
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 sim_params:
-                    pos_error: [1.0e-2, 1.0e-2, 1.0e-2]
+                    pos_error: [1.0e-3, 1.0e-3, 1.0e-3]
                     ang_error: [1.0e-2, 1.0e-2, 1.0e-2]

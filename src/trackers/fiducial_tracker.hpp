@@ -62,8 +62,8 @@ public:
     double marker_length {1.0};                     ///< @brief Marker length
     unsigned int initial_id{0};                     ///< @brief Initial ID
     Intrinsics intrinsics;                          ///< @brief Camera intrinsic parameters
-    Eigen::Vector3d pos_b_in_g;                     ///< @brief Board position
-    Eigen::Quaterniond ang_b_to_g;                  ///< @brief Board orientation
+    Eigen::Vector3d pos_f_in_g;                     ///< @brief Fiducial position
+    Eigen::Quaterniond ang_f_to_g;                  ///< @brief Fiducial orientation
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1}};  ///< @brief Fiducial marker variance
   } Parameters;
 

@@ -17,6 +17,7 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <algorithm>
 #include <vector>
 
 #include "utility/type_helper.hpp"
@@ -239,7 +240,7 @@ Eigen::MatrixXd quaternion_jacobian(Eigen::Quaterniond quat)
 {
   Eigen::Vector3d rot_vec = QuatToRotVec(quat);
   Eigen::Matrix3d skew_mat = SkewSymmetric(rot_vec);
-  double vec_norm = rot_vec.norm();
+  double vec_norm = std::max(rot_vec.norm(), 1e-9);
   double coeff_one = (1 - std::cos(vec_norm)) / std::pow(vec_norm, 2);
   double coeff_two = (vec_norm - std::sin(vec_norm)) / std::pow(vec_norm, 3);
   Eigen::Matrix3d jacobian =

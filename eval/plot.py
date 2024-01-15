@@ -534,7 +534,7 @@ class Plotter():
         """Plot histogram of update execution durations."""
         durations = np.array([])
         for df in data_frames:
-            durations = np.append(durations, df['time_0'])
+            durations = np.append(durations, df['duration_0'])
         fig, (axs) = plt.subplots(1, 1)
         counts, bins = np.histogram(durations / 1e6)
         axs.hist(bins[:-1], bins, weights=counts)

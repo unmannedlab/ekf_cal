@@ -132,8 +132,8 @@ typedef std::vector<std::vector<FeatureTrack>> FeatureTracks;
 typedef struct BoardDetection
 {
   int frame_id;          ///< @brief Image frame ID
-  cv::Vec3d t_vec_b_in_c;  ///< @brief Rotation vector of the board
-  cv::Vec3d r_vec_b_to_c;  ///< @brief Translation vector of the board
+  cv::Vec3d t_vec_f_in_c;  ///< @brief Rotation vector of the board
+  cv::Vec3d r_vec_f_to_c;  ///< @brief Translation vector of the board
 } BoardDetection;
 
 typedef std::vector<BoardDetection> BoardTrack;

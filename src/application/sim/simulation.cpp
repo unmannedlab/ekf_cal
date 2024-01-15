@@ -296,8 +296,8 @@ int main(int argc, char * argv[])
     fiducial_params.name = fiducials[i];
     fiducial_params.output_directory = out_dir;
     fiducial_params.data_logging_on = data_logging_on;
-    fiducial_params.pos_b_in_g = StdToEigVec(fid_node["pos_b_in_g"].as<std::vector<double>>());
-    fiducial_params.ang_b_to_g = StdToEigQuat(fid_node["ang_b_to_g"].as<std::vector<double>>());
+    fiducial_params.pos_f_in_g = StdToEigVec(fid_node["pos_f_in_g"].as<std::vector<double>>());
+    fiducial_params.ang_f_to_g = StdToEigQuat(fid_node["ang_f_to_g"].as<std::vector<double>>());
     fiducial_params.variance = StdToEigVec(fid_node["variance"].as<std::vector<double>>());
     fiducial_params.squares_x = fid_node["squares_x"].as<unsigned int>(1U);
     fiducial_params.squares_y = fid_node["squares_y"].as<unsigned int>(1U);

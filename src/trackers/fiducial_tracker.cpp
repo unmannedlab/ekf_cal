@@ -70,8 +70,8 @@ void FiducialTracker::Track(
       }
       BoardDetection board_detection;
       board_detection.frame_id = frame_id;
-      board_detection.t_vec_b_in_c = t_vec;
-      board_detection.r_vec_b_to_c = r_vec;
+      board_detection.t_vec_f_in_c = t_vec;
+      board_detection.r_vec_f_to_c = r_vec;
       m_board_track.push_back(board_detection);
       detection_made = true;
     }

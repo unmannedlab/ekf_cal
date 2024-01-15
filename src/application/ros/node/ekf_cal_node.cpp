@@ -145,9 +145,9 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
   double rate = this->get_parameter(imu_prefix + ".rate").as_double();
   std::string topic = this->get_parameter(imu_prefix + ".topic").as_string();
   std::vector<double> variance = this->get_parameter(imu_prefix + ".variance").as_double_array();
-  std::vector<double> pos_b_in_g =
+  std::vector<double> pos_i_in_b =
     this->get_parameter(imu_prefix + ".pos_i_in_b").as_double_array();
-  std::vector<double> ang_b_to_g =
+  std::vector<double> ang_i_to_b =
     this->get_parameter(imu_prefix + ".ang_i_to_b").as_double_array();
   std::vector<double> acc_bias = this->get_parameter(imu_prefix + ".acc_bias").as_double_array();
   std::vector<double> omg_bias = this->get_parameter(imu_prefix + ".omg_bias").as_double_array();
@@ -165,8 +165,8 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
   imu_params.use_for_prediction = use_for_prediction;
   imu_params.rate = rate;
   imu_params.variance = StdToEigVec(variance);
-  imu_params.pos_i_in_b = StdToEigVec(pos_b_in_g);
-  imu_params.ang_i_to_b = StdToEigQuat(ang_b_to_g);
+  imu_params.pos_i_in_b = StdToEigVec(pos_i_in_b);
+  imu_params.ang_i_to_b = StdToEigQuat(ang_i_to_b);
   imu_params.acc_bias = StdToEigVec(acc_bias);
   imu_params.omg_bias = StdToEigVec(omg_bias);
   imu_params.pos_stability = pos_stability;
@@ -194,9 +194,9 @@ Camera::Parameters EkfCalNode::GetCameraParameters(std::string camera_name)
   std::string cam_prefix = "camera." + camera_name;
   double rate = this->get_parameter(cam_prefix + ".rate").as_double();
   std::string topic = this->get_parameter(cam_prefix + ".topic").as_string();
-  std::vector<double> pos_b_in_g =
+  std::vector<double> pos_c_in_b =
     this->get_parameter(cam_prefix + ".pos_c_in_b").as_double_array();
-  std::vector<double> ang_b_to_g =
+  std::vector<double> ang_c_to_b =
     this->get_parameter(cam_prefix + ".ang_c_to_b").as_double_array();
   std::vector<double> variance = this->get_parameter(cam_prefix + ".variance").as_double_array();
   std::string tracker_name = this->get_parameter(cam_prefix + ".tracker").as_string();
@@ -206,8 +206,8 @@ Camera::Parameters EkfCalNode::GetCameraParameters(std::string camera_name)
   camera_params.name = camera_name;
   camera_params.topic = topic;
   camera_params.rate = rate;
-  camera_params.pos_c_in_b = StdToEigVec(pos_b_in_g);
-  camera_params.ang_c_to_b = StdToEigQuat(ang_b_to_g);
+  camera_params.pos_c_in_b = StdToEigVec(pos_c_in_b);
+  camera_params.ang_c_to_b = StdToEigQuat(ang_c_to_b);
   camera_params.variance = StdToEigVec(variance);
   camera_params.tracker = tracker_name;
   return camera_params;

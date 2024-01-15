@@ -46,7 +46,7 @@ MsckfUpdater::MsckfUpdater(
   msg << EnumerateHeader("body_update", g_body_state_size);
   msg << EnumerateHeader("cam_update", g_cam_state_size);
   msg << ",FeatureTracks";
-  msg << EnumerateHeader("time", 1);
+  msg << EnumerateHeader("duration", 1);
   msg << std::endl;
 
   m_data_logger.DefineHeader(msg.str());

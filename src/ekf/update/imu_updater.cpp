@@ -64,7 +64,7 @@ ImuUpdater::ImuUpdater(
     header << EnumerateHeader("imu_int_update", g_imu_intrinsic_state_size);
   }
 
-  header << EnumerateHeader("time", 1);
+  header << EnumerateHeader("duration", 1);
   header << std::endl;
 
   m_data_logger.DefineHeader(header.str());

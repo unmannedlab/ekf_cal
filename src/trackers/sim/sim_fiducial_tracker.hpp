@@ -91,8 +91,8 @@ private:
   Eigen::Vector3d m_ang_error;
   Eigen::Vector3d m_pos_c_in_b_true {0.0, 0.0, 0.0};
   Eigen::Quaterniond m_ang_c_to_b_true {1.0, 0.0, 0.0, 0.0};
-  Eigen::Vector3d m_pos_b_in_g_true {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_b_to_g_true {1.0, 0.0, 0.0, 0.0};
+  Eigen::Vector3d m_pos_f_in_g_true {0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_ang_f_to_g_true {1.0, 0.0, 0.0, 0.0};
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
   SimRNG m_rng;
