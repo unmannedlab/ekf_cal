@@ -43,10 +43,12 @@ public:
   ///
   typedef struct Parameters
   {
-    bool no_errors {false};                       ///< @brief Perfect measurements flag
-    Eigen::Vector3d pos_error{1e-9, 1e-9, 1e-9};  ///< @brief Position error standard deviation
-    Eigen::Vector3d ang_error{1e-9, 1e-9, 1e-9};  ///< @brief Angular error standard deviation
-    FiducialTracker::Parameters fiducial_params;  ///< @brief Tracker parameters
+    bool no_errors {false};                         ///< @brief Perfect measurements flag
+    Eigen::Vector3d pos_error{1e-9, 1e-9, 1e-9};    ///< @brief Position error standard deviation
+    Eigen::Vector3d ang_error{1e-9, 1e-9, 1e-9};    ///< @brief Angular error standard deviation
+    Eigen::Vector3d t_vec_error{1e-9, 1e-9, 1e-9};  ///< @brief t_vec error standard deviation
+    Eigen::Vector3d r_vec_error{1e-9, 1e-9, 1e-9};  ///< @brief r_vec error standard deviation
+    FiducialTracker::Parameters fiducial_params;    ///< @brief Tracker parameters
   } Parameters;
 
   ///
@@ -89,6 +91,8 @@ public:
 private:
   Eigen::Vector3d m_pos_error;
   Eigen::Vector3d m_ang_error;
+  Eigen::Vector3d m_t_vec_error;
+  Eigen::Vector3d m_r_vec_error;
   Eigen::Vector3d m_pos_c_in_b_true {0.0, 0.0, 0.0};
   Eigen::Quaterniond m_ang_c_to_b_true {1.0, 0.0, 0.0, 0.0};
   Eigen::Vector3d m_pos_f_in_g_true {0.0, 0.0, 0.0};

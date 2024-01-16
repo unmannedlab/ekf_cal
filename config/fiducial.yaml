@@ -7,13 +7,15 @@
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 10.0
-            no_errors: true
-            number_of_runs: 3
+            max_time: 8.0
+            no_errors: false
+            number_of_runs: 2
             run_number: 0
             truth_type: "cyclic"
-            stationary_time: 0.001
+            stationary_time: 0.0
+            # pos_frequency: [0.0, 0.0, 0.0]
             pos_frequency: [0.3, 0.5, 0.7]
+            # ang_frequency: [0.3, 0.4, 0.5]
             ang_frequency: [0.0, 0.0, 0.0]
             pos_offset: [0.0, 0.0, 0.0]
             ang_offset: [0.0, 0.0, 0.0]
@@ -41,10 +43,10 @@
 
         imu:
             vn300:
-                use_for_prediction: false
+                use_for_prediction: true
                 is_extrinsic: false
                 is_intrinsic: false
-                rate: 400.0
+                rate: 4000.0
                 topic: "/vn300/imu_uncompensated"
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 pos_i_in_b: [0.0, 0.0, 0.0]
@@ -105,3 +107,5 @@
                 sim_params:
                     pos_error: [1.0e-3, 1.0e-3, 1.0e-3]
                     ang_error: [1.0e-2, 1.0e-2, 1.0e-2]
+                    t_vec_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    r_vec_error: [1.0e-2, 1.0e-2, 1.0e-2]

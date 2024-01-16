@@ -71,6 +71,7 @@ private:
   Eigen::Quaterniond m_ang_c_to_b {1.0, 0.0, 0.0, 0.0};
 
   DataLogger m_data_logger;
+  DataLogger m_fiducial_logger;
   Intrinsics m_intrinsics;
 };
 

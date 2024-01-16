@@ -35,8 +35,8 @@ TruthEngineCyclic::TruthEngineCyclic(
   m_ang_frequency = ang_frequency;
   m_pos_offset = pos_offset;
   m_ang_offset = ang_offset;
-  m_ang_amplitude = pos_amplitude;
-  m_pos_amplitude = ang_amplitude;
+  m_ang_amplitude = ang_amplitude;
+  m_pos_amplitude = pos_amplitude;
   m_stationary_time = stationary_time;
 }
 

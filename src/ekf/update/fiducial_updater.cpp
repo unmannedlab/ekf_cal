@@ -37,7 +37,9 @@
 
 FiducialUpdater::FiducialUpdater(
   int cam_id, std::string log_file_directory, bool data_logging_on)
-: Updater(cam_id), m_data_logger(log_file_directory, "camera_" + std::to_string(cam_id) + ".csv")
+: Updater(cam_id),
+  m_data_logger(log_file_directory, "camera_" + std::to_string(cam_id) + ".csv"),
+  m_fiducial_logger(log_file_directory, "fiducial_" + std::to_string(cam_id) + ".csv")
 {
   std::stringstream header;
   header << "time";
@@ -50,6 +52,9 @@ FiducialUpdater::FiducialUpdater(
 
   m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(data_logging_on);
+
+  m_fiducial_logger.DefineHeader("time,tx,ty,tz,aw,ax,ay,az\n");
+  m_fiducial_logger.SetLogging(data_logging_on);
 }
 
 void FiducialUpdater::UpdateEKF(
@@ -91,6 +96,18 @@ void FiducialUpdater::UpdateEKF(
     ang_b_to_g_vec.push_back(ang_b_to_g);
     pos_weights.push_back(1.0);
     ang_weights.push_back(1.0);
+
+    std::stringstream data_msg;
+    data_msg << std::setprecision(3) << time;
+    data_msg << "," << pos_b_in_g[0];
+    data_msg << "," << pos_b_in_g[1];
+    data_msg << "," << pos_b_in_g[2];
+    data_msg << "," << ang_b_to_g.w();
+    data_msg << "," << ang_b_to_g.x();
+    data_msg << "," << ang_b_to_g.y();
+    data_msg << "," << ang_b_to_g.z();
+    data_msg << std::endl;
+    m_fiducial_logger.Log(data_msg.str());
   }
 
   Eigen::Vector3d pos_f_in_g_est = average_vectors(pos_b_in_g_vec, pos_weights);
@@ -144,20 +161,30 @@ void FiducialUpdater::UpdateEKF(
 
     H_c.block<3, 3>(6 * i + 0, aug_state_start - cam_state_start + 0) =
       -rot_bi_to_ci * rot_g_to_ci;
-    // H_c.block<3, 3>(6 * i + 0, aug_state_start - cam_state_start + 3) = rot_bi_to_ci *
-    //   SkewSymmetric(aug_state_i.ang_b_to_g * (pos_f_in_g_est - pos_bi_in_g) );
+
+    /// @todo(jhartzer): Fix this
+    H_c.block<3, 3>(6 * i + 0, aug_state_start - cam_state_start + 3) = -rot_bi_to_ci *
+      rot_g_to_bi * SkewSymmetric(pos_f_in_g_est - pos_bi_in_g);
+    // * quaternion_jacobian_inv(aug_state_i.ang_b_to_g);
+
     H_c.block<3, 3>(6 * i + 3, aug_state_start - cam_state_start + 3) =
-      rot_bi_to_ci * quaternion_jacobian(aug_state_i.ang_b_to_g) * rot_f_to_g_est;
+      rot_bi_to_ci * quaternion_jacobian_inv(aug_state_i.ang_b_to_g) * rot_f_to_g_est;
 
     H_c.block<3, 3>(6 * i + 0, aug_state_start - cam_state_start + 6) = -rot_bi_to_ci;
-    // H_c.block<3, 3>(6 * i + 0, aug_state_start - cam_state_start + 9) = rot_bi_to_ci *
-    //   SkewSymmetric(rot_g_to_bi * (pos_f_in_g_est - pos_bi_in_g) - pos_ci_in_bi);
-    H_c.block<3, 3>(6 * i + 3, aug_state_start - cam_state_start + 9) =
-      quaternion_jacobian(aug_state_i.ang_b_to_g) * rot_g_to_bi * rot_f_to_g_est;
 
+    /// @todo(jhartzer): Fix this
+    H_c.block<3, 3>(6 * i + 0, aug_state_start - cam_state_start + 9) = -rot_bi_to_ci *
+      SkewSymmetric(rot_g_to_bi * (pos_f_in_g_est - pos_bi_in_g) - pos_ci_in_bi);
+    // * quaternion_jacobian_inv(aug_state_i.ang_c_to_b);
+
+    H_c.block<3, 3>(6 * i + 3, aug_state_start - cam_state_start + 9) =
+      quaternion_jacobian_inv(aug_state_i.ang_b_to_g) * rot_g_to_bi * rot_f_to_g_est;
+
+    // Feature Jacobian
     H_f.block<3, 3>(6 * i + 0, 0) = rot_bi_to_ci * rot_g_to_bi;
+
     H_f.block<3, 3>(6 * i + 3, 3) =
-      rot_bi_to_ci * rot_g_to_bi * quaternion_jacobian(ang_f_to_g_est);
+      rot_bi_to_ci * rot_g_to_bi * quaternion_jacobian_inv(ang_f_to_g_est);
   }
 
   ApplyLeftNullspace(H_f, H_c, res_f);

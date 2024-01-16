@@ -25,6 +25,8 @@ static constexpr unsigned int g_imu_intrinsic_state_size {6};
 static constexpr unsigned int g_cam_state_size {6};
 static constexpr unsigned int g_aug_state_size {12};
 
-const Eigen::Vector3d g_gravity = Eigen::Vector3d(0, 0, 9.80665);
+/// @todo(hartzerj): Re-Enable Gravity
+const Eigen::Vector3d g_gravity = Eigen::Vector3d(0, 0, 0);
+// const Eigen::Vector3d g_gravity = Eigen::Vector3d(0, 0, 9.80665);
 
 #endif  // EKF__CONSTANTS_HPP_
