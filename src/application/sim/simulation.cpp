@@ -303,6 +303,8 @@ int main(int argc, char * argv[])
     fiducial_params.squares_y = fid_node["squares_y"].as<unsigned int>(1U);
     fiducial_params.square_length = fid_node["square_length"].as<double>(0.0);
     fiducial_params.marker_length = fid_node["marker_length"].as<double>(0.0);
+    fiducial_params.min_track_length = fid_node["min_track_length"].as<unsigned int>(2U);
+    fiducial_params.max_track_length = fid_node["max_track_length"].as<unsigned int>(20U);
 
     SimFiducialTracker::Parameters sim_fiducial_params;
     sim_fiducial_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>());

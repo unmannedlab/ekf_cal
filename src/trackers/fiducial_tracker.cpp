@@ -27,6 +27,8 @@ FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
   m_camera_id = params.sensor_id;
   m_intrinsics = params.intrinsics;
   m_detector_type = params.detector_type;
+  m_min_track_length = params.min_track_length;
+  m_max_track_length = params.max_track_length;
 }
 
 void FiducialTracker::Track(
@@ -79,13 +81,11 @@ void FiducialTracker::Track(
 
   bool update_ekf {false};
   if (detection_made) {
-    /// @todo(jhartzer): Get maximum board track detections from input
-    if (m_board_track.size() >= 20) {
+    if (m_board_track.size() >= m_max_track_length) {
       update_ekf = true;
     }
   } else {
-    /// @todo(jhartzer): Get minimum board track detections from input
-    if (m_board_track.size() < 2) {
+    if (m_board_track.size() < m_min_track_length) {
       m_board_track.clear();
     } else {
       update_ekf = true;

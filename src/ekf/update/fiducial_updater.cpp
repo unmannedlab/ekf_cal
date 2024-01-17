@@ -73,8 +73,8 @@ void FiducialUpdater::UpdateEKF(
 
   std::vector<double> pos_weights;
   std::vector<double> ang_weights;
-  std::vector<Eigen::Vector3d> pos_b_in_g_vec;
-  std::vector<Eigen::Quaterniond> ang_b_to_g_vec;
+  std::vector<Eigen::Vector3d> pos_f_in_g_vec;
+  std::vector<Eigen::Quaterniond> ang_f_to_g_vec;
 
   /// @todo(jhartzer): Wrap this in a function
   for (auto board_detection : board_track) {
@@ -85,33 +85,35 @@ void FiducialUpdater::UpdateEKF(
     const Eigen::Vector3d pos_ci_in_bi = aug_state_i.pos_c_in_b;
     const Eigen::Matrix3d rot_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
 
-    Eigen::Vector3d pos_b_in_c;
-    CvVectorToEigen(board_detection.t_vec_f_in_c, pos_b_in_c);
-    Eigen::Vector3d pos_b_in_g =
-      rot_bi_to_g * ((rot_ci_to_bi * pos_b_in_c) + pos_ci_in_bi) + pos_bi_in_g;
-    pos_b_in_g_vec.push_back(pos_b_in_g);
+    Eigen::Vector3d pos_f_in_c;
+    CvVectorToEigen(board_detection.t_vec_f_in_c, pos_f_in_c);
+    Eigen::Vector3d pos_f_in_g =
+      rot_bi_to_g * ((rot_ci_to_bi * pos_f_in_c) + pos_ci_in_bi) + pos_bi_in_g;
+    pos_f_in_g_vec.push_back(pos_f_in_g);
 
-    Eigen::Quaterniond ang_b_to_c = RodriguesToQuat(board_detection.r_vec_f_to_c);
-    Eigen::Quaterniond ang_b_to_g = aug_state_i.ang_b_to_g * aug_state_i.ang_c_to_b * ang_b_to_c;
-    ang_b_to_g_vec.push_back(ang_b_to_g);
+    Eigen::Quaterniond ang_f_to_c = RodriguesToQuat(board_detection.r_vec_f_to_c);
+    Eigen::Quaterniond ang_f_to_g = aug_state_i.ang_b_to_g * aug_state_i.ang_c_to_b * ang_f_to_c;
+    ang_f_to_g_vec.push_back(ang_f_to_g);
     pos_weights.push_back(1.0);
     ang_weights.push_back(1.0);
 
     std::stringstream data_msg;
     data_msg << std::setprecision(3) << time;
-    data_msg << "," << pos_b_in_g[0];
-    data_msg << "," << pos_b_in_g[1];
-    data_msg << "," << pos_b_in_g[2];
-    data_msg << "," << ang_b_to_g.w();
-    data_msg << "," << ang_b_to_g.x();
-    data_msg << "," << ang_b_to_g.y();
-    data_msg << "," << ang_b_to_g.z();
+    data_msg << "," << pos_f_in_g[0];
+    data_msg << "," << pos_f_in_g[1];
+    data_msg << "," << pos_f_in_g[2];
+    data_msg << "," << ang_f_to_g.w();
+    data_msg << "," << ang_f_to_g.x();
+    data_msg << "," << ang_f_to_g.y();
+    data_msg << "," << ang_f_to_g.z();
     data_msg << std::endl;
     m_fiducial_logger.Log(data_msg.str());
   }
 
-  Eigen::Vector3d pos_f_in_g_est = average_vectors(pos_b_in_g_vec, pos_weights);
-  Eigen::Quaterniond ang_f_to_g_est = average_quaternions(ang_b_to_g_vec, ang_weights);
+  // Eigen::Vector3d pos_f_in_g_est = average_vectors(pos_f_in_g_vec, pos_weights);
+  // Eigen::Quaterniond ang_f_to_g_est = average_quaternions(ang_f_to_g_vec, ang_weights);
+  Eigen::Vector3d pos_f_in_g_est{5.0, 0.0, 0.0};
+  Eigen::Quaterniond ang_f_to_g_est{1.0, 0.0, 0.0, 0.0};
   Eigen::Matrix3d rot_f_to_g_est = ang_f_to_g_est.toRotationMatrix();
 
   unsigned int max_meas_size = 6 * board_track.size();
@@ -144,8 +146,8 @@ void FiducialUpdater::UpdateEKF(
     Eigen::Vector3d ang_predicted, ang_measured, ang_residual;
 
     // Project the current feature into the current frame of reference
-    Eigen::Vector3d pos_f_in_ii = rot_bi_to_g.transpose() * (pos_f_in_g_est - pos_bi_in_g);
-    Eigen::Vector3d pos_f_in_ci = rot_ci_to_bi.transpose() * (pos_f_in_ii - pos_ci_in_bi);
+    Eigen::Vector3d pos_f_in_bi = rot_bi_to_g.transpose() * (pos_f_in_g_est - pos_bi_in_g);
+    Eigen::Vector3d pos_f_in_ci = rot_ci_to_bi.transpose() * (pos_f_in_bi - pos_ci_in_bi);
     pos_predicted = pos_f_in_ci;
     ang_predicted = QuatToRotVec(ang_g_to_ci * ang_f_to_g_est);
 
@@ -156,6 +158,7 @@ void FiducialUpdater::UpdateEKF(
     pos_residual = pos_measured - pos_predicted;
     ang_residual = ang_measured - ang_predicted;
 
+    std::cout << pos_residual << std::endl << std::endl;
     res_f.segment<3>(6 * i + 0) = pos_residual;
     res_f.segment<3>(6 * i + 3) = ang_residual;
 

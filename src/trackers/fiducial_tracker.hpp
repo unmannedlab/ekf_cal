@@ -61,6 +61,8 @@ public:
     double square_length {1.0};                     ///< @brief Checkerboard square length
     double marker_length {1.0};                     ///< @brief Marker length
     unsigned int initial_id{0};                     ///< @brief Initial ID
+    unsigned int min_track_length {2U};             ///< @brief Minimum track length
+    unsigned int max_track_length {20U};            ///< @brief Maximum track length
     Intrinsics intrinsics;                          ///< @brief Camera intrinsic parameters
     Eigen::Vector3d pos_f_in_g;                     ///< @brief Fiducial position
     Eigen::Quaterniond ang_f_to_g;                  ///< @brief Fiducial orientation
@@ -107,6 +109,8 @@ private:
   /// @todo(jhartzer): Get these values from inputs
   Eigen::Vector3d m_pos_error {1e-9, 1e-9, 1e-9};
   Eigen::Vector3d m_ang_error {1e-9, 1e-9, 1e-9};
+  unsigned int m_min_track_length {2U};
+  unsigned int m_max_track_length {20U};
 };
 
 #endif  // TRACKERS__FIDUCIAL_TRACKER_HPP_

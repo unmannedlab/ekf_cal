@@ -104,6 +104,9 @@ private:
   Intrinsics m_intrinsics;
   cv::Mat m_proj_matrix;
   DataLogger m_data_logger;
+
+  unsigned int m_min_track_length {2U};
+  unsigned int m_max_track_length {20U};
 };
 
 

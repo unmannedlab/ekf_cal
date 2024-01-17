@@ -32,6 +32,8 @@ SimFiducialTracker::SimFiducialTracker(
   m_ang_error = params.ang_error;
   m_t_vec_error = params.t_vec_error;
   m_r_vec_error = params.r_vec_error;
+  m_min_track_length = params.fiducial_params.min_track_length;
+  m_max_track_length = params.fiducial_params.max_track_length;
 
   if (!params.no_errors) {
     m_pos_f_in_g_true[0] = m_rng.NormRand(params.fiducial_params.pos_f_in_g[0], m_pos_error[0]);
@@ -154,13 +156,11 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
       board_detection.r_vec_f_to_c = QuatToRodrigues(ang_f_to_c);
 
       board_track.push_back(board_detection);
-      /// @todo(jhartzer): Get minimum board track detections from input
-    } else if (board_track.size() < 2) {
+    } else if (board_track.size() < m_min_track_length) {
       board_track.clear();
     }
 
-    /// @todo(jhartzer): Get maximum board track detections from input
-    if (!is_board_visible || board_track.size() >= 20) {
+    if (!is_board_visible || board_track.size() >= m_max_track_length) {
       tracker_message->m_board_track = board_track;
       board_track.clear();
     }
