@@ -172,7 +172,7 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
 
 void SimFiducialTracker::Callback(double time, std::shared_ptr<SimFiducialTrackerMessage> msg)
 {
-  m_fiducial_updater.UpdateEKF(time, msg->m_board_track, msg->pos_error, msg->ang_error);
+  m_fiducial_updater.UpdateEKF(time, msg->m_board_track, msg->m_pos_error, msg->m_ang_error);
 }
 
 void SimFiducialTracker::SetTrueCameraOffsets(

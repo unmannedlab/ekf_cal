@@ -7,7 +7,7 @@
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 8.0
+            max_time: 10.0
             no_errors: false
             number_of_runs: 2
             run_number: 0
@@ -26,7 +26,7 @@
             process_noise: [
                 0.0, 0.0, 0.0, # Position
                 0.0, 0.0, 0.0, # Velocity
-                1.0e-2, 1.0e-2, 1.0e-2, # Acceleration
+                1.0e-3, 1.0e-3, 1.0e-3, # Acceleration
                 0.0, 0.0, 0.0, # Angular Position
                 1.0e-2, 1.0e-2, 1.0e-2, # Angular Velocity
                 0.0, 0.0, 0.0, # Angular Acceleration
@@ -46,7 +46,7 @@
                 use_for_prediction: true
                 is_extrinsic: false
                 is_intrinsic: false
-                rate: 4000.0
+                rate: 400.0
                 topic: "/vn300/imu_uncompensated"
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 pos_i_in_b: [0.0, 0.0, 0.0]
