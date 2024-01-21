@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "configurations": [
         {
-            "name": "ekf_cal",
+            "name": "EKF-CAL",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/../../install/ekf_cal/lib/ekf_cal/ekf_cal_node",

@@ -3,7 +3,7 @@ Getting Started {#tutorial}
 
 
 # Dependencies
-The EKF_CAL package has the following hard dependencies that are required for all compilations:
+The EKF-CAL package has the following hard dependencies that are required for all compilations:
 - [OpenCV](https://opencv.org/)
 - [Eigen 3](https://eigen.tuxfamily.org/index.php?title=Main_Page)
 

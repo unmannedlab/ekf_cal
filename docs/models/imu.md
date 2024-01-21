@@ -1,4 +1,4 @@
-IMU Error Models {#imu_model}
+IMU Measurement Models {#imu_model}
 ============
 
 The IMU error model used is
