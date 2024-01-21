@@ -286,6 +286,7 @@ int main(int argc, char * argv[])
   }
 
   // Load board detectors
+  unsigned int max_track_length {0U};
   logger->Log(LogLevel::INFO, "Loading Board Detectors");
   std::map<std::string, SimFiducialTracker::Parameters> fiducial_map;
   for (unsigned int i = 0; i < fiducials.size(); ++i) {
@@ -305,7 +306,7 @@ int main(int argc, char * argv[])
     fiducial_params.marker_length = fid_node["marker_length"].as<double>(0.0);
     fiducial_params.min_track_length = fid_node["min_track_length"].as<unsigned int>(2U);
     fiducial_params.max_track_length = fid_node["max_track_length"].as<unsigned int>(20U);
-
+    max_track_length = std::max(max_track_length, fiducial_params.max_track_length);
     SimFiducialTracker::Parameters sim_fiducial_params;
     sim_fiducial_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>());
     sim_fiducial_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>());
@@ -314,6 +315,7 @@ int main(int argc, char * argv[])
 
     fiducial_map[fiducial_params.name] = sim_fiducial_params;
   }
+  ekf->SetMaxTrackLength(max_track_length);
 
   // Load cameras and generate measurements
   logger->Log(LogLevel::INFO, "Loading Cameras");

@@ -7,9 +7,9 @@
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 1.0
-            no_errors: true
-            number_of_runs: 2
+            max_time: 10.0
+            no_errors: false
+            number_of_runs: 10
             run_number: 0
             truth_type: "cyclic"
             stationary_time: 0.0
@@ -24,12 +24,12 @@
 
         filter_params:
             process_noise: [
-                0.0, 0.0, 0.0, # Position
-                0.0, 0.0, 0.0, # Velocity
-                1.0e-3, 1.0e-3, 1.0e-3, # Acceleration
-                0.0, 0.0, 0.0, # Angular Position
-                1.0e-2, 1.0e-2, 1.0e-2, # Angular Velocity
-                0.0, 0.0, 0.0, # Angular Acceleration
+                1.0e-3, 1.0e-3, 1.0e-3, # Position
+                1.0e-4, 1.0e-4, 1.0e-4, # Velocity
+                1.0e-5, 1.0e-5, 1.0e-5, # Acceleration
+                1.0e-3, 1.0e-3, 1.0e-3, # Angular Position
+                1.0e-4, 1.0e-4, 1.0e-4, # Angular Velocity
+                1.0e-5, 1.0e-5, 1.0e-5, # Angular Acceleration
             ]
 
         imu_list:
@@ -73,7 +73,8 @@
                 rate: 20.0
                 topic:  "/my_camera/pylon_ros2_camera_node/image_raw"
                 pos_c_in_b: [0.0, 0.0, 0.0]
-                ang_c_to_b: [0.5, -0.5, 0.5, -0.5]
+                ang_c_to_b: [1.0, 0.0, 0.0, 0.0]
+                # ang_c_to_b: [0.5, -0.5, 0.5, -0.5]
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 fiducial: "charuco"
                 pos_stability: 1.0e-9
@@ -104,8 +105,8 @@
                 pos_f_in_g: [5.0, 0.0, 0.0]
                 ang_f_to_g: [1.0, 0.0, 0.0, 0.0]
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-                min_track_length: 2
-                max_track_length: 20
+                min_track_length: 0
+                max_track_length: 1
                 sim_params:
                     pos_error: [1.0e-3, 1.0e-3, 1.0e-3]
                     ang_error: [1.0e-2, 1.0e-2, 1.0e-2]

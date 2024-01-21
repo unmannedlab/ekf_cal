@@ -127,8 +127,9 @@ void EKF::ProcessModel(double time)
 
   AddProccessNoise();
 
-  /// @todo(jhartzer): Refine this bounding
-  m_cov = MaxBoundMatrix(m_cov, 1e2);
+  /// @todo(jhartzer): Should there be bounding?
+  // m_cov = MaxBoundMatrix(m_cov, 1e1);
+  // m_cov = MinBoundDiagonal(m_cov, 1e-2);
 
   m_current_time = time;
 
@@ -193,7 +194,11 @@ void EKF::PredictModel(
 
   // Process input matrix is just identity
   m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-    F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0) + process_noise) * F.transpose();
+    F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose() + process_noise;
+
+  /// @todo(jhartzer): Should there be bounding?
+  // m_cov = MaxBoundMatrix(m_cov, 1e1);
+  // m_cov = MinBoundDiagonal(m_cov, 1e-2);
 
   m_current_time = time;
 
@@ -235,10 +240,6 @@ void EKF::AddProccessNoise()
 
       m_cov.block<6, 6>(imu_state_start, imu_state_start) += process_noise;
     }
-
-    /// @todo(jhartzer): Should this bounding be happening?
-    // m_cov.block<12, 12>(imu_state_start, imu_state_start) =
-    //   MinBoundDiagonal(m_cov.block<12, 12>(imu_state_start, imu_state_start), 5e-6);
   }
 
   for (auto const & cam_iter : m_state.m_cam_states) {
@@ -453,8 +454,8 @@ void EKF::AugmentState(unsigned int camera_id, int frame_id)
   unsigned int aug_state_start;
   unsigned int cam_state_start = GetCamStateStartIndex(camera_id);
 
-  // Limit augmented states to 20 + 1
-  if (m_state.m_cam_states[camera_id].augmented_states.size() <= 21) {
+  // Limit augmented states to m_max_track_length
+  if (m_state.m_cam_states[camera_id].augmented_states.size() <= m_max_track_length) {
     aug_state_start = GetAugStateStartIndex(camera_id, frame_id);
 
     m_stateSize += g_aug_state_size;
@@ -508,4 +509,9 @@ AugmentedState EKF::MatchState(int camera_id, int frame_id)
   warning_msg << "No matching augmented state for frame " << frame_id;
   m_logger->Log(LogLevel::WARN, warning_msg.str());
   return aug_state_match;
+}
+
+void EKF::SetMaxTrackLength(unsigned int max_track_length)
+{
+  m_max_track_length = max_track_length;
 }

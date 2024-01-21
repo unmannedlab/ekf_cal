@@ -47,6 +47,7 @@
         "RVIZ",
         "SSRR",
         "undistort",
+        "whitegrid",
         "xdata",
         "ydata",
         "zdata"
