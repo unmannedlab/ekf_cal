@@ -113,9 +113,6 @@ void FiducialUpdater::UpdateEKF(
 
   Eigen::Vector3d pos_f_in_g_est = average_vectors(pos_f_in_g_vec, pos_weights);
   Eigen::Quaterniond ang_f_to_g_est = average_quaternions(ang_f_to_g_vec, ang_weights);
-  /// @todo(jhartzer): Remove this hard-coding
-  pos_f_in_g_est = Eigen::Vector3d(5.0, 0.0, 0.0);
-  ang_f_to_g_est = Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0);
   Eigen::Matrix3d rot_f_to_g_est = ang_f_to_g_est.toRotationMatrix();
 
   unsigned int max_meas_size = g_fiducial_measurement_size * board_track.size();
@@ -184,13 +181,13 @@ void FiducialUpdater::UpdateEKF(
       rot_bi_to_ci * quaternion_jacobian_inv(aug_state_i.ang_c_to_b) * rot_g_to_bi * rot_f_to_g_est;
 
     // Feature Jacobian
-    // H_f.block<3, 3>(meas_row + 0, 0) = rot_bi_to_ci * rot_g_to_bi;
+    H_f.block<3, 3>(meas_row + 0, 0) = rot_bi_to_ci * rot_g_to_bi;
 
-    // H_f.block<3, 3>(meas_row + 3, 3) = rot_bi_to_ci * rot_g_to_bi * rot_f_to_g_est *
-    //   quaternion_jacobian(ang_f_to_g_est);
+    H_f.block<3, 3>(meas_row + 3, 3) = rot_bi_to_ci * rot_g_to_bi * rot_f_to_g_est *
+      quaternion_jacobian(ang_f_to_g_est);
   }
 
-  // ApplyLeftNullspace(H_f, H_c, res_f);
+  ApplyLeftNullspace(H_f, H_c, res_f);
 
   /// @todo Chi^2 distance check
 
@@ -198,7 +195,7 @@ void FiducialUpdater::UpdateEKF(
   H_x.block(0, cam_state_start, H_c.rows(), H_c.cols()) = H_c;
   res_x.block(0, 0, res_f.rows(), 1) = res_f;
 
-  // CompressMeasurements(H_x, res_x);
+  CompressMeasurements(H_x, res_x);
 
   // Jacobian is ill-formed if either rows or columns post-compression are size 1
   if (res_x.size() == 1) {
