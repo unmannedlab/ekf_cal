@@ -7,7 +7,7 @@
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 10.0
+            max_time: 60.0
             no_errors: false
             number_of_runs: 10
             run_number: 0

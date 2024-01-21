@@ -157,11 +157,11 @@ void FiducialUpdater::UpdateEKF(
 
     // Residuals for this frame
     pos_residual = pos_measured - pos_predicted;
-    ang_residual = ang_measured * ang_predicted.inverse();
+    ang_residual = ang_predicted * ang_measured.inverse();
 
     unsigned int meas_row = g_fiducial_measurement_size * i;
     res_f.segment<3>(meas_row + 0) = pos_residual;
-    // res_f.segment<3>(meas_row + 3) = QuatToRotVec(ang_residual);
+    res_f.segment<3>(meas_row + 3) = QuatToRotVec(ang_residual);
 
     unsigned int H_c_aug_start = aug_state_start - cam_state_start;
 
@@ -169,19 +169,19 @@ void FiducialUpdater::UpdateEKF(
 
     H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 3) = rot_bi_to_ci *
       rot_g_to_bi * SkewSymmetric(pos_f_in_g_est - pos_bi_in_g) *
-      quaternion_jacobian(aug_state_i.ang_b_to_g);
+      quaternion_jacobian_inv(aug_state_i.ang_b_to_g);
 
     H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 6) = -rot_bi_to_ci;
 
     H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 9) = rot_bi_to_ci *
       SkewSymmetric(rot_g_to_bi * (pos_f_in_g_est - pos_bi_in_g) - pos_ci_in_bi) *
-      quaternion_jacobian(aug_state_i.ang_c_to_b);
+      quaternion_jacobian_inv(aug_state_i.ang_c_to_b);
 
-    // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) =
-    //   rot_bi_to_ci * rot_g_to_bi * quaternion_jacobian_inv(aug_state_i.ang_b_to_g) * rot_f_to_g_est;
+    H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) =
+      rot_bi_to_ci * rot_g_to_bi * quaternion_jacobian_inv(aug_state_i.ang_b_to_g) * rot_f_to_g_est;
 
-    // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 9) =
-    //   rot_bi_to_ci * quaternion_jacobian_inv(aug_state_i.ang_c_to_b) * rot_g_to_bi * rot_f_to_g_est;
+    H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 9) =
+      rot_bi_to_ci * quaternion_jacobian_inv(aug_state_i.ang_c_to_b) * rot_g_to_bi * rot_f_to_g_est;
 
     // Feature Jacobian
     // H_f.block<3, 3>(meas_row + 0, 0) = rot_bi_to_ci * rot_g_to_bi;
