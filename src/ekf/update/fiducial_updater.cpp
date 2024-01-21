@@ -45,7 +45,7 @@ FiducialUpdater::FiducialUpdater(
   header << "time";
   header << ",track_size";
   header << EnumerateHeader("cam_state", g_cam_state_size);
-  header << EnumerateHeader("residual", 6);
+  header << EnumerateHeader("residual", g_fiducial_measurement_size);
   header << EnumerateHeader("body_update", g_body_state_size);
   header << EnumerateHeader("cam_update", g_cam_state_size);
   header << EnumerateHeader("duration", 1);
@@ -113,11 +113,12 @@ void FiducialUpdater::UpdateEKF(
 
   Eigen::Vector3d pos_f_in_g_est = average_vectors(pos_f_in_g_vec, pos_weights);
   Eigen::Quaterniond ang_f_to_g_est = average_quaternions(ang_f_to_g_vec, ang_weights);
+  /// @todo(jhartzer): Remove this hard-coding
   pos_f_in_g_est = Eigen::Vector3d(5.0, 0.0, 0.0);
   ang_f_to_g_est = Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0);
   Eigen::Matrix3d rot_f_to_g_est = ang_f_to_g_est.toRotationMatrix();
 
-  unsigned int max_meas_size = 3 * board_track.size();
+  unsigned int max_meas_size = g_fiducial_measurement_size * board_track.size();
   unsigned int state_size = m_ekf->GetState().GetStateSize();
   unsigned int cam_state_start = m_ekf->GetCamStateStartIndex(m_id);
   unsigned int aug_state_size = g_aug_state_size * m_ekf->GetCamState(m_id).augmented_states.size();
@@ -126,7 +127,7 @@ void FiducialUpdater::UpdateEKF(
   Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(max_meas_size, state_size);
 
   Eigen::VectorXd res_f = Eigen::VectorXd::Zero(max_meas_size);
-  Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(max_meas_size, 6);
+  Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(max_meas_size, g_fiducial_measurement_size);
   Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(max_meas_size, g_cam_state_size + aug_state_size);
 
   for (unsigned int i = 0; i < board_track.size(); ++i) {
@@ -158,33 +159,34 @@ void FiducialUpdater::UpdateEKF(
     pos_residual = pos_measured - pos_predicted;
     ang_residual = ang_measured * ang_predicted.inverse();
 
-    res_f.segment<3>(3 * i + 0) = pos_residual;
-    // res_f.segment<3>(6 * i + 3) = QuatToRotVec(ang_residual);
+    unsigned int meas_row = g_fiducial_measurement_size * i;
+    res_f.segment<3>(meas_row + 0) = pos_residual;
+    // res_f.segment<3>(meas_row + 3) = QuatToRotVec(ang_residual);
 
     unsigned int H_c_aug_start = aug_state_start - cam_state_start;
 
-    H_c.block<3, 3>(3 * i + 0, H_c_aug_start + 0) = -rot_bi_to_ci * rot_g_to_ci;
+    H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 0) = -rot_bi_to_ci * rot_g_to_ci;
 
-    H_c.block<3, 3>(3 * i + 0, H_c_aug_start + 3) = rot_bi_to_ci *
+    H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 3) = rot_bi_to_ci *
       rot_g_to_bi * SkewSymmetric(pos_f_in_g_est - pos_bi_in_g) *
       quaternion_jacobian(aug_state_i.ang_b_to_g);
 
-    H_c.block<3, 3>(3 * i + 0, H_c_aug_start + 6) = -rot_bi_to_ci;
+    H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 6) = -rot_bi_to_ci;
 
-    H_c.block<3, 3>(3 * i + 0, H_c_aug_start + 9) = rot_bi_to_ci *
+    H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 9) = rot_bi_to_ci *
       SkewSymmetric(rot_g_to_bi * (pos_f_in_g_est - pos_bi_in_g) - pos_ci_in_bi) *
       quaternion_jacobian(aug_state_i.ang_c_to_b);
 
-    // H_c.block<3, 3>(6 * i + 3, H_c_aug_start + 3) =
+    // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) =
     //   rot_bi_to_ci * rot_g_to_bi * quaternion_jacobian_inv(aug_state_i.ang_b_to_g) * rot_f_to_g_est;
 
-    // H_c.block<3, 3>(6 * i + 3, H_c_aug_start + 9) =
+    // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 9) =
     //   rot_bi_to_ci * quaternion_jacobian_inv(aug_state_i.ang_c_to_b) * rot_g_to_bi * rot_f_to_g_est;
 
     // Feature Jacobian
-    // H_f.block<3, 3>(6 * i + 0, 0) = rot_bi_to_ci * rot_g_to_bi;
+    // H_f.block<3, 3>(meas_row + 0, 0) = rot_bi_to_ci * rot_g_to_bi;
 
-    // H_f.block<3, 3>(6 * i + 3, 3) = rot_bi_to_ci * rot_g_to_bi * rot_f_to_g_est *
+    // H_f.block<3, 3>(meas_row + 3, 3) = rot_bi_to_ci * rot_g_to_bi * rot_f_to_g_est *
     //   quaternion_jacobian(ang_f_to_g_est);
   }
 

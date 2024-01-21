@@ -24,6 +24,7 @@ static constexpr unsigned int g_imu_extrinsic_state_size {6};
 static constexpr unsigned int g_imu_intrinsic_state_size {6};
 static constexpr unsigned int g_cam_state_size {6};
 static constexpr unsigned int g_aug_state_size {12};
+static constexpr unsigned int g_fiducial_measurement_size {3};
 
 /// @todo(hartzerj): Re-Enable Gravity
 const Eigen::Vector3d g_gravity = Eigen::Vector3d(0, 0, 0);
