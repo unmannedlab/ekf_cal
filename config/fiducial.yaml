@@ -7,9 +7,9 @@
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 60.0
+            max_time: 6.0
             no_errors: false
-            number_of_runs: 10
+            number_of_runs: 3
             run_number: 0
             truth_type: "cyclic"
             stationary_time: 0.0
@@ -41,7 +41,7 @@
 
         imu:
             vn300:
-                use_for_prediction: true
+                use_for_prediction: false
                 is_extrinsic: false
                 is_intrinsic: false
                 rate: 400.0

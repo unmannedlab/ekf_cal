@@ -41,5 +41,15 @@
             ],
             "console": "integratedTerminal"
         },
+        {
+            "name": "Test Bokeh Plot",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/eval/plot-bokeh.py",
+            "args": [
+                "config/fiducial.yaml"
+            ],
+            "console": "integratedTerminal"
+        }
     ],
 }
