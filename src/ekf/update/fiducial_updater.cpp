@@ -17,6 +17,7 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <iomanip>
@@ -187,7 +188,9 @@ void FiducialUpdater::UpdateEKF(
       quaternion_jacobian(ang_f_to_g_est);
   }
 
-  ApplyLeftNullspace(H_f, H_c, res_f);
+  if (board_track.size() > 1) {
+    ApplyLeftNullspace(H_f, H_c, res_f);
+  }
 
   /// @todo Chi^2 distance check
 
@@ -195,7 +198,9 @@ void FiducialUpdater::UpdateEKF(
   H_x.block(0, cam_state_start, H_c.rows(), H_c.cols()) = H_c;
   res_x.block(0, 0, res_f.rows(), 1) = res_f;
 
-  CompressMeasurements(H_x, res_x);
+  if (board_track.size() > 1) {
+    CompressMeasurements(H_x, res_x);
+  }
 
   // Jacobian is ill-formed if either rows or columns post-compression are size 1
   if (res_x.size() == 1) {

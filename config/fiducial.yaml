@@ -13,10 +13,8 @@
             run_number: 0
             truth_type: "cyclic"
             stationary_time: 0.0
-            # pos_frequency: [0.0, 0.0, 0.0]
             pos_frequency: [0.3, 0.5, 0.7]
             ang_frequency: [0.3, 0.4, 0.5]
-            # ang_frequency: [0.0, 0.0, 0.0]
             pos_offset: [0.0, 0.0, 0.0]
             ang_offset: [0.0, 0.0, 0.0]
             ang_amplitude: 0.1
