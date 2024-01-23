@@ -1198,7 +1198,7 @@ class Plotter():
                 figures = self.plot_imu_data(imu_dfs, config_data, key)
                 self.save_figures(plot_dir, figures)
 
-            cam_dfs_dict = find_and_read_data_frames(data_dirs, 'camera')
+            cam_dfs_dict = find_and_read_data_frames(data_dirs, 'msckf')
             for key in cam_dfs_dict:
                 cam_dfs = cam_dfs_dict[key]
                 figures = self.plot_cam_data(cam_dfs, config_data, key)

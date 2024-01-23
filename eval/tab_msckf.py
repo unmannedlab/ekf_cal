@@ -16,25 +16,186 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
+import collections
 
-from bokeh.models import TabPanel, Tabs
-from bokeh.plotting import figure, show
+from bokeh.models import TabPanel, Spacer
+from bokeh.layouts import layout
+from bokeh.plotting import figure
 
-from bokeh.layouts import column, row, layout
-from bokeh.plotting import figure, show
+from utilities import calculate_alpha, plot_update_timing
 
-def tab_msckf(mskcf_dfs, config_data, key):
-    p1 = figure(width=600, height=200)
-    p2 = figure(width=600, height=200)
-    p3 = figure(width=600, height=200)
-    p4 = figure(width=600, height=200)
 
-    p1.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
-    p2.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
-    p3.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
-    p4.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
+# def plot_camera_body_pos_updates(mskcf_dfs):
+#     """Plot updates to the body position states from camera measurements."""
+#     fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='', title='')
+#     a = calculate_alpha(len(mskcf_dfs))
+#     for mskcf_df in mskcf_dfs:
+#         time = mskcf_df['time'].to_list()
+#         fig.line(time, mskcf_df['body_update_0'].to_list(), alpha=a, color='blue')
+#         fig.line(time, mskcf_df['body_update_1'].to_list(), alpha=a, color='orange')
+#         fig.line(time, mskcf_df['body_update_2'].to_list(), alpha=a, color='green')
+#         fig.line(time, mskcf_df['body_update_3'].to_list(), alpha=a, color='blue')
+#         fig.line(time, mskcf_df['body_update_4'].to_list(), alpha=a, color='orange')
+#         fig.line(time, mskcf_df['body_update_5'].to_list(), alpha=a, color='green')
+#         fig.line(time, mskcf_df['body_update_6'].to_list(), alpha=a, color='blue')
+#         fig.line(time, mskcf_df['body_update_7'].to_list(), alpha=a, color='orange')
+#         fig.line(time, mskcf_df['body_update_8'].to_list(), alpha=a, color='green')
+#     return fig
 
-    tab_layout = layout([[p1],[p2],[p3],[p4]], sizing_mode="stretch_width")
-    tab = TabPanel(child=tab_layout, title=f"MSCKF_{mskcf_dfs[0].attrs['id']}")
+# def plot_camera_body_ang_updates(mskcf_dfs):
+#     """Plot updates to the body angular states from camera measurements."""
+#     fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='', title='')
+#     a = calculate_alpha(len(mskcf_dfs))
+#     for mskcf_df in mskcf_dfs:
+#         time = mskcf_df['time'].to_list()
+#         fig.line(time, mskcf_df['body_update_9'].to_list(), alpha=a, color='blue')
+#         fig.line(time, mskcf_df['body_update_10'].to_list(), alpha=a, color='orange')
+#         fig.line(time, mskcf_df['body_update_11'].to_list(), alpha=a, color='green')
+#         fig.line(time, mskcf_df['body_update_12'].to_list(), alpha=a, color='blue')
+#         fig.line(time, mskcf_df['body_update_13'].to_list(), alpha=a, color='orange')
+#         fig.line(time, mskcf_df['body_update_14'].to_list(), alpha=a, color='green')
+#         fig.line(time, mskcf_df['body_update_15'].to_list(), alpha=a, color='blue')
+#         fig.line(time, mskcf_df['body_update_16'].to_list(), alpha=a, color='orange')
+#         fig.line(time, mskcf_df['body_update_17'].to_list(), alpha=a, color='green')
+#     return fig
+
+# def plot_camera_offset_updates(self, mskcf_dfs):
+#     """Plot camera updates to extrinsic offsets."""
+#     fig, (axs_1, axs_2) = plt.subplots(2, 1)
+#     a = calculate_alpha(len(mskcf_dfs))
+#     for mskcf_df in mskcf_dfs:
+#         t_cam = mskcf_df['time'].to_list()
+#         fig.line(t_cam, mskcf_df['cam_update_0'].to_list(), alpha=a, color='blue')
+#         fig.line(t_cam, mskcf_df['cam_update_1'].to_list(), alpha=a, color='orange')
+#         fig.line(t_cam, mskcf_df['cam_update_2'].to_list(), alpha=a, color='green')
+#         fig.line(t_cam, mskcf_df['cam_update_3'].to_list(), alpha=a, color='blue')
+#         fig.line(t_cam, mskcf_df['cam_update_4'].to_list(), alpha=a, color='orange')
+#         fig.line(t_cam, mskcf_df['cam_update_5'].to_list(), alpha=a, color='green')
+#     return fig
+
+def plot_camera_pos(mskcf_dfs):
+    """Plot camera position offsets."""
+    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Position [m]', title='Camera Position')
+    a = calculate_alpha(len(mskcf_dfs))
+    for mskcf_df in mskcf_dfs:
+        t_cam = mskcf_df['time'].to_list()
+        fig.line(t_cam, mskcf_df['cam_state_0'].to_list(), alpha=a, color='blue')
+        fig.line(t_cam, mskcf_df['cam_state_1'].to_list(), alpha=a, color='orange')
+        fig.line(t_cam, mskcf_df['cam_state_2'].to_list(), alpha=a, color='green')
+    return fig
+
+def plot_camera_ang(mskcf_dfs):
+    """Plot camera angular offsets."""
+    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Orientation', title='Camera Orientation')
+    a = calculate_alpha(len(mskcf_dfs))
+    for mskcf_df in mskcf_dfs:
+        t_cam = mskcf_df['time'].to_list()
+        fig.line(t_cam, mskcf_df['cam_state_3'].to_list(), alpha=a, color='blue')
+        fig.line(t_cam, mskcf_df['cam_state_4'].to_list(), alpha=a, color='orange')
+        fig.line(t_cam, mskcf_df['cam_state_5'].to_list(), alpha=a, color='green')
+    return fig
+
+def plot_cam_pos_cov(mskcf_dfs):
+    """Plot extrinsic position covariance."""
+    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Extrinsic Position Covariance [m]', title='Extrinsic Position Covariance')
+    a = calculate_alpha(len(mskcf_dfs))
+    for mskcf_df in mskcf_dfs:
+        t_cam = mskcf_df['time'].to_list()
+        fig.line(t_cam, mskcf_df['cam_cov_0'].to_list(), alpha=a, color='blue', legend_label='p_x')
+        fig.line(t_cam, mskcf_df['cam_cov_1'].to_list(), alpha=a, color='orange', legend_label='p_y')
+        fig.line(t_cam, mskcf_df['cam_cov_2'].to_list(), alpha=a, color='green', legend_label='p_z')
+    return fig
+
+def plot_cam_ang_cov(mskcf_dfs):
+    """Plot extrinsic angle covariance."""
+    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Extrinsic Angle Covariance [m]', title='Extrinsic Angle Covariance')
+    a = calculate_alpha(len(mskcf_dfs))
+    for mskcf_df in mskcf_dfs:
+        t_cam = mskcf_df['time'].to_list()
+        fig.line(t_cam, mskcf_df['cam_cov_3'].to_list(), alpha=a, color='blue', legend_label='\theta_x')
+        fig.line(t_cam, mskcf_df['cam_cov_4'].to_list(), alpha=a, color='orange', legend_label='\theta_y')
+        fig.line(t_cam, mskcf_df['cam_cov_5'].to_list(), alpha=a, color='green', legend_label='\theta_z')
+    return fig
+
+
+def plot_triangulation_error(tri_dfs, feat_dfs):
+    """Plot MSCKF feature point triangulation error."""
+    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Triangulation Error [m]', title='MSCKF Triangulation Error')
+
+    err_x = collections.defaultdict(list)
+    err_y = collections.defaultdict(list)
+    err_z = collections.defaultdict(list)
+
+    for tri_df, feat_df in zip(tri_dfs, feat_dfs):
+        time = tri_df['time'].to_list()
+        feature = tri_df['feature'].to_list()
+        feat_x = tri_df['x'].to_list()
+        feat_y = tri_df['y'].to_list()
+        feat_z = tri_df['z'].to_list()
+
+        true_x = feat_df['x'].to_list()
+        true_y = feat_df['y'].to_list()
+        true_z = feat_df['z'].to_list()
+
+        for (t, f, x, y, z) in zip(time, feature, feat_x, feat_y, feat_z):
+            err_x[t].append(x - true_x[int(f)])
+            err_y[t].append(y - true_y[int(f)])
+            err_z[t].append(z - true_z[int(f)])
+    times = []
+    mean_x = []
+    mean_y = []
+    mean_z = []
+    stddev_x = []
+    stddev_y = []
+    stddev_z = []
+
+    for time in err_x:
+        times.append(time)
+        mean_x.append(np.mean(err_x[time]))
+        mean_y.append(np.mean(err_y[time]))
+        mean_z.append(np.mean(err_z[time]))
+        stddev_x.append(np.std(err_x[time]))
+        stddev_y.append(np.std(err_y[time]))
+        stddev_z.append(np.std(err_z[time]))
+
+    times = np.array(times)
+    mean_x = np.array(mean_x)
+    mean_y = np.array(mean_y)
+    mean_z = np.array(mean_z)
+    stddev_x = np.array(stddev_x)
+    stddev_y = np.array(stddev_y)
+    stddev_z = np.array(stddev_z)
+
+    t_indices = times.argsort()
+    times = times[t_indices]
+    mean_x = mean_x[t_indices]
+    mean_y = mean_y[t_indices]
+    mean_z = mean_z[t_indices]
+    stddev_x = stddev_x[t_indices]
+    stddev_y = stddev_y[t_indices]
+    stddev_z = stddev_z[t_indices]
+
+    fig.line(times, mean_x, color='blue')
+    fig.line(times, mean_y, color='orange')
+    fig.line(times, mean_z, color='green')
+    fig.line(times, mean_x - stddev_x, color='blue')
+    fig.line(times, mean_x + stddev_x, color='blue')
+    fig.line(times, mean_y - stddev_y, color='orange')
+    fig.line(times, mean_y + stddev_y, color='orange')
+    fig.line(times, mean_z - stddev_z, color='green')
+    fig.line(times, mean_z + stddev_z, color='green')
+    return fig
+
+# TODO(jhartzer): Plot triangulation 
+# TODO(jhartzer): 
+def tab_msckf(mskcf_dfs, tri_dfs, feat_dfs):
+    layout_plots = [
+        [plot_camera_pos(mskcf_dfs), plot_camera_ang(mskcf_dfs)],
+        [plot_cam_pos_cov(mskcf_dfs), plot_cam_ang_cov(mskcf_dfs)],
+        [plot_triangulation_error(tri_dfs, feat_dfs), plot_update_timing(mskcf_dfs)]
+    ]
+
+    tab_layout = layout(layout_plots, sizing_mode="stretch_width")
+    tab = TabPanel(child=tab_layout, title=f"MSCKF {mskcf_dfs[0].attrs['id']}")
 
     return tab

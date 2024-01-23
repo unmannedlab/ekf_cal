@@ -42,15 +42,12 @@ import numpy as np
 import os
 import pandas as pd
 import re
-import traceback
 import yaml
 
-from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Rotation
 
-from bokeh.layouts import column, row, layout
-from bokeh.models import TabPanel, Tabs
-from bokeh.plotting import figure, show, save
-from bokeh.resources import Resources
+from bokeh.models import Tabs
+from bokeh.plotting import save
 
 from tab_body import tab_body
 from tab_fiducial import tab_fiducial
@@ -85,17 +82,6 @@ def generate_mc_lists(input_files, runs=None):
                 print(exc)
         mc_lists.append(yaml_files)
     return mc_lists
-
-def interpolate_error(true_t, true_x, estimate_t, estimate_x):
-    """Calculate an interpolated vector error using truth and estimate points."""
-    interp_x = np.interp(estimate_t, true_t, true_x)
-    errors = [estimate - interp for estimate, interp in zip(estimate_x, interp_x)]
-    return errors
-
-def set_plot_titles(fig, name):
-    """Set plot suptitle and canvas window title."""
-    fig.suptitle(name)
-    fig.canvas.manager.set_window_title(name)
 
 def format_prefix(prefix):
     """Generate formatted prefix from string."""
@@ -157,7 +143,7 @@ def lists_to_rot(w_list, x_list, y_list, z_list):
     """Convert lists of quaternion elements to a list of scipy rotations."""
     r_list = []
     for w, x, y, z in zip(w_list, x_list, y_list, z_list):
-        r = R.from_quat([w, x, y, z])
+        r = Rotation.from_quat([w, x, y, z])
         r_list.append(r)
     return r_list
 
@@ -185,27 +171,6 @@ def RMSE_from_vectors(x_list, y_list, z_list):
     rmse = np.sqrt(np.mean(x_err * x_err + y_err * y_err + z_err * z_err))
     return rmse
 
-# def plot_sim_results(config_files, settings):
-#     p1 = figure(width=600, height=200)
-#     p2 = figure(width=600, height=200)
-#     p3 = figure(width=600, height=200)
-#     p4 = figure(width=600, height=200)
-
-#     p1.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
-#     p2.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
-#     p3.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
-#     p4.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
-
-#     t1_layout = layout([[p1],[p2],[p3],[p4]])
-#     tab1 = TabPanel(child=t1_layout, title="circle")
-
-#     p2 = figure(width=300, height=300)
-#     p2.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], line_width=3, color="navy", alpha=0.5)
-#     tab2 = TabPanel(child=p2, title="line")
-
-#     # show(Tabs(tabs=[tab1, tab2]))
-#     return [tab1, tab2]
-
 
 # TODO(jhartzer): Split for loop into thread pool
 def plot_sim_results(config_sets, settings):
@@ -232,26 +197,23 @@ def plot_sim_results(config_sets, settings):
             tabs.append(tab_body(body_state_dfs, body_truth_dfs))
 
         imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
-        for key in imu_dfs_dict:
+        for key in sorted(imu_dfs_dict.keys()):
             imu_dfs = imu_dfs_dict[key]
             tabs.append(tab_imu(imu_dfs, config_data, key))
 
         mskcf_dfs_dict = find_and_read_data_frames(data_dirs, 'msckf')
-        for key in mskcf_dfs_dict:
+        tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
+        feat_dfs_dict = find_and_read_data_frames(data_dirs, 'feature_points')
+        for key in sorted(mskcf_dfs_dict.keys()):
             mskcf_dfs = mskcf_dfs_dict[key]
-            tabs.append(tab_msckf(mskcf_dfs, config_data, key))
+            tri_dfs = tri_dfs_dict[key]
+            feat_dfs = feat_dfs_dict[0]
+            tabs.append(tab_msckf(mskcf_dfs, tri_dfs, feat_dfs))
 
         fiducial_dfs_dict = find_and_read_data_frames(data_dirs, 'fiducial')
-        for key in fiducial_dfs_dict:
+        for key in sorted(fiducial_dfs_dict.keys()):
             fiducial_dfs = fiducial_dfs_dict[key]
             tabs.append(tab_fiducial(fiducial_dfs, config_data, key))
-
-        # tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
-        # feat_dfs_dict = find_and_read_data_frames(data_dirs, 'feature_points')
-        # for key in tri_dfs_dict:
-        #     tri_dfs = tri_dfs_dict[key]
-        #     feat_dfs = feat_dfs_dict[0]
-        #     tabs.append(plot_triangulation_data(tri_dfs, feat_dfs, key))
 
         save(
             obj=Tabs(tabs=tabs, sizing_mode="stretch_width"), 

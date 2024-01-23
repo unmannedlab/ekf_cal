@@ -17,11 +17,12 @@
 
 import numpy as np
 
-from bokeh.models import TabPanel, Tabs
-from bokeh.plotting import figure, show
+from bokeh.layouts import layout
+from bokeh.models import TabPanel, Spacer
+from bokeh.plotting import figure
 
-from bokeh.layouts import column, row, layout
-from bokeh.plotting import figure, show
+from utilities import calculate_alpha, plot_update_timing
+
 
 def tab_fiducial(fiducial_dfs, config_data, key):
     p1 = figure(width=600, height=200)
@@ -34,7 +35,13 @@ def tab_fiducial(fiducial_dfs, config_data, key):
     p3.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
     p4.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
 
-    tab_layout = layout([[p1],[p2],[p3],[p4]], sizing_mode="stretch_width")
-    tab = TabPanel(child=tab_layout, title=f"Fiducial_{fiducial_dfs[0].attrs['id']}")
+    layout_plots = [
+        [p1, p2],
+        [p3, p4],
+        [plot_update_timing(fiducial_dfs), Spacer()]
+    ]
+
+    tab_layout = layout(layout_plots, sizing_mode="stretch_width")
+    tab = TabPanel(child=tab_layout, title=f"Fiducial {fiducial_dfs[0].attrs['id']}")
 
     return tab
