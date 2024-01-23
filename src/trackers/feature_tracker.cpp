@@ -44,6 +44,8 @@ FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
   m_descriptor_extractor = InitDescriptorExtractor(params.descriptor, params.threshold);
   m_descriptor_matcher = InitDescriptorMatcher(params.matcher);
   m_px_error = params.px_error;
+  m_min_track_length = params.min_track_length;
+  m_max_track_length = params.max_track_length;
 }
 
 /// @todo Check what parameters are used by open_vins
@@ -238,10 +240,10 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
     for (auto it = m_feature_track_map.cbegin(); it != m_feature_track_map.cend(); ) {
       const auto & feature_track = it->second;
       if ((feature_track.back().frame_id < frame_id) ||
-        (feature_track.size() >= max_track_length))
+        (feature_track.size() >= m_max_track_length))
       {
         // This feature does not exist in the latest frame
-        if (feature_track.size() >= min_track_length) {
+        if (feature_track.size() >= m_min_track_length) {
           feature_tracks.push_back(feature_track);
         }
         it = m_feature_track_map.erase(it);

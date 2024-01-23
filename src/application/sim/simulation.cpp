@@ -264,6 +264,7 @@ int main(int argc, char * argv[])
   }
 
   // Load tracker parameters
+  unsigned int max_track_length {0U};
   logger->Log(LogLevel::INFO, "Loading Trackers");
   std::map<std::string, SimFeatureTracker::Parameters> tracker_map;
   for (unsigned int i = 0; i < trackers.size(); ++i) {
@@ -275,6 +276,9 @@ int main(int argc, char * argv[])
     track_params.output_directory = out_dir;
     track_params.data_logging_on = data_logging_on;
     track_params.px_error = trk_node["pixel_error"].as<double>(1.0);
+    track_params.min_track_length = trk_node["min_track_length"].as<unsigned int>(2U);
+    track_params.max_track_length = trk_node["max_track_length"].as<unsigned int>(20U);
+    max_track_length = std::max(max_track_length, track_params.max_track_length);
 
     SimFeatureTracker::Parameters sim_tracker_params;
     sim_tracker_params.feature_count = sim_node["feature_count"].as<unsigned int>(1.0e2);
@@ -286,7 +290,6 @@ int main(int argc, char * argv[])
   }
 
   // Load board detectors
-  unsigned int max_track_length {0U};
   logger->Log(LogLevel::INFO, "Loading Board Detectors");
   std::map<std::string, SimFiducialTracker::Parameters> fiducial_map;
   for (unsigned int i = 0; i < fiducials.size(); ++i) {

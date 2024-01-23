@@ -36,6 +36,8 @@
         camera_list:
             - "ace"
 
+        tracker_list:
+
         fiducial_list:
             - "charuco"
 

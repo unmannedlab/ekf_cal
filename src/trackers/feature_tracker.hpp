@@ -82,6 +82,8 @@ public:
     bool data_logging_on {false};        ///< @brief Feature Tracker data logging flag
     double px_error{1e-9};               ///< @brief Pixel error standard deviation
     Intrinsics intrinsics;               ///< @brief Camera intrinsic parameters
+    unsigned int min_track_length{2U};   ///< @brief Minimum track length to consider
+    unsigned int max_track_length{20U};  ///< @brief Maximum track length before forced output
   } Parameters;
 
   ///
@@ -119,11 +121,11 @@ public:
 
 protected:
   DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
-  unsigned int max_track_length{20};  ///< @brief Maximum track length before forced output
-  unsigned int min_track_length{2};   ///< @brief Minimum track length to consider
-  MsckfUpdater m_msckf_updater;       ///< @brief MSCKF updater object
-  int m_camera_id{-1};                ///< @brief Associated camera ID of tracker
-  unsigned int m_id;                  ///< @brief Tracker ID
+  unsigned int m_max_track_length;  ///< @brief Maximum track length before forced output
+  unsigned int m_min_track_length;  ///< @brief Minimum track length to consider
+  MsckfUpdater m_msckf_updater;     ///< @brief MSCKF updater object
+  int m_camera_id{-1};              ///< @brief Associated camera ID of tracker
+  unsigned int m_id;                ///< @brief Tracker ID
 
 private:
   cv::Ptr<cv::FeatureDetector> InitFeatureDetector(

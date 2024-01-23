@@ -92,8 +92,8 @@ public:
 
 protected:
   DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
-  unsigned int max_track_length{20};     ///< @brief Maximum track length before forced output
-  unsigned int min_track_length{2};      ///< @brief Minimum track length to consider
+  unsigned int m_max_track_length{20U};  ///< @brief Maximum track length before forced output
+  unsigned int m_min_track_length{2U};   ///< @brief Minimum track length to consider
   FiducialUpdater m_fiducial_updater;    ///< @brief MSCKF updater object
   int m_camera_id{-1};                   ///< @brief Associated camera ID of tracker
   unsigned int m_id;                     ///< @brief Tracker ID
@@ -109,8 +109,6 @@ private:
   /// @todo(jhartzer): Get these values from inputs
   Eigen::Vector3d m_pos_error {1e-9, 1e-9, 1e-9};
   Eigen::Vector3d m_ang_error {1e-9, 1e-9, 1e-9};
-  unsigned int m_min_track_length {2U};
-  unsigned int m_max_track_length {20U};
 };
 
 #endif  // TRACKERS__FIDUCIAL_TRACKER_HPP_

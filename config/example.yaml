@@ -22,12 +22,12 @@
 
         filter_params:
             process_noise: [
-                0.0, 0.0, 0.0, # Position
-                0.0, 0.0, 0.0, # Velocity
-                1.0e-2, 1.0e-2, 1.0e-2, # Acceleration
-                0.0, 0.0, 0.0, # Angular Position
-                1.0e-2, 1.0e-2, 1.0e-2, # Angular Velocity
-                0.0, 0.0, 0.0, # Angular Acceleration
+                1.0e-3, 1.0e-3, 1.0e-3, # Position
+                1.0e-4, 1.0e-4, 1.0e-4, # Velocity
+                1.0e-5, 1.0e-5, 1.0e-5, # Acceleration
+                1.0e-3, 1.0e-3, 1.0e-3, # Angular Position
+                1.0e-4, 1.0e-4, 1.0e-4, # Angular Velocity
+                1.0e-5, 1.0e-5, 1.0e-5, # Angular Acceleration
             ]
 
         imu_list:
@@ -39,6 +39,8 @@
 
         tracker_list:
             - "orb"
+
+        fiducial_list:
 
         imu:
             vn300:
@@ -126,6 +128,8 @@
                 detector_threshold: 10.0
                 pixel_error: 1.0
                 min_feature_distance: 1.0
+                min_track_length: 0
+                max_track_length: 20
                 sim_params:
                     feature_count: 100
                     room_size: 10.0
