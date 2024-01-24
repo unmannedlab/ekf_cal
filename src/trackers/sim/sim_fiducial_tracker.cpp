@@ -15,19 +15,19 @@
 
 #include "trackers/sim/sim_fiducial_tracker.hpp"
 
+#include "utility/string_helper.hpp"
 #include "utility/type_helper.hpp"
 
 SimFiducialTracker::SimFiducialTracker(
   SimFiducialTracker::Parameters params,
   std::shared_ptr<TruthEngine> truthEngine)
 : FiducialTracker(params.fiducial_params),
-  m_data_logger(params.fiducial_params.output_directory, "feature_points.csv")
+  m_board_logger(params.fiducial_params.output_directory, "boards.csv")
 {
   m_no_errors = params.no_errors;
   m_truth = truthEngine;
-
-  m_data_logger.DefineHeader("Feature,x,y,z\n");
-  m_data_logger.SetLogging(params.fiducial_params.data_logging_on);
+  m_board_logger.DefineHeader("board,pos_x,pos_y,pos_z,quat_w,quat_x,quat_y,quat_z\n");
+  m_board_logger.SetLogging(params.fiducial_params.data_logging_on);
   m_pos_error = params.pos_error;
   m_ang_error = params.ang_error;
   m_t_vec_error = params.t_vec_error;
@@ -50,6 +50,11 @@ SimFiducialTracker::SimFiducialTracker(
     m_ang_f_to_g_true = params.fiducial_params.ang_f_to_g;
   }
 
+  std::stringstream msg;
+  msg << "0";
+  msg << VectorToCommaString(m_pos_f_in_g_true);
+  msg << QuaternionToCommaString(m_ang_f_to_g_true);
+  m_board_logger.Log(msg.str());
   m_intrinsics = params.fiducial_params.intrinsics;
   m_proj_matrix = cv::Mat(3, 3, cv::DataType<double>::type, 0.0);
   m_proj_matrix.at<double>(0, 0) = m_intrinsics.f_x / m_intrinsics.pixel_size;

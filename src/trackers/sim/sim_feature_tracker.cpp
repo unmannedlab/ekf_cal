@@ -37,15 +37,15 @@ SimFeatureTracker::SimFeatureTracker(
   SimFeatureTracker::Parameters params,
   std::shared_ptr<TruthEngine> truthEngine)
 : FeatureTracker(params.tracker_params),
-  m_data_logger(params.tracker_params.output_directory, "feature_points.csv")
+  m_feature_logger(params.tracker_params.output_directory, "feature_points.csv")
 {
   m_px_error = params.tracker_params.px_error;
   m_no_errors = params.no_errors;
   m_feature_count = params.feature_count;
   m_truth = truthEngine;
 
-  m_data_logger.DefineHeader("Feature,x,y,z\n");
-  m_data_logger.SetLogging(params.tracker_params.data_logging_on);
+  m_feature_logger.DefineHeader("Feature,x,y,z\n");
+  m_feature_logger.SetLogging(params.tracker_params.data_logging_on);
 
   m_feature_points.push_back(cv::Point3d(params.room_size, 0, 0));
   m_feature_points.push_back(cv::Point3d(params.room_size, params.room_size / 10, 0));
@@ -74,7 +74,7 @@ SimFeatureTracker::SimFeatureTracker(
     msg << "," << m_feature_points[i].y;
     msg << "," << m_feature_points[i].z;
     msg << std::endl;
-    m_data_logger.Log(msg.str());
+    m_feature_logger.Log(msg.str());
   }
 
   m_intrinsics = params.tracker_params.intrinsics;

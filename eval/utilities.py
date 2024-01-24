@@ -15,10 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import numpy as np
 from math import pow
-from scipy.spatial.transform import Rotation
+
 from bokeh.plotting import figure
+import numpy as np
+from scipy.spatial.transform import Rotation
 
 
 def calculate_alpha(line_count: int):
@@ -68,18 +69,19 @@ def RMSE_from_vectors(x_list, y_list, z_list):
     return rmse
 
 
-
 def plot_update_timing(data_frames, rate=None):
     """Plot histogram of update execution durations."""
     df_prefix = data_frames[0].attrs['prefix']
     df_id = str(data_frames[0].attrs['id'])
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Count', title=f'{df_prefix} {df_id} Update Time')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Count', title=f'{df_prefix} {df_id} Update Time')
     durations = np.array([])
     for df in data_frames:
         durations = np.append(durations, df['duration_0'])
     hist, edges = np.histogram(durations / 1e6)
-    fig.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], legend_label="Duration [ms]")
+    fig.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], legend_label='Duration [ms]')
     if rate:
         pass
+        # TODO(jhartzer): Add max duration line
         # axs.axvline(x=1000.0 / rate, color='red', linestyle='--')
     return fig

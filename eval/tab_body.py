@@ -15,18 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import numpy as np
 
 from bokeh.layouts import layout
 from bokeh.models import TabPanel
 from bokeh.plotting import figure
-
+import numpy as np
 from utilities import calculate_alpha, calculate_rotation_errors, interpolate_error, lists_to_rot
 
 
 def plot_body_pos(body_state_dfs):
     """Plot body position."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Position [m]', title='Body Position')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Position [m]', title='Body Position')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
@@ -35,9 +35,11 @@ def plot_body_pos(body_state_dfs):
         fig.line(time, body_df['body_pos_2'].to_list(), alpha=a, color='green')
     return fig
 
+
 def plot_body_vel(body_state_dfs):
     """Plot body velocity."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Velocity [m/s]', title='Body Velocity')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Velocity [m/s]', title='Body Velocity')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
@@ -46,9 +48,11 @@ def plot_body_vel(body_state_dfs):
         fig.line(time, body_df['body_vel_2'].to_list(), alpha=a, color='green')
     return fig
 
+
 def plot_body_acc(body_state_dfs):
     """Plot body acceleration."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Acceleration [m/s/s]', title='Body Acceleration')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Acceleration [m/s/s]', title='Body Acceleration')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
@@ -57,9 +61,11 @@ def plot_body_acc(body_state_dfs):
         fig.line(time, body_df['body_acc_2'].to_list(), alpha=a, color='green')
     return fig
 
+
 def plot_body_ang(body_state_dfs):
     """Plot body angular position."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Angle', title='Body Angle')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Angle', title='Body Angle')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
@@ -69,9 +75,11 @@ def plot_body_ang(body_state_dfs):
         fig.line(time, body_df['body_ang_pos_3'].to_list(), alpha=a, color='red')
     return fig
 
+
 def plot_body_ang_vel(body_state_dfs):
     """Plot body angular velocity."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Angular Velocity', title='Body Angular Velocity')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Angular Velocity', title='Body Angular Velocity')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
@@ -80,9 +88,11 @@ def plot_body_ang_vel(body_state_dfs):
         fig.line(time, body_df['body_ang_vel_2'].to_list(), alpha=a, color='green')
     return fig
 
+
 def plot_body_ang_acc(body_state_dfs):
     """Plot body angular acceleration."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Angular Acceleration', title='Body Angular Acceleration')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Angular Acceleration', title='Body Angular Acceleration')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
@@ -91,9 +101,11 @@ def plot_body_ang_acc(body_state_dfs):
         fig.line(time, body_df['body_ang_acc_2'].to_list(), alpha=a, color='green')
     return fig
 
+
 def plot_body_err_pos(body_state_dfs, body_truth_dfs):
     """Plot the body state position error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Position Error [m]', title='Body Position Error')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Position Error [m]', title='Body Position Error')
     a = calculate_alpha(len(body_state_dfs))
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
@@ -116,9 +128,11 @@ def plot_body_err_pos(body_state_dfs, body_truth_dfs):
 
     return fig
 
+
 def plot_body_err_vel(body_state_dfs, body_truth_dfs):
     """Plot the body state velocity error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Velocity Error [m/s]', title='Body Velocity Error')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Velocity Error [m/s]', title='Body Velocity Error')
     a = calculate_alpha(len(body_state_dfs))
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
@@ -141,9 +155,11 @@ def plot_body_err_vel(body_state_dfs, body_truth_dfs):
 
     return fig
 
+
 def plot_body_err_acc(body_state_dfs, body_truth_dfs):
     """Plot the body state acceleration error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Acceleration Error [m/s/s]', title='Body Acceleration Error')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Acceleration Error [m/s/s]', title='Body Acceleration Error')
     a = calculate_alpha(len(body_state_dfs))
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
@@ -165,9 +181,11 @@ def plot_body_err_acc(body_state_dfs, body_truth_dfs):
         fig.line(est_time, err_acc_2, alpha=a, color='green')
     return fig
 
+
 def plot_body_err_ang(body_state_dfs, body_truth_dfs):
     """Plot the body state angular error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Angular Error', title='Body Angular Error')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Angular Error', title='Body Angular Error')
     a = calculate_alpha(len(body_state_dfs))
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
@@ -198,9 +216,12 @@ def plot_body_err_ang(body_state_dfs, body_truth_dfs):
         fig.line(est_time, err_ang_pos_z, alpha=a, color='red')
     return fig
 
+
 def plot_body_err_ang_vel(body_state_dfs, body_truth_dfs):
     """Plot the body state angular velocity error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Angular Velocity Error [rad/s]', title='Body Angular Velocity Error')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Angular Velocity Error [rad/s]',
+                 title='Body Angular Velocity Error')
     a = calculate_alpha(len(body_state_dfs))
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
@@ -222,9 +243,12 @@ def plot_body_err_ang_vel(body_state_dfs, body_truth_dfs):
         fig.line(est_time, err_ang_vel_2, alpha=a, color='green')
     return fig
 
+
 def plot_body_err_ang_acc(body_state_dfs, body_truth_dfs):
     """Plot the body state angular acceleration error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Angular Acceleration Error [rad/s/s]', title='Body Angular Acceleration Error')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Angular Acceleration Error [rad/s/s]',
+                 title='Body Angular Acceleration Error')
     a = calculate_alpha(len(body_state_dfs))
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
@@ -249,7 +273,8 @@ def plot_body_err_ang_acc(body_state_dfs, body_truth_dfs):
 
 def plot_body_pos_cov(body_state_dfs):
     """Plot body covariances for body position."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Position [m]', title='Body Position Covariance')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Position [m]', title='Body Position Covariance')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
@@ -258,9 +283,11 @@ def plot_body_pos_cov(body_state_dfs):
         fig.line(time, body_df['body_cov_2'].to_list(), alpha=a, color='green')
     return fig
 
+
 def plot_body_vel_cov(body_state_dfs):
     """Plot body covariances for body velocity."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Velocity [m/s]', title='Body Velocity Covariance')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Velocity [m/s]', title='Body Velocity Covariance')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
@@ -269,9 +296,11 @@ def plot_body_vel_cov(body_state_dfs):
         fig.line(time, body_df['body_cov_5'].to_list(), alpha=a, color='green')
     return fig
 
+
 def plot_body_acc_cov(body_state_dfs):
     """Plot body covariances for body acceleration."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Acceleration [m/s/s]', title='Body Acceleration Covariance')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Acceleration [m/s/s]', title='Body Acceleration Covariance')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
@@ -280,9 +309,11 @@ def plot_body_acc_cov(body_state_dfs):
         fig.line(time, body_df['body_cov_8'].to_list(), alpha=a, color='green')
     return fig
 
+
 def plot_body_ang_cov(body_state_dfs):
     """Plot body covariances for body angles."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='', title='Body Angular Covariance')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='', title='Body Angular Covariance')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
@@ -291,9 +322,11 @@ def plot_body_ang_cov(body_state_dfs):
         fig.line(time, body_df['body_cov_11'].to_list(), alpha=a, color='green')
     return fig
 
-def plot_body_ang_cov(body_state_dfs):
+
+def plot_body_ang_vel_cov(body_state_dfs):
     """Plot body covariances for body angular rate."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Angular Rate [rad/s]', title='Body Angular Rate Covariance')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Angular Rate [rad/s]', title='Body Angular Rate Covariance')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
@@ -302,9 +335,12 @@ def plot_body_ang_cov(body_state_dfs):
         fig.line(time, body_df['body_cov_14'].to_list(), alpha=a, color='green')
     return fig
 
-def plot_body_ang_cov(body_state_dfs):
+
+def plot_body_ang_acc_cov(body_state_dfs):
     """Plot body covariances for body angular acceleration."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]', y_axis_label='Angular Acceleration [rad/s/s]', title='Body Angular Acceleration Covariance')
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Angular Acceleration [rad/s/s]',
+                 title='Body Angular Acceleration Covariance')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
@@ -312,6 +348,7 @@ def plot_body_ang_cov(body_state_dfs):
         fig.line(time, body_df['body_cov_16'].to_list(), alpha=a, color='orange')
         fig.line(time, body_df['body_cov_17'].to_list(), alpha=a, color='green')
     return fig
+
 
 def tab_body(body_state_dfs, body_truth_dfs):
     layout_plots = [
@@ -332,7 +369,7 @@ def tab_body(body_state_dfs, body_truth_dfs):
             plot_body_err_ang_vel(body_state_dfs, body_truth_dfs)],
         [
             plot_body_vel_cov(body_state_dfs),
-            plot_body_ang_cov(body_state_dfs)],
+            plot_body_ang_vel_cov(body_state_dfs)],
         [
             plot_body_acc(body_state_dfs),
             plot_body_ang_acc(body_state_dfs)],
@@ -341,10 +378,10 @@ def tab_body(body_state_dfs, body_truth_dfs):
             plot_body_err_ang_acc(body_state_dfs, body_truth_dfs)],
         [
             plot_body_acc_cov(body_state_dfs),
-            plot_body_ang_cov(body_state_dfs)],
+            plot_body_ang_acc_cov(body_state_dfs)],
     ]
 
-    tab_layout = layout(layout_plots, sizing_mode="stretch_width")
-    tab = TabPanel(child=tab_layout, title=f"Body")
+    tab_layout = layout(layout_plots, sizing_mode='stretch_width')
+    tab = TabPanel(child=tab_layout, title='Body')
 
     return tab

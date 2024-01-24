@@ -70,8 +70,8 @@ private:
   Eigen::Vector3d m_pos_c_in_b {0.0, 0.0, 0.0};
   Eigen::Quaterniond m_ang_c_to_b {1.0, 0.0, 0.0, 0.0};
 
-  DataLogger m_data_logger;
   DataLogger m_fiducial_logger;
+  DataLogger m_triangulation_logger;
   Intrinsics m_intrinsics;
 };
 

@@ -45,7 +45,7 @@
             "name": "Test Bokeh Plot",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/eval/plot-bokeh.py",
+            "program": "${workspaceFolder}/eval/report.py",
             "args": [
                 "config/fiducial.yaml"
             ],

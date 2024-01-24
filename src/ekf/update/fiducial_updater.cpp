@@ -39,8 +39,8 @@
 FiducialUpdater::FiducialUpdater(
   int cam_id, std::string log_file_directory, bool data_logging_on)
 : Updater(cam_id),
-  m_data_logger(log_file_directory, "camera_" + std::to_string(cam_id) + ".csv"),
-  m_fiducial_logger(log_file_directory, "fiducial_" + std::to_string(cam_id) + ".csv")
+  m_fiducial_logger(log_file_directory, "fiducial_" + std::to_string(cam_id) + ".csv"),
+  m_triangulation_logger(log_file_directory, "triangulation_" + std::to_string(cam_id) + ".csv")
 {
   std::stringstream header;
   header << "time";
@@ -49,14 +49,15 @@ FiducialUpdater::FiducialUpdater(
   header << EnumerateHeader("residual", g_fiducial_measurement_size);
   header << EnumerateHeader("body_update", g_body_state_size);
   header << EnumerateHeader("cam_update", g_cam_state_size);
+  header << EnumerateHeader("cam_cov", g_cam_state_size);
   header << EnumerateHeader("duration", 1);
   header << std::endl;
 
-  m_data_logger.DefineHeader(header.str());
-  m_data_logger.SetLogging(data_logging_on);
-
-  m_fiducial_logger.DefineHeader("time,tx,ty,tz,aw,ax,ay,az\n");
+  m_fiducial_logger.DefineHeader(header.str());
   m_fiducial_logger.SetLogging(data_logging_on);
+
+  m_triangulation_logger.DefineHeader("time,board,pos_x,pos_y,pos_z,quat_w,quat_x,quat_y,quat_z\n");
+  m_triangulation_logger.SetLogging(data_logging_on);
 }
 
 void FiducialUpdater::UpdateEKF(
@@ -101,7 +102,7 @@ void FiducialUpdater::UpdateEKF(
 
     std::stringstream data_msg;
     data_msg << std::setprecision(3) << time;
-    data_msg << "," << pos_f_in_g[0];
+    data_msg << ",0," << pos_f_in_g[0];
     data_msg << "," << pos_f_in_g[1];
     data_msg << "," << pos_f_in_g[2];
     data_msg << "," << ang_f_to_g.w();
@@ -109,7 +110,7 @@ void FiducialUpdater::UpdateEKF(
     data_msg << "," << ang_f_to_g.y();
     data_msg << "," << ang_f_to_g.z();
     data_msg << std::endl;
-    m_fiducial_logger.Log(data_msg.str());
+    m_triangulation_logger.Log(data_msg.str());
   }
 
   Eigen::Vector3d pos_f_in_g_est = average_vectors(pos_f_in_g_vec, pos_weights);
@@ -241,19 +242,21 @@ void FiducialUpdater::UpdateEKF(
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
+  Eigen::VectorXd cov_diag = m_ekf->GetCov().block(
+    cam_state_start, cam_state_start, g_cam_state_size, g_cam_state_size).diagonal();
 
   // Write outputs
   std::stringstream msg;
   msg << time;
   msg << "," << std::to_string(board_track.size());
   msg << VectorToCommaString(cam_state.segment(0, g_cam_state_size));
-  msg << VectorToCommaString(res_f.segment<3>(0));
+  msg << VectorToCommaString(res_f.segment<g_fiducial_measurement_size>(0));
   msg << VectorToCommaString(body_update);
   msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));
-  msg << VectorToCommaString(Eigen::Vector3d::Zero());
+  msg << VectorToCommaString(cov_diag);
   msg << "," << t_execution.count();
   msg << std::endl;
-  m_data_logger.Log(msg.str());
+  m_fiducial_logger.Log(msg.str());
 }
 
 void FiducialUpdater::RefreshStates()

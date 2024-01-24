@@ -99,7 +99,7 @@ private:
   Eigen::Quaterniond m_ang_c_to_b {1.0, 0.0, 0.0, 0.0};
   std::vector<AugmentedState> m_aug_states {};
 
-  DataLogger m_data_logger;
+  DataLogger m_msckf_logger;
   DataLogger m_triangulation_logger;
   Intrinsics m_intrinsics;
 };

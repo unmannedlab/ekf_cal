@@ -32,27 +32,22 @@ python3 eval/plot-bokeh.py --help
 """
 
 import argparse
-import argparse
 import collections
-import functools
 import glob
 import math
-import multiprocessing
-import numpy as np
 import os
-import pandas as pd
 import re
-import yaml
-
-from scipy.spatial.transform import Rotation
 
 from bokeh.models import Tabs
 from bokeh.plotting import save
-
+import numpy as np
+import pandas as pd
+from scipy.spatial.transform import Rotation
 from tab_body import tab_body
 from tab_fiducial import tab_fiducial
 from tab_imu import tab_imu
 from tab_msckf import tab_msckf
+import yaml
 
 
 def generate_mc_lists(input_files, runs=None):
@@ -83,6 +78,7 @@ def generate_mc_lists(input_files, runs=None):
         mc_lists.append(yaml_files)
     return mc_lists
 
+
 def format_prefix(prefix):
     """Generate formatted prefix from string."""
     if (prefix == 'imu'):
@@ -93,6 +89,7 @@ def format_prefix(prefix):
         return 'Body'
     else:
         return ''
+
 
 def parse_yaml(config):
     """Collect sensor configuration data from input yaml."""
@@ -121,6 +118,7 @@ def parse_yaml(config):
 
     return config_data
 
+
 def find_and_read_data_frames(directories, prefix):
     """Find matching dataframes and read using pandas."""
     data_frame_sets = collections.defaultdict(list)
@@ -139,6 +137,7 @@ def find_and_read_data_frames(directories, prefix):
             data_frame_sets[file_id].append(df)
     return data_frame_sets
 
+
 def lists_to_rot(w_list, x_list, y_list, z_list):
     """Convert lists of quaternion elements to a list of scipy rotations."""
     r_list = []
@@ -146,6 +145,7 @@ def lists_to_rot(w_list, x_list, y_list, z_list):
         r = Rotation.from_quat([w, x, y, z])
         r_list.append(r)
     return r_list
+
 
 def calculate_rotation_errors(estimate, truth):
     """Calculate errors from two lists of quaternions."""
@@ -211,15 +211,19 @@ def plot_sim_results(config_sets, settings):
             tabs.append(tab_msckf(mskcf_dfs, tri_dfs, feat_dfs))
 
         fiducial_dfs_dict = find_and_read_data_frames(data_dirs, 'fiducial')
+        tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
+        board_dfs_dict = find_and_read_data_frames(data_dirs, 'boards')
         for key in sorted(fiducial_dfs_dict.keys()):
             fiducial_dfs = fiducial_dfs_dict[key]
-            tabs.append(tab_fiducial(fiducial_dfs, config_data, key))
+            tri_dfs = tri_dfs_dict[key]
+            board_dfs = board_dfs_dict[0]
+            tabs.append(tab_fiducial(fiducial_dfs, tri_dfs, board_dfs))
 
         save(
-            obj=Tabs(tabs=tabs, sizing_mode="stretch_width"), 
-            filename=os.path.join(plot_dir, f'{config_name}-plots.html'),
+            obj=Tabs(tabs=tabs, sizing_mode='stretch_width'),
+            filename=os.path.join(plot_dir, f'{config_name}-report.html'),
             resources='cdn',
-            title=f'{config_name}-plots.html'
+            title=f'{config_name}-report.html'
             )
 
 

@@ -96,7 +96,7 @@ private:
 
   Intrinsics m_intrinsics;
   cv::Mat m_proj_matrix;
-  DataLogger m_data_logger;
+  DataLogger m_feature_logger;
 };
 
 
