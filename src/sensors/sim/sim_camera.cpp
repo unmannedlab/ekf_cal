@@ -49,24 +49,12 @@ SimCamera::SimCamera(
   m_no_errors = params.no_errors;
   m_truth = truth_engine;
 
-  if (!params.no_errors) {
-    m_time_bias_error = params.time_bias_error;
-    m_time_skew_error = params.time_skew_error;
-
-    m_pos_c_in_b_true[0] = m_rng.NormRand(params.cam_params.pos_c_in_b[0], m_pos_error[0]);
-    m_pos_c_in_b_true[1] = m_rng.NormRand(params.cam_params.pos_c_in_b[1], m_pos_error[1]);
-    m_pos_c_in_b_true[2] = m_rng.NormRand(params.cam_params.pos_c_in_b[2], m_pos_error[2]);
-
-    Eigen::Vector3d ang_c_to_b_error_rpy;
-    ang_c_to_b_error_rpy(0) = m_rng.NormRand(0.0, m_ang_error[0]);
-    ang_c_to_b_error_rpy(1) = m_rng.NormRand(0.0, m_ang_error[1]);
-    ang_c_to_b_error_rpy(2) = m_rng.NormRand(0.0, m_ang_error[2]);
-    m_ang_c_to_b_true = EigVecToQuat(ang_c_to_b_error_rpy) * params.cam_params.ang_c_to_b;
-  } else {
+  if (m_no_errors) {
     m_time_bias_error = 0.0;
     m_time_skew_error = 0.0;
-    m_pos_c_in_b_true = params.cam_params.pos_c_in_b;
-    m_ang_c_to_b_true = params.cam_params.ang_c_to_b;
+  } else {
+    m_time_bias_error = params.time_bias_error;
+    m_time_skew_error = params.time_skew_error;
   }
 }
 
@@ -133,13 +121,11 @@ std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages(doubl
 
 void SimCamera::AddTracker(std::shared_ptr<SimFeatureTracker> tracker)
 {
-  tracker->SetTrueCameraOffsets(m_pos_c_in_b_true, m_ang_c_to_b_true);
   m_trackers[tracker->GetID()] = tracker;
 }
 
 void SimCamera::AddFiducial(std::shared_ptr<SimFiducialTracker> fiducial)
 {
-  fiducial->SetTrueCameraOffsets(m_pos_c_in_b_true, m_ang_c_to_b_true);
   m_fiducials[fiducial->GetID()] = fiducial;
 }
 

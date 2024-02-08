@@ -96,8 +96,6 @@ private:
   double m_time_skew_error{0.0};
   Eigen::Vector3d m_pos_error{0.0, 0.0, 0.0};
   Eigen::Vector3d m_ang_error{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_pos_c_in_b_true{0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_c_to_b_true{1.0, 0.0, 0.0, 0.0};
   SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
 

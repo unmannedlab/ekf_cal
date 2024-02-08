@@ -76,10 +76,6 @@ private:
   Eigen::Vector3d m_ang_error{0.0, 0.0, 0.0};
   Eigen::Vector3d m_acc_bias_error{0.0, 0.0, 0.0};
   Eigen::Vector3d m_omg_bias_error{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_acc_bias_true{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_omg_bias_true{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_pos_i_in_b_true{0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_i_to_b_true{1.0, 0.0, 0.0, 0.0};
   SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};

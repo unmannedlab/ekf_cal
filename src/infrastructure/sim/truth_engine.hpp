@@ -68,6 +68,98 @@ public:
   ///
   virtual Eigen::Vector3d GetBodyAngularAcceleration(double time) = 0;
 
+  ///
+  /// @brief True sensor position getter
+  /// @param time Simulation time
+  /// @param sensor_id IMU ID
+  ///
+  Eigen::Vector3d GetImuPosition(unsigned int sensor_id);
+
+  ///
+  /// @brief True sensor orientation getter
+  /// @param time Simulation time
+  /// @param sensor_id IMU ID
+  ///
+  Eigen::Quaterniond GetImuAngularPosition(unsigned int sensor_id);
+
+  ///
+  /// @brief True sensor orientation getter
+  /// @param time Simulation time
+  /// @param sensor_id IMU ID
+  ///
+  Eigen::Vector3d GetImuAccelerometerBias(unsigned int sensor_id);
+
+  ///
+  /// @brief True sensor orientation getter
+  /// @param time Simulation time
+  /// @param sensor_id IMU ID
+  ///
+  Eigen::Vector3d GetImuGyroscopeBias(unsigned int sensor_id);
+
+  ///
+  /// @brief True sensor position getter
+  /// @param time Simulation time
+  /// @param sensor_id Camera ID
+  ///
+  Eigen::Vector3d GetCameraPosition(unsigned int sensor_id);
+
+  ///
+  /// @brief True sensor orientation getter
+  /// @param time Simulation time
+  /// @param sensor_id Camera ID
+  ///
+  Eigen::Quaterniond GetCameraAngularPosition(unsigned int sensor_id);
+
+  ///
+  /// @brief True sensor position setter
+  /// @param sensor_id sensor ID
+  /// @param imu_pos sensor parameter
+  ///
+  void SetImuPosition(unsigned int sensor_id, Eigen::Vector3d imu_pos);
+
+  ///
+  /// @brief True sensor orientation setter
+  /// @param sensor_id sensor ID
+  /// @param imu_ang_pos sensor parameter
+  ///
+  void SetImuAngularPosition(unsigned int sensor_id, Eigen::Quaterniond imu_ang_pos);
+
+  ///
+  /// @brief True sensor orientation setter
+  /// @param sensor_id sensor ID
+  /// @param imu_acc_bias sensor parameter
+  ///
+  void SetImuAccelerometerBias(unsigned int sensor_id, Eigen::Vector3d imu_acc_bias);
+
+  ///
+  /// @brief True sensor orientation setter
+  /// @param sensor_id sensor ID
+  /// @param imu_gyro_bias sensor parameter
+  ///
+  void SetImuGyroscopeBias(unsigned int sensor_id, Eigen::Vector3d imu_gyro_bias);
+
+  ///
+  /// @brief True sensor position setter
+  /// @param sensor_id sensor ID
+  /// @param cam_pos sensor parameter
+  ///
+  void SetCameraPosition(unsigned int sensor_id, Eigen::Vector3d cam_pos);
+
+  ///
+  /// @brief True sensor orientation setter
+  /// @param sensor_id sensor ID
+  /// @param cam_ang_pos sensor parameter
+  ///
+  void SetCameraAngularPosition(unsigned int sensor_id, Eigen::Quaterniond cam_ang_pos);
+
+protected:
+  std::map<unsigned int, Eigen::Vector3d> m_imu_pos;
+  std::map<unsigned int, Eigen::Quaterniond> m_imu_ang_pos;
+  std::map<unsigned int, Eigen::Vector3d> m_imu_acc_bias;
+  std::map<unsigned int, Eigen::Vector3d> m_imu_gyro_bias;
+  std::map<unsigned int, Eigen::Vector3d> m_cam_pos;
+  std::map<unsigned int, Eigen::Quaterniond> m_cam_ang_pos;
+
 private:
   DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
 };

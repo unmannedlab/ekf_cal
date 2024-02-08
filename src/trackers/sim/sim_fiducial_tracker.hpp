@@ -62,6 +62,8 @@ public:
 
   ///
   /// @brief Generate simulated tracker messages
+  /// @param message_times Vector of message times
+  /// @param sensor_id Camera sensor ID
   ///
   std::vector<std::shared_ptr<SimFiducialTrackerMessage>> GenerateMessages(
     std::vector<double> message_times, int sensor_id);
@@ -69,8 +71,9 @@ public:
   ///
   /// @brief Return currently visible keypoints
   /// @param time Current time
+  /// @param sensor_id Camera sensor ID
   ///
-  bool IsBoardVisible(double time);
+  bool IsBoardVisible(double time, int sensor_id);
 
   ///
   /// @brief Callback for feature tracker
@@ -79,22 +82,12 @@ public:
   ///
   void Callback(double time, std::shared_ptr<SimFiducialTrackerMessage> msg);
 
-  ///
-  /// @brief True camera offset setter
-  /// @param pos_c_in_b_true True position offset of camera in body frame
-  /// @param ang_c_to_b_true True angular offset of camera in body frame
-  ///
-  void SetTrueCameraOffsets(
-    Eigen::Vector3d pos_c_in_b_true,
-    Eigen::Quaterniond ang_c_to_b_true);
-
 private:
   Eigen::Vector3d m_pos_error;
   Eigen::Vector3d m_ang_error;
   Eigen::Vector3d m_t_vec_error;
   Eigen::Vector3d m_r_vec_error;
-  Eigen::Vector3d m_pos_c_in_b_true {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_c_to_b_true {1.0, 0.0, 0.0, 0.0};
+  /// @todo(jhartzer): Move these values into truth engine
   Eigen::Vector3d m_pos_f_in_g_true {0.0, 0.0, 0.0};
   Eigen::Quaterniond m_ang_f_to_g_true {1.0, 0.0, 0.0, 0.0};
   std::shared_ptr<TruthEngine> m_truth;

@@ -56,4 +56,64 @@ Eigen::Vector3d TruthEngine::GetBodyAngularAcceleration(double time)
   return Eigen::Vector3d::Zero(3);
 }
 
+Eigen::Vector3d TruthEngine::GetImuPosition(unsigned int sensor_id)
+{
+  return m_imu_pos[sensor_id];
+}
+
+Eigen::Quaterniond TruthEngine::GetImuAngularPosition(unsigned int sensor_id)
+{
+  return m_imu_ang_pos[sensor_id];
+}
+
+Eigen::Vector3d TruthEngine::GetImuAccelerometerBias(unsigned int sensor_id)
+{
+  return m_imu_acc_bias[sensor_id];
+}
+
+Eigen::Vector3d TruthEngine::GetImuGyroscopeBias(unsigned int sensor_id)
+{
+  return m_imu_gyro_bias[sensor_id];
+}
+
+Eigen::Vector3d TruthEngine::GetCameraPosition(unsigned int sensor_id)
+{
+  return m_cam_pos[sensor_id];
+}
+
+Eigen::Quaterniond TruthEngine::GetCameraAngularPosition(unsigned int sensor_id)
+{
+  return m_cam_ang_pos[sensor_id];
+}
+
+void TruthEngine::SetImuPosition(unsigned int sensor_id, Eigen::Vector3d imu_pos)
+{
+  m_imu_pos[sensor_id] = imu_pos;
+}
+
+void TruthEngine::SetImuAngularPosition(unsigned int sensor_id, Eigen::Quaterniond imu_ang_pos)
+{
+  m_imu_ang_pos[sensor_id] = imu_ang_pos;
+}
+
+void TruthEngine::SetImuAccelerometerBias(unsigned int sensor_id, Eigen::Vector3d imu_acc_bias)
+{
+  m_imu_acc_bias[sensor_id] = imu_acc_bias;
+}
+
+void TruthEngine::SetImuGyroscopeBias(unsigned int sensor_id, Eigen::Vector3d imu_gyro_bias)
+{
+  m_imu_gyro_bias[sensor_id] = imu_gyro_bias;
+}
+
+void TruthEngine::SetCameraPosition(unsigned int sensor_id, Eigen::Vector3d cam_pos)
+{
+  m_cam_pos[sensor_id] = cam_pos;
+}
+
+void TruthEngine::SetCameraAngularPosition(unsigned int sensor_id, Eigen::Quaterniond cam_ang_pos)
+{
+  m_cam_ang_pos[sensor_id] = cam_ang_pos;
+}
+
 TruthEngine::~TruthEngine() {}

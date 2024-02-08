@@ -67,8 +67,9 @@ public:
   ///
   /// @brief Return currently visible keypoints
   /// @param time Current time
+  /// @param sensor_id Camera sensor ID
   ///
-  std::vector<cv::KeyPoint> VisibleKeypoints(double time);
+  std::vector<cv::KeyPoint> VisibleKeypoints(double time, int sensor_id);
 
   ///
   /// @brief Callback for feature tracker
@@ -77,17 +78,8 @@ public:
   ///
   void Callback(double time, std::shared_ptr<SimFeatureTrackerMessage> msg);
 
-  ///
-  /// @brief True offset setter
-  /// @param pos_c_in_b_true True position offset of camera in body frame
-  /// @param ang_c_to_b_true True angular offset of camera in body frame
-  ///
-  void SetTrueCameraOffsets(Eigen::Vector3d pos_c_in_b_true, Eigen::Quaterniond ang_c_to_b_true);
-
 private:
   double m_px_error;
-  Eigen::Vector3d m_pos_c_in_b_true {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_c_to_b_true {1.0, 0.0, 0.0, 0.0};
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
   SimRNG m_rng;

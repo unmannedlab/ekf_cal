@@ -18,6 +18,8 @@
 
 #include <random>
 
+#include <eigen3/Eigen/Eigen>
+
 ///
 /// @class SimRNG
 /// @brief Simulation Random Number Generator
@@ -46,6 +48,20 @@ public:
   /// @param max Maximum value for uniform distribution
   ///
   double UniRand(double min, double max);
+
+  ///
+  /// @brief Function to return normal random number
+  /// @param mean Mean of normal distribution
+  /// @param std_dev Standard deviation of normal distribution
+  ///
+  Eigen::Vector3d VecNormRand(Eigen::Vector3d mean, Eigen::Vector3d std_dev);
+
+  ///
+  /// @brief Function to return normal random number
+  /// @param mean Mean of normal distribution
+  /// @param std_dev Standard deviation of normal distribution
+  ///
+  Eigen::Quaterniond QuatNormRand(Eigen::Quaterniond mean, Eigen::Vector3d std_dev);
 
 private:
   static std::mt19937_64 m_generator;

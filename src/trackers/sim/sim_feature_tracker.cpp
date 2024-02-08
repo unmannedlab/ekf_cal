@@ -86,12 +86,14 @@ SimFeatureTracker::SimFeatureTracker(
   m_proj_matrix.at<double>(2, 2) = 1;
 }
 
-std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
+std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int sensor_id)
 {
   Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(time);
   Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(time);
-  Eigen::Quaterniond ang_c_to_b = m_ang_c_to_b_true;
+  Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(sensor_id);
+  Eigen::Quaterniond ang_c_to_b = m_truth->GetCameraAngularPosition(sensor_id);
   Eigen::Matrix3d ang_g_to_c = (ang_b_to_g * ang_c_to_b).toRotationMatrix().transpose();
+
   cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);
   EigenMatrixToCv(ang_g_to_c, ang_g_to_c_cv);
 
@@ -99,7 +101,7 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
   cv::Mat r_vec(3, 1, cv::DataType<double>::type);
   cv::Rodrigues(ang_g_to_c_cv, r_vec);
 
-  Eigen::Vector3d pos_g_in_c = ang_g_to_c * (-(pos_b_in_g + ang_b_to_g * m_pos_c_in_b_true));
+  Eigen::Vector3d pos_g_in_c = ang_g_to_c * (-(pos_b_in_g + ang_b_to_g * pos_c_in_b));
 
   cv::Mat t_vec(3, 1, cv::DataType<double>::type);
   t_vec.at<double>(0) = pos_g_in_c[0];
@@ -159,7 +161,7 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::Genera
   for (int frame_id = 0; static_cast<unsigned int>(frame_id) < message_times.size(); ++frame_id) {
     std::vector<std::vector<FeatureTrack>> feature_tracks;
 
-    std::vector<cv::KeyPoint> key_points = VisibleKeypoints(message_times[frame_id]);
+    std::vector<cv::KeyPoint> key_points = VisibleKeypoints(message_times[frame_id], sensor_id);
 
     for (auto & key_point : key_points) {
       auto feature_track = FeatureTrack{frame_id, key_point};
@@ -194,12 +196,4 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::Genera
 void SimFeatureTracker::Callback(double time, std::shared_ptr<SimFeatureTrackerMessage> msg)
 {
   m_msckf_updater.UpdateEKF(time, msg->m_feature_tracks, m_px_error);
-}
-
-void SimFeatureTracker::SetTrueCameraOffsets(
-  Eigen::Vector3d pos_c_in_b_true,
-  Eigen::Quaterniond ang_c_to_b_true)
-{
-  m_pos_c_in_b_true = pos_c_in_b_true;
-  m_ang_c_to_b_true = ang_c_to_b_true;
 }

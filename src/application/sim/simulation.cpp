@@ -80,6 +80,13 @@ void WriteTruthData(
   header << EnumerateHeader("body_ang_pos", 4);
   header << EnumerateHeader("body_ang_vel", 3);
   header << EnumerateHeader("body_ang_acc", 3);
+  /// @todo(jhartzer): Create method for logging true sensor states
+  // header << EnumerateHeader("imu_pos", 3);
+  // header << EnumerateHeader("imu_ang_pos", 4);
+  // header << EnumerateHeader("imu_acc_bias", 3);
+  // header << EnumerateHeader("imu_gyr_bias", 3);
+  // header << EnumerateHeader("cam_pos", 3);
+  // header << EnumerateHeader("cam_ang_pos", 4);
   header << std::endl;
   data_logger.DefineHeader(header.str());
 
@@ -92,6 +99,14 @@ void WriteTruthData(
     Eigen::Quaterniond body_ang_pos = truth_engine->GetBodyAngularPosition(time);
     Eigen::Vector3d body_ang_vel = truth_engine->GetBodyAngularRate(time);
     Eigen::Vector3d body_ang_acc = truth_engine->GetBodyAngularAcceleration(time);
+
+    // Eigen::Vector3d imu_pos = truth_engine->GetImuPosition(time);
+    // Eigen::Quaterniond imu_ang = truth_engine->GetImuAngularPosition(time);
+    // Eigen::Vector3d imu_acc_bias = truth_engine->GetImuAccelerometerBias(time);
+    // Eigen::Vector3d imu_gyr_bias = truth_engine->GetImuGyroscopeBias(time);
+
+    // Eigen::Vector3d cam_pos = truth_engine->GetCameraPosition(time);
+    // Eigen::Quaterniond cam_ang = truth_engine->GetCameraAngularPosition(time);
 
     std::stringstream msg;
     msg << time;
@@ -253,6 +268,28 @@ int main(int argc, char * argv[])
     auto imu = std::make_shared<SimIMU>(sim_imu_params, truth_engine);
     sensor_map[imu->GetId()] = imu;
 
+    // Set true IMU values
+    Eigen::Vector3d pos_i_in_b_true;
+    Eigen::Quaterniond ang_i_to_b_true;
+    Eigen::Vector3d acc_bias_true;
+    Eigen::Vector3d omg_bias_true;
+    if (no_errors) {
+      pos_i_in_b_true = imu_params.pos_i_in_b;
+      ang_i_to_b_true = imu_params.ang_i_to_b;
+      acc_bias_true = imu_params.acc_bias;
+      omg_bias_true = imu_params.omg_bias;
+    } else {
+      pos_i_in_b_true = rng.VecNormRand(imu_params.pos_i_in_b, sim_imu_params.pos_error);
+      ang_i_to_b_true = rng.QuatNormRand(imu_params.ang_i_to_b, sim_imu_params.ang_error);
+      acc_bias_true = rng.VecNormRand(imu_params.acc_bias, sim_imu_params.acc_error);
+      omg_bias_true = rng.VecNormRand(imu_params.omg_bias, sim_imu_params.omg_error);
+    }
+
+    truth_engine->SetImuPosition(imu->GetId(), pos_i_in_b_true);
+    truth_engine->SetImuAngularPosition(imu->GetId(), ang_i_to_b_true);
+    truth_engine->SetImuAccelerometerBias(imu->GetId(), acc_bias_true);
+    truth_engine->SetImuGyroscopeBias(imu->GetId(), omg_bias_true);
+
     // Calculate sensor measurements
     auto imu_messages = imu->GenerateMessages(max_time);
     messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
@@ -377,6 +414,20 @@ int main(int argc, char * argv[])
     }
 
     sensor_map[cam->GetId()] = cam;
+
+    // Set true camera values
+    Eigen::Vector3d pos_c_in_b_true;
+    Eigen::Quaterniond ang_c_to_b_true;
+    if (no_errors) {
+      pos_c_in_b_true = cam_params.pos_c_in_b;
+      ang_c_to_b_true = cam_params.ang_c_to_b;
+    } else {
+      pos_c_in_b_true = rng.VecNormRand(cam_params.pos_c_in_b, sim_cam_params.pos_error);
+      ang_c_to_b_true = rng.QuatNormRand(cam_params.ang_c_to_b, sim_cam_params.ang_error);
+    }
+
+    truth_engine->SetCameraPosition(cam->GetId(), pos_c_in_b_true);
+    truth_engine->SetCameraAngularPosition(cam->GetId(), ang_c_to_b_true);
 
     // Calculate sensor measurements
     auto imu_messages = cam->GenerateMessages(max_time);

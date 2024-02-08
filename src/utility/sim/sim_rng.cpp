@@ -15,6 +15,8 @@
 
 #include "utility/sim/sim_rng.hpp"
 
+#include "utility/type_helper.hpp"
+
 std::mt19937_64 SimRNG::m_generator;
 
 void SimRNG::SetSeed(double seed)
@@ -32,4 +34,24 @@ double SimRNG::UniRand(double min, double max)
 {
   std::uniform_real_distribution<double> uniform_distribution(min, max);
   return uniform_distribution(m_generator);
+}
+
+Eigen::Vector3d SimRNG::VecNormRand(Eigen::Vector3d mean, Eigen::Vector3d std_dev)
+{
+  Eigen::Vector3d out_vec;
+  out_vec[0] = NormRand(mean[0], std_dev[0]);
+  out_vec[1] = NormRand(mean[1], std_dev[1]);
+  out_vec[2] = NormRand(mean[2], std_dev[2]);
+  return out_vec;
+}
+
+Eigen::Quaterniond SimRNG::QuatNormRand(Eigen::Quaterniond mean, Eigen::Vector3d std_dev)
+{
+  Eigen::Quaterniond out_quat;
+  Eigen::Vector3d ang_error_rpy;
+  ang_error_rpy(0) = NormRand(0.0, std_dev[0]);
+  ang_error_rpy(1) = NormRand(0.0, std_dev[1]);
+  ang_error_rpy(2) = NormRand(0.0, std_dev[2]);
+  out_quat = EigVecToQuat(ang_error_rpy) * mean;
+  return out_quat;
 }

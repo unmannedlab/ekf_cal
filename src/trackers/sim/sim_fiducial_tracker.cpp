@@ -35,6 +35,7 @@ SimFiducialTracker::SimFiducialTracker(
   m_min_track_length = params.fiducial_params.min_track_length;
   m_max_track_length = params.fiducial_params.max_track_length;
 
+  /// @todo(jhartzer): Move into simulation driver
   if (!params.no_errors) {
     m_pos_f_in_g_true[0] = m_rng.NormRand(params.fiducial_params.pos_f_in_g[0], m_pos_error[0]);
     m_pos_f_in_g_true[1] = m_rng.NormRand(params.fiducial_params.pos_f_in_g[1], m_pos_error[1]);
@@ -64,13 +65,15 @@ SimFiducialTracker::SimFiducialTracker(
   m_proj_matrix.at<double>(2, 2) = 1;
 }
 
-bool SimFiducialTracker::IsBoardVisible(double time)
+bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
 {
   /// @todo(jhartzer): Utilize function
   return true;
   Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(time);
   Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(time);
-  Eigen::Quaterniond ang_c_to_b = m_ang_c_to_b_true;
+  Eigen::Vector3d pos_c_in_b_true = m_truth->GetCameraPosition(sensor_id);
+  Eigen::Quaterniond ang_c_to_b_true = m_truth->GetCameraAngularPosition(sensor_id);
+  Eigen::Quaterniond ang_c_to_b = ang_c_to_b_true;
   Eigen::Matrix3d ang_g_to_c = (ang_b_to_g * ang_c_to_b).toRotationMatrix().transpose();
   cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);
   EigenMatrixToCv(ang_g_to_c, ang_g_to_c_cv);
@@ -79,7 +82,7 @@ bool SimFiducialTracker::IsBoardVisible(double time)
   cv::Mat r_vec(3, 1, cv::DataType<double>::type);
   cv::Rodrigues(ang_g_to_c_cv, r_vec);
 
-  Eigen::Vector3d pos_g_in_c = ang_g_to_c * (-(pos_b_in_g + ang_b_to_g * m_pos_c_in_b_true));
+  Eigen::Vector3d pos_g_in_c = ang_g_to_c * (-(pos_b_in_g + ang_b_to_g * pos_c_in_b_true));
 
   cv::Mat t_vec(3, 1, cv::DataType<double>::type);
   t_vec.at<double>(0) = pos_g_in_c[0];
@@ -135,16 +138,18 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
     tracker_message->m_pos_error = m_t_vec_error;
     tracker_message->m_ang_error = m_r_vec_error;
 
-    bool is_board_visible = IsBoardVisible(message_times[frame_id]);
+    bool is_board_visible = IsBoardVisible(message_times[frame_id], sensor_id);
     if (is_board_visible) {
       Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(message_times[frame_id]);
       Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(message_times[frame_id]);
+      Eigen::Vector3d pos_c_in_b_true = m_truth->GetCameraPosition(sensor_id);
+      Eigen::Quaterniond ang_c_to_b_true = m_truth->GetCameraAngularPosition(sensor_id);
 
       Eigen::Matrix3d rot_g_to_b = ang_b_to_g.toRotationMatrix().transpose();
-      Eigen::Matrix3d rot_b_to_c = m_ang_c_to_b_true.toRotationMatrix().transpose();
+      Eigen::Matrix3d rot_b_to_c = ang_c_to_b_true.toRotationMatrix().transpose();
 
       Eigen::Vector3d pos_f_in_c_true =
-        rot_b_to_c * (rot_g_to_b * (m_pos_f_in_g_true - pos_b_in_g) - m_pos_c_in_b_true);
+        rot_b_to_c * (rot_g_to_b * (m_pos_f_in_g_true - pos_b_in_g) - pos_c_in_b_true);
 
       BoardDetection board_detection;
       board_detection.frame_id = frame_id;
@@ -157,7 +162,7 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
       ang_f_to_c_error_rpy(1) = m_rng.NormRand(0.0, m_r_vec_error[1]);
       ang_f_to_c_error_rpy(2) = m_rng.NormRand(0.0, m_r_vec_error[2]);
       Eigen::Quaterniond ang_f_to_c = EigVecToQuat(ang_f_to_c_error_rpy) *
-        m_ang_c_to_b_true.inverse() * ang_b_to_g.inverse() * m_ang_f_to_g_true;
+        ang_c_to_b_true.inverse() * ang_b_to_g.inverse() * m_ang_f_to_g_true;
       board_detection.r_vec_f_to_c = QuatToRodrigues(ang_f_to_c);
 
       board_track.push_back(board_detection);
@@ -178,12 +183,4 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
 void SimFiducialTracker::Callback(double time, std::shared_ptr<SimFiducialTrackerMessage> msg)
 {
   m_fiducial_updater.UpdateEKF(time, msg->m_board_track, msg->m_pos_error, msg->m_ang_error);
-}
-
-void SimFiducialTracker::SetTrueCameraOffsets(
-  Eigen::Vector3d pos_c_in_b_true,
-  Eigen::Quaterniond ang_c_to_b_true)
-{
-  m_pos_c_in_b_true = pos_c_in_b_true;
-  m_ang_c_to_b_true = ang_c_to_b_true;
 }
