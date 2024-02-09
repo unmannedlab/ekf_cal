@@ -26,26 +26,26 @@
         },
         {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
         },
         {
-            "name": "Test Plot",
-            "type": "python",
+            "name": "Test Report",
+            "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/eval/plot.py",
+            "program": "${workspaceFolder}/eval/report.py",
             "args": [
                 "config/fiducial.yaml"
             ],
             "console": "integratedTerminal"
         },
         {
-            "name": "Test Bokeh Plot",
-            "type": "python",
+            "name": "Test Stats",
+            "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/eval/report.py",
+            "program": "${workspaceFolder}/eval/stats.py",
             "args": [
                 "config/fiducial.yaml"
             ],

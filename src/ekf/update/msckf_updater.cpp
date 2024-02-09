@@ -33,6 +33,7 @@
 #include "sensors/types.hpp"
 #include "utility/math_helper.hpp"
 #include "utility/string_helper.hpp"
+#include "utility/type_helper.hpp"
 
 MsckfUpdater::MsckfUpdater(
   int cam_id, Intrinsics intrinsics, std::string log_file_directory, bool data_logging_on)
@@ -40,17 +41,18 @@ MsckfUpdater::MsckfUpdater(
   m_msckf_logger(log_file_directory, "msckf_" + std::to_string(cam_id) + ".csv"),
   m_triangulation_logger(log_file_directory, "triangulation_" + std::to_string(cam_id) + ".csv")
 {
-  std::stringstream msg;
-  msg << "time";
-  msg << EnumerateHeader("cam_state", g_cam_state_size);
-  msg << EnumerateHeader("body_update", g_body_state_size);
-  msg << EnumerateHeader("cam_update", g_cam_state_size);
-  msg << EnumerateHeader("cam_cov", g_cam_state_size);
-  msg << ",FeatureTracks";
-  msg << EnumerateHeader("duration", 1);
-  msg << std::endl;
+  std::stringstream header;
+  header << "time";
+  header << EnumerateHeader("cam_pos", 3);
+  header << EnumerateHeader("cam_ang_pos", 4);
+  header << EnumerateHeader("body_update", g_body_state_size);
+  header << EnumerateHeader("cam_update", g_cam_state_size);
+  header << EnumerateHeader("cam_cov", g_cam_state_size);
+  header << ",FeatureTracks";
+  header << EnumerateHeader("duration", 1);
+  header << std::endl;
 
-  m_msckf_logger.DefineHeader(msg.str());
+  m_msckf_logger.DefineHeader(header.str());
   m_msckf_logger.SetLogging(data_logging_on);
 
   m_triangulation_logger.DefineHeader("time,feature,x,y,z\n");
@@ -349,14 +351,17 @@ void MsckfUpdater::UpdateEKF(
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
   // Write outputs
-  std::stringstream msg;
   Eigen::VectorXd cam_state = m_ekf->GetState().m_cam_states[m_id].ToVector();
+  Eigen::Vector3d cam_pos = cam_state.segment<3>(0);
+  Eigen::Quaterniond cam_ang_pos = RotVecToQuat(cam_state.segment<3>(3));
   Eigen::VectorXd cam_sub_update = update.segment(cam_state_start, g_cam_state_size);
   Eigen::VectorXd cov_diag = m_ekf->GetCov().block(
     cam_state_start, cam_state_start, g_cam_state_size, g_cam_state_size).diagonal();
 
+  std::stringstream msg;
   msg << time;
-  msg << VectorToCommaString(cam_state.segment(0, g_cam_state_size));
+  msg << VectorToCommaString(cam_pos);
+  msg << QuaternionToCommaString(cam_ang_pos);
   msg << VectorToCommaString(body_update);
   msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));
   msg << VectorToCommaString(cov_diag);

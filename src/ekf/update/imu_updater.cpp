@@ -44,9 +44,9 @@ ImuUpdater::ImuUpdater(
   std::stringstream header;
   header << "time";
   header << EnumerateHeader("imu_pos", 3);
-  header << EnumerateHeader("imu_ang", 4);
+  header << EnumerateHeader("imu_ang_pos", 4);
   header << EnumerateHeader("imu_acc_bias", 3);
-  header << EnumerateHeader("imu_omg_bias", 3);
+  header << EnumerateHeader("imu_gyr_bias", 3);
   if (m_is_extrinsic) {
     header << EnumerateHeader("imu_ext_cov", g_imu_extrinsic_state_size);
   }

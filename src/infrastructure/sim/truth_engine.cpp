@@ -191,21 +191,25 @@ void TruthEngine::WriteTruthData(
   header << EnumerateHeader("body_ang_vel", 3);
   header << EnumerateHeader("body_ang_acc", 3);
 
+  unsigned int sensor_count{0};
   for (unsigned int i = 0; i < m_imu_pos.size(); ++i) {
-    header << EnumerateHeader(std::string("imu_pos_") + std::to_string(i), 3);
-    header << EnumerateHeader(std::string("imu_ang_pos_") + std::to_string(i), 4);
-    header << EnumerateHeader(std::string("imu_acc_bias_") + std::to_string(i), 3);
-    header << EnumerateHeader(std::string("imu_gyr_bias_") + std::to_string(i), 3);
+    ++sensor_count;
+    header << EnumerateHeader(std::string("imu_pos_") + std::to_string(sensor_count), 3);
+    header << EnumerateHeader(std::string("imu_ang_pos_") + std::to_string(sensor_count), 4);
+    header << EnumerateHeader(std::string("imu_acc_bias_") + std::to_string(sensor_count), 3);
+    header << EnumerateHeader(std::string("imu_gyr_bias_") + std::to_string(sensor_count), 3);
   }
   for (unsigned int i = 0; i < m_cam_pos.size(); ++i) {
-    header << EnumerateHeader(std::string("cam_pos_") + std::to_string(i), 3);
-    header << EnumerateHeader(std::string("cam_ang_pos_") + std::to_string(i), 4);
+    ++sensor_count;
+    header << EnumerateHeader(std::string("cam_pos_") + std::to_string(sensor_count), 3);
+    header << EnumerateHeader(std::string("cam_ang_pos_") + std::to_string(sensor_count), 4);
   }
   header << std::endl;
   truth_logger.DefineHeader(header.str());
 
   unsigned int num_measurements = static_cast<int>(std::floor((max_time + 1.0) * body_data_rate));
   for (unsigned int i = 0; i < num_measurements; ++i) {
+    sensor_count = 0;
     std::stringstream msg;
     double time = static_cast<double>(i) / body_data_rate;
     msg << time;
@@ -216,14 +220,16 @@ void TruthEngine::WriteTruthData(
     msg << VectorToCommaString(GetBodyAngularRate(time));
     msg << VectorToCommaString(GetBodyAngularAcceleration(time));
     for (unsigned int i = 0; i < m_imu_pos.size(); ++i) {
-      header << VectorToCommaString(GetImuPosition(i));
-      header << QuaternionToCommaString(GetImuAngularPosition(i));
-      header << VectorToCommaString(GetImuAccelerometerBias(i));
-      header << VectorToCommaString(GetImuGyroscopeBias(i));
+      ++sensor_count;
+      msg << VectorToCommaString(GetImuPosition(sensor_count));
+      msg << QuaternionToCommaString(GetImuAngularPosition(sensor_count));
+      msg << VectorToCommaString(GetImuAccelerometerBias(sensor_count));
+      msg << VectorToCommaString(GetImuGyroscopeBias(sensor_count));
     }
     for (unsigned int i = 0; i < m_cam_pos.size(); ++i) {
-      header << VectorToCommaString(GetCameraPosition(i));
-      header << QuaternionToCommaString(GetCameraAngularPosition(i));
+      ++sensor_count;
+      msg << VectorToCommaString(GetCameraPosition(sensor_count));
+      msg << QuaternionToCommaString(GetCameraAngularPosition(sensor_count));
     }
     msg << std::endl;
     truth_logger.Log(msg.str());

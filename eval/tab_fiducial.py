@@ -31,9 +31,9 @@ def plot_camera_pos(fiducial_dfs):
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
         t_cam = mskcf_df['time'].to_list()
-        fig.line(t_cam, mskcf_df['cam_state_0'].to_list(), alpha=a, color='blue')
-        fig.line(t_cam, mskcf_df['cam_state_1'].to_list(), alpha=a, color='orange')
-        fig.line(t_cam, mskcf_df['cam_state_2'].to_list(), alpha=a, color='green')
+        fig.line(t_cam, mskcf_df['cam_pos_0'].to_list(), alpha=a, color='blue')
+        fig.line(t_cam, mskcf_df['cam_pos_1'].to_list(), alpha=a, color='orange')
+        fig.line(t_cam, mskcf_df['cam_pos_2'].to_list(), alpha=a, color='green')
     return fig
 
 
@@ -44,9 +44,9 @@ def plot_camera_ang(fiducial_dfs):
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
         t_cam = mskcf_df['time'].to_list()
-        fig.line(t_cam, mskcf_df['cam_state_3'].to_list(), alpha=a, color='blue')
-        fig.line(t_cam, mskcf_df['cam_state_4'].to_list(), alpha=a, color='orange')
-        fig.line(t_cam, mskcf_df['cam_state_5'].to_list(), alpha=a, color='green')
+        fig.line(t_cam, mskcf_df['cam_ang_pos_0'].to_list(), alpha=a, color='blue')
+        fig.line(t_cam, mskcf_df['cam_ang_pos_1'].to_list(), alpha=a, color='orange')
+        fig.line(t_cam, mskcf_df['cam_ang_pos_2'].to_list(), alpha=a, color='green')
     return fig
 
 

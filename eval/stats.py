@@ -74,7 +74,7 @@ def RMSE_from_vectors(x_list, y_list, z_list):
 
 
 def body_err_pos(body_state_dfs, body_truth_dfs):
-    """Plot the body state position error."""
+    """Calculate the body state position error."""
     RMSE_list = []
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
@@ -95,7 +95,7 @@ def body_err_pos(body_state_dfs, body_truth_dfs):
 
 
 def body_err_vel(body_state_dfs, body_truth_dfs):
-    """Plot the body state velocity error."""
+    """Calculate the body state velocity error."""
     RMSE_list = []
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
@@ -116,7 +116,7 @@ def body_err_vel(body_state_dfs, body_truth_dfs):
 
 
 def body_err_acc(body_state_dfs, body_truth_dfs):
-    """Plot the body state acceleration error."""
+    """Calculate the body state acceleration error."""
     RMSE_list = []
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
@@ -137,7 +137,7 @@ def body_err_acc(body_state_dfs, body_truth_dfs):
 
 
 def body_err_ang(body_state_dfs, body_truth_dfs):
-    """Plot the body state angular velocity error."""
+    """Calculate the body state angular velocity error."""
     RMSE_list = []
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
@@ -158,7 +158,7 @@ def body_err_ang(body_state_dfs, body_truth_dfs):
 
 
 def body_err_ang_vel(body_state_dfs, body_truth_dfs):
-    """Plot the body state angular velocity error."""
+    """Calculate the body state angular velocity error."""
     RMSE_list = []
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
@@ -179,7 +179,7 @@ def body_err_ang_vel(body_state_dfs, body_truth_dfs):
 
 
 def body_err_ang_acc(body_state_dfs, body_truth_dfs):
-    """Plot the body state angular acceleration error."""
+    """Calculate the body state angular acceleration error."""
     RMSE_list = []
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
@@ -198,6 +198,71 @@ def body_err_ang_acc(body_state_dfs, body_truth_dfs):
         RMSE_list.append(RMSE_from_vectors(err_ang_acc_0, err_ang_acc_1, err_ang_acc_2))
     return RMSE_list
 
+# TODO(jhartzer): Generate this error
+def sensor_err_pos(sensor_dfs, body_truth_dfs_dict, prefix):
+    """Calculate the sensor position error."""
+    RMSE_list = []
+    for sensor_state, body_truth in zip(sensor_dfs, body_truth_dfs_dict):
+        sensor_id = sensor_state.attrs['id']
+        true_time = body_truth['time'].to_list()
+        true_pos_0 = body_truth[f'{prefix}_pos_{sensor_id}_0'].to_list()
+        true_pos_1 = body_truth[f'{prefix}_pos_{sensor_id}_1'].to_list()
+        true_pos_2 = body_truth[f'{prefix}_pos_{sensor_id}_2'].to_list()
+
+        est_time = sensor_state['time'].to_list()
+        est_pos_0 = sensor_state[f'{prefix}_pos_0'].to_list()
+        est_pos_1 = sensor_state[f'{prefix}_pos_1'].to_list()
+        est_pos_2 = sensor_state[f'{prefix}_pos_2'].to_list()
+
+        err_pos_0 = interpolate_error(true_time, true_pos_0, est_time, est_pos_0)
+        err_pos_1 = interpolate_error(true_time, true_pos_1, est_time, est_pos_1)
+        err_pos_2 = interpolate_error(true_time, true_pos_2, est_time, est_pos_2)
+        RMSE_list.append(RMSE_from_vectors(err_pos_0, err_pos_1, err_pos_2))
+    return RMSE_list
+
+# TODO(jhartzer): Generate this error
+def sensor_err_ang(sensor_dfs, body_truth_dfs_dict, prefix):
+    """Calculate the sensor angular position error."""
+    RMSE_list = []
+    for sensor_state, body_truth in zip(sensor_dfs, body_truth_dfs_dict):
+        sensor_id = sensor_state.attrs['id']
+        true_time = body_truth['time'].to_list()
+        true_ang_vel_0 = body_truth[f'{prefix}_ang_pos_{sensor_id}_0'].to_list()
+        true_ang_vel_1 = body_truth[f'{prefix}_ang_pos_{sensor_id}_1'].to_list()
+        true_ang_vel_2 = body_truth[f'{prefix}_ang_pos_{sensor_id}_2'].to_list()
+
+        est_time = sensor_state['time'].to_list()
+        est_ang_vel_0 = sensor_state[f'{prefix}_ang_pos_0'].to_list()
+        est_ang_vel_1 = sensor_state[f'{prefix}_ang_pos_1'].to_list()
+        est_ang_vel_2 = sensor_state[f'{prefix}_ang_pos_2'].to_list()
+
+        err_ang_vel_0 = interpolate_error(true_time, true_ang_vel_0, est_time, est_ang_vel_0)
+        err_ang_vel_1 = interpolate_error(true_time, true_ang_vel_1, est_time, est_ang_vel_1)
+        err_ang_vel_2 = interpolate_error(true_time, true_ang_vel_2, est_time, est_ang_vel_2)
+        RMSE_list.append(RMSE_from_vectors(err_ang_vel_0, err_ang_vel_1, err_ang_vel_2))
+    return RMSE_list
+
+# TODO(jhartzer): Generate this error
+def imu_err_bias(imu_dfs, body_truth_dfs_dict, bias_type):
+    """Calculate the imu bias error."""
+    RMSE_list = []
+    for imu_state, body_truth in zip(imu_dfs, body_truth_dfs_dict):
+        sensor_id = imu_state.attrs['id']
+        true_time = body_truth['time'].to_list()
+        true_bias_0 = body_truth[f'imu_{bias_type}_bias_{sensor_id}_0'].to_list()
+        true_bias_1 = body_truth[f'imu_{bias_type}_bias_{sensor_id}_1'].to_list()
+        true_bias_2 = body_truth[f'imu_{bias_type}_bias_{sensor_id}_2'].to_list()
+
+        est_time = imu_state['time'].to_list()
+        est_bias_0 = imu_state[f'imu_{bias_type}_bias_0'].to_list()
+        est_bias_1 = imu_state[f'imu_{bias_type}_bias_1'].to_list()
+        est_bias_2 = imu_state[f'imu_{bias_type}_bias_2'].to_list()
+
+        err_bias_0 = interpolate_error(true_time, true_bias_0, est_time, est_bias_0)
+        err_bias_1 = interpolate_error(true_time, true_bias_1, est_time, est_bias_1)
+        err_bias_2 = interpolate_error(true_time, true_bias_2, est_time, est_bias_2)
+        RMSE_list.append(RMSE_from_vectors(err_bias_0, err_bias_1, err_bias_2))
+    return RMSE_list
 
 def write_summary(directory, stats):
     """Write the error summary statistics to a file."""
@@ -235,37 +300,33 @@ def calc_sim_stats(config_sets, settings):
             stats[f'body_{key}_err_ang_vel'] = body_err_ang_vel(body_state_dfs, body_truth_dfs)
             stats[f'body_{key}_err_ang_acc'] = body_err_ang_acc(body_state_dfs, body_truth_dfs)
 
-        # TODO(jhartzer): Generate IMU errors
-        # imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
-        # for key in sorted(imu_dfs_dict.keys()):
-        #     imu_dfs = imu_dfs_dict[key]
-        #     # stats[f'imu_{}_']
+        imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
+        body_truth_dfs = body_truth_dfs_dict[0]
+        for key in sorted(imu_dfs_dict.keys()):
+            imu_dfs = imu_dfs_dict[key]
+            stats[f'imu_{key}_err_pos'] = sensor_err_pos(imu_dfs, body_truth_dfs, 'imu')
+            stats[f'imu_{key}_err_ang'] = sensor_err_ang(imu_dfs, body_truth_dfs, 'imu')
+            stats[f'imu_{key}_err_acc_bias'] = imu_err_bias(imu_dfs, body_truth_dfs, 'acc')
+            stats[f'imu_{key}_err_gyr_bias'] = imu_err_bias(imu_dfs, body_truth_dfs, 'gyr')
 
-        # TODO(jhartzer): Generate MSKCF errors
-        # mskcf_dfs_dict = find_and_read_data_frames(data_dirs, 'msckf')
-        # tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
-        # feat_dfs_dict = find_and_read_data_frames(data_dirs, 'feature_points')
-        # for key in sorted(mskcf_dfs_dict.keys()):
-        #     mskcf_dfs = mskcf_dfs_dict[key]
-        #     tri_dfs = tri_dfs_dict[key]
-        #     feat_dfs = feat_dfs_dict[0]
-        #     # stats[f'mskcf_{}_']
+        mskcf_dfs_dict = find_and_read_data_frames(data_dirs, 'msckf')
+        for key in sorted(mskcf_dfs_dict.keys()):
+            mskcf_dfs = mskcf_dfs_dict[key]
+            stats[f'mskcf_{key}_err_pos'] = sensor_err_pos(mskcf_dfs, body_truth_dfs, 'cam')
+            stats[f'mskcf_{key}_err_ang'] = sensor_err_ang(mskcf_dfs, body_truth_dfs, 'cam')
 
-        # TODO(jhartzer): Generate fiducial errors
-        # fiducial_dfs_dict = find_and_read_data_frames(data_dirs, 'fiducial')
-        # tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
-        # board_dfs_dict = find_and_read_data_frames(data_dirs, 'boards')
-        # for key in sorted(fiducial_dfs_dict.keys()):
-        #     fiducial_dfs = fiducial_dfs_dict[key]
-        #     tri_dfs = tri_dfs_dict[key]
-        #     board_dfs = board_dfs_dict[0]
-        #     # stats[f'fiducial_{}_']
+        fiducial_dfs_dict = find_and_read_data_frames(data_dirs, 'fiducial')
+        for key in sorted(fiducial_dfs_dict.keys()):
+            fiducial_dfs = fiducial_dfs_dict[key]
+            stats[f'fiducial_{key}_err_pos'] = sensor_err_pos(fiducial_dfs, body_truth_dfs, 'cam')
+            stats[f'fiducial_{key}_err_ang'] = sensor_err_ang(fiducial_dfs, body_truth_dfs, 'cam')
 
         write_summary(stat_dir, stats)
 
 
 # TODO(jhartzer): Write tests
 # TODO(jhartzer): Add flag for low-memory usage (load single df at a time)
+# TODO(jhartzer): Compress functions into vector and quaternion errors
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('yaml_files', nargs='+', type=str)
