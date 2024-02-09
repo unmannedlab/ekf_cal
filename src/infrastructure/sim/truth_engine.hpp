@@ -20,13 +20,16 @@
 
 #include <map>
 #include <string>
+#include <vector>
+
+#include <opencv2/opencv.hpp>
 
 #include "infrastructure/debug_logger.hpp"
+#include "utility/sim/sim_rng.hpp"
 
 ///
 /// @class TruthEngine
 /// @brief Truth for simulation
-/// @todo Add initialization time to start of sim
 ///
 class TruthEngine
 {
@@ -191,7 +194,11 @@ public:
   ///
   void WriteTruthData(double body_data_rate, double max_time, std::string output_directory);
 
-protected:
+  void GenerateFeatures(unsigned int feature_count, double room_size, SimRNG rng);
+
+  std::vector<cv::Point3d> GetFeatures();
+
+private:
   std::map<unsigned int, Eigen::Vector3d> m_imu_pos;
   std::map<unsigned int, Eigen::Quaterniond> m_imu_ang_pos;
   std::map<unsigned int, Eigen::Vector3d> m_imu_acc_bias;
@@ -200,8 +207,8 @@ protected:
   std::map<unsigned int, Eigen::Quaterniond> m_cam_ang_pos;
   std::map<unsigned int, Eigen::Vector3d> m_board_pos;
   std::map<unsigned int, Eigen::Quaterniond> m_board_ang;
+  std::vector<cv::Point3d> m_feature_points;
 
-private:
   DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
 };
 

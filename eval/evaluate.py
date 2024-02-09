@@ -18,7 +18,7 @@
 """
 evaluate.py.
 
-Runs and plots data in input yaml files using run_sim.py and plot.py
+Runs and plots data in input yaml files using run_sim.py and report.py
 
 Usage is:
 ```
@@ -27,13 +27,14 @@ python3 eval/evaluate.py config/example.yaml
 
 To get help:
 ```
-python3 eval/plot.py --help
+python3 eval/evaluate.py --help
 ```
 """
 
 import argparse
 
-from plot import generate_mc_lists, Plotter
+from utilities import generate_mc_lists
+from report import plot_sim_results
 
 from run import add_jobs
 
@@ -55,6 +56,10 @@ if __name__ == '__main__':
         jobs=args.jobs,
         runs=args.runs,
         time=args.time)
+
+    settings = {}
+    settings['show'] = args.show
+    settings['jobs'] = args.jobs
+
     config_files = generate_mc_lists(args.inputs, runs=args.runs)
-    plotter = Plotter(show=args.show, ext=args.ext, rate_line=args.rate_line)
-    plotter.plot_sim_results(config_files)
+    plot_sim_results(config_files, settings)

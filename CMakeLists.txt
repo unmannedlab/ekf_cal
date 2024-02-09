@@ -201,7 +201,7 @@ if(BUILD_TESTING)
         ament_add_gtest(${nam} ${f_name})
         ament_target_dependencies(${nam} ${ROS_PKGS})
         target_include_directories(${nam} PUBLIC ${CMAKE_SOURCE_DIR}/src/)
-        target_link_libraries(${nam} EKF_LIB ROS_LIB SIM_INF ROS_UTL EKF_UTL)
+        target_link_libraries(${nam} EKF_LIB ROS_LIB SIM_INF ROS_UTL EKF_UTL SIM_LIB)
     endforeach()
 
     set(ros_infrastructure_tests

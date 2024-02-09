@@ -36,46 +36,12 @@
 SimFeatureTracker::SimFeatureTracker(
   SimFeatureTracker::Parameters params,
   std::shared_ptr<TruthEngine> truthEngine)
-: FeatureTracker(params.tracker_params),
-  m_feature_logger(params.tracker_params.output_directory, "feature_points.csv")
+: FeatureTracker(params.tracker_params)
 {
   m_px_error = params.tracker_params.px_error;
   m_no_errors = params.no_errors;
   m_feature_count = params.feature_count;
   m_truth = truthEngine;
-
-  m_feature_logger.DefineHeader("Feature,x,y,z\n");
-  m_feature_logger.SetLogging(params.tracker_params.data_logging_on);
-
-  m_feature_points.push_back(cv::Point3d(params.room_size, 0, 0));
-  m_feature_points.push_back(cv::Point3d(params.room_size, params.room_size / 10, 0));
-  m_feature_points.push_back(cv::Point3d(params.room_size, 0, params.room_size / 10));
-  m_feature_points.push_back(cv::Point3d(-params.room_size, 0, 0));
-  m_feature_points.push_back(cv::Point3d(0, params.room_size, 0));
-  m_feature_points.push_back(cv::Point3d(0, -params.room_size, 0));
-  m_feature_points.push_back(cv::Point3d(0, 0, params.room_size));
-  m_feature_points.push_back(cv::Point3d(params.room_size / 10, 0, params.room_size));
-  m_feature_points.push_back(cv::Point3d(0, params.room_size / 10, params.room_size));
-  m_feature_points.push_back(cv::Point3d(0, 0, -params.room_size));
-  for (unsigned int i = 0; i < m_feature_count; ++i) {
-    cv::Point3d vec;
-    vec.x = params.room_size;
-    /// @todo(jhartzer): Re-enable x-axis randomness
-    // vec.x = m_rng.UniRand(-params.room_size, params.room_size);
-    vec.y = m_rng.UniRand(-params.room_size, params.room_size);
-    vec.z = m_rng.UniRand(-params.room_size / 10, params.room_size / 10);
-    m_feature_points.push_back(vec);
-  }
-
-  for (unsigned int i = 0; i < m_feature_points.size(); ++i) {
-    std::stringstream msg;
-    msg << std::to_string(i);
-    msg << "," << m_feature_points[i].x;
-    msg << "," << m_feature_points[i].y;
-    msg << "," << m_feature_points[i].z;
-    msg << std::endl;
-    m_feature_logger.Log(msg.str());
-  }
 
   m_intrinsics = params.tracker_params.intrinsics;
   m_proj_matrix = cv::Mat(3, 3, cv::DataType<double>::type, 0.0);
@@ -115,14 +81,14 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
   // Project points
   std::vector<cv::Point2d> projected_points;
 
-  cv::projectPoints(
-    m_feature_points, r_vec, t_vec, m_proj_matrix, distortion, projected_points);
+  std::vector<cv::Point3d> feature_points = m_truth->GetFeatures();
+  cv::projectPoints(feature_points, r_vec, t_vec, m_proj_matrix, distortion, projected_points);
 
   // Convert to feature points
   std::vector<cv::KeyPoint> projected_features;
   Eigen::Vector3d cam_plane_vec = ang_g_to_c.transpose() * Eigen::Vector3d(0, 0, 1);
   for (unsigned int i = 0; i < projected_points.size(); ++i) {
-    cv::Point3d pointCV = m_feature_points[i];
+    cv::Point3d pointCV = feature_points[i];
     Eigen::Vector3d pointEig(pointCV.x, pointCV.y, pointCV.z);
 
     // Check that point is in front of camera plane and within sensor limits

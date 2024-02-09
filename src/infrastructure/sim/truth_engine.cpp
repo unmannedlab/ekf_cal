@@ -17,9 +17,11 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <string>
+#include <vector>
 
-#include "infrastructure/debug_logger.hpp"
 #include "infrastructure/data_logger.hpp"
+#include "infrastructure/debug_logger.hpp"
+#include "utility/sim/sim_rng.hpp"
 #include "utility/string_helper.hpp"
 
 Eigen::Vector3d TruthEngine::GetBodyPosition(double time)
@@ -138,7 +140,39 @@ Eigen::Quaterniond TruthEngine::GetBoardOrientation(unsigned int board_id)
   return m_board_ang[board_id];
 }
 
+void TruthEngine::GenerateFeatures(unsigned int feature_count, double room_size, SimRNG rng)
+{
+  m_feature_points.push_back(cv::Point3d(room_size, 0, 0));
+  m_feature_points.push_back(cv::Point3d(room_size, room_size / 10, 0));
+  m_feature_points.push_back(cv::Point3d(room_size, 0, room_size / 10));
+  m_feature_points.push_back(cv::Point3d(-room_size, 0, 0));
+  m_feature_points.push_back(cv::Point3d(0, room_size, 0));
+  m_feature_points.push_back(cv::Point3d(0, -room_size, 0));
+  m_feature_points.push_back(cv::Point3d(0, 0, room_size));
+  m_feature_points.push_back(cv::Point3d(room_size / 10, 0, room_size));
+  m_feature_points.push_back(cv::Point3d(0, room_size / 10, room_size));
+  m_feature_points.push_back(cv::Point3d(0, 0, -room_size));
+  for (unsigned int i = 0; i < feature_count; ++i) {
+    cv::Point3d vec;
+    vec.x = rng.UniRand(-room_size, room_size);
+    vec.y = rng.UniRand(-room_size, room_size);
+    vec.z = rng.UniRand(-room_size / 10, room_size / 10);
+    m_feature_points.push_back(vec);
+  }
+}
+
+std::vector<cv::Point3d> TruthEngine::GetFeatures()
+{
+  return m_feature_points;
+}
+
+
 TruthEngine::~TruthEngine() {}
+
+
+// Write Body Data
+// Write Feature Data
+// Write Fiducial Data
 
 void TruthEngine::WriteTruthData(
   double body_data_rate,
@@ -206,5 +240,19 @@ void TruthEngine::WriteTruthData(
     msg << QuaternionToCommaString(m_board_ang[board.first]);
     msg << std::endl;
     board_logger.Log(msg.str());
+  }
+
+  DataLogger feature_logger(output_directory, "feature_points.csv");
+  feature_logger.SetLogging(true);
+  feature_logger.DefineHeader("Feature,x,y,z\n");
+
+  for (unsigned int i = 0; i < m_feature_points.size(); ++i) {
+    std::stringstream msg;
+    msg << std::to_string(i);
+    msg << "," << m_feature_points[i].x;
+    msg << "," << m_feature_points[i].y;
+    msg << "," << m_feature_points[i].z;
+    msg << std::endl;
+    feature_logger.Log(msg.str());
   }
 }

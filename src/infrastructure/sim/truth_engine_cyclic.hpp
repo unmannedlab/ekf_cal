@@ -23,7 +23,6 @@
 ///
 /// @class TruthEngineCyclic
 /// @brief Truth for simulation
-/// @todo Add initialization time to start of sim
 ///
 class TruthEngineCyclic : public TruthEngine
 {

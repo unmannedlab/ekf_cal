@@ -84,11 +84,9 @@ private:
   bool m_no_errors {false};
   SimRNG m_rng;
   unsigned int m_feature_count {0};
-  std::vector<cv::Point3d> m_feature_points;
 
   Intrinsics m_intrinsics;
   cv::Mat m_proj_matrix;
-  DataLogger m_feature_logger;
 };
 
 
