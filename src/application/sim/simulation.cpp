@@ -60,68 +60,6 @@ std::vector<std::string> LoadNodeList(YAML::Node node)
   return string_list;
 }
 
-void WriteTruthData(
-  std::shared_ptr<TruthEngine> truth_engine,
-  double body_data_rate,
-  double max_time,
-  std::string output_directory,
-  bool data_logging_on)
-{
-  DataLogger data_logger;
-  data_logger.SetLogging(data_logging_on);
-  data_logger.SetOutputFileName("body_truth.csv");
-  data_logger.SetOutputDirectory(output_directory);
-
-  std::stringstream header;
-  header << "time";
-  header << EnumerateHeader("body_pos", 3);
-  header << EnumerateHeader("body_vel", 3);
-  header << EnumerateHeader("body_acc", 3);
-  header << EnumerateHeader("body_ang_pos", 4);
-  header << EnumerateHeader("body_ang_vel", 3);
-  header << EnumerateHeader("body_ang_acc", 3);
-  /// @todo(jhartzer): Create method for logging true sensor states
-  // header << EnumerateHeader("imu_pos", 3);
-  // header << EnumerateHeader("imu_ang_pos", 4);
-  // header << EnumerateHeader("imu_acc_bias", 3);
-  // header << EnumerateHeader("imu_gyr_bias", 3);
-  // header << EnumerateHeader("cam_pos", 3);
-  // header << EnumerateHeader("cam_ang_pos", 4);
-  header << std::endl;
-  data_logger.DefineHeader(header.str());
-
-  unsigned int num_measurements = static_cast<int>(std::floor((max_time + 1.0) * body_data_rate));
-  for (unsigned int i = 0; i < num_measurements; ++i) {
-    double time = static_cast<double>(i) / body_data_rate;
-    Eigen::Vector3d body_pos = truth_engine->GetBodyPosition(time);
-    Eigen::Vector3d body_vel = truth_engine->GetBodyVelocity(time);
-    Eigen::Vector3d body_acc = truth_engine->GetBodyAcceleration(time);
-    Eigen::Quaterniond body_ang_pos = truth_engine->GetBodyAngularPosition(time);
-    Eigen::Vector3d body_ang_vel = truth_engine->GetBodyAngularRate(time);
-    Eigen::Vector3d body_ang_acc = truth_engine->GetBodyAngularAcceleration(time);
-
-    // Eigen::Vector3d imu_pos = truth_engine->GetImuPosition(time);
-    // Eigen::Quaterniond imu_ang = truth_engine->GetImuAngularPosition(time);
-    // Eigen::Vector3d imu_acc_bias = truth_engine->GetImuAccelerometerBias(time);
-    // Eigen::Vector3d imu_gyr_bias = truth_engine->GetImuGyroscopeBias(time);
-
-    // Eigen::Vector3d cam_pos = truth_engine->GetCameraPosition(time);
-    // Eigen::Quaterniond cam_ang = truth_engine->GetCameraAngularPosition(time);
-
-    std::stringstream msg;
-    msg << time;
-    msg << VectorToCommaString(body_pos);
-    msg << VectorToCommaString(body_vel);
-    msg << VectorToCommaString(body_acc);
-    msg << QuaternionToCommaString(body_ang_pos);
-    msg << VectorToCommaString(body_ang_vel);
-    msg << VectorToCommaString(body_ang_acc);
-    msg << std::endl;
-
-    data_logger.Log(msg.str());
-  }
-}
-
 int main(int argc, char * argv[])
 {
   const cv::String keys =
@@ -184,7 +122,6 @@ int main(int argc, char * argv[])
     rng.SetSeed(rng_seed);
   }
 
-  /// @todo Select type of truth engine using parameters
   std::string truth_type = sim_params["truth_type"].as<std::string>("cyclic");
   double stationary_time = sim_params["stationary_time"].as<double>(0.0);
   std::shared_ptr<TruthEngine> truth_engine;
@@ -218,8 +155,6 @@ int main(int argc, char * argv[])
     msg << "Unknown truth engine type: " << truth_type << std::endl;
     logger->Log(LogLevel::ERROR, msg.str());
   }
-  WriteTruthData(
-    truth_engine, body_data_rate, max_time + stationary_time, out_dir, data_logging_on);
 
   // Load IMUs and generate measurements
   bool using_any_imu_for_prediction {false};
@@ -354,6 +289,19 @@ int main(int argc, char * argv[])
     sim_fiducial_params.fiducial_params = fiducial_params;
 
     fiducial_map[fiducial_params.name] = sim_fiducial_params;
+
+    /// @todo(jhartzer): Move into simulation driver
+    Eigen::Vector3d pos_f_in_g_true;
+    Eigen::Quaterniond ang_f_to_g_true;
+    if (no_errors) {
+      pos_f_in_g_true = rng.VecNormRand(fiducial_params.pos_f_in_g, sim_fiducial_params.pos_error);
+      ang_f_to_g_true = rng.QuatNormRand(fiducial_params.ang_f_to_g, sim_fiducial_params.ang_error);
+    } else {
+      pos_f_in_g_true = fiducial_params.pos_f_in_g;
+      ang_f_to_g_true = fiducial_params.ang_f_to_g;
+    }
+    truth_engine->SetBoardPosition(i, pos_f_in_g_true);
+    truth_engine->SetBoardOrientation(i, ang_f_to_g_true);
   }
   ekf->SetMaxTrackLength(max_track_length);
 
@@ -432,6 +380,11 @@ int main(int argc, char * argv[])
     // Calculate sensor measurements
     auto imu_messages = cam->GenerateMessages(max_time);
     messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
+  }
+
+  // Log truth data
+  if (data_logging_on) {
+    truth_engine->WriteTruthData(body_data_rate, max_time + stationary_time, out_dir);
   }
 
   // Sort Measurements

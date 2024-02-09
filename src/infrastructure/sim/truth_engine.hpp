@@ -18,6 +18,9 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <map>
+#include <string>
+
 #include "infrastructure/debug_logger.hpp"
 
 ///
@@ -152,6 +155,42 @@ public:
   ///
   void SetCameraAngularPosition(unsigned int sensor_id, Eigen::Quaterniond cam_ang_pos);
 
+  ///
+  /// @brief Fiducial board position setter
+  /// @param board_id sensor ID
+  /// @param board_position Board position
+  ///
+  void SetBoardPosition(unsigned int board_id, Eigen::Vector3d board_position);
+
+  ///
+  /// @brief Fiducial board orientation setter
+  /// @param board_id sensor ID
+  /// @param board_orientation Board orientation
+  ///
+  void SetBoardOrientation(unsigned int board_id, Eigen::Quaterniond board_orientation);
+
+  ///
+  /// @brief Fiducial board position getter
+  /// @param board_id sensor ID
+  /// @return Board position
+  ///
+  Eigen::Vector3d GetBoardPosition(unsigned int board_id);
+
+  ///
+  /// @brief Fiducial board orientation getter
+  /// @param board_id sensor ID
+  /// @return Board orientation
+  ///
+  Eigen::Quaterniond GetBoardOrientation(unsigned int board_id);
+
+  ///
+  /// @brief Write truth data to CSV files
+  /// @param body_data_rate Body data rate
+  /// @param max_time Max time to write
+  /// @param output_directory Output directory
+  ///
+  void WriteTruthData(double body_data_rate, double max_time, std::string output_directory);
+
 protected:
   std::map<unsigned int, Eigen::Vector3d> m_imu_pos;
   std::map<unsigned int, Eigen::Quaterniond> m_imu_ang_pos;
@@ -159,6 +198,8 @@ protected:
   std::map<unsigned int, Eigen::Vector3d> m_imu_gyro_bias;
   std::map<unsigned int, Eigen::Vector3d> m_cam_pos;
   std::map<unsigned int, Eigen::Quaterniond> m_cam_ang_pos;
+  std::map<unsigned int, Eigen::Vector3d> m_board_pos;
+  std::map<unsigned int, Eigen::Quaterniond> m_board_ang;
 
 private:
   DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton

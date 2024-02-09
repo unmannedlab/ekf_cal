@@ -19,6 +19,8 @@
 #include <string>
 
 #include "infrastructure/debug_logger.hpp"
+#include "infrastructure/data_logger.hpp"
+#include "utility/string_helper.hpp"
 
 Eigen::Vector3d TruthEngine::GetBodyPosition(double time)
 {
@@ -116,4 +118,93 @@ void TruthEngine::SetCameraAngularPosition(unsigned int sensor_id, Eigen::Quater
   m_cam_ang_pos[sensor_id] = cam_ang_pos;
 }
 
+void TruthEngine::SetBoardPosition(unsigned int board_id, Eigen::Vector3d board_position)
+{
+  m_board_pos[board_id] = board_position;
+}
+
+Eigen::Vector3d TruthEngine::GetBoardPosition(unsigned int board_id)
+{
+  return m_board_pos[board_id];
+}
+
+void TruthEngine::SetBoardOrientation(unsigned int board_id, Eigen::Quaterniond board_orientation)
+{
+  m_board_ang[board_id] = board_orientation;
+}
+
+Eigen::Quaterniond TruthEngine::GetBoardOrientation(unsigned int board_id)
+{
+  return m_board_ang[board_id];
+}
+
 TruthEngine::~TruthEngine() {}
+
+void TruthEngine::WriteTruthData(
+  double body_data_rate,
+  double max_time,
+  std::string output_directory)
+{
+  DataLogger truth_logger(output_directory, "body_truth.csv");
+  truth_logger.SetLogging(true);
+
+  std::stringstream header;
+  header << "time";
+  header << EnumerateHeader("body_pos", 3);
+  header << EnumerateHeader("body_vel", 3);
+  header << EnumerateHeader("body_acc", 3);
+  header << EnumerateHeader("body_ang_pos", 4);
+  header << EnumerateHeader("body_ang_vel", 3);
+  header << EnumerateHeader("body_ang_acc", 3);
+
+  for (unsigned int i = 0; i < m_imu_pos.size(); ++i) {
+    header << EnumerateHeader(std::string("imu_pos_") + std::to_string(i), 3);
+    header << EnumerateHeader(std::string("imu_ang_pos_") + std::to_string(i), 4);
+    header << EnumerateHeader(std::string("imu_acc_bias_") + std::to_string(i), 3);
+    header << EnumerateHeader(std::string("imu_gyr_bias_") + std::to_string(i), 3);
+  }
+  for (unsigned int i = 0; i < m_cam_pos.size(); ++i) {
+    header << EnumerateHeader(std::string("cam_pos_") + std::to_string(i), 3);
+    header << EnumerateHeader(std::string("cam_ang_pos_") + std::to_string(i), 4);
+  }
+  header << std::endl;
+  truth_logger.DefineHeader(header.str());
+
+  unsigned int num_measurements = static_cast<int>(std::floor((max_time + 1.0) * body_data_rate));
+  for (unsigned int i = 0; i < num_measurements; ++i) {
+    std::stringstream msg;
+    double time = static_cast<double>(i) / body_data_rate;
+    msg << time;
+    msg << VectorToCommaString(GetBodyPosition(time));
+    msg << VectorToCommaString(GetBodyVelocity(time));
+    msg << VectorToCommaString(GetBodyAcceleration(time));
+    msg << QuaternionToCommaString(GetBodyAngularPosition(time));
+    msg << VectorToCommaString(GetBodyAngularRate(time));
+    msg << VectorToCommaString(GetBodyAngularAcceleration(time));
+    for (unsigned int i = 0; i < m_imu_pos.size(); ++i) {
+      header << VectorToCommaString(GetImuPosition(i));
+      header << QuaternionToCommaString(GetImuAngularPosition(i));
+      header << VectorToCommaString(GetImuAccelerometerBias(i));
+      header << VectorToCommaString(GetImuGyroscopeBias(i));
+    }
+    for (unsigned int i = 0; i < m_cam_pos.size(); ++i) {
+      header << VectorToCommaString(GetCameraPosition(i));
+      header << QuaternionToCommaString(GetCameraAngularPosition(i));
+    }
+    msg << std::endl;
+    truth_logger.Log(msg.str());
+  }
+
+  DataLogger board_logger(output_directory, "boards.csv");
+  board_logger.SetLogging(true);
+  board_logger.DefineHeader("board,pos_x,pos_y,pos_z,quat_w,quat_x,quat_y,quat_z\n");
+
+  for (auto const & board : m_board_pos) {
+    std::stringstream msg;
+    msg << std::to_string(board.first);
+    msg << VectorToCommaString(m_board_pos[board.first]);
+    msg << QuaternionToCommaString(m_board_ang[board.first]);
+    msg << std::endl;
+    board_logger.Log(msg.str());
+  }
+}

@@ -87,16 +87,12 @@ private:
   Eigen::Vector3d m_ang_error;
   Eigen::Vector3d m_t_vec_error;
   Eigen::Vector3d m_r_vec_error;
-  /// @todo(jhartzer): Move these values into truth engine
-  Eigen::Vector3d m_pos_f_in_g_true {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_f_to_g_true {1.0, 0.0, 0.0, 0.0};
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
   SimRNG m_rng;
 
   Intrinsics m_intrinsics;
   cv::Mat m_proj_matrix;
-  DataLogger m_board_logger;
 
   unsigned int m_min_track_length {2U};
   unsigned int m_max_track_length {20U};
