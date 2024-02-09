@@ -44,8 +44,6 @@ SimFiducialTracker::SimFiducialTracker(
 
 bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
 {
-  /// @todo(jhartzer): Utilize function
-  return true;
   Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(time);
   Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(time);
   Eigen::Vector3d pos_c_in_b_true = m_truth->GetCameraPosition(sensor_id);

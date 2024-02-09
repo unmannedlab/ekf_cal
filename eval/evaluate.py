@@ -35,7 +35,7 @@ import argparse
 
 from utilities import generate_mc_lists
 from report import plot_sim_results
-
+from stats import calc_sim_stats
 from run import add_jobs
 
 
@@ -63,3 +63,4 @@ if __name__ == '__main__':
 
     config_files = generate_mc_lists(args.inputs, runs=args.runs)
     plot_sim_results(config_files, settings)
+    calc_sim_stats(config_files, settings)
