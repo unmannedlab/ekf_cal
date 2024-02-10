@@ -73,14 +73,13 @@
                 rate: 20.0
                 topic:  "/my_camera/pylon_ros2_camera_node/image_raw"
                 pos_c_in_b: [0.0, 0.0, 0.0]
-                ang_c_to_b: [1.0, 0.0, 0.0, 0.0]
-                # ang_c_to_b: [0.5, -0.5, 0.5, -0.5]
+                ang_c_to_b: [0.5, -0.5, 0.5, -0.5]
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 fiducial: "charuco"
                 pos_stability: 1.0e-9
                 ang_stability: 1.0e-9
                 intrinsics:
-                    F: 1.0
+                    F: 0.01
                     c_x: 320.0
                     c_y: 240.0
                     k_1: 0.0
