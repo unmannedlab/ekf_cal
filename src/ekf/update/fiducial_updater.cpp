@@ -52,7 +52,6 @@ FiducialUpdater::FiducialUpdater(
   header << EnumerateHeader("cam_update", g_cam_state_size);
   header << EnumerateHeader("cam_cov", g_cam_state_size);
   header << EnumerateHeader("duration", 1);
-  header << std::endl;
 
   m_fiducial_logger.DefineHeader(header.str());
   m_fiducial_logger.SetLogging(data_logging_on);
@@ -110,7 +109,6 @@ void FiducialUpdater::UpdateEKF(
     data_msg << "," << ang_f_to_g.x();
     data_msg << "," << ang_f_to_g.y();
     data_msg << "," << ang_f_to_g.z();
-    data_msg << std::endl;
     m_triangulation_logger.Log(data_msg.str());
   }
 
@@ -259,7 +257,6 @@ void FiducialUpdater::UpdateEKF(
   msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));
   msg << VectorToCommaString(cov_diag);
   msg << "," << t_execution.count();
-  msg << std::endl;
   m_fiducial_logger.Log(msg.str());
 }
 

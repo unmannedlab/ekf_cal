@@ -44,7 +44,6 @@ EKF::EKF()
   header << EnumerateHeader("body_ang_vel", 3);
   header << EnumerateHeader("body_ang_acc", 3);
   header << EnumerateHeader("body_cov", g_body_state_size);
-  header << std::endl;
 
   m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(m_data_logging_on);
@@ -80,7 +79,6 @@ void EKF::LogBodyStateIfNeeded()
     msg << VectorToCommaString(GetState().m_body_state.m_angular_velocity);
     msg << VectorToCommaString(GetState().m_body_state.m_angular_acceleration);
     msg << VectorToCommaString(body_cov);
-    msg << std::endl;
     m_data_logger.Log(msg.str());
   }
 }

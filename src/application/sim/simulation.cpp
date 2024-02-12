@@ -152,7 +152,7 @@ int main(int argc, char * argv[])
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_spline);
   } else {
     std::stringstream msg;
-    msg << "Unknown truth engine type: " << truth_type << std::endl;
+    msg << "Unknown truth engine type: " << truth_type;
     logger->Log(LogLevel::ERROR, msg.str());
   }
 

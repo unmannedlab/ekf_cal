@@ -198,7 +198,7 @@ def body_err_ang_acc(body_state_dfs, body_truth_dfs):
         RMSE_list.append(RMSE_from_vectors(err_ang_acc_0, err_ang_acc_1, err_ang_acc_2))
     return RMSE_list
 
-# TODO(jhartzer): Generate this error
+
 def sensor_err_pos(sensor_dfs, body_truth_dfs_dict, prefix):
     """Calculate the sensor position error."""
     RMSE_list = []
@@ -219,6 +219,7 @@ def sensor_err_pos(sensor_dfs, body_truth_dfs_dict, prefix):
         err_pos_2 = interpolate_error(true_time, true_pos_2, est_time, est_pos_2)
         RMSE_list.append(RMSE_from_vectors(err_pos_0, err_pos_1, err_pos_2))
     return RMSE_list
+
 
 # TODO(jhartzer): Generate this error
 def sensor_err_ang(sensor_dfs, body_truth_dfs_dict, prefix):
@@ -242,7 +243,7 @@ def sensor_err_ang(sensor_dfs, body_truth_dfs_dict, prefix):
         RMSE_list.append(RMSE_from_vectors(err_ang_vel_0, err_ang_vel_1, err_ang_vel_2))
     return RMSE_list
 
-# TODO(jhartzer): Generate this error
+
 def imu_err_bias(imu_dfs, body_truth_dfs_dict, bias_type):
     """Calculate the imu bias error."""
     RMSE_list = []
@@ -263,6 +264,7 @@ def imu_err_bias(imu_dfs, body_truth_dfs_dict, bias_type):
         err_bias_2 = interpolate_error(true_time, true_bias_2, est_time, est_bias_2)
         RMSE_list.append(RMSE_from_vectors(err_bias_0, err_bias_1, err_bias_2))
     return RMSE_list
+
 
 def write_summary(directory, stats):
     """Write the error summary statistics to a file."""

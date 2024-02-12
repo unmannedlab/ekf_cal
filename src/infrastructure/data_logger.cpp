@@ -31,11 +31,10 @@ void DataLogger::Log(std::string message)
     if (!m_initialized) {
       /// @todo check if path exists
       m_log_file.open(m_output_directory + m_file_name);
-      m_log_file << m_log_header;
+      m_log_file << m_log_header << std::endl;
       m_initialized = true;
     }
-    /// @todo Flush is not always necessary. Add as option or remove when sim is faster
-    m_log_file << message << std::flush;
+    m_log_file << message << std::endl;
   }
 }
 

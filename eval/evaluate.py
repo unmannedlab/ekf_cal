@@ -33,14 +33,13 @@ python3 eval/evaluate.py --help
 
 import argparse
 
-from utilities import generate_mc_lists
 from report import plot_sim_results
-from stats import calc_sim_stats
 from run import add_jobs
+from stats import calc_sim_stats
+from utilities import generate_mc_lists
 
 
 # TODO(jhartzer): Write tests
-# TODO(jhartzer): Fix import error
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('inputs', nargs='+', type=str)

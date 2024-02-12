@@ -40,8 +40,6 @@ Software Work:
     - RQT Dashboard
     - Code Maintainability Score https://codeclimate.com
     - OpenSSF Best Practices https://bestpractices.coreinfrastructure.org
-    - Parameter for max frame length
-    - Include What You Use
     - Eigen aliasing and eval
     - Test build on different ROS docker versions
     - Add mutex to EKF class and have mutex locked by updaters
@@ -54,7 +52,6 @@ Software Work:
     - Rename rotations using to/from frames
     - Automatically check regression results
     - Run missing runs tool
-    - Script to only produce statistics
     - Add errors/devations to spline model
 
     Additional Trackers:
@@ -65,15 +62,6 @@ Software Work:
             - CharucoDiamondTracker
             - AprilGridTracker
 
-Tools:
-    - Plot body error against truth if available
-    - Generate truth plots
-    - Input file generator
-    - Add number of runs in input
-
 Documentation:
-    - Create Cake Diagram for EKF_CAL architecture
     - Paper in JOSS: Journal of Open Source Software
-    - Deploy Github page for generated doxygen
-    - Plant UML Functional Flow Diagrams
     - Simulation diagram

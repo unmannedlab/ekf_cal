@@ -50,7 +50,6 @@ MsckfUpdater::MsckfUpdater(
   header << EnumerateHeader("cam_cov", g_cam_state_size);
   header << ",FeatureTracks";
   header << EnumerateHeader("duration", 1);
-  header << std::endl;
 
   m_msckf_logger.DefineHeader(header.str());
   m_msckf_logger.SetLogging(data_logging_on);
@@ -240,7 +239,6 @@ void MsckfUpdater::UpdateEKF(
     msg << "," << pos_f_in_g[0];
     msg << "," << pos_f_in_g[1];
     msg << "," << pos_f_in_g[2];
-    msg << std::endl;
     m_triangulation_logger.Log(msg.str());
 
     unsigned int aug_state_size = g_aug_state_size *
@@ -367,7 +365,6 @@ void MsckfUpdater::UpdateEKF(
   msg << VectorToCommaString(cov_diag);
   msg << "," << std::to_string(feature_tracks.size());
   msg << "," << t_execution.count();
-  msg << std::endl;
   m_msckf_logger.Log(msg.str());
 }
 

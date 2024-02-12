@@ -204,7 +204,6 @@ void TruthEngine::WriteTruthData(
     header << EnumerateHeader(std::string("cam_pos_") + std::to_string(sensor_count), 3);
     header << EnumerateHeader(std::string("cam_ang_pos_") + std::to_string(sensor_count), 4);
   }
-  header << std::endl;
   truth_logger.DefineHeader(header.str());
 
   unsigned int num_measurements = static_cast<int>(std::floor((max_time + 1.0) * body_data_rate));
@@ -231,7 +230,6 @@ void TruthEngine::WriteTruthData(
       msg << VectorToCommaString(GetCameraPosition(sensor_count));
       msg << QuaternionToCommaString(GetCameraAngularPosition(sensor_count));
     }
-    msg << std::endl;
     truth_logger.Log(msg.str());
   }
 
@@ -244,7 +242,6 @@ void TruthEngine::WriteTruthData(
     msg << std::to_string(board.first);
     msg << VectorToCommaString(m_board_pos[board.first]);
     msg << QuaternionToCommaString(m_board_ang[board.first]);
-    msg << std::endl;
     board_logger.Log(msg.str());
   }
 
@@ -258,7 +255,6 @@ void TruthEngine::WriteTruthData(
     msg << "," << m_feature_points[i].x;
     msg << "," << m_feature_points[i].y;
     msg << "," << m_feature_points[i].z;
-    msg << std::endl;
     feature_logger.Log(msg.str());
   }
 }

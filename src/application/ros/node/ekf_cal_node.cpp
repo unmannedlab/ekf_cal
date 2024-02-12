@@ -349,6 +349,6 @@ void EkfCalNode::PublishState()
 
   std::stringstream msg;
   Eigen::VectorXd state_vector = m_ekf->GetState().ToVector();
-  msg << VectorToCommaString(state_vector) << std::endl;
+  msg << VectorToCommaString(state_vector);
   m_state_data_logger.Log(msg.str());
 }

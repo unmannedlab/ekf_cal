@@ -65,7 +65,6 @@ ImuUpdater::ImuUpdater(
   }
 
   header << EnumerateHeader("duration", 1);
-  header << std::endl;
 
   m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(data_logging_on);
@@ -201,7 +200,7 @@ void ImuUpdater::UpdateEKF(
   Eigen::VectorXd z_pred = PredictMeasurement();
   Eigen::VectorXd resid = z - z_pred;
   std::stringstream msg0;
-  msg0 << "IMU resid: " << resid.transpose() << std::endl;
+  msg0 << "IMU resid: " << resid.transpose();
   m_logger->Log(LogLevel::DEBUG, msg0.str());
 
   unsigned int imu_state_start = m_ekf->GetImuStateStartIndex(m_id);
@@ -275,6 +274,5 @@ void ImuUpdater::UpdateEKF(
     msg << VectorToCommaString(imu_sub_update);
   }
   msg << "," << t_execution.count();
-  msg << std::endl;
   m_data_logger.Log(msg.str());
 }
