@@ -12,7 +12,6 @@
   <depend>cv_bridge</depend>
   <depend>doxygen</depend>
   <depend>geometry_msgs</depend>
-  <depend>OpenCV</depend>
   <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>

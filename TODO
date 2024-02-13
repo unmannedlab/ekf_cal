@@ -41,7 +41,6 @@ Software Work:
     - Code Maintainability Score https://codeclimate.com
     - OpenSSF Best Practices https://bestpractices.coreinfrastructure.org
     - Eigen aliasing and eval
-    - Test build on different ROS docker versions
     - Add mutex to EKF class and have mutex locked by updaters
     - Switch to reentrant callback group
     - Show track images from simulation
