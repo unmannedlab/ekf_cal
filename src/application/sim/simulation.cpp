@@ -122,16 +122,22 @@ int main(int argc, char * argv[])
     rng.SetSeed(rng_seed);
   }
 
+  std::vector<double> def_vec{0.0, 0.0, 0.0};
+  std::vector<double> def_quat{1.0, 0.0, 0.0, 0.0};
+  std::vector<std::vector<double>> def_mat{{0.0, 0.0, 0.0}};
+
   std::string truth_type = sim_params["truth_type"].as<std::string>("cyclic");
   double stationary_time = sim_params["stationary_time"].as<double>(0.0);
   std::shared_ptr<TruthEngine> truth_engine;
   if (truth_type == "cyclic") {
     Eigen::Vector3d pos_frequency =
-      StdToEigVec(sim_params["pos_frequency"].as<std::vector<double>>());
+      StdToEigVec(sim_params["pos_frequency"].as<std::vector<double>>(def_vec));
     Eigen::Vector3d ang_frequency =
-      StdToEigVec(sim_params["ang_frequency"].as<std::vector<double>>());
-    Eigen::Vector3d pos_offset = StdToEigVec(sim_params["pos_offset"].as<std::vector<double>>());
-    Eigen::Vector3d ang_offset = StdToEigVec(sim_params["ang_offset"].as<std::vector<double>>());
+      StdToEigVec(sim_params["ang_frequency"].as<std::vector<double>>(def_vec));
+    Eigen::Vector3d pos_offset =
+      StdToEigVec(sim_params["pos_offset"].as<std::vector<double>>(def_vec));
+    Eigen::Vector3d ang_offset =
+      StdToEigVec(sim_params["ang_offset"].as<std::vector<double>>(def_vec));
     double pos_amplitude = sim_params["pos_amplitude"].as<double>(1.0);
     double ang_amplitude = sim_params["ang_amplitude"].as<double>(0.1);
     auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(
@@ -144,8 +150,8 @@ int main(int argc, char * argv[])
       stationary_time);
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
   } else if (truth_type == "spline") {
-    auto positions = sim_params["positions"].as<std::vector<std::vector<double>>>();
-    auto angles = sim_params["angles"].as<std::vector<std::vector<double>>>();
+    auto positions = sim_params["positions"].as<std::vector<std::vector<double>>>(def_mat);
+    auto angles = sim_params["angles"].as<std::vector<std::vector<double>>>(def_mat);
     double delta_time = max_time / (static_cast<double>(positions.size()) - 1.0);
     auto truth_engine_spline = std::make_shared<TruthEngineSpline>(
       delta_time, positions, angles, stationary_time);
@@ -169,11 +175,11 @@ int main(int argc, char * argv[])
     imu_params.is_intrinsic = imu_node["is_intrinsic"].as<bool>(false);
     imu_params.rate = imu_node["rate"].as<double>(100.0);
     imu_params.topic = imu_node["topic"].as<std::string>("");
-    imu_params.variance = StdToEigVec(imu_node["variance"].as<std::vector<double>>());
-    imu_params.pos_i_in_b = StdToEigVec(imu_node["pos_i_in_b"].as<std::vector<double>>());
-    imu_params.ang_i_to_b = StdToEigQuat(imu_node["ang_i_to_b"].as<std::vector<double>>());
-    imu_params.acc_bias = StdToEigVec(imu_node["acc_bias"].as<std::vector<double>>());
-    imu_params.omg_bias = StdToEigVec(imu_node["omg_bias"].as<std::vector<double>>());
+    imu_params.variance = StdToEigVec(imu_node["variance"].as<std::vector<double>>(def_vec));
+    imu_params.pos_i_in_b = StdToEigVec(imu_node["pos_i_in_b"].as<std::vector<double>>(def_vec));
+    imu_params.ang_i_to_b = StdToEigQuat(imu_node["ang_i_to_b"].as<std::vector<double>>(def_quat));
+    imu_params.acc_bias = StdToEigVec(imu_node["acc_bias"].as<std::vector<double>>(def_vec));
+    imu_params.omg_bias = StdToEigVec(imu_node["omg_bias"].as<std::vector<double>>(def_vec));
     imu_params.pos_stability = imu_node["pos_stability"].as<double>(1.0e-9);
     imu_params.ang_stability = imu_node["ang_stability"].as<double>(1.0e-9);
     imu_params.acc_bias_stability = imu_node["acc_bias_stability"].as<double>(1.0e-9);
@@ -189,14 +195,14 @@ int main(int argc, char * argv[])
     sim_imu_params.time_bias_error = sim_node["time_bias_error"].as<double>(1.0e-9);
     sim_imu_params.time_skew_error = sim_node["time_skew_error"].as<double>(1.0e-9);
     sim_imu_params.time_error = sim_node["time_error"].as<double>(1.0e-9);
-    sim_imu_params.acc_error = StdToEigVec(sim_node["acc_error"].as<std::vector<double>>());
-    sim_imu_params.omg_error = StdToEigVec(sim_node["omg_error"].as<std::vector<double>>());
-    sim_imu_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>());
-    sim_imu_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>());
+    sim_imu_params.acc_error = StdToEigVec(sim_node["acc_error"].as<std::vector<double>>(def_vec));
+    sim_imu_params.omg_error = StdToEigVec(sim_node["omg_error"].as<std::vector<double>>(def_vec));
+    sim_imu_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>(def_vec));
+    sim_imu_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>(def_vec));
     sim_imu_params.acc_bias_error =
-      StdToEigVec(sim_node["acc_bias_error"].as<std::vector<double>>());
+      StdToEigVec(sim_node["acc_bias_error"].as<std::vector<double>>(def_vec));
     sim_imu_params.omg_bias_error =
-      StdToEigVec(sim_node["omg_bias_error"].as<std::vector<double>>());
+      StdToEigVec(sim_node["omg_bias_error"].as<std::vector<double>>(def_vec));
     sim_imu_params.no_errors = no_errors;
 
     // Add sensor to map
@@ -274,9 +280,11 @@ int main(int argc, char * argv[])
     fiducial_params.name = fiducials[i];
     fiducial_params.output_directory = out_dir;
     fiducial_params.data_logging_on = data_logging_on;
-    fiducial_params.pos_f_in_g = StdToEigVec(fid_node["pos_f_in_g"].as<std::vector<double>>());
-    fiducial_params.ang_f_to_g = StdToEigQuat(fid_node["ang_f_to_g"].as<std::vector<double>>());
-    fiducial_params.variance = StdToEigVec(fid_node["variance"].as<std::vector<double>>());
+    fiducial_params.pos_f_in_g =
+      StdToEigVec(fid_node["pos_f_in_g"].as<std::vector<double>>(def_vec));
+    fiducial_params.ang_f_to_g =
+      StdToEigQuat(fid_node["ang_f_to_g"].as<std::vector<double>>(def_quat));
+    fiducial_params.variance = StdToEigVec(fid_node["variance"].as<std::vector<double>>(def_vec));
     fiducial_params.squares_x = fid_node["squares_x"].as<unsigned int>(1U);
     fiducial_params.squares_y = fid_node["squares_y"].as<unsigned int>(1U);
     fiducial_params.square_length = fid_node["square_length"].as<double>(0.0);
@@ -285,8 +293,10 @@ int main(int argc, char * argv[])
     fiducial_params.max_track_length = fid_node["max_track_length"].as<unsigned int>(20U);
     max_track_length = std::max(max_track_length, fiducial_params.max_track_length);
     SimFiducialTracker::Parameters sim_fiducial_params;
-    sim_fiducial_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>());
-    sim_fiducial_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>());
+    sim_fiducial_params.pos_error =
+      StdToEigVec(sim_node["pos_error"].as<std::vector<double>>(def_vec));
+    sim_fiducial_params.ang_error =
+      StdToEigVec(sim_node["ang_error"].as<std::vector<double>>(def_vec));
     sim_fiducial_params.no_errors = no_errors;
     sim_fiducial_params.fiducial_params = fiducial_params;
 
@@ -316,9 +326,9 @@ int main(int argc, char * argv[])
     Camera::Parameters cam_params;
     cam_params.name = cameras[i];
     cam_params.rate = cam_node["rate"].as<double>(10.0);
-    cam_params.variance = StdToEigVec(cam_node["variance"].as<std::vector<double>>());
-    cam_params.pos_c_in_b = StdToEigVec(cam_node["pos_c_in_b"].as<std::vector<double>>());
-    cam_params.ang_c_to_b = StdToEigQuat(cam_node["ang_c_to_b"].as<std::vector<double>>());
+    cam_params.variance = StdToEigVec(cam_node["variance"].as<std::vector<double>>(def_vec));
+    cam_params.pos_c_in_b = StdToEigVec(cam_node["pos_c_in_b"].as<std::vector<double>>(def_vec));
+    cam_params.ang_c_to_b = StdToEigQuat(cam_node["ang_c_to_b"].as<std::vector<double>>(def_quat));
     cam_params.pos_stability = cam_node["pos_stability"].as<double>(1.0e-9);
     cam_params.ang_stability = cam_node["ang_stability"].as<double>(1.0e-9);
     cam_params.output_directory = out_dir;
