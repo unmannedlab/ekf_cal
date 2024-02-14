@@ -18,7 +18,16 @@ This package is [Treeware](https://treeware.earth). If you use it in production,
 ## References
 
 ```bibtex
-@inproceedings{2022_Multi_Cal,
+@inproceedings{2023_Multi_IMU,
+  author={Hartzer, Jacob and Saripalli, Srikanth},
+  booktitle={2023 IEEE Symposium Sensor Data Fusion and International Conference on Multisensor Fusion and Integration (SDF-MFI)}, 
+  title={Online Multi-IMU Calibration Using Visual-Inertial Odometry}, 
+  year={2023},
+  doi={10.1109/SDF-MFI59545.2023.10361310}}
+```
+
+```bibtex
+@inproceedings{2022_Multi_Cam,
   author    = {Hartzer, Jacob and Saripalli, Srikanth},
   booktitle = {2022 IEEE International Symposium on Safety, Security, and Rescue Robotics (SSRR)},
   title     = {Online Multi Camera-IMU Calibration},
