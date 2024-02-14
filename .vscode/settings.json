@@ -54,7 +54,7 @@
         "zdata"
     ],
     "terminal.integrated.scrollback": 5000,
-    "cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}",
+    "cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}/${buildType}",
     "files.associations": {
         "cctype": "cpp",
         "clocale": "cpp",
