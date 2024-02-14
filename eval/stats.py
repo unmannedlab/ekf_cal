@@ -31,12 +31,12 @@ python3 eval/stats.py --help
 ```
 """
 
-import argparse
 import os
 
-import numpy as np
+from input_parser import InputParser
 from scipy.spatial.transform import Rotation
 from utilities import find_and_read_data_frames, generate_mc_lists, interpolate_error
+import numpy as np
 
 
 def lists_to_rot(w_list, x_list, y_list, z_list):
@@ -330,14 +330,8 @@ def calc_sim_stats(config_sets, settings):
 # TODO(jhartzer): Add flag for low-memory usage (load single df at a time)
 # TODO(jhartzer): Compress functions into vector and quaternion errors
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('yaml_files', nargs='+', type=str)
-    parser.add_argument('-j', '--jobs', default=None, type=int)
-    parser.add_argument('-n', '--runs', default=None, type=int)
+    parser = InputParser()
     args = parser.parse_args()
 
-    settings = {}
-    settings['jobs'] = args.jobs
-
     config_files = generate_mc_lists(args.yaml_files, runs=args.runs)
-    calc_sim_stats(config_files, settings)
+    calc_sim_stats(config_files, args)

@@ -31,7 +31,6 @@ python3 eval/run_sim.py --help
 ```
 """
 
-import argparse
 import math
 import multiprocessing
 import os
@@ -40,6 +39,7 @@ import subprocess
 import traceback
 from typing import List
 
+from input_parser import InputParser
 import yaml
 
 
@@ -163,12 +163,7 @@ def add_jobs(
 # TODO(jhartzer): Write tests
 # TODO(jhartzer): Add lock file when simulation begins and delete when complete
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('inputs', nargs='+', type=str)
-    parser.add_argument('-j', '--jobs', default=None, type=int)
-    parser.add_argument('-n', '--runs', default=None, type=int)
-    parser.add_argument('-t', '--time', default=None, type=float)
-
+    parser = InputParser()
     args = parser.parse_args()
     add_jobs(
         args.inputs,

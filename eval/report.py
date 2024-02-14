@@ -31,11 +31,12 @@ python3 eval/plot-bokeh.py --help
 ```
 """
 
-import argparse
 import os
 
-from bokeh.models import Tabs
+from bokeh.embed import components
+from bokeh.models import Tabs, Spacer
 from bokeh.plotting import save
+from input_parser import InputParser
 from tab_body import tab_body
 from tab_fiducial import tab_fiducial
 from tab_imu import tab_imu
@@ -44,7 +45,7 @@ from utilities import find_and_read_data_frames, generate_mc_lists, parse_yaml
 
 
 # TODO(jhartzer): Split for loop into thread pool
-def plot_sim_results(config_sets, settings):
+def plot_sim_results(config_sets, output_embed):
     """Top level function to plot simulation results from sets of config files."""
     for config_set in config_sets:
         config_data = parse_yaml(config_set[0])
@@ -90,31 +91,38 @@ def plot_sim_results(config_sets, settings):
             board_dfs = board_dfs_dict[0]
             tabs.append(tab_fiducial(fiducial_dfs, tri_dfs, board_dfs))
 
-        save(
-            obj=Tabs(tabs=tabs, sizing_mode='stretch_width'),
-            filename=os.path.join(plot_dir, f'{config_name}-report.html'),
-            resources='cdn',
-            title=f'{config_name}-report.html'
-            )
+        if (output_embed):
+            if not os.path.exists(os.path.join(plot_dir,'js')):
+                os.makedirs(os.path.join(plot_dir,'js'))
+            if not os.path.exists(os.path.join(plot_dir,'html')):
+                os.makedirs(os.path.join(plot_dir,'html'))
+            for tab in tabs:
+                for row in tab.child.children:
+                    for figure in row.children:
+                        if isinstance(figure, Spacer):
+                            continue
+                        title = figure.title.text.replace(' ', '_')
+                        script, div = components(figure, wrap_script=False)
+                        with open(os.path.join(plot_dir, 'js', f'{title}.js'), 'w') as f:
+                            f.write(script)
+
+                        with open(os.path.join(plot_dir, 'html', f'{title}.html'), 'w') as f:
+                            f.write(div)
+        else:
+            save(
+                obj=Tabs(tabs=tabs, sizing_mode='stretch_width'),
+                filename=os.path.join(plot_dir, f'{config_name}-report.html'),
+                resources='cdn',
+                title=f'{config_name}-report.html'
+                )
 
 
 # TODO(jhartzer): Write tests
 # TODO(jhartzer): Add flag for low-memory usage (load single df at a time)
 # TODO(jhartzer): Add option for saving with no title (for papers)
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('configs', nargs='+', type=str)
-    parser.add_argument('--show', action='store_true')
-    parser.add_argument('--rate_line', action='store_true')
-    parser.add_argument('-ext', default='png', type=str)
-    parser.add_argument('-j', '--jobs', default=None, type=int)
-    parser.add_argument('-n', '--runs', default=None, type=int)
+    parser = InputParser()
     args = parser.parse_args()
 
-    settings = {}
-    settings['show'] = args.show
-    settings['ext'] = args.ext
-    settings['jobs'] = args.jobs
-
-    config_files = generate_mc_lists(args.configs, runs=args.runs)
-    plot_sim_results(config_files, settings)
+    config_files = generate_mc_lists(args.inputs, runs=args.runs)
+    plot_sim_results(config_files, args.embed)

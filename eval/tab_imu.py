@@ -112,10 +112,10 @@ def plot_ext_ang_err(imu_dfs):
     a = calculate_alpha(len(imu_dfs))
     for i in range(len(imu_dfs)):
         time = imu_dfs[i]['time'].to_list()
-        err_img_ang_w = imu_dfs[i]['imu_ang_0'].to_list()
-        err_img_ang_x = imu_dfs[i]['imu_ang_1'].to_list()
-        err_img_ang_y = imu_dfs[i]['imu_ang_2'].to_list()
-        err_img_ang_z = imu_dfs[i]['imu_ang_3'].to_list()
+        err_img_ang_w = imu_dfs[i]['imu_ang_pos_0'].to_list()
+        err_img_ang_x = imu_dfs[i]['imu_ang_pos_1'].to_list()
+        err_img_ang_y = imu_dfs[i]['imu_ang_pos_2'].to_list()
+        err_img_ang_z = imu_dfs[i]['imu_ang_pos_3'].to_list()
 
         fig.line(time, err_img_ang_w, alpha=a, color='blue')
         fig.line(time, err_img_ang_x, alpha=a, color='orange')
