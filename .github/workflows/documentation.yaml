@@ -16,7 +16,7 @@ jobs:
       - name: Count Lines of Code
         uses: djdefi/cloc-action@6
         with:
-          options: --exclude-lang=CSS,CSV,HTML,JavaScript,make,SVG,TeX --md --report-file=cloc.md
+          options: --exclude-lang=CSS,CSV,HTML,JavaScript,make,SVG,TeX,YAML --md --report-file=cloc.md
       - name: Format and move cloc.md
         run: |
           echo -e 'Count Lines of Code {#cloc}\n============\n' > docs/software/cloc.md
