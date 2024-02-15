@@ -147,7 +147,7 @@ private:
   cv::Mat m_prev_descriptors;
   cv::Mat m_curr_descriptors;
 
-  std::map<unsigned int, std::vector<FeatureTrack>> m_feature_track_map;
+  std::map<unsigned int, std::vector<FeaturePoint>> m_feature_track_map;
 
   unsigned int GenerateFeatureID();
 

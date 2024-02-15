@@ -115,16 +115,15 @@ public:
 };
 
 ///
-/// @brief FeatureTrack structure
-/// @todo change to FeaturePoint
+/// @brief FeaturePoint structure
 ///
-typedef struct FeatureTrack
+typedef struct FeaturePoint
 {
   int frame_id;   ///< @brief Feature track frame ID
   cv::KeyPoint key_point;  ///< @brief Feature track key point
-} FeatureTrack;
+} FeaturePoint;
 
-typedef std::vector<std::vector<FeatureTrack>> FeatureTracks;
+typedef std::vector<std::vector<FeaturePoint>> FeatureTracks;
 
 ///
 /// @brief BoardDetection structure

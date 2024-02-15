@@ -16,9 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-evaluate.py.
-
-Runs and plots data in input yaml files using run_sim.py and report.py
+Runs and plots data in input yaml files using run_sim.py and report.py.
 
 Usage is:
 ```
@@ -30,8 +28,6 @@ To get help:
 python3 eval/evaluate.py --help
 ```
 """
-
-import argparse
 
 from input_parser import InputParser
 from report import plot_sim_results

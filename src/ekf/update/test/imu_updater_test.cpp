@@ -42,7 +42,7 @@ TEST(test_imu_updater, update) {
   Eigen::MatrixXd imu_cov = Eigen::MatrixXd::Zero(12, 12);
   ekf->RegisterIMU(imu_id, imu_state, imu_cov);
 
-  ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on);
+  ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on, 0.0);
 
   Eigen::Vector3d acceleration = g_gravity;
   Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Zero();

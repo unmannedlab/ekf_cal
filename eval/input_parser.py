@@ -15,15 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-parser.py
-
-A module containing a common input parser and settings dictionary
-"""
+"""Define a common input parser for EKF-CAL tools."""
 
 import argparse
 
+
 class InputParser:
+
     def __init__(self):
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument('inputs', nargs='+', type=str)
@@ -38,4 +36,3 @@ class InputParser:
     def parse_args(self):
         self.args = self.parser.parse_args()
         return self.args
-

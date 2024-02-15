@@ -67,7 +67,7 @@ MsckfUpdater::MsckfUpdater(
 
 /// @todo possible move into separate source for re-compilation speed
 /// @todo remove class members from function and use reference inputs instead
-Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeatureTrack> & feature_track)
+Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeaturePoint> & feature_track)
 {
   AugmentedState aug_state_0 = m_ekf->MatchState(m_id, feature_track[0].frame_id);
 

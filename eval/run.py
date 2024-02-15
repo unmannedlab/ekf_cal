@@ -16,9 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-run_sim.py.
-
-A collection of function for running the multi-IMU, multi-Camera simulation
+A collection of function for running the multi-IMU, multi-Camera simulation.
 
 Typical usage is:
 ```

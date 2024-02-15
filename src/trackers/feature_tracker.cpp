@@ -232,7 +232,7 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
 
     // Store feature tracks
     for (const auto & key_point : m_curr_key_points) {
-      auto feature_track = FeatureTrack{frame_id, key_point};
+      auto feature_track = FeaturePoint{frame_id, key_point};
       m_feature_track_map[key_point.class_id].push_back(feature_track);
     }
 

@@ -121,16 +121,16 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::Genera
   m_logger->Log(
     LogLevel::INFO, "Generating " + std::to_string(message_times.size()) + " measurements");
 
-  std::map<unsigned int, std::vector<FeatureTrack>> feature_track_map;
+  std::map<unsigned int, std::vector<FeaturePoint>> feature_track_map;
   std::vector<std::shared_ptr<SimFeatureTrackerMessage>> tracker_messages;
 
   for (int frame_id = 0; static_cast<unsigned int>(frame_id) < message_times.size(); ++frame_id) {
-    std::vector<std::vector<FeatureTrack>> feature_tracks;
+    std::vector<std::vector<FeaturePoint>> feature_tracks;
 
     std::vector<cv::KeyPoint> key_points = VisibleKeypoints(message_times[frame_id], sensor_id);
 
     for (auto & key_point : key_points) {
-      auto feature_track = FeatureTrack{frame_id, key_point};
+      auto feature_track = FeaturePoint{frame_id, key_point};
       feature_track_map[key_point.class_id].push_back(feature_track);
     }
 

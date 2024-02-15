@@ -306,7 +306,6 @@ int main(int argc, char * argv[])
 
     fiducial_map[fiducial_params.name] = sim_fiducial_params;
 
-    /// @todo(jhartzer): Move into simulation driver
     Eigen::Vector3d pos_f_in_g_true;
     Eigen::Quaterniond ang_f_to_g_true;
     if (no_errors) {

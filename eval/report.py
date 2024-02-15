@@ -16,8 +16,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-plot-bokeh.py.
-
 A collection of functions for plotting results from the multi-IMU, multi-Camera simulation.
 
 Typical usage is:
@@ -34,7 +32,7 @@ python3 eval/plot-bokeh.py --help
 import os
 
 from bokeh.embed import components
-from bokeh.models import Tabs, Spacer
+from bokeh.models import Spacer, Tabs
 from bokeh.plotting import save
 from input_parser import InputParser
 from tab_body import tab_body
@@ -92,10 +90,10 @@ def plot_sim_results(config_sets, output_embed):
             tabs.append(tab_fiducial(fiducial_dfs, tri_dfs, board_dfs))
 
         if (output_embed):
-            if not os.path.exists(os.path.join(plot_dir,'js')):
-                os.makedirs(os.path.join(plot_dir,'js'))
-            if not os.path.exists(os.path.join(plot_dir,'html')):
-                os.makedirs(os.path.join(plot_dir,'html'))
+            if not os.path.exists(os.path.join(plot_dir, 'js')):
+                os.makedirs(os.path.join(plot_dir, 'js'))
+            if not os.path.exists(os.path.join(plot_dir, 'html')):
+                os.makedirs(os.path.join(plot_dir, 'html'))
             for tab in tabs:
                 for row in tab.child.children:
                     for figure in row.children:

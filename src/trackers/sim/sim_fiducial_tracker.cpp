@@ -107,7 +107,7 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
 
   BoardTrack board_track;
   for (int frame_id = 0; static_cast<unsigned int>(frame_id) < message_times.size(); ++frame_id) {
-    std::vector<std::vector<FeatureTrack>> feature_tracks;
+    std::vector<std::vector<FeaturePoint>> feature_tracks;
     auto tracker_message = std::make_shared<SimFiducialTrackerMessage>();
     tracker_message->m_time = message_times[frame_id];
     tracker_message->m_tracker_id = m_id;

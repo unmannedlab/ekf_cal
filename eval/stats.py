@@ -16,8 +16,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-stats.py.
-
 A collection of functions for calculating statistics from the multi-IMU, multi-Camera simulation.
 
 Typical usage is:
@@ -34,9 +32,9 @@ python3 eval/stats.py --help
 import os
 
 from input_parser import InputParser
+import numpy as np
 from scipy.spatial.transform import Rotation
 from utilities import find_and_read_data_frames, generate_mc_lists, interpolate_error
-import numpy as np
 
 
 def lists_to_rot(w_list, x_list, y_list, z_list):

@@ -54,7 +54,7 @@ public:
   /// @param feature_track Single feature track
   /// @return Estimate of feature position in camera frame given observations
   ///
-  Eigen::Vector3d TriangulateFeature(std::vector<FeatureTrack> & feature_track);
+  Eigen::Vector3d TriangulateFeature(std::vector<FeaturePoint> & feature_track);
 
   ///
   /// @brief EKF updater function
