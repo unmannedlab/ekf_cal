@@ -113,6 +113,7 @@
                     p_1: 0.0
                     p_2: 0.0
                     pixel_size: 1.0e-2
+                min_feat_dist: 1.0
                 sim_params:
                     time_bias_error: 1.0e-3
                     time_skew_error: 1.0e-9

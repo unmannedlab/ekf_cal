@@ -29,7 +29,6 @@ void DataLogger::Log(std::string message)
 {
   if (m_logging_on) {
     if (!m_initialized) {
-      /// @todo check if path exists
       m_log_file.open(m_output_directory + m_file_name);
       m_log_file << m_log_header << std::endl;
       m_initialized = true;

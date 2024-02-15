@@ -47,15 +47,6 @@ void DebugLogger::SetLogLevel(unsigned int level)
   m_log_level = static_cast<LogLevel>(level);
 }
 
-/// @todo re-enable once not a singleton
-// DebugLogger::~DebugLogger()
-// {
-//   if (m_log_level <= LogLevel::INFO) {
-//     RCLCPP_INFO_STREAM(
-//       rclcpp::get_logger("Logger"), "Logger destroyed");
-//   }
-// }
-
 void DebugLogger::Log(LogLevel level, std::string message)
 {
   const char * message_c_str = message.c_str();

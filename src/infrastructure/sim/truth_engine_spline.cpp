@@ -17,6 +17,7 @@
 
 #include <eigen3/unsupported/Eigen/Splines>
 
+#include <algorithm>
 #include <vector>
 
 #include "utility/type_helper.hpp"
@@ -104,26 +105,21 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAngularAcceleration(double time)
   }
 }
 
-/// @todo Check sizes before use
 TruthEngineSpline::TruthEngineSpline(
   double delta_time,
   std::vector<std::vector<double>> positions,
   std::vector<std::vector<double>> angles,
   double stationary_time)
 {
-  Eigen::MatrixXd pos_mat(3, positions.size());
-  int row_index;
-  row_index = 0;
-  for (auto const & pos : positions) {
-    pos_mat.col(row_index) << pos[0], pos[1], pos[2];
-    row_index++;
-  }
+  unsigned int spline_size = std::min(positions.size(), angles.size());
 
-  Eigen::MatrixXd ang_mat(3, angles.size());
-  row_index = 0;
-  for (auto const & ang : angles) {
+  Eigen::MatrixXd pos_mat(3, spline_size);
+  Eigen::MatrixXd ang_mat(3, spline_size);
+  for (unsigned int row_index = 0; row_index < spline_size; ++row_index) {
+    std::vector<double> pos = positions[row_index];
+    std::vector<double> ang = angles[row_index];
+    pos_mat.col(row_index) << pos[0], pos[1], pos[2];
     ang_mat.col(row_index) << ang[0], ang[1], ang[2];
-    row_index++;
   }
 
   Eigen::MatrixXd derivatives(3, 1);

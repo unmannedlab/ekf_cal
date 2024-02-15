@@ -50,7 +50,6 @@ public:
   ///
   /// @brief Singleton reference getter
   /// @return Pointer to singleton instance
-  /// @todo Remove singleton pattern
   ///
   static EKF * GetInstance()
   {

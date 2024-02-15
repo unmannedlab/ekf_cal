@@ -41,6 +41,7 @@ SimFeatureTracker::SimFeatureTracker(
   m_px_error = params.tracker_params.px_error;
   m_no_errors = params.no_errors;
   m_feature_count = params.feature_count;
+  m_max_track_length = params.tracker_params.max_track_length;
   m_truth = truthEngine;
 
   m_intrinsics = params.tracker_params.intrinsics;
@@ -137,8 +138,9 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::Genera
     // Update MSCKF on features no longer detected
     for (auto it = feature_track_map.cbegin(); it != feature_track_map.cend(); ) {
       const auto & feature_track = it->second;
-      /// @todo get constant from tracker
-      if ((feature_track.back().frame_id < frame_id) || (feature_track.size() >= 20)) {
+      if ((feature_track.back().frame_id < frame_id) ||
+        (feature_track.size() >= m_max_track_length))
+      {
         // This feature does not exist in the latest frame
         if (feature_track.size() > 1) {
           feature_tracks.push_back(feature_track);

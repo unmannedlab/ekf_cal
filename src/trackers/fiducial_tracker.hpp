@@ -102,12 +102,9 @@ protected:
   FiducialTypeEnum m_detector_type;      ///< @brief Detector type
 
 private:
-  void InitFiducialDetector(FiducialTypeEnum detector);
-
   EKF * m_ekf = EKF::GetInstance();           ///< @brief EKF singleton
 
   BoardTrack m_board_track;
-  /// @todo(jhartzer): Get these values from inputs
   Eigen::Vector3d m_pos_error {1e-9, 1e-9, 1e-9};
   Eigen::Vector3d m_ang_error {1e-9, 1e-9, 1e-9};
 };

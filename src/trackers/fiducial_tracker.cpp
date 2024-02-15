@@ -30,6 +30,8 @@ FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
   m_detector_type = params.detector_type;
   m_min_track_length = params.min_track_length;
   m_max_track_length = params.max_track_length;
+  m_pos_error = params.variance.segment<3>(0);
+  m_ang_error = params.variance.segment<3>(3);
 }
 
 void FiducialTracker::Track(

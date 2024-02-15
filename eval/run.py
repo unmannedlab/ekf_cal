@@ -159,7 +159,6 @@ def add_jobs(
 
 
 # TODO(jhartzer): Write tests
-# TODO(jhartzer): Add lock file when simulation begins and delete when complete
 if __name__ == '__main__':
     parser = InputParser()
     args = parser.parse_args()

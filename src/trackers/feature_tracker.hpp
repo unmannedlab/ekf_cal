@@ -85,6 +85,7 @@ public:
     unsigned int min_track_length{2U};   ///< @brief Minimum track length to consider
     unsigned int max_track_length{20U};  ///< @brief Maximum track length before forced output
     double data_log_rate {0.0};          ///< @brief Data logging rate
+    double min_feat_dist {1.0};          ///< @brief Minimum feature distance to consider
   } Parameters;
 
   ///

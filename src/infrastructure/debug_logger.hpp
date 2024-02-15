@@ -32,7 +32,6 @@ enum class LogLevel
 
 ///
 /// @brief DebugLogger class
-/// @todo: Create grabber function from list of available debug loggers
 ///
 class DebugLogger
 {
@@ -41,16 +40,12 @@ private:
   DebugLogger() {}
 
 public:
-  /// @todo re-enable once not a singleton
-  // ~DebugLogger();
-
   ///
   /// @brief Log message
   /// @param level Level of log
   /// @param message Message contents of log
   ///
   void Log(LogLevel level, std::string message);
-
 
   ///
   /// @brief Delete copy constructor
@@ -60,7 +55,6 @@ public:
   ///
   /// @brief Getter for DebugLogger singleton
   /// @return Pointer to DebugLogger singleton
-  /// @todo Remove singleton pattern to support multiple log files with mutex
   ///
   static DebugLogger * GetInstance()
   {

@@ -64,9 +64,12 @@ bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
   t_vec.at<double>(1) = pos_g_in_c[1];
   t_vec.at<double>(2) = pos_g_in_c[2];
 
-  // Create zero distortion
-  /// @todo grab this from input
-  cv::Mat distortion(4, 1, cv::DataType<double>::type, 0.0);
+  // Create distortion matrix. Defined in CV2 as (k1,k2,p1,p2)
+  cv::Mat distortion(4, 1, cv::DataType<double>::type);
+  distortion.at<double>(0) = m_intrinsics.k_1;
+  distortion.at<double>(1) = m_intrinsics.k_2;
+  distortion.at<double>(2) = m_intrinsics.p_1;
+  distortion.at<double>(3) = m_intrinsics.p_2;
 
   // Project points
   std::vector<cv::Point2d> projected_points;

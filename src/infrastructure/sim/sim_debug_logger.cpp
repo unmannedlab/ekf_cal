@@ -56,17 +56,6 @@ void DebugLogger::SetLogLevel(unsigned int level)
   m_log_level = static_cast<LogLevel>(level);
 }
 
-/// @todo re-enable once not a singleton
-// DebugLogger::~DebugLogger()
-// {
-//   if (m_log_level <= LogLevel::INFO) {
-//     std::cout << "[" <<
-//       m_log_level_names[static_cast<std::underlying_type<LogLevel>::type>(LogLevel::INFO)
-//       ] << "]: " <<
-//       "Logger destroyed" << std::endl;
-//   }
-// }
-
 void DebugLogger::Log(LogLevel level, std::string message)
 {
   if (m_log_level >= level) {

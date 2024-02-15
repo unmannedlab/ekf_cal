@@ -40,7 +40,8 @@ MsckfUpdater::MsckfUpdater(
   Intrinsics intrinsics,
   std::string log_file_directory,
   bool data_logging_on,
-  double data_log_rate)
+  double data_log_rate,
+  double min_feat_dist)
 : Updater(cam_id),
   m_msckf_logger(log_file_directory, "msckf_" + std::to_string(cam_id) + ".csv"),
   m_triangulation_logger(log_file_directory, "triangulation_" + std::to_string(cam_id) + ".csv")
@@ -63,10 +64,9 @@ MsckfUpdater::MsckfUpdater(
   m_triangulation_logger.SetLogRate(data_log_rate);
 
   m_intrinsics = intrinsics;
+  m_min_feat_dist = min_feat_dist;
 }
 
-/// @todo possible move into separate source for re-compilation speed
-/// @todo remove class members from function and use reference inputs instead
 Eigen::Vector3d MsckfUpdater::TriangulateFeature(std::vector<FeaturePoint> & feature_track)
 {
   AugmentedState aug_state_0 = m_ekf->MatchState(m_id, feature_track[0].frame_id);
@@ -230,8 +230,7 @@ void MsckfUpdater::UpdateEKF(
 
     /// @todo Additional non-linear optimization
 
-    /// @todo(jhartzer): Get this from input file?
-    if (pos_f_in_g.norm() < 1.0) {
+    if (pos_f_in_g.norm() < m_min_feat_dist) {
       std::stringstream err_msg;
       err_msg << "MSCKF Triangulated Point is too close. r = " << pos_f_in_g.norm();
       m_logger->Log(LogLevel::INFO, err_msg.str());

@@ -51,11 +51,11 @@ protected:
     Eigen::MatrixXd cam_cov = Eigen::MatrixXd::Zero(6, 6);
     ekf->RegisterCamera(cam_id, cam_state, cam_cov);
 
-    msckf_updater = MsckfUpdater(cam_id, intrinsics, log_file_directory, data_logging_on, 0.0);
+    msckf_updater = MsckfUpdater(cam_id, intrinsics, log_file_directory, data_logging_on, 0.0, 1.0);
   }
 
   /// @brief msckf_updater class for testing
-  MsckfUpdater msckf_updater{0, Intrinsics(), "", false, 0.0};
+  MsckfUpdater msckf_updater{0, Intrinsics(), "", false, 0.0, 1.0};
 };
 
 TEST_F(test_msckf_updater, projection_jacobian) {
