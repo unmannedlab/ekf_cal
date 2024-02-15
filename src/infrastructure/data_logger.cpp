@@ -35,9 +35,25 @@ void DataLogger::Log(std::string message)
       m_initialized = true;
     }
     m_log_file << message << std::endl;
+    ++m_log_count;
   }
 }
 
+void DataLogger::RateLimitedLog(std::string message, double time)
+{
+  if (m_logging_on) {
+    if (m_time_init) {
+      double log_count = static_cast<double>(m_log_count);
+      double max_count = m_rate * (time - m_time_init);
+      if ((m_rate == 0.0) || (log_count < max_count)) {
+        Log(message);
+      }
+    } else {
+      m_time_init = time;
+      Log(message);
+    }
+  }
+}
 
 void DataLogger::SetLogging(bool value)
 {
@@ -60,4 +76,9 @@ void DataLogger::SetOutputFileName(std::string file_name)
 void DataLogger::DefineHeader(std::string header)
 {
   m_log_header = header;
+}
+
+void DataLogger::SetLogRate(double rate)
+{
+  m_rate = rate;
 }

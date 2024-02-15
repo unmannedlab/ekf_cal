@@ -260,7 +260,6 @@ private:
   bool m_time_initialized {false};
   DebugLogger * m_logger = DebugLogger::GetInstance();
   double m_body_data_rate {0};
-  double m_prev_log_time {0};
   bool m_data_logging_on {false};
   unsigned int m_max_track_length{20U};
   Eigen::MatrixXd m_process_noise =

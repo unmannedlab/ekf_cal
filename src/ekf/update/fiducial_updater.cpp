@@ -37,7 +37,7 @@
 #include "utility/type_helper.hpp"
 
 FiducialUpdater::FiducialUpdater(
-  int cam_id, std::string log_file_directory, bool data_logging_on)
+  int cam_id, std::string log_file_directory, bool data_logging_on, double data_log_rate)
 : Updater(cam_id),
   m_fiducial_logger(log_file_directory, "fiducial_" + std::to_string(cam_id) + ".csv"),
   m_triangulation_logger(log_file_directory, "triangulation_" + std::to_string(cam_id) + ".csv")
@@ -56,8 +56,9 @@ FiducialUpdater::FiducialUpdater(
   m_fiducial_logger.DefineHeader(header.str());
   m_fiducial_logger.SetLogging(data_logging_on);
 
-  m_triangulation_logger.DefineHeader("time,board,pos_x,pos_y,pos_z,quat_w,quat_x,quat_y,quat_z\n");
+  m_triangulation_logger.DefineHeader("time,board,pos_x,pos_y,pos_z,quat_w,quat_x,quat_y,quat_z");
   m_triangulation_logger.SetLogging(data_logging_on);
+  m_triangulation_logger.SetLogRate(data_log_rate);
 }
 
 void FiducialUpdater::UpdateEKF(
@@ -109,7 +110,7 @@ void FiducialUpdater::UpdateEKF(
     data_msg << "," << ang_f_to_g.x();
     data_msg << "," << ang_f_to_g.y();
     data_msg << "," << ang_f_to_g.z();
-    m_triangulation_logger.Log(data_msg.str());
+    m_triangulation_logger.RateLimitedLog(data_msg.str(), time);
   }
 
   Eigen::Vector3d pos_f_in_g_est = average_vectors(pos_f_in_g_vec, pos_weights);
@@ -257,7 +258,7 @@ void FiducialUpdater::UpdateEKF(
   msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));
   msg << VectorToCommaString(cov_diag);
   msg << "," << t_execution.count();
-  m_fiducial_logger.Log(msg.str());
+  m_fiducial_logger.RateLimitedLog(msg.str(), time);
 }
 
 void FiducialUpdater::RefreshStates()

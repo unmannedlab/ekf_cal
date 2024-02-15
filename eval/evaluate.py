@@ -51,5 +51,5 @@ if __name__ == '__main__':
         time=args.time)
 
     config_files = generate_mc_lists(args.inputs, runs=args.runs)
-    plot_sim_results(config_files, args)
+    plot_sim_results(config_files, args.embed)
     calc_sim_stats(config_files, args)

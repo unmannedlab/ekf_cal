@@ -62,12 +62,7 @@ Eigen::MatrixXd EKF::GetStateTransition(double dT)
 
 void EKF::LogBodyStateIfNeeded()
 {
-  /// @todo Use modulo for determining if log is needed
-  if ((m_data_logging_on) &&
-    (m_body_data_rate) &&
-    (m_current_time > m_prev_log_time + 1 / m_body_data_rate))
-  {
-    m_prev_log_time = m_current_time;
+  if (m_data_logging_on) {
     std::stringstream msg;
     Eigen::VectorXd body_cov =
       GetCov().block<g_body_state_size, g_body_state_size>(0, 0).diagonal();
@@ -79,7 +74,7 @@ void EKF::LogBodyStateIfNeeded()
     msg << VectorToCommaString(GetState().m_body_state.m_angular_velocity);
     msg << VectorToCommaString(GetState().m_body_state.m_angular_acceleration);
     msg << VectorToCommaString(body_cov);
-    m_data_logger.Log(msg.str());
+    m_data_logger.RateLimitedLog(msg.str(), m_current_time);
   }
 }
 

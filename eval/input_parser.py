@@ -32,7 +32,7 @@ class InputParser:
         self.parser.add_argument('-t', '--time', default=None, type=float)
         self.parser.add_argument('-e', '--ext', default='png', type=str)
         self.parser.add_argument('--show', action='store_true')
-        self.parser.add_argument('--embed', action='store_true', default=False)
+        self.parser.add_argument('--embed', action='store_true')
         self.parser.add_argument('--rate_line', action='store_true')
 
     def parse_args(self):

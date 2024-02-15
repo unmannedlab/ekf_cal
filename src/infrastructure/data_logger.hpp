@@ -41,6 +41,13 @@ public:
   void Log(std::string message);
 
   ///
+  /// @brief Log rate-limited messages
+  /// @param message Message contents of log
+  /// @param time Message log time for rate-limited logging
+  ///
+  void RateLimitedLog(std::string message, double time);
+
+  ///
   /// @brief Function to set the output file header
   /// @param header Header string for output file
   ///
@@ -64,13 +71,22 @@ public:
   ///
   void SetOutputFileName(std::string file_name);
 
+  ///
+  /// @brief Data logging rate setter
+  /// @param rate Data logging rate
+  ///
+  void SetLogRate(double rate);
+
 private:
   bool m_initialized{false};
-  std::string m_log_header{"\n"};
+  std::string m_log_header{""};
   std::ofstream m_log_file;
   bool m_logging_on {false};
   std::string m_output_directory {""};
   std::string m_file_name {"default.log"};
+  double m_rate{0.0};
+  double m_time_init{0};
+  unsigned int m_log_count{0};
 };
 
 #endif  // INFRASTRUCTURE__DATA_LOGGER_HPP_

@@ -71,7 +71,7 @@ void EkfCalNode::Initialize()
   m_state_data_logger.SetLogging(data_logging_on);
   m_state_data_logger.SetOutputDirectory("~/log/");
   m_state_data_logger.SetOutputFileName("state_vector.csv");
-  m_state_data_logger.DefineHeader("\n");
+  m_state_data_logger.DefineHeader("");
 
   // Load lists of sensors
   m_imu_list = this->get_parameter("imu_list").as_string_array();

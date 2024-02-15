@@ -104,6 +104,7 @@ int main(int argc, char * argv[])
   ekf->SetProcessNoise(StdToEigVec(process_noise));
   ekf->m_data_logger.SetOutputDirectory(out_dir);
   ekf->m_data_logger.SetOutputFileName("body_state.csv");
+  ekf->m_data_logger.SetLogRate(body_data_rate);
 
   // Simulation parameters
   YAML::Node sim_params = ros_params["sim_params"];
@@ -187,6 +188,7 @@ int main(int argc, char * argv[])
     imu_params.output_directory = out_dir;
     imu_params.data_logging_on = data_logging_on;
     imu_params.use_for_prediction = imu_node["use_for_prediction"].as<bool>(false);
+    imu_params.data_log_rate = imu_node["data_log_rate"].as<double>(0.0);
     using_any_imu_for_prediction = using_any_imu_for_prediction || imu_params.use_for_prediction;
 
     // SimParams
@@ -256,6 +258,7 @@ int main(int argc, char * argv[])
     track_params.px_error = trk_node["pixel_error"].as<double>(1.0);
     track_params.min_track_length = trk_node["min_track_length"].as<unsigned int>(2U);
     track_params.max_track_length = trk_node["max_track_length"].as<unsigned int>(20U);
+    track_params.data_log_rate = trk_node["data_log_rate"].as<double>(0.0);
     max_track_length = std::max(max_track_length, track_params.max_track_length);
 
     SimFeatureTracker::Parameters sim_tracker_params;
@@ -291,6 +294,7 @@ int main(int argc, char * argv[])
     fiducial_params.marker_length = fid_node["marker_length"].as<double>(0.0);
     fiducial_params.min_track_length = fid_node["min_track_length"].as<unsigned int>(2U);
     fiducial_params.max_track_length = fid_node["max_track_length"].as<unsigned int>(20U);
+    fiducial_params.data_log_rate = fid_node["data_log_rate"].as<double>(0.0);
     max_track_length = std::max(max_track_length, fiducial_params.max_track_length);
     SimFiducialTracker::Parameters sim_fiducial_params;
     sim_fiducial_params.pos_error =

@@ -35,7 +35,8 @@ ImuUpdater::ImuUpdater(
   bool is_extrinsic,
   bool is_intrinsic,
   std::string log_file_directory,
-  bool data_logging_on)
+  bool data_logging_on,
+  double data_log_rate)
 : Updater(imu_id),
   m_is_extrinsic(is_extrinsic),
   m_is_intrinsic(is_intrinsic),
@@ -68,6 +69,7 @@ ImuUpdater::ImuUpdater(
 
   m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(data_logging_on);
+  m_data_logger.SetLogRate(data_log_rate);
 }
 
 Eigen::VectorXd ImuUpdater::PredictMeasurement()
@@ -274,5 +276,5 @@ void ImuUpdater::UpdateEKF(
     msg << VectorToCommaString(imu_sub_update);
   }
   msg << "," << t_execution.count();
-  m_data_logger.Log(msg.str());
+  m_data_logger.RateLimitedLog(msg.str(), time);
 }

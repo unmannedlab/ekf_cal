@@ -37,13 +37,15 @@ public:
   /// @param is_intrinsic switch if imu intrinsics should be calibrated
   /// @param log_file_directory Logging file directory
   /// @param data_logging_on Logging flag
+  /// @param data_log_rate Maximum average rate to log data
   ///
   ImuUpdater(
     unsigned int imu_id,
     bool is_extrinsic,
     bool is_intrinsic,
     std::string log_file_directory,
-    bool data_logging_on
+    bool data_logging_on,
+    double data_log_rate
   );
 
   ///

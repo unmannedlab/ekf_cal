@@ -166,13 +166,7 @@ std::vector<cv::Point3d> TruthEngine::GetFeatures()
   return m_feature_points;
 }
 
-
 TruthEngine::~TruthEngine() {}
-
-
-// Write Body Data
-// Write Feature Data
-// Write Fiducial Data
 
 void TruthEngine::WriteTruthData(
   double body_data_rate,
@@ -235,7 +229,7 @@ void TruthEngine::WriteTruthData(
 
   DataLogger board_logger(output_directory, "boards.csv");
   board_logger.SetLogging(true);
-  board_logger.DefineHeader("board,pos_x,pos_y,pos_z,quat_w,quat_x,quat_y,quat_z\n");
+  board_logger.DefineHeader("board,pos_x,pos_y,pos_z,quat_w,quat_x,quat_y,quat_z");
 
   for (auto const & board : m_board_pos) {
     std::stringstream msg;
@@ -247,7 +241,7 @@ void TruthEngine::WriteTruthData(
 
   DataLogger feature_logger(output_directory, "feature_points.csv");
   feature_logger.SetLogging(true);
-  feature_logger.DefineHeader("Feature,x,y,z\n");
+  feature_logger.DefineHeader("Feature,x,y,z");
 
   for (unsigned int i = 0; i < m_feature_points.size(); ++i) {
     std::stringstream msg;

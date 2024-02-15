@@ -21,7 +21,8 @@ FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
 : m_fiducial_updater(
     params.sensor_id,
     params.output_directory,
-    params.data_logging_on
+    params.data_logging_on,
+    params.data_log_rate
 )
 {
   m_camera_id = params.sensor_id;

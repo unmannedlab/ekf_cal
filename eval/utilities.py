@@ -101,6 +101,10 @@ def format_prefix(prefix):
         return 'Camera'
     elif (prefix == 'body_state'):
         return 'Body'
+    elif (prefix == 'fiducial'):
+        return 'Fiducial'
+    elif (prefix == 'msckf'):
+        return 'MSCKF'
     else:
         return ''
 

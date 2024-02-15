@@ -36,7 +36,11 @@
 #include "utility/type_helper.hpp"
 
 MsckfUpdater::MsckfUpdater(
-  int cam_id, Intrinsics intrinsics, std::string log_file_directory, bool data_logging_on)
+  int cam_id,
+  Intrinsics intrinsics,
+  std::string log_file_directory,
+  bool data_logging_on,
+  double data_log_rate)
 : Updater(cam_id),
   m_msckf_logger(log_file_directory, "msckf_" + std::to_string(cam_id) + ".csv"),
   m_triangulation_logger(log_file_directory, "triangulation_" + std::to_string(cam_id) + ".csv")
@@ -54,8 +58,9 @@ MsckfUpdater::MsckfUpdater(
   m_msckf_logger.DefineHeader(header.str());
   m_msckf_logger.SetLogging(data_logging_on);
 
-  m_triangulation_logger.DefineHeader("time,feature,x,y,z\n");
+  m_triangulation_logger.DefineHeader("time,feature,x,y,z");
   m_triangulation_logger.SetLogging(data_logging_on);
+  m_triangulation_logger.SetLogRate(data_log_rate);
 
   m_intrinsics = intrinsics;
 }
@@ -239,7 +244,7 @@ void MsckfUpdater::UpdateEKF(
     msg << "," << pos_f_in_g[0];
     msg << "," << pos_f_in_g[1];
     msg << "," << pos_f_in_g[2];
-    m_triangulation_logger.Log(msg.str());
+    m_triangulation_logger.RateLimitedLog(msg.str(), time);
 
     unsigned int aug_state_size = g_aug_state_size *
       m_ekf->GetCamState(m_id).augmented_states.size();
@@ -365,7 +370,7 @@ void MsckfUpdater::UpdateEKF(
   msg << VectorToCommaString(cov_diag);
   msg << "," << std::to_string(feature_tracks.size());
   msg << "," << t_execution.count();
-  m_msckf_logger.Log(msg.str());
+  m_msckf_logger.RateLimitedLog(msg.str(), time);
 }
 
 void MsckfUpdater::RefreshStates()

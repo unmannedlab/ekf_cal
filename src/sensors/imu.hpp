@@ -28,15 +28,12 @@
 ///
 /// @class IMU
 /// @brief IMU Sensor Class
-/// @todo Add parameter input/defaults for covariance
-/// @todo Bias Stability and Noise process inputs for IMUs
 ///
 class IMU : public Sensor
 {
 public:
   ///
   /// @brief IMU initialization parameters structure
-  /// @todo remove topic from parameters
   ///
   typedef struct Parameters
   {
@@ -58,6 +55,7 @@ public:
     bool use_for_prediction {false};             ///< @brief Flag to use measurements for prediction
     /// @brief Initial state variance
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+    double data_log_rate {0.0};                  ///< @brief Data logging rate
   } Parameters;
 
   ///

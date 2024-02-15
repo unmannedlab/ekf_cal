@@ -67,6 +67,7 @@ public:
     Eigen::Vector3d pos_f_in_g;                     ///< @brief Fiducial position
     Eigen::Quaterniond ang_f_to_g;                  ///< @brief Fiducial orientation
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1}};  ///< @brief Fiducial marker variance
+    double data_log_rate {0.0};                     ///< @brief Data logging rate
   } Parameters;
 
   ///

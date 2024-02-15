@@ -3,13 +3,13 @@
     ros__parameters:
         debug_log_level: 2
         data_logging_on: true
-        body_data_rate: 100.0
+        body_data_rate: 5.0
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 6.0
+            max_time: 30.0
             no_errors: false
-            number_of_runs: 3
+            number_of_runs: 20
             run_number: 0
             truth_type: "cyclic"
             stationary_time: 0.0
@@ -57,6 +57,7 @@
                 ang_stability: 1.0e-2
                 acc_bias_stability: 1.0e-3
                 omg_bias_stability: 1.0e-3
+                data_log_rate: 5.0
                 sim_params:
                     time_bias_error: 1.0e-9
                     time_skew_error: 1.0e-9
@@ -106,6 +107,7 @@
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 min_track_length: 0
                 max_track_length: 20
+                data_log_rate: 5.0
                 sim_params:
                     pos_error: [1.0e-3, 1.0e-3, 1.0e-3]
                     ang_error: [1.0e-2, 1.0e-2, 1.0e-2]
