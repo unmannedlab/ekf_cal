@@ -29,7 +29,7 @@ class InputParser:
         self.parser.add_argument('-n', '--runs', default=None, type=int)
         self.parser.add_argument('-t', '--time', default=None, type=float)
         self.parser.add_argument('-e', '--ext', default='png', type=str)
-        self.parser.add_argument('--show', action='store_true')
+        self.parser.add_argument('--no_plot', action='store_true')
         self.parser.add_argument('--embed', action='store_true')
         self.parser.add_argument('--rate_line', action='store_true')
 

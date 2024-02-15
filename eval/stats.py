@@ -331,5 +331,5 @@ if __name__ == '__main__':
     parser = InputParser()
     args = parser.parse_args()
 
-    config_files = generate_mc_lists(args.yaml_files, runs=args.runs)
+    config_files = generate_mc_lists(args.inputs, runs=args.runs)
     calc_sim_stats(config_files, args)
