@@ -233,9 +233,9 @@ void FiducialUpdater::UpdateEKF(
   m_ekf->GetState().m_cam_states += cam_update;
 
   m_ekf->GetCov() =
-    ((Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * m_ekf->GetCov() *
+    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * m_ekf->GetCov() *
     (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x).transpose() +
-    K * R * K.transpose()).eval();
+    K * R * K.transpose();
 
   /// @todo(jhartzer): Should we be bounding?
   // m_ekf->GetCov().diagonal() = m_ekf->GetCov().diagonal().array().abs();

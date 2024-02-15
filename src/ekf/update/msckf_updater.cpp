@@ -341,13 +341,10 @@ void MsckfUpdater::UpdateEKF(
   m_ekf->GetState().m_imu_states += imu_update;
   m_ekf->GetState().m_cam_states += cam_update;
 
-  /// @todo(jhartzer): Test switching to Joseph form
-  // m_ekf->GetCov() =
-  //   (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * m_ekf->GetCov() *
-  //   (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x).transpose() +
-  //   K * R * K.transpose();
   m_ekf->GetCov() =
-    ((Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * m_ekf->GetCov()).eval();
+    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * m_ekf->GetCov() *
+    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x).transpose() +
+    K * R * K.transpose();
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);

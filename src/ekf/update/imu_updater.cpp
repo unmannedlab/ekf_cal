@@ -236,16 +236,12 @@ void ImuUpdater::UpdateEKF(
 
   m_ekf->GetState().m_body_state += body_update;
   m_ekf->GetState().m_imu_states += imu_update;
+
   m_ekf->GetCov().block(0, 0, update_size, update_size) =
     (Eigen::MatrixXd::Identity(update_size, update_size) - K * H) *
-    m_ekf->GetCov().block(0, 0, update_size, update_size);
-
-  /// @todo(jhartzer): Test Joseph form
-  // m_ekf->GetCov().block(0, 0, update_size, update_size) =
-  //   (Eigen::MatrixXd::Identity(update_size, update_size) - K * H) *
-  //   m_ekf->GetCov().block(0, 0, update_size, update_size) *
-  //   (Eigen::MatrixXd::Identity(update_size, update_size) - K * H).transpose() +
-  //   K * R * K.transpose();
+    m_ekf->GetCov().block(0, 0, update_size, update_size) *
+    (Eigen::MatrixXd::Identity(update_size, update_size) - K * H).transpose() +
+    K * R * K.transpose();
 
   /// @todo(jhartzer): Should we lower bound IMU calibration covariance?
   // m_ekf->GetCov().block<12, 12>(imu_state_start, imu_state_start) =
