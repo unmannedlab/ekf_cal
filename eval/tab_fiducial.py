@@ -31,9 +31,9 @@ def plot_camera_pos(fiducial_dfs):
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
         t_cam = mskcf_df['time'].to_list()
-        fig.line(t_cam, mskcf_df['cam_pos_0'].to_list(), alpha=a, color='blue')
-        fig.line(t_cam, mskcf_df['cam_pos_1'].to_list(), alpha=a, color='orange')
-        fig.line(t_cam, mskcf_df['cam_pos_2'].to_list(), alpha=a, color='green')
+        fig.line(t_cam, mskcf_df['cam_pos_0'].to_list(), alpha=a, color='cyan')
+        fig.line(t_cam, mskcf_df['cam_pos_1'].to_list(), alpha=a, color='yellow')
+        fig.line(t_cam, mskcf_df['cam_pos_2'].to_list(), alpha=a, color='magenta')
     return fig
 
 
@@ -44,9 +44,9 @@ def plot_camera_ang(fiducial_dfs):
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
         t_cam = mskcf_df['time'].to_list()
-        fig.line(t_cam, mskcf_df['cam_ang_pos_0'].to_list(), alpha=a, color='blue')
-        fig.line(t_cam, mskcf_df['cam_ang_pos_1'].to_list(), alpha=a, color='orange')
-        fig.line(t_cam, mskcf_df['cam_ang_pos_2'].to_list(), alpha=a, color='green')
+        fig.line(t_cam, mskcf_df['cam_ang_pos_0'].to_list(), alpha=a, color='cyan')
+        fig.line(t_cam, mskcf_df['cam_ang_pos_1'].to_list(), alpha=a, color='yellow')
+        fig.line(t_cam, mskcf_df['cam_ang_pos_2'].to_list(), alpha=a, color='magenta')
     return fig
 
 
@@ -60,9 +60,9 @@ def plot_cam_pos_cov(fiducial_dfs):
         cam_cov_0 = mskcf_df['cam_cov_0'].to_list()
         cam_cov_1 = mskcf_df['cam_cov_1'].to_list()
         cam_cov_2 = mskcf_df['cam_cov_2'].to_list()
-        fig.line(t_cam, cam_cov_0, alpha=a, color='blue', legend_label='p_x')
-        fig.line(t_cam, cam_cov_1, alpha=a, color='orange', legend_label='p_y')
-        fig.line(t_cam, cam_cov_2, alpha=a, color='green', legend_label='p_z')
+        fig.line(t_cam, cam_cov_0, alpha=a, color='cyan', legend_label='p_x')
+        fig.line(t_cam, cam_cov_1, alpha=a, color='yellow', legend_label='p_y')
+        fig.line(t_cam, cam_cov_2, alpha=a, color='magenta', legend_label='p_z')
     return fig
 
 
@@ -76,9 +76,9 @@ def plot_cam_ang_cov(fiducial_dfs):
         cam_cov_3 = mskcf_df['cam_cov_3'].to_list()
         cam_cov_4 = mskcf_df['cam_cov_4'].to_list()
         cam_cov_5 = mskcf_df['cam_cov_5'].to_list()
-        fig.line(t_cam, cam_cov_3, alpha=a, color='blue', legend_label='\theta_x')
-        fig.line(t_cam, cam_cov_4, alpha=a, color='orange', legend_label='\theta_y')
-        fig.line(t_cam, cam_cov_5, alpha=a, color='green', legend_label='\theta_z')
+        fig.line(t_cam, cam_cov_3, alpha=a, color='cyan', legend_label='\theta_x')
+        fig.line(t_cam, cam_cov_4, alpha=a, color='yellow', legend_label='\theta_y')
+        fig.line(t_cam, cam_cov_5, alpha=a, color='magenta', legend_label='\theta_z')
     return fig
 
 
@@ -140,20 +140,20 @@ def plot_fiducial_error_pos(tri_dfs, board_dfs):
     std_py = std_py[t_indices]
     std_pz = std_pz[t_indices]
 
-    fig.line(times, mean_px, color='blue')
-    fig.line(times, mean_py, color='orange')
-    fig.line(times, mean_pz, color='green')
+    fig.line(times, mean_px, color='cyan')
+    fig.line(times, mean_py, color='yellow')
+    fig.line(times, mean_pz, color='magenta')
 
     cds_x = ColumnDataSource({'base': times, 'lower': mean_px - std_px, 'upper': mean_px + std_px})
     cds_y = ColumnDataSource({'base': times, 'lower': mean_py - std_py, 'upper': mean_py + std_py})
     cds_z = ColumnDataSource({'base': times, 'lower': mean_pz - std_pz, 'upper': mean_pz + std_pz})
 
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_x,
-                        fill_color='blue', line_color='blue'))
+                        fill_color='cyan', line_color='cyan'))
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_y,
-                        fill_color='orange', line_color='orange'))
+                        fill_color='yellow', line_color='yellow'))
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_z,
-                        fill_color='green', line_color='green'))
+                        fill_color='magenta', line_color='magenta'))
 
     return fig
 
@@ -228,9 +228,9 @@ def plot_fiducial_error_ang(tri_dfs, board_dfs):
     std_qy = std_qy[t_indices]
     std_qz = std_qz[t_indices]
 
-    fig.line(times, mean_qw, color='blue')
-    fig.line(times, mean_qx, color='orange')
-    fig.line(times, mean_qy, color='green')
+    fig.line(times, mean_qw, color='cyan')
+    fig.line(times, mean_qx, color='yellow')
+    fig.line(times, mean_qy, color='magenta')
     fig.line(times, mean_qz, color='purple')
 
     cds_w = ColumnDataSource({'base': times, 'lower': mean_qw - std_qw, 'upper': mean_qw + std_qw})
@@ -239,13 +239,13 @@ def plot_fiducial_error_ang(tri_dfs, board_dfs):
     cds_z = ColumnDataSource({'base': times, 'lower': mean_qz - std_qz, 'upper': mean_qz + std_qz})
 
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_w,
-                        fill_color='blue', line_color='blue'))
+                        fill_color='cyan', line_color='cyan'))
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_x,
-                        fill_color='orange', line_color='orange'))
+                        fill_color='yellow', line_color='yellow'))
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_y,
-                        fill_color='green', line_color='green'))
+                        fill_color='magenta', line_color='magenta'))
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_z,
-                        fill_color='green', line_color='green'))
+                        fill_color='magenta', line_color='magenta'))
 
     return fig
 

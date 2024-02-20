@@ -32,6 +32,7 @@ python3 eval/plot-bokeh.py --help
 import os
 
 from bokeh.embed import components
+from bokeh.io import curdoc
 from bokeh.models import Spacer, Tabs
 from bokeh.plotting import save
 from input_parser import InputParser
@@ -107,6 +108,7 @@ def plot_sim_results(config_sets, output_embed):
                         with open(os.path.join(plot_dir, 'html', f'{title}.html'), 'w') as f:
                             f.write(div)
         else:
+            curdoc().theme = 'dark_minimal'
             save(
                 obj=Tabs(tabs=tabs, sizing_mode='stretch_width'),
                 filename=os.path.join(plot_dir, f'{config_name}-report.html'),

@@ -30,9 +30,9 @@ def plot_body_pos(body_state_dfs):
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
-        fig.line(time, body_df['body_pos_0'].to_list(), alpha=a, color='blue')
-        fig.line(time, body_df['body_pos_1'].to_list(), alpha=a, color='orange')
-        fig.line(time, body_df['body_pos_2'].to_list(), alpha=a, color='green')
+        fig.line(time, body_df['body_pos_0'].to_list(), alpha=a, color='cyan')
+        fig.line(time, body_df['body_pos_1'].to_list(), alpha=a, color='yellow')
+        fig.line(time, body_df['body_pos_2'].to_list(), alpha=a, color='magenta')
     return fig
 
 
@@ -43,9 +43,9 @@ def plot_body_vel(body_state_dfs):
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
-        fig.line(time, body_df['body_vel_0'].to_list(), alpha=a, color='blue')
-        fig.line(time, body_df['body_vel_1'].to_list(), alpha=a, color='orange')
-        fig.line(time, body_df['body_vel_2'].to_list(), alpha=a, color='green')
+        fig.line(time, body_df['body_vel_0'].to_list(), alpha=a, color='cyan')
+        fig.line(time, body_df['body_vel_1'].to_list(), alpha=a, color='yellow')
+        fig.line(time, body_df['body_vel_2'].to_list(), alpha=a, color='magenta')
     return fig
 
 
@@ -56,9 +56,9 @@ def plot_body_acc(body_state_dfs):
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
-        fig.line(time, body_df['body_acc_0'].to_list(), alpha=a, color='blue')
-        fig.line(time, body_df['body_acc_1'].to_list(), alpha=a, color='orange')
-        fig.line(time, body_df['body_acc_2'].to_list(), alpha=a, color='green')
+        fig.line(time, body_df['body_acc_0'].to_list(), alpha=a, color='cyan')
+        fig.line(time, body_df['body_acc_1'].to_list(), alpha=a, color='yellow')
+        fig.line(time, body_df['body_acc_2'].to_list(), alpha=a, color='magenta')
     return fig
 
 
@@ -69,9 +69,9 @@ def plot_body_ang(body_state_dfs):
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
-        fig.line(time, body_df['body_ang_pos_0'].to_list(), alpha=a, color='blue')
-        fig.line(time, body_df['body_ang_pos_1'].to_list(), alpha=a, color='orange')
-        fig.line(time, body_df['body_ang_pos_2'].to_list(), alpha=a, color='green')
+        fig.line(time, body_df['body_ang_pos_0'].to_list(), alpha=a, color='cyan')
+        fig.line(time, body_df['body_ang_pos_1'].to_list(), alpha=a, color='yellow')
+        fig.line(time, body_df['body_ang_pos_2'].to_list(), alpha=a, color='magenta')
         fig.line(time, body_df['body_ang_pos_3'].to_list(), alpha=a, color='red')
     return fig
 
@@ -83,9 +83,9 @@ def plot_body_ang_vel(body_state_dfs):
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
-        fig.line(time, body_df['body_ang_vel_0'].to_list(), alpha=a, color='blue')
-        fig.line(time, body_df['body_ang_vel_1'].to_list(), alpha=a, color='orange')
-        fig.line(time, body_df['body_ang_vel_2'].to_list(), alpha=a, color='green')
+        fig.line(time, body_df['body_ang_vel_0'].to_list(), alpha=a, color='cyan')
+        fig.line(time, body_df['body_ang_vel_1'].to_list(), alpha=a, color='yellow')
+        fig.line(time, body_df['body_ang_vel_2'].to_list(), alpha=a, color='magenta')
     return fig
 
 
@@ -96,9 +96,9 @@ def plot_body_ang_acc(body_state_dfs):
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
-        fig.line(time, body_df['body_ang_acc_0'].to_list(), alpha=a, color='blue')
-        fig.line(time, body_df['body_ang_acc_1'].to_list(), alpha=a, color='orange')
-        fig.line(time, body_df['body_ang_acc_2'].to_list(), alpha=a, color='green')
+        fig.line(time, body_df['body_ang_acc_0'].to_list(), alpha=a, color='cyan')
+        fig.line(time, body_df['body_ang_acc_1'].to_list(), alpha=a, color='yellow')
+        fig.line(time, body_df['body_ang_acc_2'].to_list(), alpha=a, color='magenta')
     return fig
 
 
@@ -122,9 +122,9 @@ def plot_body_err_pos(body_state_dfs, body_truth_dfs):
         err_pos_1 = interpolate_error(true_time, true_pos_1, est_time, est_pos_1)
         err_pos_2 = interpolate_error(true_time, true_pos_2, est_time, est_pos_2)
 
-        fig.line(est_time, err_pos_0, alpha=a, color='blue')
-        fig.line(est_time, err_pos_1, alpha=a, color='orange')
-        fig.line(est_time, err_pos_2, alpha=a, color='green')
+        fig.line(est_time, err_pos_0, alpha=a, color='cyan')
+        fig.line(est_time, err_pos_1, alpha=a, color='yellow')
+        fig.line(est_time, err_pos_2, alpha=a, color='magenta')
 
     return fig
 
@@ -149,9 +149,9 @@ def plot_body_err_vel(body_state_dfs, body_truth_dfs):
         err_vel_1 = interpolate_error(true_time, true_vel_1, est_time, est_vel_1)
         err_vel_2 = interpolate_error(true_time, true_vel_2, est_time, est_vel_2)
 
-        fig.line(est_time, err_vel_0, alpha=a, color='blue')
-        fig.line(est_time, err_vel_1, alpha=a, color='orange')
-        fig.line(est_time, err_vel_2, alpha=a, color='green')
+        fig.line(est_time, err_vel_0, alpha=a, color='cyan')
+        fig.line(est_time, err_vel_1, alpha=a, color='yellow')
+        fig.line(est_time, err_vel_2, alpha=a, color='magenta')
 
     return fig
 
@@ -176,9 +176,9 @@ def plot_body_err_acc(body_state_dfs, body_truth_dfs):
         err_acc_1 = interpolate_error(true_time, true_acc_1, est_time, est_acc_1)
         err_acc_2 = interpolate_error(true_time, true_acc_2, est_time, est_acc_2)
 
-        fig.line(est_time, err_acc_0, alpha=a, color='blue')
-        fig.line(est_time, err_acc_1, alpha=a, color='orange')
-        fig.line(est_time, err_acc_2, alpha=a, color='green')
+        fig.line(est_time, err_acc_0, alpha=a, color='cyan')
+        fig.line(est_time, err_acc_1, alpha=a, color='yellow')
+        fig.line(est_time, err_acc_2, alpha=a, color='magenta')
     return fig
 
 
@@ -210,9 +210,9 @@ def plot_body_err_ang(body_state_dfs, body_truth_dfs):
         err_ang_pos_w, err_ang_pos_x, err_ang_pos_y, err_ang_pos_z = \
             calculate_rotation_errors(est_ang_pos_r, interp_r)
 
-        fig.line(est_time, err_ang_pos_w, alpha=a, color='blue')
-        fig.line(est_time, err_ang_pos_x, alpha=a, color='orange')
-        fig.line(est_time, err_ang_pos_y, alpha=a, color='green')
+        fig.line(est_time, err_ang_pos_w, alpha=a, color='cyan')
+        fig.line(est_time, err_ang_pos_x, alpha=a, color='yellow')
+        fig.line(est_time, err_ang_pos_y, alpha=a, color='magenta')
         fig.line(est_time, err_ang_pos_z, alpha=a, color='red')
     return fig
 
@@ -238,9 +238,9 @@ def plot_body_err_ang_vel(body_state_dfs, body_truth_dfs):
         err_ang_vel_1 = interpolate_error(true_time, true_ang_vel_1, est_time, est_ang_vel_1)
         err_ang_vel_2 = interpolate_error(true_time, true_ang_vel_2, est_time, est_ang_vel_2)
 
-        fig.line(est_time, err_ang_vel_0, alpha=a, color='blue')
-        fig.line(est_time, err_ang_vel_1, alpha=a, color='orange')
-        fig.line(est_time, err_ang_vel_2, alpha=a, color='green')
+        fig.line(est_time, err_ang_vel_0, alpha=a, color='cyan')
+        fig.line(est_time, err_ang_vel_1, alpha=a, color='yellow')
+        fig.line(est_time, err_ang_vel_2, alpha=a, color='magenta')
     return fig
 
 
@@ -265,9 +265,9 @@ def plot_body_err_ang_acc(body_state_dfs, body_truth_dfs):
         err_ang_acc_1 = interpolate_error(true_time, true_ang_acc_1, est_time, est_ang_acc_1)
         err_ang_acc_2 = interpolate_error(true_time, true_ang_acc_2, est_time, est_ang_acc_2)
 
-        fig.line(est_time, err_ang_acc_0, alpha=a, color='blue')
-        fig.line(est_time, err_ang_acc_1, alpha=a, color='orange')
-        fig.line(est_time, err_ang_acc_2, alpha=a, color='green')
+        fig.line(est_time, err_ang_acc_0, alpha=a, color='cyan')
+        fig.line(est_time, err_ang_acc_1, alpha=a, color='yellow')
+        fig.line(est_time, err_ang_acc_2, alpha=a, color='magenta')
     return fig
 
 
@@ -278,9 +278,9 @@ def plot_body_pos_cov(body_state_dfs):
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
-        fig.line(time, body_df['body_cov_0'].to_list(), alpha=a, color='blue')
-        fig.line(time, body_df['body_cov_1'].to_list(), alpha=a, color='orange')
-        fig.line(time, body_df['body_cov_2'].to_list(), alpha=a, color='green')
+        fig.line(time, body_df['body_cov_0'].to_list(), alpha=a, color='cyan')
+        fig.line(time, body_df['body_cov_1'].to_list(), alpha=a, color='yellow')
+        fig.line(time, body_df['body_cov_2'].to_list(), alpha=a, color='magenta')
     return fig
 
 
@@ -291,9 +291,9 @@ def plot_body_vel_cov(body_state_dfs):
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
-        fig.line(time, body_df['body_cov_3'].to_list(), alpha=a, color='blue')
-        fig.line(time, body_df['body_cov_4'].to_list(), alpha=a, color='orange')
-        fig.line(time, body_df['body_cov_5'].to_list(), alpha=a, color='green')
+        fig.line(time, body_df['body_cov_3'].to_list(), alpha=a, color='cyan')
+        fig.line(time, body_df['body_cov_4'].to_list(), alpha=a, color='yellow')
+        fig.line(time, body_df['body_cov_5'].to_list(), alpha=a, color='magenta')
     return fig
 
 
@@ -304,9 +304,9 @@ def plot_body_acc_cov(body_state_dfs):
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
-        fig.line(time, body_df['body_cov_6'].to_list(), alpha=a, color='blue')
-        fig.line(time, body_df['body_cov_7'].to_list(), alpha=a, color='orange')
-        fig.line(time, body_df['body_cov_8'].to_list(), alpha=a, color='green')
+        fig.line(time, body_df['body_cov_6'].to_list(), alpha=a, color='cyan')
+        fig.line(time, body_df['body_cov_7'].to_list(), alpha=a, color='yellow')
+        fig.line(time, body_df['body_cov_8'].to_list(), alpha=a, color='magenta')
     return fig
 
 
@@ -317,9 +317,9 @@ def plot_body_ang_cov(body_state_dfs):
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
-        fig.line(time, body_df['body_cov_9'].to_list(), alpha=a, color='blue')
-        fig.line(time, body_df['body_cov_10'].to_list(), alpha=a, color='orange')
-        fig.line(time, body_df['body_cov_11'].to_list(), alpha=a, color='green')
+        fig.line(time, body_df['body_cov_9'].to_list(), alpha=a, color='cyan')
+        fig.line(time, body_df['body_cov_10'].to_list(), alpha=a, color='yellow')
+        fig.line(time, body_df['body_cov_11'].to_list(), alpha=a, color='magenta')
     return fig
 
 
@@ -330,9 +330,9 @@ def plot_body_ang_vel_cov(body_state_dfs):
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
-        fig.line(time, body_df['body_cov_12'].to_list(), alpha=a, color='blue')
-        fig.line(time, body_df['body_cov_13'].to_list(), alpha=a, color='orange')
-        fig.line(time, body_df['body_cov_14'].to_list(), alpha=a, color='green')
+        fig.line(time, body_df['body_cov_12'].to_list(), alpha=a, color='cyan')
+        fig.line(time, body_df['body_cov_13'].to_list(), alpha=a, color='yellow')
+        fig.line(time, body_df['body_cov_14'].to_list(), alpha=a, color='magenta')
     return fig
 
 
@@ -344,9 +344,9 @@ def plot_body_ang_acc_cov(body_state_dfs):
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
         time = body_df['time'].to_list()
-        fig.line(time, body_df['body_cov_15'].to_list(), alpha=a, color='blue')
-        fig.line(time, body_df['body_cov_16'].to_list(), alpha=a, color='orange')
-        fig.line(time, body_df['body_cov_17'].to_list(), alpha=a, color='green')
+        fig.line(time, body_df['body_cov_15'].to_list(), alpha=a, color='cyan')
+        fig.line(time, body_df['body_cov_16'].to_list(), alpha=a, color='yellow')
+        fig.line(time, body_df['body_cov_17'].to_list(), alpha=a, color='magenta')
     return fig
 
 
