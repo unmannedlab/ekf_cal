@@ -20,6 +20,8 @@
 FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
 : m_fiducial_updater(
     params.sensor_id,
+    params.pos_f_in_g,
+    params.ang_f_to_g,
     params.output_directory,
     params.data_logging_on,
     params.data_log_rate
@@ -96,7 +98,7 @@ void FiducialTracker::Track(
   }
 
   if (update_ekf) {
-    m_fiducial_updater.UpdateEKF(time, m_board_track, m_pos_error, m_ang_error);
+    m_fiducial_updater.UpdateEKF(time, m_board_track, m_pos_error.norm(), m_ang_error.norm());
     m_board_track.clear();
   }
 }

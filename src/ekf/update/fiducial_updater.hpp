@@ -36,12 +36,16 @@ public:
   ///
   /// @brief MSCKF EKF Updater constructor
   /// @param cam_id Camera sensor ID
+  /// @param fiducial_pos Fiducial position
+  /// @param fiducial_ang Fiducial orientation
   /// @param log_file_directory Directory to save log files
   /// @param data_logging_on Flag to enable data logging
   /// @param data_log_rate Maximum average rate to log data
   ///
   explicit FiducialUpdater(
     int cam_id,
+    Eigen::Vector3d fiducial_pos,
+    Eigen::Quaterniond fiducial_ang,
     std::string log_file_directory,
     bool data_logging_on,
     double data_log_rate
@@ -55,7 +59,7 @@ public:
   /// @param ang_error Standard deviation of the angle error
   ///
   void UpdateEKF(
-    double time, BoardTrack board_track, Eigen::Vector3d pos_error, Eigen::Vector3d ang_error);
+    double time, BoardTrack board_track, double pos_error, double ang_error);
 
   ///
   /// @brief Refresh internal states with EKF values
@@ -72,6 +76,9 @@ private:
 
   Eigen::Vector3d m_pos_c_in_b {0.0, 0.0, 0.0};
   Eigen::Quaterniond m_ang_c_to_b {1.0, 0.0, 0.0, 0.0};
+
+  Eigen::Vector3d m_pos_f_in_g;
+  Eigen::Quaterniond m_ang_f_to_g;
 
   DataLogger m_fiducial_logger;
   DataLogger m_triangulation_logger;

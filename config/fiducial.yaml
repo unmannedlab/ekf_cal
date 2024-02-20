@@ -7,14 +7,15 @@
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 30.0
+            max_time: 60.0
             no_errors: false
             number_of_runs: 20
             run_number: 0
             truth_type: "cyclic"
-            stationary_time: 0.0
+            stationary_time: 5.0
             pos_frequency: [0.3, 0.5, 0.7]
-            ang_frequency: [0.3, 0.4, 0.5]
+            ang_frequency: [0.0, 0.0, 0.0]
+            # ang_frequency: [0.3, 0.4, 0.5]
             pos_offset: [0.0, 0.0, 0.0]
             ang_offset: [0.0, 0.0, 0.0]
             ang_amplitude: 0.1
@@ -22,12 +23,12 @@
 
         filter_params:
             process_noise: [
-                1.0e-3, 1.0e-3, 1.0e-3, # Position
-                1.0e-4, 1.0e-4, 1.0e-4, # Velocity
-                1.0e-5, 1.0e-5, 1.0e-5, # Acceleration
-                1.0e-3, 1.0e-3, 1.0e-3, # Angular Position
-                1.0e-4, 1.0e-4, 1.0e-4, # Angular Velocity
-                1.0e-5, 1.0e-5, 1.0e-5, # Angular Acceleration
+                1.0e-2, 1.0e-2, 1.0e-2, # Position
+                1.0e-3, 1.0e-3, 1.0e-3, # Velocity
+                1.0e-4, 1.0e-4, 1.0e-4, # Acceleration
+                1.0e-2, 1.0e-2, 1.0e-2, # Angular Position
+                1.0e-3, 1.0e-3, 1.0e-3, # Angular Velocity
+                1.0e-4, 1.0e-4, 1.0e-4, # Angular Acceleration
             ]
 
         imu_list:
@@ -45,7 +46,7 @@
             vn300:
                 use_for_prediction: false
                 is_extrinsic: false
-                is_intrinsic: false
+                is_intrinsic: true
                 rate: 400.0
                 topic: "/vn300/imu_uncompensated"
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
@@ -61,7 +62,7 @@
                 sim_params:
                     time_bias_error: 1.0e-9
                     time_skew_error: 1.0e-9
-                    time_error: 1.0e-6
+                    time_error: 1.0e-9
                     pos_error: [0.0, 0.0, 0.0]
                     ang_error: [0.0, 0.0, 0.0]
                     acc_error: [1.0e-3, 1.0e-3, 1.0e-3]
@@ -91,7 +92,7 @@
                 sim_params:
                     time_bias_error: 1.0e-9
                     time_skew_error: 1.0e-9
-                    time_error: 1.0e-6
+                    time_error: 1.0e-9
                     pos_error: [1.0e-2, 1.0e-2, 1.0e-2]
                     ang_error: [1.0e-2, 1.0e-2, 1.0e-2]
 
@@ -106,10 +107,10 @@
                 ang_f_to_g: [1.0, 0.0, 0.0, 0.0]
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 min_track_length: 0
-                max_track_length: 20
-                data_log_rate: 5.0
+                max_track_length: 2
+                data_log_rate: 20.0
                 sim_params:
-                    pos_error: [1.0e-3, 1.0e-3, 1.0e-3]
-                    ang_error: [1.0e-2, 1.0e-2, 1.0e-2]
-                    t_vec_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    pos_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    t_vec_error: [1.0e-2, 1.0e-2, 1.0e-2]
                     r_vec_error: [1.0e-2, 1.0e-2, 1.0e-2]

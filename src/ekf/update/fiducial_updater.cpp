@@ -37,8 +37,15 @@
 #include "utility/type_helper.hpp"
 
 FiducialUpdater::FiducialUpdater(
-  int cam_id, std::string log_file_directory, bool data_logging_on, double data_log_rate)
+  int cam_id,
+  Eigen::Vector3d fiducial_pos,
+  Eigen::Quaterniond fiducial_ang,
+  std::string log_file_directory,
+  bool data_logging_on,
+  double data_log_rate)
 : Updater(cam_id),
+  m_pos_f_in_g(fiducial_pos),
+  m_ang_f_to_g(fiducial_ang),
   m_fiducial_logger(log_file_directory, "fiducial_" + std::to_string(cam_id) + ".csv"),
   m_triangulation_logger(log_file_directory, "triangulation_" + std::to_string(cam_id) + ".csv")
 {
@@ -62,7 +69,7 @@ FiducialUpdater::FiducialUpdater(
 }
 
 void FiducialUpdater::UpdateEKF(
-  double time, BoardTrack board_track, Eigen::Vector3d pos_error, Eigen::Vector3d ang_error)
+  double time, BoardTrack board_track, double pos_error, double ang_error)
 {
   m_logger->Log(
     LogLevel::DEBUG, "Called update_msckf for camera ID: " + std::to_string(m_id));
@@ -115,6 +122,23 @@ void FiducialUpdater::UpdateEKF(
 
   Eigen::Vector3d pos_f_in_g_est = average_vectors(pos_f_in_g_vec, pos_weights);
   Eigen::Quaterniond ang_f_to_g_est = average_quaternions(ang_f_to_g_vec, ang_weights);
+
+  /// Project fiducial onto 3-sigma error bound
+  Eigen::Vector3d f_pos_delta = pos_f_in_g_est - m_pos_f_in_g;
+  Eigen::Quaterniond f_ang_delta = ang_f_to_g_est * m_ang_f_to_g.inverse();
+  Eigen::AngleAxisd f_ang_delta_vec{f_ang_delta};
+  if (f_pos_delta.norm() > 3 * pos_error) {
+    f_pos_delta = (3 * pos_error) / f_pos_delta.norm() * f_pos_delta;
+    Eigen::Vector3d pos_f_in_g_est_temp = m_pos_f_in_g + f_pos_delta;
+    pos_f_in_g_est = pos_f_in_g_est_temp;
+  }
+  if (f_ang_delta_vec.angle() > 3 * ang_error) {
+    f_ang_delta_vec.angle() = 3 * ang_error;
+    f_ang_delta = Eigen::Quaterniond(f_ang_delta_vec);
+    Eigen::Quaterniond ang_f_to_g_est_temp = f_ang_delta * m_ang_f_to_g;
+    ang_f_to_g_est = ang_f_to_g_est_temp;
+  }
+
   Eigen::Matrix3d rot_f_to_g_est = ang_f_to_g_est.toRotationMatrix();
 
   unsigned int max_meas_size = g_fiducial_measurement_size * board_track.size();
@@ -147,8 +171,8 @@ void FiducialUpdater::UpdateEKF(
     Eigen::Quaterniond ang_predicted, ang_measured, ang_residual;
 
     // Project the current feature into the current frame of reference
-    Eigen::Vector3d pos_f_in_bi = rot_bi_to_g.transpose() * (pos_f_in_g_est - pos_bi_in_g);
-    pos_predicted = rot_ci_to_bi.transpose() * (pos_f_in_bi - pos_ci_in_bi);
+    Eigen::Vector3d pos_f_in_bi_est = rot_bi_to_g.transpose() * (pos_f_in_g_est - pos_bi_in_g);
+    pos_predicted = rot_ci_to_bi.transpose() * (pos_f_in_bi_est - pos_ci_in_bi);
     ang_predicted = ang_g_to_ci * ang_f_to_g_est;
 
     CvVectorToEigen(board_track[i].t_vec_f_in_c, pos_measured);
@@ -164,7 +188,7 @@ void FiducialUpdater::UpdateEKF(
 
     unsigned int H_c_aug_start = aug_state_start - cam_state_start;
 
-    H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 0) = -rot_bi_to_ci * rot_g_to_ci;
+    H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 0) = -rot_bi_to_ci * rot_g_to_bi;
 
     H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 3) = rot_bi_to_ci *
       rot_g_to_bi * SkewSymmetric(pos_f_in_g_est - pos_bi_in_g) *
@@ -189,9 +213,10 @@ void FiducialUpdater::UpdateEKF(
       quaternion_jacobian(ang_f_to_g_est);
   }
 
-  if (board_track.size() > 1) {
-    ApplyLeftNullspace(H_f, H_c, res_f);
-  }
+  /// @todo(jhartzer): Verify nullspace projection doesn't work
+  // if (board_track.size() > 1) {
+  //   ApplyLeftNullspace(H_f, H_c, res_f);
+  // }
 
   /// @todo Chi^2 distance check
 
@@ -209,8 +234,8 @@ void FiducialUpdater::UpdateEKF(
     return;
   }
 
-  /// @todo(jhartzer): This doesn't account for angular errors
-  double position_sigma = std::max(pos_error[0] * ang_error[0], 1e-1);
+  /// @todo(jhartzer): This doesn't account for angular errors. Apply transform to R?
+  double position_sigma = 3 * pos_error;  // / std::sqrt(board_track.size());
   Eigen::MatrixXd R = position_sigma * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
   // Apply Kalman update

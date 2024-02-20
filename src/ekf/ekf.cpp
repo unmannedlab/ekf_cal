@@ -413,16 +413,16 @@ Eigen::MatrixXd EKF::AugmentJacobian(
       Eigen::MatrixXd::Identity(after_size, after_size);
   }
 
-  // IMU Global Position
+  // Body Position in Global Frame
   jacobian.block<3, 3>(aug_state_start + 0, 0) = Eigen::MatrixXd::Identity(3, 3);
 
-  // IMU Global Orientation
+  // Body Orientation to Global Frame
   jacobian.block<3, 3>(aug_state_start + 3, 9) = Eigen::MatrixXd::Identity(3, 3);
 
   // Camera Position in IMU Frame
   jacobian.block<3, 3>(aug_state_start + 6, cam_state_start + 0) = Eigen::MatrixXd::Identity(3, 3);
 
-  // Camera Orientation in IMU Frame
+  // Camera Orientation to IMU Frame
   jacobian.block<3, 3>(aug_state_start + 9, cam_state_start + 3) = Eigen::MatrixXd::Identity(3, 3);
 
   return jacobian;
