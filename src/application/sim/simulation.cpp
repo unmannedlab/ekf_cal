@@ -302,6 +302,10 @@ int main(int argc, char * argv[])
       StdToEigVec(sim_node["pos_error"].as<std::vector<double>>(def_vec));
     sim_fiducial_params.ang_error =
       StdToEigVec(sim_node["ang_error"].as<std::vector<double>>(def_vec));
+    sim_fiducial_params.t_vec_error =
+      StdToEigVec(sim_node["t_vec_error"].as<std::vector<double>>(def_vec));
+    sim_fiducial_params.r_vec_error =
+      StdToEigVec(sim_node["r_vec_error"].as<std::vector<double>>(def_vec));
     sim_fiducial_params.no_errors = no_errors;
     sim_fiducial_params.fiducial_params = fiducial_params;
 

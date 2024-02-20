@@ -267,7 +267,7 @@ def imu_err_bias(imu_dfs, body_truth_dfs_dict, bias_type):
 def write_summary(directory, stats):
     """Write the error summary statistics to a file."""
     with open(os.path.join(directory, 'stats.txt'), 'w') as f:
-        f.write('Statistic,RMSE\n')
+        f.write('Statistic,RMSE-Mean,RMSE-StdDev\n')
         for key in stats:
             vals = np.array(stats[key])
             mu = np.mean(vals)

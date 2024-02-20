@@ -146,7 +146,9 @@
         "__locale": "cpp",
         "__node_handle": "cpp",
         "ios": "cpp",
-        "__split_buffer": "cpp"
+        "__split_buffer": "cpp",
+        "__hash_table": "cpp",
+        "__tree": "cpp"
     },
     "cmake.configureOnOpen": true,
     "flake8.args": [

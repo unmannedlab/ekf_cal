@@ -53,7 +53,7 @@ def plot_camera_ang(fiducial_dfs):
 def plot_cam_pos_cov(fiducial_dfs):
     """Plot extrinsic position covariance."""
     fig = figure(width=800, height=300, x_axis_label='time [s]',
-                 y_axis_label='Position Covariance [m]', title='Position Covariance')
+                 y_axis_label='Position Covariance [m]', title='Camera Position Covariance')
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
         t_cam = mskcf_df['time'].to_list()
@@ -69,7 +69,7 @@ def plot_cam_pos_cov(fiducial_dfs):
 def plot_cam_ang_cov(fiducial_dfs):
     """Plot extrinsic angle covariance."""
     fig = figure(width=800, height=300, x_axis_label='time [s]',
-                 y_axis_label='Angle Covariance [m]', title='Angle Covariance')
+                 y_axis_label='Angle Covariance [m]', title='Camera Angle Covariance')
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
         t_cam = mskcf_df['time'].to_list()
