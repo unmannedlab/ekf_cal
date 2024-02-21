@@ -120,6 +120,7 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian()
     m_ang_b_to_g.inverse().toRotationMatrix();
 
   // IMU Positional Offset
+  unsigned int extrinsic_offset{0};
   if (m_is_extrinsic) {
     // IMU Positional Offset
     measurement_jacobian.block<3, 3>(0, g_body_state_size) =
@@ -145,14 +146,19 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian()
       m_ang_b_to_g.inverse().toRotationMatrix() *
       m_body_ang_vel
     );
+    extrinsic_offset = 3;
   }
 
   if (m_is_intrinsic) {
     // IMU Accelerometer Bias
-    measurement_jacobian.block<3, 3>(0, g_body_state_size + 6) = Eigen::MatrixXd::Identity(3, 3);
+    measurement_jacobian.block<3, 3>(
+      0,
+      g_body_state_size + extrinsic_offset + 0) = Eigen::MatrixXd::Identity(3, 3);
 
     // IMU Gyroscope Bias
-    measurement_jacobian.block<3, 3>(3, g_body_state_size + 9) = Eigen::MatrixXd::Identity(3, 3);
+    measurement_jacobian.block<3, 3>(
+      3,
+      g_body_state_size + extrinsic_offset + 3) = Eigen::MatrixXd::Identity(3, 3);
   }
 
   return measurement_jacobian;

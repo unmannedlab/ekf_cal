@@ -167,9 +167,9 @@ def plot_omg_bias_err(imu_dfs):
 
     for i in range(len(imu_dfs)):
         t_imu[i, :] = imu_dfs[i]['time'].to_list()
-        w_bias_0[i, :] = np.array(imu_dfs[i]['imu_omg_bias_0'].to_list()) * 1e3
-        w_bias_1[i, :] = np.array(imu_dfs[i]['imu_omg_bias_1'].to_list()) * 1e3
-        w_bias_2[i, :] = np.array(imu_dfs[i]['imu_omg_bias_2'].to_list()) * 1e3
+        w_bias_0[i, :] = np.array(imu_dfs[i]['imu_gyr_bias_0'].to_list()) * 1e3
+        w_bias_1[i, :] = np.array(imu_dfs[i]['imu_gyr_bias_1'].to_list()) * 1e3
+        w_bias_2[i, :] = np.array(imu_dfs[i]['imu_gyr_bias_2'].to_list()) * 1e3
         fig.line(t_imu[i, :], w_bias_0[i, :], color='cyan')
         fig.line(t_imu[i, :], w_bias_1[i, :], color='yellow')
         fig.line(t_imu[i, :], w_bias_2[i, :], color='magenta')

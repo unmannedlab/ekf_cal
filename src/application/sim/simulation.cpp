@@ -314,11 +314,11 @@ int main(int argc, char * argv[])
     Eigen::Vector3d pos_f_in_g_true;
     Eigen::Quaterniond ang_f_to_g_true;
     if (no_errors) {
-      pos_f_in_g_true = rng.VecNormRand(fiducial_params.pos_f_in_g, sim_fiducial_params.pos_error);
-      ang_f_to_g_true = rng.QuatNormRand(fiducial_params.ang_f_to_g, sim_fiducial_params.ang_error);
-    } else {
       pos_f_in_g_true = fiducial_params.pos_f_in_g;
       ang_f_to_g_true = fiducial_params.ang_f_to_g;
+    } else {
+      pos_f_in_g_true = rng.VecNormRand(fiducial_params.pos_f_in_g, sim_fiducial_params.pos_error);
+      ang_f_to_g_true = rng.QuatNormRand(fiducial_params.ang_f_to_g, sim_fiducial_params.ang_error);
     }
     truth_engine->SetBoardPosition(i, pos_f_in_g_true);
     truth_engine->SetBoardOrientation(i, ang_f_to_g_true);
