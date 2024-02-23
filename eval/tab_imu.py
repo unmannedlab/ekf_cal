@@ -86,9 +86,9 @@ def plot_ext_pos_err(imu_dfs):
 
     for i in range(len(imu_dfs)):
         t_imu[i, :] = imu_dfs[i]['time'].to_list()
-        pos_0[i, :] = np.array(imu_dfs[i]['imu_pos_0'].to_list()) * 1e3
-        pos_1[i, :] = np.array(imu_dfs[i]['imu_pos_1'].to_list()) * 1e3
-        pos_2[i, :] = np.array(imu_dfs[i]['imu_pos_2'].to_list()) * 1e3
+        pos_0[i, :] = np.array(imu_dfs[i]['imu_pos_0'].to_list())
+        pos_1[i, :] = np.array(imu_dfs[i]['imu_pos_1'].to_list())
+        pos_2[i, :] = np.array(imu_dfs[i]['imu_pos_2'].to_list())
         fig.line(t_imu[i, :], pos_0[i, :], alpha=a, color='cyan')
         fig.line(t_imu[i, :], pos_1[i, :], alpha=a, color='yellow')
         fig.line(t_imu[i, :], pos_2[i, :], alpha=a, color='magenta')
@@ -136,9 +136,9 @@ def plot_acc_bias_err(imu_dfs):
 
     for i in range(len(imu_dfs)):
         t_imu[i, :] = imu_dfs[i]['time'].to_list()
-        acc_bias_0[i, :] = np.array(imu_dfs[i]['imu_acc_bias_0'].to_list()) * 1e3
-        acc_bias_1[i, :] = np.array(imu_dfs[i]['imu_acc_bias_1'].to_list()) * 1e3
-        acc_bias_2[i, :] = np.array(imu_dfs[i]['imu_acc_bias_2'].to_list()) * 1e3
+        acc_bias_0[i, :] = np.array(imu_dfs[i]['imu_acc_bias_0'].to_list())
+        acc_bias_1[i, :] = np.array(imu_dfs[i]['imu_acc_bias_1'].to_list())
+        acc_bias_2[i, :] = np.array(imu_dfs[i]['imu_acc_bias_2'].to_list())
         fig.line(t_imu[i, :], acc_bias_0[i, :], color='cyan')
         fig.line(t_imu[i, :], acc_bias_1[i, :], color='yellow')
         fig.line(t_imu[i, :], acc_bias_2[i, :], color='magenta')
@@ -167,9 +167,9 @@ def plot_omg_bias_err(imu_dfs):
 
     for i in range(len(imu_dfs)):
         t_imu[i, :] = imu_dfs[i]['time'].to_list()
-        w_bias_0[i, :] = np.array(imu_dfs[i]['imu_gyr_bias_0'].to_list()) * 1e3
-        w_bias_1[i, :] = np.array(imu_dfs[i]['imu_gyr_bias_1'].to_list()) * 1e3
-        w_bias_2[i, :] = np.array(imu_dfs[i]['imu_gyr_bias_2'].to_list()) * 1e3
+        w_bias_0[i, :] = np.array(imu_dfs[i]['imu_gyr_bias_0'].to_list())
+        w_bias_1[i, :] = np.array(imu_dfs[i]['imu_gyr_bias_1'].to_list())
+        w_bias_2[i, :] = np.array(imu_dfs[i]['imu_gyr_bias_2'].to_list())
         fig.line(t_imu[i, :], w_bias_0[i, :], color='cyan')
         fig.line(t_imu[i, :], w_bias_1[i, :], color='yellow')
         fig.line(t_imu[i, :], w_bias_2[i, :], color='magenta')
@@ -219,9 +219,9 @@ def plot_imu_ext_ang_update(imu_dfs):
 
 
 def plot_imu_int_pos_update(imu_dfs):
-    """Plot intrinsic accelerometer bias."""
+    """Plot accelerometer bias updates."""
     fig = figure(width=800, height=300, x_axis_label='time [s]',
-                 y_axis_label='Accelerometer Bias [m/s/s]', title='Accelerometer Bias')
+                 y_axis_label='Accelerometer Bias Updates [m/s/s]', title='Accelerometer Bias Updates')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
         t_imu = imu_df['time'].to_list()
@@ -235,9 +235,9 @@ def plot_imu_int_pos_update(imu_dfs):
 
 
 def plot_imu_int_ang_update(imu_dfs):
-    """Plot intrinsic gyroscope bias."""
+    """Plot intrinsic gyroscope bias updates."""
     fig = figure(width=800, height=300, x_axis_label='time [s]',
-                 y_axis_label='Intrinsic Gyroscope Bias [rad/s]', title='Intrinsic Gyroscope Bias')
+                 y_axis_label='Gyroscope Bias Updates [rad/s]', title='Gyroscope Bias Updates')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
         t_imu = imu_df['time'].to_list()
