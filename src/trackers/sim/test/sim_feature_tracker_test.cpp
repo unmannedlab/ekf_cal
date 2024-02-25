@@ -17,9 +17,10 @@
 
 #include <memory>
 
-#include "trackers/fiducial_tracker.hpp"
+#include "trackers/feature_tracker.hpp"
+#include "trackers/sim/sim_feature_tracker.hpp"
 
-TEST(test_fiducial_tracker, constructor) {
-  FiducialTracker::Parameters params;
-  FiducialTracker fiducial_tracker(params);
+TEST(test_feature_tracker, constructor) {
+  FeatureTracker::Parameters params;
+  FeatureTracker feature_tracker(params);
 }

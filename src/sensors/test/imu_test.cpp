@@ -22,8 +22,25 @@
 
 
 TEST(test_IMU, Constructor) {
-  IMU::Parameters imu_params;
-  IMU imu(imu_params);
+  IMU::Parameters imu_params1;
+  imu_params1.is_intrinsic = false;
+  imu_params1.is_extrinsic = false;
+  IMU imu1(imu_params1);
+
+  IMU::Parameters imu_params2;
+  imu_params2.is_intrinsic = true;
+  imu_params2.is_extrinsic = false;
+  IMU imu2(imu_params2);
+
+  IMU::Parameters imu_params3;
+  imu_params3.is_intrinsic = false;
+  imu_params3.is_extrinsic = true;
+  IMU imu3(imu_params3);
+
+  IMU::Parameters imu_params4;
+  imu_params4.is_intrinsic = true;
+  imu_params4.is_extrinsic = true;
+  IMU imu4(imu_params4);
 }
 
 TEST(test_IMU, ID) {

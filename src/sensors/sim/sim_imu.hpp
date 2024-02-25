@@ -70,12 +70,12 @@ private:
   double m_time_error{0.0};
   double m_time_bias_error{0.0};
   double m_time_skew_error{0.0};
-  Eigen::Vector3d m_acc_error{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_omg_error{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_pos_error{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_ang_error{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_acc_bias_error{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_omg_bias_error{0.0, 0.0, 0.0};
+  Eigen::Vector3d m_acc_error;
+  Eigen::Vector3d m_omg_error;
+  Eigen::Vector3d m_pos_error;
+  Eigen::Vector3d m_ang_error;
+  Eigen::Vector3d m_acc_bias_error;
+  Eigen::Vector3d m_omg_bias_error;
   SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};

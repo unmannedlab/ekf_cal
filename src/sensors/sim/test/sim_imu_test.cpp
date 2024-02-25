@@ -20,8 +20,30 @@
 #include "sensors/sim/sim_imu.hpp"
 
 TEST(test_SimIMU, Constructor) {
-  SimIMU::Parameters simImuParams;
+  Eigen::Vector3d pos_frequency{1, 2, 3};
+  Eigen::Vector3d ang_frequency{4, 5, 6};
+  Eigen::Vector3d pos_offset{1, 2, 3};
+  Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
+  double pos_amplitude = 1.0;
+  double ang_amplitude = 0.1;
 
-  auto truthEngine = std::make_shared<TruthEngine>();
-  SimIMU simIMU(simImuParams, truthEngine);
+  auto truthEngine = std::make_shared<TruthEngineCyclic>(
+    pos_frequency,
+    ang_frequency,
+    pos_offset,
+    ang_offset,
+    pos_amplitude,
+    ang_amplitude,
+    0.0);
+
+  IMU::Parameters imu_params;
+  imu_params.rate = 100.0;
+
+  SimIMU::Parameters sim_imu_params;
+  sim_imu_params.imu_params = imu_params;
+
+  SimIMU sim_imu(sim_imu_params, truthEngine);
+
+  /// @todo(jhartzer): Verify the content of the messages
+  std::vector<std::shared_ptr<SimImuMessage>> imu_messages = sim_imu.GenerateMessages(1.0);
 }

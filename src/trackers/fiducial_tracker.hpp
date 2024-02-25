@@ -105,8 +105,8 @@ private:
   EKF * m_ekf = EKF::GetInstance();           ///< @brief EKF singleton
 
   BoardTrack m_board_track;
-  Eigen::Vector3d m_pos_error {1e-9, 1e-9, 1e-9};
-  Eigen::Vector3d m_ang_error {1e-9, 1e-9, 1e-9};
+  Eigen::Vector3d m_pos_error;
+  Eigen::Vector3d m_ang_error;
 };
 
 #endif  // TRACKERS__FIDUCIAL_TRACKER_HPP_

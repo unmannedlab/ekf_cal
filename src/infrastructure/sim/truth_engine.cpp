@@ -24,42 +24,6 @@
 #include "utility/sim/sim_rng.hpp"
 #include "utility/string_helper.hpp"
 
-Eigen::Vector3d TruthEngine::GetBodyPosition(double time)
-{
-  m_logger->Log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
-  return Eigen::Vector3d::Zero(3);
-}
-
-Eigen::Vector3d TruthEngine::GetBodyVelocity(double time)
-{
-  m_logger->Log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
-  return Eigen::Vector3d::Zero(3);
-}
-
-Eigen::Vector3d TruthEngine::GetBodyAcceleration(double time)
-{
-  m_logger->Log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
-  return Eigen::Vector3d::Zero(3);
-}
-
-Eigen::Quaterniond TruthEngine::GetBodyAngularPosition(double time)
-{
-  m_logger->Log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
-  return Eigen::Quaterniond::Identity();
-}
-
-Eigen::Vector3d TruthEngine::GetBodyAngularRate(double time)
-{
-  m_logger->Log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
-  return Eigen::Vector3d::Zero(3);
-}
-
-Eigen::Vector3d TruthEngine::GetBodyAngularAcceleration(double time)
-{
-  m_logger->Log(LogLevel::WARN, "Base Truth Engine called at t=" + std::to_string(time));
-  return Eigen::Vector3d::Zero(3);
-}
-
 Eigen::Vector3d TruthEngine::GetImuPosition(unsigned int sensor_id)
 {
   return m_imu_pos[sensor_id];
@@ -173,6 +137,7 @@ void TruthEngine::WriteTruthData(
   double max_time,
   std::string output_directory)
 {
+  std::cout << output_directory << std::endl;
   DataLogger truth_logger(output_directory, "body_truth.csv");
   truth_logger.SetLogging(true);
 

@@ -107,3 +107,60 @@ TEST(test_TypeHelper, RotVecToQuat) {
   EXPECT_NEAR(quat5.y(), -0.5399911, 1e-6);
   EXPECT_NEAR(quat5.z(), 0.6479893, 1e-6);
 }
+
+TEST(test_TypeHelper, EigenMatrixToCv) {
+  Eigen::Matrix3d matrix_eigen;
+  matrix_eigen << 1, 2, 3, 4, 5, 6, 7, 8, 9;
+  cv::Mat matrix_cv(3, 3, cv::DataType<double>::type);
+  EigenMatrixToCv(matrix_eigen, matrix_cv);
+  EXPECT_EQ(matrix_cv.at<double>(0, 0), matrix_eigen(0, 0));
+  EXPECT_EQ(matrix_cv.at<double>(0, 1), matrix_eigen(0, 1));
+  EXPECT_EQ(matrix_cv.at<double>(0, 2), matrix_eigen(0, 2));
+  EXPECT_EQ(matrix_cv.at<double>(1, 0), matrix_eigen(1, 0));
+  EXPECT_EQ(matrix_cv.at<double>(1, 1), matrix_eigen(1, 1));
+  EXPECT_EQ(matrix_cv.at<double>(1, 2), matrix_eigen(1, 2));
+  EXPECT_EQ(matrix_cv.at<double>(2, 0), matrix_eigen(2, 0));
+  EXPECT_EQ(matrix_cv.at<double>(2, 1), matrix_eigen(2, 1));
+  EXPECT_EQ(matrix_cv.at<double>(2, 2), matrix_eigen(2, 2));
+}
+
+TEST(test_TypeHelper, CvMatrixToEigen) {
+  cv::Mat matrix_cv = (cv::Mat_<double>(3, 3) << 1, 2, 3, 4, 5, 6, 7, 8, 9);
+  Eigen::Matrix3d matrix_eigen;
+  CvMatrixToEigen(matrix_cv, matrix_eigen);
+  EXPECT_EQ(matrix_eigen(0, 0), matrix_cv.at<double>(0, 0));
+  EXPECT_EQ(matrix_eigen(0, 1), matrix_cv.at<double>(0, 1));
+  EXPECT_EQ(matrix_eigen(0, 2), matrix_cv.at<double>(0, 2));
+  EXPECT_EQ(matrix_eigen(1, 0), matrix_cv.at<double>(1, 0));
+  EXPECT_EQ(matrix_eigen(1, 1), matrix_cv.at<double>(1, 1));
+  EXPECT_EQ(matrix_eigen(1, 2), matrix_cv.at<double>(1, 2));
+  EXPECT_EQ(matrix_eigen(2, 0), matrix_cv.at<double>(2, 0));
+  EXPECT_EQ(matrix_eigen(2, 1), matrix_cv.at<double>(2, 1));
+  EXPECT_EQ(matrix_eigen(2, 2), matrix_cv.at<double>(2, 2));
+}
+
+TEST(test_TypeHelper, QuatToRodrigues) {
+  Eigen::Quaterniond quat{1, 0, 0, 0};
+  cv::Vec3d vec = QuatToRodrigues(quat);
+  EXPECT_EQ(vec(0), 0);
+  EXPECT_EQ(vec(1), 0);
+  EXPECT_EQ(vec(2), 0);
+}
+
+TEST(test_TypeHelper, RodriguesToQuat) {
+  cv::Vec3d rodrigues_vector(0, 0, 0);
+  Eigen::Quaterniond quat = RodriguesToQuat(rodrigues_vector);
+  EXPECT_EQ(quat.w(), 1);
+  EXPECT_EQ(quat.x(), 0);
+  EXPECT_EQ(quat.y(), 0);
+  EXPECT_EQ(quat.z(), 0);
+}
+
+TEST(test_TypeHelper, CvVectorToEigen) {
+  cv::Vec3d vector_cv(1, 2, 3);
+  Eigen::Vector3d vector_eigen;
+  CvVectorToEigen(vector_cv, vector_eigen);
+  EXPECT_EQ(vector_eigen(0), vector_cv(0));
+  EXPECT_EQ(vector_eigen(1), vector_cv(1));
+  EXPECT_EQ(vector_eigen(2), vector_cv(2));
+}

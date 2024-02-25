@@ -18,6 +18,7 @@
 #include <eigen3/Eigen/Eigen>
 #include <memory>
 
+#include "utility/custom_assertions.hpp"
 #include "utility/math_helper.hpp"
 
 TEST(test_MathHelper, SkewSymmetric) {
@@ -62,6 +63,24 @@ TEST(test_MathHelper, MinBoundVector)
   Eigen::VectorXd vec4 = Eigen::VectorXd::Zero(4);
   vec4 = MinBoundVector(vec4, 1);
   EXPECT_EQ(vec4, Eigen::VectorXd::Ones(4));
+}
+
+TEST(test_MathHelper, MinBoundMatrix)
+{
+  Eigen::Matrix3d zeros = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d ones = Eigen::Matrix3d::Ones();
+  Eigen::Matrix3d out = MinBoundMatrix(zeros, 1.0);
+
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out, ones, 1e-6));
+}
+
+TEST(test_MathHelper, MaxBoundMatrix)
+{
+  Eigen::Matrix3d zeros = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d ones = Eigen::Matrix3d::Ones();
+  Eigen::Matrix3d out = MaxBoundMatrix(ones, 0.0);
+
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out, zeros, 1e-6));
 }
 
 TEST(test_MathHelper, RemoveFromMatrix)
@@ -263,4 +282,16 @@ TEST(test_MathHelper, average_vectors) {
   EXPECT_EQ(average_vector_2[0], 1.0);
   EXPECT_EQ(average_vector_2[1], 2.0);
   EXPECT_EQ(average_vector_2[2], 3.0);
+}
+
+TEST(test_MathHelper, quaternion_jacobian) {
+  Eigen::Quaterniond quat{1, 0, 0, 0};
+  Eigen::Matrix3d jac = quaternion_jacobian(quat);
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(jac, Eigen::Matrix3d::Identity(), 1e-6));
+}
+
+TEST(test_MathHelper, quaternion_jacobian_inv) {
+  Eigen::Quaterniond quat{1, 0, 0, 0};
+  Eigen::Matrix3d jac = quaternion_jacobian_inv(quat);
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(jac, Eigen::Matrix3d::Identity(), 1e-6));
 }

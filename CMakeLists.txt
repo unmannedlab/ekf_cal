@@ -173,10 +173,17 @@ if(BUILD_TESTING)
         src/infrastructure/test/data_logger_test.cpp
         src/sensors/ros/test/ros_camera_test.cpp
         src/sensors/ros/test/ros_imu_test.cpp
+        src/sensors/sim/test/sim_camera_test.cpp
+        src/sensors/sim/test/sim_imu_test.cpp
         src/sensors/test/camera_test.cpp
         src/sensors/test/imu_test.cpp
+        src/sensors/test/sensor_test.cpp
+        src/trackers/sim/test/sim_feature_tracker_test.cpp
+        src/trackers/sim/test/sim_fiducial_tracker_test.cpp
         src/trackers/test/feature_tracker_test.cpp
         src/trackers/test/fiducial_tracker_test.cpp
+        src/utility/sim/test/sim_rng_test.cpp
+        src/utility/test/custom_assertions_test.cpp
         src/utility/test/math_helper_test.cpp
         src/utility/test/ros_helper_test.cpp
         src/utility/test/type_helper_test.cpp

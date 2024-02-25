@@ -221,7 +221,8 @@ def plot_imu_ext_ang_update(imu_dfs):
 def plot_imu_int_pos_update(imu_dfs):
     """Plot accelerometer bias updates."""
     fig = figure(width=800, height=300, x_axis_label='time [s]',
-                 y_axis_label='Accelerometer Bias Updates [m/s/s]', title='Accelerometer Bias Updates')
+                 y_axis_label='Accelerometer Bias Updates [m/s/s]',
+                 title='Accelerometer Bias Updates')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
         t_imu = imu_df['time'].to_list()

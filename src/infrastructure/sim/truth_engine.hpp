@@ -76,42 +76,36 @@ public:
 
   ///
   /// @brief True sensor position getter
-  /// @param time Simulation time
   /// @param sensor_id IMU ID
   ///
   Eigen::Vector3d GetImuPosition(unsigned int sensor_id);
 
   ///
   /// @brief True sensor orientation getter
-  /// @param time Simulation time
   /// @param sensor_id IMU ID
   ///
   Eigen::Quaterniond GetImuAngularPosition(unsigned int sensor_id);
 
   ///
   /// @brief True sensor orientation getter
-  /// @param time Simulation time
   /// @param sensor_id IMU ID
   ///
   Eigen::Vector3d GetImuAccelerometerBias(unsigned int sensor_id);
 
   ///
   /// @brief True sensor orientation getter
-  /// @param time Simulation time
   /// @param sensor_id IMU ID
   ///
   Eigen::Vector3d GetImuGyroscopeBias(unsigned int sensor_id);
 
   ///
   /// @brief True sensor position getter
-  /// @param time Simulation time
   /// @param sensor_id Camera ID
   ///
   Eigen::Vector3d GetCameraPosition(unsigned int sensor_id);
 
   ///
   /// @brief True sensor orientation getter
-  /// @param time Simulation time
   /// @param sensor_id Camera ID
   ///
   Eigen::Quaterniond GetCameraAngularPosition(unsigned int sensor_id);
@@ -194,8 +188,18 @@ public:
   ///
   void WriteTruthData(double body_data_rate, double max_time, std::string output_directory);
 
+  ///
+  /// @brief
+  /// @param feature_count Number of features to generate
+  /// @param room_size Size of room to distribute features in
+  /// @param rng Random number generator to use in generation
+  ///
   void GenerateFeatures(unsigned int feature_count, double room_size, SimRNG rng);
 
+  ///
+  /// @brief Getter function for global features
+  /// @return Vector of all feature positions
+  ///
   std::vector<cv::Point3d> GetFeatures();
 
 private:

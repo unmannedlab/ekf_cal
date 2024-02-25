@@ -15,11 +15,26 @@
 
 #include <gtest/gtest.h>
 
-#include <memory>
+#include <eigen3/Eigen/Eigen>
 
-#include "trackers/fiducial_tracker.hpp"
+#include "utility/custom_assertions.hpp"
 
-TEST(test_fiducial_tracker, constructor) {
-  FiducialTracker::Parameters params;
-  FiducialTracker fiducial_tracker(params);
+TEST(test_custom_assertions, expect_near) {
+  Eigen::Vector2d vec1{0, 0};
+  Eigen::Vector2d vec2{1, 1};
+
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(vec1, vec1, 1e-6));
+  EXPECT_FALSE(EXPECT_EIGEN_NEAR(vec1, vec2, 1e-6));
+
+  Eigen::Vector3d vec3{0, 0, 0};
+  Eigen::Vector3d vec4{1, 1, 1};
+
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(vec3, vec3, 1e-6));
+  EXPECT_FALSE(EXPECT_EIGEN_NEAR(vec3, vec4, 1e-6));
+
+  Eigen::Quaterniond quat1{1, 0, 0, 0};
+  Eigen::Quaterniond quat2{0.5, 0.5, 0.5, 0.5};
+
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(quat1, quat1, 1e-6));
+  EXPECT_FALSE(EXPECT_EIGEN_NEAR(quat1, quat2, 1e-6));
 }

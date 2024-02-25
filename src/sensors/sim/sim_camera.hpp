@@ -94,8 +94,8 @@ private:
   double m_time_error{0.0};
   double m_time_bias_error{0.0};
   double m_time_skew_error{0.0};
-  Eigen::Vector3d m_pos_error{0.0, 0.0, 0.0};
-  Eigen::Vector3d m_ang_error{0.0, 0.0, 0.0};
+  Eigen::Vector3d m_pos_error;
+  Eigen::Vector3d m_ang_error;
   SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
 
