@@ -1,69 +1,76 @@
 
 /EkfCalNode:
     ros__parameters:
-        Debug_Log_Level: 2
-        Data_Logging_On: True
-        Body_Data_Rate: 400.0
-        SimParams:
-            Seed: 0.0
-            UseSeed: True
-            MaxTime: 60.0
-            TruthType: "Cyclic"
-            PosFrequency: [0.3, 0.5, 0.7]
-            AngFrequency: [0.2, 0.3, 0.4]
-            PosOffset: [0.0, 0.0, 0.0]
-            NoErrors: False
-            NumberOfRuns: 25
-            RunNumber: 0
+        debug_log_level: 2
+        data_logging_on: True
+        body_data_rate: 10.0
+        sim_params:
+            seed: 0.0
+            use_seed: True
+            max_time: 60.0
+            truth_type: "cyclic"
+            pos_frequency: [0.3, 0.5, 0.7]
+            ang_frequency: [0.2, 0.3, 0.4]
+            pos_offset: [0.0, 0.0, 0.0]
+            no_errors: False
+            number_of_runs: 20
+            run_number: 0
 
-        IMU_list:
+        filter_params:
+            process_noise: [
+                1.0e-2, 1.0e-2, 1.0e-2, # Position
+                1.0e-3, 1.0e-3, 1.0e-3, # Velocity
+                1.0e-4, 1.0e-4, 1.0e-4, # Acceleration
+                1.0e-2, 1.0e-2, 1.0e-2, # Angular Position
+                1.0e-3, 1.0e-3, 1.0e-3, # Angular Velocity
+                1.0e-4, 1.0e-4, 1.0e-4, # Angular Acceleration
+            ]
+
+        imu_list:
             - "vn300"
             - "vn100"
 
-        Camera_list:
+        camera_list:
 
-        Tracker_list:
+        tracker_list:
 
-        IMU:
+        imu:
             vn300:
-                UseForPrediction: False
+                use_for_prediction: False
                 is_extrinsic: false
                 is_intrinsic: False
-                Rate: 400.0
-                Topic: "/vn300/imu_uncompensated"
-                VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
-                PosOffInit: [0.0, 0.0, 0.0]
-                AngOffInit: [1.0, 0.0, 0.0, 0.0]
-                AccBiasInit: [0.0, 0.0, 0.0]
-                OmgBiasInit: [0.0, 0.0, 0.0]
-                SimParams:
-                    timeBias: 0.0
-                    timeSkew: 0.0
-                    timeError: 1.0e-6
-                    accBias: [0.0, 0.0, 0.0]
-                    accError: [1.0e-3, 1.0e-3, 1.0e-3]
-                    omgBias: [0.0, 0.0, 0.0]
-                    omgError: [1.0e-2, 1.0e-2, 1.0e-2]
-                    posOffset: [0.0, 0.0, 0.0]
-                    angOffset: [1.0, 0.0, 0.0, 0.0]
+                rate: 400.0
+                data_log_rate: 10.0
+                topic: "/vn300/imu_uncompensated"
+                variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                pos_i_in_b: [0.0, 0.0, 0.0]
+                ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
+                acc_bias: [0.0, 0.0, 0.0]
+                omg_bias: [0.0, 0.0, 0.0]
+                sim_params:
+                    time_bias_error: 0.0
+                    time_skew_error: 0.0
+                    time_error: 1.0e-6
+                    acc_bias_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    omg_bias_error: [1.0e-2, 1.0e-2, 1.0e-2]
+                    pos_error: [0.0, 0.0, 0.0]
+                    ang_error: [0.0, 0.0, 0.0]
             vn100:
-                UseForPrediction: False
+                use_for_prediction: False
                 is_extrinsic: true # @todo(jhartzer): Need to debug the not-base sensor Jacobian
                 is_intrinsic: False
-                Rate: 100.0
-                Topic: "/vn100/imu_uncompensated"
-                VarInit: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
-                PosOffInit: [0.0, 0.0, 0.0]
-                AngOffInit: [1.0, 0.0, 0.0, 0.0]
-                AccBiasInit: [0.0, 0.0, 0.0]
-                OmgBiasInit: [0.0, 0.0, 0.0]
-                SimParams:
-                    timeBias: 0.0
-                    timeSkew: 0.0
-                    timeError: 1.0e-6
-                    accBias: [0.0, 0.0, 0.0]
-                    accError: [1.0e-3, 1.0e-3, 1.0e-3]
-                    omgBias: [0.0, 0.0, 0.0]
-                    omgError: [1.0e-2, 1.0e-2, 1.0e-2]
-                    posOffset: [0.0, 0.0, 0.0]
-                    angOffset: [1.0, 0.0, 0.0, 0.0]
+                rate: 100.0
+                topic: "/vn100/imu_uncompensated"
+                variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                pos_i_in_b: [0.0, 0.0, 0.0]
+                ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
+                acc_bias: [0.0, 0.0, 0.0]
+                omg_bias: [0.0, 0.0, 0.0]
+                sim_params:
+                    time_bias_error: 0.0
+                    time_skew_error: 0.0
+                    time_error: 1.0e-6
+                    acc_bias_error: [1.0e-3, 1.0e-3, 1.0e-3]
+                    omg_bias_error: [1.0e-2, 1.0e-2, 1.0e-2]
+                    pos_error: [0.0, 0.0, 0.0]
+                    ang_error: [0.0, 0.0, 0.0]
