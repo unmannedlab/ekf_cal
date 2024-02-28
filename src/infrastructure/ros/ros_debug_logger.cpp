@@ -23,8 +23,6 @@
 #include "../debug_logger.hpp"
 
 
-DebugLogger * DebugLogger::m_instance_pointer = NULL;
-
 void DebugLogger::SetLogLevel(LogLevel level)
 {
   if ((m_log_level <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {

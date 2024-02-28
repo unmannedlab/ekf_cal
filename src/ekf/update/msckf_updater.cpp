@@ -41,8 +41,10 @@ MsckfUpdater::MsckfUpdater(
   std::string log_file_directory,
   bool data_logging_on,
   double data_log_rate,
-  double min_feat_dist)
-: Updater(cam_id),
+  double min_feat_dist,
+  std::shared_ptr<DebugLogger> logger
+)
+: Updater(cam_id, logger),
   m_msckf_logger(log_file_directory, "msckf_" + std::to_string(cam_id) + ".csv"),
   m_triangulation_logger(log_file_directory, "triangulation_" + std::to_string(cam_id) + ".csv")
 {

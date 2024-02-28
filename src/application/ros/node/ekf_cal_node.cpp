@@ -64,9 +64,9 @@ EkfCalNode::EkfCalNode()
 void EkfCalNode::Initialize()
 {
   // Set logging
-  int debug_log_level = this->get_parameter("debug_log_level").as_int();
+  auto debug_log_level = static_cast<unsigned int>(this->get_parameter("debug_log_level").as_int());
   bool data_logging_on = this->get_parameter("data_logging_on").as_bool();
-  m_logger->SetLogLevel(static_cast<unsigned int>(debug_log_level));
+  m_logger = std::make_shared<DebugLogger>(debug_log_level, "");
   m_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
   m_state_data_logger.SetLogging(data_logging_on);
   m_state_data_logger.SetOutputDirectory("~/log/");

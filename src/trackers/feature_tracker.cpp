@@ -36,7 +36,7 @@ unsigned int FeatureTracker::m_tracker_count = 0;
 /// @todo add detector/extractor parameters to input
 FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
 : m_msckf_updater(params.sensor_id, params.intrinsics, params.output_directory,
-    params.data_logging_on, params.data_log_rate, params.min_feat_dist),
+    params.data_logging_on, params.data_log_rate, params.min_feat_dist, params.logger),
   m_camera_id(params.sensor_id), m_id(++m_tracker_count)
 {
   m_feature_detector = InitFeatureDetector(params.detector, params.threshold);

@@ -20,7 +20,7 @@
 #include "infrastructure/debug_logger.hpp"
 
 TEST(test_sim_debug_logger, debug_logger) {
-  DebugLogger * logger = DebugLogger::GetInstance();
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
   logger->SetLogLevel(0);
   logger->SetLogLevel(1);

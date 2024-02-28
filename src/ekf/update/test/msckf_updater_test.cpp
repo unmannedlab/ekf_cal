@@ -35,7 +35,9 @@ protected:
   ///
   void SetUp() override
   {
-    EKF * ekf = EKF::GetInstance();
+    auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+    auto ekf = std::make_shared<EKF>(debug_logger, 10.0, false, "");
+
 
     double time_init = 0.0;
     BodyState body_state;
@@ -51,11 +53,14 @@ protected:
     Eigen::MatrixXd cam_cov = Eigen::MatrixXd::Zero(6, 6);
     ekf->RegisterCamera(cam_id, cam_state, cam_cov);
 
-    msckf_updater = MsckfUpdater(cam_id, intrinsics, log_file_directory, data_logging_on, 0.0, 1.0);
+    m_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+    msckf_updater = MsckfUpdater(
+      cam_id, intrinsics, log_file_directory, data_logging_on, 0.0, 1.0, m_logger);
   }
 
   /// @brief msckf_updater class for testing
-  MsckfUpdater msckf_updater{0, Intrinsics(), "", false, 0.0, 1.0};
+  std::shared_ptr<DebugLogger> m_logger;
+  MsckfUpdater msckf_updater{0, Intrinsics(), "", false, 0.0, 1.0, m_logger};
 };
 
 TEST_F(test_msckf_updater, projection_jacobian) {

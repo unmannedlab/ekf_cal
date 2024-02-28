@@ -37,7 +37,7 @@ public:
   /// @brief Sensor class constructor
   /// @param name Sensor name
   ///
-  explicit Sensor(std::string name);
+  explicit Sensor(std::string name, std::shared_ptr<DebugLogger> logger);
 
   ///
   /// @brief Sensor ID getter method
@@ -62,8 +62,8 @@ protected:
   unsigned int m_id;                  ///< @brief Sensor id
   std::string m_name;                 ///< @brief Sensor name
 
-  EKF * m_ekf = EKF::GetInstance();           ///< @brief EKF singleton
-  DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
+  std::shared_ptr<EKF> m_ekf;             ///< @brief EKF
+  std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger
 
 private:
   static unsigned int m_sensor_count;

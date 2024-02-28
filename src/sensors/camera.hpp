@@ -56,6 +56,7 @@ public:
     std::string output_directory {""};                  ///< @brief IMU data logging directory
     bool data_logging_on {false};                       ///< @brief IMU data logging flag
     Intrinsics intrinsics;                              ///< @brief Camera intrinsics
+    std::shared_ptr<DebugLogger> logger;                ///< @brief Debug logger
   } Parameters;
 
   ///

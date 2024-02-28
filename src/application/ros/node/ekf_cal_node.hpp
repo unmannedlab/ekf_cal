@@ -168,8 +168,8 @@ private:
   rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_imu_state_pub;
   rclcpp::TimerBase::SharedPtr m_state_pub_timer;
 
-  EKF * m_ekf = EKF::GetInstance();
-  DebugLogger * m_logger = DebugLogger::GetInstance();
+  std::shared_ptr<EKF> m_ekf;
+  std::shared_ptr<DebugLogger> m_logger;
   DataLogger m_state_data_logger;
 
 

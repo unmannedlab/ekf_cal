@@ -42,8 +42,10 @@ FiducialUpdater::FiducialUpdater(
   Eigen::Quaterniond fiducial_ang,
   std::string log_file_directory,
   bool data_logging_on,
-  double data_log_rate)
-: Updater(cam_id),
+  double data_log_rate,
+  std::shared_ptr<DebugLogger> logger
+)
+: Updater(cam_id, logger),
   m_pos_f_in_g(fiducial_pos),
   m_ang_f_to_g(fiducial_ang),
   m_fiducial_logger(log_file_directory, "fiducial_" + std::to_string(cam_id) + ".csv"),

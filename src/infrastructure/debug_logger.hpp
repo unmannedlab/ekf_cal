@@ -35,46 +35,27 @@ enum class LogLevel
 ///
 class DebugLogger
 {
-private:
-  static DebugLogger * m_instance_pointer;
-  DebugLogger() {}
-
 public:
+  ///
+  /// @brief DebugLogger Constructor
+  /// @param log_level Logging Level
+  /// @param output_directory Output directory
+  ///
+  DebugLogger(LogLevel log_level, std::string output_directory);
+
+  ///
+  /// @brief DebugLogger Constructor
+  /// @param log_level Logging Level
+  /// @param output_directory Output directory
+  ///
+  DebugLogger(unsigned int log_level, std::string output_directory);
+
   ///
   /// @brief Log message
   /// @param level Level of log
   /// @param message Message contents of log
   ///
   void Log(LogLevel level, std::string message);
-
-  ///
-  /// @brief Delete copy constructor
-  ///
-  DebugLogger(const DebugLogger & obj) = delete;
-
-  ///
-  /// @brief Getter for DebugLogger singleton
-  /// @return Pointer to DebugLogger singleton
-  ///
-  static DebugLogger * GetInstance()
-  {
-    // If there is no instance of class
-    // then we can create an instance.
-    if (m_instance_pointer == NULL) {
-      // We can access private members
-      // within the class.
-      m_instance_pointer = new DebugLogger();
-
-      // returning the instance pointer
-      return m_instance_pointer;
-    } else {
-      // if m_instance_pointer != NULL that means
-      // the class already have an instance.
-      // So, we are returning that instance
-      // and not creating new one.
-      return m_instance_pointer;
-    }
-  }
 
   ///
   /// @brief Function to set the log level
@@ -88,16 +69,10 @@ public:
   ///
   void SetLogLevel(unsigned int level);
 
-  ///
-  /// @brief Output directory setter
-  /// @param output_directory Output directory string
-  ///
-  void SetOutputDirectory(std::string output_directory);
-
 private:
-  LogLevel m_log_level = LogLevel::FATAL;
+  LogLevel m_log_level;
+  std::string m_output_directory;
   std::string m_log_level_names[5] = {"FATAL", "ERROR", "WARN ", "INFO ", "DEBUG"};
-  std::string m_output_directory = "";
 };
 
 #endif  // INFRASTRUCTURE__DEBUG_LOGGER_HPP_

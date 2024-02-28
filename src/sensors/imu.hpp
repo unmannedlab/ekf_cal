@@ -56,6 +56,7 @@ public:
     /// @brief Initial state variance
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
     double data_log_rate {0.0};                  ///< @brief Data logging rate
+    std::shared_ptr<DebugLogger> logger;         ///< @brief Debug logger
   } Parameters;
 
   ///

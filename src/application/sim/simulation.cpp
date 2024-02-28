@@ -97,15 +97,6 @@ int main(int argc, char * argv[])
   std::vector<double> process_noise =
     ros_params["filter_params"]["process_noise"].as<std::vector<double>>();
 
-  // Set EKF parameters
-  EKF * ekf = EKF::GetInstance();
-  ekf->SetBodyDataRate(body_data_rate);
-  ekf->SetDataLogging(data_logging_on);
-  ekf->SetProcessNoise(StdToEigVec(process_noise));
-  ekf->m_data_logger.SetOutputDirectory(out_dir);
-  ekf->m_data_logger.SetOutputFileName("body_state.csv");
-  ekf->m_data_logger.SetLogRate(body_data_rate);
-
   // Simulation parameters
   YAML::Node sim_params = ros_params["sim_params"];
   double rng_seed = sim_params["seed"].as<double>(0.0);
@@ -113,15 +104,17 @@ int main(int argc, char * argv[])
   bool no_errors = sim_params["no_errors"].as<bool>(false);
   double max_time = sim_params["max_time"].as<double>(10.0);
 
-  DebugLogger * logger = DebugLogger::GetInstance();
-  logger->SetOutputDirectory(out_dir);
-  logger->SetLogLevel(debug_log_level);
-  logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
+  auto debug_logger = std::make_shared<DebugLogger>(debug_log_level, out_dir);
+  debug_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
 
   SimRNG rng;
   if (use_seed) {
     rng.SetSeed(rng_seed);
   }
+
+  // Set EKF parameters
+  auto ekf = std::make_shared<EKF>(debug_logger, body_data_rate, data_logging_on, out_dir);
+  ekf->SetProcessNoise(StdToEigVec(process_noise));
 
   std::vector<double> def_vec{0.0, 0.0, 0.0};
   std::vector<double> def_quat{1.0, 0.0, 0.0, 0.0};
@@ -148,24 +141,26 @@ int main(int argc, char * argv[])
       ang_offset,
       pos_amplitude,
       ang_amplitude,
-      stationary_time);
+      stationary_time,
+      debug_logger
+    );
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
   } else if (truth_type == "spline") {
     auto positions = sim_params["positions"].as<std::vector<std::vector<double>>>(def_mat);
     auto angles = sim_params["angles"].as<std::vector<std::vector<double>>>(def_mat);
     double delta_time = max_time / (static_cast<double>(positions.size()) - 1.0);
     auto truth_engine_spline = std::make_shared<TruthEngineSpline>(
-      delta_time, positions, angles, stationary_time);
+      delta_time, positions, angles, stationary_time, debug_logger);
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_spline);
   } else {
     std::stringstream msg;
     msg << "Unknown truth engine type: " << truth_type;
-    logger->Log(LogLevel::ERROR, msg.str());
+    debug_logger->Log(LogLevel::ERROR, msg.str());
   }
 
   // Load IMUs and generate measurements
   bool using_any_imu_for_prediction {false};
-  logger->Log(LogLevel::INFO, "Loading IMUs");
+  debug_logger->Log(LogLevel::INFO, "Loading IMUs");
   for (unsigned int i = 0; i < imus.size(); ++i) {
     YAML::Node imu_node = root["/EkfCalNode"]["ros__parameters"]["imu"][imus[i]];
     YAML::Node sim_node = imu_node["sim_params"];
@@ -189,6 +184,7 @@ int main(int argc, char * argv[])
     imu_params.data_logging_on = data_logging_on;
     imu_params.use_for_prediction = imu_node["use_for_prediction"].as<bool>(false);
     imu_params.data_log_rate = imu_node["data_log_rate"].as<double>(0.0);
+    imu_params.logger = debug_logger;
     using_any_imu_for_prediction = using_any_imu_for_prediction || imu_params.use_for_prediction;
 
     // SimParams
@@ -245,7 +241,7 @@ int main(int argc, char * argv[])
 
   // Load tracker parameters
   unsigned int max_track_length {0U};
-  logger->Log(LogLevel::INFO, "Loading Trackers");
+  debug_logger->Log(LogLevel::INFO, "Loading Trackers");
   std::map<std::string, SimFeatureTracker::Parameters> tracker_map;
   for (unsigned int i = 0; i < trackers.size(); ++i) {
     YAML::Node trk_node = root["/EkfCalNode"]["ros__parameters"]["tracker"][trackers[i]];
@@ -260,6 +256,7 @@ int main(int argc, char * argv[])
     track_params.max_track_length = trk_node["max_track_length"].as<unsigned int>(20U);
     track_params.data_log_rate = trk_node["data_log_rate"].as<double>(0.0);
     track_params.min_feat_dist = trk_node["min_feat_dist"].as<double>(1.0);
+    track_params.logger = debug_logger;
     max_track_length = std::max(max_track_length, track_params.max_track_length);
 
     SimFeatureTracker::Parameters sim_tracker_params;
@@ -274,7 +271,7 @@ int main(int argc, char * argv[])
   }
 
   // Load board detectors
-  logger->Log(LogLevel::INFO, "Loading Board Detectors");
+  debug_logger->Log(LogLevel::INFO, "Loading Board Detectors");
   std::map<std::string, SimFiducialTracker::Parameters> fiducial_map;
   for (unsigned int i = 0; i < fiducials.size(); ++i) {
     YAML::Node fid_node = root["/EkfCalNode"]["ros__parameters"]["fiducial"][fiducials[i]];
@@ -296,7 +293,9 @@ int main(int argc, char * argv[])
     fiducial_params.min_track_length = fid_node["min_track_length"].as<unsigned int>(2U);
     fiducial_params.max_track_length = fid_node["max_track_length"].as<unsigned int>(20U);
     fiducial_params.data_log_rate = fid_node["data_log_rate"].as<double>(0.0);
+    fiducial_params.logger = debug_logger;
     max_track_length = std::max(max_track_length, fiducial_params.max_track_length);
+
     SimFiducialTracker::Parameters sim_fiducial_params;
     sim_fiducial_params.pos_error =
       StdToEigVec(sim_node["pos_error"].as<std::vector<double>>(def_vec));
@@ -326,7 +325,7 @@ int main(int argc, char * argv[])
   ekf->SetMaxTrackLength(max_track_length);
 
   // Load cameras and generate measurements
-  logger->Log(LogLevel::INFO, "Loading Cameras");
+  debug_logger->Log(LogLevel::INFO, "Loading Cameras");
   for (unsigned int i = 0; i < cameras.size(); ++i) {
     YAML::Node cam_node = root["/EkfCalNode"]["ros__parameters"]["camera"][cameras[i]];
     YAML::Node sim_node = cam_node["sim_params"];
@@ -353,6 +352,7 @@ int main(int argc, char * argv[])
     cam_params.intrinsics.pixel_size = cam_node["intrinsics"]["pixel_size"].as<double>(1e-2);
     cam_params.intrinsics.f_x = cam_params.intrinsics.F / cam_params.intrinsics.pixel_size;
     cam_params.intrinsics.f_y = cam_params.intrinsics.F / cam_params.intrinsics.pixel_size;
+    cam_params.logger = debug_logger;
 
     // SimCamera::Parameters
     SimCamera::Parameters sim_cam_params;
@@ -411,7 +411,7 @@ int main(int argc, char * argv[])
   sort(messages.begin(), messages.end(), MessageCompare);
 
   // Run measurements through sensors and EKF
-  logger->Log(LogLevel::INFO, "Begin Simulation");
+  debug_logger->Log(LogLevel::INFO, "Begin Simulation");
   for (auto message : messages) {
     auto it = sensor_map.find(message->m_sensor_id);
     if (it != sensor_map.end()) {
@@ -424,11 +424,11 @@ int main(int argc, char * argv[])
         auto msg = std::static_pointer_cast<SimCameraMessage>(message);
         cam->Callback(msg);
       } else {
-        logger->Log(LogLevel::WARN, "Unknown Message Type");
+        debug_logger->Log(LogLevel::WARN, "Unknown Message Type");
       }
     }
   }
-  logger->Log(LogLevel::INFO, "End Simulation");
+  debug_logger->Log(LogLevel::INFO, "End Simulation");
 
   return 0;
 }

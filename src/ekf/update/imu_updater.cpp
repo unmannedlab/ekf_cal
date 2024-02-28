@@ -36,8 +36,10 @@ ImuUpdater::ImuUpdater(
   bool is_intrinsic,
   std::string log_file_directory,
   bool data_logging_on,
-  double data_log_rate)
-: Updater(imu_id),
+  double data_log_rate,
+  std::shared_ptr<DebugLogger> logger
+)
+: Updater(imu_id, logger),
   m_is_extrinsic(is_extrinsic),
   m_is_intrinsic(is_intrinsic),
   m_data_logger(log_file_directory, "imu_" + std::to_string(imu_id) + ".csv")
@@ -48,22 +50,14 @@ ImuUpdater::ImuUpdater(
   header << EnumerateHeader("imu_ang_pos", 4);
   header << EnumerateHeader("imu_acc_bias", 3);
   header << EnumerateHeader("imu_gyr_bias", 3);
-  if (m_is_extrinsic) {
-    header << EnumerateHeader("imu_ext_cov", g_imu_extrinsic_state_size);
-  }
-  if (m_is_intrinsic) {
-    header << EnumerateHeader("imu_int_cov", g_imu_intrinsic_state_size);
-  }
+  if (m_is_extrinsic) {header << EnumerateHeader("imu_ext_cov", g_imu_extrinsic_state_size);}
+  if (m_is_intrinsic) {header << EnumerateHeader("imu_int_cov", g_imu_intrinsic_state_size);}
   header << EnumerateHeader("acc", 3);
   header << EnumerateHeader("omg", 3);
   header << EnumerateHeader("residual", 6);
   header << EnumerateHeader("body_update", g_body_state_size);
-  if (m_is_extrinsic) {
-    header << EnumerateHeader("imu_ext_update", g_imu_extrinsic_state_size);
-  }
-  if (m_is_intrinsic) {
-    header << EnumerateHeader("imu_int_update", g_imu_intrinsic_state_size);
-  }
+  if (m_is_extrinsic) {header << EnumerateHeader("imu_ext_update", g_imu_extrinsic_state_size);}
+  if (m_is_intrinsic) {header << EnumerateHeader("imu_int_update", g_imu_intrinsic_state_size);}
 
   header << EnumerateHeader("duration", 1);
 
@@ -151,14 +145,12 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian()
 
   if (m_is_intrinsic) {
     // IMU Accelerometer Bias
-    measurement_jacobian.block<3, 3>(
-      0,
-      g_body_state_size + extrinsic_offset + 0) = Eigen::MatrixXd::Identity(3, 3);
+    measurement_jacobian.block<3, 3>(0, g_body_state_size + extrinsic_offset + 0) =
+      Eigen::MatrixXd::Identity(3, 3);
 
     // IMU Gyroscope Bias
-    measurement_jacobian.block<3, 3>(
-      3,
-      g_body_state_size + extrinsic_offset + 3) = Eigen::MatrixXd::Identity(3, 3);
+    measurement_jacobian.block<3, 3>(3, g_body_state_size + extrinsic_offset + 3) =
+      Eigen::MatrixXd::Identity(3, 3);
   }
 
   return measurement_jacobian;

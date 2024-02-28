@@ -44,7 +44,9 @@ public:
     Eigen::Vector3d ang_offset,
     double pos_amplitude,
     double ang_amplitude,
-    double stationary_time);
+    double stationary_time,
+    std::shared_ptr<DebugLogger> logger
+  );
 
   ///
   /// @brief Setter for body position cycle frequency

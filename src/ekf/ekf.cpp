@@ -30,10 +30,15 @@
 #include "utility/string_helper.hpp"
 #include "utility/type_helper.hpp"
 
-// initializing instance_pointer with NULL
-EKF * EKF::instance_pointer = NULL;
-
-EKF::EKF()
+EKF::EKF(
+  std::shared_ptr<DebugLogger> logger,
+  double body_data_rate,
+  bool data_logging_on,
+  std::string log_directory
+)
+: m_logger(logger),
+  m_data_logging_on(data_logging_on),
+  m_data_logger(log_directory, "body.csv")
 {
   std::stringstream header;
   header << "time";
@@ -47,6 +52,7 @@ EKF::EKF()
 
   m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(m_data_logging_on);
+  m_data_logger.SetLogRate(body_data_rate);
 }
 
 Eigen::MatrixXd EKF::GetStateTransition(double dT)
@@ -470,17 +476,6 @@ void EKF::AugmentState(unsigned int camera_id, int frame_id)
   /// @todo doing this is very expensive. Apply Jacobian in place without large multiplications
   /// Most elements are identity/zeros anyways
   m_cov = (augment_jacobian * m_cov * augment_jacobian.transpose()).eval();
-}
-
-void EKF::SetBodyDataRate(double rate)
-{
-  m_body_data_rate = rate;
-}
-
-void EKF::SetDataLogging(bool value)
-{
-  m_data_logging_on = value;
-  m_data_logger.SetLogging(m_data_logging_on);
 }
 
 void EKF::SetProcessNoise(Eigen::VectorXd process_noise)

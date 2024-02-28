@@ -48,7 +48,8 @@ public:
     std::string log_file_directory,
     bool data_logging_on,
     double data_log_rate,
-    double min_feat_dist
+    double min_feat_dist,
+    std::shared_ptr<DebugLogger> logger
   );
 
   ///

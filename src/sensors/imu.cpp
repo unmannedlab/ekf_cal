@@ -28,8 +28,8 @@
 
 
 IMU::IMU(IMU::Parameters params)
-: Sensor(params.name), m_imu_updater(m_id, params.is_extrinsic, params.is_intrinsic,
-    params.output_directory, params.data_logging_on, params.data_log_rate)
+: Sensor(params.name, params.logger), m_imu_updater(m_id, params.is_extrinsic, params.is_intrinsic,
+    params.output_directory, params.data_logging_on, params.data_log_rate, params.logger)
 {
   m_is_extrinsic = params.is_extrinsic;
   m_is_intrinsic = params.is_intrinsic;

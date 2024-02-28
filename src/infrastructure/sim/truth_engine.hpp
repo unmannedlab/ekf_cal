@@ -34,7 +34,7 @@
 class TruthEngine
 {
 public:
-  TruthEngine() {}
+  TruthEngine(std::shared_ptr<DebugLogger> logger);
 
   virtual ~TruthEngine() = 0;
 
@@ -202,6 +202,9 @@ public:
   ///
   std::vector<cv::Point3d> GetFeatures();
 
+protected:
+  std::shared_ptr<DebugLogger> m_logger;
+
 private:
   std::map<unsigned int, Eigen::Vector3d> m_imu_pos;
   std::map<unsigned int, Eigen::Quaterniond> m_imu_ang_pos;
@@ -212,8 +215,6 @@ private:
   std::map<unsigned int, Eigen::Vector3d> m_board_pos;
   std::map<unsigned int, Eigen::Quaterniond> m_board_ang;
   std::vector<cv::Point3d> m_feature_points;
-
-  DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTH_ENGINE_HPP_

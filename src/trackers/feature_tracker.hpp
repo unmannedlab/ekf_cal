@@ -77,15 +77,16 @@ public:
     DescriptorExtractorEnum descriptor {DescriptorExtractorEnum::ORB};  ///< @brief Descriptor
     DescriptorMatcherEnum matcher {DescriptorMatcherEnum::FLANN};       ///< @brief Matcher
     double threshold {20.0};                                            ///< @brief Threshold
-    int sensor_id{-1};                   ///< @brief Associated sensor ID
-    std::string output_directory {""};   ///< @brief Feature Tracker data logging directory
-    bool data_logging_on {false};        ///< @brief Feature Tracker data logging flag
-    double px_error{1e-9};               ///< @brief Pixel error standard deviation
-    Intrinsics intrinsics;               ///< @brief Camera intrinsic parameters
-    unsigned int min_track_length{2U};   ///< @brief Minimum track length to consider
-    unsigned int max_track_length{20U};  ///< @brief Maximum track length before forced output
-    double data_log_rate {0.0};          ///< @brief Data logging rate
-    double min_feat_dist {1.0};          ///< @brief Minimum feature distance to consider
+    int sensor_id{-1};                    ///< @brief Associated sensor ID
+    std::string output_directory {""};    ///< @brief Feature Tracker data logging directory
+    bool data_logging_on {false};         ///< @brief Feature Tracker data logging flag
+    double px_error{1e-9};                ///< @brief Pixel error standard deviation
+    Intrinsics intrinsics;                ///< @brief Camera intrinsic parameters
+    unsigned int min_track_length{2U};    ///< @brief Minimum track length to consider
+    unsigned int max_track_length{20U};   ///< @brief Maximum track length before forced output
+    double data_log_rate {0.0};           ///< @brief Data logging rate
+    double min_feat_dist {1.0};           ///< @brief Minimum feature distance to consider
+    std::shared_ptr<DebugLogger> logger;  ///< @brief Debug logger
   } Parameters;
 
   ///
@@ -122,12 +123,12 @@ public:
   unsigned int GetID();
 
 protected:
-  DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
-  unsigned int m_max_track_length;  ///< @brief Maximum track length before forced output
-  unsigned int m_min_track_length;  ///< @brief Minimum track length to consider
-  MsckfUpdater m_msckf_updater;     ///< @brief MSCKF updater object
-  int m_camera_id{-1};              ///< @brief Associated camera ID of tracker
-  unsigned int m_id;                ///< @brief Tracker ID
+  std::shared_ptr<DebugLogger> m_logger; ///< @brief Debug logger
+  unsigned int m_max_track_length;       ///< @brief Maximum track length before forced output
+  unsigned int m_min_track_length;       ///< @brief Minimum track length to consider
+  MsckfUpdater m_msckf_updater;          ///< @brief MSCKF updater object
+  int m_camera_id{-1};                   ///< @brief Associated camera ID of tracker
+  unsigned int m_id;                     ///< @brief Tracker ID
 
 private:
   cv::Ptr<cv::FeatureDetector> InitFeatureDetector(
@@ -152,7 +153,7 @@ private:
 
   unsigned int GenerateFeatureID();
 
-  EKF * m_ekf = EKF::GetInstance();           ///< @brief EKF singleton
+  std::shared_ptr<EKF> m_ekf;  ///< @brief EKF
 
   double m_px_error;
   static unsigned int m_tracker_count;

@@ -26,6 +26,7 @@ TEST(test_SimIMU, Constructor) {
   Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
   double pos_amplitude = 1.0;
   double ang_amplitude = 0.1;
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
   auto truthEngine = std::make_shared<TruthEngineCyclic>(
     pos_frequency,
@@ -34,7 +35,9 @@ TEST(test_SimIMU, Constructor) {
     ang_offset,
     pos_amplitude,
     ang_amplitude,
-    0.0);
+    0.0,
+    logger
+  );
 
   IMU::Parameters imu_params;
   imu_params.rate = 100.0;

@@ -30,7 +30,7 @@ public:
   /// @brief EKF Updater constructor
   /// @param sensor_id Sensor ID
   ///
-  explicit Updater(unsigned int sensor_id);
+  explicit Updater(unsigned int sensor_id, std::shared_ptr<DebugLogger> logger);
 
   /// @todo switch to passing EKF pointer
   // Updater(std::shared_ptr<EKF> ekf, unsigned int sensor_id);
@@ -44,9 +44,9 @@ public:
   //   Eigen::MatrixXd jacobian);
 
 protected:
-  unsigned int m_id;                          ///< @brief Associated sensor ID
-  EKF * m_ekf = EKF::GetInstance();           ///< @brief EKF singleton
-  DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
+  unsigned int m_id;                      ///< @brief Associated sensor ID
+  std::shared_ptr<EKF> m_ekf;             ///< @brief EKF
+  std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger
 };
 
 #endif  // EKF__UPDATE__UPDATER_HPP_

@@ -23,7 +23,8 @@
 
 
 TEST(test_EKF, get_counts) {
-  EKF * ekf = EKF::GetInstance();
+  auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(debug_logger, 10.0, false, "");
   EXPECT_EQ(ekf->GetImuCount(), 0U);
   EXPECT_EQ(ekf->GetCamCount(), 0U);
 

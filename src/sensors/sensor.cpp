@@ -23,8 +23,8 @@
 // Initialize static variable
 unsigned int Sensor::m_sensor_count = 0;
 
-Sensor::Sensor(std::string name)
-: m_id(++m_sensor_count), m_name(name) {}
+Sensor::Sensor(std::string name, std::shared_ptr<DebugLogger> logger)
+: m_id(++m_sensor_count), m_name(name), m_logger(logger) {}
 
 unsigned int Sensor::GetId()
 {

@@ -25,7 +25,8 @@
 #include "ekf/update/imu_updater.hpp"
 
 TEST(test_imu_updater, update) {
-  EKF * ekf = EKF::GetInstance();
+  auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(debug_logger, 10.0, false, "");
 
   double time_init = 0.0;
   BodyState body_state;
@@ -42,7 +43,8 @@ TEST(test_imu_updater, update) {
   Eigen::MatrixXd imu_cov = Eigen::MatrixXd::Zero(12, 12);
   ekf->RegisterIMU(imu_id, imu_state, imu_cov);
 
-  ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on, 0.0);
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on, 0.0, logger);
 
   Eigen::Vector3d acceleration = g_gravity;
   Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Zero();

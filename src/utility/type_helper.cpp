@@ -40,7 +40,6 @@ Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
     quat.normalize();
     return quat;
   } else {
-    DebugLogger::GetInstance()->Log(LogLevel::WARN, "Vector incorrect size for Eigen conversion");
     return Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
   }
 }

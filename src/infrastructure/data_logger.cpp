@@ -24,6 +24,12 @@ DataLogger::DataLogger(std::string output_directory, std::string file_name)
   m_file_name = file_name;
 }
 
+DataLogger::DataLogger(std::string output_directory, std::string file_name, double logging_rate)
+{
+  m_output_directory = output_directory;
+  m_file_name = file_name;
+  m_rate = logging_rate;
+}
 
 void DataLogger::Log(std::string message)
 {

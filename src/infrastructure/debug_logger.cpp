@@ -17,7 +17,11 @@
 
 #include <string>
 
-void DebugLogger::SetOutputDirectory(std::string output_directory)
-{
-  m_output_directory = output_directory;
-}
+
+DebugLogger::DebugLogger(LogLevel log_level, std::string output_directory)
+: m_log_level(log_level),
+  m_output_directory(output_directory) {}
+
+DebugLogger::DebugLogger(unsigned int log_level, std::string output_directory)
+: m_log_level(static_cast<LogLevel>(log_level)),
+  m_output_directory(output_directory) {}

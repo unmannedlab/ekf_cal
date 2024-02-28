@@ -48,7 +48,8 @@ public:
     Eigen::Quaterniond fiducial_ang,
     std::string log_file_directory,
     bool data_logging_on,
-    double data_log_rate
+    double data_log_rate,
+    std::shared_ptr<DebugLogger> logger
   );
 
   ///

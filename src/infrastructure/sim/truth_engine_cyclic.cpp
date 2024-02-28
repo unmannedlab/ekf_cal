@@ -29,7 +29,10 @@ TruthEngineCyclic::TruthEngineCyclic(
   Eigen::Vector3d ang_offset,
   double pos_amplitude,
   double ang_amplitude,
-  double stationary_time)
+  double stationary_time,
+  std::shared_ptr<DebugLogger> logger
+)
+: TruthEngine(logger)
 {
   m_pos_frequency = pos_frequency;
   m_ang_frequency = ang_frequency;

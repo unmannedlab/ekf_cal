@@ -42,7 +42,9 @@ public:
     double delta_time,
     std::vector<std::vector<double>> positions,
     std::vector<std::vector<double>> angles,
-    double stationary_time);
+    double stationary_time,
+    std::shared_ptr<DebugLogger> logger
+  );
 
   ///
   /// @brief True body position getter

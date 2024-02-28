@@ -34,42 +34,16 @@
 ///
 class EKF
 {
-private:
-  static EKF * instance_pointer;
+public:
   ///
   /// @brief EKF class constructor
   ///
-  EKF();
-
-public:
-  ///
-  /// @brief Delete copy constructor
-  ///
-  EKF(const EKF & obj) = delete;
-
-  ///
-  /// @brief Singleton reference getter
-  /// @return Pointer to singleton instance
-  ///
-  static EKF * GetInstance()
-  {
-    // If there is no instance of class
-    // then we can create an instance.
-    if (instance_pointer == NULL) {
-      // We can access private members
-      // within the class.
-      instance_pointer = new EKF();
-
-      // returning the instance pointer
-      return instance_pointer;
-    } else {
-      // if instance_pointer != NULL that means
-      // the class already have an instance.
-      // So, we are returning that instance
-      // and not creating new one.
-      return instance_pointer;
-    }
-  }
+  EKF(
+    std::shared_ptr<DebugLogger> logger,
+    double body_data_rate,
+    bool data_logging_on,
+    std::string log_directory
+  );
 
   ///
   /// @brief Getter for state vector reference
@@ -213,18 +187,6 @@ public:
   void AugmentState(unsigned int camera_id, int frame_id);
 
   ///
-  /// @brief Body data logger rate setter
-  /// @param rate Body data logging rate
-  ///
-  void SetBodyDataRate(double rate);
-
-  ///
-  /// @brief Function to switch the logger on/off
-  /// @param value Logger on/off value
-  ///
-  void SetDataLogging(bool value);
-
-  ///
   /// @brief Setter for maximum track length
   /// @param max_track_length maximum track length
   ///
@@ -249,20 +211,18 @@ public:
   ///
   AugmentedState MatchState(int camera_id, int frame_id);
 
-  DataLogger m_data_logger;  ///< @brief Data logger
-
 private:
   unsigned int m_stateSize{g_body_state_size};
   State m_state;
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size);
   double m_current_time {0};
   bool m_time_initialized {false};
-  DebugLogger * m_logger = DebugLogger::GetInstance();
-  double m_body_data_rate {0};
-  bool m_data_logging_on {false};
-  unsigned int m_max_track_length{20U};
+  std::shared_ptr<DebugLogger> m_logger;
+  bool m_data_logging_on;
+  unsigned int m_max_track_length{0};
   Eigen::MatrixXd m_process_noise =
     Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-9;
+  DataLogger m_data_logger;
 };
 
 #endif  // EKF__EKF_HPP_

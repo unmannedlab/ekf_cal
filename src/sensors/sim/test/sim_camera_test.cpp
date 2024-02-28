@@ -30,6 +30,7 @@ TEST(test_SimCamera, Constructor) {
   Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
   double pos_amplitude = 1.0;
   double ang_amplitude = 0.1;
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
   auto truth_engine = std::make_shared<TruthEngineCyclic>(
     pos_frequency,
@@ -38,7 +39,8 @@ TEST(test_SimCamera, Constructor) {
     ang_offset,
     pos_amplitude,
     ang_amplitude,
-    0.0);
+    0.0, logger
+  );
 
   SimRNG rng;
   truth_engine->GenerateFeatures(1000, 10, rng);

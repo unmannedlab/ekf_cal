@@ -68,6 +68,7 @@ public:
     Eigen::Quaterniond ang_f_to_g;                  ///< @brief Fiducial orientation
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1}};  ///< @brief Fiducial marker variance
     double data_log_rate {0.0};                     ///< @brief Data logging rate
+    std::shared_ptr<DebugLogger> logger;            ///< @brief Debug logger
   } Parameters;
 
   ///
@@ -92,7 +93,7 @@ public:
   unsigned int GetID();
 
 protected:
-  DebugLogger * m_logger = DebugLogger::GetInstance();  ///< @brief Logger singleton
+  std::shared_ptr<DebugLogger> m_logger; ///< @brief Debug logger
   unsigned int m_max_track_length{20U};  ///< @brief Maximum track length before forced output
   unsigned int m_min_track_length{2U};   ///< @brief Minimum track length to consider
   FiducialUpdater m_fiducial_updater;    ///< @brief MSCKF updater object
@@ -102,7 +103,7 @@ protected:
   FiducialTypeEnum m_detector_type;      ///< @brief Detector type
 
 private:
-  EKF * m_ekf = EKF::GetInstance();           ///< @brief EKF singleton
+  std::shared_ptr<EKF> m_ekf;            ///< @brief EKF
 
   BoardTrack m_board_track;
   Eigen::Vector3d m_pos_error;

@@ -24,6 +24,9 @@
 #include "utility/sim/sim_rng.hpp"
 #include "utility/string_helper.hpp"
 
+TruthEngine::TruthEngine(std::shared_ptr<DebugLogger> logger)
+: m_logger(logger) {}
+
 Eigen::Vector3d TruthEngine::GetImuPosition(unsigned int sensor_id)
 {
   return m_imu_pos[sensor_id];

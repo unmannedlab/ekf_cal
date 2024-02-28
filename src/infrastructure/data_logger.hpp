@@ -35,6 +35,14 @@ public:
   DataLogger(std::string output_directory, std::string file_name);
 
   ///
+  /// @brief DataLogger constructor
+  /// @param output_directory Output directory for creating data log file
+  /// @param file_name Name of data log file
+  /// @param logging_rate Logging rate
+  ///
+  DataLogger(std::string output_directory, std::string file_name, double logging_rate);
+
+  ///
   /// @brief Log message
   /// @param message Message contents of log
   ///
