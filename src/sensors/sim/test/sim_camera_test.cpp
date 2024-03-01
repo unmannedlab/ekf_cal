@@ -24,13 +24,14 @@
 #include "trackers/sim/sim_fiducial_tracker.hpp"
 
 TEST(test_SimCamera, Constructor) {
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
   Eigen::Vector3d pos_frequency{1, 2, 3};
   Eigen::Vector3d ang_frequency{4, 5, 6};
   Eigen::Vector3d pos_offset{1, 2, 3};
   Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
   double pos_amplitude = 1.0;
   double ang_amplitude = 0.1;
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
   auto truth_engine = std::make_shared<TruthEngineCyclic>(
     pos_frequency,
@@ -46,6 +47,8 @@ TEST(test_SimCamera, Constructor) {
   truth_engine->GenerateFeatures(1000, 10, rng);
 
   Camera::Parameters cam_params;
+  cam_params.ekf = ekf;
+  cam_params.logger = logger;
   cam_params.rate = 10.0;
 
   SimCamera::Parameters sim_camera_params;
@@ -54,12 +57,16 @@ TEST(test_SimCamera, Constructor) {
   SimCamera sim_camera(sim_camera_params, truth_engine);
 
   FeatureTracker::Parameters feature_params;
+  feature_params.ekf = ekf;
+  feature_params.logger = logger;
   SimFeatureTracker::Parameters sim_feature_params;
   sim_feature_params.tracker_params = feature_params;
   auto feature_tracker = std::make_shared<SimFeatureTracker>(sim_feature_params, truth_engine);
   sim_camera.AddTracker(feature_tracker);
 
   FiducialTracker::Parameters fiducial_params;
+  fiducial_params.ekf = ekf;
+  fiducial_params.logger = logger;
   SimFiducialTracker::Parameters sim_fiducial_params;
   sim_fiducial_params.fiducial_params = fiducial_params;
   auto fiducial_tracker = std::make_shared<SimFiducialTracker>(sim_fiducial_params, truth_engine);

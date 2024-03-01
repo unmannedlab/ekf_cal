@@ -71,7 +71,8 @@ FiducialUpdater::FiducialUpdater(
 }
 
 void FiducialUpdater::UpdateEKF(
-  double time, BoardTrack board_track, double pos_error, double ang_error)
+  std::shared_ptr<EKF> ekf, double time,
+  BoardTrack board_track, double pos_error, double ang_error)
 {
   m_logger->Log(
     LogLevel::DEBUG, "Called update_msckf for camera ID: " + std::to_string(m_id));
@@ -80,8 +81,20 @@ void FiducialUpdater::UpdateEKF(
     return;
   }
 
-  m_ekf->ProcessModel(time);
-  RefreshStates();
+  ekf->ProcessModel(time);
+
+  BodyState body_state = ekf->GetBodyState();
+  m_body_pos = body_state.m_position;
+  m_body_vel = body_state.m_velocity;
+  m_body_acc = body_state.m_acceleration;
+  m_ang_b_to_g = body_state.m_ang_b_to_g;
+  m_body_ang_vel = body_state.m_angular_velocity;
+  m_body_ang_acc = body_state.m_angular_acceleration;
+
+  CamState cam_state = ekf->GetCamState(m_id);
+  m_pos_c_in_b = cam_state.pos_c_in_b;
+  m_ang_c_to_b = cam_state.ang_c_to_b;
+
   auto t_start = std::chrono::high_resolution_clock::now();
 
   std::vector<double> pos_weights;
@@ -91,7 +104,7 @@ void FiducialUpdater::UpdateEKF(
 
   /// @todo(jhartzer): Wrap this in a function
   for (auto board_detection : board_track) {
-    AugmentedState aug_state_i = m_ekf->MatchState(m_id, board_detection.frame_id);
+    AugmentedState aug_state_i = ekf->MatchState(m_id, board_detection.frame_id);
 
     const Eigen::Vector3d pos_bi_in_g = aug_state_i.pos_b_in_g;
     const Eigen::Matrix3d rot_bi_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
@@ -144,9 +157,9 @@ void FiducialUpdater::UpdateEKF(
   Eigen::Matrix3d rot_f_to_g_est = ang_f_to_g_est.toRotationMatrix();
 
   unsigned int max_meas_size = g_fiducial_measurement_size * board_track.size();
-  unsigned int state_size = m_ekf->GetState().GetStateSize();
-  unsigned int cam_state_start = m_ekf->GetCamStateStartIndex(m_id);
-  unsigned int aug_state_size = g_aug_state_size * m_ekf->GetCamState(m_id).augmented_states.size();
+  unsigned int state_size = ekf->GetState().GetStateSize();
+  unsigned int cam_state_start = ekf->GetCamStateStartIndex(m_id);
+  unsigned int aug_state_size = g_aug_state_size * ekf->GetCamState(m_id).augmented_states.size();
 
   Eigen::VectorXd res_x = Eigen::VectorXd::Zero(max_meas_size);
   Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(max_meas_size, state_size);
@@ -156,8 +169,8 @@ void FiducialUpdater::UpdateEKF(
   Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(max_meas_size, g_cam_state_size + aug_state_size);
 
   for (unsigned int i = 0; i < board_track.size(); ++i) {
-    AugmentedState aug_state_i = m_ekf->MatchState(m_id, board_track[i].frame_id);
-    unsigned int aug_state_start = m_ekf->GetAugStateStartIndex(m_id, board_track[i].frame_id);
+    AugmentedState aug_state_i = ekf->MatchState(m_id, board_track[i].frame_id);
+    unsigned int aug_state_start = ekf->GetAugStateStartIndex(m_id, board_track[i].frame_id);
 
     Eigen::Matrix3d rot_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
     Eigen::Matrix3d rot_bi_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
@@ -241,37 +254,37 @@ void FiducialUpdater::UpdateEKF(
   Eigen::MatrixXd R = position_sigma * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
   // Apply Kalman update
-  Eigen::MatrixXd S = H_x * m_ekf->GetCov() * H_x.transpose() + R;
-  Eigen::MatrixXd K = m_ekf->GetCov() * H_x.transpose() * S.inverse();
+  Eigen::MatrixXd S = H_x * ekf->GetCov() * H_x.transpose() + R;
+  Eigen::MatrixXd K = ekf->GetCov() * H_x.transpose() * S.inverse();
 
-  unsigned int imu_states_size = m_ekf->GetImuStateSize();
+  unsigned int imu_states_size = ekf->GetImuStateSize();
   unsigned int cam_states_size = state_size - g_body_state_size - imu_states_size;
 
   Eigen::VectorXd update = K * res_x;
-  Eigen::VectorXd cam_state = m_ekf->GetState().m_cam_states[m_id].ToVector();
-  Eigen::Vector3d cam_pos = cam_state.segment<3>(0);
-  Eigen::Quaterniond cam_ang_pos = RotVecToQuat(cam_state.segment<3>(3));
+  Eigen::VectorXd cam_state_vec = ekf->GetState().m_cam_states[m_id].ToVector();
+  Eigen::Vector3d cam_pos = cam_state_vec.segment<3>(0);
+  Eigen::Quaterniond cam_ang_pos = RotVecToQuat(cam_state_vec.segment<3>(3));
   Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
   Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_states_size);
   Eigen::VectorXd cam_update = update.segment(g_body_state_size + imu_states_size, cam_states_size);
 
-  m_ekf->GetState().m_body_state += body_update;
-  m_ekf->GetState().m_imu_states += imu_update;
-  m_ekf->GetState().m_cam_states += cam_update;
+  ekf->GetState().m_body_state += body_update;
+  ekf->GetState().m_imu_states += imu_update;
+  ekf->GetState().m_cam_states += cam_update;
 
-  m_ekf->GetCov() =
-    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * m_ekf->GetCov() *
+  ekf->GetCov() =
+    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * ekf->GetCov() *
     (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x).transpose() +
     K * R * K.transpose();
 
   /// @todo(jhartzer): Should we be bounding?
-  // m_ekf->GetCov().diagonal() = m_ekf->GetCov().diagonal().array().abs();
-  // m_ekf->GetCov() = MaxBoundMatrix(m_ekf->GetCov(), 1e1);
-  // m_ekf->GetCov() = MinBoundDiagonal(m_ekf->GetCov(), 1e-2);
+  // ekf->GetCov().diagonal() = ekf->GetCov().diagonal().array().abs();
+  // ekf->GetCov() = MaxBoundMatrix(ekf->GetCov(), 1e1);
+  // ekf->GetCov() = MinBoundDiagonal(ekf->GetCov(), 1e-2);
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
-  Eigen::VectorXd cov_diag = m_ekf->GetCov().block(
+  Eigen::VectorXd cov_diag = ekf->GetCov().block(
     cam_state_start, cam_state_start, g_cam_state_size, g_cam_state_size).diagonal();
 
   // Write outputs
@@ -286,19 +299,4 @@ void FiducialUpdater::UpdateEKF(
   msg << VectorToCommaString(cov_diag);
   msg << "," << t_execution.count();
   m_fiducial_logger.RateLimitedLog(msg.str(), time);
-}
-
-void FiducialUpdater::RefreshStates()
-{
-  BodyState body_state = m_ekf->GetBodyState();
-  m_body_pos = body_state.m_position;
-  m_body_vel = body_state.m_velocity;
-  m_body_acc = body_state.m_acceleration;
-  m_ang_b_to_g = body_state.m_ang_b_to_g;
-  m_body_ang_vel = body_state.m_angular_velocity;
-  m_body_ang_acc = body_state.m_angular_acceleration;
-
-  CamState cam_state = m_ekf->GetCamState(m_id);
-  m_pos_c_in_b = cam_state.pos_c_in_b;
-  m_ang_c_to_b = cam_state.ang_c_to_b;
 }

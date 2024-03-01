@@ -18,6 +18,7 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -60,12 +61,8 @@ public:
   /// @param ang_error Standard deviation of the angle error
   ///
   void UpdateEKF(
+    std::shared_ptr<EKF> ekf,
     double time, BoardTrack board_track, double pos_error, double ang_error);
-
-  ///
-  /// @brief Refresh internal states with EKF values
-  ///
-  void RefreshStates();
 
 private:
   Eigen::Vector3d m_body_pos {0.0, 0.0, 0.0};

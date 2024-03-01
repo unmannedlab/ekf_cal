@@ -18,6 +18,7 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -57,7 +58,9 @@ public:
   /// @param feature_track Single feature track
   /// @return Estimate of feature position in camera frame given observations
   ///
-  Eigen::Vector3d TriangulateFeature(std::vector<FeaturePoint> & feature_track);
+  Eigen::Vector3d TriangulateFeature(
+    std::shared_ptr<EKF> ekf,
+    std::vector<FeaturePoint> & feature_track);
 
   ///
   /// @brief EKF updater function
@@ -66,14 +69,10 @@ public:
   /// @param px_error Standard deviation of pixel error
   ///
   void UpdateEKF(
+    std::shared_ptr<EKF> ekf,
     double time,
     FeatureTracks feature_tracks,
     double px_error);
-
-  ///
-  /// @brief Refresh internal states with EKF values
-  ///
-  void RefreshStates();
 
   ///
   /// @brief Computes the derivative of raw distorted to normalized coordinate.

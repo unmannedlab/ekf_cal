@@ -26,7 +26,8 @@ FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
     params.data_logging_on,
     params.data_log_rate,
     params.logger
-)
+), m_ekf(params.ekf),
+  m_logger(params.logger)
 {
   m_camera_id = params.sensor_id;
   m_intrinsics = params.intrinsics;
@@ -99,7 +100,12 @@ void FiducialTracker::Track(
   }
 
   if (update_ekf) {
-    m_fiducial_updater.UpdateEKF(time, m_board_track, m_pos_error.norm(), m_ang_error.norm());
+    m_fiducial_updater.UpdateEKF(
+      m_ekf,
+      time,
+      m_board_track,
+      m_pos_error.norm(),
+      m_ang_error.norm());
     m_board_track.clear();
   }
 }

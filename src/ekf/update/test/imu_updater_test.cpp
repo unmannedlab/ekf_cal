@@ -59,6 +59,7 @@ TEST(test_imu_updater, update) {
 
   double time = time_init + 1;
   imu_updater.UpdateEKF(
+    ekf,
     time, acceleration, acceleration_cov, angular_rate, angular_rate_covariance,
     use_for_prediction);
 
@@ -69,6 +70,7 @@ TEST(test_imu_updater, update) {
 
   time += 1;
   imu_updater.UpdateEKF(
+    ekf,
     time, acceleration, acceleration_cov, angular_rate, angular_rate_covariance,
     use_for_prediction);
 

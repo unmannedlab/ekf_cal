@@ -17,6 +17,7 @@
 #define TRACKERS__FIDUCIAL_TRACKER_HPP_
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -69,6 +70,7 @@ public:
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1}};  ///< @brief Fiducial marker variance
     double data_log_rate {0.0};                     ///< @brief Data logging rate
     std::shared_ptr<DebugLogger> logger;            ///< @brief Debug logger
+    std::shared_ptr<EKF> ekf;                       ///< @brief EKF to update
   } Parameters;
 
   ///
@@ -93,18 +95,17 @@ public:
   unsigned int GetID();
 
 protected:
-  std::shared_ptr<DebugLogger> m_logger; ///< @brief Debug logger
-  unsigned int m_max_track_length{20U};  ///< @brief Maximum track length before forced output
-  unsigned int m_min_track_length{2U};   ///< @brief Minimum track length to consider
-  FiducialUpdater m_fiducial_updater;    ///< @brief MSCKF updater object
-  int m_camera_id{-1};                   ///< @brief Associated camera ID of tracker
-  unsigned int m_id;                     ///< @brief Tracker ID
-  Intrinsics m_intrinsics;               ///< @brief Camera intrinsics
-  FiducialTypeEnum m_detector_type;      ///< @brief Detector type
+  unsigned int m_max_track_length{20U};   ///< @brief Maximum track length before forced output
+  unsigned int m_min_track_length{2U};    ///< @brief Minimum track length to consider
+  FiducialUpdater m_fiducial_updater;     ///< @brief MSCKF updater object
+  int m_camera_id{-1};                    ///< @brief Associated camera ID of tracker
+  unsigned int m_id;                      ///< @brief Tracker ID
+  Intrinsics m_intrinsics;                ///< @brief Camera intrinsics
+  FiducialTypeEnum m_detector_type;       ///< @brief Detector type
+  std::shared_ptr<EKF> m_ekf;             ///< @brief EKF
+  std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger
 
 private:
-  std::shared_ptr<EKF> m_ekf;            ///< @brief EKF
-
   BoardTrack m_board_track;
   Eigen::Vector3d m_pos_error;
   Eigen::Vector3d m_ang_error;

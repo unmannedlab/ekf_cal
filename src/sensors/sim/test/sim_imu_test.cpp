@@ -20,13 +20,14 @@
 #include "sensors/sim/sim_imu.hpp"
 
 TEST(test_SimIMU, Constructor) {
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
   Eigen::Vector3d pos_frequency{1, 2, 3};
   Eigen::Vector3d ang_frequency{4, 5, 6};
   Eigen::Vector3d pos_offset{1, 2, 3};
   Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
   double pos_amplitude = 1.0;
   double ang_amplitude = 0.1;
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
   auto truthEngine = std::make_shared<TruthEngineCyclic>(
     pos_frequency,
@@ -41,6 +42,8 @@ TEST(test_SimIMU, Constructor) {
 
   IMU::Parameters imu_params;
   imu_params.rate = 100.0;
+  imu_params.ekf = ekf;
+  imu_params.logger = logger;
 
   SimIMU::Parameters sim_imu_params;
   sim_imu_params.imu_params = imu_params;

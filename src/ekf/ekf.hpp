@@ -19,6 +19,9 @@
 #include <eigen3/Eigen/Eigen>
 #include <stddef.h>
 
+#include <memory>
+#include <string>
+
 #include "ekf/constants.hpp"
 #include "ekf/types.hpp"
 #include "infrastructure/data_logger.hpp"
@@ -219,7 +222,7 @@ private:
   bool m_time_initialized {false};
   std::shared_ptr<DebugLogger> m_logger;
   bool m_data_logging_on;
-  unsigned int m_max_track_length{0};
+  unsigned int m_max_track_length{20};
   Eigen::MatrixXd m_process_noise =
     Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-9;
   DataLogger m_data_logger;

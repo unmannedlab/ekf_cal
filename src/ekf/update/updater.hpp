@@ -16,6 +16,8 @@
 #ifndef EKF__UPDATE__UPDATER_HPP_
 #define EKF__UPDATE__UPDATER_HPP_
 
+#include <memory>
+
 #include "ekf/ekf.hpp"
 #include "infrastructure/debug_logger.hpp"
 
@@ -45,7 +47,6 @@ public:
 
 protected:
   unsigned int m_id;                      ///< @brief Associated sensor ID
-  std::shared_ptr<EKF> m_ekf;             ///< @brief EKF
   std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger
 };
 

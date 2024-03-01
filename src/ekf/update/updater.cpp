@@ -15,5 +15,7 @@
 
 #include "ekf/update/updater.hpp"
 
+#include <memory>
+
 Updater::Updater(unsigned int sensor_id, std::shared_ptr<DebugLogger> logger)
 : m_id(sensor_id), m_logger(logger) {}

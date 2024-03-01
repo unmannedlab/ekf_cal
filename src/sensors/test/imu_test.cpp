@@ -22,32 +22,52 @@
 
 
 TEST(test_IMU, Constructor) {
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+
   IMU::Parameters imu_params1;
+  imu_params1.ekf = ekf;
+  imu_params1.logger = logger;
   imu_params1.is_intrinsic = false;
   imu_params1.is_extrinsic = false;
   IMU imu1(imu_params1);
 
   IMU::Parameters imu_params2;
+  imu_params2.ekf = ekf;
+  imu_params2.logger = logger;
   imu_params2.is_intrinsic = true;
   imu_params2.is_extrinsic = false;
   IMU imu2(imu_params2);
 
   IMU::Parameters imu_params3;
+  imu_params3.ekf = ekf;
+  imu_params3.logger = logger;
   imu_params3.is_intrinsic = false;
   imu_params3.is_extrinsic = true;
   IMU imu3(imu_params3);
 
   IMU::Parameters imu_params4;
+  imu_params4.ekf = ekf;
+  imu_params4.logger = logger;
   imu_params4.is_intrinsic = true;
   imu_params4.is_extrinsic = true;
   IMU imu4(imu_params4);
 }
 
 TEST(test_IMU, ID) {
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+
   IMU::Parameters imu_params1;
-  IMU::Parameters imu_params2;
+  imu_params1.ekf = ekf;
+  imu_params1.logger = logger;
 
   IMU imu1(imu_params1);
+
+  IMU::Parameters imu_params2;
+  imu_params2.ekf = ekf;
+  imu_params2.logger = logger;
+
   IMU imu2(imu_params2);
 
   unsigned int id_one = imu1.GetId();

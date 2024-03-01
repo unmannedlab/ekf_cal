@@ -18,6 +18,7 @@
 #include <eigen3/Eigen/Eigen>
 
 #include <map>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <utility>

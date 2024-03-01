@@ -19,6 +19,7 @@
 #include <eigen3/Eigen/Eigen>
 #include <eigen3/unsupported/Eigen/Splines>
 
+#include <memory>
 #include <vector>
 
 #include "infrastructure/sim/truth_engine.hpp"

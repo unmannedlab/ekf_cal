@@ -58,11 +58,9 @@ public:
   void Callback(SensorMessage sensor_message);
 
 protected:
-  double m_rate;                      ///< @brief Sensor measurement rate
-  unsigned int m_id;                  ///< @brief Sensor id
-  std::string m_name;                 ///< @brief Sensor name
-
-  std::shared_ptr<EKF> m_ekf;             ///< @brief EKF
+  double m_rate;                          ///< @brief Sensor measurement rate
+  unsigned int m_id;                      ///< @brief Sensor id
+  std::string m_name;                     ///< @brief Sensor name
   std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger
 
 private:

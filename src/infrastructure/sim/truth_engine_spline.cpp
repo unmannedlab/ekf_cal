@@ -18,6 +18,7 @@
 #include <eigen3/unsupported/Eigen/Splines>
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 #include "utility/type_helper.hpp"

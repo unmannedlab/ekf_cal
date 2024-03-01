@@ -34,7 +34,7 @@
 
 /// @todo add detector/extractor parameters to input
 Camera::Camera(Camera::Parameters cam_params)
-: Sensor(cam_params.name, cam_params.logger)
+: Sensor(cam_params.name, cam_params.logger), m_ekf(cam_params.ekf)
 {
   m_rate = cam_params.rate;
   m_intrinsics = cam_params.intrinsics;

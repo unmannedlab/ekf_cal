@@ -18,6 +18,7 @@
 #include <eigen3/Eigen/Eigen>
 
 #include <cmath>
+#include <memory>
 
 #include "utility/type_helper.hpp"
 

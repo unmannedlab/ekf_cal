@@ -17,6 +17,7 @@
 #define TRACKERS__FEATURE_TRACKER_HPP_
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -87,6 +88,7 @@ public:
     double data_log_rate {0.0};           ///< @brief Data logging rate
     double min_feat_dist {1.0};           ///< @brief Minimum feature distance to consider
     std::shared_ptr<DebugLogger> logger;  ///< @brief Debug logger
+    std::shared_ptr<EKF> ekf;             ///< @brief EKF to update
   } Parameters;
 
   ///
@@ -123,12 +125,13 @@ public:
   unsigned int GetID();
 
 protected:
-  std::shared_ptr<DebugLogger> m_logger; ///< @brief Debug logger
-  unsigned int m_max_track_length;       ///< @brief Maximum track length before forced output
-  unsigned int m_min_track_length;       ///< @brief Minimum track length to consider
-  MsckfUpdater m_msckf_updater;          ///< @brief MSCKF updater object
-  int m_camera_id{-1};                   ///< @brief Associated camera ID of tracker
-  unsigned int m_id;                     ///< @brief Tracker ID
+  unsigned int m_max_track_length;        ///< @brief Maximum track length before forced output
+  unsigned int m_min_track_length;        ///< @brief Minimum track length to consider
+  MsckfUpdater m_msckf_updater;           ///< @brief MSCKF updater object
+  int m_camera_id{-1};                    ///< @brief Associated camera ID of tracker
+  unsigned int m_id;                      ///< @brief Tracker ID
+  std::shared_ptr<EKF> m_ekf;             ///< @brief EKF
+  std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger
 
 private:
   cv::Ptr<cv::FeatureDetector> InitFeatureDetector(
@@ -153,7 +156,6 @@ private:
 
   unsigned int GenerateFeatureID();
 
-  std::shared_ptr<EKF> m_ekf;  ///< @brief EKF
 
   double m_px_error;
   static unsigned int m_tracker_count;

@@ -19,6 +19,7 @@
 #include <eigen3/Eigen/Eigen>
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -34,7 +35,7 @@
 class TruthEngine
 {
 public:
-  TruthEngine(std::shared_ptr<DebugLogger> logger);
+  explicit TruthEngine(std::shared_ptr<DebugLogger> logger);
 
   virtual ~TruthEngine() = 0;
 

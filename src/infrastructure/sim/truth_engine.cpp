@@ -16,6 +16,7 @@
 #include "infrastructure/sim/truth_engine.hpp"
 
 #include <eigen3/Eigen/Eigen>
+#include <memory>
 #include <string>
 #include <vector>
 

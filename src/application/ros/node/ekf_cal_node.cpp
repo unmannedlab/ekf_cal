@@ -67,11 +67,12 @@ void EkfCalNode::Initialize()
   auto debug_log_level = static_cast<unsigned int>(this->get_parameter("debug_log_level").as_int());
   bool data_logging_on = this->get_parameter("data_logging_on").as_bool();
   m_logger = std::make_shared<DebugLogger>(debug_log_level, "");
-  m_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
   m_state_data_logger.SetLogging(data_logging_on);
   m_state_data_logger.SetOutputDirectory("~/log/");
   m_state_data_logger.SetOutputFileName("state_vector.csv");
   m_state_data_logger.DefineHeader("");
+  m_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
+  m_ekf = std::make_shared<EKF>(m_logger, 10.0, data_logging_on, "~/log/");
 
   // Load lists of sensors
   m_imu_list = this->get_parameter("imu_list").as_string_array();
@@ -173,6 +174,8 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
   imu_params.ang_stability = ang_stability;
   imu_params.acc_bias_stability = acc_bias_stability;
   imu_params.omg_bias_stability = omg_bias_stability;
+  imu_params.ekf = m_ekf;
+  imu_params.logger = m_logger;
   return imu_params;
 }
 
@@ -210,6 +213,8 @@ Camera::Parameters EkfCalNode::GetCameraParameters(std::string camera_name)
   camera_params.ang_c_to_b = StdToEigQuat(ang_c_to_b);
   camera_params.variance = StdToEigVec(variance);
   camera_params.tracker = tracker_name;
+  camera_params.ekf = m_ekf;
+  camera_params.logger = m_logger;
   return camera_params;
 }
 
@@ -238,6 +243,8 @@ FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_
   tracker_params.matcher = static_cast<FeatureTracker::DescriptorMatcherEnum>(matcher);
   tracker_params.threshold =
     this->get_parameter(tracker_prefix + ".detector_threshold").as_double();
+  tracker_params.ekf = m_ekf;
+  tracker_params.logger = m_logger;
   return tracker_params;
 }
 

@@ -37,7 +37,7 @@ unsigned int FeatureTracker::m_tracker_count = 0;
 FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
 : m_msckf_updater(params.sensor_id, params.intrinsics, params.output_directory,
     params.data_logging_on, params.data_log_rate, params.min_feat_dist, params.logger),
-  m_camera_id(params.sensor_id), m_id(++m_tracker_count)
+  m_camera_id(params.sensor_id), m_id(++m_tracker_count), m_ekf(params.ekf), m_logger(params.logger)
 {
   m_feature_detector = InitFeatureDetector(params.detector, params.threshold);
   m_descriptor_extractor = InitDescriptorExtractor(params.descriptor, params.threshold);
@@ -252,7 +252,7 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
     }
   }
 
-  m_msckf_updater.UpdateEKF(time, feature_tracks, m_px_error);
+  m_msckf_updater.UpdateEKF(m_ekf, time, feature_tracks, m_px_error);
 
   m_prev_key_points = m_curr_key_points;
   m_prev_descriptors = m_curr_descriptors;

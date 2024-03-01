@@ -57,6 +57,7 @@ public:
     bool data_logging_on {false};                       ///< @brief IMU data logging flag
     Intrinsics intrinsics;                              ///< @brief Camera intrinsics
     std::shared_ptr<DebugLogger> logger;                ///< @brief Debug logger
+    std::shared_ptr<EKF> ekf;                           ///< @brief EKF to update
   } Parameters;
 
   ///
@@ -79,7 +80,9 @@ public:
 
 protected:
   unsigned int GenerateFrameID();
-  cv::Mat m_out_img;  ///< @brief Published output test image
+
+  cv::Mat m_out_img;           ///< @brief Published output test image
+  std::shared_ptr<EKF> m_ekf;  ///< @brief EKF to update
 
 private:
   std::vector<std::shared_ptr<FeatureTracker>> m_trackers;

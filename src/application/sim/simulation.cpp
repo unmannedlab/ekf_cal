@@ -185,6 +185,7 @@ int main(int argc, char * argv[])
     imu_params.use_for_prediction = imu_node["use_for_prediction"].as<bool>(false);
     imu_params.data_log_rate = imu_node["data_log_rate"].as<double>(0.0);
     imu_params.logger = debug_logger;
+    imu_params.ekf = ekf;
     using_any_imu_for_prediction = using_any_imu_for_prediction || imu_params.use_for_prediction;
 
     // SimParams
@@ -257,6 +258,7 @@ int main(int argc, char * argv[])
     track_params.data_log_rate = trk_node["data_log_rate"].as<double>(0.0);
     track_params.min_feat_dist = trk_node["min_feat_dist"].as<double>(1.0);
     track_params.logger = debug_logger;
+    track_params.ekf = ekf;
     max_track_length = std::max(max_track_length, track_params.max_track_length);
 
     SimFeatureTracker::Parameters sim_tracker_params;
@@ -294,6 +296,7 @@ int main(int argc, char * argv[])
     fiducial_params.max_track_length = fid_node["max_track_length"].as<unsigned int>(20U);
     fiducial_params.data_log_rate = fid_node["data_log_rate"].as<double>(0.0);
     fiducial_params.logger = debug_logger;
+    fiducial_params.ekf = ekf;
     max_track_length = std::max(max_track_length, fiducial_params.max_track_length);
 
     SimFiducialTracker::Parameters sim_fiducial_params;
@@ -353,6 +356,7 @@ int main(int argc, char * argv[])
     cam_params.intrinsics.f_x = cam_params.intrinsics.F / cam_params.intrinsics.pixel_size;
     cam_params.intrinsics.f_y = cam_params.intrinsics.F / cam_params.intrinsics.pixel_size;
     cam_params.logger = debug_logger;
+    cam_params.ekf = ekf;
 
     // SimCamera::Parameters
     SimCamera::Parameters sim_cam_params;

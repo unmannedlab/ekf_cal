@@ -19,6 +19,7 @@
 
 #include <chrono>
 #include <map>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -156,31 +157,14 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian()
   return measurement_jacobian;
 }
 
-void ImuUpdater::RefreshStates()
-{
-  BodyState body_state = m_ekf->GetBodyState();
-  m_body_pos = body_state.m_position;
-  m_body_vel = body_state.m_velocity;
-  m_body_acc = body_state.m_acceleration;
-  m_ang_b_to_g = body_state.m_ang_b_to_g;
-  m_body_ang_vel = body_state.m_angular_velocity;
-  m_body_ang_acc = body_state.m_angular_acceleration;
-
-  ImuState imu_state = m_ekf->GetImuState(m_id);
-  m_pos_i_in_g = imu_state.pos_i_in_b;
-  m_ang_i_to_b = imu_state.ang_i_to_b;
-  m_acc_bias = imu_state.acc_bias;
-  m_omg_bias = imu_state.omg_bias;
-}
-
-
 void ImuUpdater::UpdateEKF(
+  std::shared_ptr<EKF> ekf,
   double time, Eigen::Vector3d acceleration,
   Eigen::Matrix3d acceleration_covariance, Eigen::Vector3d angular_rate,
   Eigen::Matrix3d angular_rate_covariance, bool use_as_predictor)
 {
   if (use_as_predictor) {
-    m_ekf->PredictModel(
+    ekf->PredictModel(
       time,
       acceleration,
       acceleration_covariance,
@@ -189,8 +173,22 @@ void ImuUpdater::UpdateEKF(
     return;
   }
 
-  m_ekf->ProcessModel(time);
-  RefreshStates();
+  ekf->ProcessModel(time);
+
+  BodyState body_state = ekf->GetBodyState();
+  m_body_pos = body_state.m_position;
+  m_body_vel = body_state.m_velocity;
+  m_body_acc = body_state.m_acceleration;
+  m_ang_b_to_g = body_state.m_ang_b_to_g;
+  m_body_ang_vel = body_state.m_angular_velocity;
+  m_body_ang_acc = body_state.m_angular_acceleration;
+
+  ImuState imu_state = ekf->GetImuState(m_id);
+  m_pos_i_in_g = imu_state.pos_i_in_b;
+  m_ang_i_to_b = imu_state.ang_i_to_b;
+  m_acc_bias = imu_state.acc_bias;
+  m_omg_bias = imu_state.omg_bias;
+
   auto t_start = std::chrono::high_resolution_clock::now();
 
   Eigen::VectorXd z(acceleration.size() + angular_rate.size());
@@ -203,9 +201,9 @@ void ImuUpdater::UpdateEKF(
   msg0 << "IMU resid: " << resid.transpose();
   m_logger->Log(LogLevel::DEBUG, msg0.str());
 
-  unsigned int imu_state_start = m_ekf->GetImuStateStartIndex(m_id);
+  unsigned int imu_state_start = ekf->GetImuStateStartIndex(m_id);
 
-  unsigned int update_size = g_body_state_size + m_ekf->GetImuStateSize();
+  unsigned int update_size = g_body_state_size + ekf->GetImuStateSize();
   unsigned int imu_update_size {0};
   if (m_is_extrinsic) {imu_update_size += g_imu_extrinsic_state_size;}
   if (m_is_intrinsic) {imu_update_size += g_imu_intrinsic_state_size;}
@@ -224,26 +222,26 @@ void ImuUpdater::UpdateEKF(
   R.block<3, 3>(0, 0) = MinBoundDiagonal(acceleration_covariance * 3, 1e-3);
   R.block<3, 3>(3, 3) = MinBoundDiagonal(angular_rate_covariance * 3, 1e-2);
 
-  Eigen::MatrixXd S = H * m_ekf->GetCov().block(0, 0, update_size, update_size) * H.transpose() + R;
+  Eigen::MatrixXd S = H * ekf->GetCov().block(0, 0, update_size, update_size) * H.transpose() + R;
   Eigen::MatrixXd K =
-    m_ekf->GetCov().block(0, 0, update_size, update_size) * H.transpose() * S.inverse();
+    ekf->GetCov().block(0, 0, update_size, update_size) * H.transpose() * S.inverse();
 
   Eigen::VectorXd update = K * resid;
   Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
   Eigen::VectorXd imu_update = update.segment(g_body_state_size, update_size - g_body_state_size);
 
-  m_ekf->GetState().m_body_state += body_update;
-  m_ekf->GetState().m_imu_states += imu_update;
+  ekf->GetState().m_body_state += body_update;
+  ekf->GetState().m_imu_states += imu_update;
 
-  m_ekf->GetCov().block(0, 0, update_size, update_size) =
+  ekf->GetCov().block(0, 0, update_size, update_size) =
     (Eigen::MatrixXd::Identity(update_size, update_size) - K * H) *
-    m_ekf->GetCov().block(0, 0, update_size, update_size) *
+    ekf->GetCov().block(0, 0, update_size, update_size) *
     (Eigen::MatrixXd::Identity(update_size, update_size) - K * H).transpose() +
     K * R * K.transpose();
 
   /// @todo(jhartzer): Should we lower bound IMU calibration covariance?
-  // m_ekf->GetCov().block<12, 12>(imu_state_start, imu_state_start) =
-  //   MinBoundDiagonal(m_ekf->GetCov().block<6, 6>(imu_state_start, imu_state_start), 1e-12);
+  // ekf->GetCov().block<12, 12>(imu_state_start, imu_state_start) =
+  //   MinBoundDiagonal(ekf->GetCov().block<6, 6>(imu_state_start, imu_state_start), 1e-12);
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
@@ -252,12 +250,12 @@ void ImuUpdater::UpdateEKF(
   std::stringstream msg;
 
   msg << time;
-  msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].pos_i_in_b);
-  msg << QuaternionToCommaString(m_ekf->GetState().m_imu_states[m_id].ang_i_to_b);
-  msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].acc_bias);
-  msg << VectorToCommaString(m_ekf->GetState().m_imu_states[m_id].omg_bias);
+  msg << VectorToCommaString(ekf->GetState().m_imu_states[m_id].pos_i_in_b);
+  msg << QuaternionToCommaString(ekf->GetState().m_imu_states[m_id].ang_i_to_b);
+  msg << VectorToCommaString(ekf->GetState().m_imu_states[m_id].acc_bias);
+  msg << VectorToCommaString(ekf->GetState().m_imu_states[m_id].omg_bias);
   if (imu_update_size) {
-    Eigen::VectorXd cov_diag = m_ekf->GetCov().block(
+    Eigen::VectorXd cov_diag = ekf->GetCov().block(
       imu_state_start, imu_state_start, imu_update_size, imu_update_size).diagonal();
     msg << VectorToCommaString(cov_diag);
   }

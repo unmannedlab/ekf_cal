@@ -164,6 +164,7 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
 void SimFiducialTracker::Callback(double time, std::shared_ptr<SimFiducialTrackerMessage> msg)
 {
   m_fiducial_updater.UpdateEKF(
+    m_ekf,
     time,
     msg->m_board_track,
     msg->m_pos_error.norm(),

@@ -18,6 +18,7 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <memory>
 #include <string>
 
 #include "ekf/update/updater.hpp"
@@ -71,13 +72,9 @@ public:
   /// @param use_as_predictor switch to use IMU as a prediction step
   ///
   void UpdateEKF(
+    std::shared_ptr<EKF> ekf,
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d acceleration_covariance,
     Eigen::Vector3d angular_rate, Eigen::Matrix3d angular_rate_covariance, bool use_as_predictor);
-
-  ///
-  /// @brief Refresh internal states with EKF values
-  ///
-  void RefreshStates();
 
 private:
   Eigen::Vector3d m_body_pos {0.0, 0.0, 0.0};

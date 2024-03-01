@@ -57,6 +57,7 @@ public:
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
     double data_log_rate {0.0};                  ///< @brief Data logging rate
     std::shared_ptr<DebugLogger> logger;         ///< @brief Debug logger
+    std::shared_ptr<EKF> ekf;                    ///< @brief EKF to update
   } Parameters;
 
   ///
@@ -75,7 +76,7 @@ private:
   bool m_is_extrinsic;
   bool m_is_intrinsic;
   bool m_use_for_prediction;
-
+  std::shared_ptr<EKF> m_ekf;
   ImuUpdater m_imu_updater;
 };
 

@@ -163,5 +163,9 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::Genera
 
 void SimFeatureTracker::Callback(double time, std::shared_ptr<SimFeatureTrackerMessage> msg)
 {
-  m_msckf_updater.UpdateEKF(time, msg->m_feature_tracks, m_px_error);
+  m_msckf_updater.UpdateEKF(
+    m_ekf,
+    time,
+    msg->m_feature_tracks,
+    m_px_error);
 }

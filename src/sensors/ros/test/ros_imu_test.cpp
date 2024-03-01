@@ -20,6 +20,10 @@
 #include "sensors/ros/ros_imu.hpp"
 
 TEST(test_RosIMU, Constructor) {
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
   IMU::Parameters params;
+  params.logger = logger;
+  params.ekf = ekf;
   RosIMU rosIMU(params);
 }
