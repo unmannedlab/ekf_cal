@@ -228,11 +228,6 @@ void FiducialUpdater::UpdateEKF(
       quaternion_jacobian(ang_f_to_g_est);
   }
 
-  /// @todo(jhartzer): Verify nullspace projection doesn't work
-  // if (board_track.size() > 1) {
-  //   ApplyLeftNullspace(H_f, H_c, res_f);
-  // }
-
   /// @todo Chi^2 distance check
 
   // Append our Jacobian and residual
@@ -276,11 +271,6 @@ void FiducialUpdater::UpdateEKF(
     (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * ekf->GetCov() *
     (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x).transpose() +
     K * R * K.transpose();
-
-  /// @todo(jhartzer): Should we be bounding?
-  // ekf->GetCov().diagonal() = ekf->GetCov().diagonal().array().abs();
-  // ekf->GetCov() = MaxBoundMatrix(ekf->GetCov(), 1e1);
-  // ekf->GetCov() = MinBoundDiagonal(ekf->GetCov(), 1e-2);
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);

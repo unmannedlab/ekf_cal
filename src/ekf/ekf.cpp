@@ -127,10 +127,6 @@ void EKF::ProcessModel(double time)
 
   AddProccessNoise();
 
-  /// @todo(jhartzer): Should there be bounding?
-  // m_cov = MaxBoundMatrix(m_cov, 1e1);
-  // m_cov = MinBoundDiagonal(m_cov, 1e-2);
-
   m_current_time = time;
 
   LogBodyStateIfNeeded();
@@ -195,10 +191,6 @@ void EKF::PredictModel(
   // Process input matrix is just identity
   m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
     F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose() + process_noise;
-
-  /// @todo(jhartzer): Should there be bounding?
-  // m_cov = MaxBoundMatrix(m_cov, 1e1);
-  // m_cov = MinBoundDiagonal(m_cov, 1e-2);
 
   m_current_time = time;
 

@@ -109,6 +109,19 @@ def plot_sim_results(config_sets, output_embed):
                             f.write(div)
         else:
             curdoc().theme = 'dark_minimal'
+            # TODO(jhartzer): Figure out how to add stylesheet to output
+            # style_sheet = GlobalInlineStyleSheet(css=
+            # """
+            # body{
+            #     background-color: #15191c;
+            # }
+            # .bk-tab {
+            #     color: white;
+            #     background-color: #15191c;
+            #     border-color: white;
+            # }
+            # """)
+
             save(
                 obj=Tabs(tabs=tabs, sizing_mode='stretch_width'),
                 filename=os.path.join(plot_dir, f'{config_name}-report.html'),
