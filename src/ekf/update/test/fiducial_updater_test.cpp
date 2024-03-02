@@ -20,8 +20,19 @@
 
 TEST(test_imu_updater, constructor) {
   int cam_id {1U};
+  Eigen::Vector3d fiducial_pos{0.0, 0.0, 0.0};
+  Eigen::Quaterniond fiducial_ang{1.0, 0.0, 0.0, 0.0};
   std::string log_file_directory("");
-  bool data_logging_on {false};
+  bool data_logging_on{true};
+  double data_log_rate{1.0};
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
-  FiducialUpdater fiducial_updater(cam_id, log_file_directory, data_logging_on);
+  FiducialUpdater fiducial_updater(
+    cam_id,
+    fiducial_pos,
+    fiducial_ang,
+    log_file_directory,
+    data_logging_on,
+    data_log_rate,
+    logger);
 }
