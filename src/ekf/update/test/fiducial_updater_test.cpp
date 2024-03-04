@@ -35,4 +35,21 @@ TEST(test_imu_updater, constructor) {
     data_logging_on,
     data_log_rate,
     logger);
+
+  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+
+  CamState cam_state;
+  Eigen::MatrixXd covariance = Eigen::MatrixXd::Identity(6, 6) * 1e-3;
+  ekf->RegisterCamera(cam_id, cam_state, covariance);
+
+  BoardTrack board_track;
+  BoardDetection board_detection;
+  board_detection.frame_id = 0;
+  board_detection.t_vec_f_in_c = cv::Vec3d{5, 0, 0};
+  board_detection.r_vec_f_to_c = cv::Vec3d{0, 0, 0};
+  board_track.push_back(board_detection);
+
+  ekf->AugmentState(cam_id, board_detection.frame_id);
+
+  fiducial_updater.UpdateEKF(ekf, 0.0, board_track, 1e-2, 1e-2);
 }

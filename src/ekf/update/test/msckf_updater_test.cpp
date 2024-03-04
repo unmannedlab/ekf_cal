@@ -23,47 +23,11 @@
 #include "ekf/update/msckf_updater.hpp"
 #include "sensors/types.hpp"
 
-///
-/// @class test_msckf_updater
-/// @brief test harness for msckf_updater
-///
-class test_msckf_updater : public ::testing::Test
-{
-protected:
-  ///
-  /// @brief Setup method for msckf_updater test harness
-  ///
-  void SetUp() override
-  {
-    auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-    auto ekf = std::make_shared<EKF>(debug_logger, 10.0, false, "");
+TEST(test_msckf_updater, projection_jacobian) {
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  Intrinsics intrinsics;
+  auto msckf_updater = MsckfUpdater(1, intrinsics, "", false, 0.0, 1.0, logger);
 
-
-    double time_init = 0.0;
-    BodyState body_state;
-    body_state.m_velocity = Eigen::Vector3d::Ones();
-    ekf->Initialize(time_init, body_state);
-
-    unsigned int cam_id{1};
-    Intrinsics intrinsics;
-    std::string log_file_directory{""};
-    bool data_logging_on {true};
-
-    CamState cam_state;
-    Eigen::MatrixXd cam_cov = Eigen::MatrixXd::Zero(6, 6);
-    ekf->RegisterCamera(cam_id, cam_state, cam_cov);
-
-    m_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-    msckf_updater = MsckfUpdater(
-      cam_id, intrinsics, log_file_directory, data_logging_on, 0.0, 1.0, m_logger);
-  }
-
-  /// @brief msckf_updater class for testing
-  std::shared_ptr<DebugLogger> m_logger;
-  MsckfUpdater msckf_updater{0, Intrinsics(), "", false, 0.0, 1.0, m_logger};
-};
-
-TEST_F(test_msckf_updater, projection_jacobian) {
   Eigen::Vector3d position{2, 3, 4};
   Eigen::MatrixXd jacobian(2, 3);
   msckf_updater.projection_jacobian(position, jacobian);
@@ -75,7 +39,9 @@ TEST_F(test_msckf_updater, projection_jacobian) {
   EXPECT_EQ(jacobian(1, 2), -3.0 / 4.0 / 4.0);
 }
 
-TEST_F(test_msckf_updater, distortion_jacobian) {
+TEST(test_msckf_updater, distortion_jacobian) {
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+
   Eigen::Vector2d uv_norm;
   uv_norm << 1, 2;
   Intrinsics intrinsics;
@@ -86,6 +52,8 @@ TEST_F(test_msckf_updater, distortion_jacobian) {
   intrinsics.p_1 = 0.0;
   intrinsics.p_2 = 0.0;
 
+  auto msckf_updater = MsckfUpdater(1, intrinsics, "", false, 0.0, 1.0, logger);
+
   Eigen::MatrixXd jacobian;
 
   msckf_updater.distortion_jacobian(uv_norm, intrinsics, jacobian);
@@ -94,4 +62,57 @@ TEST_F(test_msckf_updater, distortion_jacobian) {
   EXPECT_EQ(jacobian(0, 1), 0);
   EXPECT_EQ(jacobian(1, 0), 0);
   EXPECT_EQ(jacobian(1, 1), 1);
+}
+
+
+TEST(test_msckf_updater, update) {
+  auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(debug_logger, 10.0, false, "");
+  BodyState body_state;
+  body_state.m_velocity = Eigen::Vector3d{0, 5, 0};
+  ekf->Initialize(0.0, body_state);
+
+  unsigned int cam_id{1};
+  Intrinsics intrinsics;
+
+  CamState cam_state;
+  Eigen::MatrixXd cam_cov = Eigen::MatrixXd::Zero(6, 6);
+  ekf->RegisterCamera(cam_id, cam_state, cam_cov);
+
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto msckf_updater = MsckfUpdater(1, intrinsics, "", false, 0.0, 1.0, logger);
+
+  double time {0.3};
+  cv::KeyPoint point_1, point_2, point_3;
+  point_1.pt.x = 320;
+  point_1.pt.y = 240;
+  point_2.pt.x = 220;
+  point_2.pt.y = 240;
+  point_3.pt.x = 120;
+  point_3.pt.y = 240;
+
+  FeaturePoint feature_point_1, feature_point_2, feature_point_3;
+  feature_point_1.frame_id = 1;
+  feature_point_1.key_point = point_1;
+  feature_point_2.frame_id = 2;
+  feature_point_2.key_point = point_2;
+  feature_point_3.frame_id = 3;
+  feature_point_3.key_point = point_3;
+
+  std::vector<FeaturePoint> feature_points;
+  feature_points.push_back(feature_point_1);
+  feature_points.push_back(feature_point_2);
+  feature_points.push_back(feature_point_3);
+
+  FeatureTracks feature_tracks;
+  feature_tracks.push_back(feature_points);
+
+  ekf->ProcessModel(0.1);
+  ekf->AugmentState(cam_id, feature_point_1.frame_id);
+  ekf->ProcessModel(0.2);
+  ekf->AugmentState(cam_id, feature_point_2.frame_id);
+  ekf->ProcessModel(0.3);
+  ekf->AugmentState(cam_id, feature_point_3.frame_id);
+
+  msckf_updater.UpdateEKF(ekf, time, feature_tracks, 1e-3);
 }
