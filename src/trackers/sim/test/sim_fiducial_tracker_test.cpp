@@ -15,12 +15,31 @@
 
 #include <gtest/gtest.h>
 
-#include <memory>
-
 #include "trackers/fiducial_tracker.hpp"
 #include "trackers/sim/sim_fiducial_tracker.hpp"
+#include "infrastructure/sim/truth_engine_cyclic.hpp"
 
 TEST(test_fiducial_tracker, constructor) {
+  Eigen::Vector3d pos_frequency {1, 2, 3};
+  Eigen::Vector3d ang_frequency {1, 2, 3};
+  Eigen::Vector3d pos_offset {0, 0, 0};
+  Eigen::Vector3d ang_offset {0, 0, 0};
+  double pos_amplitude {1.0};
+  double ang_amplitude {0.1};
+  double stationary_time {1.0};
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto truth_engine = std::make_shared<TruthEngineCyclic>(
+    pos_frequency,
+    ang_frequency,
+    pos_offset,
+    ang_offset,
+    pos_amplitude,
+    ang_amplitude,
+    stationary_time,
+    logger
+  );
+
   FiducialTracker::Parameters params;
-  FiducialTracker fiducial_tracker(params);
+  SimFiducialTracker::Parameters sim_params;
+  SimFiducialTracker sim_fiducial_tracker(sim_params, truth_engine);
 }
