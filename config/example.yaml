@@ -42,6 +42,10 @@
 
         fiducial_list:
 
+        gps_list:
+            - "gps_1"
+            - "gps_2"
+
         imu:
             vn300:
                 use_for_prediction: false
@@ -134,3 +138,36 @@
                 sim_params:
                     feature_count: 100
                     room_size: 10.0
+
+        gps:
+            gps_1:
+                Rate: 5.0
+                Topic: "/gps1"
+                pos_a_in_b: [1.0, 0, 0]
+                VarInit: [5.0, 5.0, 5.0]
+                SimParams:
+                    time_bias: 0.0
+                    time_skew: 0.0
+                    time_error: 1.0e-9
+                    pos_a_in_b: [0.0, 0.0, 0.0]
+                    gps_error:  [5.0, 5.0, 5.0]
+                    pos_l_in_g: [0.0, 0.0, 0.0]
+                    ang_l_to_g: [1.0, 0.0, 0.0, 0.0]
+                    no_errors: false
+
+            gps_2:
+                Rate: 5.0
+                Topic: "/gps2"
+                pos_a_in_b: [-1.0, 0, 0]
+                VarInit: [5.0, 5.0, 5.0]
+                SimParams:
+                    time_bias: 0.0
+                    time_skew: 0.0
+                    time_error: 1.0e-9
+                    pos_a_in_b: [0.0, 0.0, 0.0]
+                    gps_error:  [5.0, 5.0, 5.0]
+                    pos_l_in_g: [0.0, 0.0, 0.0]
+                    ang_l_to_g: [1.0, 0.0, 0.0, 0.0]
+                    no_errors: false
+
+

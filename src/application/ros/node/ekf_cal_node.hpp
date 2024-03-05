@@ -25,17 +25,19 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/imu.hpp>
+#include <sensor_msgs/msg/nav_sat_fix.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
 
 #include "ekf/ekf.hpp"
 #include "infrastructure/data_logger.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "sensors/camera.hpp"
+#include "sensors/gps.hpp"
 #include "sensors/imu.hpp"
+#include "sensors/ros/ros_camera.hpp"
+#include "sensors/ros/ros_gps.hpp"
+#include "sensors/ros/ros_imu.hpp"
 #include "trackers/feature_tracker.hpp"
-
-class RosCamera;
-class RosIMU;
 
 ///
 /// @class EkfCalNode
@@ -67,30 +69,43 @@ public:
   void LoadSensors();
 
   ///
-  /// @brief Loading method for IMU sensors
+  /// @brief Load IMU sensor
   /// @param imu_name Name of IMU to find and load from YAML
   ///
-  void LoadIMU(std::string imu_name);
+  void LoadImu(std::string imu_name);
 
   ///
-  /// @brief Loading method for IMU sensors
-  /// @param cam_name Name of IMU to find and load from YAML
+  /// @brief Load camera sensor
+  /// @param cam_name Name of camera to find and load from YAML
   ///
   void LoadCamera(std::string cam_name);
 
   ///
+  /// @brief Load GPS sensor
+  /// @param gps_name Name of GPS to find and load from YAML
+  ///
+  void LoadGps(std::string gps_name);
+
+  ///
   /// @brief Function for declaring and loading IMU parameters
   /// @param imu_name Name of parameter structure
-  /// @return imuParameters
+  /// @return IMU parameters
   ///
   IMU::Parameters GetImuParameters(std::string imu_name);
 
   ///
   /// @brief Function for declaring and loading camera parameters
   /// @param camera_name Name of parameter structure
-  /// @return cameraParameters
+  /// @return Camera parameters
   ///
   Camera::Parameters GetCameraParameters(std::string camera_name);
+
+  ///
+  /// @brief Function for declaring and loading camera parameters
+  /// @param gps_name Name of parameter structure
+  /// @return GPS parameters
+  ///
+  GPS::Parameters GetGpsParameters(std::string gps_name);
 
   ///
   /// @brief Declare parameters for all sensors
@@ -99,21 +114,27 @@ public:
 
   ///
   /// @brief Declare IMU parameters
-  /// @param imu_name IMU parameter
+  /// @param imu_name IMU name
   ///
   void DeclareImuParameters(std::string imu_name);
 
   ///
   /// @brief Declare camera parameters
-  /// @param camera_name Camera parameter
+  /// @param camera_name Camera name
   ///
   void DeclareCameraParameters(std::string camera_name);
 
   ///
-  /// @brief Declare tracker PARAMETERS
-  /// @param tracker_name Tracker parameter
+  /// @brief Declare tracker parameters
+  /// @param tracker_name Tracker name
   ///
   void DeclareTrackerParameters(std::string tracker_name);
+
+  ///
+  /// @brief Declare GPS parameters
+  /// @param gps_name GPS name
+  ///
+  void DeclareGpsParameters(std::string gps_name);
 
   ///
   /// @brief Function for declaring and loading tracker parameters
@@ -121,12 +142,14 @@ public:
   /// @return trackerParameters
   ///
   FeatureTracker::Parameters GetTrackerParameters(std::string tracker_name);
+
   ///
   /// @brief Callback method for IMU sensor messages
   /// @param msg Sensor message pointer
   /// @param id Sensor ID number
   ///
   void ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id);
+
   ///
   /// @brief Callback method for Camera sensor messages
   /// @param msg Sensor message pointer
@@ -135,17 +158,32 @@ public:
   void CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id);
 
   ///
+  /// @brief Callback method for GPS sensor messages
+  /// @param msg Sensor message pointer
+  /// @param id Sensor ID number
+  ///
+  void GpsCallback(const sensor_msgs::msg::NavSatFix::SharedPtr msg, unsigned int id);
+
+  ///
   /// @brief Register IMU sensor
   /// @param imu_ptr IMU sensor shared pointer
   /// @param topic Topic to subscribe
   ///
   void RegisterImu(std::shared_ptr<RosIMU> imu_ptr, std::string topic);
+
   ///
   /// @brief Register camera sensor
   /// @param cam_ptr Camera sensor shared pointer
   /// @param topic Topic to subscribe
   ///
   void RegisterCamera(std::shared_ptr<RosCamera> cam_ptr, std::string topic);
+
+  ///
+  /// @brief Register GPS sensor
+  /// @param gps_ptr GPS sensor shared pointer
+  /// @param topic Topic to subscribe
+  ///
+  void RegisterGps(std::shared_ptr<RosGPS> gps_ptr, std::string topic);
 
   ///
   /// @brief State publisher callback
@@ -159,9 +197,13 @@ private:
   /// @brief Vector of subscribers for Camera sensor messages
   std::vector<rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr> m_camera_subs;
 
+  /// @brief Vector of subscribers for GPS sensor messages
+  std::vector<rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr> m_gps_subs;
+
   std::vector<std::string> m_imu_list {};
   std::vector<std::string> m_camera_list {};
   std::vector<std::string> m_tracker_list {};
+  std::vector<std::string> m_gps_list {};
 
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_img_publisher;
   rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_body_state_pub;
@@ -172,9 +214,9 @@ private:
   std::shared_ptr<DebugLogger> m_logger;
   DataLogger m_state_data_logger;
 
-
-  std::map<int, std::shared_ptr<RosIMU>> m_map_imu{};
-  std::map<int, std::shared_ptr<RosCamera>> m_map_camera{};
+  std::map<unsigned int, std::shared_ptr<RosIMU>> m_map_imu{};
+  std::map<unsigned int, std::shared_ptr<RosCamera>> m_map_camera{};
+  std::map<unsigned int, std::shared_ptr<RosGPS>> m_map_gps{};
 };
 
 #endif  // APPLICATION__ROS__NODE__EKF_CAL_NODE_HPP_

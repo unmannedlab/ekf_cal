@@ -65,16 +65,16 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_
   std::vector<std::shared_ptr<SimImuMessage>> messages;
   for (unsigned int i = 0; i < num_measurements; ++i) {
     auto sim_imu_msg = std::make_shared<SimImuMessage>();
-    double measurementTime =
+    double measurement_time =
       (1.0 + m_time_skew_error) / m_rate * static_cast<double>(i) + time_init;
-    sim_imu_msg->m_time = measurementTime;
+    sim_imu_msg->m_time = measurement_time;
     sim_imu_msg->m_sensor_id = m_id;
     sim_imu_msg->m_sensor_type = SensorType::IMU;
 
-    Eigen::Vector3d body_acc_g = m_truth->GetBodyAcceleration(measurementTime);
-    Eigen::Quaterniond body_b_to_g = m_truth->GetBodyAngularPosition(measurementTime);
-    Eigen::Vector3d body_ang_vel_g = m_truth->GetBodyAngularRate(measurementTime);
-    Eigen::Vector3d body_ang_acc_g = m_truth->GetBodyAngularAcceleration(measurementTime);
+    Eigen::Vector3d body_acc_g = m_truth->GetBodyAcceleration(measurement_time);
+    Eigen::Quaterniond body_b_to_g = m_truth->GetBodyAngularPosition(measurement_time);
+    Eigen::Vector3d body_ang_vel_g = m_truth->GetBodyAngularRate(measurement_time);
+    Eigen::Vector3d body_ang_acc_g = m_truth->GetBodyAngularAcceleration(measurement_time);
     Eigen::Vector3d pos_i_in_b_true = m_truth->GetImuPosition(m_id);
     Eigen::Quaterniond ang_i_to_b_true = m_truth->GetImuAngularPosition(m_id);
     Eigen::Vector3d acc_bias_true = m_truth->GetImuAccelerometerBias(m_id);

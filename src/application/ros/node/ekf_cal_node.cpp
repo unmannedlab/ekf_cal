@@ -30,6 +30,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/imu.hpp>
+#include <sensor_msgs/msg/nav_sat_fix.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
 
 #include "ekf/ekf.hpp"
@@ -37,9 +38,12 @@
 #include "infrastructure/debug_logger.hpp"
 #include "infrastructure/ekf_cal_version.hpp"
 #include "sensors/camera.hpp"
+#include "sensors/gps.hpp"
 #include "sensors/imu.hpp"
 #include "sensors/ros/ros_camera_message.hpp"
 #include "sensors/ros/ros_camera.hpp"
+#include "sensors/ros/ros_gps_message.hpp"
+#include "sensors/ros/ros_gps.hpp"
 #include "sensors/ros/ros_imu_message.hpp"
 #include "sensors/ros/ros_imu.hpp"
 #include "utility/string_helper.hpp"
@@ -56,6 +60,7 @@ EkfCalNode::EkfCalNode()
   this->declare_parameter("imu_list", std::vector<std::string>{});
   this->declare_parameter("camera_list", std::vector<std::string>{});
   this->declare_parameter("tracker_list", std::vector<std::string>{});
+  this->declare_parameter("gps_list", std::vector<std::string>{});
 
   m_state_pub_timer =
     this->create_wall_timer(std::chrono::seconds(1), std::bind(&EkfCalNode::PublishState, this));
@@ -78,6 +83,7 @@ void EkfCalNode::Initialize()
   m_imu_list = this->get_parameter("imu_list").as_string_array();
   m_camera_list = this->get_parameter("camera_list").as_string_array();
   m_tracker_list = this->get_parameter("tracker_list").as_string_array();
+  m_gps_list = this->get_parameter("gps_list").as_string_array();
 }
 
 void EkfCalNode::DeclareSensors()
@@ -91,6 +97,9 @@ void EkfCalNode::DeclareSensors()
   for (std::string & tracker_name : m_tracker_list) {
     DeclareTrackerParameters(tracker_name);
   }
+  for (std::string & gps_name : m_gps_list) {
+    DeclareGpsParameters(gps_name);
+  }
 }
 
 
@@ -98,12 +107,17 @@ void EkfCalNode::LoadSensors()
 {
   // Load IMU sensor parameters
   for (std::string & imu_name : m_imu_list) {
-    LoadIMU(imu_name);
+    LoadImu(imu_name);
   }
 
   // Load Camera sensor parameters
   for (std::string & cam_name : m_camera_list) {
     LoadCamera(cam_name);
+  }
+
+  // Load Camera sensor parameters
+  for (std::string & gps_name : m_gps_list) {
+    LoadGps(gps_name);
   }
 
   // Create publishers
@@ -248,8 +262,35 @@ FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_
   return tracker_params;
 }
 
+void EkfCalNode::DeclareGpsParameters(std::string gps_name)
+{
+  // Declare parameters
+  std::string gps_prefix = "GPS." + gps_name;
+  this->declare_parameter(gps_prefix + ".Rate", 1.0);
+  this->declare_parameter(gps_prefix + ".Topic", "");
+  this->declare_parameter(gps_prefix + ".pos_a_in_b", std::vector<double>{0, 0, 0});
+  this->declare_parameter(gps_prefix + ".VarInit", std::vector<double>{1, 1, 1});
+}
 
-void EkfCalNode::LoadIMU(std::string imu_name)
+GPS::Parameters EkfCalNode::GetGpsParameters(std::string gps_name)
+{
+  // Get parameters
+  std::string gps_prefix = "GPS." + gps_name;
+  double rate = this->get_parameter(gps_prefix + ".Rate").as_double();
+  std::string topic = this->get_parameter(gps_prefix + ".Topic").as_string();
+  std::vector<double> pos_a_in_b =
+    this->get_parameter(gps_prefix + ".pos_a_in_b").as_double_array();
+  std::vector<double> variance = this->get_parameter(gps_prefix + ".VarInit").as_double_array();
+  GPS::Parameters gps_params;
+  gps_params.name = gps_name;
+  gps_params.topic = topic;
+  gps_params.rate = rate;
+  gps_params.pos_a_in_b = StdToEigVec(pos_a_in_b);
+  gps_params.variance = StdToEigVec(variance);
+  return gps_params;
+}
+
+void EkfCalNode::LoadImu(std::string imu_name)
 {
   IMU::Parameters imu_params = GetImuParameters(imu_name);
   m_logger->Log(LogLevel::INFO, "Loaded IMU: " + imu_name);
@@ -308,6 +349,31 @@ void EkfCalNode::RegisterCamera(std::shared_ptr<RosCamera> camera_ptr, std::stri
       camera_ptr->GetId()) + ": " + camera_ptr->GetName());
 }
 
+void EkfCalNode::LoadGps(std::string gps_name)
+{
+  GPS::Parameters gps_params = GetGpsParameters(gps_name);
+  m_logger->Log(LogLevel::INFO, "Loaded GPS: " + gps_name);
+
+  // Create new RosGPS and and bind callback to ID
+  std::shared_ptr<RosGPS> gps_ptr = std::make_shared<RosGPS>(gps_params);
+
+  RegisterGps(gps_ptr, gps_params.topic);
+}
+
+void EkfCalNode::RegisterGps(std::shared_ptr<RosGPS> gps_ptr, std::string topic)
+{
+  m_map_gps[gps_ptr->GetId()] = gps_ptr;
+
+  std::function<void(std::shared_ptr<sensor_msgs::msg::NavSatFix>)> function;
+  function = std::bind(&EkfCalNode::GpsCallback, this, _1, gps_ptr->GetId());
+  auto sub = this->create_subscription<sensor_msgs::msg::NavSatFix>(topic, 10, function);
+  m_gps_subs.push_back(sub);
+
+  m_logger->Log(
+    LogLevel::INFO, "Registered Camera " + std::to_string(
+      gps_ptr->GetId()) + ": " + gps_ptr->GetName());
+}
+
 void EkfCalNode::ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id)
 {
   auto ros_imu_iter = m_map_imu.find(id);
@@ -322,17 +388,28 @@ void EkfCalNode::ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigne
 
 void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
 {
-  auto rosCamIter = m_map_camera.find(id);
-  if (rosCamIter != m_map_camera.end()) {
+  auto ros_cam_iter = m_map_camera.find(id);
+  if (ros_cam_iter != m_map_camera.end()) {
     auto ros_camera_message = std::make_shared<RosCameraMessage>(msg);
     ros_camera_message->m_sensor_id = id;
-    rosCamIter->second->Callback(ros_camera_message);
-    m_img_publisher->publish(*rosCamIter->second->GetRosImage().get());
+    ros_cam_iter->second->Callback(ros_camera_message);
+    m_img_publisher->publish(*ros_cam_iter->second->GetRosImage().get());
   } else {
     m_logger->Log(LogLevel::WARN, "Camera ID Not Found: " + std::to_string(id));
   }
 }
 
+void EkfCalNode::GpsCallback(const sensor_msgs::msg::NavSatFix::SharedPtr msg, unsigned int id)
+{
+  auto ros_gps_iter = m_map_gps.find(id);
+  if (ros_gps_iter != m_map_gps.end()) {
+    auto ros_gps_message = std::make_shared<RosGpsMessage>(msg);
+    ros_gps_message->m_sensor_id = id;
+    ros_gps_iter->second->Callback(ros_gps_message);
+  } else {
+    m_logger->Log(LogLevel::WARN, "GPS ID Not Found: " + std::to_string(id));
+  }
+}
 
 void EkfCalNode::PublishState()
 {

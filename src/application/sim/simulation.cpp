@@ -44,6 +44,8 @@
 #include "sensors/sim/sim_imu.hpp"
 #include "sensors/types.hpp"
 #include "trackers/feature_tracker.hpp"
+#include "sensors/sim/sim_gps_message.hpp"
+#include "sensors/sim/sim_gps.hpp"
 #include "trackers/sim/sim_feature_tracker.hpp"
 #include "trackers/sim/sim_fiducial_tracker.hpp"
 #include "utility/sim/sim_rng.hpp"
@@ -84,6 +86,7 @@ int main(int argc, char * argv[])
   auto cameras = LoadNodeList(root["/EkfCalNode"]["ros__parameters"]["camera_list"]);
   auto trackers = LoadNodeList(root["/EkfCalNode"]["ros__parameters"]["tracker_list"]);
   auto fiducials = LoadNodeList(root["/EkfCalNode"]["ros__parameters"]["fiducial_list"]);
+  auto gps_list = LoadNodeList(root["/EkfCalNode"]["ros__parameters"]["gps_list"]);
 
   // Construct sensors and EKF
   std::map<unsigned int, std::shared_ptr<Sensor>> sensor_map;
@@ -406,10 +409,48 @@ int main(int argc, char * argv[])
     messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
   }
 
+  // Load GPSs and generate measurements
+  debug_logger->Log(LogLevel::INFO, "Loading GPSs");
+  for (unsigned int i = 0; i < gps_list.size(); ++i) {
+    YAML::Node gps_node = root["/EkfCalNode"]["ros__parameters"]["GPS"][gps_list[i]];
+    YAML::Node sim_node = gps_node["SimParams"];
+
+    GPS::Parameters gps_params;
+    gps_params.name = gps_list[i];
+    gps_params.rate = gps_node["Rate"].as<double>();
+    gps_params.topic = gps_node["Topic"].as<std::string>();
+    Eigen::Vector3d variance {{1, 1, 1}};
+    gps_params.variance = StdToEigVec(gps_node["VarInit"].as<std::vector<double>>());
+    gps_params.pos_a_in_b = StdToEigVec(gps_node["pos_a_in_b"].as<std::vector<double>>());
+    gps_params.output_directory = out_dir;
+    gps_params.data_logging_on = data_logging_on;
+
+    // SimParams
+    SimGPS::Parameters sim_gps_params;
+    sim_gps_params.gps_params = gps_params;
+    sim_gps_params.time_bias = sim_node["time_bias"].as<double>();
+    sim_gps_params.time_skew = sim_node["time_skew"].as<double>();
+    sim_gps_params.time_error = sim_node["time_error"].as<double>();
+    sim_gps_params.pos_a_in_b = StdToEigVec(sim_node["pos_a_in_b"].as<std::vector<double>>());
+    sim_gps_params.gps_error = StdToEigVec(sim_node["gps_error"].as<std::vector<double>>());
+    sim_gps_params.pos_l_in_g = StdToEigVec(sim_node["pos_l_in_g"].as<std::vector<double>>());
+    sim_gps_params.ang_l_to_g = StdToEigQuat(sim_node["ang_l_to_g"].as<std::vector<double>>());
+    sim_gps_params.no_errors = no_errors;
+
+    // Add sensor to map
+    auto gps = std::make_shared<SimGPS>(sim_gps_params, truth_engine);
+    sensor_map[gps->GetId()] = gps;
+
+    // Calculate sensor measurements
+    auto gps_messages = gps->GenerateMessages(max_time);
+    messages.insert(messages.end(), gps_messages.begin(), gps_messages.end());
+  }
+
   // Log truth data
   if (data_logging_on) {
     truth_engine->WriteTruthData(body_data_rate, max_time + stationary_time, out_dir);
   }
+
 
   // Sort Measurements
   sort(messages.begin(), messages.end(), MessageCompare);
@@ -427,6 +468,10 @@ int main(int argc, char * argv[])
         auto cam = std::static_pointer_cast<SimCamera>(it->second);
         auto msg = std::static_pointer_cast<SimCameraMessage>(message);
         cam->Callback(msg);
+      } else if (message->m_sensor_type == SensorType::GPS) {
+        auto gps = std::static_pointer_cast<SimGPS>(it->second);
+        auto msg = std::static_pointer_cast<SimGpsMessage>(message);
+        gps->Callback(msg);
       } else {
         debug_logger->Log(LogLevel::WARN, "Unknown Message Type");
       }

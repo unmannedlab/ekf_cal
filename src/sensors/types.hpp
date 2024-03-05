@@ -20,7 +20,8 @@ enum class SensorType
 {
   IMU,
   Camera,
-  Tracker
+  Tracker,
+  GPS
 };
 
 ///

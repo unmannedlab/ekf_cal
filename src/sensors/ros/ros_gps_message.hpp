@@ -1,4 +1,4 @@
-// Copyright 2022 Jacob Hartzer
+// Copyright 2023 Jacob Hartzer
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,18 +13,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
-#include <memory>
+#ifndef SENSORS__ROS__ROS_GPS_MESSAGE_HPP_
+#define SENSORS__ROS__ROS_GPS_MESSAGE_HPP_
 
-#include "sensors/imu.hpp"
-#include "sensors/ros/ros_imu.hpp"
+#include <sensor_msgs/msg/nav_sat_fix.hpp>
+
+#include "sensors/gps_message.hpp"
 
 
-TEST(test_RosIMU, Constructor) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
-  IMU::Parameters params;
-  params.logger = logger;
-  params.ekf = ekf;
-  RosIMU rosIMU(params);
-}
+///
+/// @class RosGpsMessage
+/// @brief Ros GPS message class
+///
+class RosGpsMessage : public GpsMessage
+{
+public:
+  ///
+  /// @brief RosGpsMessage constructor
+  /// @param msg Ros NavSatFix message pointer
+  ///
+  explicit RosGpsMessage(const sensor_msgs::msg::NavSatFix::SharedPtr msg);
+};
+
+#endif  // SENSORS__ROS__ROS_GPS_MESSAGE_HPP_

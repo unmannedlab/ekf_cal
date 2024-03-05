@@ -30,6 +30,11 @@ list(APPEND CMAKE_PREFIX_PATH /opt/ros/${ROS_DISTRO}/)
 
 set(ROS_PKGS
     ament_cmake
+    ament_cmake_flake8
+    ament_cmake_copyright
+    ament_cmake_cpplint
+    ament_cmake_uncrustify
+    ament_cmake_cppcheck
     cv_bridge
     geometry_msgs
     OpenCV
@@ -85,6 +90,7 @@ add_library(ROS_UTL ${ROS_UTL_SRCS})
 
 # EKF Utilities
 set(EKF_UTL_SRCS
+    src/utility/gps_helper.cpp
     src/utility/math_helper.cpp
     src/utility/string_helper.cpp
     src/utility/type_helper.cpp
@@ -97,11 +103,13 @@ set(EKF_SRCS
     src/ekf/ekf.cpp
     src/ekf/types.cpp
     src/ekf/update/fiducial_updater.cpp
+    src/ekf/update/gps_updater.cpp
     src/ekf/update/imu_updater.cpp
     src/ekf/update/msckf_updater.cpp
     src/ekf/update/updater.cpp
     src/sensors/camera_message.cpp
     src/sensors/camera.cpp
+    src/sensors/gps.cpp
     src/sensors/imu.cpp
     src/sensors/sensor.cpp
     src/trackers/feature_tracker.cpp
@@ -114,6 +122,7 @@ target_link_libraries(EKF_LIB ROS_INF EKF_UTL)
 # Simulation Sources
 set(SIM_SRCS
     src/sensors/sim/sim_camera.cpp
+    src/sensors/sim/sim_gps.cpp
     src/sensors/sim/sim_imu.cpp
     src/trackers/sim/sim_feature_tracker.cpp
     src/trackers/sim/sim_fiducial_tracker.cpp
@@ -127,6 +136,7 @@ set(ROS_SRCS
     src/sensors/ros/ros_camera_message.cpp
     src/sensors/ros/ros_camera.cpp
     src/sensors/ros/ros_imu_message.cpp
+    src/sensors/ros/ros_gps_message.cpp
 )
 add_library(ROS_LIB ${ROS_SRCS})
 target_link_libraries(ROS_LIB EKF_LIB ROS_INF ROS_UTL EKF_UTL)
@@ -174,8 +184,10 @@ if(BUILD_TESTING)
         src/infrastructure/sim/test/truth_engine_test.cpp
         src/infrastructure/test/data_logger_test.cpp
         src/sensors/ros/test/ros_camera_test.cpp
+        src/sensors/ros/test/ros_gps_test.cpp
         src/sensors/ros/test/ros_imu_test.cpp
         src/sensors/sim/test/sim_camera_test.cpp
+        src/sensors/sim/test/sim_gps_test.cpp
         src/sensors/sim/test/sim_imu_test.cpp
         src/sensors/test/camera_test.cpp
         src/sensors/test/imu_test.cpp
@@ -186,6 +198,7 @@ if(BUILD_TESTING)
         src/trackers/test/fiducial_tracker_test.cpp
         src/utility/sim/test/sim_rng_test.cpp
         src/utility/test/custom_assertions_test.cpp
+        src/utility/test/gps_helper_test.cpp
         src/utility/test/math_helper_test.cpp
         src/utility/test/ros_helper_test.cpp
         src/utility/test/type_helper_test.cpp

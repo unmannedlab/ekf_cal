@@ -21,8 +21,7 @@
 
 #include "ekf/ekf.hpp"
 #include "infrastructure/debug_logger.hpp"
-
-class SensorMessage;
+#include "sensors/sensor_message.hpp"
 
 ///
 /// @class Sensor

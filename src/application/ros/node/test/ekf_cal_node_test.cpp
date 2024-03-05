@@ -45,6 +45,7 @@ TEST_F(EkfCalNode_test, hello_world)
   node.set_parameter(rclcpp::Parameter("imu_list", std::vector<std::string>{"TestImu"}));
   node.set_parameter(rclcpp::Parameter("camera_list", std::vector<std::string>{"TestCamera"}));
   node.set_parameter(rclcpp::Parameter("tracker_list", std::vector<std::string>{"TestTracker"}));
+  node.set_parameter(rclcpp::Parameter("gps_list", std::vector<std::string>{"TestGps"}));
 
   node.Initialize();
   node.DeclareSensors();
@@ -94,6 +95,14 @@ TEST_F(EkfCalNode_test, hello_world)
   node.set_parameter(rclcpp::Parameter("tracker.TestTracker.descriptor_extractor", 0));
   node.set_parameter(rclcpp::Parameter("tracker.TestTracker.descriptor_matcher", 0));
   node.set_parameter(rclcpp::Parameter("tracker.TestTracker.detector_threshold", 10.0));
+
+  node.set_parameter(rclcpp::Parameter("GPS.TestGps.Topic", "/gps1"));
+  node.set_parameter(rclcpp::Parameter("GPS.TestGps.Rate", 10.0));
+  node.set_parameter(rclcpp::Parameter("GPS.TestGps.VarInit", std::vector<double>{1.0, 1.0, 1.0}));
+  node.set_parameter(
+    rclcpp::Parameter(
+      "GPS.TestGps.pos_a_in_b",
+      std::vector<double>{0.0, 0.0, 0.0}));
 
   node.LoadSensors();
   auto imu_msg = std::make_shared<sensor_msgs::msg::Imu>();

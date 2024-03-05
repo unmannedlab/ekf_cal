@@ -1,4 +1,4 @@
-// Copyright 2022 Jacob Hartzer
+// Copyright 2023 Jacob Hartzer
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,18 +13,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
-#include <memory>
 
-#include "sensors/imu.hpp"
-#include "sensors/ros/ros_imu.hpp"
+#ifndef SENSORS__GPS_MESSAGE_HPP_
+#define SENSORS__GPS_MESSAGE_HPP_
 
+#include <eigen3/Eigen/Eigen>
 
-TEST(test_RosIMU, Constructor) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
-  IMU::Parameters params;
-  params.logger = logger;
-  params.ekf = ekf;
-  RosIMU rosIMU(params);
-}
+#include "sensors/sensor_message.hpp"
+
+///
+/// @class GpsMessage
+/// @brief Data class for GPS messages
+///
+class GpsMessage : public SensorMessage
+{
+public:
+  GpsMessage() {}
+  double m_latitude;   ///< @brief GPS latitude
+  double m_longitude;  ///< @brief GPS longitude
+  double m_altitude;   ///< @brief GPS altitude
+};
+
+#endif  // SENSORS__GPS_MESSAGE_HPP_
