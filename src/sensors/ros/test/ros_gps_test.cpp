@@ -15,12 +15,45 @@
 
 #include <gtest/gtest.h>
 
-#include "sensors/ros/ros_gps.hpp"
+#include <sensor_msgs/msg/nav_sat_fix.hpp>
+
 #include "sensors/gps.hpp"
+#include "sensors/ros/ros_gps_message.hpp"
+#include "sensors/ros/ros_gps.hpp"
 
 
 TEST(test_RosGPS, Constructor) {
-  /// @todo(jhartzer): Extend this test
-  GPS::Parameters params;
-  RosGPS rosGPS(params);
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+  GPS::Parameters ros_gps_params;
+  ros_gps_params.logger = logger;
+  ros_gps_params.ekf = ekf;
+  RosGPS rosGPS(ros_gps_params);
+}
+
+TEST(test_RosGPS, ros_gps_message) {
+  auto nav_sat_fix_msg = std::make_shared<sensor_msgs::msg::NavSatFix>();
+  RosGpsMessage ros_gps_message(nav_sat_fix_msg);
+  EXPECT_TRUE(true);
+}
+
+TEST(test_ros_camera, ros_gps_callback) {
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+  GPS::Parameters ros_gps_params;
+  ros_gps_params.logger = logger;
+  ros_gps_params.ekf = ekf;
+  RosGPS rosGPS(ros_gps_params);
+
+
+  auto nav_sat_fix_msg = std::make_shared<sensor_msgs::msg::NavSatFix>();
+  nav_sat_fix_msg->header.stamp.sec = 0;
+  nav_sat_fix_msg->header.stamp.nanosec = 0;
+  nav_sat_fix_msg->latitude = 0.0;
+  nav_sat_fix_msg->longitude = 0.0;
+  nav_sat_fix_msg->altitude = 0.0;
+
+  auto ros_gps_message = std::make_shared<RosGpsMessage>(nav_sat_fix_msg);
+
+  rosGPS.Callback(ros_gps_message);
 }

@@ -1,4 +1,4 @@
-// Copyright 2022 Jacob Hartzer
+// Copyright 2024 Jacob Hartzer
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,27 +13,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__ROS__ROS_IMU_HPP_
-#define SENSORS__ROS__ROS_IMU_HPP_
+#include <gtest/gtest.h>
 
-#include "sensors/imu.hpp"
-#include "sensors/ros/ros_imu_message.hpp"
+#include "sensors/gps.hpp"
 
 
-///
-/// @class RosIMU
-/// @brief IMU Sensor Class
-///
-class RosIMU : public IMU
-{
-public:
-  using IMU::IMU;
+TEST(test_gps, Callback) {
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
 
-  ///
-  /// @brief RosIMU callback method
-  /// @param ros_imu_message ROS IMU message
-  ///
-  void Callback(std::shared_ptr<RosImuMessage> ros_imu_message);
-};
+  GPS::Parameters params;
+  params.logger = logger;
+  params.ekf = ekf;
 
-#endif  // SENSORS__ROS__ROS_IMU_HPP_
+  GPS gps(params);
+
+  auto gps_message = std::make_shared<GpsMessage>();
+  gps_message->m_sensor_id = 1;
+  gps_message->m_sensor_type = SensorType::GPS;
+  gps_message->m_time = 0.0;
+  gps_message->m_altitude = 0.0;
+  gps_message->m_latitude = 0.0;
+  gps_message->m_longitude = 0.0;
+
+  gps.Callback(gps_message);
+}

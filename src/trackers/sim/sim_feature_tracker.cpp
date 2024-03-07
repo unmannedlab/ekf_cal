@@ -120,7 +120,7 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::Genera
   std::vector<double> message_times, int sensor_id)
 {
   m_logger->Log(
-    LogLevel::INFO, "Generating " + std::to_string(message_times.size()) + " measurements");
+    LogLevel::INFO, "Generating " + std::to_string(message_times.size()) + " Feature measurements");
 
   std::map<unsigned int, std::vector<FeaturePoint>> feature_track_map;
   std::vector<std::shared_ptr<SimFeatureTrackerMessage>> tracker_messages;

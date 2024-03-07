@@ -17,6 +17,7 @@
 #define SENSORS__ROS__ROS_GPS_HPP_
 
 #include "sensors/gps.hpp"
+#include "sensors/ros/ros_gps_message.hpp"
 
 
 ///
@@ -27,6 +28,12 @@ class RosGPS : public GPS
 {
 public:
   using GPS::GPS;
+
+  ///
+  /// @brief RosGPS callback method
+  /// @param ros_gps_message ROS GPS message
+  ///
+  void Callback(std::shared_ptr<RosGpsMessage> ros_gps_message);
 };
 
 #endif  // SENSORS__ROS__ROS_GPS_HPP_

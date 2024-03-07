@@ -23,7 +23,7 @@
 #include "trackers/sim/sim_feature_tracker.hpp"
 #include "trackers/sim/sim_fiducial_tracker.hpp"
 
-TEST(test_SimCamera, Constructor) {
+TEST(test_SimCamera, feature_track) {
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
   Eigen::Vector3d pos_frequency{1, 2, 3};
@@ -46,10 +46,22 @@ TEST(test_SimCamera, Constructor) {
   SimRNG rng;
   truth_engine->GenerateFeatures(1000, 10, rng);
 
+  Intrinsics intrinsics;
+  intrinsics.F = 1.0;
+  intrinsics.c_x = 320.0;
+  intrinsics.c_y = 240.0;
+  intrinsics.k_1 = 0.0;
+  intrinsics.k_2 = 0.0;
+  intrinsics.p_1 = 0.0;
+  intrinsics.p_2 = 0.0;
+  intrinsics.pixel_size = 1.0e-2;
+
   Camera::Parameters cam_params;
   cam_params.ekf = ekf;
   cam_params.logger = logger;
-  cam_params.rate = 10.0;
+  cam_params.rate = 20.0;
+  cam_params.intrinsics = intrinsics;
+  cam_params.ang_c_to_b = Eigen::Quaterniond{-0.5, 0.5, -0.5, 0.5};
 
   SimCamera::Parameters sim_camera_params;
   sim_camera_params.cam_params = cam_params;
@@ -64,6 +76,58 @@ TEST(test_SimCamera, Constructor) {
   auto feature_tracker = std::make_shared<SimFeatureTracker>(sim_feature_params, truth_engine);
   sim_camera.AddTracker(feature_tracker);
 
+  std::vector<std::shared_ptr<SimCameraMessage>> cam_messages = sim_camera.GenerateMessages(1.0);
+
+  for (unsigned int i = 0; i < 5; ++i) {
+    sim_camera.Callback(cam_messages[i]);
+  }
+}
+
+TEST(test_SimCamera, fiducial_track) {
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+  Eigen::Vector3d pos_frequency{1, 2, 3};
+  Eigen::Vector3d ang_frequency{4, 5, 6};
+  Eigen::Vector3d pos_offset{1, 2, 3};
+  Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
+  double pos_amplitude = 1.0;
+  double ang_amplitude = 0.1;
+
+  auto truth_engine = std::make_shared<TruthEngineCyclic>(
+    pos_frequency,
+    ang_frequency,
+    pos_offset,
+    ang_offset,
+    pos_amplitude,
+    ang_amplitude,
+    0.0, logger
+  );
+
+  SimRNG rng;
+  truth_engine->GenerateFeatures(1000, 10, rng);
+
+  Intrinsics intrinsics;
+  intrinsics.F = 1.0;
+  intrinsics.c_x = 320.0;
+  intrinsics.c_y = 240.0;
+  intrinsics.k_1 = 0.0;
+  intrinsics.k_2 = 0.0;
+  intrinsics.p_1 = 0.0;
+  intrinsics.p_2 = 0.0;
+  intrinsics.pixel_size = 1.0e-2;
+
+  Camera::Parameters cam_params;
+  cam_params.ekf = ekf;
+  cam_params.logger = logger;
+  cam_params.rate = 10.0;
+  cam_params.intrinsics = intrinsics;
+  cam_params.ang_c_to_b = Eigen::Quaterniond{-0.5, 0.5, -0.5, 0.5};
+
+  SimCamera::Parameters sim_camera_params;
+  sim_camera_params.cam_params = cam_params;
+
+  SimCamera sim_camera(sim_camera_params, truth_engine);
+
   FiducialTracker::Parameters fiducial_params;
   fiducial_params.ekf = ekf;
   fiducial_params.logger = logger;
@@ -72,6 +136,9 @@ TEST(test_SimCamera, Constructor) {
   auto fiducial_tracker = std::make_shared<SimFiducialTracker>(sim_fiducial_params, truth_engine);
   sim_camera.AddFiducial(fiducial_tracker);
 
-  /// @todo(jhartzer): Verify the content of the messages
-  std::vector<std::shared_ptr<SimCameraMessage>> cam_messages = sim_camera.GenerateMessages(10.0);
+  std::vector<std::shared_ptr<SimCameraMessage>> cam_messages = sim_camera.GenerateMessages(1.0);
+
+  for (auto cam_message : cam_messages) {
+    sim_camera.Callback(cam_message);
+  }
 }

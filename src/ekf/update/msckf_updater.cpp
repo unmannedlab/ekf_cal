@@ -218,7 +218,7 @@ void MsckfUpdater::UpdateEKF(
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
-  m_logger->Log(LogLevel::DEBUG, "Called update_msckf for camera ID: " + std::to_string(m_id));
+  m_logger->Log(LogLevel::DEBUG, "Called MSCKF Update for camera ID: " + std::to_string(m_id));
 
   if (feature_tracks.size() == 0) {
     return;

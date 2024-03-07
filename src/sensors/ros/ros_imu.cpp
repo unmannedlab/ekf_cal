@@ -1,4 +1,4 @@
-// Copyright 2022 Jacob Hartzer
+// Copyright 2024 Jacob Hartzer
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,27 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef SENSORS__ROS__ROS_IMU_HPP_
-#define SENSORS__ROS__ROS_IMU_HPP_
 
-#include "sensors/imu.hpp"
+#include "sensors/ros/ros_imu.hpp"
 #include "sensors/ros/ros_imu_message.hpp"
 
-
-///
-/// @class RosIMU
-/// @brief IMU Sensor Class
-///
-class RosIMU : public IMU
+void RosIMU::Callback(std::shared_ptr<RosImuMessage> ros_imu_message)
 {
-public:
-  using IMU::IMU;
+  auto imu_message = std::make_shared<ImuMessage>();
+  imu_message->m_time = ros_imu_message->m_time;
+  imu_message->m_sensor_id = ros_imu_message->m_sensor_id;
+  imu_message->m_sensor_type = ros_imu_message->m_sensor_type;
+  IMU::Callback(imu_message);
 
-  ///
-  /// @brief RosIMU callback method
-  /// @param ros_imu_message ROS IMU message
-  ///
-  void Callback(std::shared_ptr<RosImuMessage> ros_imu_message);
-};
-
-#endif  // SENSORS__ROS__ROS_IMU_HPP_
+  m_logger->Log(LogLevel::DEBUG, "Image publish ROS");
+}

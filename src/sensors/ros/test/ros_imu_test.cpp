@@ -18,13 +18,19 @@
 
 #include "sensors/imu.hpp"
 #include "sensors/ros/ros_imu.hpp"
+#include "sensors/ros/ros_imu_message.hpp"
 
 
 TEST(test_RosIMU, Constructor) {
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
-  IMU::Parameters params;
-  params.logger = logger;
-  params.ekf = ekf;
-  RosIMU rosIMU(params);
+  IMU::Parameters ros_imu_params;
+  ros_imu_params.logger = logger;
+  ros_imu_params.ekf = ekf;
+  RosIMU rosIMU(ros_imu_params);
+}
+
+TEST(test_RosGPS, ros_gps_message) {
+  RosImuMessage ros_imu_message();
+  EXPECT_TRUE(true);
 }

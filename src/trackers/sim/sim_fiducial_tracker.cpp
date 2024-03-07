@@ -102,7 +102,8 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
   std::vector<double> message_times, int sensor_id)
 {
   m_logger->Log(
-    LogLevel::INFO, "Generating " + std::to_string(message_times.size()) + " measurements");
+    LogLevel::INFO,
+    "Generating " + std::to_string(message_times.size()) + " Fiducial measurements");
 
   std::vector<std::shared_ptr<SimFiducialTrackerMessage>> fiducial_tracker_messages;
   Eigen::Vector3d pos_f_in_g_true = m_truth->GetBoardPosition(0);

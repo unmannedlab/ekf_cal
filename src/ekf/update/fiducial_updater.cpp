@@ -75,7 +75,7 @@ void FiducialUpdater::UpdateEKF(
   BoardTrack board_track, double pos_error, double ang_error)
 {
   m_logger->Log(
-    LogLevel::DEBUG, "Called update_msckf for camera ID: " + std::to_string(m_id));
+    LogLevel::DEBUG, "Called Fiducial Update for camera ID: " + std::to_string(m_id));
 
   if (board_track.size() == 0) {
     return;

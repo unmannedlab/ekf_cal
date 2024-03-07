@@ -32,7 +32,11 @@ RosCamera::RosCamera(Camera::Parameters camera_parameters)
 
 void RosCamera::Callback(std::shared_ptr<RosCameraMessage> ros_camera_message)
 {
-  Camera::Callback(ros_camera_message);
+  auto camera_message = std::make_shared<CameraMessage>(ros_camera_message->image);
+  camera_message->m_time = ros_camera_message->m_time;
+  camera_message->m_sensor_id = ros_camera_message->m_sensor_id;
+  camera_message->m_sensor_type = ros_camera_message->m_sensor_type;
+  Camera::Callback(camera_message);
 
   m_logger->Log(LogLevel::DEBUG, "Image publish ROS");
 

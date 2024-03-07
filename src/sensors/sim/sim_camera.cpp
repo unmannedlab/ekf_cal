@@ -48,14 +48,8 @@ SimCamera::SimCamera(
   m_ang_error = params.ang_error;
   m_no_errors = params.no_errors;
   m_truth = truth_engine;
-
-  if (m_no_errors) {
-    m_time_bias_error = 0.0;
-    m_time_skew_error = 0.0;
-  } else {
-    m_time_bias_error = params.time_bias_error;
-    m_time_skew_error = params.time_skew_error;
-  }
+  m_time_bias_error = params.time_bias_error;
+  m_time_skew_error = params.time_skew_error;
 }
 
 std::vector<double> SimCamera::GenerateMessageTimes(double max_time)

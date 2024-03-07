@@ -135,8 +135,10 @@ add_library(SIM_LIB ${SIM_SRCS})
 set(ROS_SRCS
     src/sensors/ros/ros_camera_message.cpp
     src/sensors/ros/ros_camera.cpp
-    src/sensors/ros/ros_imu_message.cpp
     src/sensors/ros/ros_gps_message.cpp
+    src/sensors/ros/ros_gps.cpp
+    src/sensors/ros/ros_imu_message.cpp
+    src/sensors/ros/ros_imu.cpp
 )
 add_library(ROS_LIB ${ROS_SRCS})
 target_link_libraries(ROS_LIB EKF_LIB ROS_INF ROS_UTL EKF_UTL)
@@ -190,6 +192,7 @@ if(BUILD_TESTING)
         src/sensors/sim/test/sim_gps_test.cpp
         src/sensors/sim/test/sim_imu_test.cpp
         src/sensors/test/camera_test.cpp
+        src/sensors/test/gps_test.cpp
         src/sensors/test/imu_test.cpp
         src/sensors/test/sensor_test.cpp
         src/trackers/sim/test/sim_feature_tracker_test.cpp
