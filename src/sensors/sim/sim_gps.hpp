@@ -65,7 +65,7 @@ public:
   /// @brief Generate simulated GPS messages
   /// @param max_time Maximum time of generated messages
   ///
-  std::vector<std::shared_ptr<SimGpsMessage>> GenerateMessages(double max_time);
+  std::vector<std::shared_ptr<SimGpsMessage>> GenerateMessages(SimRNG rng, double max_time);
 
 private:
   double m_time_bias{0.0};
@@ -75,7 +75,6 @@ private:
   Eigen::Vector3d m_gps_error{1e-9, 1e-9, 1e-9};
   Eigen::Vector3d m_pos_l_in_g {0.0, 0.0, 0.0};
   Eigen::Quaterniond m_ang_l_to_g {1.0, 0.0, 0.0, 0.0};
-  SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
 };

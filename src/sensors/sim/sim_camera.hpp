@@ -75,7 +75,7 @@ public:
   /// @brief Generate simulated camera message times
   /// @param max_time Maximum time to generate frame times
   ///
-  std::vector<double> GenerateMessageTimes(double max_time);
+  std::vector<double> GenerateMessageTimes(SimRNG rng, double max_time);
 
   ///
   /// @brief Callback method for simulated camera
@@ -87,7 +87,7 @@ public:
   /// @brief Generate simulated IMU messages
   /// @param max_time Maximum time of generated messages
   ///
-  std::vector<std::shared_ptr<SimCameraMessage>> GenerateMessages(double max_time);
+  std::vector<std::shared_ptr<SimCameraMessage>> GenerateMessages(SimRNG rng, double max_time);
 
 private:
   bool m_no_errors {false};
@@ -96,7 +96,6 @@ private:
   double m_time_skew_error{0.0};
   Eigen::Vector3d m_pos_error;
   Eigen::Vector3d m_ang_error;
-  SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
 
   std::map<unsigned int, std::shared_ptr<SimFeatureTracker>> m_trackers;

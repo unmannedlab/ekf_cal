@@ -31,6 +31,6 @@ TEST(test_RosIMU, Constructor) {
 }
 
 TEST(test_RosGPS, ros_gps_message) {
-  RosImuMessage ros_imu_message();
+  RosImuMessage ros_imu_message;
   EXPECT_TRUE(true);
 }

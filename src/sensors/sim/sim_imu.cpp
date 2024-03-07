@@ -52,7 +52,7 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngi
   }
 }
 
-std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_time)
+std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(SimRNG rng, double max_time)
 {
   unsigned int num_measurements =
     static_cast<int>(std::floor(max_time * m_rate / (1 + m_time_skew_error)));
@@ -60,7 +60,7 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_
   m_logger->Log(
     LogLevel::INFO, "Generating " + std::to_string(num_measurements) + " IMU measurements");
 
-  double time_init = m_no_errors ? 0 : m_rng.UniRand(0.0, 1.0 / m_rate);
+  double time_init = m_no_errors ? 0 : rng.UniRand(0.0, 1.0 / m_rate);
 
   std::vector<std::shared_ptr<SimImuMessage>> messages;
   for (unsigned int i = 0; i < num_measurements; ++i) {
@@ -93,9 +93,9 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(double max_
     sim_imu_msg->m_angular_rate = imu_omg_i;
 
     if (!m_no_errors) {
-      sim_imu_msg->m_time += m_rng.NormRand(m_time_bias_error, m_time_error);
-      sim_imu_msg->m_acceleration += m_rng.VecNormRand(acc_bias_true, m_acc_error);
-      sim_imu_msg->m_angular_rate += m_rng.VecNormRand(gyr_bias_true, m_omg_error);
+      sim_imu_msg->m_time += rng.NormRand(m_time_bias_error, m_time_error);
+      sim_imu_msg->m_acceleration += rng.VecNormRand(acc_bias_true, m_acc_error);
+      sim_imu_msg->m_angular_rate += rng.VecNormRand(gyr_bias_true, m_omg_error);
     }
 
     Eigen::Vector3d accSigmas(m_acc_error[0], m_acc_error[1], m_acc_error[2]);

@@ -40,7 +40,7 @@ SimGPS::SimGPS(SimGPS::Parameters params, std::shared_ptr<TruthEngine> truthEngi
   m_truth = truthEngine;
 }
 
-std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages(double max_time)
+std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages(SimRNG rng, double max_time)
 {
   unsigned int num_measurements =
     static_cast<int>(std::floor(max_time * m_rate / (1 + m_time_skew)));
@@ -48,7 +48,7 @@ std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages(double max_
   m_logger->Log(
     LogLevel::INFO, "Generating " + std::to_string(num_measurements) + " GPS measurements");
 
-  double time_init = m_no_errors ? 0 : m_rng.UniRand(0.0, 1.0 / m_rate);
+  double time_init = m_no_errors ? 0 : rng.UniRand(0.0, 1.0 / m_rate);
 
   std::vector<std::shared_ptr<SimGpsMessage>> messages;
   for (unsigned int i = 0; i < num_measurements; ++i) {
@@ -64,9 +64,9 @@ std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages(double max_
 
     Eigen::Vector3d pos_a_in_l = pos_b_in_l + ang_b_to_l * m_pos_a_in_b;
     if (!m_no_errors) {
-      pos_a_in_l(0) += m_rng.NormRand(0, m_gps_error(0));
-      pos_a_in_l(1) += m_rng.NormRand(0, m_gps_error(1));
-      pos_a_in_l(2) += m_rng.NormRand(0, m_gps_error(2));
+      pos_a_in_l(0) += rng.NormRand(0, m_gps_error(0));
+      pos_a_in_l(1) += rng.NormRand(0, m_gps_error(1));
+      pos_a_in_l(2) += rng.NormRand(0, m_gps_error(2));
     }
     Eigen::Vector3d pos_a_lla = enu_to_lla(pos_a_in_l, m_pos_l_in_g);
 

@@ -44,6 +44,7 @@ TEST(test_SimCamera, feature_track) {
   );
 
   SimRNG rng;
+  rng.SetSeed(1.0);
   truth_engine->GenerateFeatures(1000, 10, rng);
 
   Intrinsics intrinsics;
@@ -76,7 +77,8 @@ TEST(test_SimCamera, feature_track) {
   auto feature_tracker = std::make_shared<SimFeatureTracker>(sim_feature_params, truth_engine);
   sim_camera.AddTracker(feature_tracker);
 
-  std::vector<std::shared_ptr<SimCameraMessage>> cam_messages = sim_camera.GenerateMessages(1.0);
+  std::vector<std::shared_ptr<SimCameraMessage>> cam_messages =
+    sim_camera.GenerateMessages(rng, 1.0);
 
   for (unsigned int i = 0; i < 5; ++i) {
     sim_camera.Callback(cam_messages[i]);
@@ -104,6 +106,7 @@ TEST(test_SimCamera, fiducial_track) {
   );
 
   SimRNG rng;
+  rng.SetSeed(1.0);
   truth_engine->GenerateFeatures(1000, 10, rng);
 
   Intrinsics intrinsics;
@@ -136,7 +139,8 @@ TEST(test_SimCamera, fiducial_track) {
   auto fiducial_tracker = std::make_shared<SimFiducialTracker>(sim_fiducial_params, truth_engine);
   sim_camera.AddFiducial(fiducial_tracker);
 
-  std::vector<std::shared_ptr<SimCameraMessage>> cam_messages = sim_camera.GenerateMessages(1.0);
+  std::vector<std::shared_ptr<SimCameraMessage>> cam_messages =
+    sim_camera.GenerateMessages(rng, 1.0);
 
   for (auto cam_message : cam_messages) {
     sim_camera.Callback(cam_message);

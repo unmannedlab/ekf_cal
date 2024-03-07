@@ -234,7 +234,7 @@ int main(int argc, char * argv[])
     truth_engine->SetImuGyroscopeBias(imu->GetId(), omg_bias_true);
 
     // Calculate sensor measurements
-    auto imu_messages = imu->GenerateMessages(max_time);
+    auto imu_messages = imu->GenerateMessages(rng, max_time);
     messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
   }
 
@@ -405,7 +405,7 @@ int main(int argc, char * argv[])
     truth_engine->SetCameraAngularPosition(cam->GetId(), ang_c_to_b_true);
 
     // Calculate sensor measurements
-    auto imu_messages = cam->GenerateMessages(max_time);
+    auto imu_messages = cam->GenerateMessages(rng, max_time);
     messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
   }
 
@@ -442,7 +442,7 @@ int main(int argc, char * argv[])
     sensor_map[gps->GetId()] = gps;
 
     // Calculate sensor measurements
-    auto gps_messages = gps->GenerateMessages(max_time);
+    auto gps_messages = gps->GenerateMessages(rng, max_time);
     messages.insert(messages.end(), gps_messages.begin(), gps_messages.end());
   }
 

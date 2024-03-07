@@ -64,7 +64,7 @@ public:
   /// @brief Generate simulated IMU messages
   /// @param max_time Maximum time of generated messages
   ///
-  std::vector<std::shared_ptr<SimImuMessage>> GenerateMessages(double max_time);
+  std::vector<std::shared_ptr<SimImuMessage>> GenerateMessages(SimRNG rng, double max_time);
 
 private:
   double m_time_error{0.0};
@@ -76,7 +76,6 @@ private:
   Eigen::Vector3d m_ang_error;
   Eigen::Vector3d m_acc_bias_error;
   Eigen::Vector3d m_omg_bias_error;
-  SimRNG m_rng;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
 };

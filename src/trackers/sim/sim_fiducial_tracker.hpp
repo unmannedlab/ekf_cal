@@ -66,7 +66,7 @@ public:
   /// @param sensor_id Camera sensor ID
   ///
   std::vector<std::shared_ptr<SimFiducialTrackerMessage>> GenerateMessages(
-    std::vector<double> message_times, int sensor_id);
+    SimRNG rng, std::vector<double> message_times, int sensor_id);
 
   ///
   /// @brief Return currently visible keypoints
@@ -89,7 +89,6 @@ private:
   Eigen::Vector3d m_r_vec_error;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
-  SimRNG m_rng;
 
   Intrinsics m_intrinsics;
   cv::Mat m_proj_matrix;

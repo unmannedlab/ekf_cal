@@ -49,7 +49,7 @@ TEST(test_SimIMU, Constructor) {
   sim_imu_params.imu_params = imu_params;
 
   SimIMU sim_imu(sim_imu_params, truthEngine);
-
-  /// @todo(jhartzer): Verify the content of the messages
-  std::vector<std::shared_ptr<SimImuMessage>> imu_messages = sim_imu.GenerateMessages(1.0);
+  SimRNG rng;
+  rng.SetSeed(1.0);
+  std::vector<std::shared_ptr<SimImuMessage>> imu_messages = sim_imu.GenerateMessages(rng, 1.0);
 }

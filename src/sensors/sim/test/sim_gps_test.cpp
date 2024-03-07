@@ -63,7 +63,9 @@ TEST(test_SimIMU, Constructor) {
   auto truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
 
   SimGPS sim_gps(sim_gps_params, truth_engine);
-  auto gps_msgs = sim_gps.GenerateMessages(1.0);
+  SimRNG rng;
+  rng.SetSeed(0.0);
+  auto gps_msgs = sim_gps.GenerateMessages(rng, 1.0);
 
   EXPECT_NEAR(gps_msgs[1]->m_time - gps_msgs[0]->m_time, 0.2, 1e-3);
   EXPECT_NEAR(gps_msgs[2]->m_time - gps_msgs[1]->m_time, 0.2, 1e-3);
@@ -102,23 +104,23 @@ TEST(test_SimIMU, Constructor) {
   Eigen::Vector3d enu_3 = lla_to_enu(lla_3, lla_ref);
   Eigen::Vector3d enu_4 = lla_to_enu(lla_4, lla_ref);
 
-  EXPECT_NEAR(enu_0[0], 0.0, 1e2);
-  EXPECT_NEAR(enu_0[1], 0.0, 1e2);
-  EXPECT_NEAR(enu_0[2], 0.0, 1e2);
+  EXPECT_NEAR(enu_0[0], 4.951, 1e-3);
+  EXPECT_NEAR(enu_0[1], 0.800, 1e-3);
+  EXPECT_NEAR(enu_0[2], 5.812, 1e-3);
 
-  EXPECT_NEAR(enu_1[0], 0.0, 1e2);
-  EXPECT_NEAR(enu_1[1], 0.0, 1e2);
-  EXPECT_NEAR(enu_1[2], 0.0, 1e2);
+  EXPECT_NEAR(enu_1[0], -0.809, 1e-3);
+  EXPECT_NEAR(enu_1[1], 2.797, 1e-3);
+  EXPECT_NEAR(enu_1[2], -6.221, 1e-3);
 
-  EXPECT_NEAR(enu_2[0], 0.0, 1e2);
-  EXPECT_NEAR(enu_2[1], 0.0, 1e2);
-  EXPECT_NEAR(enu_2[2], 0.0, 1e2);
+  EXPECT_NEAR(enu_2[0], 7.125, 1e-3);
+  EXPECT_NEAR(enu_2[1], 2.682, 1e-3);
+  EXPECT_NEAR(enu_2[2], -3.747, 1e-3);
 
-  EXPECT_NEAR(enu_3[0], 0.0, 1e2);
-  EXPECT_NEAR(enu_3[1], 0.0, 1e2);
-  EXPECT_NEAR(enu_3[2], 0.0, 1e2);
+  EXPECT_NEAR(enu_3[0], 7.956, 1e-3);
+  EXPECT_NEAR(enu_3[1], -0.508, 1e-3);
+  EXPECT_NEAR(enu_3[2], 0.208, 1e-3);
 
-  EXPECT_NEAR(enu_4[0], 0.0, 1e2);
-  EXPECT_NEAR(enu_4[1], 0.0, 1e2);
-  EXPECT_NEAR(enu_4[2], 0.0, 1e2);
+  EXPECT_NEAR(enu_4[0], -4.668, 1e-3);
+  EXPECT_NEAR(enu_4[1], -0.527, 1e-3);
+  EXPECT_NEAR(enu_4[2], 5.694, 1e-3);
 }

@@ -62,14 +62,14 @@ public:
   /// @brief Generate simulated tracker messages
   ///
   std::vector<std::shared_ptr<SimFeatureTrackerMessage>> GenerateMessages(
-    std::vector<double> message_times, int sensor_id);
+    SimRNG rng, std::vector<double> message_times, int sensor_id);
 
   ///
   /// @brief Return currently visible keypoints
   /// @param time Current time
   /// @param sensor_id Camera sensor ID
   ///
-  std::vector<cv::KeyPoint> VisibleKeypoints(double time, int sensor_id);
+  std::vector<cv::KeyPoint> VisibleKeypoints(SimRNG rng, double time, int sensor_id);
 
   ///
   /// @brief Callback for feature tracker
@@ -82,7 +82,6 @@ private:
   double m_px_error;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
-  SimRNG m_rng;
   unsigned int m_feature_count {0};
 
   Intrinsics m_intrinsics;
