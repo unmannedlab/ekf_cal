@@ -31,6 +31,7 @@ TEST(test_RosIMU, Constructor) {
 }
 
 TEST(test_RosGPS, ros_gps_message) {
-  RosImuMessage ros_imu_message;
+  auto imu_msg = std::make_shared<sensor_msgs::msg::Imu>();
+  RosImuMessage ros_imu_message(imu_msg);
   EXPECT_TRUE(true);
 }
