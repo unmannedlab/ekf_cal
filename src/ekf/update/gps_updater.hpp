@@ -43,11 +43,20 @@ public:
     std::shared_ptr<DebugLogger> logger
   );
 
+
+  void Initialize(
+    double latitude,
+    double longitude,
+    double altitude);
+
   ///
   /// @brief Predict measurement method
   /// @return Predicted measurement vector
   ///
-  Eigen::VectorXd PredictMeasurement();
+  Eigen::VectorXd PredictMeasurement(
+    std::shared_ptr<EKF> ekf
+
+  );
 
   ///
   /// @brief Measurement Jacobian method
@@ -69,13 +78,10 @@ public:
     double longitude,
     double altitude);
 
-  ///
-  /// @brief Refresh internal states with EKF values
-  ///
-  void RefreshStates();
-
 private:
   DataLogger m_data_logger;
+  Eigen::Vector3d m_reference_lla{0, 0, 0};
+  bool m_is_lla_initialized{false};
 };
 
 #endif  // EKF__UPDATE__GPS_UPDATER_HPP_
