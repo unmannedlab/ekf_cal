@@ -215,7 +215,7 @@ public:
   AugmentedState MatchState(int camera_id, int frame_id);
 
 private:
-  unsigned int m_stateSize{g_body_state_size};
+  unsigned int m_state_size{g_body_state_size};
   State m_state;
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size);
   double m_current_time {0};

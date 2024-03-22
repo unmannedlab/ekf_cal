@@ -72,7 +72,7 @@ Eigen::VectorXd GpsUpdater::PredictMeasurement(
 
 Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian()
 {
-  /// @todo(jhartzer): This
+  /// @todo(jhartzer): Implement this Jacobian
   Eigen::MatrixXd measurement_jacobian;
   return measurement_jacobian;
 }
@@ -92,33 +92,18 @@ void GpsUpdater::UpdateEKF(
   } else {
     ekf->ProcessModel(time);
 
-    Eigen::VectorXd measurement{latitude, longitude, altitude};
-    Eigen::VectorXd predicted_measurement = PredictMeasurement(ekf);
-    Eigen::VectorXd resid = measurement - predicted_measurement;
+    Eigen::Vector3d measurement{latitude, longitude, altitude};
+    Eigen::Vector3d predicted_measurement = PredictMeasurement(ekf);
+    Eigen::Vector3d resid = measurement - predicted_measurement;
     Eigen::MatrixXd H = GetMeasurementJacobian();
-
-    Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-    R.block<3, 3>(0, 0) = MinBoundDiagonal(acceleration_covariance * 3, 1e-3);
-    R.block<3, 3>(3, 3) = MinBoundDiagonal(angular_rate_covariance * 3, 1e-2);
-
-    Eigen::MatrixXd S = H * ekf->GetCov().block(0, 0, update_size, update_size) * H.transpose() + R;
-    Eigen::MatrixXd K =
-      ekf->GetCov().block(0, 0, update_size, update_size) * H.transpose() * S.inverse();
-
+    Eigen::MatrixXd R = Eigen::MatrixXd::Identity(3, 3);
+    Eigen::MatrixXd S = H * ekf->GetCov() * H.transpose() + R;
+    Eigen::MatrixXd K = ekf->GetCov() * H.transpose() * S.inverse();
     Eigen::VectorXd update = K * resid;
-    Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
-    Eigen::VectorXd imu_update = update.segment(g_body_state_size, update_size - g_body_state_size);
+    Eigen::MatrixXd I = Eigen::MatrixXd::Identity(update.size(), update.size());
 
-    ekf->GetState().m_body_state += body_update;
-    ekf->GetState().m_imu_states += imu_update;
+    ekf->GetCov() = (I - K * H) * ekf->GetCov() * (I - K * H).transpose() + K * R * K.transpose();
 
-    // ekf->GetCov().block(0, 0, update_size, update_size) =
-    //   (Eigen::MatrixXd::Identity(update_size, update_size) - K * H) *
-    //   ekf->GetCov().block(0, 0, update_size, update_size) *
-    //   (Eigen::MatrixXd::Identity(update_size, update_size) - K * H).transpose() +
-    //   K * R * K.transpose();
-
-    /// @todo(jhartzer): Implement this updater
     m_logger->Log(LogLevel::WARN, "GPS Updater Update");
   }
   auto t_end = std::chrono::high_resolution_clock::now();

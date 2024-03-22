@@ -312,12 +312,12 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
   /// @todo check size of matrix being inserted
   m_cov = InsertInMatrix(covariance, m_cov, imu_state_start, imu_state_start);
   m_state.m_imu_states[imu_id] = imu_state;
-  if (imu_state.is_extrinsic) {m_stateSize += g_imu_extrinsic_state_size;}
-  if (imu_state.is_intrinsic) {m_stateSize += g_imu_intrinsic_state_size;}
+  if (imu_state.is_extrinsic) {m_state_size += g_imu_extrinsic_state_size;}
+  if (imu_state.is_intrinsic) {m_state_size += g_imu_intrinsic_state_size;}
 
   m_logger->Log(
     LogLevel::DEBUG, "Register IMU: " + std::to_string(
-      imu_id) + ", stateSize: " + std::to_string(m_stateSize));
+      imu_id) + ", stateSize: " + std::to_string(m_state_size));
 }
 
 void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixXd covariance)
@@ -331,11 +331,11 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
 
   m_state.m_cam_states[cam_id] = cam_state;
   m_cov = InsertInMatrix(covariance, m_cov, g_cam_state_size, g_cam_state_size);
-  m_stateSize += g_cam_state_size;
+  m_state_size += g_cam_state_size;
 
   m_logger->Log(
     LogLevel::DEBUG, "Register Cam: " + std::to_string(
-      cam_id) + ", stateSize: " + std::to_string(m_stateSize));
+      cam_id) + ", stateSize: " + std::to_string(m_state_size));
 }
 
 /// @todo Replace this lookup with a map
@@ -397,10 +397,10 @@ Eigen::MatrixXd EKF::AugmentJacobian(
   unsigned int cam_state_start,
   unsigned int aug_state_start)
 {
-  Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(m_stateSize, m_stateSize - g_aug_state_size);
+  Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(m_state_size, m_state_size - g_aug_state_size);
 
   unsigned int after_start = aug_state_start;
-  unsigned int after_size = m_stateSize - aug_state_start - g_aug_state_size;
+  unsigned int after_size = m_state_size - aug_state_start - g_aug_state_size;
 
   // Before augmented state Jacobian
   jacobian.block(0, 0, aug_state_start, aug_state_start) =
@@ -450,7 +450,7 @@ void EKF::AugmentState(unsigned int camera_id, int frame_id)
   if (m_state.m_cam_states[camera_id].augmented_states.size() <= m_max_track_length) {
     aug_state_start = GetAugStateStartIndex(camera_id, frame_id);
 
-    m_stateSize += g_aug_state_size;
+    m_state_size += g_aug_state_size;
   } else {
     /// @todo(jhartzer): Evaluate switching to second element / creating map
     // Remove first element from state
