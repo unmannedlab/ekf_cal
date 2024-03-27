@@ -103,7 +103,7 @@ Eigen::Vector3d lla_to_enu(const Eigen::Vector3d & point_lla, const Eigen::Vecto
 Eigen::Vector3d ecef_to_lla(const Eigen::Vector3d & ecef)
 {
   // The variables below correspond to symbols used in the paper
-  // Karl Osen. Accurate Conversion of Earth-Fixed Earth-Centered Coordinates to Geodetic
+  // Karl Olsen. Accurate Conversion of Earth-Fixed Earth-Centered Coordinates to Geodetic
   // Coordinates. [Research Report] Norwegian University of Science and Technology. 2017.
   // hal-01704943v2
   double x = ecef[0];
