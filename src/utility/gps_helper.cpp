@@ -26,7 +26,7 @@ static constexpr double g_wgs84_f {+3.35281066474748071998e-0003};  // WGS84 f -
 static constexpr double g_wgs84_e {+8.18191908426214947083e-0002};  // WGS84 e - Eccentricity
 static constexpr double g_deg_to_rad = M_PI / 180.0;
 
-Eigen::Vector3d lla_to_ecef(const Eigen::Vector3d lla)
+Eigen::Vector3d lla_to_ecef(const Eigen::Vector3d & lla)
 {
   Eigen::Vector3d out;
 
@@ -48,7 +48,7 @@ Eigen::Vector3d lla_to_ecef(const Eigen::Vector3d lla)
   return out;
 }
 
-Eigen::Vector3d ecef_to_enu(const Eigen::Vector3d in_ecef, const Eigen::Vector3d ref_lla)
+Eigen::Vector3d ecef_to_enu(const Eigen::Vector3d & in_ecef, const Eigen::Vector3d & ref_lla)
 {
   Eigen::Vector3d ref_ecef, diff_ecef;
 
@@ -75,11 +75,10 @@ Eigen::Vector3d ecef_to_enu(const Eigen::Vector3d in_ecef, const Eigen::Vector3d
   return out_enu;
 }
 
-Eigen::Vector3d enu_to_ecef(const Eigen::Vector3d in_enu, const Eigen::Vector3d ref_lla)
+Eigen::Vector3d enu_to_ecef(const Eigen::Vector3d & in_enu, const Eigen::Vector3d & ref_lla)
 {
   Eigen::Vector3d ref_ecef = lla_to_ecef(ref_lla);
-
-  Eigen::Matrix3d R;
+  Eigen::Matrix3d R(3, 3);
   R(0, 0) = -std::sin(ref_lla(1) * g_deg_to_rad);
   R(0, 1) = -std::cos(ref_lla(1) * g_deg_to_rad) * std::sin(ref_lla(0) * g_deg_to_rad);
   R(0, 2) = std::cos(ref_lla(1) * g_deg_to_rad) * std::cos(ref_lla(0) * g_deg_to_rad);
@@ -91,11 +90,10 @@ Eigen::Vector3d enu_to_ecef(const Eigen::Vector3d in_enu, const Eigen::Vector3d 
   R(2, 2) = std::sin(ref_lla(0) * g_deg_to_rad);
 
   Eigen::Vector3d out_ecef = ref_ecef + R * in_enu;
-
   return out_ecef;
 }
 
-Eigen::Vector3d lla_to_enu(Eigen::Vector3d point_lla, Eigen::Vector3d ref_lla)
+Eigen::Vector3d lla_to_enu(const Eigen::Vector3d & point_lla, const Eigen::Vector3d & ref_lla)
 {
   Eigen::Vector3d point_ecef = lla_to_ecef(point_lla);
   Eigen::Vector3d out = ecef_to_enu(point_ecef, ref_lla);
@@ -105,8 +103,9 @@ Eigen::Vector3d lla_to_enu(Eigen::Vector3d point_lla, Eigen::Vector3d ref_lla)
 Eigen::Vector3d ecef_to_lla(const Eigen::Vector3d & ecef)
 {
   // The variables below correspond to symbols used in the paper
-  // "Accurate Conversion of Earth-Centered, Earth-Fixed Coordinates
-  // to Geodetic Coordinates"
+  // Karl Osen. Accurate Conversion of Earth-Fixed Earth-Centered Coordinates to Geodetic
+  // Coordinates. [Research Report] Norwegian University of Science and Technology. 2017.
+  // hal-01704943v2
   double x = ecef[0];
   double y = ecef[1];
   double z = ecef[2];

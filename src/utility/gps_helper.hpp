@@ -18,11 +18,11 @@
 
 #include <eigen3/Eigen/Eigen>
 
-Eigen::Vector3d ecef_to_enu(const Eigen::Vector3d in_ecef, const Eigen::Vector3d ref_lla);
+Eigen::Vector3d ecef_to_enu(const Eigen::Vector3d & in_ecef, const Eigen::Vector3d & ref_lla);
 Eigen::Vector3d ecef_to_lla(const Eigen::Vector3d & ecef);
-Eigen::Vector3d enu_to_ecef(const Eigen::Vector3d in_enu, const Eigen::Vector3d ref_lla);
+Eigen::Vector3d enu_to_ecef(const Eigen::Vector3d & in_enu, const Eigen::Vector3d & ref_lla);
 Eigen::Vector3d enu_to_lla(const Eigen::Vector3d & enu_in, const Eigen::Vector3d & ref_lla);
-Eigen::Vector3d lla_to_ecef(const Eigen::Vector3d lla);
-Eigen::Vector3d lla_to_enu(Eigen::Vector3d point_lla, Eigen::Vector3d ref_lla);
+Eigen::Vector3d lla_to_ecef(const Eigen::Vector3d & lla);
+Eigen::Vector3d lla_to_enu(const Eigen::Vector3d & point_lla, const Eigen::Vector3d & ref_lla);
 
 #endif  // UTILITY__GPS_HELPER_HPP_
