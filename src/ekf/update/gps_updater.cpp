@@ -51,14 +51,35 @@ GpsUpdater::GpsUpdater(
   m_data_logger.SetLogging(data_logging_on);
 }
 
-void GpsUpdater::Initialize(
+void GpsUpdater::AttemptInitialization(
+  double time,
   double latitude,
   double longitude,
-  double altitude)
+  double altitude,
+  double pos_x,
+  double pos_y,
+  double pos_z)
 {
+  AugmentedGpsState augmented_gps_state;
+  augmented_gps_state.time = time;
+  augmented_gps_state.gps_lla[0] = latitude;
+  augmented_gps_state.gps_lla[1] = longitude;
+  augmented_gps_state.gps_lla[2] = altitude;
+  augmented_gps_state.local_xyz[0] = pos_x;
+  augmented_gps_state.local_xyz[1] = pos_y;
+  augmented_gps_state.local_xyz[2] = pos_z;
+  m_augmented_gps_states.push_back(augmented_gps_state);
+
+  // Check max distance of baseline
+
+  // If passed, perform LS fit of LLA -> ENU origin and orientation
+
+  // Perform single update with compressed measurements
+
   m_reference_lla[0] = latitude;
   m_reference_lla[1] = longitude;
   m_reference_lla[2] = altitude;
+  m_is_lla_initialized = true;
 }
 
 Eigen::VectorXd GpsUpdater::PredictMeasurement(
@@ -87,7 +108,15 @@ void GpsUpdater::UpdateEKF(
   auto t_start = std::chrono::high_resolution_clock::now();
 
   if (!m_is_lla_initialized) {
-    Initialize(latitude, longitude, altitude);
+    AttemptInitialization(
+      time,
+      latitude,
+      longitude,
+      altitude,
+      ekf->GetState().m_body_state.m_position[0],
+      ekf->GetState().m_body_state.m_position[1],
+      ekf->GetState().m_body_state.m_position[2]);
+
     m_logger->Log(LogLevel::WARN, "GPS Updater Initialization");
   } else {
     ekf->ProcessModel(time);

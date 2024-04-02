@@ -43,20 +43,30 @@ public:
     std::shared_ptr<DebugLogger> logger
   );
 
-
-  void Initialize(
+  ///
+  /// @brief GPS LLA to ENU Initialization Routine
+  /// @param time GPS measured time
+  /// @param latitude GPS measured latitude
+  /// @param longitude GPS measured longitude
+  /// @param altitude GPS measured altitude
+  /// @param pos_x current position x
+  /// @param pos_y current position y
+  /// @param pos_z current position z
+  ///
+  void AttemptInitialization(
+    double time,
     double latitude,
     double longitude,
-    double altitude);
+    double altitude,
+    double pos_x,
+    double pos_y,
+    double pos_z);
 
   ///
   /// @brief Predict measurement method
   /// @return Predicted measurement vector
   ///
-  Eigen::VectorXd PredictMeasurement(
-    std::shared_ptr<EKF> ekf
-
-  );
+  Eigen::VectorXd PredictMeasurement(std::shared_ptr<EKF> ekf);
 
   ///
   /// @brief Measurement Jacobian method
@@ -82,6 +92,15 @@ private:
   DataLogger m_data_logger;
   Eigen::Vector3d m_reference_lla{0, 0, 0};
   bool m_is_lla_initialized{false};
+
+  typedef struct AugmentedGpsState
+  {
+    double time;
+    Eigen::Vector3d gps_lla;
+    Eigen::Vector3d local_xyz;
+  } AugmentedGpsState;
+
+  std::vector<AugmentedGpsState> m_augmented_gps_states;
 };
 
 #endif  // EKF__UPDATE__GPS_UPDATER_HPP_
