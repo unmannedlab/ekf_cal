@@ -129,4 +129,17 @@ Eigen::MatrixXd quaternion_jacobian(Eigen::Quaterniond quat);
 Eigen::MatrixXd quaternion_jacobian_inv(Eigen::Quaterniond quat);
 
 
+///
+/// @brief Align points using the Kabsch algorithm
+/// @param tgt_points Points in target frame
+/// @param src_points Points in source frame
+/// @param transformation Affine transformation between frames
+/// @param singular_values Singular values of transform
+///
+void align_points(
+  const std::vector<Eigen::Vector3d> & tgt_points,
+  const std::vector<Eigen::Vector3d> & src_points,
+  Eigen::Affine3d & transformation,
+  Eigen::Vector3d & singular_values);
+
 #endif  // UTILITY__MATH_HELPER_HPP_

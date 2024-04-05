@@ -295,3 +295,44 @@ TEST(test_MathHelper, quaternion_jacobian_inv) {
   Eigen::Matrix3d jac = quaternion_jacobian_inv(quat);
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(jac, Eigen::Matrix3d::Identity(), 1e-6));
 }
+
+TEST(test_MathHelper, align_points) {
+  // Create datasets with known transform
+  unsigned int n = 100;
+
+  Eigen::Matrix3Xd in(3, n), out(3, n);
+  Eigen::Quaternion<double> Q(1, 3, 5, 2);
+  Q.normalize();
+  Eigen::Matrix3d R = Q.toRotationMatrix();
+  for (int row = 0; row < in.rows(); row++) {
+    for (int col = 0; col < in.cols(); col++) {
+      in(row, col) = log(2 * row + 10.0) / sqrt(1.0 * col + 4.0) + sqrt(col * 1.0) / (row + 1.0);
+    }
+  }
+  Eigen::Vector3d S;
+  S << -5, 6, -27;
+  for (int col = 0; col < in.cols(); col++) {
+    out.col(col) = R * in.col(col) + S;
+  }
+
+  std::vector<Eigen::Vector3d> src;
+  std::vector<Eigen::Vector3d> tgt;
+  for (int col = 0; col < in.cols(); col++) {
+    Eigen::Vector3d src_temp;
+    Eigen::Vector3d tgt_temp;
+    for (int row = 0; row < in.rows(); row++) {
+      src_temp[row] = in(row, col);
+      tgt_temp[row] = out(row, col);
+    }
+    src.push_back(src_temp);
+    tgt.push_back(tgt_temp);
+  }
+
+  Eigen::Affine3d A;
+  Eigen::Vector3d singular_values;
+  align_points(tgt, src, A, singular_values);
+
+  // See if we got the transform we expected
+  EXPECT_FALSE((R - A.linear()).cwiseAbs().maxCoeff() > 1e-13);
+  EXPECT_FALSE((S - A.translation()).cwiseAbs().maxCoeff() > 1e-13);
+}

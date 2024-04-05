@@ -264,3 +264,48 @@ Eigen::MatrixXd quaternion_jacobian_inv(Eigen::Quaterniond quat)
     coeff_two * skew_mat * skew_mat;
   return jacobian;
 }
+
+void align_points(
+  const std::vector<Eigen::Vector3d> & tgt_points,
+  const std::vector<Eigen::Vector3d> & src_points,
+  Eigen::Affine3d & transformation,
+  Eigen::Vector3d & singular_values)
+{
+  if ((tgt_points.size() != src_points.size()) || (tgt_points.size() < 4)) {
+    return;
+  }
+
+  size_t n = tgt_points.size();
+  Eigen::MatrixXd src(3, n), tgt(3, n);
+  for (unsigned int i = 0; i < n; i++) {
+    tgt.col(i) = tgt_points[i];
+    src.col(i) = src_points[i];
+  }
+
+  Eigen::Vector3d centroid_src(0, 0, 0), centroid_tgt(0, 0, 0);
+  for (unsigned int i = 0; i < n; i++) {
+    centroid_src += src.col(i);
+    centroid_tgt += tgt.col(i);
+  }
+  centroid_src /= n;
+  centroid_tgt /= n;
+  for (unsigned int i = 0; i < n; i++) {
+    src.col(i) -= centroid_src;
+    tgt.col(i) -= centroid_tgt;
+  }
+
+  Eigen::Matrix3d rotation = Eigen::Matrix3d::Identity();
+
+  Eigen::MatrixXd cov = src * tgt.transpose();
+  Eigen::JacobiSVD<Eigen::MatrixXd> svd(cov, Eigen::ComputeFullU | Eigen::ComputeFullV);
+  double d = (svd.matrixV() * svd.matrixU().transpose()).determinant();
+  if (d > 0) {d = 1.0;} else {d = -1.0;}
+  Eigen::Matrix3d I = Eigen::Matrix3d::Identity();
+  I(2, 2) = d;
+  rotation = svd.matrixV() * I * svd.matrixU().transpose();
+
+  singular_values = svd.singularValues();
+  transformation.setIdentity();
+  transformation.linear() = rotation;
+  transformation.translation() = (centroid_tgt - rotation * centroid_src);
+}

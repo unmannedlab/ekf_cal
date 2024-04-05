@@ -70,16 +70,19 @@ void GpsUpdater::AttemptInitialization(
   augmented_gps_state.local_xyz[2] = pos_z;
   m_augmented_gps_states.push_back(augmented_gps_state);
 
-  // Check max distance of baseline
+  if (m_augmented_gps_states.size() > 4) {
+    // Check max distance of baseline
 
-  // If passed, perform LS fit of LLA -> ENU origin and orientation
+    // If passed, perform LS fit of LLA -> ENU origin and orientation
 
-  // Perform single update with compressed measurements
+    // Perform single update with compressed measurements
+    // align_points();
+    m_reference_lla[0] = latitude;
+    m_reference_lla[1] = longitude;
+    m_reference_lla[2] = altitude;
+    m_is_lla_initialized = true;
+  }
 
-  m_reference_lla[0] = latitude;
-  m_reference_lla[1] = longitude;
-  m_reference_lla[2] = altitude;
-  m_is_lla_initialized = true;
 }
 
 Eigen::VectorXd GpsUpdater::PredictMeasurement(
