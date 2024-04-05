@@ -81,6 +81,7 @@ public:
 private:
   DataLogger m_data_logger;
   Eigen::Vector3d m_reference_lla{0, 0, 0};
+  double m_reference_heading {0.0};
   bool m_is_lla_initialized{false};
 
   typedef struct AugmentedGpsStates

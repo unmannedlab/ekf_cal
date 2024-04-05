@@ -64,7 +64,7 @@ double GpsUpdater::GetAlignmentQuality(Eigen::Affine3d & transformation)
   return singular_values.maxCoeff();
 }
 
-/// @todo Add option to check max distance of baseline to initialize
+/// @todo(jhartzer): Add option to check max distance of baseline to initialize
 void GpsUpdater::AttemptInitialization(
   double time,
   Eigen::Vector3d gps_lla,
@@ -75,11 +75,16 @@ void GpsUpdater::AttemptInitialization(
   m_augmented_gps_states.gps_ecef.push_back(gps_ecef);
   m_augmented_gps_states.local_xyz.push_back(pos_xyz);
 
-  if (m_augmented_gps_states.time.size() > 4) {
+  if (m_augmented_gps_states.time.size() >= 4) {
     // Check eigenvalue of SVD from Kabsch
     Eigen::Affine3d transformation;
-    if (GetAlignmentQuality(transformation) > 10.0) {
-      m_reference_lla = gps_lla;
+    /// @todo(jhartzer): Get quality limit from input
+    if (GetAlignmentQuality(transformation) > 2.0) {
+      Eigen::Vector3d ref_ecef = transformation.translation();
+
+      m_reference_lla = ecef_to_lla(ref_ecef);
+      /// @todo(jhartzer): Get heading from alignment output
+      // m_reference_heading = transformation.linear()
       m_is_lla_initialized = true;
       m_logger->Log(LogLevel::INFO, "GPS Updater Initialized");
       // Perform single update with compressed measurements

@@ -141,11 +141,11 @@
 
         gps:
             gps_1:
-                Rate: 5.0
-                Topic: "/gps1"
+                rate: 5.0
+                topic: "/gps1"
                 pos_a_in_b: [1.0, 0, 0]
-                VarInit: [5.0, 5.0, 5.0]
-                SimParams:
+                variance: [5.0, 5.0, 5.0]
+                sim_params:
                     time_bias: 0.0
                     time_skew: 0.0
                     time_error: 1.0e-9
@@ -156,11 +156,11 @@
                     no_errors: false
 
             gps_2:
-                Rate: 5.0
-                Topic: "/gps2"
+                rate: 5.0
+                topic: "/gps2"
                 pos_a_in_b: [-1.0, 0, 0]
-                VarInit: [5.0, 5.0, 5.0]
-                SimParams:
+                variance: [5.0, 5.0, 5.0]
+                sim_params:
                     time_bias: 0.0
                     time_skew: 0.0
                     time_error: 1.0e-9

@@ -412,18 +412,19 @@ int main(int argc, char * argv[])
   // Load GPSs and generate measurements
   debug_logger->Log(LogLevel::INFO, "Loading GPSs");
   for (unsigned int i = 0; i < gps_list.size(); ++i) {
-    YAML::Node gps_node = root["/EkfCalNode"]["ros__parameters"]["GPS"][gps_list[i]];
-    YAML::Node sim_node = gps_node["SimParams"];
+    YAML::Node gps_node = root["/EkfCalNode"]["ros__parameters"]["gps"][gps_list[i]];
+    YAML::Node sim_node = gps_node["sim_params"];
 
     GPS::Parameters gps_params;
     gps_params.name = gps_list[i];
-    gps_params.rate = gps_node["Rate"].as<double>();
-    gps_params.topic = gps_node["Topic"].as<std::string>();
-    Eigen::Vector3d variance {{1, 1, 1}};
-    gps_params.variance = StdToEigVec(gps_node["VarInit"].as<std::vector<double>>());
+    gps_params.rate = gps_node["rate"].as<double>();
+    gps_params.topic = gps_node["topic"].as<std::string>();
+    gps_params.variance = StdToEigVec(gps_node["variance"].as<std::vector<double>>());
     gps_params.pos_a_in_b = StdToEigVec(gps_node["pos_a_in_b"].as<std::vector<double>>());
     gps_params.output_directory = out_dir;
     gps_params.data_logging_on = data_logging_on;
+    gps_params.logger = debug_logger;
+    gps_params.ekf = ekf;
 
     // SimParams
     SimGPS::Parameters sim_gps_params;

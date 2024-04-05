@@ -161,8 +161,8 @@
     "terminal.integrated.gpuAcceleration": "off",
     "cmake.debugConfig": {
         "args": [
-            "${workspaceFolder}/config/fiducial.yaml",
-            "${workspaceFolder}/config/fiducial/"
+            "${workspaceFolder}/config/gps.yaml",
+            "${workspaceFolder}/config/gps/"
         ]
     },
     "todo.embedded.exclude": [
