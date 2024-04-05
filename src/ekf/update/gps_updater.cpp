@@ -51,38 +51,40 @@ GpsUpdater::GpsUpdater(
   m_data_logger.SetLogging(data_logging_on);
 }
 
+double GpsUpdater::GetAlignmentQuality(Eigen::Affine3d & transformation)
+{
+  Eigen::Vector3d singular_values;
+
+  align_points(
+    m_augmented_gps_states.local_xyz,
+    m_augmented_gps_states.gps_ecef,
+    transformation,
+    singular_values);
+
+  return singular_values.maxCoeff();
+}
+
+/// @todo Add option to check max distance of baseline to initialize
 void GpsUpdater::AttemptInitialization(
   double time,
-  double latitude,
-  double longitude,
-  double altitude,
-  double pos_x,
-  double pos_y,
-  double pos_z)
+  Eigen::Vector3d gps_lla,
+  Eigen::Vector3d pos_xyz)
 {
-  AugmentedGpsState augmented_gps_state;
-  augmented_gps_state.time = time;
-  augmented_gps_state.gps_lla[0] = latitude;
-  augmented_gps_state.gps_lla[1] = longitude;
-  augmented_gps_state.gps_lla[2] = altitude;
-  augmented_gps_state.local_xyz[0] = pos_x;
-  augmented_gps_state.local_xyz[1] = pos_y;
-  augmented_gps_state.local_xyz[2] = pos_z;
-  m_augmented_gps_states.push_back(augmented_gps_state);
+  Eigen::Vector3d gps_ecef = lla_to_ecef(gps_lla);
+  m_augmented_gps_states.time.push_back(time);
+  m_augmented_gps_states.gps_ecef.push_back(gps_ecef);
+  m_augmented_gps_states.local_xyz.push_back(pos_xyz);
 
-  if (m_augmented_gps_states.size() > 4) {
-    // Check max distance of baseline
-
-    // If passed, perform LS fit of LLA -> ENU origin and orientation
-
-    // Perform single update with compressed measurements
-    // align_points();
-    m_reference_lla[0] = latitude;
-    m_reference_lla[1] = longitude;
-    m_reference_lla[2] = altitude;
-    m_is_lla_initialized = true;
+  if (m_augmented_gps_states.time.size() > 4) {
+    // Check eigenvalue of SVD from Kabsch
+    Eigen::Affine3d transformation;
+    if (GetAlignmentQuality(transformation) > 10.0) {
+      m_reference_lla = gps_lla;
+      m_is_lla_initialized = true;
+      m_logger->Log(LogLevel::INFO, "GPS Updater Initialized");
+      // Perform single update with compressed measurements
+    }
   }
-
 }
 
 Eigen::VectorXd GpsUpdater::PredictMeasurement(
@@ -104,29 +106,19 @@ Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian()
 void GpsUpdater::UpdateEKF(
   std::shared_ptr<EKF> ekf,
   double time,
-  double latitude,
-  double longitude,
-  double altitude)
+  Eigen::Vector3d gps_lla)
 {
   auto t_start = std::chrono::high_resolution_clock::now();
 
   if (!m_is_lla_initialized) {
-    AttemptInitialization(
-      time,
-      latitude,
-      longitude,
-      altitude,
-      ekf->GetState().m_body_state.m_position[0],
-      ekf->GetState().m_body_state.m_position[1],
-      ekf->GetState().m_body_state.m_position[2]);
-
-    m_logger->Log(LogLevel::WARN, "GPS Updater Initialization");
+    m_logger->Log(LogLevel::INFO, "GPS Updater Attempt Initialization");
+    AttemptInitialization(time, gps_lla, ekf->GetState().m_body_state.m_position);
   } else {
     ekf->ProcessModel(time);
 
-    Eigen::Vector3d measurement{latitude, longitude, altitude};
+
     Eigen::Vector3d predicted_measurement = PredictMeasurement(ekf);
-    Eigen::Vector3d resid = measurement - predicted_measurement;
+    Eigen::Vector3d resid = gps_lla - predicted_measurement;
     Eigen::MatrixXd H = GetMeasurementJacobian();
     Eigen::MatrixXd R = Eigen::MatrixXd::Identity(3, 3);
     Eigen::MatrixXd S = H * ekf->GetCov() * H.transpose() + R;
@@ -136,7 +128,7 @@ void GpsUpdater::UpdateEKF(
 
     ekf->GetCov() = (I - K * H) * ekf->GetCov() * (I - K * H).transpose() + K * R * K.transpose();
 
-    m_logger->Log(LogLevel::WARN, "GPS Updater Update");
+    m_logger->Log(LogLevel::INFO, "GPS Updater Update");
   }
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
@@ -144,9 +136,7 @@ void GpsUpdater::UpdateEKF(
   // Write outputs
   std::stringstream msg;
   msg << time;
-  msg << "," << latitude;
-  msg << "," << longitude;
-  msg << "," << altitude;
+  msg << "," << VectorToCommaString(gps_lla);
   msg << "," << t_execution.count();
   msg << std::endl;
   m_data_logger.Log(msg.str());

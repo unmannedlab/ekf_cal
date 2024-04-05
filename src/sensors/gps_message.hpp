@@ -29,9 +29,7 @@ class GpsMessage : public SensorMessage
 {
 public:
   GpsMessage() {}
-  double m_latitude;   ///< @brief GPS latitude
-  double m_longitude;  ///< @brief GPS longitude
-  double m_altitude;   ///< @brief GPS altitude
+  Eigen::Vector3d m_gps_lla;  ///< @brief GPS lat-lon-alt
 };
 
 #endif  // SENSORS__GPS_MESSAGE_HPP_

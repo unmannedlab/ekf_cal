@@ -43,24 +43,18 @@ public:
     std::shared_ptr<DebugLogger> logger
   );
 
+  double GetAlignmentQuality(Eigen::Affine3d & transformation);
+
   ///
   /// @brief GPS LLA to ENU Initialization Routine
   /// @param time GPS measured time
-  /// @param latitude GPS measured latitude
-  /// @param longitude GPS measured longitude
-  /// @param altitude GPS measured altitude
-  /// @param pos_x current position x
-  /// @param pos_y current position y
-  /// @param pos_z current position z
+  /// @param gps_lla GPS measured lat-lon-alt
+  /// @param pos_xyz current position x-y-z
   ///
   void AttemptInitialization(
     double time,
-    double latitude,
-    double longitude,
-    double altitude,
-    double pos_x,
-    double pos_y,
-    double pos_z);
+    Eigen::Vector3d gps_lla,
+    Eigen::Vector3d pos_xyz);
 
   ///
   /// @brief Predict measurement method
@@ -77,30 +71,26 @@ public:
   ///
   /// @brief EKF update method for GPS measurements
   /// @param time Measurement time
-  /// @param latitude Measured latitude
-  /// @param longitude Estimated longitude
-  /// @param altitude Measured altitude
+  /// @param gps_lla GPS measured lat-lon-alt
   ///
   void UpdateEKF(
     std::shared_ptr<EKF> ekf,
     double time,
-    double latitude,
-    double longitude,
-    double altitude);
+    Eigen::Vector3d gps_lla);
 
 private:
   DataLogger m_data_logger;
   Eigen::Vector3d m_reference_lla{0, 0, 0};
   bool m_is_lla_initialized{false};
 
-  typedef struct AugmentedGpsState
+  typedef struct AugmentedGpsStates
   {
-    double time;
-    Eigen::Vector3d gps_lla;
-    Eigen::Vector3d local_xyz;
-  } AugmentedGpsState;
+    std::vector<double> time;
+    std::vector<Eigen::Vector3d> gps_ecef;
+    std::vector<Eigen::Vector3d> local_xyz;
+  } AugmentedGpsStates;
 
-  std::vector<AugmentedGpsState> m_augmented_gps_states;
+  AugmentedGpsStates m_augmented_gps_states;
 };
 
 #endif  // EKF__UPDATE__GPS_UPDATER_HPP_

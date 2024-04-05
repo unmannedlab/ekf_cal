@@ -68,11 +68,7 @@ std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages(SimRNG rng,
       pos_a_in_l(1) += rng.NormRand(0, m_gps_error(1));
       pos_a_in_l(2) += rng.NormRand(0, m_gps_error(2));
     }
-    Eigen::Vector3d pos_a_lla = enu_to_lla(pos_a_in_l, m_pos_l_in_g);
-
-    sim_gps_msg->m_latitude = pos_a_lla(0);
-    sim_gps_msg->m_longitude = pos_a_lla(1);
-    sim_gps_msg->m_altitude = pos_a_lla(2);
+    sim_gps_msg->m_gps_lla = enu_to_lla(pos_a_in_l, m_pos_l_in_g);
 
     messages.push_back(sim_gps_msg);
   }

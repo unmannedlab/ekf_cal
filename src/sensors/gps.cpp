@@ -40,12 +40,7 @@ void GPS::Callback(std::shared_ptr<GpsMessage> gps_message)
     LogLevel::DEBUG,
     "GPS \"" + m_name + "\" callback at time " + std::to_string(gps_message->m_time));
 
-  m_gps_updater.UpdateEKF(
-    m_ekf,
-    gps_message->m_time,
-    gps_message->m_latitude,
-    gps_message->m_longitude,
-    gps_message->m_altitude);
+  m_gps_updater.UpdateEKF(m_ekf, gps_message->m_time, gps_message->m_gps_lla);
 
   m_logger->Log(LogLevel::DEBUG, "GPS \"" + m_name + "\" callback complete");
 }
