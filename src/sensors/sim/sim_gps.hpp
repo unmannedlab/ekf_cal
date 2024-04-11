@@ -43,15 +43,15 @@ public:
   ///
   typedef struct Parameters
   {
-    double time_bias {0.0};                              ///< @brief Time offset bias
-    double time_skew {0.0};                              ///< @brief Time offset error
-    double time_error {1e-9};                            ///< @brief Time offset error
-    Eigen::Vector3d pos_a_in_b {0.0, 0.0, 0.0};          ///< @brief Antenna position in body frame
-    Eigen::Vector3d gps_error {1e-9, 1e-9, 1e-9};        ///< @brief LLA errors
-    Eigen::Vector3d pos_l_in_g {0.0, 0.0, 0.0};          ///< @brief Local in global LLA
-    Eigen::Quaterniond ang_l_to_g {1.0, 0.0, 0.0, 0.0};  ///< @brief Local orientation in global
-    GPS::Parameters gps_params;                          ///< @brief GPS sensor parameters
-    bool no_errors {false};                              ///< @brief Perfect measurements flag
+    double time_bias {0.0};                        ///< @brief Time offset bias
+    double time_skew {0.0};                        ///< @brief Time offset error
+    double time_error {1e-9};                      ///< @brief Time offset error
+    Eigen::Vector3d pos_a_in_b {0.0, 0.0, 0.0};    ///< @brief Antenna position in body frame
+    Eigen::Vector3d gps_error {1e-9, 1e-9, 1e-9};  ///< @brief LLA errors
+    Eigen::Vector3d pos_l_in_g {0.0, 0.0, 0.0};    ///< @brief Local in global LLA
+    double ang_l_to_g {0.0};                       ///< @brief Local orientation in global
+    GPS::Parameters gps_params;                    ///< @brief GPS sensor parameters
+    bool no_errors {false};                        ///< @brief Perfect measurements flag
   } Parameters;
 
   ///
@@ -74,7 +74,7 @@ private:
   Eigen::Vector3d m_pos_a_in_b {0.0, 0.0, 0.0};
   Eigen::Vector3d m_gps_error{1e-9, 1e-9, 1e-9};
   Eigen::Vector3d m_pos_l_in_g {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_l_to_g {1.0, 0.0, 0.0, 0.0};
+  double m_ang_l_to_g {0.0};
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
 };

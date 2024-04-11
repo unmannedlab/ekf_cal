@@ -51,18 +51,6 @@ GpsUpdater::GpsUpdater(
   m_data_logger.SetLogging(data_logging_on);
 }
 
-double GpsUpdater::GetAlignmentQuality(Eigen::Affine3d & transformation)
-{
-  Eigen::Vector3d singular_values;
-
-  align_points(
-    m_augmented_gps_states.local_xyz,
-    m_augmented_gps_states.gps_ecef,
-    transformation,
-    singular_values);
-
-  return singular_values.maxCoeff();
-}
 
 /// @todo(jhartzer): Add option to check max distance of baseline to initialize
 void GpsUpdater::AttemptInitialization(
@@ -78,11 +66,27 @@ void GpsUpdater::AttemptInitialization(
   if (m_augmented_gps_states.time.size() >= 4) {
     // Check eigenvalue of SVD from Kabsch
     Eigen::Affine3d transformation;
-    /// @todo(jhartzer): Get quality limit from input
-    if (GetAlignmentQuality(transformation) > 2.0) {
-      Eigen::Vector3d ref_ecef = transformation.translation();
+    Eigen::Vector3d singular_values;
 
-      m_reference_lla = ecef_to_lla(ref_ecef);
+    Eigen::Vector3d init_ref_ecef = average_vectors(m_augmented_gps_states.gps_ecef);
+    Eigen::Vector3d init_ref_lla = ecef_to_lla(init_ref_ecef);
+
+    std::vector<Eigen::Vector3d> gps_states_enu;
+    for (auto gps_ecef : m_augmented_gps_states.gps_ecef) {
+      gps_states_enu.push_back(ecef_to_enu(gps_ecef, init_ref_lla));
+    }
+
+    align_points(
+      m_augmented_gps_states.local_xyz,
+      gps_states_enu,
+      transformation,
+      singular_values);
+
+    /// @todo(jhartzer): Get quality limit from input
+    if (singular_values.maxCoeff() > 2.0) {
+      Eigen::Vector3d delta_ref_enu = transformation.translation();
+      m_reference_lla = enu_to_lla(delta_ref_enu, init_ref_lla);
+
       /// @todo(jhartzer): Get heading from alignment output
       // m_reference_heading = transformation.linear()
       m_is_lla_initialized = true;

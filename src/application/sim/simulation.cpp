@@ -104,7 +104,6 @@ int main(int argc, char * argv[])
   YAML::Node sim_params = ros_params["sim_params"];
   double rng_seed = sim_params["seed"].as<double>(0.0);
   bool use_seed = sim_params["use_seed"].as<bool>(false);
-  bool no_errors = sim_params["no_errors"].as<bool>(false);
   double max_time = sim_params["max_time"].as<double>(10.0);
 
   auto debug_logger = std::make_shared<DebugLogger>(debug_log_level, out_dir);
@@ -205,7 +204,7 @@ int main(int argc, char * argv[])
       StdToEigVec(sim_node["acc_bias_error"].as<std::vector<double>>(def_vec));
     sim_imu_params.omg_bias_error =
       StdToEigVec(sim_node["omg_bias_error"].as<std::vector<double>>(def_vec));
-    sim_imu_params.no_errors = no_errors;
+    sim_imu_params.no_errors = sim_node["no_errors"].as<bool>(false);
 
     // Add sensor to map
     auto imu = std::make_shared<SimIMU>(sim_imu_params, truth_engine);
@@ -216,7 +215,7 @@ int main(int argc, char * argv[])
     Eigen::Quaterniond ang_i_to_b_true;
     Eigen::Vector3d acc_bias_true;
     Eigen::Vector3d omg_bias_true;
-    if (no_errors) {
+    if (sim_imu_params.no_errors) {
       pos_i_in_b_true = imu_params.pos_i_in_b;
       ang_i_to_b_true = imu_params.ang_i_to_b;
       acc_bias_true = imu_params.acc_bias;
@@ -268,7 +267,7 @@ int main(int argc, char * argv[])
     sim_tracker_params.feature_count = sim_node["feature_count"].as<unsigned int>(1.0e2);
     sim_tracker_params.room_size = sim_node["room_size"].as<double>(10.0);
     sim_tracker_params.tracker_params = track_params;
-    sim_tracker_params.no_errors = no_errors;
+    sim_tracker_params.no_errors = trk_node["no_errors"].as<bool>(false);
 
     tracker_map[track_params.name] = sim_tracker_params;
     truth_engine->GenerateFeatures(
@@ -311,14 +310,14 @@ int main(int argc, char * argv[])
       StdToEigVec(sim_node["t_vec_error"].as<std::vector<double>>(def_vec));
     sim_fiducial_params.r_vec_error =
       StdToEigVec(sim_node["r_vec_error"].as<std::vector<double>>(def_vec));
-    sim_fiducial_params.no_errors = no_errors;
+    sim_fiducial_params.no_errors = sim_node["no_errors"].as<bool>(false);
     sim_fiducial_params.fiducial_params = fiducial_params;
 
     fiducial_map[fiducial_params.name] = sim_fiducial_params;
 
     Eigen::Vector3d pos_f_in_g_true;
     Eigen::Quaterniond ang_f_to_g_true;
-    if (no_errors) {
+    if (sim_fiducial_params.no_errors) {
       pos_f_in_g_true = fiducial_params.pos_f_in_g;
       ang_f_to_g_true = fiducial_params.ang_f_to_g;
     } else {
@@ -369,7 +368,7 @@ int main(int argc, char * argv[])
     sim_cam_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>());
     sim_cam_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>());
     sim_cam_params.cam_params = cam_params;
-    sim_cam_params.no_errors = no_errors;
+    sim_cam_params.no_errors = sim_node["no_errors"].as<bool>(false);
 
     // Add sensor to map
     auto cam = std::make_shared<SimCamera>(sim_cam_params, truth_engine);
@@ -393,7 +392,7 @@ int main(int argc, char * argv[])
     // Set true camera values
     Eigen::Vector3d pos_c_in_b_true;
     Eigen::Quaterniond ang_c_to_b_true;
-    if (no_errors) {
+    if (sim_cam_params.no_errors) {
       pos_c_in_b_true = cam_params.pos_c_in_b;
       ang_c_to_b_true = cam_params.ang_c_to_b;
     } else {
@@ -435,8 +434,8 @@ int main(int argc, char * argv[])
     sim_gps_params.pos_a_in_b = StdToEigVec(sim_node["pos_a_in_b"].as<std::vector<double>>());
     sim_gps_params.gps_error = StdToEigVec(sim_node["gps_error"].as<std::vector<double>>());
     sim_gps_params.pos_l_in_g = StdToEigVec(sim_node["pos_l_in_g"].as<std::vector<double>>());
-    sim_gps_params.ang_l_to_g = StdToEigQuat(sim_node["ang_l_to_g"].as<std::vector<double>>());
-    sim_gps_params.no_errors = no_errors;
+    sim_gps_params.ang_l_to_g = sim_node["ang_l_to_g"].as<double>();
+    sim_gps_params.no_errors = sim_node["no_errors"].as<bool>(false);
 
     // Add sensor to map
     auto gps = std::make_shared<SimGPS>(sim_gps_params, truth_engine);
@@ -451,7 +450,6 @@ int main(int argc, char * argv[])
   if (data_logging_on) {
     truth_engine->WriteTruthData(body_data_rate, max_time + stationary_time, out_dir);
   }
-
 
   // Sort Measurements
   sort(messages.begin(), messages.end(), MessageCompare);

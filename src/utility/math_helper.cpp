@@ -224,6 +224,16 @@ Eigen::Quaterniond average_quaternions(
 
 
 Eigen::Vector3d average_vectors(
+  std::vector<Eigen::Vector3d> vectors)
+{
+  std::vector<double> weights;
+  for (unsigned int i = 0; i < vectors.size(); ++i) {
+    weights.push_back(1.0);
+  }
+  return average_vectors(vectors, weights);
+}
+
+Eigen::Vector3d average_vectors(
   std::vector<Eigen::Vector3d> vectors, std::vector<double> weights)
 {
   Eigen::Vector3d average_vector {0.0, 0.0, 0.0};
@@ -265,6 +275,11 @@ Eigen::MatrixXd quaternion_jacobian_inv(Eigen::Quaterniond quat)
   return jacobian;
 }
 
+double sign(double val)
+{
+  return (0.0 < val) - (val < 0.0);
+}
+
 void align_points(
   const std::vector<Eigen::Vector3d> & tgt_points,
   const std::vector<Eigen::Vector3d> & src_points,
@@ -298,14 +313,21 @@ void align_points(
 
   Eigen::MatrixXd cov = src * tgt.transpose();
   Eigen::JacobiSVD<Eigen::MatrixXd> svd(cov, Eigen::ComputeFullU | Eigen::ComputeFullV);
-  double d = (svd.matrixV() * svd.matrixU().transpose()).determinant();
-  if (d > 0) {d = 1.0;} else {d = -1.0;}
+  double det = (svd.matrixV() * svd.matrixU().transpose()).determinant();
   Eigen::Matrix3d I = Eigen::Matrix3d::Identity();
-  I(2, 2) = d;
+  I(2, 2) = sign(det);
   rotation = svd.matrixV() * I * svd.matrixU().transpose();
 
   singular_values = svd.singularValues();
   transformation.setIdentity();
   transformation.linear() = rotation;
   transformation.translation() = (centroid_tgt - rotation * centroid_src);
+
+  double residual_rms = 0;
+  for (unsigned int i = 0; i < n; ++i) {
+    auto err = (tgt_points[i] - transformation * src_points[i]).norm();
+    residual_rms += err * err;
+  }
+  residual_rms /= n;
+  residual_rms = sqrt(residual_rms);
 }

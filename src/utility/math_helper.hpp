@@ -109,8 +109,15 @@ Eigen::Quaterniond average_quaternions(
 ///
 /// @brief Find average of multiple vectors
 /// @param vectors Vector of vectors to average
+/// @return Average vector
+///
+Eigen::Vector3d average_vectors(std::vector<Eigen::Vector3d> vectors);
+
+///
+/// @brief Find average of multiple vectors
+/// @param vectors Vector of vectors to average
 /// @param weights Vector of weights
-/// @return Average quaternion
+/// @return Average vector
 ///
 Eigen::Vector3d average_vectors(std::vector<Eigen::Vector3d> vectors, std::vector<double> weights);
 

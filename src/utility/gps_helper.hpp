@@ -24,5 +24,7 @@ Eigen::Vector3d enu_to_ecef(const Eigen::Vector3d & in_enu, const Eigen::Vector3
 Eigen::Vector3d enu_to_lla(const Eigen::Vector3d & enu_in, const Eigen::Vector3d & ref_lla);
 Eigen::Vector3d lla_to_ecef(const Eigen::Vector3d & lla);
 Eigen::Vector3d lla_to_enu(const Eigen::Vector3d & point_lla, const Eigen::Vector3d & ref_lla);
+Eigen::Vector3d local_to_enu(const Eigen::Vector3d & local_in, const double ang_l_to_g);
+Eigen::Vector3d enu_to_local(const Eigen::Vector3d & enu_in, const double ang_l_to_g);
 
 #endif  // UTILITY__GPS_HELPER_HPP_

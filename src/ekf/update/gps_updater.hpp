@@ -43,8 +43,6 @@ public:
     std::shared_ptr<DebugLogger> logger
   );
 
-  double GetAlignmentQuality(Eigen::Affine3d & transformation);
-
   ///
   /// @brief GPS LLA to ENU Initialization Routine
   /// @param time GPS measured time

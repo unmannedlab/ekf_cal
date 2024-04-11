@@ -8,17 +8,20 @@
             seed: 0.0
             use_seed: true
             max_time: 10.0
-            no_errors: false
             number_of_runs: 10
             run_number: 0
-            truth_type: "cyclic"
-            stationary_time: 5.0
-            pos_frequency: [0.3, 0.5, 0.7]
-            ang_frequency: [0.0, 0.0, 0.0]
-            pos_offset: [0.0, 0.0, 0.0]
-            ang_offset: [0.0, 0.0, 0.0]
-            ang_amplitude: 0.1
-            pos_amplitude: 0.1
+            stationary_time: 0.0
+            truth_type: "spline"
+            positions:
+                - [00.0, 00.0, 00.0]
+                - [10.0, 05.0, 10.0]
+                - [20.0, 20.0, 25.0]
+                - [35.0, 30.0, 30.0]
+            angles:
+                - [0.00, 0.00, 0.00]
+                - [0.01, 0.01, 0.01]
+                - [0.00, 0.00, 0.00]
+                - [0.01, 0.00, 0.01]
 
         filter_params:
             process_noise: [
@@ -59,6 +62,7 @@
                 acc_bias_stability: 1.0e-3
                 omg_bias_stability: 1.0e-3
                 sim_params:
+                    no_errors: false
                     time_bias_error: 1.0e-3
                     time_skew_error: 1.0e-9
                     time_error: 1.0e-6
@@ -77,14 +81,14 @@
             gps_1:
                 rate: 5.0
                 topic: "/gps1"
-                pos_a_in_b: [1.0, 0, 0]
+                pos_a_in_b: [0, 0, 0]
                 variance: [5.0, 5.0, 5.0]
                 sim_params:
+                    no_errors: false
                     time_bias: 0.0
                     time_skew: 0.0
                     time_error: 1.0e-9
                     pos_a_in_b: [0.0, 0.0, 0.0]
-                    gps_error:  [5.0, 5.0, 5.0]
+                    gps_error:  [1.0e-9, 1.0e-9, 1.0e-9]
                     pos_l_in_g: [0.0, 0.0, 0.0]
-                    ang_l_to_g: [1.0, 0.0, 0.0, 0.0]
-                    no_errors: false
+                    ang_l_to_g: 0.0

@@ -34,9 +34,10 @@ SimGPS::SimGPS(SimGPS::Parameters params, std::shared_ptr<TruthEngine> truthEngi
   m_time_skew = params.time_skew;
   m_time_error = std::max(params.time_error, 1e-9);
   m_pos_a_in_b = params.pos_a_in_b;
-  m_gps_error = params.gps_error;
   m_pos_l_in_g = params.pos_l_in_g;
   m_ang_l_to_g = params.ang_l_to_g;
+  m_gps_error = params.gps_error;
+  m_no_errors = params.no_errors;
   m_truth = truthEngine;
 }
 
@@ -68,7 +69,10 @@ std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages(SimRNG rng,
       pos_a_in_l(1) += rng.NormRand(0, m_gps_error(1));
       pos_a_in_l(2) += rng.NormRand(0, m_gps_error(2));
     }
-    sim_gps_msg->m_gps_lla = enu_to_lla(pos_a_in_l, m_pos_l_in_g);
+
+    Eigen::Vector3d antenna_enu = local_to_enu(pos_a_in_l, m_ang_l_to_g);
+
+    sim_gps_msg->m_gps_lla = enu_to_lla(antenna_enu, m_pos_l_in_g);
 
     messages.push_back(sim_gps_msg);
   }
