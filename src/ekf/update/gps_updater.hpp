@@ -49,23 +49,19 @@ public:
   /// @param time GPS measured time
   /// @param gps_lla GPS measured lat-lon-alt
   /// @param pos_xyz current position x-y-z
+  /// @return True if initialization is successful
   ///
-  void AttemptInitialization(
+  bool AttemptInitialization(
     double time,
     Eigen::Vector3d gps_lla,
     Eigen::Vector3d pos_xyz);
 
   ///
-  /// @brief Predict measurement method
-  /// @return Predicted measurement vector
-  ///
-  Eigen::VectorXd PredictMeasurement(std::shared_ptr<EKF> ekf);
-
-  ///
   /// @brief Measurement Jacobian method
+  /// @param state_size State size
   /// @return Measurement Jacobian matrix
   ///
-  Eigen::MatrixXd GetMeasurementJacobian();
+  Eigen::MatrixXd GetMeasurementJacobian(unsigned int state_size);
 
   ///
   /// @brief EKF update method for GPS measurements
@@ -77,20 +73,28 @@ public:
     double time,
     Eigen::Vector3d gps_lla);
 
+  ///
+  /// @brief
+  /// @param ekf
+  /// @param gps_time_vec
+  /// @param gps_ecef_vec
+  /// @param local_xyz_vec
+  ///
+  void MultiUpdateEKF(
+    std::shared_ptr<EKF> ekf,
+    std::vector<double> gps_time_vec,
+    std::vector<Eigen::Vector3d> gps_ecef_vec,
+    std::vector<Eigen::Vector3d> local_xyz_vec);
+
 private:
   DataLogger m_data_logger;
   Eigen::Vector3d m_reference_lla{0, 0, 0};
-  double m_reference_heading {0.0};
+  double m_ang_l_to_g {0.0};
   bool m_is_lla_initialized{false};
 
-  typedef struct AugmentedGpsStates
-  {
-    std::vector<double> time;
-    std::vector<Eigen::Vector3d> gps_ecef;
-    std::vector<Eigen::Vector3d> local_xyz;
-  } AugmentedGpsStates;
-
-  AugmentedGpsStates m_augmented_gps_states;
+  std::vector<double> m_gps_time_vec;
+  std::vector<Eigen::Vector3d> m_gps_ecef_vec;
+  std::vector<Eigen::Vector3d> m_local_xyz_vec;
 };
 
 #endif  // EKF__UPDATE__GPS_UPDATER_HPP_

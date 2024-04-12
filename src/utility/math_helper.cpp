@@ -290,6 +290,11 @@ Eigen::MatrixXd matrix2d_from_vectors3d(const std::vector<Eigen::Vector3d> & inp
   return matrix_out;
 }
 
+double affine_angle(const Eigen::Affine3d & transform)
+{
+  return std::acos((transform.linear().trace() - 1) / 2);
+}
+
 bool kabsch_2d(
   const std::vector<Eigen::Vector3d> & points_tgt,
   const std::vector<Eigen::Vector3d> & points_src,

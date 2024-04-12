@@ -51,24 +51,25 @@ GpsUpdater::GpsUpdater(
 }
 
 /// @todo(jhartzer): Add option to check max distance of baseline to initialize
-void GpsUpdater::AttemptInitialization(
+bool GpsUpdater::AttemptInitialization(
   double time,
   Eigen::Vector3d gps_lla,
   Eigen::Vector3d pos_xyz)
 {
   Eigen::Vector3d gps_ecef = lla_to_ecef(gps_lla);
-  m_augmented_gps_states.time.push_back(time);
-  m_augmented_gps_states.gps_ecef.push_back(gps_ecef);
-  m_augmented_gps_states.local_xyz.push_back(pos_xyz);
 
-  if (m_augmented_gps_states.time.size() >= 4) {
+  m_gps_time_vec.push_back(time);
+  m_gps_ecef_vec.push_back(gps_ecef);
+  m_local_xyz_vec.push_back(pos_xyz);
+
+  if (m_gps_time_vec.size() >= 4) {
     // Check eigenvalue of SVD from Kabsch
 
-    Eigen::Vector3d init_ref_ecef = average_vectors(m_augmented_gps_states.gps_ecef);
+    Eigen::Vector3d init_ref_ecef = average_vectors(m_gps_ecef_vec);
     Eigen::Vector3d init_ref_lla = ecef_to_lla(init_ref_ecef);
 
     std::vector<Eigen::Vector3d> gps_states_enu;
-    for (auto gps_ecef : m_augmented_gps_states.gps_ecef) {
+    for (auto gps_ecef : m_gps_ecef_vec) {
       gps_states_enu.push_back(ecef_to_enu(gps_ecef, init_ref_lla));
     }
 
@@ -76,7 +77,7 @@ void GpsUpdater::AttemptInitialization(
     Eigen::Vector2d singular_values;
     double residual_rms;
     bool is_successful = kabsch_2d(
-      m_augmented_gps_states.local_xyz,
+      m_local_xyz_vec,
       gps_states_enu,
       transformation,
       singular_values,
@@ -86,56 +87,43 @@ void GpsUpdater::AttemptInitialization(
     if (is_successful && (singular_values.maxCoeff() > 2.0)) {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
       m_reference_lla = enu_to_lla(delta_ref_enu, init_ref_lla);
+      m_ang_l_to_g = affine_angle(transformation);
 
-      /// @todo(jhartzer): Get heading from alignment output
-      // m_reference_heading = transformation.linear()
-      m_is_lla_initialized = true;
       m_logger->Log(LogLevel::INFO, "GPS Updater Initialized");
-      // Perform single update with compressed measurements
+      return true;
     }
   }
+  return false;
 }
 
-Eigen::VectorXd GpsUpdater::PredictMeasurement(
-  std::shared_ptr<EKF> ekf)
+Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(unsigned int state_size)
 {
-  Eigen::VectorXd predicted_measurement =
-    enu_to_lla(ekf->GetBodyState().m_position, m_reference_lla);
-
-  return predicted_measurement;
-}
-
-Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian()
-{
-  /// @todo(jhartzer): Implement this Jacobian
-  Eigen::MatrixXd measurement_jacobian;
+  Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, state_size);
   return measurement_jacobian;
 }
 
-void GpsUpdater::UpdateEKF(
-  std::shared_ptr<EKF> ekf,
-  double time,
-  Eigen::Vector3d gps_lla)
+void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3d gps_lla)
 {
   auto t_start = std::chrono::high_resolution_clock::now();
 
   if (!m_is_lla_initialized) {
     m_logger->Log(LogLevel::INFO, "GPS Updater Attempt Initialization");
-    AttemptInitialization(time, gps_lla, ekf->GetState().m_body_state.m_position);
+    m_is_lla_initialized =
+      AttemptInitialization(time, gps_lla, ekf->GetState().m_body_state.m_position);
+    if (m_is_lla_initialized) {
+      // Perform single update with compressed measurements
+      MultiUpdateEKF(ekf, m_gps_time_vec, m_gps_ecef_vec, m_local_xyz_vec);
+    }
   } else {
     ekf->ProcessModel(time);
 
+    Eigen::Vector3d gps_enu = lla_to_enu(gps_lla, m_reference_lla);
+    Eigen::Vector3d gps_local = enu_to_local(gps_enu, m_ang_l_to_g);
 
-    Eigen::Vector3d predicted_measurement = PredictMeasurement(ekf);
-    Eigen::Vector3d resid = gps_lla - predicted_measurement;
-    Eigen::MatrixXd H = GetMeasurementJacobian();
+    Eigen::Vector3d y = gps_local - ekf->GetBodyState().m_position;
+    Eigen::MatrixXd H = GetMeasurementJacobian(ekf->GetStateSize());
     Eigen::MatrixXd R = Eigen::MatrixXd::Identity(3, 3);
-    Eigen::MatrixXd S = H * ekf->GetCov() * H.transpose() + R;
-    Eigen::MatrixXd K = ekf->GetCov() * H.transpose() * S.inverse();
-    Eigen::VectorXd update = K * resid;
-    Eigen::MatrixXd I = Eigen::MatrixXd::Identity(update.size(), update.size());
-
-    ekf->GetCov() = (I - K * H) * ekf->GetCov() * (I - K * H).transpose() + K * R * K.transpose();
+    KalmanUpdate(ekf, H, y, R);
 
     m_logger->Log(LogLevel::INFO, "GPS Updater Update");
   }
@@ -149,4 +137,37 @@ void GpsUpdater::UpdateEKF(
   msg << "," << t_execution.count();
   msg << std::endl;
   m_data_logger.Log(msg.str());
+}
+
+void GpsUpdater::MultiUpdateEKF(
+  std::shared_ptr<EKF> ekf,
+  std::vector<double> gps_time_vec,
+  std::vector<Eigen::Vector3d> gps_ecef_vec,
+  std::vector<Eigen::Vector3d> local_xyz_vec)
+{
+  unsigned int measurement_size = 3 * gps_time_vec.size();
+  unsigned int state_size = ekf->GetStateSize();
+  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(measurement_size, state_size);
+  Eigen::VectorXd y = Eigen::VectorXd::Zero(measurement_size);
+
+  for (unsigned int i = 0; i < gps_time_vec.size(); ++i) {
+    Eigen::Vector3d gps_enu = ecef_to_enu(gps_ecef_vec[i], m_reference_lla);
+    Eigen::Vector3d gps_local = enu_to_local(gps_enu, m_ang_l_to_g);
+
+    H.block(3 * i, 0, 3, state_size) = GetMeasurementJacobian(state_size);
+    y.segment(3 * i, 3) = gps_local - local_xyz_vec[i];
+  }
+
+  CompressMeasurements(H, y);
+
+  // Jacobian is ill-formed if either rows or columns post-compression are size 1
+  if (y.size() == 1) {
+    m_logger->Log(LogLevel::INFO, "Compressed MSCKF Jacobian is ill-formed");
+    return;
+  }
+
+  Eigen::MatrixXd R = Eigen::MatrixXd::Identity(y.rows(), y.rows());
+
+  KalmanUpdate(ekf, H, y, R);
+  m_logger->Log(LogLevel::INFO, "GPS Updater Update");
 }

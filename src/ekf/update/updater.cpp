@@ -19,3 +19,23 @@
 
 Updater::Updater(unsigned int sensor_id, std::shared_ptr<DebugLogger> logger)
 : m_id(sensor_id), m_logger(logger) {}
+
+
+void Updater::KalmanUpdate(
+  std::shared_ptr<EKF> ekf,
+  Eigen::MatrixXd jacobian,
+  Eigen::VectorXd residual,
+  Eigen::MatrixXd measurement_noise
+)
+{
+  // Calculate Kalman gain
+  Eigen::MatrixXd S = jacobian * ekf->GetCov() * jacobian.transpose() + measurement_noise;
+  Eigen::MatrixXd K = ekf->GetCov() * jacobian.transpose() * S.inverse();
+  Eigen::VectorXd update = K * residual;
+
+  ekf->GetState() += update;
+  ekf->GetCov() =
+    (Eigen::MatrixXd::Identity(update.size(), update.size()) - K * jacobian) * ekf->GetCov() *
+    (Eigen::MatrixXd::Identity(update.size(), update.size()) - K * jacobian).transpose() +
+    K * measurement_noise * K.transpose();
+}

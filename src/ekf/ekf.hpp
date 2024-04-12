@@ -55,6 +55,12 @@ public:
   State & GetState();
 
   ///
+  /// @brief Getter for state size
+  /// @return State size
+  ///
+  unsigned int GetStateSize();
+
+  ///
   /// @brief Getter for the body state vector reference
   /// @return Body state vector reference
   ///

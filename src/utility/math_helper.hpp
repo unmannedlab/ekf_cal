@@ -143,6 +143,13 @@ Eigen::MatrixXd quaternion_jacobian_inv(Eigen::Quaterniond quat);
 Eigen::MatrixXd matrix2d_from_vectors3d(const std::vector<Eigen::Vector3d> & input_vectors);
 
 ///
+/// @brief Get angle of affine transformation
+/// @param transform Affine transformation
+/// @return Rotation angle
+///
+double affine_angle(const Eigen::Affine3d & transform);
+
+///
 /// @brief Find in-plane transformation between two sets of points using the Kabsch algorithm
 /// @param points_tgt Points in target frame
 /// @param points_src Points in source frame

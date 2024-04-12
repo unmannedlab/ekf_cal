@@ -333,4 +333,6 @@ TEST(test_MathHelper, kabsch_2d) {
   EXPECT_NEAR(rotation(0, 1), -0.8660, 1e-3);
   EXPECT_NEAR(rotation(1, 0), 0.8660, 1e-3);
   EXPECT_NEAR(rotation(2, 2), 1.0, 1e-3);
+
+  EXPECT_NEAR(affine_angle(transform), M_PI / 3.0, 1e-3);
 }

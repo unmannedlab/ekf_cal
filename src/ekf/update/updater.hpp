@@ -45,6 +45,13 @@ public:
   //   Eigen::MatrixXd residual,
   //   Eigen::MatrixXd jacobian);
 
+  void KalmanUpdate(
+    std::shared_ptr<EKF> ekf,
+    Eigen::MatrixXd jacobian,
+    Eigen::VectorXd residual,
+    Eigen::MatrixXd measurement_noise
+  );
+
 protected:
   unsigned int m_id;                      ///< @brief Associated sensor ID
   std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger

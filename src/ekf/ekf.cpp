@@ -250,6 +250,11 @@ State & EKF::GetState()
   return m_state;
 }
 
+unsigned int EKF::GetStateSize()
+{
+  return m_state_size;
+}
+
 BodyState EKF::GetBodyState()
 {
   return m_state.m_body_state;
