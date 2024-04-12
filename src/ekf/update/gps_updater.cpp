@@ -19,8 +19,9 @@
 #include <unistd.h>
 
 #include <memory>
-#include <string>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #include "ekf/constants.hpp"
 #include "ekf/types.hpp"
@@ -38,9 +39,7 @@ GpsUpdater::GpsUpdater(
   std::shared_ptr<DebugLogger> logger
 )
 : Updater(gps_id, logger),
-  m_data_logger(
-    log_file_directory,
-    "gps_" + std::to_string(gps_id) + ".csv")
+  m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
 {
   std::stringstream header;
   header << "time,lat,lon,alt";
@@ -50,7 +49,6 @@ GpsUpdater::GpsUpdater(
   m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(data_logging_on);
 }
-
 
 /// @todo(jhartzer): Add option to check max distance of baseline to initialize
 void GpsUpdater::AttemptInitialization(
@@ -65,8 +63,6 @@ void GpsUpdater::AttemptInitialization(
 
   if (m_augmented_gps_states.time.size() >= 4) {
     // Check eigenvalue of SVD from Kabsch
-    Eigen::Affine3d transformation;
-    Eigen::Vector3d singular_values;
 
     Eigen::Vector3d init_ref_ecef = average_vectors(m_augmented_gps_states.gps_ecef);
     Eigen::Vector3d init_ref_lla = ecef_to_lla(init_ref_ecef);
@@ -76,14 +72,18 @@ void GpsUpdater::AttemptInitialization(
       gps_states_enu.push_back(ecef_to_enu(gps_ecef, init_ref_lla));
     }
 
-    align_points(
+    Eigen::Affine3d transformation;
+    Eigen::Vector2d singular_values;
+    double residual_rms;
+    bool is_successful = kabsch_2d(
       m_augmented_gps_states.local_xyz,
       gps_states_enu,
       transformation,
-      singular_values);
+      singular_values,
+      residual_rms);
 
     /// @todo(jhartzer): Get quality limit from input
-    if (singular_values.maxCoeff() > 2.0) {
+    if (is_successful && (singular_values.maxCoeff() > 2.0)) {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
       m_reference_lla = enu_to_lla(delta_ref_enu, init_ref_lla);
 

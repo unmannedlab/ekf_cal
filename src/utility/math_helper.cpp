@@ -280,54 +280,61 @@ double sign(double val)
   return (0.0 < val) - (val < 0.0);
 }
 
-void align_points(
-  const std::vector<Eigen::Vector3d> & tgt_points,
-  const std::vector<Eigen::Vector3d> & src_points,
-  Eigen::Affine3d & transformation,
-  Eigen::Vector3d & singular_values)
+Eigen::MatrixXd matrix2d_from_vectors3d(const std::vector<Eigen::Vector3d> & input_vectors)
 {
-  if ((tgt_points.size() != src_points.size()) || (tgt_points.size() < 4)) {
-    return;
+  Eigen::MatrixXd matrix_out(2, input_vectors.size());
+  for (unsigned int i = 0; i < input_vectors.size(); i++) {
+    matrix_out(0, i) = input_vectors[i][0];
+    matrix_out(1, i) = input_vectors[i][1];
+  }
+  return matrix_out;
+}
+
+bool kabsch_2d(
+  const std::vector<Eigen::Vector3d> & points_tgt,
+  const std::vector<Eigen::Vector3d> & points_src,
+  Eigen::Affine3d & transform,
+  Eigen::Vector2d & singular_values,
+  double & residual_rms)
+{
+  if ((points_tgt.size() != points_src.size()) || (points_tgt.size() < 4)) {
+    return false;
   }
 
-  size_t n = tgt_points.size();
-  Eigen::MatrixXd src(3, n), tgt(3, n);
-  for (unsigned int i = 0; i < n; i++) {
-    tgt.col(i) = tgt_points[i];
-    src.col(i) = src_points[i];
-  }
+  Eigen::Vector3d centroid_src = average_vectors(points_src);
+  Eigen::Vector3d centroid_tgt = average_vectors(points_tgt);
 
-  Eigen::Vector3d centroid_src(0, 0, 0), centroid_tgt(0, 0, 0);
-  for (unsigned int i = 0; i < n; i++) {
-    centroid_src += src.col(i);
-    centroid_tgt += tgt.col(i);
-  }
-  centroid_src /= n;
-  centroid_tgt /= n;
-  for (unsigned int i = 0; i < n; i++) {
-    src.col(i) -= centroid_src;
-    tgt.col(i) -= centroid_tgt;
-  }
+  std::vector<Eigen::Vector3d> centered_points_tgt = points_src - centroid_src;
+  std::vector<Eigen::Vector3d> centered_points_src = points_tgt - centroid_tgt;
 
-  Eigen::Matrix3d rotation = Eigen::Matrix3d::Identity();
+  Eigen::MatrixXd mat_src = matrix2d_from_vectors3d(centered_points_tgt);
+  Eigen::MatrixXd mat_tgt = matrix2d_from_vectors3d(centered_points_src);
 
-  Eigen::MatrixXd cov = src * tgt.transpose();
+  Eigen::Matrix2d rotation_2d = Eigen::Matrix2d::Identity();
+
+  Eigen::MatrixXd cov = mat_src * mat_tgt.transpose();
   Eigen::JacobiSVD<Eigen::MatrixXd> svd(cov, Eigen::ComputeFullU | Eigen::ComputeFullV);
-  double det = (svd.matrixV() * svd.matrixU().transpose()).determinant();
-  Eigen::Matrix3d I = Eigen::Matrix3d::Identity();
-  I(2, 2) = sign(det);
-  rotation = svd.matrixV() * I * svd.matrixU().transpose();
-
   singular_values = svd.singularValues();
-  transformation.setIdentity();
-  transformation.linear() = rotation;
-  transformation.translation() = (centroid_tgt - rotation * centroid_src);
 
-  double residual_rms = 0;
-  for (unsigned int i = 0; i < n; ++i) {
-    auto err = (tgt_points[i] - transformation * src_points[i]).norm();
+  Eigen::Matrix2d I = Eigen::Matrix2d::Identity();
+  double det = (svd.matrixV() * svd.matrixU().transpose()).determinant();
+  I(1, 1) = sign(det);
+  rotation_2d = svd.matrixV() * I * svd.matrixU().transpose();
+
+  Eigen::Matrix3d rotation_3d = Eigen::Matrix3d::Identity();
+  rotation_3d.block(0, 0, 2, 2) = rotation_2d;
+
+  transform.setIdentity();
+  transform.linear() = rotation_3d;
+  transform.translation() = centroid_tgt - rotation_3d * centroid_src;
+
+  residual_rms = 0;
+  for (unsigned int i = 0; i < points_tgt.size(); ++i) {
+    auto err = (points_tgt[i] - transform * points_src[i]).norm();
     residual_rms += err * err;
   }
-  residual_rms /= n;
+  residual_rms /= points_tgt.size();
   residual_rms = sqrt(residual_rms);
+
+  return true;
 }

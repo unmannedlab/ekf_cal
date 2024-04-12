@@ -92,4 +92,14 @@ Eigen::Quaterniond RodriguesToQuat(cv::Vec3d rodrigues_vector);
 ///
 void CvVectorToEigen(cv::Vec3d & vector_cv, Eigen::Vector3d & vector_eigen);
 
+///
+/// @brief Telegraph subtract vector from list of vectors
+/// @param vector_of_vectors vector of vectors
+/// @param vector_to_subtract vector to subtract
+/// @return Vector of vectors result from telegraphed subtraction
+///
+std::vector<Eigen::Vector3d> operator-(
+  const std::vector<Eigen::Vector3d> & vector_of_vectors,
+  const Eigen::Vector3d & vector_to_subtract);
+
 #endif  // UTILITY__TYPE_HELPER_HPP_

@@ -21,6 +21,7 @@
         "ARUCO",
         "axvline",
         "bmatrix",
+        "cwise",
         "DISTRO",
         "doxyfile",
         "doxygen",
@@ -151,7 +152,8 @@
         "ios": "cpp",
         "__split_buffer": "cpp",
         "__hash_table": "cpp",
-        "__tree": "cpp"
+        "__tree": "cpp",
+        "__bit_reference": "cpp"
     },
     "cmake.configureOnOpen": true,
     "flake8.args": [

@@ -118,3 +118,14 @@ void CvVectorToEigen(cv::Vec3d & vector_cv, Eigen::Vector3d & vector_eigen)
     vector_eigen(i) = vector_cv[i];
   }
 }
+
+std::vector<Eigen::Vector3d> operator-(
+  const std::vector<Eigen::Vector3d> & vector_of_vectors,
+  const Eigen::Vector3d & vector_to_subtract)
+{
+  std::vector<Eigen::Vector3d> vectors_out;
+  for (unsigned int i = 0; i < vector_of_vectors.size(); ++i) {
+    vectors_out.push_back(vector_of_vectors[i] - vector_to_subtract);
+  }
+  return vectors_out;
+}

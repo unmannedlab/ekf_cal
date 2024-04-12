@@ -135,18 +135,27 @@ Eigen::MatrixXd quaternion_jacobian(Eigen::Quaterniond quat);
 ///
 Eigen::MatrixXd quaternion_jacobian_inv(Eigen::Quaterniond quat);
 
+///
+/// @brief Create a horizontal 2xN matrix from a list of vectors
+/// @param input_vectors List of vectors
+/// @return 2xN Matrix
+///
+Eigen::MatrixXd matrix2d_from_vectors3d(const std::vector<Eigen::Vector3d> & input_vectors);
 
 ///
-/// @brief Align points using the Kabsch algorithm
-/// @param tgt_points Points in target frame
-/// @param src_points Points in source frame
-/// @param transformation Affine transformation between frames
-/// @param singular_values Singular values of transform
+/// @brief Find in-plane transformation between two sets of points using the Kabsch algorithm
+/// @param points_tgt Points in target frame
+/// @param points_src Points in source frame
+/// @param transform Resultant transform
+/// @param singular_values Singular values from SVD
+/// @param residual_rms RMS of residuals from transform
+/// @return Was function successful
 ///
-void align_points(
-  const std::vector<Eigen::Vector3d> & tgt_points,
-  const std::vector<Eigen::Vector3d> & src_points,
-  Eigen::Affine3d & transformation,
-  Eigen::Vector3d & singular_values);
+bool kabsch_2d(
+  const std::vector<Eigen::Vector3d> & points_tgt,
+  const std::vector<Eigen::Vector3d> & points_src,
+  Eigen::Affine3d & transform,
+  Eigen::Vector2d & singular_values,
+  double & residual_rms);
 
 #endif  // UTILITY__MATH_HELPER_HPP_

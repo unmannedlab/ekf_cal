@@ -296,43 +296,41 @@ TEST(test_MathHelper, quaternion_jacobian_inv) {
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(jac, Eigen::Matrix3d::Identity(), 1e-6));
 }
 
-TEST(test_MathHelper, align_points) {
-  // Create datasets with known transform
-  unsigned int n = 100;
+TEST(test_MathHelper, kabsch_2d) {
+  std::vector<Eigen::Vector3d> points_src;
+  points_src.push_back(Eigen::Vector3d{0, 0, 0});
+  points_src.push_back(Eigen::Vector3d{1, 1, 1});
+  points_src.push_back(Eigen::Vector3d{0, 1, 0});
+  points_src.push_back(Eigen::Vector3d{1, 0, 1});
+  points_src.push_back(Eigen::Vector3d{1, 0, 0});
+  points_src.push_back(Eigen::Vector3d{0, 1, 0});
+  points_src.push_back(Eigen::Vector3d{0, 0, 1});
 
-  Eigen::Matrix3Xd in(3, n), out(3, n);
-  Eigen::Quaternion<double> Q(1, 3, 5, 2);
-  Q.normalize();
-  Eigen::Matrix3d R = Q.toRotationMatrix();
-  for (int row = 0; row < in.rows(); row++) {
-    for (int col = 0; col < in.cols(); col++) {
-      in(row, col) = log(2 * row + 10.0) / sqrt(1.0 * col + 4.0) + sqrt(col * 1.0) / (row + 1.0);
-    }
-  }
-  Eigen::Vector3d S;
-  S << -5, 6, -27;
-  for (int col = 0; col < in.cols(); col++) {
-    out.col(col) = R * in.col(col) + S;
-  }
+  std::vector<Eigen::Vector3d> points_tgt;
+  points_tgt.push_back(Eigen::Vector3d{1.0000, 2.0000, 3.0000});
+  points_tgt.push_back(Eigen::Vector3d{0.6340, 3.3660, 4.0000});
+  points_tgt.push_back(Eigen::Vector3d{0.1340, 2.5000, 3.0000});
+  points_tgt.push_back(Eigen::Vector3d{1.5000, 2.8660, 4.0000});
+  points_tgt.push_back(Eigen::Vector3d{1.5000, 2.8660, 3.0000});
+  points_tgt.push_back(Eigen::Vector3d{0.1340, 2.5000, 3.0000});
+  points_tgt.push_back(Eigen::Vector3d{1.0000, 2.0000, 4.0000});
 
-  std::vector<Eigen::Vector3d> src;
-  std::vector<Eigen::Vector3d> tgt;
-  for (int col = 0; col < in.cols(); col++) {
-    Eigen::Vector3d src_temp;
-    Eigen::Vector3d tgt_temp;
-    for (int row = 0; row < in.rows(); row++) {
-      src_temp[row] = in(row, col);
-      tgt_temp[row] = out(row, col);
-    }
-    src.push_back(src_temp);
-    tgt.push_back(tgt_temp);
-  }
+  Eigen::Affine3d transform;
+  Eigen::Vector2d singular_values;
+  double residual_rms;
 
-  Eigen::Affine3d A;
-  Eigen::Vector3d singular_values;
-  align_points(tgt, src, A, singular_values);
+  EXPECT_TRUE(kabsch_2d(points_tgt, points_src, transform, singular_values, residual_rms));
 
-  // See if we got the transform we expected
-  EXPECT_FALSE((R - A.linear()).cwiseAbs().maxCoeff() > 1e-13);
-  EXPECT_FALSE((S - A.translation()).cwiseAbs().maxCoeff() > 1e-13);
+  Eigen::Vector3d translation = transform.translation();
+  Eigen::Matrix3d rotation = transform.linear();
+
+  EXPECT_NEAR(translation(0), 1.0, 1e-3);
+  EXPECT_NEAR(translation(1), 2.0, 1e-3);
+  EXPECT_NEAR(translation(2), 3.0, 1e-3);
+
+  EXPECT_NEAR(rotation(0, 0), 0.5, 1e-3);
+  EXPECT_NEAR(rotation(1, 1), 0.5, 1e-3);
+  EXPECT_NEAR(rotation(0, 1), -0.8660, 1e-3);
+  EXPECT_NEAR(rotation(1, 0), 0.8660, 1e-3);
+  EXPECT_NEAR(rotation(2, 2), 1.0, 1e-3);
 }
