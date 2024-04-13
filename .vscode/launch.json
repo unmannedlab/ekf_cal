@@ -37,7 +37,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/eval/report.py",
             "args": [
-                "config/fiducial.yaml"
+                "config/gps.yaml"
             ],
             "console": "integratedTerminal"
         },

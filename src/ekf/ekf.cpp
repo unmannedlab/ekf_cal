@@ -39,7 +39,7 @@ EKF::EKF(
 )
 : m_logger(logger),
   m_data_logging_on(data_logging_on),
-  m_data_logger(log_directory, "body.csv")
+  m_data_logger(log_directory, "body_state.csv")
 {
   std::stringstream header;
   header << "time";

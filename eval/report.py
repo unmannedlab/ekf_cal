@@ -38,17 +38,16 @@ from bokeh.plotting import save
 from input_parser import InputParser
 from tab_body import tab_body
 from tab_fiducial import tab_fiducial
+from tab_gps import tab_gps
 from tab_imu import tab_imu
 from tab_msckf import tab_msckf
-from utilities import find_and_read_data_frames, generate_mc_lists, parse_yaml
+from utilities import find_and_read_data_frames, generate_mc_lists
 
 
 # TODO(jhartzer): Split for loop into thread pool
 def plot_sim_results(config_sets, output_embed):
     """Top level function to plot simulation results from sets of config files."""
     for config_set in config_sets:
-        config_data = parse_yaml(config_set[0])
-
         data_dirs = [config.split('.yaml')[0] for config in config_set]
         config_name = os.path.basename(os.path.dirname(os.path.dirname(config_set[0])))
         if len(config_set) > 1:
@@ -70,7 +69,7 @@ def plot_sim_results(config_sets, output_embed):
         imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
         for key in sorted(imu_dfs_dict.keys()):
             imu_dfs = imu_dfs_dict[key]
-            tabs.append(tab_imu(imu_dfs, config_data, key))
+            tabs.append(tab_imu(imu_dfs))
 
         mskcf_dfs_dict = find_and_read_data_frames(data_dirs, 'msckf')
         tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
@@ -89,6 +88,11 @@ def plot_sim_results(config_sets, output_embed):
             tri_dfs = tri_dfs_dict[key]
             board_dfs = board_dfs_dict[0]
             tabs.append(tab_fiducial(fiducial_dfs, tri_dfs, board_dfs))
+
+        gps_dfs_dict = find_and_read_data_frames(data_dirs, 'gps')
+        for key in sorted(gps_dfs_dict.keys()):
+            gps_dfs = gps_dfs_dict[key]
+            tabs.append(tab_gps(gps_dfs))
 
         if (output_embed):
             if not os.path.exists(os.path.join(plot_dir, 'js')):

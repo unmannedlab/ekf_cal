@@ -39,6 +39,7 @@ public:
   /// @param log_file_directory Logging file directory
   /// @param data_logging_on Logging flag
   /// @param data_log_rate Maximum average rate to log data
+  /// @param logger Debug logger pointer
   ///
   ImuUpdater(
     unsigned int imu_id,
@@ -64,6 +65,7 @@ public:
 
   ///
   /// @brief EKF update method for IMU measurements
+  /// @param ekf EKF pointer
   /// @param time Measurement time
   /// @param acceleration Measured acceleration
   /// @param acceleration_covariance Estimated acceleration error

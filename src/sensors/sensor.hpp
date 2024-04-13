@@ -35,6 +35,7 @@ public:
   ///
   /// @brief Sensor class constructor
   /// @param name Sensor name
+  /// @param logger Debug logger pointer
   ///
   explicit Sensor(std::string name, std::shared_ptr<DebugLogger> logger);
 

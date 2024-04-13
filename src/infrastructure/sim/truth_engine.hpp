@@ -35,6 +35,10 @@
 class TruthEngine
 {
 public:
+  ///
+  ///
+  /// @param logger Debug logger pointer
+  ///
   explicit TruthEngine(std::shared_ptr<DebugLogger> logger);
 
   virtual ~TruthEngine() = 0;
@@ -204,7 +208,7 @@ public:
   std::vector<cv::Point3d> GetFeatures();
 
 protected:
-  std::shared_ptr<DebugLogger> m_logger;
+  std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger
 
 private:
   std::map<unsigned int, Eigen::Vector3d> m_imu_pos;

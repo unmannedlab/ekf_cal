@@ -1,4 +1,4 @@
-// Copyright 2023 Jacob Hartzer
+// Copyright 2024 Jacob Hartzer
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -47,7 +47,8 @@ public:
     Eigen::Vector3d pos_a_in_b {0, 0, 0};  ///< @brief GPS antenna position offset vector
     std::string output_directory {""};     ///< @brief GPS data logging directory
     bool data_logging_on {false};          ///< @brief GPS data logging flag
-    Eigen::Vector3d variance {{1, 1, 1}};  /// @brief Initial state variance
+    Eigen::Vector3d variance {{1, 1, 1}};  ///< @brief Initial state variance
+    double data_log_rate {0.0};            ///< @brief Data logging rate
     std::shared_ptr<DebugLogger> logger;   ///< @brief Debug logger
     std::shared_ptr<EKF> ekf;              ///< @brief EKF to update
   } Parameters;

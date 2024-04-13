@@ -1,4 +1,4 @@
-// Copyright 2023 Jacob Hartzer
+// Copyright 2024 Jacob Hartzer
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -36,11 +36,14 @@ public:
   /// @param gps_id GPS Sensor ID
   /// @param log_file_directory Logging file directory
   /// @param data_logging_on Logging flag
+  /// @param data_log_rate Maximum data logging rate
+  /// @param logger Debug logger pointer
   ///
   GpsUpdater(
     unsigned int gps_id,
     std::string log_file_directory,
     bool data_logging_on,
+    double data_log_rate,
     std::shared_ptr<DebugLogger> logger
   );
 
@@ -65,6 +68,7 @@ public:
 
   ///
   /// @brief EKF update method for GPS measurements
+  /// @param ekf EKF pointer
   /// @param time Measurement time
   /// @param gps_lla GPS measured lat-lon-alt
   ///

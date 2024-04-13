@@ -17,9 +17,9 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <iomanip>
 #include <sstream>
 #include <string>
-
 
 std::string EnumerateHeader(std::string name, unsigned int size)
 {
@@ -35,6 +35,15 @@ std::string VectorToCommaString(Eigen::VectorXd vec)
   std::stringstream stream;
   for (unsigned int i = 0; i < vec.size(); ++i) {
     stream << "," << vec[i];
+  }
+  return stream.str();
+}
+
+std::string VectorToCommaString(Eigen::VectorXd vec, unsigned int precision)
+{
+  std::stringstream stream;
+  for (unsigned int i = 0; i < vec.size(); ++i) {
+    stream << "," << std::setprecision(precision) << vec[i];
   }
   return stream.str();
 }

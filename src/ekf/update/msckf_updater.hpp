@@ -42,6 +42,7 @@ public:
   /// @param data_logging_on Flag to enable data logging
   /// @param data_log_rate Maximum average rate to log data
   /// @param min_feat_dist Closest feature distance to consider
+  /// @param logger Debug logger pointer
   ///
   explicit MsckfUpdater(
     int cam_id,
@@ -55,6 +56,7 @@ public:
 
   ///
   /// @brief Triangulate feature seen from multiple camera frames
+  /// @param ekf EKF pointer
   /// @param feature_track Single feature track
   /// @return Estimate of feature position in camera frame given observations
   ///
@@ -64,6 +66,7 @@ public:
 
   ///
   /// @brief EKF updater function
+  /// @param ekf EKF pointer
   /// @param time Time of update
   /// @param feature_tracks Feature tracks to be used for state update
   /// @param px_error Standard deviation of pixel error

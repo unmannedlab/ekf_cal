@@ -62,8 +62,10 @@ public:
 
   ///
   /// @brief Generate simulated tracker messages
+  /// @param rng Random number generator to use in generation
   /// @param message_times Vector of message times
   /// @param sensor_id Camera sensor ID
+  /// @return Generated fiducial tracker messages
   ///
   std::vector<std::shared_ptr<SimFiducialTrackerMessage>> GenerateMessages(
     SimRNG rng, std::vector<double> message_times, int sensor_id);

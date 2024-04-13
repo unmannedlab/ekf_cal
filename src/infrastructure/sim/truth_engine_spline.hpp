@@ -38,6 +38,7 @@ public:
   /// @param positions Position control points
   /// @param angles Angular position control points
   /// @param stationary_time Time to be stationary before beginning motion
+  /// @param logger Debug logger pointer
   ///
   TruthEngineSpline(
     double delta_time,

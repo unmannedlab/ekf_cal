@@ -420,6 +420,7 @@ int main(int argc, char * argv[])
     gps_params.topic = gps_node["topic"].as<std::string>();
     gps_params.variance = StdToEigVec(gps_node["variance"].as<std::vector<double>>());
     gps_params.pos_a_in_b = StdToEigVec(gps_node["pos_a_in_b"].as<std::vector<double>>());
+    gps_params.data_log_rate = gps_node["data_log_rate"].as<double>(0.0);
     gps_params.output_directory = out_dir;
     gps_params.data_logging_on = data_logging_on;
     gps_params.logger = debug_logger;

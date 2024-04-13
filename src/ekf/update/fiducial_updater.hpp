@@ -42,6 +42,7 @@ public:
   /// @param log_file_directory Directory to save log files
   /// @param data_logging_on Flag to enable data logging
   /// @param data_log_rate Maximum average rate to log data
+  /// @param logger Debug logger pointer
   ///
   explicit FiducialUpdater(
     int cam_id,
@@ -55,6 +56,7 @@ public:
 
   ///
   /// @brief EKF updater function
+  /// @param ekf EKF pointer
   /// @param time Time of update
   /// @param board_track Board track to be used for state update
   /// @param pos_error Standard deviation of the position error

@@ -315,7 +315,7 @@ def plot_imu_int_ang_cov(imu_dfs):
     return fig
 
 
-def tab_imu(imu_dfs, config_data, key):
+def tab_imu(imu_dfs):
     layout_plots = [
         [plot_acc_measurements(imu_dfs), plot_omg_measurements(imu_dfs)],
         [plot_acc_residuals(imu_dfs), plot_omg_residuals(imu_dfs)],

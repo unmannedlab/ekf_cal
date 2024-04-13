@@ -1,4 +1,4 @@
-// Copyright 2023 Jacob Hartzer
+// Copyright 2024 Jacob Hartzer
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,7 +29,12 @@
 GPS::GPS(GPS::Parameters params)
 : Sensor(params.name, params.logger),
   m_ekf(params.ekf),
-  m_gps_updater(m_id, params.output_directory, params.data_logging_on, params.logger)
+  m_gps_updater(
+    m_id,
+    params.output_directory,
+    params.data_logging_on,
+    params.data_log_rate,
+    params.logger)
 {
   m_rate = params.rate;
 }

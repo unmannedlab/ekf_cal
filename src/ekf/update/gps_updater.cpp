@@ -1,4 +1,4 @@
-// Copyright 2023 Jacob Hartzer
+// Copyright 2024 Jacob Hartzer
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -36,18 +36,20 @@ GpsUpdater::GpsUpdater(
   unsigned int gps_id,
   std::string log_file_directory,
   bool data_logging_on,
+  double data_log_rate,
   std::shared_ptr<DebugLogger> logger
 )
 : Updater(gps_id, logger),
   m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
 {
   std::stringstream header;
-  header << "time,lat,lon,alt";
-  header << EnumerateHeader("time", 1);
-  header << std::endl;
+  header << "time,lat,lon,alt,x,y,z";
+  header << EnumerateHeader("residual", 3);
+  header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(data_logging_on);
+  m_data_logger.SetLogRate(data_log_rate);
 }
 
 /// @todo(jhartzer): Add option to check max distance of baseline to initialize
@@ -99,6 +101,7 @@ bool GpsUpdater::AttemptInitialization(
 Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(unsigned int state_size)
 {
   Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, state_size);
+  measurement_jacobian.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3);
   return measurement_jacobian;
 }
 
@@ -106,6 +109,8 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
 {
   auto t_start = std::chrono::high_resolution_clock::now();
 
+  Eigen::Vector3d gps_local = Eigen::Vector3d::Zero();
+  Eigen::Vector3d y = Eigen::Vector3d::Zero();
   if (!m_is_lla_initialized) {
     m_logger->Log(LogLevel::INFO, "GPS Updater Attempt Initialization");
     m_is_lla_initialized =
@@ -118,9 +123,10 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
     ekf->ProcessModel(time);
 
     Eigen::Vector3d gps_enu = lla_to_enu(gps_lla, m_reference_lla);
-    Eigen::Vector3d gps_local = enu_to_local(gps_enu, m_ang_l_to_g);
+    gps_local = enu_to_local(gps_enu, m_ang_l_to_g);
 
-    Eigen::Vector3d y = gps_local - ekf->GetBodyState().m_position;
+    Eigen::Vector3d body_position = ekf->GetBodyState().m_position;
+    y = gps_local - body_position;
     Eigen::MatrixXd H = GetMeasurementJacobian(ekf->GetStateSize());
     Eigen::MatrixXd R = Eigen::MatrixXd::Identity(3, 3);
     KalmanUpdate(ekf, H, y, R);
@@ -133,9 +139,10 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   // Write outputs
   std::stringstream msg;
   msg << time;
-  msg << "," << VectorToCommaString(gps_lla);
+  msg << VectorToCommaString(gps_lla, 12);
+  msg << VectorToCommaString(gps_local);
+  msg << VectorToCommaString(y);
   msg << "," << t_execution.count();
-  msg << std::endl;
   m_data_logger.Log(msg.str());
 }
 
@@ -161,7 +168,7 @@ void GpsUpdater::MultiUpdateEKF(
   CompressMeasurements(H, y);
 
   // Jacobian is ill-formed if either rows or columns post-compression are size 1
-  if (y.size() == 1) {
+  if (y.size() <= 1) {
     m_logger->Log(LogLevel::INFO, "Compressed MSCKF Jacobian is ill-formed");
     return;
   }

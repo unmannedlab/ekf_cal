@@ -23,9 +23,9 @@ Updater::Updater(unsigned int sensor_id, std::shared_ptr<DebugLogger> logger)
 
 void Updater::KalmanUpdate(
   std::shared_ptr<EKF> ekf,
-  Eigen::MatrixXd jacobian,
-  Eigen::VectorXd residual,
-  Eigen::MatrixXd measurement_noise
+  const Eigen::MatrixXd & jacobian,
+  const Eigen::VectorXd & residual,
+  const Eigen::MatrixXd & measurement_noise
 )
 {
   // Calculate Kalman gain

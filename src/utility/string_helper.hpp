@@ -36,6 +36,14 @@ std::string EnumerateHeader(std::string name, unsigned int size);
 std::string VectorToCommaString(Eigen::VectorXd vec);
 
 ///
+/// @brief Create comma-separated string from vector
+/// @param vec Input vector
+/// @param precision Output precision
+/// @return Comma-separated string vector
+///
+std::string VectorToCommaString(Eigen::VectorXd vec, unsigned int precision);
+
+///
 /// @brief Create comma-separated string from quaternion
 /// @param quat Input quaternion
 /// @return Comma-separated string quaternion

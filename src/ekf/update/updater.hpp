@@ -31,25 +31,18 @@ public:
   ///
   /// @brief EKF Updater constructor
   /// @param sensor_id Sensor ID
+  /// @param logger Debug logger pointer
   ///
   explicit Updater(unsigned int sensor_id, std::shared_ptr<DebugLogger> logger);
 
   /// @todo switch to passing EKF pointer
   // Updater(std::shared_ptr<EKF> ekf, unsigned int sensor_id);
 
-  /// @todo Generic Kalman Update function
-  // void KalmanUpdate(
-  //   std::shared_ptr ekf,
-  //   std::vector indices,
-  //   Eigen::MatrixXd jacobian,
-  //   Eigen::MatrixXd residual,
-  //   Eigen::MatrixXd jacobian);
-
   void KalmanUpdate(
     std::shared_ptr<EKF> ekf,
-    Eigen::MatrixXd jacobian,
-    Eigen::VectorXd residual,
-    Eigen::MatrixXd measurement_noise
+    const Eigen::MatrixXd & jacobian,
+    const Eigen::VectorXd & residual,
+    const Eigen::MatrixXd & measurement_noise
   );
 
 protected:

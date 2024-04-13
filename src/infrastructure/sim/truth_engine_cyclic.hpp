@@ -38,6 +38,7 @@ public:
   /// @param pos_amplitude Amplitude of position cycle
   /// @param ang_amplitude Amplitude of angular cycle
   /// @param stationary_time Time to be stationary before beginning motion
+  /// @param logger Debug logger pointer
   ///
   TruthEngineCyclic(
     Eigen::Vector3d pos_frequency,

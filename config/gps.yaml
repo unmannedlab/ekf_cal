@@ -3,14 +3,14 @@
     ros__parameters:
         debug_log_level: 2
         data_logging_on: true
-        body_data_rate: 100.0
+        body_data_rate: 10.0
         sim_params:
             seed: 0.0
             use_seed: true
             max_time: 10.0
             number_of_runs: 10
             run_number: 0
-            stationary_time: 0.0
+            stationary_time: 1.0
             truth_type: "spline"
             positions:
                 - [00.0, 00.0, 00.0]
@@ -61,6 +61,7 @@
                 ang_stability: 1.0e-2
                 acc_bias_stability: 1.0e-3
                 omg_bias_stability: 1.0e-3
+                data_log_rate: 10.0
                 sim_params:
                     no_errors: false
                     time_bias_error: 1.0e-3
@@ -83,12 +84,13 @@
                 topic: "/gps1"
                 pos_a_in_b: [0, 0, 0]
                 variance: [5.0, 5.0, 5.0]
+                data_log_rate: 5.0
                 sim_params:
-                    no_errors: false
+                    no_errors: true
                     time_bias: 0.0
                     time_skew: 0.0
                     time_error: 1.0e-9
                     pos_a_in_b: [0.0, 0.0, 0.0]
-                    gps_error:  [1.0e-9, 1.0e-9, 1.0e-9]
+                    gps_error:  [5.0, 5.0, 5.0]
                     pos_l_in_g: [0.0, 0.0, 0.0]
                     ang_l_to_g: 0.0
