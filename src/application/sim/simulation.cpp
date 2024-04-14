@@ -423,6 +423,7 @@ int main(int argc, char * argv[])
     gps_params.data_log_rate = gps_node["data_log_rate"].as<double>(0.0);
     gps_params.output_directory = out_dir;
     gps_params.data_logging_on = data_logging_on;
+    gps_params.quality_limit = gps_node["quality_limit"].as<double>(0.0);
     gps_params.logger = debug_logger;
     gps_params.ekf = ekf;
 

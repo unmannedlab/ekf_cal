@@ -34,12 +34,14 @@
 
 GpsUpdater::GpsUpdater(
   unsigned int gps_id,
+  double quality_limit,
   std::string log_file_directory,
   bool data_logging_on,
   double data_log_rate,
   std::shared_ptr<DebugLogger> logger
 )
 : Updater(gps_id, logger),
+  m_quality_limit(quality_limit),
   m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
 {
   std::stringstream header;
@@ -85,8 +87,7 @@ bool GpsUpdater::AttemptInitialization(
       singular_values,
       residual_rms);
 
-    /// @todo(jhartzer): Get quality limit from input
-    if (is_successful && (singular_values.maxCoeff() > 2.0)) {
+    if (is_successful && (singular_values.maxCoeff() > m_quality_limit)) {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
       m_reference_lla = enu_to_lla(delta_ref_enu, init_ref_lla);
       m_ang_l_to_g = affine_angle(transformation);

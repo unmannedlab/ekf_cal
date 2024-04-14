@@ -41,6 +41,7 @@ public:
   ///
   GpsUpdater(
     unsigned int gps_id,
+    double quality_limit,
     std::string log_file_directory,
     bool data_logging_on,
     double data_log_rate,
@@ -91,11 +92,11 @@ public:
     std::vector<Eigen::Vector3d> local_xyz_vec);
 
 private:
+  double m_quality_limit;
   DataLogger m_data_logger;
   Eigen::Vector3d m_reference_lla{0, 0, 0};
   double m_ang_l_to_g {0.0};
   bool m_is_lla_initialized{false};
-
   std::vector<double> m_gps_time_vec;
   std::vector<Eigen::Vector3d> m_gps_ecef_vec;
   std::vector<Eigen::Vector3d> m_local_xyz_vec;

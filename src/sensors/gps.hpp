@@ -49,6 +49,7 @@ public:
     bool data_logging_on {false};          ///< @brief GPS data logging flag
     Eigen::Vector3d variance {{1, 1, 1}};  ///< @brief Initial state variance
     double data_log_rate {0.0};            ///< @brief Data logging rate
+    double quality_limit {1.0};            ///< @brief Minimum singular value to initialize
     std::shared_ptr<DebugLogger> logger;   ///< @brief Debug logger
     std::shared_ptr<EKF> ekf;              ///< @brief EKF to update
   } Parameters;
