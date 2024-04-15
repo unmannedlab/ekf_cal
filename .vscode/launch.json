@@ -47,7 +47,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/eval/stats.py",
             "args": [
-                "config/fiducial.yaml"
+                "config/gps.yaml"
             ],
             "console": "integratedTerminal"
         }

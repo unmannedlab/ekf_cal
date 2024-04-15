@@ -45,7 +45,7 @@ GpsUpdater::GpsUpdater(
   m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
 {
   std::stringstream header;
-  header << "time,lat,lon,alt,x,y,z";
+  header << "time,lat,lon,alt,x,y,z,ref_lat,ref_lon,ref_alt,ref_heading";
   header << EnumerateHeader("residual", 3);
   header << EnumerateHeader("duration", 1);
 
@@ -142,6 +142,8 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   msg << time;
   msg << VectorToCommaString(gps_lla, 12);
   msg << VectorToCommaString(gps_local);
+  msg << VectorToCommaString(m_reference_lla, 12);
+  msg << "," << m_ang_l_to_g;
   msg << VectorToCommaString(y);
   msg << "," << t_execution.count();
   m_data_logger.Log(msg.str());

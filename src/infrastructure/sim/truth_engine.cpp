@@ -200,8 +200,9 @@ void TruthEngine::WriteTruthData(
     header << EnumerateHeader(std::string("gps_pos_") + std::to_string(sensor_count), 3);
   }
   if (m_gps_pos.size() >= 1) {
-    header << ",lat,lon,alt,heading";
+    header << ",ref_lat,ref_lon,ref_alt,ref_heading";
   }
+
   truth_logger.DefineHeader(header.str());
 
   unsigned int num_measurements = static_cast<int>(std::floor((max_time + 1.0) * body_data_rate));

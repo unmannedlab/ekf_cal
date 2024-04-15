@@ -34,6 +34,7 @@ public:
   ///
   /// @brief GPS EKF Updater Constructor
   /// @param gps_id GPS Sensor ID
+  /// @param quality_limit Quality limit to initialize local reference frame
   /// @param log_file_directory Logging file directory
   /// @param data_logging_on Logging flag
   /// @param data_log_rate Maximum data logging rate

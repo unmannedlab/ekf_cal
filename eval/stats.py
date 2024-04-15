@@ -264,6 +264,40 @@ def imu_err_bias(imu_dfs, body_truth_dfs_dict, bias_type):
     return RMSE_list
 
 
+def gps_err_pos(gps_dfs, body_truth_dfs):
+    RMSE_list = []
+    for gps_state, body_truth in zip(gps_dfs, body_truth_dfs):
+        true_time = body_truth['time'].to_list()
+        true_lat = body_truth['ref_lat'].to_list()
+        true_lon = body_truth['ref_lon'].to_list()
+        true_alt = body_truth['ref_alt'].to_list()
+
+        est_time = gps_state['time'].to_list()
+        est_lat = gps_state['ref_lat'].to_list()
+        est_lon = gps_state['ref_lon'].to_list()
+        est_alt = gps_state['ref_alt'].to_list()
+
+        err_lat = interpolate_error(true_time, true_lat, est_time, est_lat)
+        err_lon = interpolate_error(true_time, true_lon, est_time, est_lon)
+        err_alt = interpolate_error(true_time, true_alt, est_time, est_alt)
+        RMSE_list.append(RMSE_from_vectors(err_lat, err_lon, err_alt))
+    return RMSE_list
+
+
+def gps_err_ang(gps_dfs, body_truth_dfs):
+    error_list = []
+    for gps_state, body_truth in zip(gps_dfs, body_truth_dfs):
+        true_time = body_truth['time'].to_list()
+        true_hdg = body_truth[f'ref_heading'].to_list()
+
+        est_time = gps_state['time'].to_list()
+        est_hdg = gps_state[f'ref_heading'].to_list()
+
+        error_list.append(interpolate_error(true_time, true_hdg, est_time, est_hdg))
+
+    return error_list
+
+
 def write_summary(directory, stats):
     """Write the error summary statistics to a file."""
     with open(os.path.join(directory, 'stats.txt'), 'w') as f:
@@ -320,6 +354,12 @@ def calc_sim_stats(config_sets, settings):
             fiducial_dfs = fiducial_dfs_dict[key]
             stats[f'fiducial_{key}_err_pos'] = sensor_err_pos(fiducial_dfs, body_truth_dfs, 'cam')
             stats[f'fiducial_{key}_err_ang'] = sensor_err_ang(fiducial_dfs, body_truth_dfs, 'cam')
+
+        gps_dfs_dict = find_and_read_data_frames(data_dirs, 'gps')
+        for key in sorted(gps_dfs_dict.keys()):
+            gps_dfs = gps_dfs_dict[key]
+            stats[f'gps_{key}_err_init_pos'] = gps_err_pos(gps_dfs, body_truth_dfs)
+            stats[f'gps_{key}_err_init_ang'] = gps_err_ang(gps_dfs, body_truth_dfs)
 
         write_summary(stat_dir, stats)
 
