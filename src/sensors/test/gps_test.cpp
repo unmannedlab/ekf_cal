@@ -32,9 +32,7 @@ TEST(test_gps, Callback) {
   gps_message->m_sensor_id = 1;
   gps_message->m_sensor_type = SensorType::GPS;
   gps_message->m_time = 0.0;
-  gps_message->m_altitude = 0.0;
-  gps_message->m_latitude = 0.0;
-  gps_message->m_longitude = 0.0;
+  gps_message->m_gps_lla = Eigen::Vector3d{0.0, 0.0, 0.0};
 
   gps.Callback(gps_message);
 }

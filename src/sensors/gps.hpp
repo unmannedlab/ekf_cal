@@ -45,6 +45,8 @@ public:
     std::string topic {"Topic"};           ///< @brief GPS topic
     double rate{1.0};                      ///< @brief GPS update rate
     Eigen::Vector3d pos_a_in_b {0, 0, 0};  ///< @brief GPS antenna position offset vector
+    Eigen::Vector3d pos_l_in_g {0, 0, 0};  ///< @brief Local frame LLA position in global frame
+    double ang_l_to_g {0.0};               ///< @brief Local frame angle to global frame
     std::string output_directory {""};     ///< @brief GPS data logging directory
     bool data_logging_on {false};          ///< @brief GPS data logging flag
     Eigen::Vector3d variance {{1, 1, 1}};  ///< @brief Initial state variance

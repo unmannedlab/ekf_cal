@@ -8,7 +8,7 @@
             seed: 0.0
             use_seed: true
             max_time: 10.0
-            number_of_runs: 10
+            number_of_runs: 1
             run_number: 0
             stationary_time: 1.0
             truth_type: "spline"
@@ -82,7 +82,9 @@
             gps_1:
                 rate: 5.0
                 topic: "/gps1"
-                pos_a_in_b: [0, 0, 0]
+                pos_a_in_b: [0.0, 0.0, 0.0]
+                pos_l_in_g: [0.0, 0.0, 0.0]
+                ang_l_to_g: 0.0
                 variance: [5.0, 5.0, 5.0]
                 data_log_rate: 5.0
                 quality_limit: 2.0
@@ -91,7 +93,7 @@
                     time_bias: 0.0
                     time_skew: 0.0
                     time_error: 1.0e-9
-                    pos_a_in_b: [0.0, 0.0, 0.0]
-                    gps_error:  [5.0, 5.0, 5.0]
-                    pos_l_in_g: [0.0, 0.0, 0.0]
-                    ang_l_to_g: 0.0
+                    lla_error:  [5.0, 5.0, 5.0]
+                    pos_a_in_b_err: [1.0e-9, 1.0e-9, 1.0e-9]
+                    pos_l_in_g_err: [1.0e-9, 1.0e-9, 1.0e-9]
+                    ang_l_to_g_err: 1.0e-9

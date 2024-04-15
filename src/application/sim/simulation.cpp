@@ -420,10 +420,12 @@ int main(int argc, char * argv[])
     gps_params.topic = gps_node["topic"].as<std::string>();
     gps_params.variance = StdToEigVec(gps_node["variance"].as<std::vector<double>>());
     gps_params.pos_a_in_b = StdToEigVec(gps_node["pos_a_in_b"].as<std::vector<double>>());
+    gps_params.pos_l_in_g = StdToEigVec(gps_node["pos_l_in_g"].as<std::vector<double>>());
+    gps_params.ang_l_to_g = gps_node["ang_l_to_g"].as<double>();
     gps_params.data_log_rate = gps_node["data_log_rate"].as<double>(0.0);
+    gps_params.quality_limit = gps_node["quality_limit"].as<double>(0.0);
     gps_params.output_directory = out_dir;
     gps_params.data_logging_on = data_logging_on;
-    gps_params.quality_limit = gps_node["quality_limit"].as<double>(0.0);
     gps_params.logger = debug_logger;
     gps_params.ekf = ekf;
 
@@ -433,15 +435,34 @@ int main(int argc, char * argv[])
     sim_gps_params.time_bias = sim_node["time_bias"].as<double>();
     sim_gps_params.time_skew = sim_node["time_skew"].as<double>();
     sim_gps_params.time_error = sim_node["time_error"].as<double>();
-    sim_gps_params.pos_a_in_b = StdToEigVec(sim_node["pos_a_in_b"].as<std::vector<double>>());
-    sim_gps_params.gps_error = StdToEigVec(sim_node["gps_error"].as<std::vector<double>>());
-    sim_gps_params.pos_l_in_g = StdToEigVec(sim_node["pos_l_in_g"].as<std::vector<double>>());
-    sim_gps_params.ang_l_to_g = sim_node["ang_l_to_g"].as<double>();
+    sim_gps_params.lla_error = StdToEigVec(sim_node["lla_error"].as<std::vector<double>>());
+    sim_gps_params.pos_a_in_b_err =
+      StdToEigVec(sim_node["pos_a_in_b_err"].as<std::vector<double>>());
+    sim_gps_params.pos_l_in_g_err =
+      StdToEigVec(sim_node["pos_l_in_g_err"].as<std::vector<double>>());
+    sim_gps_params.ang_l_to_g_err = sim_node["ang_l_to_g_err"].as<double>();
     sim_gps_params.no_errors = sim_node["no_errors"].as<bool>(false);
 
     // Add sensor to map
     auto gps = std::make_shared<SimGPS>(sim_gps_params, truth_engine);
     sensor_map[gps->GetId()] = gps;
+
+    // Set true camera values
+    Eigen::Vector3d pos_a_in_b;
+    Eigen::Vector3d pos_l_in_g;
+    double ang_l_to_g;
+    if (sim_gps_params.no_errors) {
+      pos_a_in_b = gps_params.pos_a_in_b;
+      pos_l_in_g = gps_params.pos_l_in_g;
+      ang_l_to_g = gps_params.ang_l_to_g;
+    } else {
+      pos_a_in_b = rng.VecNormRand(gps_params.pos_a_in_b, sim_gps_params.pos_a_in_b_err);
+      pos_l_in_g = rng.VecNormRand(gps_params.pos_l_in_g, sim_gps_params.pos_l_in_g_err);
+      ang_l_to_g = rng.NormRand(gps_params.ang_l_to_g, sim_gps_params.ang_l_to_g_err);
+    }
+    truth_engine->SetGpsPosition(gps->GetId(), pos_a_in_b);
+    truth_engine->SetLocalPosition(pos_l_in_g);
+    truth_engine->SetLocalHeading(ang_l_to_g);
 
     // Calculate sensor measurements
     auto gps_messages = gps->GenerateMessages(rng, max_time);

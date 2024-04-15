@@ -144,30 +144,38 @@
                 rate: 5.0
                 topic: "/gps1"
                 pos_a_in_b: [1.0, 0, 0]
+                pos_l_in_g: [0.0, 0.0, 0.0]
+                ang_l_to_g: 0.0
                 variance: [5.0, 5.0, 5.0]
+                data_log_rate: 5.0
+                quality_limit: 2.0
                 sim_params:
+                    no_errors: false
                     time_bias: 0.0
                     time_skew: 0.0
                     time_error: 1.0e-9
-                    pos_a_in_b: [0.0, 0.0, 0.0]
-                    gps_error:  [5.0, 5.0, 5.0]
-                    pos_l_in_g: [0.0, 0.0, 0.0]
-                    ang_l_to_g: [1.0, 0.0, 0.0, 0.0]
-                    no_errors: false
+                    lla_error:  [5.0, 5.0, 5.0]
+                    pos_a_in_b_err: [0.0, 0.0, 0.0]
+                    pos_l_in_g_err: [0.0, 0.0, 0.0]
+                    ang_l_to_g_err: 0.0
 
             gps_2:
                 rate: 5.0
                 topic: "/gps2"
                 pos_a_in_b: [-1.0, 0, 0]
+                pos_l_in_g: [0.0, 0.0, 0.0]
+                ang_l_to_g: 0.0
                 variance: [5.0, 5.0, 5.0]
+                data_log_rate: 5.0
+                quality_limit: 2.0
                 sim_params:
+                    no_errors: false
                     time_bias: 0.0
                     time_skew: 0.0
                     time_error: 1.0e-9
-                    pos_a_in_b: [0.0, 0.0, 0.0]
-                    gps_error:  [5.0, 5.0, 5.0]
-                    pos_l_in_g: [0.0, 0.0, 0.0]
-                    ang_l_to_g: [1.0, 0.0, 0.0, 0.0]
-                    no_errors: false
+                    lla_error:  [5.0, 5.0, 5.0]
+                    pos_a_in_b_err: [0.0, 0.0, 0.0]
+                    pos_l_in_g_err: [0.0, 0.0, 0.0]
+                    ang_l_to_g_err: 0.0
 
 

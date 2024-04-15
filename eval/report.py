@@ -49,11 +49,12 @@ def plot_sim_results(config_sets, output_embed):
     """Top level function to plot simulation results from sets of config files."""
     for config_set in config_sets:
         data_dirs = [config.split('.yaml')[0] for config in config_set]
-        config_name = os.path.basename(os.path.dirname(os.path.dirname(config_set[0])))
         if len(config_set) > 1:
             plot_dir = os.path.dirname(os.path.dirname(config_set[0]))
+            config_name = os.path.basename(os.path.dirname(os.path.dirname(config_set[0])))
         else:
             plot_dir = data_dirs[0]
+            config_name = os.path.splitext(os.path.basename(config_set[0]))[0]
 
         if not os.path.isdir(plot_dir):
             os.mkdir(plot_dir)

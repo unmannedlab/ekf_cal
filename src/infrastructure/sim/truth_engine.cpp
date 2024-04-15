@@ -58,6 +58,19 @@ Eigen::Quaterniond TruthEngine::GetCameraAngularPosition(unsigned int sensor_id)
   return m_cam_ang_pos[sensor_id];
 }
 
+Eigen::Vector3d TruthEngine::GetGpsPosition(unsigned int sensor_id)
+{
+  return m_gps_pos[sensor_id];
+}
+Eigen::Vector3d TruthEngine::GetLocalPosition()
+{
+  return m_lla_reference;
+}
+double TruthEngine::GetLocalHeading()
+{
+  return m_heading;
+}
+
 void TruthEngine::SetImuPosition(unsigned int sensor_id, Eigen::Vector3d imu_pos)
 {
   m_imu_pos[sensor_id] = imu_pos;
@@ -91,6 +104,21 @@ void TruthEngine::SetCameraAngularPosition(unsigned int sensor_id, Eigen::Quater
 void TruthEngine::SetBoardPosition(unsigned int board_id, Eigen::Vector3d board_position)
 {
   m_board_pos[board_id] = board_position;
+}
+
+void TruthEngine::SetGpsPosition(unsigned int sensor_id, Eigen::Vector3d gps_position)
+{
+  m_gps_pos[sensor_id] = gps_position;
+}
+
+void TruthEngine::SetLocalPosition(Eigen::Vector3d lla_reference)
+{
+  m_lla_reference = lla_reference;
+}
+
+void TruthEngine::SetLocalHeading(double heading)
+{
+  m_heading = heading;
 }
 
 Eigen::Vector3d TruthEngine::GetBoardPosition(unsigned int board_id)
@@ -167,6 +195,13 @@ void TruthEngine::WriteTruthData(
     header << EnumerateHeader(std::string("cam_pos_") + std::to_string(sensor_count), 3);
     header << EnumerateHeader(std::string("cam_ang_pos_") + std::to_string(sensor_count), 4);
   }
+  for (unsigned int i = 0; i < m_gps_pos.size(); ++i) {
+    ++sensor_count;
+    header << EnumerateHeader(std::string("gps_pos_") + std::to_string(sensor_count), 3);
+  }
+  if (m_gps_pos.size() >= 1) {
+    header << ",lat,lon,alt,heading";
+  }
   truth_logger.DefineHeader(header.str());
 
   unsigned int num_measurements = static_cast<int>(std::floor((max_time + 1.0) * body_data_rate));
@@ -193,6 +228,15 @@ void TruthEngine::WriteTruthData(
       msg << VectorToCommaString(GetCameraPosition(sensor_count));
       msg << QuaternionToCommaString(GetCameraAngularPosition(sensor_count));
     }
+    for (unsigned int i = 0; i < m_gps_pos.size(); ++i) {
+      ++sensor_count;
+      msg << VectorToCommaString(GetGpsPosition(sensor_count));
+    }
+    if (m_gps_pos.size() >= 1) {
+      msg << VectorToCommaString(GetLocalPosition());
+      msg << "," << GetLocalHeading();
+    }
+
     truth_logger.Log(msg.str());
   }
 

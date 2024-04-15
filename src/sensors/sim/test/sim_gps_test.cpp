@@ -36,10 +36,9 @@ TEST(test_SimIMU, Constructor) {
   gps_params.logger = logger;
 
   SimGPS::Parameters sim_gps_params;
-  sim_gps_params.pos_a_in_b = Eigen::Vector3d{0.0, 0.0, 0.0};
-  sim_gps_params.gps_error = Eigen::Vector3d{5.0, 5.0, 5.0};
-  sim_gps_params.pos_l_in_g = Eigen::Vector3d{0.0, 0.0, 0.0};
-  sim_gps_params.ang_l_to_g = 0.0;
+  sim_gps_params.lla_error = Eigen::Vector3d{5.0, 5.0, 5.0};
+  sim_gps_params.pos_l_in_g_err = Eigen::Vector3d{0.0, 0.0, 0.0};
+  sim_gps_params.ang_l_to_g_err = 0.0;
   sim_gps_params.gps_params = gps_params;
 
   Eigen::Vector3d pos_frequency{1, 2, 3};
@@ -78,25 +77,11 @@ TEST(test_SimIMU, Constructor) {
   lla_ref[1] = 0.0;
   lla_ref[2] = 0.0;
 
-  lla_0[0] = gps_msgs[0]->m_latitude;
-  lla_0[1] = gps_msgs[0]->m_longitude;
-  lla_0[2] = gps_msgs[0]->m_altitude;
-
-  lla_1[0] = gps_msgs[1]->m_latitude;
-  lla_1[1] = gps_msgs[1]->m_longitude;
-  lla_1[2] = gps_msgs[1]->m_altitude;
-
-  lla_2[0] = gps_msgs[2]->m_latitude;
-  lla_2[1] = gps_msgs[2]->m_longitude;
-  lla_2[2] = gps_msgs[2]->m_altitude;
-
-  lla_3[0] = gps_msgs[3]->m_latitude;
-  lla_3[1] = gps_msgs[3]->m_longitude;
-  lla_3[2] = gps_msgs[3]->m_altitude;
-
-  lla_4[0] = gps_msgs[4]->m_latitude;
-  lla_4[1] = gps_msgs[4]->m_longitude;
-  lla_4[2] = gps_msgs[4]->m_altitude;
+  lla_0 = gps_msgs[0]->m_gps_lla;
+  lla_1 = gps_msgs[1]->m_gps_lla;
+  lla_2 = gps_msgs[2]->m_gps_lla;
+  lla_3 = gps_msgs[3]->m_gps_lla;
+  lla_4 = gps_msgs[4]->m_gps_lla;
 
   Eigen::Vector3d enu_0 = lla_to_enu(lla_0, lla_ref);
   Eigen::Vector3d enu_1 = lla_to_enu(lla_1, lla_ref);

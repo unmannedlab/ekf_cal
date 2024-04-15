@@ -116,6 +116,23 @@ public:
   Eigen::Quaterniond GetCameraAngularPosition(unsigned int sensor_id);
 
   ///
+  /// @brief GPS sensor position getter
+  /// @param sensor_id GPS ID
+  /// @return Antenna position
+  ///
+  Eigen::Vector3d GetGpsPosition(unsigned int sensor_id);
+  ///
+  /// @brief Local frame reference LLA getter
+  /// @return Reference LLA
+  ///
+  Eigen::Vector3d GetLocalPosition();
+  ///
+  /// @brief Local frame reference heading getter
+  /// @return Reference heading
+  ///
+  double GetLocalHeading();
+
+  ///
   /// @brief True sensor position setter
   /// @param sensor_id sensor ID
   /// @param imu_pos sensor parameter
@@ -172,6 +189,25 @@ public:
   void SetBoardOrientation(unsigned int board_id, Eigen::Quaterniond board_orientation);
 
   ///
+  /// @brief GPS sensor position setter
+  /// @param sensor_id GPS ID
+  /// @param gps_position Antenna position
+  ///
+  void SetGpsPosition(unsigned int sensor_id, Eigen::Vector3d gps_position);
+
+  ///
+  /// @brief Local frame reference LLA setter
+  /// @param lla_reference Reference LLA
+  ///
+  void SetLocalPosition(Eigen::Vector3d lla_reference);
+
+  ///
+  /// @brief Local frame reference heading setter
+  /// @param heading Reference heading
+  ///
+  void SetLocalHeading(double heading);
+
+  ///
   /// @brief Fiducial board position getter
   /// @param board_id sensor ID
   /// @return Board position
@@ -220,6 +256,9 @@ private:
   std::map<unsigned int, Eigen::Vector3d> m_board_pos;
   std::map<unsigned int, Eigen::Quaterniond> m_board_ang;
   std::vector<cv::Point3d> m_feature_points;
+  std::map<unsigned int, Eigen::Vector3d> m_gps_pos;
+  Eigen::Vector3d m_lla_reference;
+  double m_heading;
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTH_ENGINE_HPP_
