@@ -89,11 +89,11 @@
                 data_log_rate: 5.0
                 quality_limit: 0.1
                 sim_params:
-                    no_errors: true
+                    no_errors: false
                     time_bias: 0.0
                     time_skew: 0.0
                     time_error: 1.0e-9
-                    lla_error:  [5.0, 5.0, 5.0]
+                    lla_error: [5.0, 5.0, 5.0]
                     pos_a_in_b_err: [1.0e-9, 1.0e-9, 1.0e-9]
                     pos_l_in_g_err: [1.0e-9, 1.0e-9, 1.0e-9]
                     ang_l_to_g_err: 1.0e-9

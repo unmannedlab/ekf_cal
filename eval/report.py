@@ -132,7 +132,7 @@ def plot_sim_results(config_sets, output_embed):
                 filename=os.path.join(plot_dir, f'{config_name}-report.html'),
                 resources='cdn',
                 title=f'{config_name}-report.html'
-                )
+            )
 
 
 # TODO(jhartzer): Write tests

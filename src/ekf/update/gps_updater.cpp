@@ -89,7 +89,7 @@ bool GpsUpdater::AttemptInitialization(
 
     if (is_successful && (singular_values.maxCoeff() > m_quality_limit)) {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
-      m_reference_lla = enu_to_lla(delta_ref_enu, init_ref_lla);
+      m_reference_lla = enu_to_lla(-delta_ref_enu, init_ref_lla);
       m_ang_l_to_g = affine_angle(transformation);
 
       m_logger->Log(LogLevel::INFO, "GPS Updater Initialized");
@@ -130,7 +130,7 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
     y = gps_local - body_position;
     Eigen::MatrixXd H = GetMeasurementJacobian(ekf->GetStateSize());
     Eigen::MatrixXd R = Eigen::MatrixXd::Identity(3, 3);
-    KalmanUpdate(ekf, H, y, R);
+    // KalmanUpdate(ekf, H, y, R);
 
     m_logger->Log(LogLevel::INFO, "GPS Updater Update");
   }
@@ -178,6 +178,6 @@ void GpsUpdater::MultiUpdateEKF(
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Identity(y.rows(), y.rows());
 
-  KalmanUpdate(ekf, H, y, R);
+  // KalmanUpdate(ekf, H, y, R);
   m_logger->Log(LogLevel::INFO, "GPS Updater Update");
 }
