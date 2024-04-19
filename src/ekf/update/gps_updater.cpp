@@ -35,6 +35,7 @@
 GpsUpdater::GpsUpdater(
   unsigned int gps_id,
   double quality_limit,
+  bool use_baseline_initialization,
   std::string log_file_directory,
   bool data_logging_on,
   double data_log_rate,
@@ -42,7 +43,8 @@ GpsUpdater::GpsUpdater(
 )
 : Updater(gps_id, logger),
   m_quality_limit(quality_limit),
-  m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
+  m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv"),
+  m_use_baseline_initialization(use_baseline_initialization)
 {
   std::stringstream header;
   header << "time,lat,lon,alt,x,y,z,ref_lat,ref_lon,ref_alt,ref_heading";
@@ -87,7 +89,11 @@ bool GpsUpdater::AttemptInitialization(
       singular_values,
       residual_rms);
 
-    if (is_successful && (singular_values.maxCoeff() > m_quality_limit)) {
+    double max_distance = maximum_distance(gps_states_enu);
+
+    if ((m_use_baseline_initialization && (max_distance > m_quality_limit)) ||
+      (is_successful && (singular_values.maxCoeff() > m_quality_limit)))
+    {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
       m_reference_lla = enu_to_lla(-delta_ref_enu, init_ref_lla);
       m_ang_l_to_g = affine_angle(transformation);

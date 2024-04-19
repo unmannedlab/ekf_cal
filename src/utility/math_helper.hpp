@@ -165,4 +165,11 @@ bool kabsch_2d(
   Eigen::Vector2d & singular_values,
   double & residual_rms);
 
+///
+/// @brief Find maximum distance between any two points in list
+/// @param eigen_points List of points to find baseline
+/// @return Maximum distance found between points
+///
+double maximum_distance(const std::vector<Eigen::Vector3d> & eigen_points);
+
 #endif  // UTILITY__MATH_HELPER_HPP_

@@ -35,6 +35,7 @@ public:
   /// @brief GPS EKF Updater Constructor
   /// @param gps_id GPS Sensor ID
   /// @param quality_limit Quality limit to initialize local reference frame
+  /// @param use_baseline_initialization Flag to use baseline distance initialization
   /// @param log_file_directory Logging file directory
   /// @param data_logging_on Logging flag
   /// @param data_log_rate Maximum data logging rate
@@ -43,6 +44,7 @@ public:
   GpsUpdater(
     unsigned int gps_id,
     double quality_limit,
+    bool use_baseline_initialization,
     std::string log_file_directory,
     bool data_logging_on,
     double data_log_rate,
@@ -101,6 +103,7 @@ private:
   std::vector<double> m_gps_time_vec;
   std::vector<Eigen::Vector3d> m_gps_ecef_vec;
   std::vector<Eigen::Vector3d> m_local_xyz_vec;
+  bool m_use_baseline_initialization {false};
 };
 
 #endif  // EKF__UPDATE__GPS_UPDATER_HPP_

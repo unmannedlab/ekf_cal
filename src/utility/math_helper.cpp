@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <vector>
 
+#include <opencv2/opencv.hpp>
+
 #include "utility/type_helper.hpp"
 
 Eigen::Matrix3d SkewSymmetric(Eigen::Vector3d in_vec)
@@ -342,4 +344,29 @@ bool kabsch_2d(
   residual_rms = sqrt(residual_rms);
 
   return true;
+}
+
+double maximum_distance(const std::vector<Eigen::Vector3d> & eigen_points)
+{
+  std::vector<cv::Point> points, hull;
+  for (auto eigen_point : eigen_points) {
+    cv::Point cv_point;
+    cv_point.x = eigen_point.x();
+    cv_point.y = eigen_point.y();
+    points.push_back(cv_point);
+  }
+  cv::convexHull(points, hull);
+
+  double max_distance {0.0};
+  for (unsigned int i = 0; i < hull.size(); ++i) {
+    for (unsigned int j = 0; j < hull.size(); ++j) {
+      if (i != j) {
+        double norm_dist = cv::norm(hull[i] - hull[j]);
+        if (norm_dist > max_distance) {
+          max_distance = norm_dist;
+        }
+      }
+    }
+  }
+  return max_distance;
 }

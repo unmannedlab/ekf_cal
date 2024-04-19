@@ -32,6 +32,7 @@ GPS::GPS(GPS::Parameters params)
   m_gps_updater(
     m_id,
     params.quality_limit,
+    params.use_baseline_initialization,
     params.output_directory,
     params.data_logging_on,
     params.data_log_rate,

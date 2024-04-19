@@ -336,3 +336,15 @@ TEST(test_MathHelper, kabsch_2d) {
 
   EXPECT_NEAR(affine_angle(transform), M_PI / 3.0, 1e-3);
 }
+
+TEST(test_MathHelper, maximum_distance) {
+  std::vector<Eigen::Vector3d> eigen_points;
+  eigen_points.push_back(Eigen::Vector3d{0, 0, 0});
+  eigen_points.push_back(Eigen::Vector3d{1, 1, 0});
+  eigen_points.push_back(Eigen::Vector3d{1, 0, 0});
+  eigen_points.push_back(Eigen::Vector3d{1, -1, 0});
+  eigen_points.push_back(Eigen::Vector3d{4, 0, 0});
+  double max_dist = maximum_distance(eigen_points);
+
+  EXPECT_EQ(max_dist, 4.0);
+}
