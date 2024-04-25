@@ -1,5 +1,5 @@
 ---
-title: 'EKF-CAL: A ROS Node for Extended Kalman Filter-based Calibration and Localization'
+title: 'EKF_CAL: Extended Kalman Filter-based Calibration and Localization'
 tags:
   - C++
   - ROS
@@ -17,25 +17,21 @@ bibliography: paper.bib
 
 # Summary
 
-Lorem ipsum.
+Navigation of modern autonomous systems requires the use of multiple types of sensors to handle a wide variety of environments. To improve system robustness in these challenging environments, redundant sensors are often used where each additional sensor introduces parameters that must be properly calibrated before these sensors' measurements can be effectively used.
+
+This software package provides an example implementation of Kalman filter-based calibration routines as well as the simulation capability to show stability and convergence through Monte Carlo techniques.
 
 # Statement of need
 
-Lorem ipsum.
+Has so far been utilized in:
+- [@2022_Multi_Cam]
+- [@2023_Multi_IMU]
 
-# Mathematics
+Existing Work:
+- [@Geneva2020ICRA]
+- [@Rehder]
 
-Lorem ipsum.
-
-# Citations
-
-Lorem ipsum.
-
-# Figures
-
-Lorem ipsum.
-
-# Acknowledgements
+# Capabilities
 
 Lorem ipsum.
 
