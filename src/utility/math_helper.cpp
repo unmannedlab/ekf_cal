@@ -301,8 +301,7 @@ bool kabsch_2d(
   const std::vector<Eigen::Vector3d> & points_tgt,
   const std::vector<Eigen::Vector3d> & points_src,
   Eigen::Affine3d & transform,
-  Eigen::Vector2d & singular_values,
-  double & residual_rms)
+  std::vector<Eigen::Vector3d> & projection_errors)
 {
   if ((points_tgt.size() != points_src.size()) || (points_tgt.size() < 4)) {
     return false;
@@ -321,7 +320,6 @@ bool kabsch_2d(
 
   Eigen::MatrixXd cov = mat_src * mat_tgt.transpose();
   Eigen::JacobiSVD<Eigen::MatrixXd> svd(cov, Eigen::ComputeFullU | Eigen::ComputeFullV);
-  singular_values = svd.singularValues();
 
   Eigen::Matrix2d I = Eigen::Matrix2d::Identity();
   double det = (svd.matrixV() * svd.matrixU().transpose()).determinant();
@@ -335,13 +333,9 @@ bool kabsch_2d(
   transform.linear() = rotation_3d;
   transform.translation() = centroid_tgt - rotation_3d * centroid_src;
 
-  residual_rms = 0;
   for (unsigned int i = 0; i < points_tgt.size(); ++i) {
-    auto err = (points_tgt[i] - transform * points_src[i]).norm();
-    residual_rms += err * err;
+    projection_errors.push_back(points_tgt[i] - transform * points_src[i]);
   }
-  residual_rms /= points_tgt.size();
-  residual_rms = sqrt(residual_rms);
 
   return true;
 }
@@ -369,4 +363,17 @@ double maximum_distance(const std::vector<Eigen::Vector3d> & eigen_points)
     }
   }
   return max_distance;
+}
+
+double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vectors)
+{
+  double square_sum_of_difference{0.0};
+  Eigen::Vector3d mean_var = average_vectors(input_vectors);
+
+  for (auto & vector: input_vectors) {
+    double diff = (vector - mean_var).norm();
+    square_sum_of_difference += diff * diff;
+  }
+
+  return std::sqrt(square_sum_of_difference) / input_vectors.size();
 }

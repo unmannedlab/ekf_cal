@@ -423,7 +423,9 @@ int main(int argc, char * argv[])
     gps_params.pos_l_in_g = StdToEigVec(gps_node["pos_l_in_g"].as<std::vector<double>>());
     gps_params.ang_l_to_g = gps_node["ang_l_to_g"].as<double>();
     gps_params.data_log_rate = gps_node["data_log_rate"].as<double>(0.0);
-    gps_params.quality_limit = gps_node["quality_limit"].as<double>(0.0);
+    gps_params.projection_dev_lim = gps_node["projection_dev_lim"].as<double>(0.0);
+    gps_params.use_baseline_init = gps_node["use_baseline_init"].as<bool>(false);
+    gps_params.baseline_distance = gps_node["baseline_distance"].as<double>(0.0);
     gps_params.output_directory = out_dir;
     gps_params.data_logging_on = data_logging_on;
     gps_params.logger = debug_logger;

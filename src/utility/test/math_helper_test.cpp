@@ -316,10 +316,9 @@ TEST(test_MathHelper, kabsch_2d) {
   points_tgt.push_back(Eigen::Vector3d{1.0000, 2.0000, 4.0000});
 
   Eigen::Affine3d transform;
-  Eigen::Vector2d singular_values;
-  double residual_rms;
+  std::vector<Eigen::Vector3d> projection_errors;
 
-  EXPECT_TRUE(kabsch_2d(points_tgt, points_src, transform, singular_values, residual_rms));
+  EXPECT_TRUE(kabsch_2d(points_tgt, points_src, transform, projection_errors));
 
   Eigen::Vector3d translation = transform.translation();
   Eigen::Matrix3d rotation = transform.linear();

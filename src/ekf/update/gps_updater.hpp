@@ -34,8 +34,9 @@ public:
   ///
   /// @brief GPS EKF Updater Constructor
   /// @param gps_id GPS Sensor ID
-  /// @param quality_limit Quality limit to initialize local reference frame
-  /// @param use_baseline_initialization Flag to use baseline distance initialization
+  /// @param projection_dev_lim Standard deviation limit to initialize local reference frame
+  /// @param baseline_initialization Flag to use baseline distance initialization
+  /// @param baseline_distance Distance threshold to initialize
   /// @param log_file_directory Logging file directory
   /// @param data_logging_on Logging flag
   /// @param data_log_rate Maximum data logging rate
@@ -43,8 +44,9 @@ public:
   ///
   GpsUpdater(
     unsigned int gps_id,
-    double quality_limit,
-    bool use_baseline_initialization,
+    double projection_dev_lim,
+    bool baseline_initialization,
+    double baseline_distance,
     std::string log_file_directory,
     bool data_logging_on,
     double data_log_rate,
@@ -95,7 +97,10 @@ public:
     std::vector<Eigen::Vector3d> local_xyz_vec);
 
 private:
-  double m_quality_limit;
+  double m_projection_stddev {0.0};
+  double m_projection_dev_lim;
+  bool m_baseline_initialization;
+  double m_baseline_distance;
   DataLogger m_data_logger;
   Eigen::Vector3d m_reference_lla{0, 0, 0};
   double m_ang_l_to_g {0.0};
@@ -103,7 +108,6 @@ private:
   std::vector<double> m_gps_time_vec;
   std::vector<Eigen::Vector3d> m_gps_ecef_vec;
   std::vector<Eigen::Vector3d> m_local_xyz_vec;
-  bool m_use_baseline_initialization {false};
 };
 
 #endif  // EKF__UPDATE__GPS_UPDATER_HPP_

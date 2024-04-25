@@ -16,8 +16,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from bokeh.layouts import layout
-from bokeh.models import TabPanel
+from bokeh.models import Paragraph, TabPanel
 from bokeh.plotting import figure
+import numpy as np
 
 from utilities import calculate_alpha, plot_update_timing
 
@@ -48,11 +49,37 @@ def plot_gps_residuals(gps_dfs):
     return fig
 
 
+def print_gps_init_pos_error(gps_dfs):
+    pos_err_list = []
+    for gps_df in gps_dfs:
+        ref_lat = gps_df['ref_lat']
+        ref_lon = gps_df['ref_lon']
+        ref_alt = gps_df['ref_alt']
+        pos_err_list.append(np.sqrt(ref_lat*ref_lat + ref_lon*ref_lon + ref_alt*ref_alt))
+
+    pos_err = np.mean(pos_err_list)
+
+    return Paragraph(text='Position Error: {:.3f} m'.format(pos_err))
+
+
+def print_gps_init_hdg_error(gps_dfs):
+    hdg_err_list = []
+    for gps_df in gps_dfs:
+        hdg_err_list.append(gps_df['ref_heading'])
+
+    hdg_err = np.mean(hdg_err_list)
+
+    return Paragraph(text='Heading Error: {:.3f} rad'.format(hdg_err))
+
+
 def tab_gps(gps_dfs):
+
     layout_plots = [
         [plot_gps_measurements(gps_dfs)],
         [plot_gps_residuals(gps_dfs)],
-        [plot_update_timing(gps_dfs)]
+        [plot_update_timing(gps_dfs)],
+        [print_gps_init_pos_error(gps_dfs)],
+        [print_gps_init_hdg_error(gps_dfs)]
     ]
 
     tab_layout = layout(layout_plots, sizing_mode='stretch_width')

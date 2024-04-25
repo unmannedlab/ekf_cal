@@ -154,16 +154,14 @@ double affine_angle(const Eigen::Affine3d & transform);
 /// @param points_tgt Points in target frame
 /// @param points_src Points in source frame
 /// @param transform Resultant transform
-/// @param singular_values Singular values from SVD
-/// @param residual_rms RMS of residuals from transform
+/// @param projection_errors Vector of residuals from transform
 /// @return Was function successful
 ///
 bool kabsch_2d(
   const std::vector<Eigen::Vector3d> & points_tgt,
   const std::vector<Eigen::Vector3d> & points_src,
   Eigen::Affine3d & transform,
-  Eigen::Vector2d & singular_values,
-  double & residual_rms);
+  std::vector<Eigen::Vector3d> & projection_errors);
 
 ///
 /// @brief Find maximum distance between any two points in list
@@ -171,5 +169,7 @@ bool kabsch_2d(
 /// @return Maximum distance found between points
 ///
 double maximum_distance(const std::vector<Eigen::Vector3d> & eigen_points);
+
+double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vector);
 
 #endif  // UTILITY__MATH_HELPER_HPP_

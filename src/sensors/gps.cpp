@@ -31,8 +31,9 @@ GPS::GPS(GPS::Parameters params)
   m_ekf(params.ekf),
   m_gps_updater(
     m_id,
-    params.quality_limit,
-    params.use_baseline_initialization,
+    params.projection_dev_lim,
+    params.use_baseline_init,
+    params.baseline_distance,
     params.output_directory,
     params.data_logging_on,
     params.data_log_rate,

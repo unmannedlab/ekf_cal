@@ -34,20 +34,22 @@
 
 GpsUpdater::GpsUpdater(
   unsigned int gps_id,
-  double quality_limit,
-  bool use_baseline_initialization,
+  double projection_dev_lim,
+  bool baseline_initialization,
+  double baseline_distance,
   std::string log_file_directory,
   bool data_logging_on,
   double data_log_rate,
   std::shared_ptr<DebugLogger> logger
 )
 : Updater(gps_id, logger),
-  m_quality_limit(quality_limit),
-  m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv"),
-  m_use_baseline_initialization(use_baseline_initialization)
+  m_projection_dev_lim(projection_dev_lim),
+  m_baseline_initialization(baseline_initialization),
+  m_baseline_distance(baseline_distance),
+  m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
 {
   std::stringstream header;
-  header << "time,lat,lon,alt,x,y,z,ref_lat,ref_lon,ref_alt,ref_heading";
+  header << "time,lat,lon,alt,x,y,z,ref_lat,ref_lon,ref_alt,ref_heading,projection_stddev";
   header << EnumerateHeader("residual", 3);
   header << EnumerateHeader("duration", 1);
 
@@ -80,19 +82,18 @@ bool GpsUpdater::AttemptInitialization(
     }
 
     Eigen::Affine3d transformation;
-    Eigen::Vector2d singular_values;
-    double residual_rms;
+    std::vector<Eigen::Vector3d> projection_errors;
     bool is_successful = kabsch_2d(
       m_local_xyz_vec,
       gps_states_enu,
       transformation,
-      singular_values,
-      residual_rms);
+      projection_errors);
 
     double max_distance = maximum_distance(gps_states_enu);
+    m_projection_stddev = mean_standard_deviation(projection_errors);
 
-    if ((m_use_baseline_initialization && (max_distance > m_quality_limit)) ||
-      (is_successful && (singular_values.maxCoeff() > m_quality_limit)))
+    if ((m_baseline_initialization && (max_distance > m_baseline_distance)) ||
+      (is_successful && (m_projection_stddev < m_projection_dev_lim)))
     {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
       m_reference_lla = enu_to_lla(-delta_ref_enu, init_ref_lla);
@@ -136,7 +137,7 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
     y = gps_local - body_position;
     Eigen::MatrixXd H = GetMeasurementJacobian(ekf->GetStateSize());
     Eigen::MatrixXd R = Eigen::MatrixXd::Identity(3, 3);
-    // KalmanUpdate(ekf, H, y, R);
+    KalmanUpdate(ekf, H, y, R);
 
     m_logger->Log(LogLevel::INFO, "GPS Updater Update");
   }
@@ -150,6 +151,7 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   msg << VectorToCommaString(gps_local);
   msg << VectorToCommaString(m_reference_lla, 12);
   msg << "," << m_ang_l_to_g;
+  msg << "," << m_projection_stddev;
   msg << VectorToCommaString(y);
   msg << "," << t_execution.count();
   m_data_logger.Log(msg.str());
@@ -184,6 +186,6 @@ void GpsUpdater::MultiUpdateEKF(
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Identity(y.rows(), y.rows());
 
-  // KalmanUpdate(ekf, H, y, R);
+  KalmanUpdate(ekf, H, y, R);
   m_logger->Log(LogLevel::INFO, "GPS Updater Update");
 }
