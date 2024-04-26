@@ -370,7 +370,7 @@ double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vector
   double square_sum_of_difference{0.0};
   Eigen::Vector3d mean_var = average_vectors(input_vectors);
 
-  for (auto & vector: input_vectors) {
+  for (auto & vector : input_vectors) {
     double diff = (vector - mean_var).norm();
     square_sum_of_difference += diff * diff;
   }

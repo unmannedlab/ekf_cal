@@ -112,6 +112,7 @@ set(EKF_SRCS
     src/sensors/gps.cpp
     src/sensors/imu.cpp
     src/sensors/sensor.cpp
+    src/trackers/tracker.cpp
     src/trackers/feature_tracker.cpp
     src/trackers/fiducial_tracker.cpp
 )

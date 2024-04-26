@@ -25,6 +25,7 @@
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/imu.hpp"
 #include "sensors/sim/sim_imu_message.hpp"
+#include "sensors/sim/sim_sensor.hpp"
 #include "utility/sim/sim_rng.hpp"
 
 
@@ -32,18 +33,14 @@
 /// @class SimIMU
 /// @brief Simulated IMU Sensor Class
 ///
-class SimIMU : public IMU
+class SimIMU : public IMU, public SimSensor
 {
 public:
   ///
   /// @brief Sim IMU initialization parameters structure
   ///
-  typedef struct Parameters
+  typedef struct Parameters : public SimSensor::Parameters
   {
-    bool no_errors {false};                          ///< @brief Perfect measurements flag
-    double time_error {0.0};                         ///< @brief Time offset error
-    double time_bias_error {0.0};                    ///< @brief Time offset bias
-    double time_skew_error {0.0};                    ///< @brief Time offset error
     Eigen::Vector3d acc_error {0.0, 0.0, 0.0};       ///< @brief Acceleration error
     Eigen::Vector3d omg_error {0.0, 0.0, 0.0};       ///< @brief Angular rate error
     Eigen::Vector3d pos_error {0.0, 0.0, 0.0};       ///< @brief Position offset error
@@ -69,17 +66,12 @@ public:
   std::vector<std::shared_ptr<SimImuMessage>> GenerateMessages(SimRNG rng, double max_time);
 
 private:
-  double m_time_error{0.0};
-  double m_time_bias_error{0.0};
-  double m_time_skew_error{0.0};
   Eigen::Vector3d m_acc_error;
   Eigen::Vector3d m_omg_error;
   Eigen::Vector3d m_pos_error;
   Eigen::Vector3d m_ang_error;
   Eigen::Vector3d m_acc_bias_error;
   Eigen::Vector3d m_omg_bias_error;
-  std::shared_ptr<TruthEngine> m_truth;
-  bool m_no_errors {false};
 };
 
 

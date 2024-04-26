@@ -30,8 +30,8 @@
 SimGPS::SimGPS(SimGPS::Parameters params, std::shared_ptr<TruthEngine> truthEngine)
 : GPS(params.gps_params)
 {
-  m_time_bias = params.time_bias;
-  m_time_skew = params.time_skew;
+  m_time_bias_error = params.time_bias_error;
+  m_time_skew_error = params.time_skew_error;
   m_time_error = std::max(params.time_error, 1e-9);
   m_lla_error = params.lla_error;
   m_no_errors = params.no_errors;
@@ -41,7 +41,7 @@ SimGPS::SimGPS(SimGPS::Parameters params, std::shared_ptr<TruthEngine> truthEngi
 std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages(SimRNG rng, double max_time)
 {
   unsigned int num_measurements =
-    static_cast<int>(std::floor(max_time * m_rate / (1 + m_time_skew)));
+    static_cast<int>(std::floor(max_time * m_rate / (1 + m_time_skew_error)));
 
   m_logger->Log(
     LogLevel::INFO, "Generating " + std::to_string(num_measurements) + " GPS measurements");
@@ -51,7 +51,8 @@ std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages(SimRNG rng,
   std::vector<std::shared_ptr<SimGpsMessage>> messages;
   for (unsigned int i = 0; i < num_measurements; ++i) {
     auto sim_gps_msg = std::make_shared<SimGpsMessage>();
-    double measurement_time = (1.0 + m_time_skew) / m_rate * static_cast<double>(i) + time_init;
+    double measurement_time =
+      (1.0 + m_time_skew_error) / m_rate * static_cast<double>(i) + time_init;
     sim_gps_msg->m_time = measurement_time;
     sim_gps_msg->m_sensor_id = m_id;
     sim_gps_msg->m_sensor_type = SensorType::GPS;

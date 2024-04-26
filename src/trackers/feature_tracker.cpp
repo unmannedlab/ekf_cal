@@ -29,22 +29,26 @@
 
 #include "ekf/types.hpp"
 #include "sensors/types.hpp"
+#include "trackers/tracker.hpp"
 
-// Initialize static variable
-unsigned int FeatureTracker::m_tracker_count = 0;
 
 /// @todo add detector/extractor parameters to input
 FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
-: m_msckf_updater(params.sensor_id, params.intrinsics, params.output_directory,
-    params.data_logging_on, params.data_log_rate, params.min_feat_dist, params.logger),
-  m_camera_id(params.sensor_id), m_id(++m_tracker_count), m_ekf(params.ekf), m_logger(params.logger)
+: Tracker(params),
+  m_msckf_updater(
+    params.camera_id,
+    params.intrinsics,
+    params.output_directory,
+    params.data_logging_on,
+    params.data_log_rate,
+    params.min_feat_dist,
+    params.logger
+  )
 {
   m_feature_detector = InitFeatureDetector(params.detector, params.threshold);
   m_descriptor_extractor = InitDescriptorExtractor(params.descriptor, params.threshold);
   m_descriptor_matcher = InitDescriptorMatcher(params.matcher);
   m_px_error = params.px_error;
-  m_min_track_length = params.min_track_length;
-  m_max_track_length = params.max_track_length;
 }
 
 /// @todo Check what parameters are used by open_vins
@@ -263,9 +267,4 @@ unsigned int FeatureTracker::GenerateFeatureID()
 {
   static unsigned int featureID = 0;
   return featureID++;
-}
-
-unsigned int FeatureTracker::GetID()
-{
-  return m_id;
 }

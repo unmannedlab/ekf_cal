@@ -17,23 +17,21 @@
 
 #include <opencv2/aruco/charuco.hpp>
 
+#include "trackers/tracker.hpp"
+
 FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
-: m_fiducial_updater(
-    params.sensor_id,
+: Tracker(params),
+  m_fiducial_updater(
+    params.camera_id,
     params.pos_f_in_g,
     params.ang_f_to_g,
     params.output_directory,
     params.data_logging_on,
     params.data_log_rate,
     params.logger
-), m_ekf(params.ekf),
-  m_logger(params.logger)
+  )
 {
-  m_camera_id = params.sensor_id;
-  m_intrinsics = params.intrinsics;
   m_detector_type = params.detector_type;
-  m_min_track_length = params.min_track_length;
-  m_max_track_length = params.max_track_length;
   m_pos_error = params.variance.segment<3>(0);
   m_ang_error = params.variance.segment<3>(3);
 }
@@ -108,9 +106,4 @@ void FiducialTracker::Track(
       m_ang_error.norm());
     m_board_track.clear();
   }
-}
-
-unsigned int FiducialTracker::GetID()
-{
-  return m_id;
 }

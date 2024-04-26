@@ -25,34 +25,30 @@
 
 #include "ekf/types.hpp"
 #include "infrastructure/debug_logger.hpp"
-#include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/gps.hpp"
 #include "sensors/sensor.hpp"
 #include "sensors/sim/sim_gps_message.hpp"
+#include "sensors/sim/sim_sensor.hpp"
 #include "utility/sim/sim_rng.hpp"
 
 ///
 /// @class SimGPS
 /// @brief Simulated GPS Sensor Class
 ///
-class SimGPS : public GPS
+class SimGPS : public GPS, public SimSensor
 {
 public:
   ///
   /// @brief Sim GPS initialization parameters structure
   ///
-  typedef struct Parameters
+  typedef struct Parameters : public SimSensor::Parameters
   {
-    double time_bias {0.0};                             ///< @brief Time offset bias
-    double time_skew {0.0};                             ///< @brief Time offset error
-    double time_error {1e-9};                           ///< @brief Time offset error
     Eigen::Vector3d lla_error {1e-9, 1e-9, 1e-9};       ///< @brief LLA errors
     Eigen::Vector3d pos_a_in_b_err {1e-9, 1e-9, 1e-9};  ///< @brief Position error of GPS antenna
     Eigen::Vector3d pos_l_in_g_err {1e-9, 1e-9, 1e-9};  ///< @brief Error in local frame position
     double ang_l_to_g_err {1e-9};                       ///< @brief Error in local to global angle
     double ang_l_to_g {0.0};                            ///< @brief Local orientation in global
     GPS::Parameters gps_params;                         ///< @brief GPS sensor parameters
-    bool no_errors {false};                             ///< @brief Perfect measurements flag
   } Parameters;
 
   ///
@@ -71,12 +67,7 @@ public:
   std::vector<std::shared_ptr<SimGpsMessage>> GenerateMessages(SimRNG rng, double max_time);
 
 private:
-  double m_time_bias{0.0};
-  double m_time_skew{0.0};
-  double m_time_error{1e-9};
   Eigen::Vector3d m_lla_error{1e-9, 1e-9, 1e-9};
-  std::shared_ptr<TruthEngine> m_truth;
-  bool m_no_errors {false};
 };
 
 

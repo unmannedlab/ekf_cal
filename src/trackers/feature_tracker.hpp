@@ -29,12 +29,13 @@
 #include "ekf/update/msckf_updater.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "sensors/types.hpp"
+#include "trackers/tracker.hpp"
 
 ///
 /// @class FeatureTracker
 /// @brief FeatureTracker Class
 ///
-class FeatureTracker
+class FeatureTracker : public Tracker
 {
 public:
   ///
@@ -71,24 +72,14 @@ public:
   ///
   /// @brief Feature Tracker Initialization parameters structure
   ///
-  typedef struct Parameters
+  typedef struct Parameters : public Tracker::Parameters
   {
-    std::string name {""};                                          ///< @brief Feature Tracker name
     FeatureDetectorEnum detector {FeatureDetectorEnum::ORB};            ///< @brief Detector
     DescriptorExtractorEnum descriptor {DescriptorExtractorEnum::ORB};  ///< @brief Descriptor
     DescriptorMatcherEnum matcher {DescriptorMatcherEnum::FLANN};       ///< @brief Matcher
     double threshold {20.0};                                            ///< @brief Threshold
-    int sensor_id{-1};                    ///< @brief Associated sensor ID
-    std::string output_directory {""};    ///< @brief Feature Tracker data logging directory
-    bool data_logging_on {false};         ///< @brief Feature Tracker data logging flag
     double px_error{1e-9};                ///< @brief Pixel error standard deviation
-    Intrinsics intrinsics;                ///< @brief Camera intrinsic parameters
-    unsigned int min_track_length{2U};    ///< @brief Minimum track length to consider
-    unsigned int max_track_length{20U};   ///< @brief Maximum track length before forced output
-    double data_log_rate {0.0};           ///< @brief Data logging rate
     double min_feat_dist {1.0};           ///< @brief Minimum feature distance to consider
-    std::shared_ptr<DebugLogger> logger;  ///< @brief Debug logger
-    std::shared_ptr<EKF> ekf;             ///< @brief EKF to update
   } Parameters;
 
   ///
@@ -118,20 +109,8 @@ public:
   ///
   void Track(double time, int frame_id, cv::Mat & img_in, cv::Mat & img_out);
 
-  ///
-  /// @brief Tracker ID getter method
-  /// @return Tracker ID
-  ///
-  unsigned int GetID();
-
 protected:
-  unsigned int m_max_track_length;        ///< @brief Maximum track length before forced output
-  unsigned int m_min_track_length;        ///< @brief Minimum track length to consider
-  MsckfUpdater m_msckf_updater;           ///< @brief MSCKF updater object
-  int m_camera_id{-1};                    ///< @brief Associated camera ID of tracker
-  unsigned int m_id;                      ///< @brief Tracker ID
-  std::shared_ptr<EKF> m_ekf;             ///< @brief EKF
-  std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger
+  MsckfUpdater m_msckf_updater;  ///< @brief MSCKF updater object
 
 private:
   cv::Ptr<cv::FeatureDetector> InitFeatureDetector(
@@ -156,9 +135,7 @@ private:
 
   unsigned int GenerateFeatureID();
 
-
   double m_px_error;
-  static unsigned int m_tracker_count;
 };
 
 #endif  // TRACKERS__FEATURE_TRACKER_HPP_

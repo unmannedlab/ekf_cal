@@ -41,11 +41,8 @@ public:
   ///
   /// @brief Camera initialization parameters structure
   ///
-  typedef struct Parameters
+  typedef struct Parameters : public Sensor::Parameters
   {
-    std::string name;                                   ///< @brief Camera name
-    std::string topic;                                  ///< @brief Camera topic name
-    double rate{1.0};                                   ///< @brief Camera update rate
     Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Camera initial position offset
     Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera initial angular offset
     double pos_stability {1e-9};                        ///< @brief Position stability
@@ -53,11 +50,7 @@ public:
     Eigen::VectorXd variance {{0, 0, 0, 0, 0, 0}};      ///< @brief Initial state variance
     std::string tracker;                                ///< @brief Tracker name
     std::string fiducial;                               ///< @brief Fiducial name
-    std::string output_directory {""};                  ///< @brief IMU data logging directory
-    bool data_logging_on {false};                       ///< @brief IMU data logging flag
     Intrinsics intrinsics;                              ///< @brief Camera intrinsics
-    std::shared_ptr<DebugLogger> logger;                ///< @brief Debug logger
-    std::shared_ptr<EKF> ekf;                           ///< @brief EKF to update
   } Parameters;
 
   ///

@@ -39,23 +39,15 @@ public:
   /// @brief GPS initialization parameters structure
   /// @todo remove topic from parameters
   ///
-  typedef struct Parameters
+  typedef struct Parameters : public Sensor::Parameters
   {
-    std::string name {"Name"};             ///< @brief GPS name
-    std::string topic {"Topic"};           ///< @brief GPS topic
-    double rate{1.0};                      ///< @brief GPS update rate
     Eigen::Vector3d pos_a_in_b {0, 0, 0};  ///< @brief GPS antenna position offset vector
     Eigen::Vector3d pos_l_in_g {0, 0, 0};  ///< @brief Local frame LLA position in global frame
     double ang_l_to_g {0.0};               ///< @brief Local frame angle to global frame
-    std::string output_directory {""};     ///< @brief GPS data logging directory
-    bool data_logging_on {false};          ///< @brief GPS data logging flag
     Eigen::Vector3d variance {{1, 1, 1}};  ///< @brief Initial state variance
-    double data_log_rate {0.0};            ///< @brief Data logging rate
     double projection_dev_lim {1.0};       ///< @brief Minimum singular value to initialize
     bool use_baseline_init {false};        ///< @brief Flag to use baseline initialization
     double baseline_distance {1.0};        ///< @brief Baseline distance threshold
-    std::shared_ptr<DebugLogger> logger;   ///< @brief Debug logger
-    std::shared_ptr<EKF> ekf;              ///< @brief EKF to update
   } Parameters;
 
   ///

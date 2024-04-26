@@ -26,6 +26,7 @@
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/camera.hpp"
 #include "sensors/sim/sim_camera_message.hpp"
+#include "sensors/sim/sim_sensor.hpp"
 #include "trackers/sim/sim_feature_tracker.hpp"
 #include "trackers/sim/sim_fiducial_tracker.hpp"
 #include "utility/sim/sim_rng.hpp"
@@ -35,18 +36,14 @@
 /// @class SimCamera
 /// @brief Simulated Camera Sensor Class
 ///
-class SimCamera : public Camera
+class SimCamera : public Camera, public SimSensor
 {
 public:
   ///
   /// @brief Sim IMU initialization parameters structure
   ///
-  typedef struct Parameters
+  typedef struct Parameters : public SimSensor::Parameters
   {
-    bool no_errors {false};                     ///< @brief Perfect measurements flag
-    double time_error {0.0};                    ///< @brief Time offset error
-    double time_bias_error {0.0};               ///< @brief Time offset bias
-    double time_skew_error {0.0};               ///< @brief Time offset error
     Eigen::Vector3d pos_error {0.0, 0.0, 0.0};  ///< @brief Position offset error
     Eigen::Vector3d ang_error {0.0, 0.0, 0.0};  ///< @brief Angular offset error
     Camera::Parameters cam_params;              ///< @brief Camera sensor parameters
@@ -93,13 +90,8 @@ public:
   std::vector<std::shared_ptr<SimCameraMessage>> GenerateMessages(SimRNG rng, double max_time);
 
 private:
-  bool m_no_errors {false};
-  double m_time_error{0.0};
-  double m_time_bias_error{0.0};
-  double m_time_skew_error{0.0};
   Eigen::Vector3d m_pos_error;
   Eigen::Vector3d m_ang_error;
-  std::shared_ptr<TruthEngine> m_truth;
 
   std::map<unsigned int, std::shared_ptr<SimFeatureTracker>> m_trackers;
   std::map<unsigned int, std::shared_ptr<SimFiducialTracker>> m_fiducials;

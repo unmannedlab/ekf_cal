@@ -29,12 +29,13 @@
 #include "ekf/update/fiducial_updater.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "sensors/types.hpp"
+#include "trackers/tracker.hpp"
 
 ///
 /// @class FiducialTracker
 /// @brief FiducialTracker Class
 ///
-class FiducialTracker
+class FiducialTracker : public Tracker
 {
 public:
   ///
@@ -50,27 +51,17 @@ public:
   ///
   /// @brief Feature Tracker Initialization parameters structure
   ///
-  typedef struct Parameters
+  typedef struct Parameters : public Tracker::Parameters
   {
-    std::string name {""};                          ///< @brief Feature Tracker name
-    int sensor_id{-1};                              ///< @brief Associated sensor ID
-    std::string output_directory {""};              ///< @brief Feature Tracker data log directory
-    bool data_logging_on {false};                   ///< @brief Feature Tracker data log flag
     FiducialTypeEnum detector_type;                 ///< @brief Detector type
     unsigned int squares_x {1U};                    ///< @brief Number of squares in the x direction
     unsigned int squares_y {1U};                    ///< @brief Number of squares in the y direction
     double square_length {1.0};                     ///< @brief Checkerboard square length
     double marker_length {1.0};                     ///< @brief Marker length
     unsigned int initial_id{0};                     ///< @brief Initial ID
-    unsigned int min_track_length {2U};             ///< @brief Minimum track length
-    unsigned int max_track_length {20U};            ///< @brief Maximum track length
-    Intrinsics intrinsics;                          ///< @brief Camera intrinsic parameters
     Eigen::Vector3d pos_f_in_g;                     ///< @brief Fiducial position
     Eigen::Quaterniond ang_f_to_g;                  ///< @brief Fiducial orientation
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1}};  ///< @brief Fiducial marker variance
-    double data_log_rate {0.0};                     ///< @brief Data logging rate
-    std::shared_ptr<DebugLogger> logger;            ///< @brief Debug logger
-    std::shared_ptr<EKF> ekf;                       ///< @brief EKF to update
   } Parameters;
 
   ///
@@ -88,22 +79,9 @@ public:
   ///
   void Track(double time, int frame_id, cv::Mat & img_in, cv::Mat & img_out);
 
-  ///
-  /// @brief Tracker ID getter method
-  /// @return Tracker ID
-  ///
-  unsigned int GetID();
-
 protected:
-  unsigned int m_max_track_length{20U};   ///< @brief Maximum track length before forced output
-  unsigned int m_min_track_length{2U};    ///< @brief Minimum track length to consider
-  FiducialUpdater m_fiducial_updater;     ///< @brief MSCKF updater object
-  int m_camera_id{-1};                    ///< @brief Associated camera ID of tracker
-  unsigned int m_id;                      ///< @brief Tracker ID
-  Intrinsics m_intrinsics;                ///< @brief Camera intrinsics
-  FiducialTypeEnum m_detector_type;       ///< @brief Detector type
-  std::shared_ptr<EKF> m_ekf;             ///< @brief EKF
-  std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger
+  FiducialUpdater m_fiducial_updater;  ///< @brief MSCKF updater object
+  FiducialTypeEnum m_detector_type;    ///< @brief Detector type
 
 private:
   BoardTrack m_board_track;

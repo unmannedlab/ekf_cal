@@ -62,6 +62,54 @@ std::vector<std::string> LoadNodeList(YAML::Node node)
   return string_list;
 }
 
+void LoadSensorParams(
+  Sensor::Parameters & params,
+  YAML::Node node,
+  std::string name,
+  std::string out_dir,
+  bool data_logging_on,
+  std::shared_ptr<EKF> ekf,
+  std::shared_ptr<DebugLogger> debug_logger
+)
+{
+  params.topic = node["topic"].as<std::string>("");
+  params.rate = node["rate"].as<double>(1.0);
+  params.data_log_rate = node["data_log_rate"].as<double>(0.0);
+  params.name = name;
+  params.output_directory = out_dir;
+  params.data_logging_on = data_logging_on;
+  params.ekf = ekf;
+  params.logger = debug_logger;
+}
+
+void LoadSimSensorParams(
+  SimSensor::Parameters & params,
+  YAML::Node node)
+{
+  params.no_errors = node["no_errors"].as<bool>(false);
+  params.time_bias_error = node["time_bias_error"].as<double>(1.0e-9);
+  params.time_skew_error = node["time_skew_error"].as<double>(1.0e-9);
+  params.time_error = node["time_error"].as<double>(1.0e-9);
+}
+
+void LoadTrackerParams(
+  Tracker::Parameters & params,
+  YAML::Node node,
+  std::string name,
+  std::string out_dir,
+  bool data_logging_on,
+  std::shared_ptr<EKF> ekf,
+  std::shared_ptr<DebugLogger> debug_logger
+)
+{
+  params.data_log_rate = node["data_log_rate"].as<double>(0.0);
+  params.name = name;
+  params.output_directory = out_dir;
+  params.data_logging_on = data_logging_on;
+  params.ekf = ekf;
+  params.logger = debug_logger;
+}
+
 int main(int argc, char * argv[])
 {
   const cv::String keys =
@@ -168,11 +216,9 @@ int main(int argc, char * argv[])
     YAML::Node sim_node = imu_node["sim_params"];
 
     IMU::Parameters imu_params;
-    imu_params.name = imus[i];
+    LoadSensorParams(imu_params, imu_node, imus[i], out_dir, data_logging_on, ekf, debug_logger);
     imu_params.is_extrinsic = imu_node["is_extrinsic"].as<bool>(false);
     imu_params.is_intrinsic = imu_node["is_intrinsic"].as<bool>(false);
-    imu_params.rate = imu_node["rate"].as<double>(100.0);
-    imu_params.topic = imu_node["topic"].as<std::string>("");
     imu_params.variance = StdToEigVec(imu_node["variance"].as<std::vector<double>>(def_vec));
     imu_params.pos_i_in_b = StdToEigVec(imu_node["pos_i_in_b"].as<std::vector<double>>(def_vec));
     imu_params.ang_i_to_b = StdToEigQuat(imu_node["ang_i_to_b"].as<std::vector<double>>(def_quat));
@@ -182,20 +228,13 @@ int main(int argc, char * argv[])
     imu_params.ang_stability = imu_node["ang_stability"].as<double>(1.0e-9);
     imu_params.acc_bias_stability = imu_node["acc_bias_stability"].as<double>(1.0e-9);
     imu_params.omg_bias_stability = imu_node["omg_bias_stability"].as<double>(1.0e-9);
-    imu_params.output_directory = out_dir;
-    imu_params.data_logging_on = data_logging_on;
     imu_params.use_for_prediction = imu_node["use_for_prediction"].as<bool>(false);
-    imu_params.data_log_rate = imu_node["data_log_rate"].as<double>(0.0);
-    imu_params.logger = debug_logger;
-    imu_params.ekf = ekf;
     using_any_imu_for_prediction = using_any_imu_for_prediction || imu_params.use_for_prediction;
 
     // SimParams
     SimIMU::Parameters sim_imu_params;
+    LoadSimSensorParams(sim_imu_params, sim_node);
     sim_imu_params.imu_params = imu_params;
-    sim_imu_params.time_bias_error = sim_node["time_bias_error"].as<double>(1.0e-9);
-    sim_imu_params.time_skew_error = sim_node["time_skew_error"].as<double>(1.0e-9);
-    sim_imu_params.time_error = sim_node["time_error"].as<double>(1.0e-9);
     sim_imu_params.acc_error = StdToEigVec(sim_node["acc_error"].as<std::vector<double>>(def_vec));
     sim_imu_params.omg_error = StdToEigVec(sim_node["omg_error"].as<std::vector<double>>(def_vec));
     sim_imu_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>(def_vec));
@@ -204,7 +243,6 @@ int main(int argc, char * argv[])
       StdToEigVec(sim_node["acc_bias_error"].as<std::vector<double>>(def_vec));
     sim_imu_params.omg_bias_error =
       StdToEigVec(sim_node["omg_bias_error"].as<std::vector<double>>(def_vec));
-    sim_imu_params.no_errors = sim_node["no_errors"].as<bool>(false);
 
     // Add sensor to map
     auto imu = std::make_shared<SimIMU>(sim_imu_params, truth_engine);
@@ -251,16 +289,12 @@ int main(int argc, char * argv[])
     YAML::Node sim_node = trk_node["sim_params"];
 
     FeatureTracker::Parameters track_params;
-    track_params.name = trackers[i];
-    track_params.output_directory = out_dir;
-    track_params.data_logging_on = data_logging_on;
+    LoadTrackerParams(
+      track_params, trk_node, trackers[i], out_dir, data_logging_on, ekf, debug_logger);
     track_params.px_error = trk_node["pixel_error"].as<double>(1.0);
     track_params.min_track_length = trk_node["min_track_length"].as<unsigned int>(2U);
     track_params.max_track_length = trk_node["max_track_length"].as<unsigned int>(20U);
-    track_params.data_log_rate = trk_node["data_log_rate"].as<double>(0.0);
     track_params.min_feat_dist = trk_node["min_feat_dist"].as<double>(1.0);
-    track_params.logger = debug_logger;
-    track_params.ekf = ekf;
     max_track_length = std::max(max_track_length, track_params.max_track_length);
 
     SimFeatureTracker::Parameters sim_tracker_params;
@@ -282,9 +316,8 @@ int main(int argc, char * argv[])
     YAML::Node sim_node = fid_node["sim_params"];
 
     FiducialTracker::Parameters fiducial_params;
-    fiducial_params.name = fiducials[i];
-    fiducial_params.output_directory = out_dir;
-    fiducial_params.data_logging_on = data_logging_on;
+    LoadTrackerParams(
+      fiducial_params, fid_node, fiducials[i], out_dir, data_logging_on, ekf, debug_logger);
     fiducial_params.pos_f_in_g =
       StdToEigVec(fid_node["pos_f_in_g"].as<std::vector<double>>(def_vec));
     fiducial_params.ang_f_to_g =
@@ -296,9 +329,6 @@ int main(int argc, char * argv[])
     fiducial_params.marker_length = fid_node["marker_length"].as<double>(0.0);
     fiducial_params.min_track_length = fid_node["min_track_length"].as<unsigned int>(2U);
     fiducial_params.max_track_length = fid_node["max_track_length"].as<unsigned int>(20U);
-    fiducial_params.data_log_rate = fid_node["data_log_rate"].as<double>(0.0);
-    fiducial_params.logger = debug_logger;
-    fiducial_params.ekf = ekf;
     max_track_length = std::max(max_track_length, fiducial_params.max_track_length);
 
     SimFiducialTracker::Parameters sim_fiducial_params;
@@ -336,15 +366,12 @@ int main(int argc, char * argv[])
     YAML::Node sim_node = cam_node["sim_params"];
 
     Camera::Parameters cam_params;
-    cam_params.name = cameras[i];
-    cam_params.rate = cam_node["rate"].as<double>(10.0);
+    LoadSensorParams(cam_params, cam_node, cameras[i], out_dir, data_logging_on, ekf, debug_logger);
     cam_params.variance = StdToEigVec(cam_node["variance"].as<std::vector<double>>(def_vec));
     cam_params.pos_c_in_b = StdToEigVec(cam_node["pos_c_in_b"].as<std::vector<double>>(def_vec));
     cam_params.ang_c_to_b = StdToEigQuat(cam_node["ang_c_to_b"].as<std::vector<double>>(def_quat));
     cam_params.pos_stability = cam_node["pos_stability"].as<double>(1.0e-9);
     cam_params.ang_stability = cam_node["ang_stability"].as<double>(1.0e-9);
-    cam_params.output_directory = out_dir;
-    cam_params.data_logging_on = data_logging_on;
     cam_params.tracker = cam_node["tracker"].as<std::string>("");
     cam_params.fiducial = cam_node["fiducial"].as<std::string>("");
     cam_params.intrinsics.F = cam_node["intrinsics"]["F"].as<double>(1.0);
@@ -357,31 +384,26 @@ int main(int argc, char * argv[])
     cam_params.intrinsics.pixel_size = cam_node["intrinsics"]["pixel_size"].as<double>(1e-2);
     cam_params.intrinsics.f_x = cam_params.intrinsics.F / cam_params.intrinsics.pixel_size;
     cam_params.intrinsics.f_y = cam_params.intrinsics.F / cam_params.intrinsics.pixel_size;
-    cam_params.logger = debug_logger;
-    cam_params.ekf = ekf;
 
     // SimCamera::Parameters
     SimCamera::Parameters sim_cam_params;
-    sim_cam_params.time_bias_error = sim_node["time_bias_error"].as<double>(1.0e-9);
-    sim_cam_params.time_skew_error = sim_node["time_skew_error"].as<double>(1.0e-9);
-    sim_cam_params.time_error = sim_node["time_error"].as<double>(1.0e-9);
+    LoadSimSensorParams(sim_cam_params, sim_node);
     sim_cam_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>());
     sim_cam_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>());
     sim_cam_params.cam_params = cam_params;
-    sim_cam_params.no_errors = sim_node["no_errors"].as<bool>(false);
 
     // Add sensor to map
     auto cam = std::make_shared<SimCamera>(sim_cam_params, truth_engine);
     if (!cam_params.tracker.empty()) {
       auto trk_params = tracker_map[cam_params.tracker];
-      trk_params.tracker_params.sensor_id = cam->GetId();
+      trk_params.tracker_params.camera_id = cam->GetId();
       trk_params.tracker_params.intrinsics = cam_params.intrinsics;
       auto trk = std::make_shared<SimFeatureTracker>(trk_params, truth_engine);
       cam->AddTracker(trk);
     }
     if (!cam_params.fiducial.empty()) {
       auto fid_params = fiducial_map[cam_params.fiducial];
-      fid_params.fiducial_params.sensor_id = cam->GetId();
+      fid_params.fiducial_params.camera_id = cam->GetId();
       fid_params.fiducial_params.intrinsics = cam_params.intrinsics;
       auto fid = std::make_shared<SimFiducialTracker>(fid_params, truth_engine);
       cam->AddFiducial(fid);
@@ -415,35 +437,26 @@ int main(int argc, char * argv[])
     YAML::Node sim_node = gps_node["sim_params"];
 
     GPS::Parameters gps_params;
-    gps_params.name = gps_list[i];
-    gps_params.rate = gps_node["rate"].as<double>();
-    gps_params.topic = gps_node["topic"].as<std::string>();
+    LoadSensorParams(
+      gps_params, gps_node, gps_list[i], out_dir, data_logging_on, ekf, debug_logger);
     gps_params.variance = StdToEigVec(gps_node["variance"].as<std::vector<double>>());
     gps_params.pos_a_in_b = StdToEigVec(gps_node["pos_a_in_b"].as<std::vector<double>>());
     gps_params.pos_l_in_g = StdToEigVec(gps_node["pos_l_in_g"].as<std::vector<double>>());
     gps_params.ang_l_to_g = gps_node["ang_l_to_g"].as<double>();
-    gps_params.data_log_rate = gps_node["data_log_rate"].as<double>(0.0);
     gps_params.projection_dev_lim = gps_node["projection_dev_lim"].as<double>(0.0);
     gps_params.use_baseline_init = gps_node["use_baseline_init"].as<bool>(false);
     gps_params.baseline_distance = gps_node["baseline_distance"].as<double>(0.0);
-    gps_params.output_directory = out_dir;
-    gps_params.data_logging_on = data_logging_on;
-    gps_params.logger = debug_logger;
-    gps_params.ekf = ekf;
 
     // SimParams
     SimGPS::Parameters sim_gps_params;
+    LoadSimSensorParams(sim_gps_params, sim_node);
     sim_gps_params.gps_params = gps_params;
-    sim_gps_params.time_bias = sim_node["time_bias"].as<double>();
-    sim_gps_params.time_skew = sim_node["time_skew"].as<double>();
-    sim_gps_params.time_error = sim_node["time_error"].as<double>();
     sim_gps_params.lla_error = StdToEigVec(sim_node["lla_error"].as<std::vector<double>>());
     sim_gps_params.pos_a_in_b_err =
       StdToEigVec(sim_node["pos_a_in_b_err"].as<std::vector<double>>());
     sim_gps_params.pos_l_in_g_err =
       StdToEigVec(sim_node["pos_l_in_g_err"].as<std::vector<double>>());
     sim_gps_params.ang_l_to_g_err = sim_node["ang_l_to_g_err"].as<double>();
-    sim_gps_params.no_errors = sim_node["no_errors"].as<bool>(false);
 
     // Add sensor to map
     auto gps = std::make_shared<SimGPS>(sim_gps_params, truth_engine);

@@ -328,7 +328,7 @@ void EkfCalNode::LoadCamera(std::string camera_name)
 
   // Create new RosCamera and bind callback to ID
   std::shared_ptr<RosCamera> camera_ptr = std::make_shared<RosCamera>(camera_params);
-  tParams.sensor_id = camera_ptr->GetId();
+  tParams.camera_id = camera_ptr->GetId();
   std::shared_ptr<FeatureTracker> trkPtr = std::make_shared<FeatureTracker>(tParams);
   camera_ptr->AddTracker(trkPtr);
 

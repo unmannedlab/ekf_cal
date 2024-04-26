@@ -21,7 +21,7 @@
 
 TEST(test_feature_tracker, initialization) {
   FeatureTracker::Parameters params;
-  params.sensor_id = 1;
+  params.camera_id = 1;
 
   params.detector = FeatureTracker::FeatureDetectorEnum::BRISK;
   params.descriptor = FeatureTracker::DescriptorExtractorEnum::ORB;

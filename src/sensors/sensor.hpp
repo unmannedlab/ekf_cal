@@ -33,6 +33,21 @@ class Sensor
 {
 public:
   ///
+  /// @brief Sensor parameter structure
+  ///
+  typedef struct Parameters
+  {
+    std::string name {""};                ///< @brief Name
+    std::string topic {""};               ///< @brief Topic
+    double rate{1.0};                     ///< @brief Update rate
+    bool data_logging_on {false};         ///< @brief Data logging flag
+    double data_log_rate {0.0};           ///< @brief Data logging rate
+    std::string output_directory {""};    ///< @brief Data logging directory
+    std::shared_ptr<DebugLogger> logger;  ///< @brief Debug logger
+    std::shared_ptr<EKF> ekf;             ///< @brief EKF to update
+  } Parameters;
+
+  ///
   /// @brief Sensor class constructor
   /// @param name Sensor name
   /// @param logger Debug logger pointer
@@ -64,7 +79,7 @@ protected:
   std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger
 
 private:
-  static unsigned int m_sensor_count;
+  static unsigned int m_sensor_count;     ///< @brief Static sensor count
 };
 
 
