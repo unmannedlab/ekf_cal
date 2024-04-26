@@ -22,8 +22,9 @@
 
 
 TEST(test_sensor, Constructor) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  Sensor sensor("", logger);
+  Sensor::Parameters sensor_params;
+  sensor_params.logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  Sensor sensor(sensor_params);
 }
 
 TEST(test_sensor, MessageCompare) {

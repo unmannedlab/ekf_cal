@@ -28,7 +28,7 @@
 
 
 IMU::IMU(IMU::Parameters params)
-: Sensor(params.name, params.logger), m_ekf(params.ekf),
+: Sensor(params), m_ekf(params.ekf),
   m_imu_updater(m_id, params.is_extrinsic, params.is_intrinsic,
     params.output_directory, params.data_logging_on, params.data_log_rate, params.logger)
 {

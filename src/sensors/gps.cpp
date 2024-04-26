@@ -27,7 +27,7 @@
 
 
 GPS::GPS(GPS::Parameters params)
-: Sensor(params.name, params.logger),
+: Sensor(params),
   m_ekf(params.ekf),
   m_gps_updater(
     m_id,
