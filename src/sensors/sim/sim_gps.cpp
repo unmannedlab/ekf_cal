@@ -38,21 +38,16 @@ SimGPS::SimGPS(SimGPS::Parameters params, std::shared_ptr<TruthEngine> truthEngi
   m_truth = truthEngine;
 }
 
-std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages(SimRNG rng, double max_time)
+std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages(SimRNG rng)
 {
-  unsigned int num_measurements =
-    static_cast<int>(std::floor(max_time * m_rate / (1 + m_time_skew_error)));
+  std::vector<double> measurement_times = GenerateMeasurementTimes(rng, m_rate);
 
   m_logger->Log(
-    LogLevel::INFO, "Generating " + std::to_string(num_measurements) + " GPS measurements");
-
-  double time_init = m_no_errors ? 0 : rng.UniRand(0.0, 1.0 / m_rate);
+    LogLevel::INFO, "Generating " + std::to_string(measurement_times.size()) + " GPS measurements");
 
   std::vector<std::shared_ptr<SimGpsMessage>> messages;
-  for (unsigned int i = 0; i < num_measurements; ++i) {
+  for (auto measurement_time : measurement_times) {
     auto sim_gps_msg = std::make_shared<SimGpsMessage>();
-    double measurement_time =
-      (1.0 + m_time_skew_error) / m_rate * static_cast<double>(i) + time_init;
     sim_gps_msg->m_time = measurement_time;
     sim_gps_msg->m_sensor_id = m_id;
     sim_gps_msg->m_sensor_type = SensorType::GPS;

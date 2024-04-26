@@ -52,37 +52,14 @@ SimCamera::SimCamera(
   m_time_skew_error = params.time_skew_error;
 }
 
-std::vector<double> SimCamera::GenerateMessageTimes(SimRNG rng, double max_time)
-{
-  unsigned int num_measurements =
-    static_cast<int>(std::floor(max_time * m_rate / (1 + m_time_skew_error)));
-
-  m_logger->Log(
-    LogLevel::INFO, "Generating " + std::to_string(num_measurements) + " Camera measurements");
-
-  double time_init = m_no_errors ? 0 : rng.UniRand(0.0, 1.0 / m_rate);
-
-  std::vector<double> message_times;
-  for (unsigned int i = 0; i < num_measurements; ++i) {
-    double measurement_time =
-      (1.0 + m_time_skew_error) / m_rate * static_cast<double>(i) + time_init;
-    if (!m_no_errors) {
-      measurement_time += rng.NormRand(m_time_bias_error, m_time_error);
-    }
-    message_times.push_back(measurement_time);
-  }
-  return message_times;
-}
-
-std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages(
-  SimRNG rng, double max_time)
+std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages(SimRNG rng)
 {
   std::vector<std::shared_ptr<SimCameraMessage>> messages;
-  std::vector<double> message_times = GenerateMessageTimes(rng, max_time);
+  std::vector<double> measurement_times = GenerateMeasurementTimes(rng, m_rate);
 
   // Tracker Messages
   for (auto const & trk_iter : m_trackers) {
-    auto trk_msgs = m_trackers[trk_iter.first]->GenerateMessages(rng, message_times, m_id);
+    auto trk_msgs = m_trackers[trk_iter.first]->GenerateMessages(rng, measurement_times, m_id);
     cv::Mat blank_img;
     for (auto trk_msg : trk_msgs) {
       auto cam_msg = std::make_shared<SimCameraMessage>(blank_img);
@@ -98,7 +75,7 @@ std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages(
 
   // Fiducial Messages
   for (auto const & fid_iter : m_fiducials) {
-    auto fid_msgs = m_fiducials[fid_iter.first]->GenerateMessages(rng, message_times, m_id);
+    auto fid_msgs = m_fiducials[fid_iter.first]->GenerateMessages(rng, measurement_times, m_id);
     cv::Mat blank_img;
     for (auto fid_msg : fid_msgs) {
       auto cam_msg = std::make_shared<SimCameraMessage>(blank_img);

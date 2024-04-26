@@ -61,10 +61,9 @@ public:
   ///
   /// @brief Generate simulated GPS messages
   /// @param rng Random number generator
-  /// @param max_time Maximum time of generated messages
   /// @return Generated GPS messages
   ///
-  std::vector<std::shared_ptr<SimGpsMessage>> GenerateMessages(SimRNG rng, double max_time);
+  std::vector<std::shared_ptr<SimGpsMessage>> GenerateMessages(SimRNG rng);
 
 private:
   Eigen::Vector3d m_lla_error{1e-9, 1e-9, 1e-9};

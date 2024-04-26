@@ -27,7 +27,9 @@ TEST(test_fiducial_tracker, constructor) {
   double pos_amplitude {1.0};
   double ang_amplitude {0.1};
   double stationary_time {1.0};
+  double max_time {1.0};
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+
   auto truth_engine = std::make_shared<TruthEngineCyclic>(
     pos_frequency,
     ang_frequency,
@@ -36,6 +38,7 @@ TEST(test_fiducial_tracker, constructor) {
     pos_amplitude,
     ang_amplitude,
     stationary_time,
+    max_time,
     logger
   );
 

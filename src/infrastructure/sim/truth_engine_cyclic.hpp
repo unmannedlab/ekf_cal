@@ -38,6 +38,7 @@ public:
   /// @param pos_amplitude Amplitude of position cycle
   /// @param ang_amplitude Amplitude of angular cycle
   /// @param stationary_time Time to be stationary before beginning motion
+  /// @param max_time Maximum simulation time
   /// @param logger Debug logger pointer
   ///
   TruthEngineCyclic(
@@ -48,6 +49,7 @@ public:
     double pos_amplitude,
     double ang_amplitude,
     double stationary_time,
+    double max_time,
     std::shared_ptr<DebugLogger> logger
   );
 

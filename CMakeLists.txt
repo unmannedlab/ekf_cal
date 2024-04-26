@@ -125,6 +125,7 @@ set(SIM_SRCS
     src/sensors/sim/sim_camera.cpp
     src/sensors/sim/sim_gps.cpp
     src/sensors/sim/sim_imu.cpp
+    src/sensors/sim/sim_sensor.cpp
     src/trackers/sim/sim_feature_tracker.cpp
     src/trackers/sim/sim_fiducial_tracker.cpp
     src/utility/sim/sim_rng.cpp

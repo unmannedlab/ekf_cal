@@ -60,10 +60,9 @@ public:
   ///
   /// @brief Generate simulated IMU messages
   /// @param rng Random number generator
-  /// @param max_time Maximum time of generated messages
   /// @return Generated IMU messages
   ///
-  std::vector<std::shared_ptr<SimImuMessage>> GenerateMessages(SimRNG rng, double max_time);
+  std::vector<std::shared_ptr<SimImuMessage>> GenerateMessages(SimRNG rng);
 
 private:
   Eigen::Vector3d m_acc_error;

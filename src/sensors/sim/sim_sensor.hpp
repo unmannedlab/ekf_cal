@@ -18,9 +18,11 @@
 #define SENSORS__SIM__SIM_SENSOR_HPP_
 
 #include <memory>
+#include <vector>
 
 #include "infrastructure/sim/truth_engine.hpp"
-
+#include "sensors/sensor.hpp"
+#include "utility/sim/sim_rng.hpp"
 
 ///
 /// @brief SimSensor namespace
@@ -39,10 +41,29 @@ public:
     double time_skew_error {0.0};  ///< @brief Time offset error
   } Parameters;
 
+  ///
+  /// @brief SimSensor constructor
+  ///
   SimSensor() {}
 
+  ///
+  /// @brief Generate list of true measurement times
+  /// @param rng Random number generator
+  /// @param m_rate Sensor rate
+  /// @return List of sensor measurement times
+  ///
+  std::vector<double> GenerateMeasurementTimes(SimRNG rng, double m_rate);
+
+  ///
+  /// @brief Apply errors, if necessary, to sensor measurement time
+  /// @param rng Random number generator
+  /// @param true_time True measurement time
+  /// @return Time with error
+  ///
+  double ApplyTimeError(SimRNG rng, double true_time);
+
 protected:
-  double m_time_error{1e-9};             ///< @brief Time offset error
+  double m_time_error {1e-9};            ///< @brief Time offset error
   double m_time_bias_error{0.0};         ///< @brief Time offset bias
   double m_time_skew_error{0.0};         ///< @brief Time offset error
   bool m_no_errors {false};              ///< @brief Flag to remove measurement errors

@@ -192,15 +192,15 @@ int main(int argc, char * argv[])
       pos_amplitude,
       ang_amplitude,
       stationary_time,
+      max_time,
       debug_logger
     );
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
   } else if (truth_type == "spline") {
     auto positions = sim_params["positions"].as<std::vector<std::vector<double>>>(def_mat);
     auto angles = sim_params["angles"].as<std::vector<std::vector<double>>>(def_mat);
-    double delta_time = max_time / (static_cast<double>(positions.size()) - 1.0);
     auto truth_engine_spline = std::make_shared<TruthEngineSpline>(
-      delta_time, positions, angles, stationary_time, debug_logger);
+      positions, angles, stationary_time, max_time, debug_logger);
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_spline);
   } else {
     std::stringstream msg;
@@ -271,7 +271,7 @@ int main(int argc, char * argv[])
     truth_engine->SetImuGyroscopeBias(imu->GetId(), omg_bias_true);
 
     // Calculate sensor measurements
-    auto imu_messages = imu->GenerateMessages(rng, max_time);
+    auto imu_messages = imu->GenerateMessages(rng);
     messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
   }
 
@@ -426,7 +426,7 @@ int main(int argc, char * argv[])
     truth_engine->SetCameraAngularPosition(cam->GetId(), ang_c_to_b_true);
 
     // Calculate sensor measurements
-    auto imu_messages = cam->GenerateMessages(rng, max_time);
+    auto imu_messages = cam->GenerateMessages(rng);
     messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
   }
 
@@ -480,13 +480,13 @@ int main(int argc, char * argv[])
     truth_engine->SetLocalHeading(ang_l_to_g);
 
     // Calculate sensor measurements
-    auto gps_messages = gps->GenerateMessages(rng, max_time);
+    auto gps_messages = gps->GenerateMessages(rng);
     messages.insert(messages.end(), gps_messages.begin(), gps_messages.end());
   }
 
   // Log truth data
   if (data_logging_on) {
-    truth_engine->WriteTruthData(body_data_rate, max_time + stationary_time, out_dir);
+    truth_engine->WriteTruthData(body_data_rate + stationary_time, out_dir);
   }
 
   // Sort Measurements

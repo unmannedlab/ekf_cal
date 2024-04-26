@@ -36,10 +36,11 @@ class TruthEngine
 {
 public:
   ///
-  ///
+  /// @brief TruthEngine constructor
+  /// @param max_time Maximum simulation time
   /// @param logger Debug logger pointer
   ///
-  explicit TruthEngine(std::shared_ptr<DebugLogger> logger);
+  explicit TruthEngine(double max_time, std::shared_ptr<DebugLogger> logger);
 
   virtual ~TruthEngine() = 0;
 
@@ -224,10 +225,9 @@ public:
   ///
   /// @brief Write truth data to CSV files
   /// @param body_data_rate Body data rate
-  /// @param max_time Max time to write
   /// @param output_directory Output directory
   ///
-  void WriteTruthData(double body_data_rate, double max_time, std::string output_directory);
+  void WriteTruthData(double body_data_rate, std::string output_directory);
 
   ///
   /// @brief
@@ -242,6 +242,8 @@ public:
   /// @return Vector of all feature positions
   ///
   std::vector<cv::Point3d> GetFeatures();
+
+  double m_max_time;  ///< @brief Maximum time for truth engine
 
 protected:
   std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger

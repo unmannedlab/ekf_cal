@@ -30,6 +30,8 @@ TEST(test_SimCamera, feature_track) {
   Eigen::Vector3d ang_frequency{4, 5, 6};
   Eigen::Vector3d pos_offset{1, 2, 3};
   Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
+  double stationary_time{0.0};
+  double max_time{1.0};
   double pos_amplitude = 1.0;
   double ang_amplitude = 0.1;
 
@@ -40,7 +42,9 @@ TEST(test_SimCamera, feature_track) {
     ang_offset,
     pos_amplitude,
     ang_amplitude,
-    0.0, logger
+    stationary_time,
+    max_time,
+    logger
   );
 
   SimRNG rng;
@@ -66,19 +70,20 @@ TEST(test_SimCamera, feature_track) {
 
   SimCamera::Parameters sim_camera_params;
   sim_camera_params.cam_params = cam_params;
+  sim_camera_params.no_errors = true;
 
   SimCamera sim_camera(sim_camera_params, truth_engine);
 
   FeatureTracker::Parameters feature_params;
   feature_params.ekf = ekf;
   feature_params.logger = logger;
+  feature_params.camera_id = sim_camera.GetId();
   SimFeatureTracker::Parameters sim_feature_params;
   sim_feature_params.tracker_params = feature_params;
   auto feature_tracker = std::make_shared<SimFeatureTracker>(sim_feature_params, truth_engine);
   sim_camera.AddTracker(feature_tracker);
 
-  std::vector<std::shared_ptr<SimCameraMessage>> cam_messages =
-    sim_camera.GenerateMessages(rng, 1.0);
+  std::vector<std::shared_ptr<SimCameraMessage>> cam_messages = sim_camera.GenerateMessages(rng);
 
   for (unsigned int i = 0; i < 5; ++i) {
     sim_camera.Callback(cam_messages[i]);
@@ -94,6 +99,8 @@ TEST(test_SimCamera, fiducial_track) {
   Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
   double pos_amplitude = 1.0;
   double ang_amplitude = 0.1;
+  double stationary_time{0.0};
+  double max_time{1.0};
 
   auto truth_engine = std::make_shared<TruthEngineCyclic>(
     pos_frequency,
@@ -102,7 +109,9 @@ TEST(test_SimCamera, fiducial_track) {
     ang_offset,
     pos_amplitude,
     ang_amplitude,
-    0.0, logger
+    stationary_time,
+    max_time,
+    logger
   );
 
   SimRNG rng;
@@ -140,7 +149,7 @@ TEST(test_SimCamera, fiducial_track) {
   sim_camera.AddFiducial(fiducial_tracker);
 
   std::vector<std::shared_ptr<SimCameraMessage>> cam_messages =
-    sim_camera.GenerateMessages(rng, 1.0);
+    sim_camera.GenerateMessages(rng);
 
   for (auto cam_message : cam_messages) {
     sim_camera.Callback(cam_message);

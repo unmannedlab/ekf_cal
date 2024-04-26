@@ -31,9 +31,10 @@ TruthEngineCyclic::TruthEngineCyclic(
   double pos_amplitude,
   double ang_amplitude,
   double stationary_time,
+  double max_time,
   std::shared_ptr<DebugLogger> logger
 )
-: TruthEngine(logger)
+: TruthEngine(max_time, logger)
 {
   m_pos_frequency = pos_frequency;
   m_ang_frequency = ang_frequency;

@@ -25,8 +25,8 @@
 #include "utility/sim/sim_rng.hpp"
 #include "utility/string_helper.hpp"
 
-TruthEngine::TruthEngine(std::shared_ptr<DebugLogger> logger)
-: m_logger(logger) {}
+TruthEngine::TruthEngine(double max_time, std::shared_ptr<DebugLogger> logger)
+: m_logger(logger), m_max_time(max_time) {}
 
 Eigen::Vector3d TruthEngine::GetImuPosition(unsigned int sensor_id)
 {
@@ -166,7 +166,6 @@ TruthEngine::~TruthEngine() {}
 
 void TruthEngine::WriteTruthData(
   double body_data_rate,
-  double max_time,
   std::string output_directory)
 {
   std::cout << output_directory << std::endl;
@@ -205,7 +204,7 @@ void TruthEngine::WriteTruthData(
 
   truth_logger.DefineHeader(header.str());
 
-  unsigned int num_measurements = static_cast<int>(std::floor((max_time + 1.0) * body_data_rate));
+  unsigned int num_measurements = static_cast<int>(std::floor((m_max_time + 1.0) * body_data_rate));
   for (unsigned int i = 0; i < num_measurements; ++i) {
     sensor_count = 0;
     std::stringstream msg;

@@ -28,6 +28,8 @@ TEST(test_SimIMU, Constructor) {
   Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
   double pos_amplitude = 1.0;
   double ang_amplitude = 0.1;
+  double stationary_time{0.0};
+  double max_time{1.0};
 
   auto truthEngine = std::make_shared<TruthEngineCyclic>(
     pos_frequency,
@@ -36,7 +38,8 @@ TEST(test_SimIMU, Constructor) {
     ang_offset,
     pos_amplitude,
     ang_amplitude,
-    0.0,
+    stationary_time,
+    max_time,
     logger
   );
 
@@ -51,5 +54,5 @@ TEST(test_SimIMU, Constructor) {
   SimIMU sim_imu(sim_imu_params, truthEngine);
   SimRNG rng;
   rng.SetSeed(1.0);
-  std::vector<std::shared_ptr<SimImuMessage>> imu_messages = sim_imu.GenerateMessages(rng, 1.0);
+  std::vector<std::shared_ptr<SimImuMessage>> imu_messages = sim_imu.GenerateMessages(rng);
 }

@@ -69,13 +69,6 @@ public:
   void AddFiducial(std::shared_ptr<SimFiducialTracker> fiducial);
 
   ///
-  /// @brief Generate simulated camera message times
-  /// @param rng Random number generator
-  /// @param max_time Maximum time to generate frame times
-  ///
-  std::vector<double> GenerateMessageTimes(SimRNG rng, double max_time);
-
-  ///
   /// @brief Callback method for simulated camera
   /// @param sim_camera_message Simulated camera data message
   ///
@@ -84,10 +77,9 @@ public:
   ///
   /// @brief Generate simulated IMU messages
   /// @param rng Random number generator
-  /// @param max_time Maximum time of generated messages
   /// @return Generated camera messages
   ///
-  std::vector<std::shared_ptr<SimCameraMessage>> GenerateMessages(SimRNG rng, double max_time);
+  std::vector<std::shared_ptr<SimCameraMessage>> GenerateMessages(SimRNG rng);
 
 private:
   Eigen::Vector3d m_pos_error;

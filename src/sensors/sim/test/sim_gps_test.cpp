@@ -48,6 +48,7 @@ TEST(test_SimIMU, Constructor) {
   double pos_amplitude{1.0};
   double ang_amplitude{0.1};
   double stationary_time{1.0};
+  double max_time{1.0};
 
   auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(
     pos_frequency,
@@ -57,6 +58,7 @@ TEST(test_SimIMU, Constructor) {
     pos_amplitude,
     ang_amplitude,
     stationary_time,
+    max_time,
     logger
   );
 
@@ -66,7 +68,7 @@ TEST(test_SimIMU, Constructor) {
 
   SimRNG rng;
   rng.SetSeed(0.0);
-  auto gps_msgs = sim_gps.GenerateMessages(rng, 1.0);
+  auto gps_msgs = sim_gps.GenerateMessages(rng);
 
   EXPECT_NEAR(gps_msgs[1]->m_time - gps_msgs[0]->m_time, 0.2, 1e-3);
   EXPECT_NEAR(gps_msgs[2]->m_time - gps_msgs[1]->m_time, 0.2, 1e-3);

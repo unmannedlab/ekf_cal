@@ -31,6 +31,8 @@ TEST(test_TruthEngine, InheritedFunctions) {
   Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
   double pos_amplitude = 1.0;
   double ang_amplitude = 0.1;
+  double stationary_time{0.0};
+  double max_time{1.0};
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
   TruthEngineCyclic truth_engine_cyclic(
@@ -40,7 +42,8 @@ TEST(test_TruthEngine, InheritedFunctions) {
     ang_offset,
     pos_amplitude,
     ang_amplitude,
-    0.0,
+    stationary_time,
+    max_time,
     logger
   );
 
@@ -97,6 +100,8 @@ TEST(test_TruthEngineCyclic, Constructor) {
   Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
   double pos_amplitude = 1.0;
   double ang_amplitude = 0.1;
+  double stationary_time{0.0};
+  double max_time{1.0};
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
   TruthEngineCyclic truth_engine_cyclic(
@@ -106,7 +111,8 @@ TEST(test_TruthEngineCyclic, Constructor) {
     ang_offset,
     pos_amplitude,
     ang_amplitude,
-    0.0,
+    stationary_time,
+    max_time,
     logger
   );
 
@@ -136,7 +142,8 @@ TEST(test_TruthEngineCyclic, Constructor) {
 }
 
 TEST(test_TruthEngineSpline, Constructor) {
-  double delta_time {1.0};
+  double stationary_time {0.0};
+  double max_time {1.0};
   std::vector<std::vector<double>> positions;
   std::vector<std::vector<double>> angles;
 
@@ -148,11 +155,12 @@ TEST(test_TruthEngineSpline, Constructor) {
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
-  TruthEngineSpline truth_engine_spline(delta_time, positions, angles, 0.0, logger);
+  TruthEngineSpline truth_engine_spline(positions, angles, stationary_time, max_time, logger);
 }
 
 TEST(test_TruthEngineSpline, Constant_Velocity) {
-  double delta_time {1.0};
+  double stationary_time {0.0};
+  double max_time {3.0};
   std::vector<std::vector<double>> positions;
   std::vector<std::vector<double>> angles;
 
@@ -168,7 +176,7 @@ TEST(test_TruthEngineSpline, Constant_Velocity) {
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
-  TruthEngineSpline truth_engine_spline(delta_time, positions, angles, 0.0, logger);
+  TruthEngineSpline truth_engine_spline(positions, angles, stationary_time, max_time, logger);
 
   Eigen::Vector3d pos_n = truth_engine_spline.GetBodyPosition(-1.0);
   Eigen::Vector3d pos_0 = truth_engine_spline.GetBodyPosition(0.0);
@@ -256,7 +264,8 @@ TEST(test_TruthEngineSpline, Constant_Velocity) {
 }
 
 TEST(test_TruthEngineSpline, Oscillating) {
-  double delta_time {1.0};
+  double stationary_time {0.0};
+  double max_time {5.0};
   std::vector<std::vector<double>> positions;
   std::vector<std::vector<double>> angles;
 
@@ -277,7 +286,7 @@ TEST(test_TruthEngineSpline, Oscillating) {
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
-  TruthEngineSpline truth_engine_spline(delta_time, positions, angles, 0.0, logger);
+  TruthEngineSpline truth_engine_spline(positions, angles, stationary_time, max_time, logger);
 
   Eigen::Vector3d pos_n = truth_engine_spline.GetBodyPosition(-1.0);
   Eigen::Vector3d pos_0 = truth_engine_spline.GetBodyPosition(0.0);
@@ -342,6 +351,8 @@ TEST(test_TruthEngineCyclic, WriteTruthData) {
   Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
   double pos_amplitude = 1.0;
   double ang_amplitude = 0.1;
+  double stationary_time {0.0};
+  double max_time {1.0};
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
   TruthEngineCyclic truth_engine_cyclic(
@@ -351,7 +362,8 @@ TEST(test_TruthEngineCyclic, WriteTruthData) {
     ang_offset,
     pos_amplitude,
     ang_amplitude,
-    0.0,
+    stationary_time,
+    max_time,
     logger
   );
 
@@ -373,5 +385,5 @@ TEST(test_TruthEngineCyclic, WriteTruthData) {
   truth_engine_cyclic.SetBoardPosition(3, board_pos);
   truth_engine_cyclic.SetBoardOrientation(3, board_ang);
 
-  truth_engine_cyclic.WriteTruthData(10.0, 10.0, "");
+  truth_engine_cyclic.WriteTruthData(10.0, "");
 }
