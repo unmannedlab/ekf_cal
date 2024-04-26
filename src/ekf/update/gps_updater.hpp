@@ -56,14 +56,13 @@ public:
   ///
   /// @brief GPS LLA to ENU Initialization Routine
   /// @param time GPS measured time
+  /// @param ekf EKF pointer
   /// @param gps_lla GPS measured lat-lon-alt
-  /// @param pos_xyz current position x-y-z
-  /// @return True if initialization is successful
   ///
-  bool AttemptInitialization(
+  void AttemptInitialization(
     double time,
-    Eigen::Vector3d gps_lla,
-    Eigen::Vector3d pos_xyz);
+    std::shared_ptr<EKF> ekf,
+    Eigen::Vector3d gps_lla);
 
   ///
   /// @brief Measurement Jacobian method
@@ -102,9 +101,6 @@ private:
   bool m_baseline_initialization;
   double m_baseline_distance;
   DataLogger m_data_logger;
-  Eigen::Vector3d m_reference_lla{0, 0, 0};
-  double m_ang_l_to_g {0.0};
-  bool m_is_lla_initialized{false};
   std::vector<double> m_gps_time_vec;
   std::vector<Eigen::Vector3d> m_gps_ecef_vec;
   std::vector<Eigen::Vector3d> m_local_xyz_vec;

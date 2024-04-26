@@ -40,3 +40,14 @@ bool MessageCompare(std::shared_ptr<SensorMessage> a, std::shared_ptr<SensorMess
 {
   return a->m_time < b->m_time;
 }
+
+void Sensor::Callback(SensorMessage sensor_message)
+{
+  // sensor_message.m_
+  std::stringstream msg;
+  msg << "Base Sensor callback invoked at time " << sensor_message.m_time;
+  msg << " for sensor " << sensor_message.m_sensor_id;
+  msg << " of type " << static_cast<unsigned int>(sensor_message.m_sensor_type);
+  m_logger->Log(LogLevel::INFO, msg.str());
+  m_logger->Log(LogLevel::INFO, "Base Sensor callback invoked");
+}

@@ -207,10 +207,35 @@ public:
   void AddProccessNoise();
 
   ///
-  /// @brief Process noise setter
-  /// @param process_noise Process noise diagonal elements
+  /// @brief EKF process noise setter
+  /// @param process_noise Diagonal terms of process noise
   ///
   void SetProcessNoise(Eigen::VectorXd process_noise);
+
+  ///
+  /// @brief GPS reference position setter
+  /// @param reference_lla
+  /// @param ang_l_to_g
+  ///
+  void SetGpsReference(Eigen::VectorXd reference_lla, double ang_l_to_g);
+
+  ///
+  /// @brief Getter for the LLA reference position
+  /// @return Reference LLA position
+  ///
+  Eigen::VectorXd GetReferenceLLA();
+
+  ///
+  /// @brief Getter for the LLA reference frame heading
+  /// @return Reference frame heading
+  ///
+  double GetReferenceAngle();
+
+  ///
+  /// @brief Checks if the LLA reference frame has been initialized
+  /// @return LLA initialization boolean
+  ///
+  bool IsLlaInitialized();
 
   ///
   /// @brief Find augmented state matching a camera and frame ID pair
@@ -232,6 +257,10 @@ private:
   Eigen::MatrixXd m_process_noise =
     Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-9;
   DataLogger m_data_logger;
+
+  bool m_is_lla_initialized{false};
+  Eigen::Vector3d m_reference_lla{0, 0, 0};
+  double m_ang_l_to_g{0};
 };
 
 #endif  // EKF__EKF_HPP_

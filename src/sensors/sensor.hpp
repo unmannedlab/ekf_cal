@@ -77,6 +77,7 @@ protected:
   unsigned int m_id;                      ///< @brief Sensor id
   std::string m_name;                     ///< @brief Sensor name
   std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger
+  bool m_is_initialized{false};           ///< @brief Sensor initialization flag
 
 private:
   static unsigned int m_sensor_count;     ///< @brief Static sensor count

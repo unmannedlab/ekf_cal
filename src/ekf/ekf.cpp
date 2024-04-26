@@ -501,3 +501,28 @@ void EKF::SetMaxTrackLength(unsigned int max_track_length)
 {
   m_max_track_length = max_track_length;
 }
+
+void EKF::SetGpsReference(Eigen::VectorXd reference_lla, double ang_l_to_g)
+{
+  m_reference_lla = reference_lla;
+  m_ang_l_to_g = ang_l_to_g;
+  m_is_lla_initialized = true;
+}
+
+Eigen::VectorXd EKF::GetReferenceLLA()
+{
+  if (!m_is_lla_initialized) {
+    m_logger->Log(LogLevel::WARN, "LLA is being accessed before initialization!");
+  }
+  return m_reference_lla;
+}
+
+double EKF::GetReferenceAngle()
+{
+  return m_ang_l_to_g;
+}
+
+bool EKF::IsLlaInitialized()
+{
+  return m_is_lla_initialized;
+}

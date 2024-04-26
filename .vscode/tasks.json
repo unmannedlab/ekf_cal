@@ -1,7 +1,6 @@
 {
     "version": "2.0.0",
     "tasks": [
-        // Build tasks
         {
             "label": "build ekf_cal",
             "detail": "Build ekf_cal package",
@@ -14,7 +13,7 @@
             },
             "options": {
                 "cwd": "${workspaceFolder}/../../"
-            },
+            }
         },
         {
             "label": "build coverage",
@@ -25,9 +24,8 @@
             "problemMatcher": "$gcc",
             "options": {
                 "cwd": "${workspaceFolder}/../../"
-            },
+            }
         },
-        // Testing Tasks
         {
             "label": "all tests",
             "detail": "Run all unit tests and static analysis.",
@@ -37,11 +35,11 @@
             "dependsOn": "build ekf_cal",
             "options": {
                 "cwd": "${workspaceFolder}/../../"
-            },
+            }
         },
         {
             "label": "test coverage",
-            "detail": "Build ekf_cal package with covereage symbols",
+            "detail": "Run coverage tests of ekf_cal",
             "type": "shell",
             "command": "rm -r lcov; colcon test --packages-select ekf_cal --pytest-with-coverage --pytest-args --cov-report=term --event-handlers console_direct+",
             "group": "test",
@@ -49,12 +47,11 @@
             "dependsOn": "build coverage",
             "options": {
                 "cwd": "${workspaceFolder}/../../"
-            },
+            }
         },
-        // Documentation Tasks
         {
             "label": "report coverage",
-            "detail": "Build ekf_cal package with covereage symbols",
+            "detail": "Generate coverage report of ekf_cal tests",
             "type": "shell",
             "command": "colcon lcov-result --packages-select ekf_cal --filter '*_test.cpp' '*_main.cpp'",
             "group": "test",
@@ -62,7 +59,7 @@
             "dependsOn": "test coverage",
             "options": {
                 "cwd": "${workspaceFolder}/../../"
-            },
+            }
         },
         {
             "label": "doxygen",
@@ -74,7 +71,7 @@
             "dependsOn": "cloc",
             "options": {
                 "cwd": "${workspaceFolder}"
-            },
+            }
         },
         {
             "label": "doxygen-pdf",
@@ -86,7 +83,7 @@
             "dependsOn": "doxygen",
             "options": {
                 "cwd": "${workspaceFolder}"
-            },
+            }
         },
         {
             "label": "cloc",
@@ -96,6 +93,7 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
+            "problemMatcher": []
         },
         {
             "label": "doxygen and coverage",
@@ -110,9 +108,8 @@
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
-            },
+            }
         },
-        // Debug Tasks
         {
             "label": "debug ekf_cal",
             "detail": "Build ekf_cal package with debug symbols",
@@ -122,9 +119,8 @@
             "problemMatcher": "$gcc",
             "options": {
                 "cwd": "${workspaceFolder}/../../"
-            },
+            }
         },
-        // Source workspace
         {
             "label": "source-workspace",
             "detail": "Sources the current workspace with bash",

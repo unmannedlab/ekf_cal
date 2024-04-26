@@ -114,11 +114,9 @@ protected:
 
 private:
   cv::Ptr<cv::FeatureDetector> InitFeatureDetector(
-    FeatureDetectorEnum detector,
-    double threshold);
+    FeatureDetectorEnum detector, double threshold);
   cv::Ptr<cv::DescriptorExtractor> InitDescriptorExtractor(
-    DescriptorExtractorEnum extractor,
-    double threshold);
+    DescriptorExtractorEnum extractor, double threshold);
   cv::Ptr<cv::DescriptorMatcher> InitDescriptorMatcher(
     DescriptorMatcherEnum matcher);
 
