@@ -116,6 +116,8 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
 {
   auto t_start = std::chrono::high_resolution_clock::now();
 
+  ekf->ProcessModel(time);
+
   Eigen::Vector3d gps_local = Eigen::Vector3d::Zero();
   Eigen::Vector3d y = Eigen::Vector3d::Zero();
   Eigen::Vector3d reference_lla = ekf->GetReferenceLLA();
@@ -128,8 +130,6 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
       MultiUpdateEKF(ekf, m_gps_time_vec, m_gps_ecef_vec, m_local_xyz_vec);
     }
   } else {
-    ekf->ProcessModel(time);
-
     Eigen::Vector3d gps_enu = lla_to_enu(gps_lla, reference_lla);
     gps_local = enu_to_local(gps_enu, ang_l_to_g);
 

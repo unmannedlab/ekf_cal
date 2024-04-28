@@ -320,9 +320,27 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
   if (imu_state.is_extrinsic) {m_state_size += g_imu_extrinsic_state_size;}
   if (imu_state.is_intrinsic) {m_state_size += g_imu_intrinsic_state_size;}
 
-  m_logger->Log(
-    LogLevel::DEBUG, "Register IMU: " + std::to_string(
-      imu_id) + ", stateSize: " + std::to_string(m_state_size));
+  std::stringstream log_msg;
+  log_msg << "Register IMU: " << imu_id << ", stateSize: " << m_state_size;
+  m_logger->Log(LogLevel::INFO, log_msg.str());
+}
+
+void EKF::RegisterGPS(unsigned int gps_id, GpsState gps_state, Eigen::Matrix3d covariance)
+{
+  // Check that ID hasn't been used before
+  if (m_state.m_gps_states.find(gps_id) != m_state.m_gps_states.end()) {
+    std::stringstream gps_id_used_warning;
+    gps_id_used_warning << "GPS ID " << gps_id << " has already been registered.";
+    m_logger->Log(LogLevel::WARN, gps_id_used_warning.str());
+  }
+
+  m_state.m_gps_states[gps_id] = gps_state;
+  m_cov = InsertInMatrix(covariance, m_cov, g_gps_state_size, g_gps_state_size);
+  m_state_size += g_gps_state_size;
+
+  std::stringstream log_msg;
+  log_msg << "Register GPS: " << gps_id << ", stateSize: " << m_state_size;
+  m_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
 void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixXd covariance)
@@ -338,9 +356,9 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
   m_cov = InsertInMatrix(covariance, m_cov, g_cam_state_size, g_cam_state_size);
   m_state_size += g_cam_state_size;
 
-  m_logger->Log(
-    LogLevel::DEBUG, "Register Cam: " + std::to_string(
-      cam_id) + ", stateSize: " + std::to_string(m_state_size));
+  std::stringstream log_msg;
+  log_msg << "Register Camera: " << cam_id << ", stateSize: " << m_state_size;
+  m_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
 /// @todo Replace this lookup with a map

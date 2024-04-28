@@ -181,6 +181,7 @@ if(BUILD_TESTING)
         src/ekf/test/ekf_test.cpp
         src/ekf/test/types_test.cpp
         src/ekf/update/test/fiducial_updater_test.cpp
+        src/ekf/update/test/gps_updater_test.cpp
         src/ekf/update/test/imu_updater_test.cpp
         src/ekf/update/test/msckf_updater_test.cpp
         src/ekf/update/test/updater_test.cpp

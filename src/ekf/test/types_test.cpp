@@ -653,6 +653,43 @@ TEST(test_ekf_types, imu_state_to_vector) {
   EXPECT_EQ(imu_state_vector(9), 3.0);
   EXPECT_EQ(imu_state_vector(10), 3.0);
   EXPECT_EQ(imu_state_vector(11), 3.0);
+
+  imu_state.is_extrinsic = true;
+  imu_state.is_intrinsic = false;
+
+  imu_state_vector = imu_state.ToVector();
+
+  EXPECT_EQ(imu_state_vector.size(), 6);
+
+  EXPECT_EQ(imu_state_vector(0), 1.0);
+  EXPECT_EQ(imu_state_vector(1), 1.0);
+  EXPECT_EQ(imu_state_vector(2), 1.0);
+
+  EXPECT_EQ(imu_state_vector(3), 0.0);
+  EXPECT_EQ(imu_state_vector(4), 0.0);
+  EXPECT_EQ(imu_state_vector(5), 0.0);
+
+  imu_state.is_extrinsic = false;
+  imu_state.is_intrinsic = true;
+
+  imu_state_vector = imu_state.ToVector();
+
+  EXPECT_EQ(imu_state_vector.size(), 6);
+
+  EXPECT_EQ(imu_state_vector(0), 2.0);
+  EXPECT_EQ(imu_state_vector(1), 2.0);
+  EXPECT_EQ(imu_state_vector(2), 2.0);
+
+  EXPECT_EQ(imu_state_vector(3), 3.0);
+  EXPECT_EQ(imu_state_vector(4), 3.0);
+  EXPECT_EQ(imu_state_vector(5), 3.0);
+
+  imu_state.is_extrinsic = false;
+  imu_state.is_intrinsic = false;
+
+  imu_state_vector = imu_state.ToVector();
+
+  EXPECT_EQ(imu_state_vector.size(), 0);
 }
 
 TEST(test_ekf_types, state_to_vector) {
@@ -761,4 +798,25 @@ TEST(test_ekf_types, state_get_state_size) {
   state.m_cam_states[1].augmented_states.push_back(aug_state);
 
   EXPECT_EQ(state.GetStateSize(), 48U);
+}
+
+TEST(test_ekf_types, set_body_state) {
+  BodyState body_state;
+  Eigen::VectorXd body_state_vec(18);
+  body_state_vec.segment<3>(0) = Eigen::Vector3d::Ones() * 1.0;
+  body_state_vec.segment<3>(3) = Eigen::Vector3d::Ones() * 2.0;
+  body_state_vec.segment<3>(6) = Eigen::Vector3d::Ones() * 3.0;
+  body_state_vec.segment<3>(9) = Eigen::Vector3d::Ones() * 0.4;
+  body_state_vec.segment<3>(12) = Eigen::Vector3d::Ones() * 5.0;
+  body_state_vec.segment<3>(15) = Eigen::Vector3d::Ones() * 6.0;
+
+  body_state.SetState(body_state_vec);
+
+  EXPECT_EQ(body_state.ToVector(), body_state_vec);
+}
+
+TEST(test_ekf_types, gps_state_to_vector) {
+  GpsState gps_state;
+  gps_state.pos_a_in_b = Eigen::Vector3d{1.0, 2.0, 3.0};
+  EXPECT_EQ(gps_state.ToVector(), gps_state.pos_a_in_b);
 }

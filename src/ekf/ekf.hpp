@@ -171,6 +171,14 @@ public:
   void RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd covariance);
 
   ///
+  /// @brief GPS Registration function
+  /// @param gps_id GPS ID
+  /// @param gps_state Initial GPS state
+  /// @param covariance Initial GPS covariance
+  ///
+  void RegisterGPS(unsigned int gps_id, GpsState gps_state, Eigen::Matrix3d covariance);
+
+  ///
   /// @brief Camera Registration function
   /// @param cam_id IMU ID
   /// @param cam_state Initial camera state

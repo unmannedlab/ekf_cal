@@ -27,7 +27,6 @@
 ///
 /// @class TruthEngineSpline
 /// @brief Truth for simulation
-/// @todo Add unit tests
 ///
 class TruthEngineSpline : public TruthEngine
 {

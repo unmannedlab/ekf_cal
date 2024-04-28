@@ -311,12 +311,9 @@ void EkfCalNode::RegisterImu(std::shared_ptr<RosIMU> imu_ptr, std::string topic)
   auto sub = this->create_subscription<sensor_msgs::msg::Imu>(topic, 10, function);
   m_imu_subs.push_back(sub);
 
-  // if (imu_params.baseSensor) {
-  //   m_baseIMUAssigned = true;
-  // }
-  m_logger->Log(
-    LogLevel::INFO, "Registered IMU " + std::to_string(
-      imu_ptr->GetId()) + ": " + imu_ptr->GetName());
+  std::stringstream log_msg;
+  log_msg << "Registered IMU " << imu_ptr->GetId() << ": " << imu_ptr->GetName();
+  m_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
 void EkfCalNode::LoadCamera(std::string camera_name)
@@ -344,9 +341,9 @@ void EkfCalNode::RegisterCamera(std::shared_ptr<RosCamera> camera_ptr, std::stri
   auto sub = this->create_subscription<sensor_msgs::msg::Image>(topic, 10, function);
   m_camera_subs.push_back(sub);
 
-  m_logger->Log(
-    LogLevel::INFO, "Registered Camera " + std::to_string(
-      camera_ptr->GetId()) + ": " + camera_ptr->GetName());
+  std::stringstream log_msg;
+  log_msg << "Registered Camera " << camera_ptr->GetId() << ": " << camera_ptr->GetName();
+  m_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
 void EkfCalNode::LoadGps(std::string gps_name)
@@ -369,9 +366,9 @@ void EkfCalNode::RegisterGps(std::shared_ptr<RosGPS> gps_ptr, std::string topic)
   auto sub = this->create_subscription<sensor_msgs::msg::NavSatFix>(topic, 10, function);
   m_gps_subs.push_back(sub);
 
-  m_logger->Log(
-    LogLevel::INFO, "Registered Camera " + std::to_string(
-      gps_ptr->GetId()) + ": " + gps_ptr->GetName());
+  std::stringstream log_msg;
+  log_msg << "Registered GPS " << gps_ptr->GetId() << ": " << gps_ptr->GetName();
+  m_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
 void EkfCalNode::ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id)

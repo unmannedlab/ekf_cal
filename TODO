@@ -3,7 +3,6 @@ Package Features:
     - Implement filter status output
     - Implement flag for calibration settling
     - Implement flag for calibration shifting
-    - GPS update and notion of global frame
     - Interpolation between stochastic clones
     - Feature comparisons between cameras
     - Option to pre-fuse IMU measurements
@@ -11,18 +10,11 @@ Package Features:
     - First estimate Jacobians
     - Zero-Velocity Update / Stationary Filter
     - Option for complementary IMU filter
-    - IMU Time Update Equations
     - RTS-Smoothing: https://math.stackexchange.com/questions/1811214/time-complexity-of-kalman-filter-and-rts-smoother
     - Intrinsic calibration filtering
     - Condition and distance thresholds
     - Check covariance matrix condition
     - Add colcon build/test action to github
-
-    GPS Updater:
-        - LLA to NED calibration
-        2 Stage Update - 
-        1.) Refine LLA to NED World to Local Conversion
-        2.) Once settled, switch to using GPS to update state
 
 Software Work:
     - Define types/transforms to force different coordinate frames
@@ -39,9 +31,7 @@ Software Work:
     - Show track images from simulation
     - Be explicit with quaternion inputs
     - Add check for intrinsic IMUs without cameras
-    - Add parameter for feature point uncertainty
     - Automatically check regression results
-    - Run missing runs tool
     - Add errors/devations to spline model
 
     Additional Trackers:

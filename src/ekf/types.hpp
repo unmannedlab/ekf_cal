@@ -82,6 +82,23 @@ public:
 };
 
 ///
+/// @brief GpsState structure
+///
+class GpsState
+{
+public:
+  GpsState() {}
+
+  ///
+  /// @brief Get GPS state as a vector
+  /// @return GPS state as a vector
+  ///
+  Eigen::VectorXd ToVector();
+
+  Eigen::Vector3d pos_a_in_b{0.0, 0.0, 0.0};  ///< @brief Antenna position in body frame
+};
+
+///
 /// @brief AugmentedState structure
 ///
 typedef struct AugmentedState
@@ -163,6 +180,7 @@ public:
 
   BodyState m_body_state {};                        ///< @brief Body state
   std::map<unsigned int, ImuState> m_imu_states{};  ///< @brief IMU states
+  std::map<unsigned int, GpsState> m_gps_states{};  ///< @brief GPS states
   std::map<unsigned int, CamState> m_cam_states{};  ///< @brief Camera States
 };
 
@@ -170,6 +188,9 @@ BodyState & operator+=(BodyState & l_body_state, BodyState & r_body_state);
 BodyState & operator+=(BodyState & l_body_state, Eigen::VectorXd & r_vector);
 std::map<unsigned int, ImuState> & operator+=(
   std::map<unsigned int, ImuState> & l_imu_state,
+  Eigen::VectorXd & r_vector);
+std::map<unsigned int, GpsState> & operator+=(
+  std::map<unsigned int, GpsState> & l_gps_state,
   Eigen::VectorXd & r_vector);
 std::map<unsigned int, CamState> & operator+=(
   std::map<unsigned int, CamState> & l_cam_state,

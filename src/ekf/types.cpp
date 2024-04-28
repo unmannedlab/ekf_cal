@@ -227,13 +227,18 @@ Eigen::VectorXd ImuState::ToVector()
     out_vec.segment<3>(3) = QuatToRotVec(ang_i_to_b);
   } else if (is_intrinsic) {
     out_vec = Eigen::VectorXd::Zero(6);
-    out_vec.segment<3>(6) = acc_bias;
-    out_vec.segment<3>(9) = omg_bias;
+    out_vec.segment<3>(0) = acc_bias;
+    out_vec.segment<3>(3) = omg_bias;
   } else if (is_extrinsic) {
     out_vec = Eigen::VectorXd::Zero(0);
   }
 
   return out_vec;
+}
+
+Eigen::VectorXd GpsState::ToVector()
+{
+  return pos_a_in_b;
 }
 
 void BodyState::SetState(Eigen::VectorXd state)
