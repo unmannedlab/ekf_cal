@@ -265,6 +265,11 @@ ImuState EKF::GetImuState(unsigned int imu_id)
   return m_state.m_imu_states[imu_id];
 }
 
+GpsState EKF::GetGpsState(unsigned int gps_id)
+{
+  return m_state.m_gps_states[gps_id];
+}
+
 CamState EKF::GetCamState(unsigned int cam_id)
 {
   return m_state.m_cam_states[cam_id];

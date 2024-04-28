@@ -34,7 +34,7 @@ public:
   ///
   /// @brief GPS EKF Updater Constructor
   /// @param gps_id GPS Sensor ID
-  /// @param projection_dev_lim Standard deviation limit to initialize local reference frame
+  /// @param init_err_thresh Error limit to initialize local reference frame
   /// @param baseline_initialization Flag to use baseline distance initialization
   /// @param baseline_distance Distance threshold to initialize
   /// @param log_file_directory Logging file directory
@@ -44,7 +44,7 @@ public:
   ///
   GpsUpdater(
     unsigned int gps_id,
-    double projection_dev_lim,
+    double init_err_thresh,
     bool baseline_initialization,
     double baseline_distance,
     std::string log_file_directory,
@@ -66,10 +66,10 @@ public:
 
   ///
   /// @brief Measurement Jacobian method
-  /// @param state_size State size
+  /// @param ekf EKF pointer
   /// @return Measurement Jacobian matrix
   ///
-  Eigen::MatrixXd GetMeasurementJacobian(unsigned int state_size);
+  Eigen::MatrixXd GetMeasurementJacobian(std::shared_ptr<EKF> ekf);
 
   ///
   /// @brief EKF update method for GPS measurements
@@ -97,7 +97,7 @@ public:
 
 private:
   double m_projection_stddev {0.0};
-  double m_projection_dev_lim;
+  double m_init_err_thresh;
   bool m_baseline_initialization;
   double m_baseline_distance;
   DataLogger m_data_logger;

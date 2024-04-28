@@ -31,7 +31,7 @@ GPS::GPS(GPS::Parameters params)
   m_ekf(params.ekf),
   m_gps_updater(
     m_id,
-    params.projection_dev_lim,
+    params.init_err_thresh,
     params.use_baseline_init,
     params.baseline_distance,
     params.output_directory,

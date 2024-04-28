@@ -72,6 +72,13 @@ public:
   /// @return IMU state
   ///
   ImuState GetImuState(unsigned int imu_id);
+
+  ///
+  /// @brief Get GPS sensor state
+  /// @param gps_id Sensor ID
+  /// @return GPS state
+  ///
+  GpsState GetGpsState(unsigned int gps_id);
   ///
   /// @brief Get camera sensor state
   /// @param cam_id Sensor ID

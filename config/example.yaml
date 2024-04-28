@@ -148,7 +148,7 @@
                 ang_l_to_g: 0.0
                 variance: [5.0, 5.0, 5.0]
                 data_log_rate: 5.0
-                projection_dev_lim: 2.0
+                init_err_thresh: 2.0
                 sim_params:
                     no_errors: false
                     time_bias: 0.0
@@ -167,7 +167,7 @@
                 ang_l_to_g: 0.0
                 variance: [5.0, 5.0, 5.0]
                 data_log_rate: 5.0
-                projection_dev_lim: 2.0
+                init_err_thresh: 2.0
                 sim_params:
                     no_errors: false
                     time_bias: 0.0
