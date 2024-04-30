@@ -84,8 +84,8 @@ def plot_update_timing(data_frames, rate=None):
     durations = np.array([])
     for df in data_frames:
         durations = np.append(durations, df['duration_0'])
-    hist, edges = np.histogram(durations / 1e6)
-    fig.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], legend_label='Duration [ms]')
+    hist, edges = np.histogram(durations / 1e3)
+    fig.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], legend_label='Duration [us]')
     if rate:
         pass
         # TODO(jhartzer): Add max duration line

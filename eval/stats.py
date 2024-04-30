@@ -272,7 +272,8 @@ def gps_err_pos(gps_dfs, body_truth_dfs):
         true_lon = body_truth['ref_lon'].to_list()
         true_alt = body_truth['ref_alt'].to_list()
 
-        indices = [i for i, state in enumerate(gps_state['ref_lat'].to_list()) if state != 0.0]
+        indices = [i for i, is_initialized in enumerate(
+            gps_state['is_initialized'].to_list()) if is_initialized == 1]
         est_time = np.array(gps_state['time'].to_list())[indices]
         est_lat = np.array(gps_state['ref_lat'].to_list())[indices]
         est_lon = np.array(gps_state['ref_lon'].to_list())[indices]
