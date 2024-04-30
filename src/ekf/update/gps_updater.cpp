@@ -34,22 +34,24 @@
 
 GpsUpdater::GpsUpdater(
   unsigned int gps_id,
+  unsigned int initialization_type,
   double init_err_thresh,
-  bool baseline_initialization,
-  double baseline_distance,
+  double init_baseline_dist,
   std::string log_file_directory,
   bool data_logging_on,
   double data_log_rate,
   std::shared_ptr<DebugLogger> logger
 )
 : Updater(gps_id, logger),
+  m_initialization_type(initialization_type),
   m_init_err_thresh(init_err_thresh),
-  m_baseline_initialization(baseline_initialization),
-  m_baseline_distance(baseline_distance),
+  m_init_baseline_dist(init_baseline_dist),
   m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
 {
   std::stringstream header;
-  header << "time,lat,lon,alt,x,y,z,ref_lat,ref_lon,ref_alt,ref_heading,projection_stddev";
+  header <<
+    "time,lat,lon,alt,x,y,z,ref_lat,ref_lon,ref_alt,ref_heading,projection_stddev,is_initialized";
+  header << EnumerateHeader("antenna", 3);
   header << EnumerateHeader("residual", 3);
   header << EnumerateHeader("duration", 1);
 
@@ -92,8 +94,9 @@ void GpsUpdater::AttemptInitialization(
     double max_distance = maximum_distance(gps_states_enu);
     m_projection_stddev = mean_standard_deviation(projection_errors);
 
-    if ((m_baseline_initialization && (max_distance > m_baseline_distance)) ||
-      (is_successful && (m_projection_stddev / 2.0 < m_init_err_thresh)))
+    if (((m_initialization_type == 1) && (max_distance > m_init_baseline_dist)) ||
+      ((m_initialization_type == 2) && is_successful &&
+      (m_projection_stddev / 2.0 < m_init_err_thresh)))
     {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
       Eigen::Vector3d reference_lla = enu_to_lla(-delta_ref_enu, init_ref_lla);
@@ -110,10 +113,14 @@ Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
   unsigned int state_size = ekf->GetStateSize();
   Eigen::Vector3d pos_a_in_b = ekf->GetBodyState().m_position;
   Eigen::Quaterniond ang_b_to_g = ekf->GetBodyState().m_ang_b_to_g;
+  unsigned int gps_state_start = ekf->GetGpsStateStartIndex(m_id);
 
   Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, state_size);
-  measurement_jacobian.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3);
-  measurement_jacobian.block<3, 3>(0, 9) = ang_b_to_g * SkewSymmetric(pos_a_in_b);
+  measurement_jacobian.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity();
+  /// @todo(jhartzer): Need to debug this Jacobian
+  // measurement_jacobian.block<3, 3>(0, 9) =
+  //   -ang_b_to_g.toRotationMatrix() * SkewSymmetric(pos_a_in_b);
+  measurement_jacobian.block<3, 3>(0, gps_state_start) = ang_b_to_g.toRotationMatrix();
   return measurement_jacobian;
 }
 
@@ -161,6 +168,8 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   msg << VectorToCommaString(reference_lla, 12);
   msg << "," << ang_l_to_g;
   msg << "," << m_projection_stddev;
+  msg << "," << ekf->IsLlaInitialized();
+  msg << VectorToCommaString(ekf->GetGpsState(m_id).pos_a_in_b);
   msg << VectorToCommaString(residual);
   msg << "," << t_execution.count();
   m_data_logger.Log(msg.str());

@@ -61,6 +61,11 @@ State & operator+=(State & l_state, State & r_state)
     l_state.m_imu_states[imu_id].omg_bias += r_state.m_imu_states[imu_id].omg_bias;
   }
 
+  for (auto & gps_iter : l_state.m_gps_states) {
+    unsigned int gps_id = gps_iter.first;
+    l_state.m_gps_states[gps_id].pos_a_in_b += r_state.m_gps_states[gps_id].pos_a_in_b;
+  }
+
   for (auto & cam_iter : l_state.m_cam_states) {
     unsigned int cam_id = cam_iter.first;
     l_state.m_cam_states[cam_id].pos_c_in_b += r_state.m_cam_states[cam_id].pos_c_in_b;
@@ -86,25 +91,29 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
 
   unsigned int n = 18;
   for (auto & imu_iter : l_state.m_imu_states) {
-    unsigned int imu_id = imu_iter.first;
     if (imu_iter.second.is_extrinsic) {
-      l_state.m_imu_states[imu_id].pos_i_in_b += r_vector.segment<3>(n + 0);
-      l_state.m_imu_states[imu_id].ang_i_to_b =
-        l_state.m_imu_states[imu_id].ang_i_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
-      n += 6;
+      imu_iter.second.pos_i_in_b += r_vector.segment<3>(n + 0);
+      imu_iter.second.ang_i_to_b =
+        imu_iter.second.ang_i_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
+      n += g_imu_extrinsic_state_size;
     }
     if (imu_iter.second.is_intrinsic) {
-      l_state.m_imu_states[imu_id].acc_bias += r_vector.segment<3>(n + 0);
-      l_state.m_imu_states[imu_id].omg_bias += r_vector.segment<3>(n + 3);
-      n += 6;
+      imu_iter.second.acc_bias += r_vector.segment<3>(n + 0);
+      imu_iter.second.omg_bias += r_vector.segment<3>(n + 3);
+      n += g_imu_intrinsic_state_size;
     }
+  }
+
+  for (auto & gps_iter : l_state.m_gps_states) {
+    gps_iter.second.pos_a_in_b += r_vector.segment<3>(n);
+    n += g_gps_state_size;
   }
 
   for (auto & cam_iter : l_state.m_cam_states) {
     cam_iter.second.pos_c_in_b += r_vector.segment<3>(n + 0);
     cam_iter.second.ang_c_to_b =
       cam_iter.second.ang_c_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
-    n += 6;
+    n += g_cam_state_size;
     for (unsigned int i = 0; i < cam_iter.second.augmented_states.size(); ++i) {
       cam_iter.second.augmented_states[i].pos_b_in_g += r_vector.segment<3>(n + 0);
       cam_iter.second.augmented_states[i].ang_b_to_g =
@@ -114,7 +123,7 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
       cam_iter.second.augmented_states[i].ang_c_to_b =
         cam_iter.second.augmented_states[i].ang_c_to_b *
         RotVecToQuat(r_vector.segment<3>(n + 9));
-      n += 12;
+      n += g_aug_state_size;
     }
   }
 

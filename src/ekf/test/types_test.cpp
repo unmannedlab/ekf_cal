@@ -35,6 +35,9 @@ TEST(test_ekf_types, state_plus_equals_state) {
   imu_state.acc_bias = Eigen::Vector3d::Ones() * 7.0;
   imu_state.omg_bias = Eigen::Vector3d::Ones() * 8.0;
 
+  GpsState gps_state;
+  gps_state.pos_a_in_b = Eigen::Vector3d::Ones() * 12.0;
+
   AugmentedState aug_state;
   aug_state.pos_b_in_g = Eigen::Vector3d::Ones() * 10.0;
   aug_state.ang_b_to_g = quat;
@@ -54,6 +57,7 @@ TEST(test_ekf_types, state_plus_equals_state) {
   left_state.m_body_state.m_angular_velocity = Eigen::Vector3d::Ones() * 4.0;
   left_state.m_body_state.m_angular_acceleration = Eigen::Vector3d::Ones() * 5.0;
   left_state.m_imu_states[1] = imu_state;
+  left_state.m_gps_states[3] = gps_state;
   left_state.m_cam_states[2] = cam_state;
 
   left_state += left_state;
@@ -103,6 +107,10 @@ TEST(test_ekf_types, state_plus_equals_state) {
   EXPECT_EQ(left_state.m_cam_states[2].pos_c_in_b(0), 18.0);
   EXPECT_EQ(left_state.m_cam_states[2].pos_c_in_b(1), 18.0);
   EXPECT_EQ(left_state.m_cam_states[2].pos_c_in_b(2), 18.0);
+
+  EXPECT_EQ(left_state.m_gps_states[3].pos_a_in_b(0), 24.0);
+  EXPECT_EQ(left_state.m_gps_states[3].pos_a_in_b(1), 24.0);
+  EXPECT_EQ(left_state.m_gps_states[3].pos_a_in_b(2), 24.0);
 
   EXPECT_EQ(left_state.m_cam_states[2].ang_c_to_b.w(), 1.0);
   EXPECT_EQ(left_state.m_cam_states[2].ang_c_to_b.x(), 0.0);

@@ -31,15 +31,22 @@ GPS::GPS(GPS::Parameters params)
   m_ekf(params.ekf),
   m_gps_updater(
     m_id,
+    params.initialization_type,
     params.init_err_thresh,
-    params.use_baseline_init,
-    params.baseline_distance,
+    params.init_baseline_dist,
     params.output_directory,
     params.data_logging_on,
     params.data_log_rate,
     params.logger)
 {
   m_rate = params.rate;
+  GpsState gps_state;
+  gps_state.pos_a_in_b = params.pos_a_in_b;
+  Eigen::Matrix3d gps_cov = params.variance.asDiagonal();
+  m_ekf->RegisterGPS(m_id, gps_state, gps_cov);
+  if (params.initialization_type == 0) {
+    m_ekf->SetGpsReference(params.pos_l_in_g, params.ang_l_to_g);
+  }
 }
 
 void GPS::Callback(std::shared_ptr<GpsMessage> gps_message)

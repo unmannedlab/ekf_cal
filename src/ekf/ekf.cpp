@@ -386,6 +386,20 @@ unsigned int EKF::GetImuStateStartIndex(unsigned int imu_id)
 }
 
 /// @todo Replace this lookup with a map
+unsigned int EKF::GetGpsStateStartIndex(unsigned int gps_id)
+{
+  unsigned int state_start_index = g_body_state_size;
+  for (auto const & gps_iter : m_state.m_gps_states) {
+    if (gps_iter.first == gps_id) {
+      break;
+    } else {
+      state_start_index += g_gps_state_size;
+    }
+  }
+  return state_start_index;
+}
+
+/// @todo Replace this lookup with a map
 unsigned int EKF::GetCamStateStartIndex(unsigned int cam_id)
 {
   unsigned int state_start_index = g_body_state_size;

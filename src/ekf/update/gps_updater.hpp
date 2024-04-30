@@ -44,9 +44,9 @@ public:
   ///
   GpsUpdater(
     unsigned int gps_id,
+    unsigned int initialization_type,
     double init_err_thresh,
-    bool baseline_initialization,
-    double baseline_distance,
+    double init_baseline_dist,
     std::string log_file_directory,
     bool data_logging_on,
     double data_log_rate,
@@ -97,9 +97,9 @@ public:
 
 private:
   double m_projection_stddev {0.0};
+  unsigned int m_initialization_type;
   double m_init_err_thresh;
-  bool m_baseline_initialization;
-  double m_baseline_distance;
+  double m_init_baseline_dist;
   DataLogger m_data_logger;
   std::vector<double> m_gps_time_vec;
   std::vector<Eigen::Vector3d> m_gps_ecef_vec;

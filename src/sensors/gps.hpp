@@ -37,7 +37,7 @@ class GPS : public Sensor
 public:
   ///
   /// @brief GPS initialization parameters structure
-  /// @todo remove topic from parameters
+  /// @todo Change initialization_type to enum class
   ///
   typedef struct Parameters : public Sensor::Parameters
   {
@@ -45,9 +45,9 @@ public:
     Eigen::Vector3d pos_l_in_g {0, 0, 0};  ///< @brief Local frame LLA position in global frame
     double ang_l_to_g {0.0};               ///< @brief Local frame angle to global frame
     Eigen::Vector3d variance {{1, 1, 1}};  ///< @brief Initial state variance
+    unsigned int initialization_type {0};  ///< @brief Flag to use baseline initialization
     double init_err_thresh {1.0};          ///< @brief Minimum projection error to initialize
-    bool use_baseline_init {false};        ///< @brief Flag to use baseline initialization
-    double baseline_distance {1.0};        ///< @brief Baseline distance threshold
+    double init_baseline_dist {1.0};       ///< @brief Baseline distance threshold
   } Parameters;
 
   ///

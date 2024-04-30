@@ -150,6 +150,12 @@ public:
   unsigned int GetImuStateStartIndex(unsigned int imu_id);
 
   ///
+  /// @brief Getter for GPS state start index
+  /// @param gps_id GPS sensor ID
+  ///
+  unsigned int GetGpsStateStartIndex(unsigned int gps_id);
+
+  ///
   /// @brief Getter for camera state start index
   /// @param cam_id Camera sensor ID
   ///
