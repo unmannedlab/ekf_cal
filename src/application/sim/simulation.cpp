@@ -146,7 +146,7 @@ int main(int argc, char * argv[])
   bool data_logging_on = ros_params["data_logging_on"].as<bool>(true);
   double body_data_rate = ros_params["body_data_rate"].as<double>(1.0);
   std::vector<double> process_noise =
-    ros_params["filter_params"]["process_noise"].as<std::vector<double>>();
+    ros_params["filter_params"]["process_noise"].as<std::vector<double>>(1e-9);
 
   // Simulation parameters
   YAML::Node sim_params = ros_params["sim_params"];
@@ -388,8 +388,8 @@ int main(int argc, char * argv[])
     // SimCamera::Parameters
     SimCamera::Parameters sim_cam_params;
     LoadSimSensorParams(sim_cam_params, sim_node);
-    sim_cam_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>());
-    sim_cam_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>());
+    sim_cam_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>(def_vec));
+    sim_cam_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>(def_vec));
     sim_cam_params.cam_params = cam_params;
 
     // Add sensor to map
@@ -439,10 +439,11 @@ int main(int argc, char * argv[])
     GPS::Parameters gps_params;
     LoadSensorParams(
       gps_params, gps_node, gps_list[i], out_dir, data_logging_on, ekf, debug_logger);
-    gps_params.variance = StdToEigVec(gps_node["variance"].as<std::vector<double>>());
-    gps_params.pos_a_in_b = StdToEigVec(gps_node["pos_a_in_b"].as<std::vector<double>>());
-    gps_params.pos_l_in_g = StdToEigVec(gps_node["pos_l_in_g"].as<std::vector<double>>());
-    gps_params.ang_l_to_g = gps_node["ang_l_to_g"].as<double>();
+    gps_params.variance = StdToEigVec(gps_node["variance"].as<std::vector<double>>(def_vec));
+    gps_params.pos_a_in_b = StdToEigVec(gps_node["pos_a_in_b"].as<std::vector<double>>(def_vec));
+    gps_params.pos_l_in_g = StdToEigVec(gps_node["pos_l_in_g"].as<std::vector<double>>(def_vec));
+    gps_params.ang_l_to_g = gps_node["ang_l_to_g"].as<double>(0.0);
+    gps_params.pos_stability = gps_node["pos_stability"].as<double>(0.0);
     gps_params.initialization_type = gps_node["initialization_type"].as<unsigned int>(0);
     gps_params.init_err_thresh = gps_node["init_err_thresh"].as<double>(1.0);
     gps_params.init_baseline_dist = gps_node["init_baseline_dist"].as<double>(1.0);
@@ -451,12 +452,12 @@ int main(int argc, char * argv[])
     SimGPS::Parameters sim_gps_params;
     LoadSimSensorParams(sim_gps_params, sim_node);
     sim_gps_params.gps_params = gps_params;
-    sim_gps_params.lla_error = StdToEigVec(sim_node["lla_error"].as<std::vector<double>>());
+    sim_gps_params.lla_error = StdToEigVec(sim_node["lla_error"].as<std::vector<double>>(def_vec));
     sim_gps_params.pos_a_in_b_err =
-      StdToEigVec(sim_node["pos_a_in_b_err"].as<std::vector<double>>());
+      StdToEigVec(sim_node["pos_a_in_b_err"].as<std::vector<double>>(def_vec));
     sim_gps_params.pos_l_in_g_err =
-      StdToEigVec(sim_node["pos_l_in_g_err"].as<std::vector<double>>());
-    sim_gps_params.ang_l_to_g_err = sim_node["ang_l_to_g_err"].as<double>();
+      StdToEigVec(sim_node["pos_l_in_g_err"].as<std::vector<double>>(def_vec));
+    sim_gps_params.ang_l_to_g_err = sim_node["ang_l_to_g_err"].as<double>(1e-9);
 
     // Add sensor to map
     auto gps = std::make_shared<SimGPS>(sim_gps_params, truth_engine);

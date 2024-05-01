@@ -16,11 +16,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from bokeh.layouts import layout
-from bokeh.models import Paragraph, TabPanel
+from bokeh.models import Paragraph, Spacer, TabPanel
 from bokeh.plotting import figure
 import numpy as np
 
-from utilities import calculate_alpha, plot_update_timing
+from utilities import calculate_alpha, interpolate_error, plot_update_timing
 
 
 def plot_gps_measurements(gps_dfs):
@@ -49,16 +49,45 @@ def plot_gps_residuals(gps_dfs):
     return fig
 
 
-def plot_ant_pos_error(gps_dfs):
+def plot_ant_pos_error(gps_dfs, body_truth_dfs):
     """Plot camera GPS residuals."""
     fig = figure(width=400, height=300, x_axis_label='time [s]',
                  y_axis_label='Antenna Position Error [m]', title='Antenna Position Error')
     a = calculate_alpha(len(gps_dfs))
+    for gps_df, body_truth in zip(gps_dfs, body_truth_dfs):
+        true_t = body_truth['time'].to_list()
+        true_p0 = body_truth[f"gps_pos_{gps_df.attrs['id']}_0"].to_list()
+        true_p1 = body_truth[f"gps_pos_{gps_df.attrs['id']}_1"].to_list()
+        true_p2 = body_truth[f"gps_pos_{gps_df.attrs['id']}_2"].to_list()
+
+        gps_t = gps_df['time'].to_list()
+        est_p0 = gps_df['antenna_0'].to_list()
+        est_p1 = gps_df['antenna_1'].to_list()
+        est_p2 = gps_df['antenna_2'].to_list()
+
+        err_pos_0 = interpolate_error(true_t, true_p0, gps_t, est_p0)
+        err_pos_1 = interpolate_error(true_t, true_p1, gps_t, est_p1)
+        err_pos_2 = interpolate_error(true_t, true_p2, gps_t, est_p2)
+
+        fig.line(gps_t, err_pos_0, alpha=a, color='cyan')
+        fig.line(gps_t, err_pos_1, alpha=a, color='yellow')
+        fig.line(gps_t, err_pos_2, alpha=a, color='magenta')
+    return fig
+
+
+def plot_gps_cov(gps_dfs):
+    """Plot GPS antenna position covariance."""
+    fig = figure(width=800, height=300, x_axis_label='time [s]',
+                 y_axis_label='Position Covariance [m]', title='GPS Antenna Position Covariance')
+    a = calculate_alpha(len(gps_dfs))
     for gps_df in gps_dfs:
         t_gps = gps_df['time'].to_list()
-        fig.line(t_gps, gps_df['antenna_0'].to_list(), alpha=a, color='cyan')
-        fig.line(t_gps, gps_df['antenna_1'].to_list(), alpha=a, color='yellow')
-        fig.line(t_gps, gps_df['antenna_2'].to_list(), alpha=a, color='magenta')
+        gps_int_cov_3 = gps_df['gps_cov_0'].to_list()
+        gps_int_cov_4 = gps_df['gps_cov_1'].to_list()
+        gps_int_cov_5 = gps_df['gps_cov_2'].to_list()
+        fig.line(t_gps, gps_int_cov_3, alpha=a, color='cyan', legend_label='b_w_x')
+        fig.line(t_gps, gps_int_cov_4, alpha=a, color='yellow', legend_label='b_w_y')
+        fig.line(t_gps, gps_int_cov_5, alpha=a, color='magenta', legend_label='b_w_z')
     return fig
 
 
@@ -85,11 +114,12 @@ def print_gps_init_hdg_error(gps_dfs):
     return Paragraph(text='Heading Error: {:.3f} rad'.format(hdg_err))
 
 
-def tab_gps(gps_dfs):
+def tab_gps(gps_dfs, body_truth_dfs):
 
     layout_plots = [
-        [plot_gps_measurements(gps_dfs), plot_ant_pos_error(gps_dfs)],
-        [plot_gps_residuals(gps_dfs), plot_update_timing(gps_dfs)],
+        [plot_gps_measurements(gps_dfs), plot_ant_pos_error(gps_dfs, body_truth_dfs)],
+        [plot_gps_residuals(gps_dfs), plot_gps_cov(gps_dfs)],
+        [plot_update_timing(gps_dfs), Spacer()],
         [print_gps_init_pos_error(gps_dfs)],
         [print_gps_init_hdg_error(gps_dfs)]
     ]

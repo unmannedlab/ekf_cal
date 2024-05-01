@@ -284,9 +284,10 @@ def plot_imu_ext_ang_cov(imu_dfs):
 
 
 def plot_imu_int_pos_cov(imu_dfs):
-    """Plot intrinsic accelerometer bias."""
+    """Plot intrinsic accelerometer bias covariance."""
     fig = figure(width=800, height=300, x_axis_label='time [s]',
-                 y_axis_label='Accelerometer Bias [m/s/s]', title='Accelerometer Bias')
+                 y_axis_label='Accelerometer Bias Covariance [m/s/s]',
+                 title='Accelerometer Bias Covariance')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
         t_imu = imu_df['time'].to_list()
@@ -300,9 +301,10 @@ def plot_imu_int_pos_cov(imu_dfs):
 
 
 def plot_imu_int_ang_cov(imu_dfs):
-    """Plot intrinsic gyroscope bias."""
+    """Plot intrinsic gyroscope bias covariance."""
     fig = figure(width=800, height=300, x_axis_label='time [s]',
-                 y_axis_label='Gyroscope Bias [rad/s]', title='Gyroscope Bias')
+                 y_axis_label='Gyroscope Bias Covariance [rad/s]',
+                 title='Gyroscope Bias Covariance')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
         t_imu = imu_df['time'].to_list()

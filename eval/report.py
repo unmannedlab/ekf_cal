@@ -93,7 +93,8 @@ def plot_sim_results(config_sets, output_embed):
         gps_dfs_dict = find_and_read_data_frames(data_dirs, 'gps')
         for key in sorted(gps_dfs_dict.keys()):
             gps_dfs = gps_dfs_dict[key]
-            tabs.append(tab_gps(gps_dfs))
+            body_truth_dfs = body_truth_dfs_dict[0]
+            tabs.append(tab_gps(gps_dfs, body_truth_dfs))
 
         if (output_embed):
             if not os.path.exists(os.path.join(plot_dir, 'js')):

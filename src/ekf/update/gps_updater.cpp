@@ -51,8 +51,9 @@ GpsUpdater::GpsUpdater(
   std::stringstream header;
   header <<
     "time,lat,lon,alt,x,y,z,ref_lat,ref_lon,ref_alt,ref_heading,projection_stddev,is_initialized";
-  header << EnumerateHeader("antenna", 3);
-  header << EnumerateHeader("residual", 3);
+  header << EnumerateHeader("antenna", g_gps_state_size);
+  header << EnumerateHeader("gps_cov", g_gps_state_size);
+  header << EnumerateHeader("residual", g_gps_state_size);
   header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(header.str());
@@ -116,10 +117,10 @@ Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
   unsigned int gps_state_start = ekf->GetGpsStateStartIndex(m_id);
 
   Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, state_size);
-  measurement_jacobian.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity();
+  measurement_jacobian.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity(3, 3);
   /// @todo(jhartzer): Need to debug this Jacobian
-  // measurement_jacobian.block<3, 3>(0, 9) =
-  //   -ang_b_to_g.toRotationMatrix() * SkewSymmetric(pos_a_in_b);
+  measurement_jacobian.block<3, 3>(0, 9) =
+    -ang_b_to_g.toRotationMatrix() * SkewSymmetric(pos_a_in_b) * quaternion_jacobian(ang_b_to_g);
   measurement_jacobian.block<3, 3>(0, gps_state_start) = ang_b_to_g.toRotationMatrix();
   return measurement_jacobian;
 }
@@ -160,6 +161,10 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
+  unsigned int gps_state_start = ekf->GetGpsStateStartIndex(m_id);
+  Eigen::VectorXd cov_diag = ekf->GetCov().block(
+    gps_state_start, gps_state_start, g_gps_state_size, g_gps_state_size).diagonal();
+
   // Write outputs
   std::stringstream msg;
   msg << time;
@@ -170,6 +175,7 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   msg << "," << m_projection_stddev;
   msg << "," << ekf->IsLlaInitialized();
   msg << VectorToCommaString(ekf->GetGpsState(m_id).pos_a_in_b);
+  msg << VectorToCommaString(cov_diag);
   msg << VectorToCommaString(residual);
   msg << "," << t_execution.count();
   m_data_logger.Log(msg.str());
