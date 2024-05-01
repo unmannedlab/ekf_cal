@@ -42,6 +42,7 @@ GPS::GPS(GPS::Parameters params)
   m_rate = params.rate;
   GpsState gps_state;
   gps_state.pos_a_in_b = params.pos_a_in_b;
+  gps_state.pos_stability = params.pos_stability;
   Eigen::Matrix3d gps_cov = params.variance.asDiagonal();
   m_ekf->RegisterGPS(m_id, gps_state, gps_cov);
   if (params.initialization_type == 0) {

@@ -48,6 +48,7 @@ public:
     unsigned int initialization_type {0};  ///< @brief Flag to use baseline initialization
     double init_err_thresh {1.0};          ///< @brief Minimum projection error to initialize
     double init_baseline_dist {1.0};       ///< @brief Baseline distance threshold
+    double pos_stability {1e-9};           ///< @brief Position stability
   } Parameters;
 
   ///

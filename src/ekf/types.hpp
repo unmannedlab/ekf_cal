@@ -96,6 +96,7 @@ public:
   Eigen::VectorXd ToVector();
 
   Eigen::Vector3d pos_a_in_b{0.0, 0.0, 0.0};  ///< @brief Antenna position in body frame
+  double pos_stability {1e-9};                ///< @brief Antenna position stability
 };
 
 ///

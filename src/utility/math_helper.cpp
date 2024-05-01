@@ -256,7 +256,7 @@ Eigen::MatrixXd quaternion_jacobian(Eigen::Quaterniond quat)
   double coeff_one = (1 - std::cos(vec_norm)) / std::pow(vec_norm, 2);
   double coeff_two = (vec_norm - std::sin(vec_norm)) / std::pow(vec_norm, 3);
   Eigen::Matrix3d jacobian =
-    Eigen::Matrix3d::Identity() -
+    Eigen::Matrix3d::Identity(3, 3) -
     coeff_one * skew_mat +
     coeff_two * skew_mat * skew_mat;
   return jacobian;
@@ -271,7 +271,7 @@ Eigen::MatrixXd quaternion_jacobian_inv(Eigen::Quaterniond quat)
   double coeff_two =
     std::pow(vec_norm, -2) - (1 + std::cos(vec_norm)) / (2 * vec_norm * std::sin(vec_norm));
   Eigen::Matrix3d jacobian =
-    Eigen::Matrix3d::Identity() +
+    Eigen::Matrix3d::Identity(3, 3) +
     coeff_one * skew_mat +
     coeff_two * skew_mat * skew_mat;
   return jacobian;
@@ -326,7 +326,7 @@ bool kabsch_2d(
   I(1, 1) = sign(det);
   rotation_2d = svd.matrixV() * I * svd.matrixU().transpose();
 
-  Eigen::Matrix3d rotation_3d = Eigen::Matrix3d::Identity();
+  Eigen::Matrix3d rotation_3d = Eigen::Matrix3d::Identity(3, 3);
   rotation_3d.block(0, 0, 2, 2) = rotation_2d;
 
   transform.setIdentity();

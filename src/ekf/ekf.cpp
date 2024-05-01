@@ -234,6 +234,14 @@ void EKF::AddProccessNoise()
     }
   }
 
+  for (auto const & gps_iter : m_state.m_gps_states) {
+    unsigned int gps_state_start = GetGpsStateStartIndex(gps_iter.first);
+    Eigen::Matrix3d process_noise = Eigen::Matrix3d::Identity(3, 3) * gps_iter.second.pos_stability;
+
+    m_cov.block<3, 3>(gps_state_start, gps_state_start) += process_noise;
+  }
+
+
   for (auto const & cam_iter : m_state.m_cam_states) {
     unsigned int cam_state_start = GetCamStateStartIndex(cam_iter.first);
     Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);

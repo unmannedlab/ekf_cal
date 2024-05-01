@@ -287,13 +287,13 @@ TEST(test_MathHelper, average_vectors) {
 TEST(test_MathHelper, quaternion_jacobian) {
   Eigen::Quaterniond quat{1, 0, 0, 0};
   Eigen::Matrix3d jac = quaternion_jacobian(quat);
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(jac, Eigen::Matrix3d::Identity(), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(jac, Eigen::Matrix3d::Identity(3, 3), 1e-6));
 }
 
 TEST(test_MathHelper, quaternion_jacobian_inv) {
   Eigen::Quaterniond quat{1, 0, 0, 0};
   Eigen::Matrix3d jac = quaternion_jacobian_inv(quat);
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(jac, Eigen::Matrix3d::Identity(), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(jac, Eigen::Matrix3d::Identity(3, 3), 1e-6));
 }
 
 TEST(test_MathHelper, kabsch_2d) {

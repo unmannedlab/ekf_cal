@@ -312,7 +312,7 @@ void MsckfUpdater::UpdateEKF(
       H_t.block<3, 3>(0, 0) = -rot_g_to_ci;
       H_t.block<3, 3>(0, 3) = rot_bi_to_ci * SkewSymmetric(pos_f_in_bi);
       /// @todo(jhartzer): Enable calibration Jacobian
-      // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity();
+      // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity(3, 3);
       // H_t.block<3, 3>(0, 9) =
       //   SkewSymmetric(rot_bi_to_ci * rot_bi_to_g.transpose() * (pos_f_in_g - pos_bi_in_g));
 
