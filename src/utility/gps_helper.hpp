@@ -26,5 +26,6 @@ Eigen::Vector3d lla_to_ecef(const Eigen::Vector3d & lla);
 Eigen::Vector3d lla_to_enu(const Eigen::Vector3d & point_lla, const Eigen::Vector3d & ref_lla);
 Eigen::Vector3d local_to_enu(const Eigen::Vector3d & local_in, const double ang_l_to_g);
 Eigen::Vector3d enu_to_local(const Eigen::Vector3d & enu_in, const double ang_l_to_g);
+double wgs84_m_to_deg(const double meters);
 
 #endif  // UTILITY__GPS_HELPER_HPP_

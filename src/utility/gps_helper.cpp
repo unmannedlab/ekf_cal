@@ -145,7 +145,7 @@ Eigen::Vector3d ecef_to_lla(const Eigen::Vector3d & ecef)
   double dFdt = 4 * ttt + 4 * i * t + g;
   double dt = -F / dFdt;
 
-  // compute latitude (range -PI/2..PI/2)
+  // compute latitude (range -90..90)
   double u = t + dt + pow(g_wgs84_e, 2) / 2;
   double v = t + dt - pow(g_wgs84_e, 2) / 2;
   double w = std::sqrt(ww);
@@ -160,7 +160,7 @@ Eigen::Vector3d ecef_to_lla(const Eigen::Vector3d & ecef)
   double da = std::sqrt(dw * dw + dz * dz);
   double alt = (u < 1) ? -da : da;
 
-  // compute longitude (range -PI..PI)
+  // compute longitude (range -90..90)
   double lon = std::atan2(y, x);
 
   Eigen::Vector3d lla {lat / g_deg_to_rad, lon / g_deg_to_rad, alt};
@@ -193,4 +193,9 @@ Eigen::Vector3d enu_to_local(const Eigen::Vector3d & enu_in, const double ang_l_
   local(2) = enu_in(2);
 
   return local;
+}
+
+double wgs84_m_to_deg(const double meters)
+{
+  return meters / (g_wgs84_a * g_deg_to_rad);
 }

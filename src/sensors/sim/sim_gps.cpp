@@ -61,8 +61,8 @@ std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages(SimRNG rng)
 
     Eigen::Vector3d pos_a_in_l = pos_b_in_l + ang_b_to_l * pos_a_in_b;
     if (!m_no_errors) {
-      pos_a_in_l(0) += rng.NormRand(0, m_lla_error(0));
-      pos_a_in_l(1) += rng.NormRand(0, m_lla_error(1));
+      pos_a_in_l(0) += rng.NormRand(0, wgs84_m_to_deg(m_lla_error(0)));
+      pos_a_in_l(1) += rng.NormRand(0, wgs84_m_to_deg(m_lla_error(1)));
       pos_a_in_l(2) += rng.NormRand(0, m_lla_error(2));
     }
 

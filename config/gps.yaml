@@ -90,6 +90,7 @@
                 initialization_type: 0
                 init_err_thresh: 0.1
                 init_baseline_dist: 100.0
+                pos_stability: 1.0e-9
                 sim_params:
                     no_errors: false
                     time_bias: 0.0

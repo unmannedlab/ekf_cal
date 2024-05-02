@@ -48,6 +48,7 @@
 #include "sensors/sim/sim_gps.hpp"
 #include "trackers/sim/sim_feature_tracker.hpp"
 #include "trackers/sim/sim_fiducial_tracker.hpp"
+#include "utility/gps_helper.hpp"
 #include "utility/sim/sim_rng.hpp"
 #include "utility/string_helper.hpp"
 #include "utility/type_helper.hpp"
@@ -140,13 +141,18 @@ int main(int argc, char * argv[])
   std::map<unsigned int, std::shared_ptr<Sensor>> sensor_map;
   std::vector<std::shared_ptr<SensorMessage>> messages;
 
+  // Define default values
+  std::vector<double> def_vec{0.0, 0.0, 0.0};
+  std::vector<double> def_quat{1.0, 0.0, 0.0, 0.0};
+  std::vector<std::vector<double>> def_mat{{0.0, 0.0, 0.0}};
+
   // Logging parameters
   YAML::Node ros_params = root["/EkfCalNode"]["ros__parameters"];
   unsigned int debug_log_level = ros_params["debug_log_level"].as<unsigned int>(0U);
   bool data_logging_on = ros_params["data_logging_on"].as<bool>(true);
   double body_data_rate = ros_params["body_data_rate"].as<double>(1.0);
   std::vector<double> process_noise =
-    ros_params["filter_params"]["process_noise"].as<std::vector<double>>(1e-9);
+    ros_params["filter_params"]["process_noise"].as<std::vector<double>>(def_vec);
 
   // Simulation parameters
   YAML::Node sim_params = ros_params["sim_params"];
@@ -165,10 +171,6 @@ int main(int argc, char * argv[])
   // Set EKF parameters
   auto ekf = std::make_shared<EKF>(debug_logger, body_data_rate, data_logging_on, out_dir);
   ekf->SetProcessNoise(StdToEigVec(process_noise));
-
-  std::vector<double> def_vec{0.0, 0.0, 0.0};
-  std::vector<double> def_quat{1.0, 0.0, 0.0, 0.0};
-  std::vector<std::vector<double>> def_mat{{0.0, 0.0, 0.0}};
 
   std::string truth_type = sim_params["truth_type"].as<std::string>("cyclic");
   double stationary_time = sim_params["stationary_time"].as<double>(0.0);
@@ -473,7 +475,11 @@ int main(int argc, char * argv[])
       ang_l_to_g = gps_params.ang_l_to_g;
     } else {
       pos_a_in_b = rng.VecNormRand(gps_params.pos_a_in_b, sim_gps_params.pos_a_in_b_err);
-      pos_l_in_g = rng.VecNormRand(gps_params.pos_l_in_g, sim_gps_params.pos_l_in_g_err);
+      pos_l_in_g(0) =
+        rng.NormRand(gps_params.pos_l_in_g(0), wgs84_m_to_deg(sim_gps_params.pos_l_in_g_err(0)));
+      pos_l_in_g(1) =
+        rng.NormRand(gps_params.pos_l_in_g(1), wgs84_m_to_deg(sim_gps_params.pos_l_in_g_err(1)));
+      pos_l_in_g(2) = rng.NormRand(gps_params.pos_l_in_g(2), sim_gps_params.pos_l_in_g_err(2));
       ang_l_to_g = rng.NormRand(gps_params.ang_l_to_g, sim_gps_params.ang_l_to_g_err);
     }
     truth_engine->SetGpsPosition(gps->GetId(), pos_a_in_b);
