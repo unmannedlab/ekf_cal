@@ -224,8 +224,14 @@ public:
 
   ///
   /// @brief Function to add process noise to covariance
+  /// @param delta_time delta time over which to add process noise
   ///
-  void AddProccessNoise();
+  void AddProccessNoise(double delta_time);
+
+  ///
+  /// @brief Apply reasonable limits to uncertainties
+  ///
+  void LimitUncertainty();
 
   ///
   /// @brief EKF process noise setter

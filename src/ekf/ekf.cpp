@@ -125,7 +125,9 @@ void EKF::ProcessModel(double time)
   m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
     F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose();
 
-  AddProccessNoise();
+  AddProccessNoise(dT);
+
+  LimitUncertainty();
 
   m_current_time = time;
 
@@ -165,8 +167,6 @@ void EKF::PredictModel(
 
   Eigen::Vector3d acceleration_global = ang_i_to_b * acceleration;
   Eigen::Vector3d angular_rate_global = ang_i_to_b * angular_rate;
-  Eigen::Matrix3d acceleration_covariance_global = ang_i_to_b * acceleration_covariance;
-  Eigen::Matrix3d angular_rate_covariance_global = ang_i_to_b * angular_rate_covariance;
 
   Eigen::Vector3d rot_vec(angular_rate[0] * dT, angular_rate[1] * dT,
     angular_rate[2] * dT);
@@ -182,15 +182,9 @@ void EKF::PredictModel(
   Eigen::MatrixXd dF = GetStateTransition(dT);
   Eigen::MatrixXd F = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) + dF;
 
-  AddProccessNoise();
+  AddProccessNoise(dT);
 
-  Eigen::MatrixXd process_noise = Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size);
-  process_noise.block<3, 3>(6, 6) = acceleration_covariance_global;
-  process_noise.block<3, 3>(12, 12) = angular_rate_covariance_global;
-
-  // Process input matrix is just identity
-  m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-    F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose() + process_noise;
+  LimitUncertainty();
 
   m_current_time = time;
 
@@ -198,19 +192,19 @@ void EKF::PredictModel(
 }
 
 /// @todo(jhartzer): Adjust process noise for offsets and biases
-void EKF::AddProccessNoise()
+void EKF::AddProccessNoise(double delta_time)
 {
-  m_cov.block<g_body_state_size, g_body_state_size>(0, 0) += m_process_noise;
+  m_cov.block<g_body_state_size, g_body_state_size>(0, 0) += m_process_noise * delta_time;
 
   for (auto const & imu_iter : m_state.m_imu_states) {
     if (imu_iter.second.is_intrinsic && imu_iter.second.is_extrinsic) {
       unsigned int imu_state_start = GetImuStateStartIndex(imu_iter.first);
       Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(12, 12);
 
-      process_noise.block<3, 3>(0, 0) *= imu_iter.second.pos_stability;
-      process_noise.block<3, 3>(3, 3) *= imu_iter.second.ang_stability;
-      process_noise.block<3, 3>(6, 6) *= imu_iter.second.acc_bias_stability;
-      process_noise.block<3, 3>(9, 9) *= imu_iter.second.omg_bias_stability;
+      process_noise.block<3, 3>(0, 0) *= delta_time * imu_iter.second.pos_stability;
+      process_noise.block<3, 3>(3, 3) *= delta_time * imu_iter.second.ang_stability;
+      process_noise.block<3, 3>(6, 6) *= delta_time * imu_iter.second.acc_bias_stability;
+      process_noise.block<3, 3>(9, 9) *= delta_time * imu_iter.second.omg_bias_stability;
 
       m_cov.block<12, 12>(imu_state_start, imu_state_start) += process_noise;
 
@@ -218,8 +212,8 @@ void EKF::AddProccessNoise()
       unsigned int imu_state_start = GetImuStateStartIndex(imu_iter.first);
       Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
 
-      process_noise.block<3, 3>(0, 0) *= imu_iter.second.acc_bias_stability;
-      process_noise.block<3, 3>(3, 3) *= imu_iter.second.omg_bias_stability;
+      process_noise.block<3, 3>(0, 0) *= delta_time * imu_iter.second.acc_bias_stability;
+      process_noise.block<3, 3>(3, 3) *= delta_time * imu_iter.second.omg_bias_stability;
 
       m_cov.block<6, 6>(imu_state_start, imu_state_start) += process_noise;
 
@@ -227,8 +221,8 @@ void EKF::AddProccessNoise()
       unsigned int imu_state_start = GetImuStateStartIndex(imu_iter.first);
       Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
 
-      process_noise.block<3, 3>(0, 0) *= imu_iter.second.pos_stability;
-      process_noise.block<3, 3>(3, 3) *= imu_iter.second.ang_stability;
+      process_noise.block<3, 3>(0, 0) *= delta_time * imu_iter.second.pos_stability;
+      process_noise.block<3, 3>(3, 3) *= delta_time * imu_iter.second.ang_stability;
 
       m_cov.block<6, 6>(imu_state_start, imu_state_start) += process_noise;
     }
@@ -246,16 +240,29 @@ void EKF::AddProccessNoise()
     unsigned int cam_state_start = GetCamStateStartIndex(cam_iter.first);
     Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
 
-    process_noise.block<3, 3>(0, 0) *= cam_iter.second.pos_stability;
-    process_noise.block<3, 3>(3, 3) *= cam_iter.second.ang_stability;
+    process_noise.block<3, 3>(0, 0) *= delta_time * cam_iter.second.pos_stability;
+    process_noise.block<3, 3>(3, 3) *= delta_time * cam_iter.second.ang_stability;
 
     m_cov.block<6, 6>(cam_state_start, cam_state_start) += process_noise;
   }
 }
 
-State & EKF::GetState()
+void EKF::LimitUncertainty()
 {
-  return m_state;
+  // Create lower bound to uncertainty
+  MinBoundDiagonal(m_cov, 1e-6);
+
+  Eigen::VectorXd body_cov = m_cov.block<g_body_state_size, g_body_state_size>(0, 0).diagonal();
+
+  // Create upper bound to uncertainty
+  MaxBoundDiagonal(m_cov, 1e2, 0, 3);
+  MaxBoundDiagonal(m_cov, 1e1, 3, 3);
+  MaxBoundDiagonal(m_cov, 1e1, 6, 3);
+  MaxBoundDiagonal(m_cov, 1e0, 9, 3);
+  MaxBoundDiagonal(m_cov, 1e0, 12, 3);
+  MaxBoundDiagonal(m_cov, 1e0, 15, 3);
+
+  body_cov = m_cov.block<g_body_state_size, g_body_state_size>(0, 0).diagonal();
 }
 
 unsigned int EKF::GetStateSize()
