@@ -71,15 +71,14 @@ void EKF::LogBodyStateIfNeeded()
 {
   if (m_data_logging_on) {
     std::stringstream msg;
-    Eigen::VectorXd body_cov =
-      GetCov().block<g_body_state_size, g_body_state_size>(0, 0).diagonal();
+    Eigen::VectorXd body_cov = m_cov.block<g_body_state_size, g_body_state_size>(0, 0).diagonal();
     msg << m_current_time;
-    msg << VectorToCommaString(GetState().m_body_state.m_position);
-    msg << VectorToCommaString(GetState().m_body_state.m_velocity);
-    msg << VectorToCommaString(GetState().m_body_state.m_acceleration);
-    msg << QuaternionToCommaString(GetState().m_body_state.m_ang_b_to_g);
-    msg << VectorToCommaString(GetState().m_body_state.m_angular_velocity);
-    msg << VectorToCommaString(GetState().m_body_state.m_angular_acceleration);
+    msg << VectorToCommaString(m_state.m_body_state.m_position);
+    msg << VectorToCommaString(m_state.m_body_state.m_velocity);
+    msg << VectorToCommaString(m_state.m_body_state.m_acceleration);
+    msg << QuaternionToCommaString(m_state.m_body_state.m_ang_b_to_g);
+    msg << VectorToCommaString(m_state.m_body_state.m_angular_velocity);
+    msg << VectorToCommaString(m_state.m_body_state.m_angular_acceleration);
     msg << VectorToCommaString(body_cov);
     m_data_logger.RateLimitedLog(msg.str(), m_current_time);
   }
@@ -247,6 +246,7 @@ void EKF::AddProccessNoise(double delta_time)
   }
 }
 
+/// @todo Get these limits from input file
 void EKF::LimitUncertainty()
 {
   // Create lower bound to uncertainty
@@ -268,11 +268,6 @@ void EKF::LimitUncertainty()
 unsigned int EKF::GetStateSize()
 {
   return m_state_size;
-}
-
-BodyState EKF::GetBodyState()
-{
-  return m_state.m_body_state;
 }
 
 ImuState EKF::GetImuState(unsigned int imu_id)
@@ -309,11 +304,6 @@ unsigned int EKF::GetImuStateSize()
 unsigned int EKF::GetCamCount()
 {
   return m_state.m_cam_states.size();
-}
-
-Eigen::MatrixXd & EKF::GetCov()
-{
-  return m_cov;
 }
 
 void EKF::Initialize(double timeInit, BodyState body_state_init)

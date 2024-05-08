@@ -411,7 +411,7 @@ void EkfCalNode::GpsCallback(const sensor_msgs::msg::NavSatFix::SharedPtr msg, u
 void EkfCalNode::PublishState()
 {
   // Body State
-  Eigen::VectorXd body_state_vector = m_ekf->GetBodyState().ToVector();
+  Eigen::VectorXd body_state_vector = m_ekf->m_state.m_body_state.ToVector();
   auto body_state_vec_msg = std_msgs::msg::Float64MultiArray();
 
   for (auto & element : body_state_vector) {
@@ -429,7 +429,7 @@ void EkfCalNode::PublishState()
   m_imu_state_pub->publish(imu_state_vec_msg);
 
   std::stringstream msg;
-  Eigen::VectorXd state_vector = m_ekf->GetState().ToVector();
+  Eigen::VectorXd state_vector = m_ekf->m_state.ToVector();
   msg << VectorToCommaString(state_vector);
   m_state_data_logger.Log(msg.str());
 }

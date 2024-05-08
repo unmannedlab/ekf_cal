@@ -29,13 +29,13 @@ void Updater::KalmanUpdate(
 )
 {
   // Calculate Kalman gain
-  Eigen::MatrixXd S = jacobian * ekf->GetCov() * jacobian.transpose() + measurement_noise;
-  Eigen::MatrixXd K = ekf->GetCov() * jacobian.transpose() * S.inverse();
+  Eigen::MatrixXd S = jacobian * ekf->m_cov * jacobian.transpose() + measurement_noise;
+  Eigen::MatrixXd K = ekf->m_cov * jacobian.transpose() * S.inverse();
   Eigen::VectorXd update = K * residual;
 
-  ekf->GetState() += update;
-  ekf->GetCov() =
-    (Eigen::MatrixXd::Identity(update.size(), update.size()) - K * jacobian) * ekf->GetCov() *
+  ekf->m_state += update;
+  ekf->m_cov =
+    (Eigen::MatrixXd::Identity(update.size(), update.size()) - K * jacobian) * ekf->m_cov *
     (Eigen::MatrixXd::Identity(update.size(), update.size()) - K * jacobian).transpose() +
     K * measurement_noise * K.transpose();
 }

@@ -52,7 +52,7 @@ TEST(test_imu_updater, update) {
   Eigen::Matrix3d angular_rate_covariance = Eigen::Matrix3d::Zero();
   bool use_for_prediction {false};
 
-  State state = ekf->GetState();
+  State state = ekf->m_state;
   EXPECT_EQ(state.m_body_state.m_position[0], 0);
   EXPECT_EQ(state.m_body_state.m_position[1], 0);
   EXPECT_EQ(state.m_body_state.m_position[2], 0);
@@ -63,7 +63,7 @@ TEST(test_imu_updater, update) {
     time, acceleration, acceleration_cov, angular_rate, angular_rate_covariance,
     use_for_prediction);
 
-  state = ekf->GetState();
+  state = ekf->m_state;
   EXPECT_EQ(state.m_body_state.m_position[0], 1);
   EXPECT_EQ(state.m_body_state.m_position[1], 1);
   EXPECT_EQ(state.m_body_state.m_position[2], 1);
@@ -74,7 +74,7 @@ TEST(test_imu_updater, update) {
     time, acceleration, acceleration_cov, angular_rate, angular_rate_covariance,
     use_for_prediction);
 
-  state = ekf->GetState();
+  state = ekf->m_state;
   EXPECT_EQ(state.m_body_state.m_position[0], 2);
   EXPECT_EQ(state.m_body_state.m_position[1], 2);
   EXPECT_EQ(state.m_body_state.m_position[2], 2);
@@ -85,7 +85,7 @@ TEST(test_imu_updater, update) {
     time, acceleration, acceleration_cov, angular_rate, angular_rate_covariance,
     use_for_prediction);
 
-  state = ekf->GetState();
+  state = ekf->m_state;
   EXPECT_EQ(state.m_body_state.m_position[0], 2);
   EXPECT_EQ(state.m_body_state.m_position[1], 2);
   EXPECT_EQ(state.m_body_state.m_position[2], 2);
@@ -119,7 +119,7 @@ TEST(test_imu_updater, imu_prediction_update) {
   Eigen::Matrix3d angular_rate_covariance = Eigen::Matrix3d::Zero();
   bool use_for_prediction {true};
 
-  State state = ekf->GetState();
+  State state = ekf->m_state;
   EXPECT_EQ(state.m_body_state.m_position[0], 0);
   EXPECT_EQ(state.m_body_state.m_position[1], 0);
   EXPECT_EQ(state.m_body_state.m_position[2], 0);
@@ -130,7 +130,7 @@ TEST(test_imu_updater, imu_prediction_update) {
     time, acceleration, acceleration_cov, angular_rate, angular_rate_covariance,
     use_for_prediction);
 
-  state = ekf->GetState();
+  state = ekf->m_state;
   EXPECT_EQ(state.m_body_state.m_position[0], 1);
   EXPECT_EQ(state.m_body_state.m_position[1], 1);
   EXPECT_EQ(state.m_body_state.m_position[2], 1);
@@ -141,7 +141,7 @@ TEST(test_imu_updater, imu_prediction_update) {
     time, acceleration, acceleration_cov, angular_rate, angular_rate_covariance,
     use_for_prediction);
 
-  state = ekf->GetState();
+  state = ekf->m_state;
   EXPECT_EQ(state.m_body_state.m_position[0], 2);
   EXPECT_EQ(state.m_body_state.m_position[1], 2);
   EXPECT_EQ(state.m_body_state.m_position[2], 2);
@@ -152,7 +152,7 @@ TEST(test_imu_updater, imu_prediction_update) {
     time, acceleration, acceleration_cov, angular_rate, angular_rate_covariance,
     use_for_prediction);
 
-  state = ekf->GetState();
+  state = ekf->m_state;
   EXPECT_EQ(state.m_body_state.m_position[0], 2);
   EXPECT_EQ(state.m_body_state.m_position[1], 2);
   EXPECT_EQ(state.m_body_state.m_position[2], 2);
@@ -181,7 +181,7 @@ TEST(test_imu_updater, non_initialized_time) {
   Eigen::Matrix3d angular_rate_covariance = Eigen::Matrix3d::Zero();
   bool use_for_prediction {true};
 
-  State state = ekf->GetState();
+  State state = ekf->m_state;
   EXPECT_EQ(state.m_body_state.m_position[0], 0);
   EXPECT_EQ(state.m_body_state.m_position[1], 0);
   EXPECT_EQ(state.m_body_state.m_position[2], 0);
@@ -192,7 +192,7 @@ TEST(test_imu_updater, non_initialized_time) {
     time, acceleration, acceleration_cov, angular_rate, angular_rate_covariance,
     use_for_prediction);
 
-  state = ekf->GetState();
+  state = ekf->m_state;
   EXPECT_EQ(state.m_body_state.m_position[0], 0);
   EXPECT_EQ(state.m_body_state.m_position[1], 0);
   EXPECT_EQ(state.m_body_state.m_position[2], 0);

@@ -83,7 +83,7 @@ void FiducialUpdater::UpdateEKF(
 
   ekf->ProcessModel(time);
 
-  BodyState body_state = ekf->GetBodyState();
+  BodyState body_state = ekf->m_state.m_body_state;
   m_body_pos = body_state.m_position;
   m_body_vel = body_state.m_velocity;
   m_body_acc = body_state.m_acceleration;
@@ -157,7 +157,7 @@ void FiducialUpdater::UpdateEKF(
   Eigen::Matrix3d rot_f_to_g_est = ang_f_to_g_est.toRotationMatrix();
 
   unsigned int max_meas_size = g_fiducial_measurement_size * board_track.size();
-  unsigned int state_size = ekf->GetState().GetStateSize();
+  unsigned int state_size = ekf->m_state.GetStateSize();
   unsigned int cam_state_start = ekf->GetCamStateStartIndex(m_id);
   unsigned int aug_state_size = g_aug_state_size * ekf->GetCamState(m_id).augmented_states.size();
 
@@ -249,32 +249,32 @@ void FiducialUpdater::UpdateEKF(
   Eigen::MatrixXd R = position_sigma * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
   // Apply Kalman update
-  Eigen::MatrixXd S = H_x * ekf->GetCov() * H_x.transpose() + R;
-  Eigen::MatrixXd K = ekf->GetCov() * H_x.transpose() * S.inverse();
+  Eigen::MatrixXd S = H_x * ekf->m_cov * H_x.transpose() + R;
+  Eigen::MatrixXd K = ekf->m_cov * H_x.transpose() * S.inverse();
 
   unsigned int imu_states_size = ekf->GetImuStateSize();
   unsigned int cam_states_size = state_size - g_body_state_size - imu_states_size;
 
   Eigen::VectorXd update = K * res_x;
-  Eigen::VectorXd cam_state_vec = ekf->GetState().m_cam_states[m_id].ToVector();
+  Eigen::VectorXd cam_state_vec = ekf->m_state.m_cam_states[m_id].ToVector();
   Eigen::Vector3d cam_pos = cam_state_vec.segment<3>(0);
   Eigen::Quaterniond cam_ang_pos = RotVecToQuat(cam_state_vec.segment<3>(3));
   Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
   Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_states_size);
   Eigen::VectorXd cam_update = update.segment(g_body_state_size + imu_states_size, cam_states_size);
 
-  ekf->GetState().m_body_state += body_update;
-  ekf->GetState().m_imu_states += imu_update;
-  ekf->GetState().m_cam_states += cam_update;
+  ekf->m_state.m_body_state += body_update;
+  ekf->m_state.m_imu_states += imu_update;
+  ekf->m_state.m_cam_states += cam_update;
 
-  ekf->GetCov() =
-    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * ekf->GetCov() *
+  ekf->m_cov =
+    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * ekf->m_cov *
     (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x).transpose() +
     K * R * K.transpose();
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
-  Eigen::VectorXd cov_diag = ekf->GetCov().block(
+  Eigen::VectorXd cov_diag = ekf->m_cov.block(
     cam_state_start, cam_state_start, g_cam_state_size, g_cam_state_size).diagonal();
 
   // Write outputs

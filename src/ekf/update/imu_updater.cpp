@@ -175,7 +175,7 @@ void ImuUpdater::UpdateEKF(
 
   ekf->ProcessModel(time);
 
-  BodyState body_state = ekf->GetBodyState();
+  BodyState body_state = ekf->m_state.m_body_state;
   m_body_pos = body_state.m_position;
   m_body_vel = body_state.m_velocity;
   m_body_acc = body_state.m_acceleration;
@@ -219,23 +219,23 @@ void ImuUpdater::UpdateEKF(
   }
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-  R.block<3, 3>(0, 0) = MinBoundDiagonal(acceleration_covariance * 3, 1e-3);
-  R.block<3, 3>(3, 3) = MinBoundDiagonal(angular_rate_covariance * 3, 1e-2);
+  R.block<3, 3>(0, 0) = acceleration_covariance * 3;
+  R.block<3, 3>(3, 3) = angular_rate_covariance * 3;
 
-  Eigen::MatrixXd S = H * ekf->GetCov().block(0, 0, update_size, update_size) * H.transpose() + R;
+  Eigen::MatrixXd S = H * ekf->m_cov.block(0, 0, update_size, update_size) * H.transpose() + R;
   Eigen::MatrixXd K =
-    ekf->GetCov().block(0, 0, update_size, update_size) * H.transpose() * S.inverse();
+    ekf->m_cov.block(0, 0, update_size, update_size) * H.transpose() * S.inverse();
 
   Eigen::VectorXd update = K * resid;
   Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
   Eigen::VectorXd imu_update = update.segment(g_body_state_size, update_size - g_body_state_size);
 
-  ekf->GetState().m_body_state += body_update;
-  ekf->GetState().m_imu_states += imu_update;
+  ekf->m_state.m_body_state += body_update;
+  ekf->m_state.m_imu_states += imu_update;
 
-  ekf->GetCov().block(0, 0, update_size, update_size) =
+  ekf->m_cov.block(0, 0, update_size, update_size) =
     (Eigen::MatrixXd::Identity(update_size, update_size) - K * H) *
-    ekf->GetCov().block(0, 0, update_size, update_size) *
+    ekf->m_cov.block(0, 0, update_size, update_size) *
     (Eigen::MatrixXd::Identity(update_size, update_size) - K * H).transpose() +
     K * R * K.transpose();
 
@@ -246,12 +246,12 @@ void ImuUpdater::UpdateEKF(
   std::stringstream msg;
 
   msg << time;
-  msg << VectorToCommaString(ekf->GetState().m_imu_states[m_id].pos_i_in_b);
-  msg << QuaternionToCommaString(ekf->GetState().m_imu_states[m_id].ang_i_to_b);
-  msg << VectorToCommaString(ekf->GetState().m_imu_states[m_id].acc_bias);
-  msg << VectorToCommaString(ekf->GetState().m_imu_states[m_id].omg_bias);
+  msg << VectorToCommaString(ekf->m_state.m_imu_states[m_id].pos_i_in_b);
+  msg << QuaternionToCommaString(ekf->m_state.m_imu_states[m_id].ang_i_to_b);
+  msg << VectorToCommaString(ekf->m_state.m_imu_states[m_id].acc_bias);
+  msg << VectorToCommaString(ekf->m_state.m_imu_states[m_id].omg_bias);
   if (imu_update_size) {
-    Eigen::VectorXd cov_diag = ekf->GetCov().block(
+    Eigen::VectorXd cov_diag = ekf->m_cov.block(
       imu_state_start, imu_state_start, imu_update_size, imu_update_size).diagonal();
     msg << VectorToCommaString(cov_diag);
   }

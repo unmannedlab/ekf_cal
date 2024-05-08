@@ -49,12 +49,6 @@ public:
   );
 
   ///
-  /// @brief Getter for state vector reference
-  /// @return State vector reference
-  ///
-  State & GetState();
-
-  ///
   /// @brief Getter for state size
   /// @return State size
   ///
@@ -103,12 +97,6 @@ public:
   /// @return Camera count
   ///
   unsigned int GetCamCount();
-
-  ///
-  /// @brief Getter method for state covariance matrix reference
-  /// @return State covariance matrix reference
-  ///
-  Eigen::MatrixXd & GetCov();
 
   ///
   /// @brief Check if body data should be logged and do so if necessary
@@ -272,10 +260,14 @@ public:
   ///
   AugmentedState MatchState(int camera_id, int frame_id);
 
+  /// @brief EKF state
+  State m_state;
+
+  /// @brief EKF covariance
+  Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size);
+
 private:
   unsigned int m_state_size{g_body_state_size};
-  State m_state;
-  Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size);
   double m_current_time {0};
   bool m_time_initialized {false};
   std::shared_ptr<DebugLogger> m_logger;

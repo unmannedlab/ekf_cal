@@ -38,15 +38,15 @@ TEST(test_MathHelper, SkewSymmetric) {
 TEST(test_MathHelper, MinBoundDiagonal)
 {
   Eigen::MatrixXd mat2 = Eigen::MatrixXd::Ones(2, 2);
-  mat2 = MinBoundDiagonal(mat2, 1);
+  MinBoundDiagonal(mat2, 1);
   EXPECT_EQ(mat2, Eigen::MatrixXd::Ones(2, 2));
 
   Eigen::MatrixXd mat3 = Eigen::MatrixXd::Zero(3, 3);
-  mat3 = MinBoundDiagonal(mat3, 1);
+  MinBoundDiagonal(mat3, 1);
   EXPECT_EQ(mat3, Eigen::MatrixXd::Identity(3, 3));
 
   Eigen::MatrixXd mat4 = Eigen::MatrixXd::Zero(4, 4);
-  mat4 = MinBoundDiagonal(mat4, 1);
+  MinBoundDiagonal(mat4, 1);
   EXPECT_EQ(mat4, Eigen::MatrixXd::Identity(4, 4));
 }
 
@@ -81,6 +81,15 @@ TEST(test_MathHelper, MaxBoundMatrix)
   Eigen::Matrix3d out = MaxBoundMatrix(ones, 0.0);
 
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(out, zeros, 1e-6));
+}
+
+TEST(test_MathHelper, MaxBoundDiagonal)
+{
+  Eigen::Matrix3d eye = Eigen::Matrix3d::Identity();
+  Eigen::Matrix3d ones = Eigen::Matrix3d::Ones() * 2;
+  MaxBoundMatrix(ones, 1.0);
+
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(ones, eye, 1e-6));
 }
 
 TEST(test_MathHelper, RemoveFromMatrix)

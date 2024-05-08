@@ -71,7 +71,7 @@ void GpsUpdater::AttemptInitialization(
 
   m_gps_time_vec.push_back(time);
   m_gps_ecef_vec.push_back(gps_ecef);
-  m_local_xyz_vec.push_back(ekf->GetState().m_body_state.m_position);
+  m_local_xyz_vec.push_back(ekf->m_state.m_body_state.m_position);
 
   if (m_gps_time_vec.size() >= 4) {
     // Check eigenvalue of SVD from Kabsch
@@ -112,8 +112,8 @@ void GpsUpdater::AttemptInitialization(
 Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
 {
   unsigned int state_size = ekf->GetStateSize();
-  Eigen::Vector3d pos_a_in_b = ekf->GetBodyState().m_position;
-  Eigen::Quaterniond ang_b_to_g = ekf->GetBodyState().m_ang_b_to_g;
+  Eigen::Vector3d pos_a_in_b = ekf->m_state.m_body_state.m_position;
+  Eigen::Quaterniond ang_b_to_g = ekf->m_state.m_body_state.m_ang_b_to_g;
   unsigned int gps_state_start = ekf->GetGpsStateStartIndex(m_id);
 
   Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, state_size);
@@ -147,8 +147,8 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
     Eigen::Vector3d gps_enu = lla_to_enu(gps_lla, reference_lla);
     pos_a_in_g = enu_to_local(gps_enu, ang_l_to_g);
 
-    Eigen::Vector3d pos_b_in_g = ekf->GetBodyState().m_position;
-    Eigen::Quaterniond ang_b_to_g = ekf->GetBodyState().m_ang_b_to_g;
+    Eigen::Vector3d pos_b_in_g = ekf->m_state.m_body_state.m_position;
+    Eigen::Quaterniond ang_b_to_g = ekf->m_state.m_body_state.m_ang_b_to_g;
     Eigen::Vector3d pos_a_in_b = ekf->GetGpsState(m_id).pos_a_in_b;
     Eigen::Vector3d pos_a_in_g_hat = pos_b_in_g + ang_b_to_g * pos_a_in_b;
     residual = pos_a_in_g - pos_a_in_g_hat;
@@ -162,7 +162,7 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
   unsigned int gps_state_start = ekf->GetGpsStateStartIndex(m_id);
-  Eigen::VectorXd cov_diag = ekf->GetCov().block(
+  Eigen::VectorXd cov_diag = ekf->m_cov.block(
     gps_state_start, gps_state_start, g_gps_state_size, g_gps_state_size).diagonal();
 
   // Write outputs

@@ -34,9 +34,9 @@ public:
   ///
   /// @brief GPS EKF Updater Constructor
   /// @param gps_id GPS Sensor ID
+  /// @param initialization_type Type of GPS initialization to use
   /// @param init_err_thresh Error limit to initialize local reference frame
-  /// @param baseline_initialization Flag to use baseline distance initialization
-  /// @param baseline_distance Distance threshold to initialize
+  /// @param init_baseline_dist Distance threshold to initialize
   /// @param log_file_directory Logging file directory
   /// @param data_logging_on Logging flag
   /// @param data_log_rate Maximum data logging rate
