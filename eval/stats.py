@@ -292,12 +292,21 @@ def gps_err_ang(gps_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
         true_hdg = body_truth[f'ref_heading'].to_list()
 
-        est_time = gps_state['time'].to_list()
-        est_hdg = gps_state[f'ref_heading'].to_list()
+        indices = [i for i, is_initialized in enumerate(
+            gps_state['is_initialized'].to_list()) if is_initialized == 1]
+        est_time = np.array(gps_state['time'].to_list())[indices]
+        est_hdg = np.array(gps_state[f'ref_heading'].to_list())[indices]
 
         error_list.append(interpolate_error(true_time, true_hdg, est_time, est_hdg))
 
     return error_list
+
+
+def gps_init_time(gps_dfs):
+    time_list = []
+    for gps_state in gps_dfs:
+        time_list.append(np.sum(gps_state['is_initialized'] == 0))
+    return time_list
 
 
 def write_summary(directory, stats):
@@ -362,6 +371,7 @@ def calc_sim_stats(config_sets, settings):
             gps_dfs = gps_dfs_dict[key]
             stats[f'gps_{key}_err_init_pos'] = gps_err_pos(gps_dfs, body_truth_dfs)
             stats[f'gps_{key}_err_init_ang'] = gps_err_ang(gps_dfs, body_truth_dfs)
+            stats[f'gps_{key}_init_time'] = gps_init_time(gps_dfs)
 
         write_summary(stat_dir, stats)
 
