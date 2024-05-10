@@ -55,13 +55,13 @@ void MinBoundDiagonal(
 ///
 Eigen::VectorXd MinBoundVector(Eigen::VectorXd in_vec, double min_bound);
 
+
 ///
-/// @brief Bound matrix by a minimum value
-/// @param in_mat Input matrix to be bound
-/// @param min_bound Bounding value
-/// @return
+/// @brief Bound matrix diagonal by a minimum value
+/// @param mat Input matrix to be bound
+/// @param max_bound Maximum bound
 ///
-Eigen::MatrixXd MinBoundMatrix(Eigen::MatrixXd in_mat, double min_bound);
+void MaxBoundDiagonal(Eigen::MatrixXd & mat, double max_bound);
 
 ///
 /// @brief Bound matrix diagonal by a maximum value
@@ -76,14 +76,6 @@ void MaxBoundDiagonal(
   unsigned int start,
   unsigned int size
 );
-
-///
-/// @brief Bound matrix by a maximum value
-/// @param in_mat Input matrix to be bound
-/// @param max_bound Bounding value
-/// @return
-///
-Eigen::MatrixXd MaxBoundMatrix(Eigen::MatrixXd in_mat, double max_bound);
 
 ///
 /// @brief Insert a diagonal matrix block into another matrix

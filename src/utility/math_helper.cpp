@@ -40,11 +40,7 @@ Eigen::Matrix3d SkewSymmetric(Eigen::Vector3d in_vec)
 
 void MinBoundDiagonal(Eigen::MatrixXd & mat, double min_bound)
 {
-  for (unsigned int i = 0; i < mat.rows() && i < mat.cols(); ++i) {
-    if (mat(i, i) < min_bound) {
-      mat(i, i) = min_bound;
-    }
-  }
+  MinBoundDiagonal(mat, min_bound, 0, std::min(mat.rows(), mat.cols()));
 }
 
 void MinBoundDiagonal(
@@ -73,17 +69,9 @@ Eigen::VectorXd MinBoundVector(Eigen::VectorXd in_vec, double min_bound)
   return out_vec;
 }
 
-Eigen::MatrixXd MinBoundMatrix(Eigen::MatrixXd in_mat, double min_bound)
+void MaxBoundDiagonal(Eigen::MatrixXd & mat, double max_bound)
 {
-  Eigen::MatrixXd out_mat = in_mat;
-  for (unsigned int i = 0; i < out_mat.rows(); ++i) {
-    for (unsigned int j = 0; j < out_mat.cols(); ++j) {
-      if (out_mat(i, j) < min_bound) {
-        out_mat(i, j) = min_bound;
-      }
-    }
-  }
-  return out_mat;
+  MaxBoundDiagonal(mat, max_bound, 0, std::min(mat.rows(), mat.cols()));
 }
 
 void MaxBoundDiagonal(
@@ -98,19 +86,6 @@ void MaxBoundDiagonal(
       mat(i, i) = max_bound;
     }
   }
-}
-
-Eigen::MatrixXd MaxBoundMatrix(Eigen::MatrixXd in_mat, double max_bound)
-{
-  Eigen::MatrixXd out_mat = in_mat;
-  for (unsigned int i = 0; i < out_mat.rows(); ++i) {
-    for (unsigned int j = 0; j < out_mat.cols(); ++j) {
-      if (out_mat(i, j) > max_bound) {
-        out_mat(i, j) = max_bound;
-      }
-    }
-  }
-  return out_mat;
 }
 
 /// @todo Do in place

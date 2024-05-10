@@ -65,31 +65,13 @@ TEST(test_MathHelper, MinBoundVector)
   EXPECT_EQ(vec4, Eigen::VectorXd::Ones(4));
 }
 
-TEST(test_MathHelper, MinBoundMatrix)
-{
-  Eigen::Matrix3d zeros = Eigen::Matrix3d::Zero();
-  Eigen::Matrix3d ones = Eigen::Matrix3d::Ones();
-  Eigen::Matrix3d out = MinBoundMatrix(zeros, 1.0);
-
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out, ones, 1e-6));
-}
-
-TEST(test_MathHelper, MaxBoundMatrix)
-{
-  Eigen::Matrix3d zeros = Eigen::Matrix3d::Zero();
-  Eigen::Matrix3d ones = Eigen::Matrix3d::Ones();
-  Eigen::Matrix3d out = MaxBoundMatrix(ones, 0.0);
-
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out, zeros, 1e-6));
-}
-
 TEST(test_MathHelper, MaxBoundDiagonal)
 {
-  Eigen::Matrix3d eye = Eigen::Matrix3d::Identity();
-  Eigen::Matrix3d ones = Eigen::Matrix3d::Identity() * 2;
-  Eigen::Matrix3d out = MaxBoundMatrix(ones, 1.0);
+  Eigen::MatrixXd eye = Eigen::Matrix3d::Identity();
+  Eigen::MatrixXd bounded_mat = Eigen::Matrix3d::Identity() * 2;
+  MaxBoundDiagonal(bounded_mat, 1.0);
 
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out, eye, 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(bounded_mat, eye, 1e-6));
 }
 
 TEST(test_MathHelper, RemoveFromMatrix)
