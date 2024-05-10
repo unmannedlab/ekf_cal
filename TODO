@@ -10,7 +10,6 @@ Package Features:
     - First estimate Jacobians
     - Zero-Velocity Update / Stationary Filter
     - Option for complementary IMU filter
-    - RTS-Smoothing: https://math.stackexchange.com/questions/1811214/time-complexity-of-kalman-filter-and-rts-smoother
     - Intrinsic calibration filtering
     - Condition and distance thresholds
     - Check covariance matrix condition

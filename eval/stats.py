@@ -267,42 +267,37 @@ def imu_err_bias(imu_dfs, body_truth_dfs_dict, bias_type):
 def gps_err_pos(gps_dfs, body_truth_dfs):
     RMSE_list = []
     for gps_state, body_truth in zip(gps_dfs, body_truth_dfs):
-        true_time = body_truth['time'].to_list()
-        true_lat = body_truth['ref_lat'].to_list()
-        true_lon = body_truth['ref_lon'].to_list()
-        true_alt = body_truth['ref_alt'].to_list()
+        true_lat = body_truth['ref_lat'][0]
+        true_lon = body_truth['ref_lon'][0]
+        true_alt = body_truth['ref_alt'][0]
 
-        indices = [i for i, is_initialized in enumerate(
-            gps_state['is_initialized'].to_list()) if is_initialized == 1]
-        est_time = np.array(gps_state['time'].to_list())[indices]
-        est_lat = np.array(gps_state['ref_lat'].to_list())[indices]
-        est_lon = np.array(gps_state['ref_lon'].to_list())[indices]
-        est_alt = np.array(gps_state['ref_alt'].to_list())[indices]
+        index = next((i+1 for i, x in enumerate(gps_state['is_initialized']) if x), None)
+        if index and index < len(gps_state['is_initialized']):
+            est_lat = gps_state['ref_lat'][index]
+            est_lon = gps_state['ref_lon'][index]
+            est_alt = gps_state['ref_alt'][index]
 
-        err_lat = interpolate_error(true_time, true_lat, est_time, est_lat)
-        err_lon = interpolate_error(true_time, true_lon, est_time, est_lon)
-        err_alt = interpolate_error(true_time, true_alt, est_time, est_alt)
-        RMSE_list.append(RMSE_from_vectors(err_lat, err_lon, err_alt))
+            err_lat = est_lat - true_lat
+            err_lon = est_lon - true_lon
+            err_alt = est_alt - true_alt
+            RMSE_list.append(RMSE_from_vectors([err_lat], [err_lon], [err_alt]))
     return RMSE_list
 
 
 def gps_err_ang(gps_dfs, body_truth_dfs):
     error_list = []
     for gps_state, body_truth in zip(gps_dfs, body_truth_dfs):
-        true_time = body_truth['time'].to_list()
-        true_hdg = body_truth[f'ref_heading'].to_list()
+        true_hdg = body_truth[f'ref_heading'][0]
 
-        indices = [i for i, is_initialized in enumerate(
-            gps_state['is_initialized'].to_list()) if is_initialized == 1]
-        est_time = np.array(gps_state['time'].to_list())[indices]
-        est_hdg = np.array(gps_state[f'ref_heading'].to_list())[indices]
-
-        error_list.append(interpolate_error(true_time, true_hdg, est_time, est_hdg))
+        index = next((i+1 for i, x in enumerate(gps_state['is_initialized']) if x), None)
+        if index and index < len(gps_state['is_initialized']):
+            est_hdg = gps_state[f'ref_heading'][index]
+            error_list.append(est_hdg - true_hdg)
 
     return error_list
 
 
-def gps_init_time(gps_dfs):
+def gps_init_count(gps_dfs):
     time_list = []
     for gps_state in gps_dfs:
         time_list.append(np.sum(gps_state['is_initialized'] == 0))
@@ -371,7 +366,7 @@ def calc_sim_stats(config_sets, settings):
             gps_dfs = gps_dfs_dict[key]
             stats[f'gps_{key}_err_init_pos'] = gps_err_pos(gps_dfs, body_truth_dfs)
             stats[f'gps_{key}_err_init_ang'] = gps_err_ang(gps_dfs, body_truth_dfs)
-            stats[f'gps_{key}_init_time'] = gps_init_time(gps_dfs)
+            stats[f'gps_{key}_init_count'] = gps_init_count(gps_dfs)
 
         write_summary(stat_dir, stats)
 

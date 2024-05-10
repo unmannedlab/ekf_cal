@@ -97,7 +97,7 @@ void GpsUpdater::AttemptInitialization(
 
     if (((m_initialization_type == 1) && (max_distance > m_init_baseline_dist)) ||
       ((m_initialization_type == 2) && is_successful &&
-      (m_projection_stddev / 2.0 < m_init_err_thresh)))
+      (m_projection_stddev < m_init_err_thresh)))
     {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
       Eigen::Vector3d reference_lla = enu_to_lla(-delta_ref_enu, init_ref_lla);

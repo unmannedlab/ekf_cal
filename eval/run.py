@@ -111,7 +111,7 @@ def generate_mc_from_yaml(
                 if (use_seed):
                     random.seed(seed)
 
-                n_digits = math.ceil(math.log10(num_runs - 1))
+                n_digits = math.ceil(math.log10(num_runs))
                 for i in range(num_runs):
                     sub_yaml = top_yaml
                     if (use_seed):

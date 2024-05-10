@@ -144,7 +144,7 @@ def find_and_read_data_frames(directories, prefix):
         file_paths_id = glob.glob(os.path.join(directory, prefix + '*.csv'))
         for file_path in file_paths_id:
             file_name = os.path.basename(file_path)
-            df = pd.read_csv(file_path)
+            df = pd.read_csv(file_path).dropna()
             df.attrs['prefix'] = format_prefix(prefix)
             matches = re.findall(r'_[0-9]*\.csv', file_name)
             if matches:
@@ -172,7 +172,7 @@ def generate_mc_lists(input_files, runs=None):
                     top_name = os.path.basename(input_file).split('.yaml')[0]
                     yaml_dir = input_file.split('.yaml')[0] + os.sep
                     runs_dir = os.path.join(yaml_dir, 'runs')
-                    n_digits = math.ceil(math.log10(num_runs - 1))
+                    n_digits = math.ceil(math.log10(num_runs))
                     for i in range(num_runs):
                         sub_file = os.path.join(
                             runs_dir, '{}_{:0{:d}.0f}.yaml'.format(top_name, i, n_digits))
