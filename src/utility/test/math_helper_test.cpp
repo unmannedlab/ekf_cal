@@ -53,15 +53,15 @@ TEST(test_MathHelper, MinBoundDiagonal)
 TEST(test_MathHelper, MinBoundVector)
 {
   Eigen::VectorXd vec2 = Eigen::VectorXd::Ones(2);
-  vec2 = MinBoundVector(vec2, 1);
+  MinBoundVector(vec2, 1);
   EXPECT_EQ(vec2, Eigen::VectorXd::Ones(2));
 
   Eigen::VectorXd vec3 = Eigen::VectorXd::Zero(3);
-  vec3 = MinBoundVector(vec3, 1);
+  MinBoundVector(vec3, 1);
   EXPECT_EQ(vec3, Eigen::VectorXd::Ones(3));
 
   Eigen::VectorXd vec4 = Eigen::VectorXd::Zero(4);
-  vec4 = MinBoundVector(vec4, 1);
+  MinBoundVector(vec4, 1);
   EXPECT_EQ(vec4, Eigen::VectorXd::Ones(4));
 }
 

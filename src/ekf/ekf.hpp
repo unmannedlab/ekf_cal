@@ -87,10 +87,22 @@ public:
   unsigned int GetImuCount();
 
   ///
+  /// @brief IMU state size getter method
+  /// @return IMU state size
+  ///
+  unsigned int GetImuStateSize();
+
+  ///
   /// @brief IMU count getter method
   /// @return IMU count
   ///
-  unsigned int GetImuStateSize();
+  unsigned int GetGpsCount();
+
+  ///
+  /// @brief GPS state size getter method
+  /// @return GPS state size
+  ///
+  unsigned int GetGpsStateSize();
 
   ///
   /// @brief Camera count getter method

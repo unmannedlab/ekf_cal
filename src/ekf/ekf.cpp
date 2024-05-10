@@ -311,6 +311,16 @@ unsigned int EKF::GetImuStateSize()
   return imu_state_size;
 }
 
+unsigned int EKF::GetGpsCount()
+{
+  return m_state.m_gps_states.size();
+}
+
+unsigned int EKF::GetGpsStateSize()
+{
+  return g_gps_state_size * m_state.m_gps_states.size();
+}
+
 unsigned int EKF::GetCamCount()
 {
   return m_state.m_cam_states.size();
@@ -404,6 +414,7 @@ unsigned int EKF::GetImuStateStartIndex(unsigned int imu_id)
 unsigned int EKF::GetGpsStateStartIndex(unsigned int gps_id)
 {
   unsigned int state_start_index = g_body_state_size;
+  state_start_index += GetImuStateSize();
   for (auto const & gps_iter : m_state.m_gps_states) {
     if (gps_iter.first == gps_id) {
       break;
@@ -419,6 +430,7 @@ unsigned int EKF::GetCamStateStartIndex(unsigned int cam_id)
 {
   unsigned int state_start_index = g_body_state_size;
   state_start_index += GetImuStateSize();
+  state_start_index += GetGpsStateSize();
   for (auto const & cam_iter : m_state.m_cam_states) {
     if (cam_iter.first == cam_id) {
       break;
@@ -435,6 +447,7 @@ unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, int frame_id)
 {
   unsigned int state_start_index = g_body_state_size;
   state_start_index += GetImuStateSize();
+  state_start_index += GetGpsStateSize();
   for (auto const & cam_iter : m_state.m_cam_states) {
     state_start_index += g_cam_state_size;
     for (auto const & augIter : cam_iter.second.augmented_states) {
@@ -446,7 +459,7 @@ unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, int frame_id)
     }
   }
 
-  return state_start_index;
+  return -1;
 }
 
 /// @todo Don't return a Jacobian but rather just apply a Jacobian to the covariance

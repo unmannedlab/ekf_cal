@@ -44,8 +44,9 @@ Camera::Camera(Camera::Parameters cam_params)
   cam_state.ang_c_to_b = cam_params.ang_c_to_b;
   cam_state.pos_stability = cam_params.pos_stability;
   cam_state.ang_stability = cam_params.ang_stability;
+  MinBoundVector(cam_params.variance, 1e-6);
 
-  Eigen::MatrixXd cov = MinBoundVector(cam_params.variance, 1e-6).asDiagonal();
+  Eigen::MatrixXd cov = cam_params.variance.asDiagonal();
 
   m_ekf->RegisterCamera(m_id, cam_state, cov);
 }

@@ -48,14 +48,13 @@ IMU::IMU(IMU::Parameters params)
   imu_state.ang_i_to_b = params.ang_i_to_b;
   imu_state.acc_bias = params.acc_bias;
   imu_state.omg_bias = params.omg_bias;
+  MinBoundVector(params.variance, 1e-6);
 
   Eigen::MatrixXd cov;
   if (imu_state.is_extrinsic && imu_state.is_intrinsic) {
-    Eigen::VectorXd variance = MinBoundVector(params.variance, 1e-6).segment<12>(0);
-    cov = variance.asDiagonal();
+    cov = params.variance.segment<12>(0).asDiagonal();
   } else if (imu_state.is_extrinsic || imu_state.is_intrinsic) {
-    Eigen::VectorXd variance = MinBoundVector(params.variance, 1e-6).segment<6>(0);
-    cov = variance.asDiagonal();
+    cov = params.variance.segment<6>(0).asDiagonal();
   }
 
   m_ekf->RegisterIMU(m_id, imu_state, cov);

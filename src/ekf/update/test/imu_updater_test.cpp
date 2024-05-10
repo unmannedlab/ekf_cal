@@ -37,11 +37,19 @@ TEST(test_imu_updater, update) {
   std::string log_file_directory{""};
   bool data_logging_on {true};
 
-  ImuState imu_state;
-  imu_state.is_extrinsic = true;
-  imu_state.is_intrinsic = true;
-  Eigen::MatrixXd imu_cov = Eigen::MatrixXd::Zero(12, 12);
-  ekf->RegisterIMU(imu_id, imu_state, imu_cov);
+  ImuState imu_state_1, imu_state_2, imu_state_3;
+  imu_state_1.is_intrinsic = true;
+  imu_state_1.is_extrinsic = true;
+  Eigen::MatrixXd imu_covariance_1 = Eigen::MatrixXd::Identity(12, 12);
+  imu_state_2.is_intrinsic = true;
+  imu_state_2.is_extrinsic = false;
+  Eigen::MatrixXd imu_covariance_2 = Eigen::MatrixXd::Identity(6, 6);
+  imu_state_3.is_intrinsic = false;
+  imu_state_3.is_extrinsic = true;
+  Eigen::MatrixXd imu_covariance_3 = Eigen::MatrixXd::Identity(6, 6);
+  ekf->RegisterIMU(0, imu_state_1, imu_covariance_1);
+  ekf->RegisterIMU(1, imu_state_2, imu_covariance_2);
+  ekf->RegisterIMU(2, imu_state_3, imu_covariance_3);
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on, 0.0, logger);

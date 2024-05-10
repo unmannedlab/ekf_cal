@@ -57,16 +57,13 @@ void MinBoundDiagonal(
   }
 }
 
-Eigen::VectorXd MinBoundVector(Eigen::VectorXd in_vec, double min_bound)
+void MinBoundVector(Eigen::VectorXd & in_vec, double min_bound)
 {
-  Eigen::VectorXd out_vec = in_vec;
-  for (unsigned int i = 0; i < out_vec.size(); ++i) {
-    if (out_vec(i) < min_bound) {
-      out_vec(i) = min_bound;
+  for (unsigned int i = 0; i < in_vec.size(); ++i) {
+    if (in_vec(i) < min_bound) {
+      in_vec(i) = min_bound;
     }
   }
-
-  return out_vec;
 }
 
 void MaxBoundDiagonal(Eigen::MatrixXd & mat, double max_bound)

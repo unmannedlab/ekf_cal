@@ -160,7 +160,8 @@
         "__split_buffer": "cpp",
         "__hash_table": "cpp",
         "__tree": "cpp",
-        "__bit_reference": "cpp"
+        "__bit_reference": "cpp",
+        "locale": "cpp"
     },
     "cmake.configureOnOpen": true,
     "flake8.args": [

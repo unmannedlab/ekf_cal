@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include <cv_bridge/cv_bridge.h>
 #include <stddef.h>
 
 #include <memory>
@@ -25,6 +26,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 #include <std_msgs/msg/header.hpp>
+#include <sensor_msgs/image_encodings.hpp>
 
 #include "application/ros/node/ekf_cal_node.hpp"
 
@@ -124,16 +126,26 @@ TEST_F(EkfCalNode_test, hello_world)
   imu_msg->angular_velocity_covariance.fill(0);
 
   node.ImuCallback(imu_msg, imu_id);
-  EXPECT_TRUE(true);
 
   imu_msg->header.stamp.nanosec = 500000000;
   node.ImuCallback(imu_msg, imu_id);
-  EXPECT_TRUE(true);
 
-  /// @todo add image to callback
-  // sensor_msgs::msg::Image::SharedPtr camMsg{};
-  // unsigned int camID = 2;
-  // node.cameraCallback(camMsg, camID);
+  unsigned int cam_id = 2;
+  auto cam_msg = std::make_shared<sensor_msgs::msg::Image>();
+  cv::Mat cv_image = cv::Mat::zeros(cv::Size(640, 480), CV_8UC1);
+  cam_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "8UC1", cv_image).toImageMsg();
+
+  node.CameraCallback(cam_msg, cam_id);
+
+  unsigned int gps_id = 2;
+  auto gps_msg = std::make_shared<sensor_msgs::msg::NavSatFix>();
+  gps_msg->altitude = 0.0;
+  gps_msg->latitude = 0.0;
+  gps_msg->longitude = 0.0;
+
+  node.GpsCallback(gps_msg, gps_id);
+
+  node.PublishState();
 
   EXPECT_TRUE(true);
 }
