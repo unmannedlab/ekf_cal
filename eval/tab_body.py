@@ -17,10 +17,11 @@
 
 
 from bokeh.layouts import layout
-from bokeh.models import TabPanel
+from bokeh.models import Spacer, TabPanel
 from bokeh.plotting import figure
 import numpy as np
-from utilities import calculate_alpha, calculate_rotation_errors, interpolate_error, lists_to_rot
+from utilities import calculate_alpha, calculate_rotation_errors, interpolate_error, \
+    lists_to_rot, plot_update_timing
 
 
 def plot_body_pos(body_state_dfs):
@@ -350,7 +351,6 @@ def plot_body_ang_acc_cov(body_state_dfs):
     return fig
 
 
-# TODO(jhartzer): Add timing for prediction/process updates
 def tab_body(body_state_dfs, body_truth_dfs):
     layout_plots = [
         [
@@ -380,6 +380,9 @@ def tab_body(body_state_dfs, body_truth_dfs):
         [
             plot_body_acc_cov(body_state_dfs),
             plot_body_ang_acc_cov(body_state_dfs)],
+        [
+            plot_update_timing(body_state_dfs),
+            Spacer()]
     ]
 
     tab_layout = layout(layout_plots, sizing_mode='stretch_width')

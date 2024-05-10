@@ -167,9 +167,7 @@ void ImuUpdater::UpdateEKF(
     ekf->PredictModel(
       time,
       acceleration,
-      acceleration_covariance,
-      angular_rate,
-      angular_rate_covariance);
+      angular_rate);
     return;
   }
 

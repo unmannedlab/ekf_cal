@@ -79,7 +79,7 @@ def plot_update_timing(data_frames, rate=None):
     """Plot histogram of update execution durations."""
     df_prefix = data_frames[0].attrs['prefix']
     df_id = str(data_frames[0].attrs['id'])
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='time [us]',
                  y_axis_label='Count', title=f'{df_prefix} {df_id} Update Time')
     durations = np.array([])
     for df in data_frames:

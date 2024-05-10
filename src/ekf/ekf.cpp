@@ -50,6 +50,7 @@ EKF::EKF(
   header << EnumerateHeader("body_ang_vel", 3);
   header << EnumerateHeader("body_ang_acc", 3);
   header << EnumerateHeader("body_cov", g_body_state_size);
+  header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(m_data_logging_on);
@@ -67,7 +68,7 @@ Eigen::MatrixXd EKF::GetStateTransition(double dT)
   return state_transition;
 }
 
-void EKF::LogBodyStateIfNeeded()
+void EKF::LogBodyStateIfNeeded(int execution_count)
 {
   if (m_data_logging_on) {
     std::stringstream msg;
@@ -80,6 +81,7 @@ void EKF::LogBodyStateIfNeeded()
     msg << VectorToCommaString(m_state.m_body_state.m_angular_velocity);
     msg << VectorToCommaString(m_state.m_body_state.m_angular_acceleration);
     msg << VectorToCommaString(body_cov);
+    msg << "," << execution_count;
     m_data_logger.RateLimitedLog(msg.str(), m_current_time);
   }
 }
@@ -109,6 +111,8 @@ void EKF::ProcessModel(double time)
     return;
   }
 
+  auto t_start = std::chrono::high_resolution_clock::now();
+
   double dT = time - m_current_time;
 
   Eigen::MatrixXd dF = GetStateTransition(dT);
@@ -130,15 +134,16 @@ void EKF::ProcessModel(double time)
 
   m_current_time = time;
 
-  LogBodyStateIfNeeded();
+  auto t_end = std::chrono::high_resolution_clock::now();
+  auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
+
+  LogBodyStateIfNeeded(t_execution.count());
 }
 
 void EKF::PredictModel(
   double time,
   Eigen::Vector3d acceleration,
-  Eigen::Matrix3d acceleration_covariance,
-  Eigen::Vector3d angular_rate,
-  Eigen::Matrix3d angular_rate_covariance)
+  Eigen::Vector3d angular_rate)
 {
   m_logger->Log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(time));
 
@@ -159,6 +164,8 @@ void EKF::PredictModel(
       std::to_string(time));
     return;
   }
+
+  auto t_start = std::chrono::high_resolution_clock::now();
 
   double dT = time - m_current_time;
 
@@ -187,7 +194,10 @@ void EKF::PredictModel(
 
   m_current_time = time;
 
-  LogBodyStateIfNeeded();
+  auto t_end = std::chrono::high_resolution_clock::now();
+  auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
+
+  LogBodyStateIfNeeded(t_execution.count());
 }
 
 /// @todo(jhartzer): Adjust process noise for offsets and biases

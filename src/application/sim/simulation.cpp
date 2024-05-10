@@ -493,7 +493,7 @@ int main(int argc, char * argv[])
 
   // Log truth data
   if (data_logging_on) {
-    truth_engine->WriteTruthData(body_data_rate + stationary_time, out_dir);
+    truth_engine->WriteTruthData(body_data_rate, out_dir);
   }
 
   // Sort Measurements

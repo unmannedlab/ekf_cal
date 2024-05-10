@@ -3,7 +3,7 @@
     ros__parameters:
         debug_log_level: 2
         data_logging_on: true
-        body_data_rate: 100.0
+        body_data_rate: 10.0
         sim_params:
             seed: 0.0
             use_seed: true
