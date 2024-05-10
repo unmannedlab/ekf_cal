@@ -265,28 +265,37 @@ FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_
 void EkfCalNode::DeclareGpsParameters(std::string gps_name)
 {
   // Declare parameters
-  std::string gps_prefix = "GPS." + gps_name;
-  this->declare_parameter(gps_prefix + ".Rate", 1.0);
-  this->declare_parameter(gps_prefix + ".Topic", "");
+  std::string gps_prefix = "gps." + gps_name;
+  this->declare_parameter(gps_prefix + ".rate", 1.0);
+  this->declare_parameter(gps_prefix + ".topic", "");
   this->declare_parameter(gps_prefix + ".pos_a_in_b", std::vector<double>{0, 0, 0});
-  this->declare_parameter(gps_prefix + ".VarInit", std::vector<double>{1, 1, 1});
+  this->declare_parameter(gps_prefix + ".pos_l_in_g", std::vector<double>{0, 0, 0});
+  this->declare_parameter(gps_prefix + ".ang_l_to_g", 0.0);
+  this->declare_parameter(gps_prefix + ".variance", std::vector<double>{1, 1, 1});
 }
 
 GPS::Parameters EkfCalNode::GetGpsParameters(std::string gps_name)
 {
   // Get parameters
-  std::string gps_prefix = "GPS." + gps_name;
-  double rate = this->get_parameter(gps_prefix + ".Rate").as_double();
-  std::string topic = this->get_parameter(gps_prefix + ".Topic").as_string();
+  std::string gps_prefix = "gps." + gps_name;
+  double rate = this->get_parameter(gps_prefix + ".rate").as_double();
+  std::string topic = this->get_parameter(gps_prefix + ".topic").as_string();
   std::vector<double> pos_a_in_b =
     this->get_parameter(gps_prefix + ".pos_a_in_b").as_double_array();
-  std::vector<double> variance = this->get_parameter(gps_prefix + ".VarInit").as_double_array();
+  std::vector<double> pos_l_in_g =
+    this->get_parameter(gps_prefix + ".pos_l_in_g").as_double_array();
+  double ang_l_to_g = this->get_parameter(gps_prefix + ".ang_l_to_g").as_double();
+  std::vector<double> variance = this->get_parameter(gps_prefix + ".variance").as_double_array();
   GPS::Parameters gps_params;
   gps_params.name = gps_name;
   gps_params.topic = topic;
   gps_params.rate = rate;
   gps_params.pos_a_in_b = StdToEigVec(pos_a_in_b);
+  gps_params.pos_l_in_g = StdToEigVec(pos_l_in_g);
+  gps_params.ang_l_to_g = ang_l_to_g;
   gps_params.variance = StdToEigVec(variance);
+  gps_params.ekf = m_ekf;
+  gps_params.logger = m_logger;
   return gps_params;
 }
 

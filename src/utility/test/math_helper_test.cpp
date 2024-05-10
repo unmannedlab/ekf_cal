@@ -86,10 +86,10 @@ TEST(test_MathHelper, MaxBoundMatrix)
 TEST(test_MathHelper, MaxBoundDiagonal)
 {
   Eigen::Matrix3d eye = Eigen::Matrix3d::Identity();
-  Eigen::Matrix3d ones = Eigen::Matrix3d::Ones() * 2;
-  MaxBoundMatrix(ones, 1.0);
+  Eigen::Matrix3d ones = Eigen::Matrix3d::Identity() * 2;
+  Eigen::Matrix3d out = MaxBoundMatrix(ones, 1.0);
 
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(ones, eye, 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out, eye, 1e-6));
 }
 
 TEST(test_MathHelper, RemoveFromMatrix)
