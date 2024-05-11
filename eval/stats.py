@@ -219,7 +219,6 @@ def sensor_err_pos(sensor_dfs, body_truth_dfs_dict, prefix):
     return RMSE_list
 
 
-# TODO(jhartzer): Generate this error
 def sensor_err_ang(sensor_dfs, body_truth_dfs_dict, prefix):
     """Calculate the sensor angular position error."""
     RMSE_list = []
