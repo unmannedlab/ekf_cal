@@ -15,10 +15,10 @@
 
 #include "sensors/ros/ros_camera.hpp"
 
-#include <cv_bridge/cv_bridge.h>
 
 #include <memory>
 
+#include <cv_bridge/cv_bridge.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <std_msgs/msg/header.hpp>
 

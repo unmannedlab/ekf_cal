@@ -43,7 +43,7 @@ TEST(test_gps_updater, update) {
   ekf->RegisterGPS(gps_id, gps_state, gps_cov);
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  GpsUpdater gps_updater(gps_id, 0.1, true, true, log_file_directory, data_logging_on, 0.0, logger);
+  GpsUpdater gps_updater(gps_id, 0, 0.1, 1.0, log_file_directory, data_logging_on, 0.0, logger);
 
   State state = ekf->m_state;
   EXPECT_EQ(state.m_body_state.m_position[0], 0);

@@ -286,11 +286,11 @@ def gps_err_pos(gps_dfs, body_truth_dfs):
 def gps_err_ang(gps_dfs, body_truth_dfs):
     error_list = []
     for gps_state, body_truth in zip(gps_dfs, body_truth_dfs):
-        true_hdg = body_truth[f'ref_heading'][0]
+        true_hdg = body_truth['ref_heading'][0]
 
         index = next((i+1 for i, x in enumerate(gps_state['is_initialized']) if x), None)
         if index and index < len(gps_state['is_initialized']):
-            est_hdg = gps_state[f'ref_heading'][index]
+            est_hdg = gps_state['ref_heading'][index]
             error_list.append(est_hdg - true_hdg)
 
     return error_list

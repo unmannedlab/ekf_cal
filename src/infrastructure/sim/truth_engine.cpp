@@ -26,7 +26,7 @@
 #include "utility/string_helper.hpp"
 
 TruthEngine::TruthEngine(double max_time, std::shared_ptr<DebugLogger> logger)
-: m_logger(logger), m_max_time(max_time) {}
+: m_max_time(max_time), m_logger(logger) {}
 
 Eigen::Vector3d TruthEngine::GetImuPosition(unsigned int sensor_id)
 {
