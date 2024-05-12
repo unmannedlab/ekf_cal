@@ -29,6 +29,7 @@
 #include "sensors/camera_message.hpp"
 #include "sensors/sensor.hpp"
 #include "trackers/feature_tracker.hpp"
+#include "trackers/fiducial_tracker.hpp"
 #include "utility/math_helper.hpp"
 
 
@@ -59,17 +60,24 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
     std::to_string(camera_message->m_time));
 
   if (!camera_message->image.empty()) {
-    unsigned int frameID = GenerateFrameID();
+    if (!m_trackers.empty() || !m_fiducials.empty()) {
+      unsigned int frameID = GenerateFrameID();
 
-    m_ekf->AugmentState(m_id, frameID);
+      m_ekf->AugmentState(m_id, frameID);
 
-    if (!m_trackers.empty()) {
-      m_trackers[0]->Track(camera_message->m_time, frameID, camera_message->image, m_out_img);
+      for (auto const & track_iter : m_trackers) {
+        m_trackers[track_iter.first]->Track(
+          camera_message->m_time, frameID, camera_message->image, m_out_img);
+        /// @todo Undistort points post track?
+        // cv::undistortPoints();
+      }
 
-      /// @todo Undistort points post track?
-      // cv::undistortPoints();
+      for (auto const & fiducial_iter : m_fiducials) {
+        m_fiducials[fiducial_iter.first]->Track(
+          camera_message->m_time, frameID, camera_message->image, m_out_img);
+      }
     } else {
-      m_logger->Log(LogLevel::WARN, "Camera has no trackers");
+      m_logger->Log(LogLevel::WARN, "Camera has no trackers ");
     }
   } else {
     m_logger->Log(LogLevel::INFO, "Camera received empty image");
@@ -88,5 +96,10 @@ unsigned int Camera::GenerateFrameID()
 
 void Camera::AddTracker(std::shared_ptr<FeatureTracker> tracker)
 {
-  m_trackers.push_back(tracker);
+  m_trackers[tracker->GetID()] = tracker;
+}
+
+void Camera::AddFiducial(std::shared_ptr<FiducialTracker> fiducial)
+{
+  m_fiducials[fiducial->GetID()] = fiducial;
 }

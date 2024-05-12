@@ -19,6 +19,7 @@
 #include <eigen3/Eigen/Eigen>
 
 #include <algorithm>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -29,6 +30,7 @@
 #include "sensors/sensor.hpp"
 #include "sensors/types.hpp"
 #include "trackers/feature_tracker.hpp"
+#include "trackers/fiducial_tracker.hpp"
 
 
 ///
@@ -66,6 +68,12 @@ public:
   void AddTracker(std::shared_ptr<FeatureTracker> tracker);
 
   ///
+  /// @brief Method to add fiducial object to camera sensor
+  /// @param fiducial Fiducial pointer for camera to use during callbacks
+  ///
+  void AddFiducial(std::shared_ptr<FiducialTracker> fiducial);
+
+  ///
   /// @brief Callback method for camera
   /// @param camera_message camera message
   ///
@@ -78,7 +86,8 @@ protected:
   std::shared_ptr<EKF> m_ekf;  ///< @brief EKF to update
 
 private:
-  std::vector<std::shared_ptr<FeatureTracker>> m_trackers;
+  std::map<unsigned int, std::shared_ptr<FeatureTracker>> m_trackers;
+  std::map<unsigned int, std::shared_ptr<FiducialTracker>> m_fiducials;
 
   std::vector<double> m_rad_distortion_k{0.0, 0.0, 0.0};
   std::vector<double> m_tan_distortion_d{0.0, 0.0};

@@ -22,6 +22,7 @@
 #include <opencv2/opencv.hpp>
 
 #include "infrastructure/debug_logger.hpp"
+#include "sensors/types.hpp"
 
 
 Eigen::VectorXd StdToEigVec(std::vector<double> const & in)
@@ -128,4 +129,29 @@ std::vector<Eigen::Vector3d> operator-(
     vectors_out.push_back(vector_of_vectors[i] - vector_to_subtract);
   }
   return vectors_out;
+}
+
+cv::Mat GenerateCameraMatrix(Intrinsics intrinsics)
+{
+  cv::Mat camera_matrix = cv::Mat(3, 3, CV_64F, 0.0);
+
+  camera_matrix.at<double>(0, 0) = intrinsics.f_x;
+  camera_matrix.at<double>(1, 1) = intrinsics.f_y;
+  camera_matrix.at<double>(0, 2) = intrinsics.c_x;
+  camera_matrix.at<double>(1, 2) = intrinsics.c_y;
+  camera_matrix.at<double>(2, 2) = 1.0;
+
+  return camera_matrix;
+}
+
+cv::Mat GenerateDistortionVector(Intrinsics intrinsics)
+{
+  cv::Mat distortion_vector = cv::Mat(4, 1, CV_64F, 0.0);
+
+  distortion_vector.at<double>(0) = intrinsics.k_1;
+  distortion_vector.at<double>(1) = intrinsics.k_2;
+  distortion_vector.at<double>(2) = intrinsics.p_1;
+  distortion_vector.at<double>(3) = intrinsics.p_2;
+
+  return distortion_vector;
 }

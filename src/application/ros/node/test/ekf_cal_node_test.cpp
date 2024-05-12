@@ -30,7 +30,10 @@
 
 #include "application/ros/node/ekf_cal_node.hpp"
 
-/// @todo Write these integration tests
+///
+/// @class EkfCalNode_test
+/// @brief Testing class for EkfCalNode
+///
 class EkfCalNode_test : public ::testing::Test
 {
 protected:

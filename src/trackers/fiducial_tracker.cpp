@@ -15,9 +15,11 @@
 
 #include "trackers/fiducial_tracker.hpp"
 
+#include <opencv2/aruco.hpp>
 #include <opencv2/aruco/charuco.hpp>
 
 #include "trackers/tracker.hpp"
+#include "utility/type_helper.hpp"
 
 FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
 : Tracker(params),
@@ -29,9 +31,9 @@ FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
     params.data_logging_on,
     params.data_log_rate,
     params.logger
-  )
+  ),
+  m_detector_type(params.detector_type)
 {
-  m_detector_type = params.detector_type;
   m_pos_error = params.variance.segment<3>(0);
   m_ang_error = params.variance.segment<3>(3);
 }
@@ -42,19 +44,23 @@ void FiducialTracker::Track(
   cv::Mat & img_in,
   cv::Mat & img_out)
 {
+  /// @todo(jhartzer): Make this part of constructor / input params
   const cv::Ptr<cv::aruco::Dictionary> dictionary =
     cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);
   cv::Ptr<cv::aruco::CharucoBoard> board =
     cv::aruco::CharucoBoard::create(5, 7, 0.04f, 0.02f, dictionary);
   cv::Ptr<cv::aruco::DetectorParameters> params = cv::makePtr<cv::aruco::DetectorParameters>();
   std::vector<int> marker_ids;
-  cv::Mat camera_matrix, dist_coeff;
+  cv::Mat camera_matrix = GenerateCameraMatrix(m_intrinsics);
+  cv::Mat dist_coeff = GenerateDistortionVector(m_intrinsics);
+
   std::vector<std::vector<cv::Point2f>> marker_corners;
   cv::aruco::detectMarkers(img_in, dictionary, marker_corners, marker_ids, params);
   bool detection_made {false};
 
   // if at least one marker detected
   if (marker_ids.size() > 0) {
+    img_out = img_in.clone();
     cv::aruco::drawDetectedMarkers(img_out, marker_corners, marker_ids);
     std::vector<cv::Point2f> charuco_corners;
     std::vector<int> charuco_ids;
@@ -68,8 +74,7 @@ void FiducialTracker::Track(
       cv::aruco::drawDetectedCornersCharuco(img_out, charuco_corners, charuco_ids, color);
       cv::Vec3d r_vec, t_vec;
       bool valid = cv::aruco::estimatePoseCharucoBoard(
-        charuco_corners, charuco_ids, board,
-        camera_matrix, dist_coeff, r_vec, t_vec);
+        charuco_corners, charuco_ids, board, camera_matrix, dist_coeff, r_vec, t_vec);
 
       // if charuco pose is valid
       if (valid) {
