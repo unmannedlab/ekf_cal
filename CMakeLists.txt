@@ -23,7 +23,7 @@ endif()
 
 # @TODO Should this compile without ROS? Just make EKF library?
 if(NOT DEFINED ${ROS_DISTRO})
-    set(ROS_DISTRO humble)
+    set(ROS_DISTRO iron)
 endif()
 
 list(APPEND CMAKE_PREFIX_PATH /opt/ros/${ROS_DISTRO}/)

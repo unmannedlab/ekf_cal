@@ -4,7 +4,7 @@
         100
     ],
     "python.autoComplete.extraPaths": [
-        "/opt/ros/humble/lib/python3.8/site-packages"
+        "/opt/ros/iron/lib/python3.8/site-packages"
     ],
     "files.exclude": {
         "**/__pycache__": true
@@ -207,6 +207,6 @@
         ".git/": true
     },
     "python.analysis.extraPaths": [
-        "/opt/ros/humble/lib/python3.8/site-packages"
+        "/opt/ros/iron/lib/python3.8/site-packages"
     ]
 }
