@@ -32,43 +32,43 @@
 #include "trackers/tracker.hpp"
 
 ///
+/// @brief Detector Enumerations
+///
+enum class FeatureDetectorEnum
+{
+  BRISK,
+  FAST,
+  GFTT,
+  MSER,
+  ORB,
+  SIFT,
+};
+
+///
+/// @brief Descriptor Enumerations
+///
+enum class DescriptorExtractorEnum
+{
+  ORB,
+  SIFT
+};
+
+///
+/// @brief Matcher Enumerations
+///
+enum class DescriptorMatcherEnum
+{
+  BRUTE_FORCE,
+  FLANN
+};
+
+///
 /// @class FeatureTracker
 /// @brief FeatureTracker Class
 ///
 class FeatureTracker : public Tracker
 {
 public:
-  ///
-  /// @brief Detector Enumerations
-  ///
-  enum class FeatureDetectorEnum
-  {
-    BRISK,
-    FAST,
-    GFTT,
-    MSER,
-    ORB,
-    SIFT,
-  };
-
-  ///
-  /// @brief Descriptor Enumerations
-  ///
-  enum class DescriptorExtractorEnum
-  {
-    ORB,
-    SIFT
-  };
-
-  ///
-  /// @brief Matcher Enumerations
-  ///
-  enum class DescriptorMatcherEnum
-  {
-    BRUTE_FORCE,
-    FLANN
-  };
-
   ///
   /// @brief Feature Tracker Initialization parameters structure
   ///

@@ -32,22 +32,22 @@
 #include "trackers/tracker.hpp"
 
 ///
+/// @brief Detector Enumerations
+///
+enum class FiducialTypeEnum
+{
+  ARUCO_BOARD,
+  CHARUCO_BOARD,
+  APRIL_GRID,
+};
+
+///
 /// @class FiducialTracker
 /// @brief FiducialTracker Class
 ///
 class FiducialTracker : public Tracker
 {
 public:
-  ///
-  /// @brief Detector Enumerations
-  ///
-  enum class FiducialTypeEnum
-  {
-    ARUCO_BOARD,
-    CHARUCO_BOARD,
-    APRIL_GRID,
-  };
-
   ///
   /// @brief Feature Tracker Initialization parameters structure
   ///

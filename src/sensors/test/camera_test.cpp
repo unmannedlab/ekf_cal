@@ -23,30 +23,30 @@ TEST(test_feature_tracker, initialization) {
   FeatureTracker::Parameters params;
   params.camera_id = 1;
 
-  params.detector = FeatureTracker::FeatureDetectorEnum::BRISK;
-  params.descriptor = FeatureTracker::DescriptorExtractorEnum::ORB;
-  params.matcher = FeatureTracker::DescriptorMatcherEnum::BRUTE_FORCE;
+  params.detector = FeatureDetectorEnum::BRISK;
+  params.descriptor = DescriptorExtractorEnum::ORB;
+  params.matcher = DescriptorMatcherEnum::BRUTE_FORCE;
   FeatureTracker feature_tracker_1 {params};
 
-  params.detector = FeatureTracker::FeatureDetectorEnum::FAST;
+  params.detector = FeatureDetectorEnum::FAST;
   FeatureTracker feature_tracker_2 {params};
 
-  params.detector = FeatureTracker::FeatureDetectorEnum::GFTT;
+  params.detector = FeatureDetectorEnum::GFTT;
   FeatureTracker feature_tracker_3 {params};
 
-  params.detector = FeatureTracker::FeatureDetectorEnum::MSER;
+  params.detector = FeatureDetectorEnum::MSER;
   FeatureTracker feature_tracker_4 {params};
 
-  params.detector = FeatureTracker::FeatureDetectorEnum::ORB;
+  params.detector = FeatureDetectorEnum::ORB;
   FeatureTracker feature_tracker_5 {params};
 
-  params.detector = FeatureTracker::FeatureDetectorEnum::SIFT;
+  params.detector = FeatureDetectorEnum::SIFT;
   FeatureTracker feature_tracker_6 {params};
 
-  params.descriptor = FeatureTracker::DescriptorExtractorEnum::SIFT;
+  params.descriptor = DescriptorExtractorEnum::SIFT;
   FeatureTracker feature_tracker_7 {params};
 
-  params.matcher = FeatureTracker::DescriptorMatcherEnum::FLANN;
+  params.matcher = DescriptorMatcherEnum::FLANN;
   FeatureTracker feature_tracker_8 {params};
 
   EXPECT_EQ(feature_tracker_1.GetID(), 1U);

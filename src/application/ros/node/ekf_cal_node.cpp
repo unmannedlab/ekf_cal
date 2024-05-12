@@ -252,9 +252,9 @@ FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_
   int matcher = this->get_parameter(tracker_prefix + ".descriptor_matcher").as_int();
 
   FeatureTracker::Parameters tracker_params;
-  tracker_params.detector = static_cast<FeatureTracker::FeatureDetectorEnum>(detector);
-  tracker_params.descriptor = static_cast<FeatureTracker::DescriptorExtractorEnum>(extractor);
-  tracker_params.matcher = static_cast<FeatureTracker::DescriptorMatcherEnum>(matcher);
+  tracker_params.detector = static_cast<FeatureDetectorEnum>(detector);
+  tracker_params.descriptor = static_cast<DescriptorExtractorEnum>(extractor);
+  tracker_params.matcher = static_cast<DescriptorMatcherEnum>(matcher);
   tracker_params.threshold =
     this->get_parameter(tracker_prefix + ".detector_threshold").as_double();
   tracker_params.ekf = m_ekf;

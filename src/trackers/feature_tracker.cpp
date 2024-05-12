@@ -62,9 +62,8 @@ cv::Ptr<cv::FeatureDetector> FeatureTracker::InitFeatureDetector(
       feature_detector = cv::BRISK::create(threshold, 3, 1.0);
       break;
     case FeatureDetectorEnum::FAST:
-      feature_detector = cv::FastFeatureDetector::create(
-        threshold, true,
-        cv::FastFeatureDetector::TYPE_9_16);
+      feature_detector =
+        cv::FastFeatureDetector::create(threshold, true, cv::FastFeatureDetector::TYPE_9_16);
       break;
     case FeatureDetectorEnum::GFTT:
       feature_detector = cv::GFTTDetector::create();
@@ -73,9 +72,8 @@ cv::Ptr<cv::FeatureDetector> FeatureTracker::InitFeatureDetector(
       feature_detector = cv::MSER::create();
       break;
     case FeatureDetectorEnum::ORB:
-      feature_detector = cv::ORB::create(
-        1000, 1.2f, 8, 31,
-        0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
+      feature_detector =
+        cv::ORB::create(1000, 1.2f, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
       break;
     case FeatureDetectorEnum::SIFT:
       feature_detector = cv::SIFT::create();
@@ -93,9 +91,8 @@ cv::Ptr<cv::DescriptorExtractor> FeatureTracker::InitDescriptorExtractor(
   cv::Ptr<cv::DescriptorExtractor> descriptor_extractor;
   switch (extractor) {
     case DescriptorExtractorEnum::ORB:
-      descriptor_extractor = cv::ORB::create(
-        500, 1.2f, 8, 31,
-        0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
+      descriptor_extractor =
+        cv::ORB::create(500, 1.2f, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
       break;
     case DescriptorExtractorEnum::SIFT:
       descriptor_extractor = cv::SIFT::create();
@@ -171,6 +168,7 @@ std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
 void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat & img_out)
 {
   // Down sample image
+  /// @todo(jhartzer): Get down-sample parameters from input
   cv::Mat img_down;
   cv::Size down_sample_size;
   down_sample_size.height = 480;
