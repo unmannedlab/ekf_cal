@@ -17,9 +17,22 @@
 
 #include <string>
 
+#include <rclcpp/rclcpp.hpp>
+
 #include "infrastructure/debug_logger.hpp"
 
-TEST(test_ros_debug_logger, debug_logger) {
+///
+/// @class RosDebugLogger_test
+/// @brief Testing class for RosDebugLogger
+///
+class RosDebugLogger_test : public ::testing::Test
+{
+protected:
+  virtual void SetUp() {rclcpp::init(0, NULL);}  ///< @brief EKF CAL Test node set up method
+  virtual void TearDown() {rclcpp::shutdown();}  ///< @brief EKF CAL Test node tear down method
+};
+
+TEST_F(RosDebugLogger_test, debug_logger) {
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
   logger->SetLogLevel(0);

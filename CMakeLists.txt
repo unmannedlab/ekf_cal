@@ -188,6 +188,7 @@ if(BUILD_TESTING)
         src/infrastructure/sim/test/sim_debug_logger_test.cpp
         src/infrastructure/sim/test/truth_engine_test.cpp
         src/infrastructure/test/data_logger_test.cpp
+        src/infrastructure/test/debug_logger_test.cpp
         src/sensors/ros/test/ros_camera_test.cpp
         src/sensors/ros/test/ros_gps_test.cpp
         src/sensors/ros/test/ros_imu_test.cpp

@@ -19,12 +19,30 @@
 
 #include <string>
 
-TEST(data_logger, data_logger) {
+TEST(data_logger, data_logger_constructor_1) {
   DataLogger data_logger;
 
   data_logger.Log("a1,b1");
   data_logger.SetOutputDirectory("/temp/");
   data_logger.SetOutputFileName("data.csv");
+  data_logger.DefineHeader("col1,col2");
+  data_logger.SetLogging(true);
+  data_logger.Log("a1,b1");
+}
+
+TEST(data_logger, data_logger_constructor_2) {
+  DataLogger data_logger("/temp/", "data.csv");
+
+  data_logger.Log("a1,b1");
+  data_logger.DefineHeader("col1,col2");
+  data_logger.SetLogging(true);
+  data_logger.Log("a1,b1");
+}
+
+TEST(data_logger, data_logger_constructor_3) {
+  DataLogger data_logger("/temp/", "data.csv", 1.0);
+
+  data_logger.Log("a1,b1");
   data_logger.DefineHeader("col1,col2");
   data_logger.SetLogging(true);
   data_logger.Log("a1,b1");
