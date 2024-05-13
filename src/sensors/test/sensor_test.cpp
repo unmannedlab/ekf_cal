@@ -15,6 +15,8 @@
 
 #include <gtest/gtest.h>
 
+#include <opencv2/opencv.hpp>
+
 #include "sensors/camera_message.hpp"
 #include "sensors/imu_message.hpp"
 #include "sensors/sensor_message.hpp"

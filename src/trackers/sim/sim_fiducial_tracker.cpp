@@ -15,6 +15,8 @@
 
 #include "trackers/sim/sim_fiducial_tracker.hpp"
 
+#include <opencv2/opencv.hpp>
+
 #include "utility/string_helper.hpp"
 #include "utility/type_helper.hpp"
 

@@ -20,6 +20,8 @@
 
 #include <vector>
 
+#include <opencv2/opencv.hpp>
+
 #include "utility/type_helper.hpp"
 
 

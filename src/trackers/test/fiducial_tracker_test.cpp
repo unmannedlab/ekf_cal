@@ -16,13 +16,15 @@
 #include <gtest/gtest.h>
 
 #include <memory>
+
 #include <opencv2/aruco/charuco.hpp>
+#include <opencv2/opencv.hpp>
 
 #include "trackers/fiducial_tracker.hpp"
 #include "sensors/imu.hpp"
 #include "sensors/camera.hpp"
 
-TEST(test_fiducial_tracker, constructor) {
+TEST(test_fiducial_tracker, track) {
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   auto ekf = std::make_shared<EKF>(logger, 10.0, false, "");
 
