@@ -414,3 +414,7 @@ TEST(test_GpsHelper, enu_to_lla) {
   EXPECT_NEAR(lla_3e(1), 0.001, 1e-2);
   EXPECT_NEAR(lla_3e(2), 200.0, 1e-1);
 }
+
+TEST(test_GpsHelper, wgs84_m_to_deg) {
+  EXPECT_NEAR(wgs84_m_to_deg(40075017 / 4.0), 90.0, 1e-3);
+}

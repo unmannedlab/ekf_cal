@@ -387,3 +387,34 @@ TEST(test_TruthEngineCyclic, WriteTruthData) {
 
   truth_engine_cyclic.WriteTruthData(10.0, "");
 }
+
+TEST(test_TruthEngineCyclic, SetLocalPosition) {
+  Eigen::Vector3d pos_frequency{1, 2, 3};
+  Eigen::Vector3d ang_frequency{4, 5, 6};
+  Eigen::Vector3d pos_offset{1, 2, 3};
+  Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
+  double pos_amplitude = 1.0;
+  double ang_amplitude = 0.1;
+  double stationary_time {0.0};
+  double max_time {1.0};
+  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+
+  TruthEngineCyclic truth_engine_cyclic(
+    pos_frequency,
+    ang_frequency,
+    pos_offset,
+    ang_offset,
+    pos_amplitude,
+    ang_amplitude,
+    stationary_time,
+    max_time,
+    logger
+  );
+
+  double lla_heading{0.0};
+  Eigen::Vector3d lla_reference{0, 0, 0};
+  truth_engine_cyclic.SetLocalPosition(lla_reference);
+  truth_engine_cyclic.SetLocalHeading(lla_heading);
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(truth_engine_cyclic.GetLocalPosition(), lla_reference, 1e-6));
+  EXPECT_EQ(truth_engine_cyclic.GetLocalHeading(), lla_heading);
+}
