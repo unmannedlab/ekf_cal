@@ -79,10 +79,11 @@ public:
   ///
   void Callback(std::shared_ptr<CameraMessage> camera_message);
 
+  cv::Mat m_out_img;           ///< @brief Published output test image
+
 protected:
   unsigned int GenerateFrameID();
 
-  cv::Mat m_out_img;           ///< @brief Published output test image
   std::shared_ptr<EKF> m_ekf;  ///< @brief EKF to update
 
 private:

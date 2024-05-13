@@ -74,7 +74,7 @@ public:
   ///
   typedef struct Parameters : public Tracker::Parameters
   {
-    FeatureDetectorEnum detector {FeatureDetectorEnum::ORB};            ///< @brief Detector
+    FeatureDetectorEnum detector {FeatureDetectorEnum::FAST};            ///< @brief Detector
     DescriptorExtractorEnum descriptor {DescriptorExtractorEnum::ORB};  ///< @brief Descriptor
     DescriptorMatcherEnum matcher {DescriptorMatcherEnum::FLANN};       ///< @brief Matcher
     double threshold {20.0};                                            ///< @brief Threshold
@@ -109,6 +109,24 @@ public:
   ///
   void Track(double time, int frame_id, cv::Mat & img_in, cv::Mat & img_out);
 
+
+  ///
+  /// @brief Perform ratio test on a set of matches
+  /// @param matches List of matches to perform test over
+  ///
+  void ratio_test(std::vector<std::vector<cv::DMatch>> & matches);
+
+  ///
+  /// @brief Perform symmetry test given forward and backward matches
+  /// @param matches1 Forward matches
+  /// @param matches2 Backward matches
+  /// @param good_matches Passing matches
+  ///
+  void symmetry_test(
+    std::vector<std::vector<cv::DMatch>> & matches1,
+    std::vector<std::vector<cv::DMatch>> & matches2,
+    std::vector<cv::DMatch> & good_matches);
+
 protected:
   MsckfUpdater m_msckf_updater;  ///< @brief MSCKF updater object
 
@@ -124,16 +142,16 @@ private:
   cv::Ptr<cv::DescriptorExtractor> m_descriptor_extractor;
   cv::Ptr<cv::DescriptorMatcher> m_descriptor_matcher;
 
-  std::vector<cv::KeyPoint> m_prev_key_points;
-  std::vector<cv::KeyPoint> m_curr_key_points;
+  int m_prev_frame_id;
   cv::Mat m_prev_descriptors;
-  cv::Mat m_curr_descriptors;
+  std::vector<cv::KeyPoint> m_prev_key_points;
 
   std::map<unsigned int, std::vector<FeaturePoint>> m_feature_track_map;
 
   unsigned int GenerateFeatureID();
 
   double m_px_error;
+  double m_knn_ratio{0.7};
 };
 
 #endif  // TRACKERS__FEATURE_TRACKER_HPP_

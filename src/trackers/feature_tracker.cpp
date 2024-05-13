@@ -174,34 +174,45 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
   down_sample_size.height = 480;
   down_sample_size.width = 640;
   cv::resize(img_in, img_down, down_sample_size);
-  FeatureTracks feature_tracks;
 
-  m_feature_detector->detect(img_down, m_curr_key_points);
+  std::vector<cv::KeyPoint> curr_key_points;
+  m_feature_detector->detect(img_down, curr_key_points);
   /// @todo create occupancy grid of key_points using minimal pixel distance
-  m_curr_key_points = GridFeatures(m_curr_key_points, img_down.rows, img_down.cols);
+  curr_key_points = GridFeatures(curr_key_points, img_down.rows, img_down.cols);
 
   double threshold_dist =
-    0.25 * sqrt(static_cast<double>(down_sample_size.height + down_sample_size.width));
+    0.1 * sqrt(
+    static_cast<double>(
+      down_sample_size.height * down_sample_size.height +
+      down_sample_size.width * down_sample_size.width
+    ));
 
-  m_descriptor_extractor->compute(img_down, m_curr_key_points, m_curr_descriptors);
-  m_curr_descriptors.convertTo(m_curr_descriptors, CV_32F);
-  cv::drawKeypoints(img_down, m_curr_key_points, img_out);
+  cv::Mat curr_descriptors;
+  m_descriptor_extractor->compute(img_down, curr_key_points, curr_descriptors);
+  curr_descriptors.convertTo(curr_descriptors, CV_32F);
+  cv::drawKeypoints(img_down, curr_key_points, img_out);
 
   m_logger->Log(LogLevel::DEBUG, "Called Tracker for frame ID: " + std::to_string(frame_id));
 
-  if (m_prev_descriptors.rows > 0 && m_curr_descriptors.rows > 0) {
+  if (m_prev_descriptors.rows > 0 && curr_descriptors.rows > 0) {
     std::vector<std::vector<cv::DMatch>> matches_forward, matches_backward;
     std::vector<cv::DMatch> matches_good;
 
     /// @todo Mask using maximum distance from predicted IMU rotations
-    m_descriptor_matcher->knnMatch(m_prev_descriptors, m_curr_descriptors, matches_forward, 500);
-    m_descriptor_matcher->knnMatch(m_prev_descriptors, m_curr_descriptors, matches_backward, 500);
+    m_descriptor_matcher->knnMatch(m_prev_descriptors, curr_descriptors, matches_forward, 2);
+    m_descriptor_matcher->knnMatch(curr_descriptors, m_prev_descriptors, matches_backward, 2);
+
+    ratio_test(matches_forward);
+    ratio_test(matches_backward);
+
+    /// @todo(jhartzer): Symmetry testing?
+    // symmetry_test(matches_forward, matches_backward, matches_good);
 
     matches_good.reserve(matches_forward.size());
     for (unsigned int i = 0; i < matches_forward.size(); ++i) {
       for (unsigned int j = 0; j < matches_forward[i].size(); j++) {
         cv::Point2f point_old = m_prev_key_points[matches_forward[i][j].queryIdx].pt;
-        cv::Point2f point_new = m_curr_key_points[matches_forward[i][j].trainIdx].pt;
+        cv::Point2f point_new = curr_key_points[matches_forward[i][j].trainIdx].pt;
 
         // Calculate local distance for each possible match
         double dist = sqrt(
@@ -217,27 +228,21 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
       }
     }
 
-    /// @todo(jhartzer): Ratio and Symmetry testing?
 
-    // Assign previous Key Point ID for each match
+    // Generate IDs and add to track map features that persist along at least two frames
     for (const auto & m : matches_good) {
-      m_curr_key_points[m.trainIdx].class_id = m_prev_key_points[m.queryIdx].class_id;
-    }
-
-    // Only generate feature IDs for unmatched features
-    for (auto & key_point : m_curr_key_points) {
-      if (key_point.class_id == -1) {
-        key_point.class_id = GenerateFeatureID();
+      if (m_prev_key_points[m.queryIdx].class_id == -1) {
+        m_prev_key_points[m.queryIdx].class_id = GenerateFeatureID();
+        auto feature_point = FeaturePoint{m_prev_frame_id, m_prev_key_points[m.queryIdx]};
+        m_feature_track_map[m_prev_key_points[m.queryIdx].class_id].push_back(feature_point);
       }
-    }
-
-    // Store feature tracks
-    for (const auto & key_point : m_curr_key_points) {
-      auto feature_track = FeaturePoint{frame_id, key_point};
-      m_feature_track_map[key_point.class_id].push_back(feature_track);
+      curr_key_points[m.trainIdx].class_id = m_prev_key_points[m.queryIdx].class_id;
+      auto feature_point = FeaturePoint{frame_id, curr_key_points[m.trainIdx]};
+      m_feature_track_map[curr_key_points[m.trainIdx].class_id].push_back(feature_point);
     }
 
     // Update MSCKF on features no longer detected
+    FeatureTracks feature_tracks;
     for (auto it = m_feature_track_map.cbegin(); it != m_feature_track_map.cend(); ) {
       const auto & feature_track = it->second;
       if ((feature_track.back().frame_id < frame_id) ||
@@ -252,12 +257,14 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
         ++it;
       }
     }
+    if (feature_tracks.size() > 0) {
+      m_msckf_updater.UpdateEKF(m_ekf, time, feature_tracks, m_px_error);
+    }
   }
 
-  m_msckf_updater.UpdateEKF(m_ekf, time, feature_tracks, m_px_error);
-
-  m_prev_key_points = m_curr_key_points;
-  m_prev_descriptors = m_curr_descriptors;
+  m_prev_frame_id = frame_id;
+  m_prev_key_points = curr_key_points;
+  m_prev_descriptors = curr_descriptors;
 }
 
 
@@ -265,4 +272,38 @@ unsigned int FeatureTracker::GenerateFeatureID()
 {
   static unsigned int featureID = 0;
   return featureID++;
+}
+
+void FeatureTracker::ratio_test(std::vector<std::vector<cv::DMatch>> & matches)
+{
+  for (auto & match : matches) {
+    if (match.size() > 1) {
+      // Remove matches that exceed KNN ratio
+      if (match[0].distance / match[1].distance > m_knn_ratio) {
+        match.clear();
+      }
+    } else {
+      // Remove matches without 2 neighbors
+      match.clear();
+    }
+  }
+}
+
+void FeatureTracker::symmetry_test(
+  std::vector<std::vector<cv::DMatch>> & matches1,
+  std::vector<std::vector<cv::DMatch>> & matches2,
+  std::vector<cv::DMatch> & good_matches)
+{
+  for (auto & match1 : matches1) {
+    if (match1.empty() || match1.size() < 2) {continue;}
+    for (auto & match2 : matches2) {
+      if (match2.empty() || match2.size() < 2) {continue;}
+      // Add symmetrical matches
+      if (match1[0].queryIdx == match2[0].trainIdx && match2[0].queryIdx == match1[0].trainIdx) {
+        good_matches.emplace_back(
+          cv::DMatch(match1[0].queryIdx, match1[0].trainIdx, match1[0].distance));
+        break;
+      }
+    }
+  }
 }

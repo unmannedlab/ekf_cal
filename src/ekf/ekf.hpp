@@ -55,12 +55,6 @@ public:
   unsigned int GetStateSize();
 
   ///
-  /// @brief Getter for the body state vector reference
-  /// @return Body state vector reference
-  ///
-  BodyState GetBodyState();
-
-  ///
   /// @brief Get IMU sensor state
   /// @param imu_id Sensor ID
   /// @return IMU state

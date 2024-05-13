@@ -17,6 +17,7 @@
 
 #include <opencv2/aruco.hpp>
 #include <opencv2/aruco/charuco.hpp>
+#include <opencv2/opencv.hpp>
 
 #include "trackers/tracker.hpp"
 #include "utility/type_helper.hpp"

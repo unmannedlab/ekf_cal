@@ -103,6 +103,8 @@ void SimCamera::AddFiducial(std::shared_ptr<SimFiducialTracker> fiducial)
 
 void SimCamera::Callback(std::shared_ptr<SimCameraMessage> sim_camera_message)
 {
+  m_ekf->ProcessModel(sim_camera_message->m_time);
+
   int frame_id = GenerateFrameID();
 
   m_ekf->AugmentState(m_id, frame_id);

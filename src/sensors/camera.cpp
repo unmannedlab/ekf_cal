@@ -61,6 +61,8 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
 
   if (!camera_message->image.empty()) {
     if (!m_trackers.empty() || !m_fiducials.empty()) {
+      m_ekf->ProcessModel(camera_message->m_time);
+
       unsigned int frameID = GenerateFrameID();
 
       m_ekf->AugmentState(m_id, frameID);
@@ -83,8 +85,7 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
     m_logger->Log(LogLevel::INFO, "Camera received empty image");
   }
   m_logger->Log(
-    LogLevel::DEBUG, "Camera " + std::to_string(
-      camera_message->m_sensor_id) + " callback complete");
+    LogLevel::DEBUG, "Camera " + std::to_string(m_id) + " callback complete");
 }
 
 /// @todo apply similar function to sensor/tracker IDs
