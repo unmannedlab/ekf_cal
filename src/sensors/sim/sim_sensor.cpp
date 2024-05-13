@@ -26,7 +26,7 @@ std::vector<double> SimSensor::GenerateMeasurementTimes(SimRNG rng, double m_rat
 
   std::vector<double> message_times;
   for (unsigned int i = 0; i < num_measurements; ++i) {
-    message_times.push_back(static_cast<double>(i) / m_rate + time_init);
+    message_times.push_back(ApplyTimeError(rng, static_cast<double>(i) / m_rate + time_init));
   }
   return message_times;
 }
@@ -36,6 +36,6 @@ double SimSensor::ApplyTimeError(SimRNG rng, double true_time)
   if (m_no_errors) {
     return true_time;
   } else {
-    return true_time * (1.0 + m_time_skew_error) + rng.NormRand(m_time_bias_error, m_time_error);
+    return true_time + rng.NormRand(m_time_bias_error, m_time_error);
   }
 }

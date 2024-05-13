@@ -31,7 +31,6 @@ SimGPS::SimGPS(SimGPS::Parameters params, std::shared_ptr<TruthEngine> truthEngi
 : GPS(params.gps_params)
 {
   m_time_bias_error = params.time_bias_error;
-  m_time_skew_error = params.time_skew_error;
   m_time_error = std::max(params.time_error, 1e-9);
   m_lla_error = params.lla_error;
   m_no_errors = params.no_errors;

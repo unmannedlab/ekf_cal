@@ -89,7 +89,6 @@ void LoadSimSensorParams(
 {
   params.no_errors = node["no_errors"].as<bool>(false);
   params.time_bias_error = node["time_bias_error"].as<double>(1.0e-9);
-  params.time_skew_error = node["time_skew_error"].as<double>(1.0e-9);
   params.time_error = node["time_error"].as<double>(1.0e-9);
 }
 

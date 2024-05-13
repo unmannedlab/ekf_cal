@@ -49,7 +49,6 @@ SimCamera::SimCamera(
   m_no_errors = params.no_errors;
   m_truth = truth_engine;
   m_time_bias_error = params.time_bias_error;
-  m_time_skew_error = params.time_skew_error;
 }
 
 std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages(SimRNG rng)

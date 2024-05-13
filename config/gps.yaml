@@ -65,7 +65,6 @@
                 sim_params:
                     no_errors: false
                     time_bias_error: 1.0e-9
-                    time_skew_error: 1.0e-9
                     time_error: 1.0e-6
                     pos_error: [0.0, 0.0, 0.0]
                     ang_error: [0.0, 0.0, 0.0]
@@ -94,7 +93,6 @@
                 sim_params:
                     no_errors: false
                     time_bias_error: 1.0e-9
-                    time_skew_error: 1.0e-9
                     time_error: 1.0e-9
                     lla_error: [1.0e-9, 1.0e-9, 1.0e-9]
                     pos_a_in_b_err: [1.0e-2, 1.0e-2, 1.0e-2]

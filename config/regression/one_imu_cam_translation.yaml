@@ -50,7 +50,6 @@
                 omg_bias: [0.0, 0.0, 0.0]
                 sim_params:
                     time_bias_error: 0.0
-                    time_skew_error: 0.0
                     time_error: 1.0e-6
                     acc_bias_error: [1.0e-3, 1.0e-3, 1.0e-3]
                     omg_bias_error: [1.0e-2, 1.0e-2, 1.0e-2]
@@ -68,7 +67,6 @@
                 tracker: "ORB"
                 sim_params:
                     time_bias_error: 0.0
-                    time_skew_error: 0.0
                     time_error: 1.0e-6
                     pos_error: [0.0, 0.0, 0.0]
                     ang_error: [0.0, 0.0, 0.0]

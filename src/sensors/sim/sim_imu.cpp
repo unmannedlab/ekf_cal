@@ -45,10 +45,8 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngi
 
   if (m_no_errors) {
     m_time_bias_error = 0.0;
-    m_time_skew_error = 0.0;
   } else {
     m_time_bias_error = params.time_bias_error;
-    m_time_skew_error = params.time_skew_error;
   }
 }
 

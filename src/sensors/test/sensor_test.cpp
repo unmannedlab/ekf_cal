@@ -40,3 +40,12 @@ TEST(test_sensor, MessageCompare) {
   EXPECT_TRUE(MessageCompare(camera_message, imu_message));
   EXPECT_FALSE(MessageCompare(imu_message, camera_message));
 }
+
+TEST(test_sensor, Callback) {
+  Sensor::Parameters sensor_params;
+  sensor_params.logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  Sensor sensor(sensor_params);
+
+  SensorMessage sensor_message;
+  sensor.Callback(sensor_message);
+}

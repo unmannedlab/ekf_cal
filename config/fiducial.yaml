@@ -61,7 +61,6 @@
                 data_log_rate: 5.0
                 sim_params:
                     time_bias_error: 1.0e-9
-                    time_skew_error: 1.0e-9
                     time_error: 1.0e-9
                     pos_error: [0.0, 0.0, 0.0]
                     ang_error: [0.0, 0.0, 0.0]
@@ -91,7 +90,6 @@
                     pixel_size: 1.0e-2
                 sim_params:
                     time_bias_error: 1.0e-9
-                    time_skew_error: 1.0e-9
                     time_error: 1.0e-9
                     pos_error: [1.0e-2, 1.0e-2, 1.0e-2]
                     ang_error: [1.0e-2, 1.0e-2, 1.0e-2]
