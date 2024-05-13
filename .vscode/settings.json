@@ -34,6 +34,7 @@
         "GFTT",
         "ggplot",
         "htmlonly",
+        "imread",
         "ImuUpdater",
         "imwrite",
         "inproceedings",
@@ -67,7 +68,7 @@
         "zdata"
     ],
     "terminal.integrated.scrollback": 5000,
-    "cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}/${buildType}",
+    "cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}/",
     "files.associations": {
         "cctype": "cpp",
         "clocale": "cpp",
