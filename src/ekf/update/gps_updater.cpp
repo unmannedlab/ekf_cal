@@ -74,8 +74,6 @@ void GpsUpdater::AttemptInitialization(
   m_local_xyz_vec.push_back(ekf->m_state.m_body_state.m_position);
 
   if (m_gps_time_vec.size() >= 4) {
-    // Check eigenvalue of SVD from Kabsch
-
     Eigen::Vector3d init_ref_ecef = average_vectors(m_gps_ecef_vec);
     Eigen::Vector3d init_ref_lla = ecef_to_lla(init_ref_ecef);
 

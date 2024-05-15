@@ -90,7 +90,6 @@ TEST(test_TruthEngine, InheritedFunctions) {
   SimRNG rng;
   truth_engine_cyclic.GenerateFeatures(1e3, 10, rng);
   std::vector<cv::Point3d> features = truth_engine_cyclic.GetFeatures();
-  // std::string output_directory)
 }
 
 TEST(test_TruthEngineCyclic, Constructor) {
@@ -384,6 +383,10 @@ TEST(test_TruthEngineCyclic, WriteTruthData) {
   truth_engine_cyclic.SetCameraAngularPosition(2, cam_ang_pos);
   truth_engine_cyclic.SetBoardPosition(3, board_pos);
   truth_engine_cyclic.SetBoardOrientation(3, board_ang);
+
+  SimRNG rng;
+  truth_engine_cyclic.GenerateFeatures(1e3, 10, rng);
+  std::vector<cv::Point3d> features = truth_engine_cyclic.GetFeatures();
 
   truth_engine_cyclic.WriteTruthData(10.0, "");
 }

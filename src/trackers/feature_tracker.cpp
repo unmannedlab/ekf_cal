@@ -206,7 +206,6 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
     ratio_test(matches_backward);
 
     /// @todo(jhartzer): Symmetry testing?
-    // symmetry_test(matches_forward, matches_backward, matches_good);
 
     matches_good.reserve(matches_forward.size());
     for (unsigned int i = 0; i < matches_forward.size(); ++i) {
@@ -227,7 +226,6 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
         }
       }
     }
-
 
     // Generate IDs and add to track map features that persist along at least two frames
     for (const auto & m : matches_good) {
@@ -285,25 +283,6 @@ void FeatureTracker::ratio_test(std::vector<std::vector<cv::DMatch>> & matches)
     } else {
       // Remove matches without 2 neighbors
       match.clear();
-    }
-  }
-}
-
-void FeatureTracker::symmetry_test(
-  std::vector<std::vector<cv::DMatch>> & matches1,
-  std::vector<std::vector<cv::DMatch>> & matches2,
-  std::vector<cv::DMatch> & good_matches)
-{
-  for (auto & match1 : matches1) {
-    if (match1.empty() || match1.size() < 2) {continue;}
-    for (auto & match2 : matches2) {
-      if (match2.empty() || match2.size() < 2) {continue;}
-      // Add symmetrical matches
-      if (match1[0].queryIdx == match2[0].trainIdx && match2[0].queryIdx == match1[0].trainIdx) {
-        good_matches.emplace_back(
-          cv::DMatch(match1[0].queryIdx, match1[0].trainIdx, match1[0].distance));
-        break;
-      }
     }
   }
 }
