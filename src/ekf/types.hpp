@@ -203,4 +203,11 @@ std::vector<AugmentedState> & operator+=(
 State & operator+=(State & l_state, State & rState);
 State & operator+=(State & l_state, Eigen::VectorXd & r_vector);
 
+enum class GpsInitializationType
+{
+  CONSTANT,
+  BASELINE_DIST,
+  ERROR_THRESHOLD
+};
+
 #endif  // EKF__TYPES_HPP_

@@ -298,7 +298,8 @@ bool kabsch_2d(
   const std::vector<Eigen::Vector3d> & points_tgt,
   const std::vector<Eigen::Vector3d> & points_src,
   Eigen::Affine3d & transform,
-  std::vector<Eigen::Vector3d> & projection_errors)
+  std::vector<Eigen::Vector3d> & projection_errors,
+  Eigen::VectorXd & singular_values)
 {
   if ((points_tgt.size() != points_src.size()) || (points_tgt.size() < 4)) {
     return false;
@@ -317,6 +318,7 @@ bool kabsch_2d(
 
   Eigen::MatrixXd cov = mat_src * mat_tgt.transpose();
   Eigen::JacobiSVD<Eigen::MatrixXd> svd(cov, Eigen::ComputeFullU | Eigen::ComputeFullV);
+  singular_values = svd.singularValues();
 
   Eigen::Matrix2d I = Eigen::Matrix2d::Identity();
   double det = (svd.matrixV() * svd.matrixU().transpose()).determinant();

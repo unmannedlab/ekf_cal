@@ -171,13 +171,15 @@ double affine_angle(const Eigen::Affine3d & transform);
 /// @param points_src Points in source frame
 /// @param transform Resultant transform
 /// @param projection_errors Vector of residuals from transform
+/// @param singular_values Vector of singular values from decomposition
 /// @return Was function successful
 ///
 bool kabsch_2d(
   const std::vector<Eigen::Vector3d> & points_tgt,
   const std::vector<Eigen::Vector3d> & points_src,
   Eigen::Affine3d & transform,
-  std::vector<Eigen::Vector3d> & projection_errors);
+  std::vector<Eigen::Vector3d> & projection_errors,
+  Eigen::VectorXd & singular_values);
 
 ///
 /// @brief Find maximum distance between any two points in list

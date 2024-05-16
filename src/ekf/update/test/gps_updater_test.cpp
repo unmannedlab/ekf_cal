@@ -35,7 +35,7 @@ TEST(test_gps_updater, update) {
   ekf->Initialize(time_init, body_state);
 
   unsigned int gps_id{0};
-  std::string log_file_directory{""};
+  std::string log_file_dir{""};
   bool data_logging_on {true};
 
   GpsState gps_state;
@@ -43,7 +43,8 @@ TEST(test_gps_updater, update) {
   ekf->RegisterGPS(gps_id, gps_state, gps_cov);
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  GpsUpdater gps_updater(gps_id, 2, 1.0, 1.0, log_file_directory, data_logging_on, 0.0, logger);
+  GpsInitializationType init_type = GpsInitializationType::ERROR_THRESHOLD;
+  GpsUpdater gps_updater(gps_id, init_type, 1.0, 1.0, log_file_dir, data_logging_on, 0.0, logger);
 
   State state = ekf->m_state;
   EXPECT_EQ(state.m_body_state.m_position[0], 0);

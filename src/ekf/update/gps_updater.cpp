@@ -34,7 +34,7 @@
 
 GpsUpdater::GpsUpdater(
   unsigned int gps_id,
-  unsigned int initialization_type,
+  GpsInitializationType initialization_type,
   double init_err_thresh,
   double init_baseline_dist,
   std::string log_file_directory,
@@ -84,17 +84,20 @@ void GpsUpdater::AttemptInitialization(
 
     Eigen::Affine3d transformation;
     std::vector<Eigen::Vector3d> projection_errors;
+    Eigen::VectorXd singular_values;
     bool is_successful = kabsch_2d(
       m_local_xyz_vec,
       gps_states_enu,
       transformation,
-      projection_errors);
+      projection_errors,
+      singular_values);
 
     double max_distance = maximum_distance(gps_states_enu);
     m_projection_stddev = mean_standard_deviation(projection_errors);
 
-    if (((m_initialization_type == 1) && (max_distance > m_init_baseline_dist)) ||
-      ((m_initialization_type == 2) && is_successful &&
+    if (((m_initialization_type == GpsInitializationType::BASELINE_DIST) &&
+      (max_distance > m_init_baseline_dist)) ||
+      ((m_initialization_type == GpsInitializationType::ERROR_THRESHOLD) && is_successful &&
       (m_projection_stddev < m_init_err_thresh)))
     {
       Eigen::Vector3d delta_ref_enu = transformation.translation();

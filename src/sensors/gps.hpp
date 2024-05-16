@@ -21,6 +21,7 @@
 #include <string>
 #include <memory>
 
+#include "ekf/types.hpp"
 #include "ekf/update/gps_updater.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "sensors/gps_message.hpp"
@@ -45,7 +46,8 @@ public:
     Eigen::Vector3d pos_l_in_g {0, 0, 0};  ///< @brief Local frame LLA position in global frame
     double ang_l_to_g {0.0};               ///< @brief Local frame angle to global frame
     Eigen::Vector3d variance {{1, 1, 1}};  ///< @brief Initial state variance
-    unsigned int initialization_type {0};  ///< @brief Flag to use baseline initialization
+    /// @brief Flag to use baseline initialization
+    GpsInitializationType initialization_type {GpsInitializationType::CONSTANT};
     double init_err_thresh {1.0};          ///< @brief Minimum projection error to initialize
     double init_baseline_dist {1.0};       ///< @brief Baseline distance threshold
     double pos_stability {1e-9};           ///< @brief Position stability

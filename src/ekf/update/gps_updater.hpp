@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "ekf/ekf.hpp"
+#include "ekf/types.hpp"
 #include "ekf/update/updater.hpp"
 #include "infrastructure/data_logger.hpp"
 
@@ -44,7 +45,7 @@ public:
   ///
   GpsUpdater(
     unsigned int gps_id,
-    unsigned int initialization_type,
+    GpsInitializationType initialization_type,
     double init_err_thresh,
     double init_baseline_dist,
     std::string log_file_directory,
@@ -97,7 +98,7 @@ public:
 
 private:
   double m_projection_stddev {0.0};
-  unsigned int m_initialization_type;
+  GpsInitializationType m_initialization_type;
   double m_init_err_thresh;
   double m_init_baseline_dist;
   DataLogger m_data_logger;
