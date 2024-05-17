@@ -35,7 +35,8 @@
 GpsUpdater::GpsUpdater(
   unsigned int gps_id,
   GpsInitializationType initialization_type,
-  double init_err_thresh,
+  double init_pos_thresh,
+  double init_ang_thresh,
   double init_baseline_dist,
   std::string log_file_directory,
   bool data_logging_on,
@@ -44,7 +45,8 @@ GpsUpdater::GpsUpdater(
 )
 : Updater(gps_id, logger),
   m_initialization_type(initialization_type),
-  m_init_err_thresh(init_err_thresh),
+  m_init_pos_thresh(init_pos_thresh),
+  m_init_ang_thresh(init_ang_thresh),
   m_init_baseline_dist(init_baseline_dist),
   m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
 {
@@ -98,7 +100,8 @@ void GpsUpdater::AttemptInitialization(
     if (((m_initialization_type == GpsInitializationType::BASELINE_DIST) &&
       (max_distance > m_init_baseline_dist)) ||
       ((m_initialization_type == GpsInitializationType::ERROR_THRESHOLD) && is_successful &&
-      (m_projection_stddev < m_init_err_thresh)))
+      (m_projection_stddev < m_init_pos_thresh) &&
+      singular_values.maxCoeff() > m_init_ang_thresh))
     {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
       Eigen::Vector3d reference_lla = enu_to_lla(-delta_ref_enu, init_ref_lla);

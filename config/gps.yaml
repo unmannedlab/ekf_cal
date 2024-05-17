@@ -87,14 +87,15 @@
                 variance: [1.0, 1.0, 1.0]
                 data_log_rate: 5.0
                 initialization_type: 2
-                init_err_thresh: 0.1
+                init_pos_thresh: 0.6
+                init_ang_thresh: 0.1
                 init_baseline_dist: 100.0
                 pos_stability: 1.0e-9
                 sim_params:
                     no_errors: false
                     time_bias_error: 1.0e-9
                     time_error: 1.0e-9
-                    lla_error: [1.0e-9, 1.0e-9, 1.0e-9]
+                    lla_error: [1, 1, 1]
                     pos_a_in_b_err: [1.0e-2, 1.0e-2, 1.0e-2]
                     pos_l_in_g_err: [1.0e-9, 1.0e-9, 1.0e-9]
                     ang_l_to_g_err: 1.0e-9

@@ -44,7 +44,8 @@ TEST(test_gps_updater, update) {
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   GpsInitializationType init_type = GpsInitializationType::ERROR_THRESHOLD;
-  GpsUpdater gps_updater(gps_id, init_type, 1.0, 1.0, log_file_dir, data_logging_on, 0.0, logger);
+  GpsUpdater gps_updater(
+    gps_id, init_type, 1.0, 1.0, 1.0, log_file_dir, data_logging_on, 0.0, logger);
 
   State state = ekf->m_state;
   EXPECT_EQ(state.m_body_state.m_position[0], 0);

@@ -36,7 +36,8 @@ public:
   /// @brief GPS EKF Updater Constructor
   /// @param gps_id GPS Sensor ID
   /// @param initialization_type Type of GPS initialization to use
-  /// @param init_err_thresh Error limit to initialize local reference frame
+  /// @param init_pos_thresh Error limit to initialize local reference frame pos
+  /// @param init_ang_thresh Error limit to initialize local reference frame ang
   /// @param init_baseline_dist Distance threshold to initialize
   /// @param log_file_directory Logging file directory
   /// @param data_logging_on Logging flag
@@ -46,7 +47,8 @@ public:
   GpsUpdater(
     unsigned int gps_id,
     GpsInitializationType initialization_type,
-    double init_err_thresh,
+    double init_pos_thresh,
+    double init_ang_thresh,
     double init_baseline_dist,
     std::string log_file_directory,
     bool data_logging_on,
@@ -99,7 +101,8 @@ public:
 private:
   double m_projection_stddev {0.0};
   GpsInitializationType m_initialization_type;
-  double m_init_err_thresh;
+  double m_init_pos_thresh;
+  double m_init_ang_thresh;
   double m_init_baseline_dist;
   DataLogger m_data_logger;
   std::vector<double> m_gps_time_vec;

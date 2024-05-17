@@ -447,7 +447,8 @@ int main(int argc, char * argv[])
     gps_params.pos_stability = gps_node["pos_stability"].as<double>(0.0);
     gps_params.initialization_type =
       static_cast<GpsInitializationType>(gps_node["initialization_type"].as<unsigned int>(0));
-    gps_params.init_err_thresh = gps_node["init_err_thresh"].as<double>(1.0);
+    gps_params.init_pos_thresh = gps_node["init_pos_thresh"].as<double>(1.0);
+    gps_params.init_ang_thresh = gps_node["init_ang_thresh"].as<double>(1.0);
     gps_params.init_baseline_dist = gps_node["init_baseline_dist"].as<double>(1.0);
 
     // SimParams

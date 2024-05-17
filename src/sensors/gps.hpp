@@ -48,7 +48,8 @@ public:
     Eigen::Vector3d variance {{1, 1, 1}};  ///< @brief Initial state variance
     /// @brief Flag to use baseline initialization
     GpsInitializationType initialization_type {GpsInitializationType::CONSTANT};
-    double init_err_thresh {1.0};          ///< @brief Minimum projection error to initialize
+    double init_pos_thresh {1.0};          ///< @brief Minimum projection error to initialize pos
+    double init_ang_thresh {1.0};          ///< @brief Minimum projection error to initialize ang
     double init_baseline_dist {1.0};       ///< @brief Baseline distance threshold
     double pos_stability {1e-9};           ///< @brief Position stability
   } Parameters;

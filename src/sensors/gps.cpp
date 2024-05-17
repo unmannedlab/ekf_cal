@@ -32,7 +32,8 @@ GPS::GPS(GPS::Parameters params)
   m_gps_updater(
     m_id,
     params.initialization_type,
-    params.init_err_thresh,
+    params.init_pos_thresh,
+    params.init_ang_thresh,
     params.init_baseline_dist,
     params.output_directory,
     params.data_logging_on,
