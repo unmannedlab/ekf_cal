@@ -26,7 +26,7 @@
 Eigen::Vector3d TruthEngineSpline::GetBodyPosition(double time)
 {
   double relative_time = time - m_stationary_time;
-  if (IsTimeInvalid(relative_time)) {
+  if (IsTimeInvalid(relative_time) || IsSplineInvalid(m_pos_spline)) {
     return Eigen::Vector3d::Zero(3);
   } else {
     return m_pos_spline(relative_time / m_max_time);
@@ -36,7 +36,7 @@ Eigen::Vector3d TruthEngineSpline::GetBodyPosition(double time)
 Eigen::Vector3d TruthEngineSpline::GetBodyVelocity(double time)
 {
   double relative_time = time - m_stationary_time;
-  if (IsTimeInvalid(relative_time)) {
+  if (IsTimeInvalid(relative_time) || IsSplineInvalid(m_pos_spline)) {
     return Eigen::Vector3d::Zero(3);
   } else {
     unsigned int order {1};
@@ -50,7 +50,7 @@ Eigen::Vector3d TruthEngineSpline::GetBodyVelocity(double time)
 Eigen::Vector3d TruthEngineSpline::GetBodyAcceleration(double time)
 {
   double relative_time = time - m_stationary_time;
-  if (IsTimeInvalid(relative_time)) {
+  if (IsTimeInvalid(relative_time) || IsSplineInvalid(m_pos_spline)) {
     return Eigen::Vector3d::Zero(3);
   } else {
     unsigned int order {2};
@@ -65,7 +65,7 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAcceleration(double time)
 Eigen::Quaterniond TruthEngineSpline::GetBodyAngularPosition(double time)
 {
   double relative_time = time - m_stationary_time;
-  if (IsTimeInvalid(relative_time)) {
+  if (IsTimeInvalid(relative_time) || IsSplineInvalid(m_ang_spline)) {
     return Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
   } else {
     double u = relative_time / m_max_time;
@@ -80,7 +80,7 @@ Eigen::Quaterniond TruthEngineSpline::GetBodyAngularPosition(double time)
 Eigen::Vector3d TruthEngineSpline::GetBodyAngularRate(double time)
 {
   double relative_time = time - m_stationary_time;
-  if (IsTimeInvalid(relative_time)) {
+  if (IsTimeInvalid(relative_time) || IsSplineInvalid(m_ang_spline)) {
     return Eigen::Vector3d::Zero(3);
   } else {
     unsigned int order {1};
@@ -94,7 +94,7 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAngularRate(double time)
 Eigen::Vector3d TruthEngineSpline::GetBodyAngularAcceleration(double time)
 {
   double relative_time = time - m_stationary_time;
-  if (IsTimeInvalid(relative_time)) {
+  if (IsTimeInvalid(relative_time) || IsSplineInvalid(m_ang_spline)) {
     return Eigen::Vector3d::Zero(3);
   } else {
     unsigned int order {2};
@@ -140,9 +140,14 @@ TruthEngineSpline::TruthEngineSpline(
 
 bool TruthEngineSpline::IsTimeInvalid(double time)
 {
-  if (time < 0.0 || time > m_max_time) {
+  if (time <= 0.0 || time >= m_max_time) {
     return true;
   } else {
     return false;
   }
+}
+
+bool TruthEngineSpline::IsSplineInvalid(Eigen::Spline3d spline)
+{
+  return !(*spline.ctrls().data() == *spline.ctrls().data());
 }
