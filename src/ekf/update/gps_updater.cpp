@@ -97,7 +97,8 @@ void GpsUpdater::AttemptInitialization(
     if (((m_initialization_type == GpsInitializationType::BASELINE_DIST) &&
       (max_distance > m_init_baseline_dist)) ||
       ((m_initialization_type == GpsInitializationType::ERROR_THRESHOLD) && is_successful &&
-      (m_pos_stddev < m_init_pos_thresh) && m_ang_stddev && (m_ang_stddev < m_init_ang_thresh)))
+      (m_pos_stddev < m_init_pos_thresh) && m_ang_stddev &&
+      (m_ang_stddev < std::tan(m_init_ang_thresh))))
     {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
       Eigen::Vector3d reference_lla = enu_to_lla(-delta_ref_enu, init_ref_lla);

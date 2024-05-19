@@ -344,23 +344,21 @@ bool kabsch_2d(
   transform.translation() = centroid_tgt - rotation_3d * centroid_src;
 
   std::vector<Eigen::Vector3d> pos_errors;
-  double sum_square_errors {0.0};
-  double sum_square_baselines {0.0};
+  double sum_square_slopes {0.0};
   double sum_count{0};
   for (unsigned int i = 0; i < points_tgt.size(); ++i) {
     Eigen::Vector3d pos_error = points_tgt[i] - transform * points_src[i];
     double baseline_dist = (points_tgt[i] - centroid_src).norm();
     pos_errors.push_back(pos_error);
     if (baseline_dist > pos_error.norm()) {
-      sum_square_errors += pos_error.norm() * pos_error.norm();
-      sum_square_baselines += baseline_dist * baseline_dist;
+      sum_square_slopes += std::pow(pos_error.norm() / baseline_dist, 2);
       ++sum_count;
     }
   }
 
   pos_stddev = mean_standard_deviation(pos_errors);
   if (sum_count) {
-    ang_stddev = std::sqrt(std::sqrt(sum_square_errors / sum_square_baselines) / sum_count);
+    ang_stddev = std::sqrt(sum_square_slopes) / sum_count;
   }
 
   return true;
