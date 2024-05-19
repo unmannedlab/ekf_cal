@@ -221,6 +221,18 @@ Eigen::Quaterniond average_quaternions(
   return average_quaternion;
 }
 
+double average_doubles(const std::vector<double> & values)
+{
+  if (values.size()) {
+    double sum {0.0};
+    for (auto & val : values) {
+      sum += val;
+    }
+    return sum / values.size();
+  } else {
+    return 0.0;
+  }
+}
 
 Eigen::Vector3d average_vectors(
   std::vector<Eigen::Vector3d> vectors)
@@ -298,8 +310,8 @@ bool kabsch_2d(
   const std::vector<Eigen::Vector3d> & points_tgt,
   const std::vector<Eigen::Vector3d> & points_src,
   Eigen::Affine3d & transform,
-  std::vector<Eigen::Vector3d> & projection_errors,
-  Eigen::VectorXd & singular_values)
+  double & pos_stddev,
+  double & ang_stddev)
 {
   if ((points_tgt.size() != points_src.size()) || (points_tgt.size() < 4)) {
     return false;
@@ -318,7 +330,6 @@ bool kabsch_2d(
 
   Eigen::MatrixXd cov = mat_src * mat_tgt.transpose();
   Eigen::JacobiSVD<Eigen::MatrixXd> svd(cov, Eigen::ComputeFullU | Eigen::ComputeFullV);
-  singular_values = svd.singularValues();
 
   Eigen::Matrix2d I = Eigen::Matrix2d::Identity();
   double det = (svd.matrixV() * svd.matrixU().transpose()).determinant();
@@ -332,8 +343,24 @@ bool kabsch_2d(
   transform.linear() = rotation_3d;
   transform.translation() = centroid_tgt - rotation_3d * centroid_src;
 
+  std::vector<Eigen::Vector3d> pos_errors;
+  double sum_square_errors {0.0};
+  double sum_square_baselines {0.0};
+  double sum_count{0};
   for (unsigned int i = 0; i < points_tgt.size(); ++i) {
-    projection_errors.push_back(points_tgt[i] - transform * points_src[i]);
+    Eigen::Vector3d pos_error = points_tgt[i] - transform * points_src[i];
+    double baseline_dist = (points_tgt[i] - centroid_src).norm();
+    pos_errors.push_back(pos_error);
+    if (baseline_dist > pos_error.norm()) {
+      sum_square_errors += pos_error.norm() * pos_error.norm();
+      sum_square_baselines += baseline_dist * baseline_dist;
+      ++sum_count;
+    }
+  }
+
+  pos_stddev = mean_standard_deviation(pos_errors);
+  if (sum_count) {
+    ang_stddev = std::sqrt(std::sqrt(sum_square_errors / sum_square_baselines) / sum_count);
   }
 
   return true;
@@ -375,4 +402,21 @@ double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vector
   }
 
   return std::sqrt(square_sum_of_difference) / input_vectors.size();
+}
+
+double mean_standard_deviation(const std::vector<double> & input_doubles)
+{
+  if (input_doubles.size()) {
+    double square_sum_of_difference{0.0};
+    double mean_var = average_doubles(input_doubles);
+
+    for (auto & value : input_doubles) {
+      double diff = value - mean_var;
+      square_sum_of_difference += diff * diff;
+    }
+
+    return std::sqrt(square_sum_of_difference) / input_doubles.size();
+  } else {
+    return 0.0;
+  }
 }

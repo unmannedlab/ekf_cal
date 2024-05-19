@@ -112,6 +112,8 @@ void ApplyLeftNullspace(Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::Vec
 ///
 void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual);
 
+double average_doubles(const std::vector<double> & values);
+
 ///
 /// @brief Find average of multiple quaternions
 /// @param quaternions Vector of quaternions to average
@@ -170,16 +172,16 @@ double affine_angle(const Eigen::Affine3d & transform);
 /// @param points_tgt Points in target frame
 /// @param points_src Points in source frame
 /// @param transform Resultant transform
-/// @param projection_errors Vector of residuals from transform
-/// @param singular_values Vector of singular values from decomposition
+/// @param pos_stddev Standard deviation of the position error
+/// @param ang_stddev Standard deviation of the angle error
 /// @return Was function successful
 ///
 bool kabsch_2d(
   const std::vector<Eigen::Vector3d> & points_tgt,
   const std::vector<Eigen::Vector3d> & points_src,
   Eigen::Affine3d & transform,
-  std::vector<Eigen::Vector3d> & projection_errors,
-  Eigen::VectorXd & singular_values);
+  double & pos_stddev,
+  double & ang_stddev);
 
 ///
 /// @brief Find maximum distance between any two points in list
@@ -188,6 +190,8 @@ bool kabsch_2d(
 ///
 double maximum_distance(const std::vector<Eigen::Vector3d> & eigen_points);
 
-double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vector);
+double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vectors);
+
+double mean_standard_deviation(const std::vector<double> & input_doubles);
 
 #endif  // UTILITY__MATH_HELPER_HPP_

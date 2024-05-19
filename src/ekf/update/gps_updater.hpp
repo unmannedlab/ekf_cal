@@ -99,7 +99,8 @@ public:
     std::vector<Eigen::Vector3d> local_xyz_vec);
 
 private:
-  double m_projection_stddev {0.0};
+  double m_pos_stddev {0.0};
+  double m_ang_stddev {0.0};
   GpsInitializationType m_initialization_type;
   double m_init_pos_thresh;
   double m_init_ang_thresh;

@@ -52,7 +52,7 @@ GpsUpdater::GpsUpdater(
 {
   std::stringstream header;
   header <<
-    "time,lat,lon,alt,x,y,z,ref_lat,ref_lon,ref_alt,ref_heading,projection_stddev,is_initialized";
+    "time,lat,lon,alt,x,y,z,ref_lat,ref_lon,ref_alt,ref_heading,pos_stddev,ang_stddev,is_initialized";
   header << EnumerateHeader("antenna", g_gps_state_size);
   header << EnumerateHeader("gps_cov", g_gps_state_size);
   header << EnumerateHeader("residual", g_gps_state_size);
@@ -85,23 +85,19 @@ void GpsUpdater::AttemptInitialization(
     }
 
     Eigen::Affine3d transformation;
-    std::vector<Eigen::Vector3d> projection_errors;
-    Eigen::VectorXd singular_values;
     bool is_successful = kabsch_2d(
       m_local_xyz_vec,
       gps_states_enu,
       transformation,
-      projection_errors,
-      singular_values);
+      m_pos_stddev,
+      m_ang_stddev);
 
     double max_distance = maximum_distance(gps_states_enu);
-    m_projection_stddev = mean_standard_deviation(projection_errors);
 
     if (((m_initialization_type == GpsInitializationType::BASELINE_DIST) &&
       (max_distance > m_init_baseline_dist)) ||
       ((m_initialization_type == GpsInitializationType::ERROR_THRESHOLD) && is_successful &&
-      (m_projection_stddev < m_init_pos_thresh) &&
-      singular_values.maxCoeff() > m_init_ang_thresh))
+      (m_pos_stddev < m_init_pos_thresh) && m_ang_stddev && (m_ang_stddev < m_init_ang_thresh)))
     {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
       Eigen::Vector3d reference_lla = enu_to_lla(-delta_ref_enu, init_ref_lla);
@@ -176,7 +172,8 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   msg << VectorToCommaString(pos_a_in_g);
   msg << VectorToCommaString(reference_lla, 12);
   msg << "," << ang_l_to_g;
-  msg << "," << m_projection_stddev;
+  msg << "," << m_pos_stddev;
+  msg << "," << m_ang_stddev;
   msg << "," << ekf->IsLlaInitialized();
   msg << VectorToCommaString(ekf->GetGpsState(m_id).pos_a_in_b);
   msg << VectorToCommaString(cov_diag);

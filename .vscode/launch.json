@@ -2,6 +2,14 @@
     "version": "2.0.0",
     "configurations": [
         {
+            "name": "Angle",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ang.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/config/ang"
+        },
+        {
             "name": "ekf_cal",
             "type": "cppdbg",
             "request": "launch",
