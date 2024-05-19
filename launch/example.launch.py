@@ -23,7 +23,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    """Generate launch description for EKF-CAL example config."""
+    """Generate launch description for ekf_cal example config."""
     this_dir = get_package_share_directory('ekf_cal')
 
     start_ekf_cal_node_cmd = Node(

@@ -69,7 +69,7 @@ int main(int argc, char * argv[])
   ;
 
   cv::CommandLineParser parser(argc, argv, keys);
-  parser.about("EKF-CAL Simulation: " + std::string(EKF_CAL_VERSION));
+  parser.about("ekf_cal Simulation: " + std::string(EKF_CAL_VERSION));
   if (parser.has("help") || (!parser.has("@config") || !parser.has("@out_dir"))) {
     parser.printMessage();
     return 0;

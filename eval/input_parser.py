@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Define a common input parser for EKF-CAL tools."""
+"""Define a common input parser for ekf_cal tools."""
 
 import argparse
 

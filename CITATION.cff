@@ -4,8 +4,8 @@ authors:
 - family-names: "Hartzer"
   given-names: "Jacob"
   orcid: "https://orcid.org/0000-0002-3051-2213"
-title: "EKF-CAL"
+title: "ekf_cal"
 version: 0.4.0
 # doi:
 # date-released:
-url: "https://github.com/unmannedlab/ekf-cal"
+url: "https://github.com/unmannedlab/ekf_cal"

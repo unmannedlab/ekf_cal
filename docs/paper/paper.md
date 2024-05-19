@@ -37,13 +37,13 @@ Existing Work:
 - [@Rehder]
 
 # Capabilities
-`EKF-CAL` supports any number or combination of the sensors listed in the following sections. Additionally, errors in the calibrations are modelled across Monte Carlo simulations.
+`ekf_cal` supports any number or combination of the sensors listed in the following sections. Additionally, errors in the calibrations are modelled across Monte Carlo simulations.
 
 ## IMU
-`EKF-CAL` supports the use of multiple IMU for updating the state estimate of acceleration and angular rates. A single IMU can be selected to provide state predictions, or all IMU can be used to provide state updates within the Extended Kalman Filter framework.
+`ekf_cal` supports the use of multiple IMU for updating the state estimate of acceleration and angular rates. A single IMU can be selected to provide state predictions, or all IMU can be used to provide state updates within the Extended Kalman Filter framework.
 
 ## Cameras
-`EKF-CAL` supports the use of multiple camera that can simultaneously use MSCKF-based feature tracking and fiducial marker tracking for state updates.
+`ekf_cal` supports the use of multiple camera that can simultaneously use MSCKF-based feature tracking and fiducial marker tracking for state updates.
 
 ## GPS
 Lorem ipsum.
