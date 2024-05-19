@@ -140,7 +140,7 @@ TruthEngineSpline::TruthEngineSpline(
 
 bool TruthEngineSpline::IsTimeInvalid(double time)
 {
-  if (time <= 0.0 || time >= m_max_time) {
+  if (time < 0.0 || time > m_max_time) {
     return true;
   } else {
     return false;

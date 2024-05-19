@@ -51,8 +51,8 @@ GpsUpdater::GpsUpdater(
   m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
 {
   std::stringstream header;
-  header <<
-    "time,lat,lon,alt,x,y,z,ref_lat,ref_lon,ref_alt,ref_heading,pos_stddev,ang_stddev,is_initialized";
+  header << "time,lat,lon,alt,x,y,z"
+         << ",ref_lat,ref_lon,ref_alt,ref_heading,pos_stddev,ang_stddev,is_initialized";
   header << EnumerateHeader("antenna", g_gps_state_size);
   header << EnumerateHeader("gps_cov", g_gps_state_size);
   header << EnumerateHeader("residual", g_gps_state_size);
