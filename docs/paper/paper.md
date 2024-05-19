@@ -23,6 +23,11 @@ This software package provides an example implementation of Kalman filter-based 
 
 # Statement of need
 
+This package does the following
+- Provides examples of the filtering techniques outlined in [@2023-MFI,@2022-SSRR]
+- Provides a Monte Carlo simulation for filter-based calibration techniques
+- Provides plotting and evaluation statistics
+
 Has so far been utilized in:
 - [@2022_Multi_Cam]
 - [@2023_Multi_IMU]
@@ -32,7 +37,15 @@ Existing Work:
 - [@Rehder]
 
 # Capabilities
+`EKF-CAL` supports any number or combination of the sensors listed in the following sections. Additionally, errors in the calibrations are modelled across Monte Carlo simulations.
 
+## IMU
+`EKF-CAL` supports the use of multiple IMU for updating the state estimate of acceleration and angular rates. A single IMU can be selected to provide state predictions, or all IMU can be used to provide state updates within the Extended Kalman Filter framework.
+
+## Cameras
+`EKF-CAL` supports the use of multiple camera that can simultaneously use MSCKF-based feature tracking and fiducial marker tracking for state updates.
+
+## GPS
 Lorem ipsum.
 
 # References
