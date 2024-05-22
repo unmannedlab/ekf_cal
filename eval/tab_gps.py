@@ -20,7 +20,7 @@ from bokeh.models import Paragraph, Spacer, TabPanel
 from bokeh.plotting import figure
 import numpy as np
 
-from utilities import calculate_alpha, interpolate_error, plot_update_timing
+from utilities import calculate_alpha, colors, interpolate_error, plot_update_timing
 
 
 def plot_gps_measurements(gps_dfs):
@@ -30,9 +30,9 @@ def plot_gps_measurements(gps_dfs):
     a = calculate_alpha(len(gps_dfs))
     for gps_df in gps_dfs:
         t_gps = gps_df['time'].to_list()
-        fig.line(t_gps, gps_df['x'].to_list(), alpha=a, color='cyan', legend_label='x')
-        fig.line(t_gps, gps_df['y'].to_list(), alpha=a, color='yellow', legend_label='y')
-        fig.line(t_gps, gps_df['z'].to_list(), alpha=a, color='magenta', legend_label='z')
+        fig.line(t_gps, gps_df['x'].to_list(), alpha=a, color=colors[0], legend_label='x')
+        fig.line(t_gps, gps_df['y'].to_list(), alpha=a, color=colors[1], legend_label='y')
+        fig.line(t_gps, gps_df['z'].to_list(), alpha=a, color=colors[2], legend_label='z')
     return fig
 
 
@@ -43,9 +43,9 @@ def plot_gps_residuals(gps_dfs):
     a = calculate_alpha(len(gps_dfs))
     for gps_df in gps_dfs:
         t_gps = gps_df['time'].to_list()
-        fig.line(t_gps, gps_df['residual_0'].to_list(), alpha=a, color='cyan', legend_label='x')
-        fig.line(t_gps, gps_df['residual_1'].to_list(), alpha=a, color='yellow', legend_label='y')
-        fig.line(t_gps, gps_df['residual_2'].to_list(), alpha=a, color='magenta', legend_label='z')
+        fig.line(t_gps, gps_df['residual_0'].to_list(), alpha=a, color=colors[0], legend_label='x')
+        fig.line(t_gps, gps_df['residual_1'].to_list(), alpha=a, color=colors[1], legend_label='y')
+        fig.line(t_gps, gps_df['residual_2'].to_list(), alpha=a, color=colors[2], legend_label='z')
     return fig
 
 
@@ -69,9 +69,10 @@ def plot_ant_pos_error(gps_dfs, body_truth_dfs):
         err_pos_1 = np.array(interpolate_error(true_t, true_p1, gps_t, est_p1))*1e3
         err_pos_2 = np.array(interpolate_error(true_t, true_p2, gps_t, est_p2))*1e3
 
-        fig.line(gps_t, err_pos_0, alpha=a, color='cyan', legend_label='x')
-        fig.line(gps_t, err_pos_1, alpha=a, color='yellow', legend_label='y')
-        fig.line(gps_t, err_pos_2, alpha=a, color='magenta', legend_label='z')
+        fig.line(gps_t, err_pos_0, alpha=a, color=colors[0], legend_label='x')
+        fig.line(gps_t, err_pos_1, alpha=a, color=colors[1], legend_label='y')
+        fig.line(gps_t, err_pos_2, alpha=a, color=colors[2], legend_label='z')
+    return fig
     return fig
 
 
@@ -85,9 +86,9 @@ def plot_gps_cov(gps_dfs):
         gps_int_cov_3 = gps_df['gps_cov_0'].to_list()
         gps_int_cov_4 = gps_df['gps_cov_1'].to_list()
         gps_int_cov_5 = gps_df['gps_cov_2'].to_list()
-        fig.line(t_gps, gps_int_cov_3, alpha=a, color='cyan', legend_label='x')
-        fig.line(t_gps, gps_int_cov_4, alpha=a, color='yellow', legend_label='y')
-        fig.line(t_gps, gps_int_cov_5, alpha=a, color='magenta', legend_label='z')
+        fig.line(t_gps, gps_int_cov_3, alpha=a, color=colors[0], legend_label='x')
+        fig.line(t_gps, gps_int_cov_4, alpha=a, color=colors[1], legend_label='y')
+        fig.line(t_gps, gps_int_cov_5, alpha=a, color=colors[2], legend_label='z')
     return fig
 
 

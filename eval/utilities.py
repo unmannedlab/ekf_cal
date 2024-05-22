@@ -28,6 +28,10 @@ from scipy.spatial.transform import Rotation
 import yaml
 
 
+colors = ['red', 'green', 'blue']
+# colors = ['cyan', 'yellow', 'magenta']
+
+
 def calculate_alpha(line_count: int):
     """Calculate transparency value from number of plots."""
     alpha = 1.0 / math.pow(line_count, 0.5)

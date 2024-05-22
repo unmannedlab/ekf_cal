@@ -114,7 +114,7 @@ def plot_sim_results(config_sets, output_embed):
                         with open(os.path.join(plot_dir, 'html', f'{title}.html'), 'w') as f:
                             f.write(div)
         else:
-            curdoc().theme = 'dark_minimal'
+            # curdoc().theme = 'dark_minimal'
             # TODO(jhartzer): Figure out how to add stylesheet to output
             # style_sheet = GlobalInlineStyleSheet(css=
             # """

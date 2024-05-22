@@ -21,7 +21,7 @@ from bokeh.layouts import layout
 from bokeh.models import Band, Spacer, TabPanel
 from bokeh.plotting import ColumnDataSource, figure
 import numpy as np
-from utilities import calculate_alpha, plot_update_timing
+from utilities import calculate_alpha, colors, plot_update_timing
 
 
 def plot_camera_pos(fiducial_dfs):
@@ -31,9 +31,9 @@ def plot_camera_pos(fiducial_dfs):
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
         t_cam = mskcf_df['time'].to_list()
-        fig.line(t_cam, mskcf_df['cam_pos_0'].to_list(), alpha=a, color='cyan')
-        fig.line(t_cam, mskcf_df['cam_pos_1'].to_list(), alpha=a, color='yellow')
-        fig.line(t_cam, mskcf_df['cam_pos_2'].to_list(), alpha=a, color='magenta')
+        fig.line(t_cam, mskcf_df['cam_pos_0'].to_list(), alpha=a, color=colors[0])
+        fig.line(t_cam, mskcf_df['cam_pos_1'].to_list(), alpha=a, color=colors[1])
+        fig.line(t_cam, mskcf_df['cam_pos_2'].to_list(), alpha=a, color=colors[2])
     return fig
 
 
@@ -44,9 +44,9 @@ def plot_camera_ang(fiducial_dfs):
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
         t_cam = mskcf_df['time'].to_list()
-        fig.line(t_cam, mskcf_df['cam_ang_pos_0'].to_list(), alpha=a, color='cyan')
-        fig.line(t_cam, mskcf_df['cam_ang_pos_1'].to_list(), alpha=a, color='yellow')
-        fig.line(t_cam, mskcf_df['cam_ang_pos_2'].to_list(), alpha=a, color='magenta')
+        fig.line(t_cam, mskcf_df['cam_ang_pos_0'].to_list(), alpha=a, color=colors[0])
+        fig.line(t_cam, mskcf_df['cam_ang_pos_1'].to_list(), alpha=a, color=colors[1])
+        fig.line(t_cam, mskcf_df['cam_ang_pos_2'].to_list(), alpha=a, color=colors[2])
     return fig
 
 
@@ -60,9 +60,9 @@ def plot_cam_pos_cov(fiducial_dfs):
         cam_cov_0 = mskcf_df['cam_cov_0'].to_list()
         cam_cov_1 = mskcf_df['cam_cov_1'].to_list()
         cam_cov_2 = mskcf_df['cam_cov_2'].to_list()
-        fig.line(t_cam, cam_cov_0, alpha=a, color='cyan', legend_label='p_x')
-        fig.line(t_cam, cam_cov_1, alpha=a, color='yellow', legend_label='p_y')
-        fig.line(t_cam, cam_cov_2, alpha=a, color='magenta', legend_label='p_z')
+        fig.line(t_cam, cam_cov_0, alpha=a, color=colors[0], legend_label='p_x')
+        fig.line(t_cam, cam_cov_1, alpha=a, color=colors[1], legend_label='p_y')
+        fig.line(t_cam, cam_cov_2, alpha=a, color=colors[2], legend_label='p_z')
     return fig
 
 
@@ -76,9 +76,9 @@ def plot_cam_ang_cov(fiducial_dfs):
         cam_cov_3 = mskcf_df['cam_cov_3'].to_list()
         cam_cov_4 = mskcf_df['cam_cov_4'].to_list()
         cam_cov_5 = mskcf_df['cam_cov_5'].to_list()
-        fig.line(t_cam, cam_cov_3, alpha=a, color='cyan', legend_label='\theta_x')
-        fig.line(t_cam, cam_cov_4, alpha=a, color='yellow', legend_label='\theta_y')
-        fig.line(t_cam, cam_cov_5, alpha=a, color='magenta', legend_label='\theta_z')
+        fig.line(t_cam, cam_cov_3, alpha=a, color=colors[0], legend_label='\theta_x')
+        fig.line(t_cam, cam_cov_4, alpha=a, color=colors[1], legend_label='\theta_y')
+        fig.line(t_cam, cam_cov_5, alpha=a, color=colors[2], legend_label='\theta_z')
     return fig
 
 
@@ -140,20 +140,20 @@ def plot_fiducial_error_pos(tri_dfs, board_dfs):
     std_py = std_py[t_indices]
     std_pz = std_pz[t_indices]
 
-    fig.line(times, mean_px, color='cyan')
-    fig.line(times, mean_py, color='yellow')
-    fig.line(times, mean_pz, color='magenta')
+    fig.line(times, mean_px, color=colors[0])
+    fig.line(times, mean_py, color=colors[1])
+    fig.line(times, mean_pz, color=colors[2])
 
     cds_x = ColumnDataSource({'base': times, 'lower': mean_px - std_px, 'upper': mean_px + std_px})
     cds_y = ColumnDataSource({'base': times, 'lower': mean_py - std_py, 'upper': mean_py + std_py})
     cds_z = ColumnDataSource({'base': times, 'lower': mean_pz - std_pz, 'upper': mean_pz + std_pz})
 
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_x,
-                        fill_color='cyan', line_color='cyan'))
+                        fill_color=colors[0], line_color=colors[0]))
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_y,
-                        fill_color='yellow', line_color='yellow'))
+                        fill_color=colors[1], line_color=colors[1]))
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_z,
-                        fill_color='magenta', line_color='magenta'))
+                        fill_color=colors[2], line_color=colors[2]))
 
     return fig
 
@@ -228,9 +228,9 @@ def plot_fiducial_error_ang(tri_dfs, board_dfs):
     std_qy = std_qy[t_indices]
     std_qz = std_qz[t_indices]
 
-    fig.line(times, mean_qw, color='cyan')
-    fig.line(times, mean_qx, color='yellow')
-    fig.line(times, mean_qy, color='magenta')
+    fig.line(times, mean_qw, color=colors[0])
+    fig.line(times, mean_qx, color=colors[1])
+    fig.line(times, mean_qy, color=colors[2])
     fig.line(times, mean_qz, color='purple')
 
     cds_w = ColumnDataSource({'base': times, 'lower': mean_qw - std_qw, 'upper': mean_qw + std_qw})
@@ -239,13 +239,13 @@ def plot_fiducial_error_ang(tri_dfs, board_dfs):
     cds_z = ColumnDataSource({'base': times, 'lower': mean_qz - std_qz, 'upper': mean_qz + std_qz})
 
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_w,
-                        fill_color='cyan', line_color='cyan'))
+                        fill_color=colors[0], line_color=colors[0]))
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_x,
-                        fill_color='yellow', line_color='yellow'))
+                        fill_color=colors[1], line_color=colors[1]))
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_y,
-                        fill_color='magenta', line_color='magenta'))
+                        fill_color=colors[2], line_color=colors[2]))
     fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_z,
-                        fill_color='magenta', line_color='magenta'))
+                        fill_color=colors[2], line_color=colors[2]))
 
     return fig
 
