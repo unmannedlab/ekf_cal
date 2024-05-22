@@ -3,25 +3,30 @@
     ros__parameters:
         debug_log_level: 2
         data_logging_on: true
-        body_data_rate: 10.0
+        body_data_rate: 2.0
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 100.0
+            max_time: 600.0
             number_of_runs: 10
             run_number: 0
             stationary_time: 1.0
             truth_type: "spline"
             positions:
                 - [00.0, 00.0, 00.0]
-                - [10.0, 05.0, 10.0]
-                - [20.0, 20.0, 25.0]
-                - [35.0, 30.0, 30.0]
+                - [00.0, 00.0, 00.0]
+                # - [00.0, 00.0, 00.0]
+                # - [00.0, 00.0, 00.0]
+                # - [00.0, 00.0, 00.0]
+                # - [10.0, 05.0, 10.0]
+                # - [20.0, 20.0, 25.0]
+                # - [35.0, 30.0, 30.0]
             angles:
                 - [0.0, 0.0, 0.0]
                 - [0.0, 0.0, 0.0]
-                - [0.0, 0.0, 0.0]
-                - [0.0, 0.0, 0.0]
+                # - [1.0, 0.0, 1.0]
+                # - [0.0, 1.0, 0.0]
+                # - [1.0, 0.0, 1.0]
 
         filter_params:
             process_noise: [
@@ -47,10 +52,10 @@
 
         imu:
             vn300:
-                use_for_prediction: false
+                use_for_prediction: true
                 is_extrinsic: false
                 is_intrinsic: false
-                rate: 400.0
+                rate: 10.0
                 topic: "/vn300/imu_uncompensated"
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 pos_i_in_b: [0.0, 0.0, 0.0]
@@ -63,7 +68,7 @@
                 omg_bias_stability: 1.0e-3
                 data_log_rate: 10.0
                 sim_params:
-                    no_errors: false
+                    no_errors: true
                     time_bias_error: 1.0e-9
                     time_error: 1.0e-6
                     pos_error: [0.0, 0.0, 0.0]
@@ -79,15 +84,15 @@
 
         gps:
             gps_1:
-                rate: 5.0
+                rate: 10.0
                 topic: "/gps1"
                 pos_a_in_b: [0.0, 0.0, 0.0]
                 pos_l_in_g: [0.0, 0.0, 0.0]
                 ang_l_to_g: 0.0
                 variance: [1.0, 1.0, 1.0]
                 data_log_rate: 5.0
-                initialization_type: 2
-                init_pos_thresh: 0.6
+                initialization_type: 0
+                init_pos_thresh: 0.1
                 init_ang_thresh: 0.1
                 init_baseline_dist: 100.0
                 pos_stability: 1.0e-9
@@ -95,7 +100,7 @@
                     no_errors: false
                     time_bias_error: 1.0e-9
                     time_error: 1.0e-9
-                    lla_error: [1, 1, 1]
-                    pos_a_in_b_err: [1.0e-2, 1.0e-2, 1.0e-2]
+                    lla_error: [1.0, 1.0, 1.0]
+                    pos_a_in_b_err: [1.0e-1, 1.0e-1, 1.0e-1]
                     pos_l_in_g_err: [1.0e-9, 1.0e-9, 1.0e-9]
                     ang_l_to_g_err: 1.0e-9

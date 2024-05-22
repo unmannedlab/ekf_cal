@@ -122,8 +122,6 @@ void EKF::ProcessModel(double time)
 
   m_state.m_body_state += process_update;
 
-  // Process input matrix is just identity
-  /// @todo(jhartzer): Limit covariance for angular uncertainty
   /// @todo(jhartzer): Check matrix condition
   m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
     F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose();
@@ -188,6 +186,10 @@ void EKF::PredictModel(
   Eigen::MatrixXd dF = GetStateTransition(dT);
   Eigen::MatrixXd F = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) + dF;
 
+  /// @todo(jhartzer): Check matrix condition
+  m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
+    F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose();
+
   AddProccessNoise(dT);
 
   LimitUncertainty();
@@ -244,7 +246,6 @@ void EKF::AddProccessNoise(double delta_time)
     m_cov.block<3, 3>(gps_state_start, gps_state_start) += process_noise;
   }
 
-
   for (auto const & cam_iter : m_state.m_cam_states) {
     unsigned int cam_state_start = GetCamStateStartIndex(cam_iter.first);
     Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
@@ -262,17 +263,40 @@ void EKF::LimitUncertainty()
   // Create lower bound to uncertainty
   MinBoundDiagonal(m_cov, 1e-6);
 
-  Eigen::VectorXd body_cov = m_cov.block<g_body_state_size, g_body_state_size>(0, 0).diagonal();
-
   // Create upper bound to uncertainty
-  MaxBoundDiagonal(m_cov, 1e2, 0, 3);
-  MaxBoundDiagonal(m_cov, 1e1, 3, 3);
-  MaxBoundDiagonal(m_cov, 1e1, 6, 3);
+  MaxBoundDiagonal(m_cov, 1e0, 0, 3);
+  MaxBoundDiagonal(m_cov, 1e0, 3, 3);
+  MaxBoundDiagonal(m_cov, 1e0, 6, 3);
   MaxBoundDiagonal(m_cov, 1e0, 9, 3);
   MaxBoundDiagonal(m_cov, 1e0, 12, 3);
   MaxBoundDiagonal(m_cov, 1e0, 15, 3);
 
-  body_cov = m_cov.block<g_body_state_size, g_body_state_size>(0, 0).diagonal();
+  for (auto imu_state: m_state.m_imu_states) {
+    unsigned int imu_index = GetImuStateStartIndex(imu_state.first);
+    if (imu_state.second.is_extrinsic && imu_state.second.is_intrinsic) {
+      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 0, 3);
+      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 3, 3);
+      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 6, 3);
+      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 9, 3);
+    } else if (imu_state.second.is_extrinsic) {
+      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 0, 3);
+      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 3, 3);
+    } else if (imu_state.second.is_intrinsic) {
+      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 0, 3);
+      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 3, 3);
+    }
+  }
+
+  for (auto gps_state: m_state.m_gps_states) {
+    unsigned int gps_index = GetGpsStateStartIndex(gps_state.first);
+    MaxBoundDiagonal(m_cov, 1e-1, gps_index + 0, 3);
+  }
+
+  for (auto cam_state: m_state.m_cam_states) {
+    unsigned int cam_index = GetCamStateStartIndex(cam_state.first);
+    MaxBoundDiagonal(m_cov, 1e-1, cam_index + 0, 3);
+    MaxBoundDiagonal(m_cov, 1e-1, cam_index + 3, 3);
+  }
 }
 
 unsigned int EKF::GetStateSize()
@@ -345,8 +369,10 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
   unsigned int imu_state_start = g_body_state_size + GetImuStateSize();
 
   /// @todo check size of matrix being inserted
-  m_cov = InsertInMatrix(covariance, m_cov, imu_state_start, imu_state_start);
   m_state.m_imu_states[imu_id] = imu_state;
+  if (imu_state.is_extrinsic || imu_state.is_intrinsic) {
+    m_cov = InsertInMatrix(covariance, m_cov, imu_state_start, imu_state_start);
+  }
   if (imu_state.is_extrinsic) {m_state_size += g_imu_extrinsic_state_size;}
   if (imu_state.is_intrinsic) {m_state_size += g_imu_intrinsic_state_size;}
 
@@ -364,8 +390,9 @@ void EKF::RegisterGPS(unsigned int gps_id, GpsState gps_state, Eigen::Matrix3d c
     m_logger->Log(LogLevel::WARN, gps_id_used_warning.str());
   }
 
+  unsigned int gps_state_end = g_body_state_size + GetImuStateSize() + GetGpsStateSize();
   m_state.m_gps_states[gps_id] = gps_state;
-  m_cov = InsertInMatrix(covariance, m_cov, g_gps_state_size, g_gps_state_size);
+  m_cov = InsertInMatrix(covariance, m_cov, gps_state_end, gps_state_end);
   m_state_size += g_gps_state_size;
 
   std::stringstream log_msg;
