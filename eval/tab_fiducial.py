@@ -26,7 +26,7 @@ from utilities import calculate_alpha, plot_update_timing
 
 def plot_camera_pos(fiducial_dfs):
     """Plot camera position offsets."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Position [m]', title='Camera Position')
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
@@ -39,7 +39,7 @@ def plot_camera_pos(fiducial_dfs):
 
 def plot_camera_ang(fiducial_dfs):
     """Plot camera angular offsets."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Orientation', title='Camera Orientation')
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
@@ -52,7 +52,7 @@ def plot_camera_ang(fiducial_dfs):
 
 def plot_cam_pos_cov(fiducial_dfs):
     """Plot extrinsic position covariance."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Position Covariance [m]', title='Camera Position Covariance')
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
@@ -68,7 +68,7 @@ def plot_cam_pos_cov(fiducial_dfs):
 
 def plot_cam_ang_cov(fiducial_dfs):
     """Plot extrinsic angle covariance."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angle Covariance [m]', title='Camera Angle Covariance')
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
@@ -84,7 +84,7 @@ def plot_cam_ang_cov(fiducial_dfs):
 
 def plot_fiducial_error_pos(tri_dfs, board_dfs):
     """Plot fiducial position error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Position Error [m]', title='Fiducial Position Error')
 
     err_px = collections.defaultdict(list)
@@ -160,7 +160,7 @@ def plot_fiducial_error_pos(tri_dfs, board_dfs):
 
 def plot_fiducial_error_ang(tri_dfs, board_dfs):
     """Plot fiducial angular error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angular Error', title='Fiducial Angular Error')
 
     err_qw = collections.defaultdict(list)

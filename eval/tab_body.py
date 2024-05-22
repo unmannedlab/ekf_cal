@@ -26,7 +26,7 @@ from utilities import calculate_alpha, calculate_rotation_errors, interpolate_er
 
 def plot_body_pos(body_state_dfs):
     """Plot body position."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Position [m]', title='Body Position')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
@@ -39,7 +39,7 @@ def plot_body_pos(body_state_dfs):
 
 def plot_body_vel(body_state_dfs):
     """Plot body velocity."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Velocity [m/s]', title='Body Velocity')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
@@ -52,7 +52,7 @@ def plot_body_vel(body_state_dfs):
 
 def plot_body_acc(body_state_dfs):
     """Plot body acceleration."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Acceleration [m/s/s]', title='Body Acceleration')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
@@ -65,7 +65,7 @@ def plot_body_acc(body_state_dfs):
 
 def plot_body_ang(body_state_dfs):
     """Plot body angular position."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angle', title='Body Angle')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
@@ -79,7 +79,7 @@ def plot_body_ang(body_state_dfs):
 
 def plot_body_ang_vel(body_state_dfs):
     """Plot body angular velocity."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angular Velocity', title='Body Angular Velocity')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
@@ -92,7 +92,7 @@ def plot_body_ang_vel(body_state_dfs):
 
 def plot_body_ang_acc(body_state_dfs):
     """Plot body angular acceleration."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angular Acceleration', title='Body Angular Acceleration')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
@@ -105,7 +105,7 @@ def plot_body_ang_acc(body_state_dfs):
 
 def plot_body_err_pos(body_state_dfs, body_truth_dfs):
     """Plot the body state position error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Position Error [m]', title='Body Position Error')
     a = calculate_alpha(len(body_state_dfs))
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
@@ -132,7 +132,7 @@ def plot_body_err_pos(body_state_dfs, body_truth_dfs):
 
 def plot_body_err_vel(body_state_dfs, body_truth_dfs):
     """Plot the body state velocity error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Velocity Error [m/s]', title='Body Velocity Error')
     a = calculate_alpha(len(body_state_dfs))
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
@@ -159,7 +159,7 @@ def plot_body_err_vel(body_state_dfs, body_truth_dfs):
 
 def plot_body_err_acc(body_state_dfs, body_truth_dfs):
     """Plot the body state acceleration error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Acceleration Error [m/s/s]', title='Body Acceleration Error')
     a = calculate_alpha(len(body_state_dfs))
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
@@ -185,7 +185,7 @@ def plot_body_err_acc(body_state_dfs, body_truth_dfs):
 
 def plot_body_err_ang(body_state_dfs, body_truth_dfs):
     """Plot the body state angular error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angular Error', title='Body Angular Error')
     a = calculate_alpha(len(body_state_dfs))
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
@@ -220,7 +220,7 @@ def plot_body_err_ang(body_state_dfs, body_truth_dfs):
 
 def plot_body_err_ang_vel(body_state_dfs, body_truth_dfs):
     """Plot the body state angular velocity error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angular Velocity Error [rad/s]',
                  title='Body Angular Velocity Error')
     a = calculate_alpha(len(body_state_dfs))
@@ -247,7 +247,7 @@ def plot_body_err_ang_vel(body_state_dfs, body_truth_dfs):
 
 def plot_body_err_ang_acc(body_state_dfs, body_truth_dfs):
     """Plot the body state angular acceleration error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angular Acceleration Error [rad/s/s]',
                  title='Body Angular Acceleration Error')
     a = calculate_alpha(len(body_state_dfs))
@@ -274,7 +274,7 @@ def plot_body_err_ang_acc(body_state_dfs, body_truth_dfs):
 
 def plot_body_pos_cov(body_state_dfs):
     """Plot body covariances for body position."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Position [m]', title='Body Position Covariance')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
@@ -287,7 +287,7 @@ def plot_body_pos_cov(body_state_dfs):
 
 def plot_body_vel_cov(body_state_dfs):
     """Plot body covariances for body velocity."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Velocity [m/s]', title='Body Velocity Covariance')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
@@ -300,7 +300,7 @@ def plot_body_vel_cov(body_state_dfs):
 
 def plot_body_acc_cov(body_state_dfs):
     """Plot body covariances for body acceleration."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Acceleration [m/s/s]', title='Body Acceleration Covariance')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
@@ -313,7 +313,7 @@ def plot_body_acc_cov(body_state_dfs):
 
 def plot_body_ang_cov(body_state_dfs):
     """Plot body covariances for body angles."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='', title='Body Angular Covariance')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
@@ -326,7 +326,7 @@ def plot_body_ang_cov(body_state_dfs):
 
 def plot_body_ang_vel_cov(body_state_dfs):
     """Plot body covariances for body angular rate."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angular Rate [rad/s]', title='Body Angular Rate Covariance')
     a = calculate_alpha(len(body_state_dfs))
     for body_df in body_state_dfs:
@@ -339,7 +339,7 @@ def plot_body_ang_vel_cov(body_state_dfs):
 
 def plot_body_ang_acc_cov(body_state_dfs):
     """Plot body covariances for body angular acceleration."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angular Acceleration [rad/s/s]',
                  title='Body Angular Acceleration Covariance')
     a = calculate_alpha(len(body_state_dfs))

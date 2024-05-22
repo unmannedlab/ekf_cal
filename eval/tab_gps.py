@@ -25,7 +25,7 @@ from utilities import calculate_alpha, interpolate_error, plot_update_timing
 
 def plot_gps_measurements(gps_dfs):
     """Plot camera GPS measurements."""
-    fig = figure(width=400, height=300, x_axis_label='time [s]',
+    fig = figure(width=400, height=300, x_axis_label='Time [s]',
                  y_axis_label='Position [m]', title='GPS Measurements')
     a = calculate_alpha(len(gps_dfs))
     for gps_df in gps_dfs:
@@ -38,7 +38,7 @@ def plot_gps_measurements(gps_dfs):
 
 def plot_gps_residuals(gps_dfs):
     """Plot camera GPS residuals."""
-    fig = figure(width=400, height=300, x_axis_label='time [s]',
+    fig = figure(width=400, height=300, x_axis_label='Time [s]',
                  y_axis_label='Position Residual [m]', title='GPS Residuals')
     a = calculate_alpha(len(gps_dfs))
     for gps_df in gps_dfs:
@@ -51,8 +51,8 @@ def plot_gps_residuals(gps_dfs):
 
 def plot_ant_pos_error(gps_dfs, body_truth_dfs):
     """Plot camera GPS residuals."""
-    fig = figure(width=400, height=300, x_axis_label='time [s]',
-                 y_axis_label='Antenna Position Error [m]', title='Antenna Position Error')
+    fig = figure(width=400, height=300, x_axis_label='Time [s]',
+                 y_axis_label='Antenna Position Error [mm]', title='Antenna Position Error')
     a = calculate_alpha(len(gps_dfs))
     for gps_df, body_truth in zip(gps_dfs, body_truth_dfs):
         true_t = body_truth['time'].to_list()
@@ -65,9 +65,9 @@ def plot_ant_pos_error(gps_dfs, body_truth_dfs):
         est_p1 = gps_df['antenna_1'].to_list()
         est_p2 = gps_df['antenna_2'].to_list()
 
-        err_pos_0 = interpolate_error(true_t, true_p0, gps_t, est_p0)
-        err_pos_1 = interpolate_error(true_t, true_p1, gps_t, est_p1)
-        err_pos_2 = interpolate_error(true_t, true_p2, gps_t, est_p2)
+        err_pos_0 = np.array(interpolate_error(true_t, true_p0, gps_t, est_p0))*1e3
+        err_pos_1 = np.array(interpolate_error(true_t, true_p1, gps_t, est_p1))*1e3
+        err_pos_2 = np.array(interpolate_error(true_t, true_p2, gps_t, est_p2))*1e3
 
         fig.line(gps_t, err_pos_0, alpha=a, color='cyan', legend_label='x')
         fig.line(gps_t, err_pos_1, alpha=a, color='yellow', legend_label='y')
@@ -77,7 +77,7 @@ def plot_ant_pos_error(gps_dfs, body_truth_dfs):
 
 def plot_gps_cov(gps_dfs):
     """Plot GPS antenna position covariance."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Position Covariance [m]', title='GPS Antenna Position Covariance')
     a = calculate_alpha(len(gps_dfs))
     for gps_df in gps_dfs:

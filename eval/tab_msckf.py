@@ -28,7 +28,7 @@ from utilities import calculate_alpha, plot_update_timing
 
 def plot_camera_pos(mskcf_dfs):
     """Plot camera position offsets."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Position [m]', title='Camera Position')
     a = calculate_alpha(len(mskcf_dfs))
     for mskcf_df in mskcf_dfs:
@@ -41,7 +41,7 @@ def plot_camera_pos(mskcf_dfs):
 
 def plot_camera_ang(mskcf_dfs):
     """Plot camera angular offsets."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Orientation', title='Camera Orientation')
     a = calculate_alpha(len(mskcf_dfs))
     for mskcf_df in mskcf_dfs:
@@ -54,7 +54,7 @@ def plot_camera_ang(mskcf_dfs):
 
 def plot_cam_pos_cov(mskcf_dfs):
     """Plot extrinsic position covariance."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Position Covariance [m]', title='Position Covariance')
     a = calculate_alpha(len(mskcf_dfs))
     for mskcf_df in mskcf_dfs:
@@ -70,7 +70,7 @@ def plot_cam_pos_cov(mskcf_dfs):
 
 def plot_cam_ang_cov(mskcf_dfs):
     """Plot extrinsic angle covariance."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angle Covariance [m]', title='Angle Covariance')
     a = calculate_alpha(len(mskcf_dfs))
     for mskcf_df in mskcf_dfs:
@@ -86,7 +86,7 @@ def plot_cam_ang_cov(mskcf_dfs):
 
 def plot_triangulation_error(tri_dfs, feat_dfs):
     """Plot MSCKF feature point triangulation error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Triangulation Error [m]', title='MSCKF Triangulation Error')
 
     err_x = collections.defaultdict(list)

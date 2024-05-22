@@ -24,7 +24,7 @@ from utilities import calculate_alpha, plot_update_timing
 
 def plot_acc_measurements(imu_dfs):
     """Plot acceleration measurements."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Acceleration [m/s/s]', title='Acceleration Measurements')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
@@ -37,7 +37,7 @@ def plot_acc_measurements(imu_dfs):
 
 def plot_omg_measurements(imu_dfs):
     """Plot angular rate measurements."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angular Rate [rad/s]', title='Angular Rate Measurements')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
@@ -50,7 +50,7 @@ def plot_omg_measurements(imu_dfs):
 
 def plot_acc_residuals(imu_dfs):
     """Plot acceleration residuals."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Acceleration [m/s/s]', title='Acceleration Residuals')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
@@ -63,7 +63,7 @@ def plot_acc_residuals(imu_dfs):
 
 def plot_omg_residuals(imu_dfs):
     """Plot angular rate residuals."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angular Rate [rad/s]', title='Angular Rate Residuals')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
@@ -76,7 +76,7 @@ def plot_omg_residuals(imu_dfs):
 
 def plot_ext_pos_err(imu_dfs):
     """Plot the extrinsic position error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Position Error [m]', title='Extrinsic Position Error')
     a = calculate_alpha(len(imu_dfs))
     t_imu = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
@@ -107,7 +107,7 @@ def plot_ext_pos_err(imu_dfs):
 
 def plot_ext_ang_err(imu_dfs):
     """Plot the extrinsic angular error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angle Error [m]', title='Extrinsic Angle Error')
     a = calculate_alpha(len(imu_dfs))
     for i in range(len(imu_dfs)):
@@ -126,7 +126,7 @@ def plot_ext_ang_err(imu_dfs):
 
 def plot_acc_bias_err(imu_dfs):
     """Plot the intrinsic accelerometer bias error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Bias Error [m]', title='Accelerometer Bias Error')
     a = calculate_alpha(len(imu_dfs))
     t_imu = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
@@ -157,7 +157,7 @@ def plot_acc_bias_err(imu_dfs):
 
 def plot_omg_bias_err(imu_dfs):
     """Plot the intrinsic gyroscope bias error."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Bias Error [m]', title='Gyroscope Bias Error')
     a = calculate_alpha(len(imu_dfs))
     t_imu = np.zeros([len(imu_dfs), len(imu_dfs[0]['time'])])
@@ -188,7 +188,7 @@ def plot_omg_bias_err(imu_dfs):
 
 def plot_imu_ext_pos_update(imu_dfs):
     """Plot extrinsic position update."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Extrinsic Position Update [m]', title='Extrinsic Position Update')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
@@ -204,7 +204,7 @@ def plot_imu_ext_pos_update(imu_dfs):
 
 def plot_imu_ext_ang_update(imu_dfs):
     """Plot extrinsic angle update."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Extrinsic Angle Update [m]', title='Extrinsic Angle Update')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
@@ -220,7 +220,7 @@ def plot_imu_ext_ang_update(imu_dfs):
 
 def plot_imu_int_pos_update(imu_dfs):
     """Plot accelerometer bias updates."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Accelerometer Bias Updates [m/s/s]',
                  title='Accelerometer Bias Updates')
     a = calculate_alpha(len(imu_dfs))
@@ -237,7 +237,7 @@ def plot_imu_int_pos_update(imu_dfs):
 
 def plot_imu_int_ang_update(imu_dfs):
     """Plot intrinsic gyroscope bias updates."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Gyroscope Bias Updates [rad/s]', title='Gyroscope Bias Updates')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
@@ -253,7 +253,7 @@ def plot_imu_int_ang_update(imu_dfs):
 
 def plot_imu_ext_pos_cov(imu_dfs):
     """Plot extrinsic position covariance."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Position Covariance [m]', title='Position Covariance')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
@@ -269,7 +269,7 @@ def plot_imu_ext_pos_cov(imu_dfs):
 
 def plot_imu_ext_ang_cov(imu_dfs):
     """Plot extrinsic angle covariance."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Angle Covariance [m]', title='Angle Covariance')
     a = calculate_alpha(len(imu_dfs))
     for imu_df in imu_dfs:
@@ -285,7 +285,7 @@ def plot_imu_ext_ang_cov(imu_dfs):
 
 def plot_imu_int_pos_cov(imu_dfs):
     """Plot intrinsic accelerometer bias covariance."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Accelerometer Bias Covariance [m/s/s]',
                  title='Accelerometer Bias Covariance')
     a = calculate_alpha(len(imu_dfs))
@@ -302,7 +302,7 @@ def plot_imu_int_pos_cov(imu_dfs):
 
 def plot_imu_int_ang_cov(imu_dfs):
     """Plot intrinsic gyroscope bias covariance."""
-    fig = figure(width=800, height=300, x_axis_label='time [s]',
+    fig = figure(width=800, height=300, x_axis_label='Time [s]',
                  y_axis_label='Gyroscope Bias Covariance [rad/s]',
                  title='Gyroscope Bias Covariance')
     a = calculate_alpha(len(imu_dfs))
