@@ -96,17 +96,6 @@ public:
   void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian);
 
 private:
-  Eigen::Vector3d m_body_pos {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_body_vel {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_body_acc {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_b_to_g {1.0, 0.0, 0.0, 0.0};
-  Eigen::Vector3d m_body_ang_vel {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_body_ang_acc {0.0, 0.0, 0.0};
-
-  Eigen::Vector3d m_pos_c_in_b {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_c_to_b {1.0, 0.0, 0.0, 0.0};
-  std::vector<AugmentedState> m_aug_states {};
-
   DataLogger m_msckf_logger;
   DataLogger m_triangulation_logger;
   Intrinsics m_intrinsics;

@@ -67,16 +67,7 @@ public:
     double time, BoardTrack board_track, double pos_error, double ang_error);
 
 private:
-  Eigen::Vector3d m_body_pos {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_body_vel {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_body_acc {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_b_to_g {1.0, 0.0, 0.0, 0.0};
-  Eigen::Vector3d m_body_ang_vel {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_body_ang_acc {0.0, 0.0, 0.0};
-
-  Eigen::Vector3d m_pos_c_in_b {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_c_to_b {1.0, 0.0, 0.0, 0.0};
-
+  /// @todo: Replace these member variables with state look-ups
   Eigen::Vector3d m_pos_f_in_g;
   Eigen::Quaterniond m_ang_f_to_g;
 

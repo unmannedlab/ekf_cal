@@ -203,19 +203,6 @@ void MsckfUpdater::UpdateEKF(
 {
   ekf->ProcessModel(time);
 
-  BodyState body_state = ekf->m_state.m_body_state;
-  m_body_pos = body_state.m_position;
-  m_body_vel = body_state.m_velocity;
-  m_body_acc = body_state.m_acceleration;
-  m_ang_b_to_g = body_state.m_ang_b_to_g;
-  m_body_ang_vel = body_state.m_angular_velocity;
-  m_body_ang_acc = body_state.m_angular_acceleration;
-
-  CamState cam_state = ekf->GetCamState(m_id);
-  m_pos_c_in_b = cam_state.pos_c_in_b;
-  m_ang_c_to_b = cam_state.ang_c_to_b;
-  m_aug_states = cam_state.augmented_states;
-
   auto t_start = std::chrono::high_resolution_clock::now();
 
   m_logger->Log(LogLevel::DEBUG, "Called MSCKF Update for camera ID: " + std::to_string(m_id));
