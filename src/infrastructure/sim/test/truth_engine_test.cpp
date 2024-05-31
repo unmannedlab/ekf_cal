@@ -152,9 +152,15 @@ TEST(test_TruthEngineSpline, Constructor) {
   angles.push_back(std::vector<double>{0.0, 0.0, 0.0});
   angles.push_back(std::vector<double>{0.0, 0.0, 0.0});
 
+  auto pos_errs = std::vector<double>{0.0, 0.0, 0.0};
+  auto ang_errs = std::vector<double>{0.0, 0.0, 0.0};
+
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
-  TruthEngineSpline truth_engine_spline(positions, angles, stationary_time, max_time, logger);
+  SimRNG rng;
+
+  TruthEngineSpline truth_engine_spline(
+    positions, angles, pos_errs, ang_errs, stationary_time, max_time, logger, rng);
 }
 
 TEST(test_TruthEngineSpline, Constant_Velocity) {
@@ -173,9 +179,15 @@ TEST(test_TruthEngineSpline, Constant_Velocity) {
   angles.push_back(std::vector<double>{0.2, 0.2, 0.2});
   angles.push_back(std::vector<double>{0.3, 0.3, 0.3});
 
+  auto pos_errs = std::vector<double>{0.0, 0.0, 0.0};
+  auto ang_errs = std::vector<double>{0.0, 0.0, 0.0};
+
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
-  TruthEngineSpline truth_engine_spline(positions, angles, stationary_time, max_time, logger);
+  SimRNG rng;
+
+  TruthEngineSpline truth_engine_spline(
+    positions, angles, pos_errs, ang_errs, stationary_time, max_time, logger, rng);
 
   Eigen::Vector3d pos_n = truth_engine_spline.GetBodyPosition(-1.0);
   Eigen::Vector3d pos_0 = truth_engine_spline.GetBodyPosition(0.0);
@@ -283,9 +295,15 @@ TEST(test_TruthEngineSpline, Oscillating) {
   angles.push_back(std::vector<double>{0.0, 0.0, 0.0});
   angles.push_back(std::vector<double>{0.1, 0.1, 0.1});
 
+  auto pos_errs = std::vector<double>{0.0, 0.0, 0.0};
+  auto ang_errs = std::vector<double>{0.0, 0.0, 0.0};
+
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
-  TruthEngineSpline truth_engine_spline(positions, angles, stationary_time, max_time, logger);
+  SimRNG rng;
+
+  TruthEngineSpline truth_engine_spline(
+    positions, angles, pos_errs, ang_errs, stationary_time, max_time, logger, rng);
 
   Eigen::Vector3d pos_n = truth_engine_spline.GetBodyPosition(-1.0);
   Eigen::Vector3d pos_0 = truth_engine_spline.GetBodyPosition(0.0);

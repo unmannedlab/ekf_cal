@@ -79,13 +79,13 @@ def plot_ant_pos_error(gps_dfs, body_truth_dfs):
 def plot_gps_cov(gps_dfs):
     """Plot GPS antenna position covariance."""
     fig = figure(width=800, height=300, x_axis_label='Time [s]',
-                 y_axis_label='Position Covariance [m]', title='GPS Antenna Position Covariance')
+                 y_axis_label='Position Covariance [mm]', title='GPS Antenna Position Covariance')
     a = calculate_alpha(len(gps_dfs))
     for gps_df in gps_dfs:
         t_gps = gps_df['time'].to_list()
-        gps_int_cov_3 = gps_df['gps_cov_0'].to_list()
-        gps_int_cov_4 = gps_df['gps_cov_1'].to_list()
-        gps_int_cov_5 = gps_df['gps_cov_2'].to_list()
+        gps_int_cov_3 = np.array(gps_df['gps_cov_0'].to_list())*1e3
+        gps_int_cov_4 = np.array(gps_df['gps_cov_1'].to_list())*1e3
+        gps_int_cov_5 = np.array(gps_df['gps_cov_2'].to_list())*1e3
         fig.line(t_gps, gps_int_cov_3, alpha=a, color=colors[0], legend_label='x')
         fig.line(t_gps, gps_int_cov_4, alpha=a, color=colors[1], legend_label='y')
         fig.line(t_gps, gps_int_cov_5, alpha=a, color=colors[2], legend_label='z')

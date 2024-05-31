@@ -200,8 +200,10 @@ int main(int argc, char * argv[])
   } else if (truth_type == "spline") {
     auto positions = sim_params["positions"].as<std::vector<std::vector<double>>>(def_mat);
     auto angles = sim_params["angles"].as<std::vector<std::vector<double>>>(def_mat);
+    auto pos_errs = sim_params["pos_errors"].as<std::vector<double>>(def_vec);
+    auto ang_errs = sim_params["ang_errors"].as<std::vector<double>>(def_vec);
     auto truth_engine_spline = std::make_shared<TruthEngineSpline>(
-      positions, angles, stationary_time, max_time, debug_logger);
+      positions, angles, pos_errs, ang_errs, stationary_time, max_time, debug_logger, rng);
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_spline);
   } else {
     std::stringstream msg;

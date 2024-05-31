@@ -271,7 +271,7 @@ void EKF::LimitUncertainty()
   MaxBoundDiagonal(m_cov, 1e0, 12, 3);
   MaxBoundDiagonal(m_cov, 1e0, 15, 3);
 
-  for (auto imu_state: m_state.m_imu_states) {
+  for (auto imu_state : m_state.m_imu_states) {
     unsigned int imu_index = GetImuStateStartIndex(imu_state.first);
     if (imu_state.second.is_extrinsic && imu_state.second.is_intrinsic) {
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 0, 3);
@@ -287,12 +287,12 @@ void EKF::LimitUncertainty()
     }
   }
 
-  for (auto gps_state: m_state.m_gps_states) {
+  for (auto gps_state : m_state.m_gps_states) {
     unsigned int gps_index = GetGpsStateStartIndex(gps_state.first);
     MaxBoundDiagonal(m_cov, 1e-1, gps_index + 0, 3);
   }
 
-  for (auto cam_state: m_state.m_cam_states) {
+  for (auto cam_state : m_state.m_cam_states) {
     unsigned int cam_index = GetCamStateStartIndex(cam_state.first);
     MaxBoundDiagonal(m_cov, 1e-1, cam_index + 0, 3);
     MaxBoundDiagonal(m_cov, 1e-1, cam_index + 3, 3);

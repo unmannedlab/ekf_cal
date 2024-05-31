@@ -32,7 +32,6 @@ python3 eval/plot-bokeh.py --help
 import os
 
 from bokeh.embed import components
-from bokeh.io import curdoc
 from bokeh.models import Spacer, Tabs
 from bokeh.plotting import save
 from input_parser import InputParser

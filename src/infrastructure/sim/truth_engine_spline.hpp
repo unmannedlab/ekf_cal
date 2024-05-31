@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "infrastructure/sim/truth_engine.hpp"
+#include "utility/sim/sim_rng.hpp"
 
 ///
 /// @class TruthEngineSpline
@@ -35,16 +36,22 @@ public:
   /// @brief Spline-based truth engine
   /// @param positions Position control points
   /// @param angles Angular position control points
+  /// @param position_errors Standard deviations of position control points
+  /// @param angle_errors Standard deviations of angular control points
   /// @param stationary_time Time to be stationary before beginning motion
   /// @param max_time Maximum simulation time
   /// @param logger Debug logger pointer
+  /// @param rng Random number generator
   ///
   TruthEngineSpline(
     std::vector<std::vector<double>> positions,
     std::vector<std::vector<double>> angles,
+    std::vector<double> position_errors,
+    std::vector<double> angle_errors,
     double stationary_time,
     double max_time,
-    std::shared_ptr<DebugLogger> logger
+    std::shared_ptr<DebugLogger> logger,
+    SimRNG rng
   );
 
   ///

@@ -23,15 +23,10 @@ Software Work:
     - Set of single metrics for performance evaluation/testing
     - Integration tests
     - Move feature detection out of tracker callback
-    - Option to de-register sensor
-    - Add binaries to Github release
     - Add mutex to EKF class and have mutex locked by updaters
     - Switch to reentrant callback group
     - Show track images from simulation
-    - Be explicit with quaternion inputs
-    - Add check for intrinsic IMUs without cameras
     - Automatically check regression results
-    - Add errors/devations to spline model
 
     Additional Trackers:
         - FiducialTracker
