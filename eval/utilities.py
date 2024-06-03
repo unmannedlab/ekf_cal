@@ -28,7 +28,7 @@ from scipy.spatial.transform import Rotation
 import yaml
 
 
-colors = ['red', 'green', 'blue']
+colors = ['red', 'green', 'blue', 'magenta']
 # colors = ['cyan', 'yellow', 'magenta']
 
 

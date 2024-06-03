@@ -120,7 +120,7 @@ def plot_ext_ang_err(imu_dfs):
         fig.line(time, err_img_ang_w, alpha=a, color=colors[0])
         fig.line(time, err_img_ang_x, alpha=a, color=colors[1])
         fig.line(time, err_img_ang_y, alpha=a, color=colors[2])
-        fig.line(time, err_img_ang_z, alpha=a, color='red')
+        fig.line(time, err_img_ang_z, alpha=a, color=colors[3])
     return fig
 
 
