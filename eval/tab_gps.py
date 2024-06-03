@@ -29,10 +29,10 @@ def plot_gps_measurements(gps_dfs):
                  y_axis_label='Position [m]', title='GPS Measurements')
     a = calculate_alpha(len(gps_dfs))
     for gps_df in gps_dfs:
-        t_gps = gps_df['time'].to_list()
-        fig.line(t_gps, gps_df['x'].to_list(), alpha=a, color=colors[0], legend_label='x')
-        fig.line(t_gps, gps_df['y'].to_list(), alpha=a, color=colors[1], legend_label='y')
-        fig.line(t_gps, gps_df['z'].to_list(), alpha=a, color=colors[2], legend_label='z')
+        t_gps = gps_df['time']
+        fig.line(t_gps, gps_df['x'], alpha=a, color=colors[0], legend_label='x')
+        fig.line(t_gps, gps_df['y'], alpha=a, color=colors[1], legend_label='y')
+        fig.line(t_gps, gps_df['z'], alpha=a, color=colors[2], legend_label='z')
     return fig
 
 
@@ -42,10 +42,10 @@ def plot_gps_residuals(gps_dfs):
                  y_axis_label='Position Residual [m]', title='GPS Residuals')
     a = calculate_alpha(len(gps_dfs))
     for gps_df in gps_dfs:
-        t_gps = gps_df['time'].to_list()
-        fig.line(t_gps, gps_df['residual_0'].to_list(), alpha=a, color=colors[0], legend_label='x')
-        fig.line(t_gps, gps_df['residual_1'].to_list(), alpha=a, color=colors[1], legend_label='y')
-        fig.line(t_gps, gps_df['residual_2'].to_list(), alpha=a, color=colors[2], legend_label='z')
+        t_gps = gps_df['time']
+        fig.line(t_gps, gps_df['residual_0'], alpha=a, color=colors[0], legend_label='x')
+        fig.line(t_gps, gps_df['residual_1'], alpha=a, color=colors[1], legend_label='y')
+        fig.line(t_gps, gps_df['residual_2'], alpha=a, color=colors[2], legend_label='z')
     return fig
 
 
@@ -55,15 +55,15 @@ def plot_ant_pos_error(gps_dfs, body_truth_dfs):
                  y_axis_label='Antenna Position Error [mm]', title='Antenna Position Error')
     a = calculate_alpha(len(gps_dfs))
     for gps_df, body_truth in zip(gps_dfs, body_truth_dfs):
-        true_t = body_truth['time'].to_list()
-        true_p0 = body_truth[f"gps_pos_{gps_df.attrs['id']}_0"].to_list()
-        true_p1 = body_truth[f"gps_pos_{gps_df.attrs['id']}_1"].to_list()
-        true_p2 = body_truth[f"gps_pos_{gps_df.attrs['id']}_2"].to_list()
+        true_t = body_truth['time']
+        true_p0 = body_truth[f"gps_pos_{gps_df.attrs['id']}_0"]
+        true_p1 = body_truth[f"gps_pos_{gps_df.attrs['id']}_1"]
+        true_p2 = body_truth[f"gps_pos_{gps_df.attrs['id']}_2"]
 
-        gps_t = gps_df['time'].to_list()
-        est_p0 = gps_df['antenna_0'].to_list()
-        est_p1 = gps_df['antenna_1'].to_list()
-        est_p2 = gps_df['antenna_2'].to_list()
+        gps_t = gps_df['time']
+        est_p0 = gps_df['antenna_0']
+        est_p1 = gps_df['antenna_1']
+        est_p2 = gps_df['antenna_2']
 
         err_pos_0 = np.array(interpolate_error(true_t, true_p0, gps_t, est_p0))*1e3
         err_pos_1 = np.array(interpolate_error(true_t, true_p1, gps_t, est_p1))*1e3
@@ -82,10 +82,10 @@ def plot_gps_cov(gps_dfs):
                  y_axis_label='Position Covariance [mm]', title='GPS Antenna Position Covariance')
     a = calculate_alpha(len(gps_dfs))
     for gps_df in gps_dfs:
-        t_gps = gps_df['time'].to_list()
-        gps_int_cov_3 = np.array(gps_df['gps_cov_0'].to_list())*1e3
-        gps_int_cov_4 = np.array(gps_df['gps_cov_1'].to_list())*1e3
-        gps_int_cov_5 = np.array(gps_df['gps_cov_2'].to_list())*1e3
+        t_gps = gps_df['time']
+        gps_int_cov_3 = np.array(gps_df['gps_cov_0'])*1e3
+        gps_int_cov_4 = np.array(gps_df['gps_cov_1'])*1e3
+        gps_int_cov_5 = np.array(gps_df['gps_cov_2'])*1e3
         fig.line(t_gps, gps_int_cov_3, alpha=a, color=colors[0], legend_label='x')
         fig.line(t_gps, gps_int_cov_4, alpha=a, color=colors[1], legend_label='y')
         fig.line(t_gps, gps_int_cov_5, alpha=a, color=colors[2], legend_label='z')

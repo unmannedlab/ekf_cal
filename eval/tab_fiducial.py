@@ -30,10 +30,10 @@ def plot_camera_pos(fiducial_dfs):
                  y_axis_label='Position [m]', title='Camera Position')
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
-        t_cam = mskcf_df['time'].to_list()
-        fig.line(t_cam, mskcf_df['cam_pos_0'].to_list(), alpha=a, color=colors[0])
-        fig.line(t_cam, mskcf_df['cam_pos_1'].to_list(), alpha=a, color=colors[1])
-        fig.line(t_cam, mskcf_df['cam_pos_2'].to_list(), alpha=a, color=colors[2])
+        t_cam = mskcf_df['time']
+        fig.line(t_cam, mskcf_df['cam_pos_0'], alpha=a, color=colors[0])
+        fig.line(t_cam, mskcf_df['cam_pos_1'], alpha=a, color=colors[1])
+        fig.line(t_cam, mskcf_df['cam_pos_2'], alpha=a, color=colors[2])
     return fig
 
 
@@ -43,10 +43,10 @@ def plot_camera_ang(fiducial_dfs):
                  y_axis_label='Orientation', title='Camera Orientation')
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
-        t_cam = mskcf_df['time'].to_list()
-        fig.line(t_cam, mskcf_df['cam_ang_pos_0'].to_list(), alpha=a, color=colors[0])
-        fig.line(t_cam, mskcf_df['cam_ang_pos_1'].to_list(), alpha=a, color=colors[1])
-        fig.line(t_cam, mskcf_df['cam_ang_pos_2'].to_list(), alpha=a, color=colors[2])
+        t_cam = mskcf_df['time']
+        fig.line(t_cam, mskcf_df['cam_ang_pos_0'], alpha=a, color=colors[0])
+        fig.line(t_cam, mskcf_df['cam_ang_pos_1'], alpha=a, color=colors[1])
+        fig.line(t_cam, mskcf_df['cam_ang_pos_2'], alpha=a, color=colors[2])
     return fig
 
 
@@ -56,10 +56,10 @@ def plot_cam_pos_cov(fiducial_dfs):
                  y_axis_label='Position Covariance [m]', title='Camera Position Covariance')
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
-        t_cam = mskcf_df['time'].to_list()
-        cam_cov_0 = mskcf_df['cam_cov_0'].to_list()
-        cam_cov_1 = mskcf_df['cam_cov_1'].to_list()
-        cam_cov_2 = mskcf_df['cam_cov_2'].to_list()
+        t_cam = mskcf_df['time']
+        cam_cov_0 = mskcf_df['cam_cov_0']
+        cam_cov_1 = mskcf_df['cam_cov_1']
+        cam_cov_2 = mskcf_df['cam_cov_2']
         fig.line(t_cam, cam_cov_0, alpha=a, color=colors[0], legend_label='p_x')
         fig.line(t_cam, cam_cov_1, alpha=a, color=colors[1], legend_label='p_y')
         fig.line(t_cam, cam_cov_2, alpha=a, color=colors[2], legend_label='p_z')
@@ -72,10 +72,10 @@ def plot_cam_ang_cov(fiducial_dfs):
                  y_axis_label='Angle Covariance [m]', title='Camera Angle Covariance')
     a = calculate_alpha(len(fiducial_dfs))
     for mskcf_df in fiducial_dfs:
-        t_cam = mskcf_df['time'].to_list()
-        cam_cov_3 = mskcf_df['cam_cov_3'].to_list()
-        cam_cov_4 = mskcf_df['cam_cov_4'].to_list()
-        cam_cov_5 = mskcf_df['cam_cov_5'].to_list()
+        t_cam = mskcf_df['time']
+        cam_cov_3 = mskcf_df['cam_cov_3']
+        cam_cov_4 = mskcf_df['cam_cov_4']
+        cam_cov_5 = mskcf_df['cam_cov_5']
         fig.line(t_cam, cam_cov_3, alpha=a, color=colors[0], legend_label='\theta_x')
         fig.line(t_cam, cam_cov_4, alpha=a, color=colors[1], legend_label='\theta_y')
         fig.line(t_cam, cam_cov_5, alpha=a, color=colors[2], legend_label='\theta_z')
@@ -92,15 +92,15 @@ def plot_fiducial_error_pos(tri_dfs, board_dfs):
     err_pz = collections.defaultdict(list)
 
     for tri_df, board_df in zip(tri_dfs, board_dfs):
-        time = tri_df['time'].to_list()
-        board = tri_df['board'].to_list()
-        board_px = tri_df['pos_x'].to_list()
-        board_py = tri_df['pos_y'].to_list()
-        board_pz = tri_df['pos_z'].to_list()
+        time = tri_df['time']
+        board = tri_df['board']
+        board_px = tri_df['pos_x']
+        board_py = tri_df['pos_y']
+        board_pz = tri_df['pos_z']
 
-        true_px = board_df['pos_x'].to_list()
-        true_py = board_df['pos_y'].to_list()
-        true_pz = board_df['pos_z'].to_list()
+        true_px = board_df['pos_x']
+        true_py = board_df['pos_y']
+        true_pz = board_df['pos_z']
 
         for (t, b, px, py, pz) in zip(time, board, board_px, board_py, board_pz):
             err_px[t].append(px - true_px[int(b)])
@@ -169,17 +169,17 @@ def plot_fiducial_error_ang(tri_dfs, board_dfs):
     err_qz = collections.defaultdict(list)
 
     for tri_df, board_df in zip(tri_dfs, board_dfs):
-        time = tri_df['time'].to_list()
-        board = tri_df['board'].to_list()
-        board_qw = tri_df['quat_w'].to_list()
-        board_qx = tri_df['quat_x'].to_list()
-        board_qy = tri_df['quat_y'].to_list()
-        board_qz = tri_df['quat_z'].to_list()
+        time = tri_df['time']
+        board = tri_df['board']
+        board_qw = tri_df['quat_w']
+        board_qx = tri_df['quat_x']
+        board_qy = tri_df['quat_y']
+        board_qz = tri_df['quat_z']
 
-        true_qw = board_df['quat_w'].to_list()
-        true_qx = board_df['quat_x'].to_list()
-        true_qy = board_df['quat_y'].to_list()
-        true_qz = board_df['quat_z'].to_list()
+        true_qw = board_df['quat_w']
+        true_qx = board_df['quat_x']
+        true_qy = board_df['quat_y']
+        true_qz = board_df['quat_z']
 
         for (t, b, qw, qx, qy, qz) in zip(time, board, board_qw, board_qx, board_qy, board_qz):
             err_qw[t].append(qw - true_qw[int(b)])

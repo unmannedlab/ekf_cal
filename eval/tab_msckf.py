@@ -32,10 +32,10 @@ def plot_camera_pos(mskcf_dfs):
                  y_axis_label='Position [m]', title='Camera Position')
     a = calculate_alpha(len(mskcf_dfs))
     for mskcf_df in mskcf_dfs:
-        t_cam = mskcf_df['time'].to_list()
-        fig.line(t_cam, mskcf_df['cam_pos_0'].to_list(), alpha=a, color=colors[0])
-        fig.line(t_cam, mskcf_df['cam_pos_1'].to_list(), alpha=a, color=colors[1])
-        fig.line(t_cam, mskcf_df['cam_pos_2'].to_list(), alpha=a, color=colors[2])
+        t_cam = mskcf_df['time']
+        fig.line(t_cam, mskcf_df['cam_pos_0'], alpha=a, color=colors[0])
+        fig.line(t_cam, mskcf_df['cam_pos_1'], alpha=a, color=colors[1])
+        fig.line(t_cam, mskcf_df['cam_pos_2'], alpha=a, color=colors[2])
     return fig
 
 
@@ -45,10 +45,10 @@ def plot_camera_ang(mskcf_dfs):
                  y_axis_label='Orientation', title='Camera Orientation')
     a = calculate_alpha(len(mskcf_dfs))
     for mskcf_df in mskcf_dfs:
-        t_cam = mskcf_df['time'].to_list()
-        fig.line(t_cam, mskcf_df['cam_ang_pos_0'].to_list(), alpha=a, color=colors[0])
-        fig.line(t_cam, mskcf_df['cam_ang_pos_1'].to_list(), alpha=a, color=colors[1])
-        fig.line(t_cam, mskcf_df['cam_ang_pos_2'].to_list(), alpha=a, color=colors[2])
+        t_cam = mskcf_df['time']
+        fig.line(t_cam, mskcf_df['cam_ang_pos_0'], alpha=a, color=colors[0])
+        fig.line(t_cam, mskcf_df['cam_ang_pos_1'], alpha=a, color=colors[1])
+        fig.line(t_cam, mskcf_df['cam_ang_pos_2'], alpha=a, color=colors[2])
     return fig
 
 
@@ -58,10 +58,10 @@ def plot_cam_pos_cov(mskcf_dfs):
                  y_axis_label='Position Covariance [m]', title='Position Covariance')
     a = calculate_alpha(len(mskcf_dfs))
     for mskcf_df in mskcf_dfs:
-        t_cam = mskcf_df['time'].to_list()
-        cam_cov_0 = mskcf_df['cam_cov_0'].to_list()
-        cam_cov_1 = mskcf_df['cam_cov_1'].to_list()
-        cam_cov_2 = mskcf_df['cam_cov_2'].to_list()
+        t_cam = mskcf_df['time']
+        cam_cov_0 = mskcf_df['cam_cov_0']
+        cam_cov_1 = mskcf_df['cam_cov_1']
+        cam_cov_2 = mskcf_df['cam_cov_2']
         fig.line(t_cam, cam_cov_0, alpha=a, color=colors[0], legend_label='p_x')
         fig.line(t_cam, cam_cov_1, alpha=a, color=colors[1], legend_label='p_y')
         fig.line(t_cam, cam_cov_2, alpha=a, color=colors[2], legend_label='p_z')
@@ -74,10 +74,10 @@ def plot_cam_ang_cov(mskcf_dfs):
                  y_axis_label='Angle Covariance [m]', title='Angle Covariance')
     a = calculate_alpha(len(mskcf_dfs))
     for mskcf_df in mskcf_dfs:
-        t_cam = mskcf_df['time'].to_list()
-        cam_cov_3 = mskcf_df['cam_cov_3'].to_list()
-        cam_cov_4 = mskcf_df['cam_cov_4'].to_list()
-        cam_cov_5 = mskcf_df['cam_cov_5'].to_list()
+        t_cam = mskcf_df['time']
+        cam_cov_3 = mskcf_df['cam_cov_3']
+        cam_cov_4 = mskcf_df['cam_cov_4']
+        cam_cov_5 = mskcf_df['cam_cov_5']
         fig.line(t_cam, cam_cov_3, alpha=a, color=colors[0], legend_label='\theta_x')
         fig.line(t_cam, cam_cov_4, alpha=a, color=colors[1], legend_label='\theta_y')
         fig.line(t_cam, cam_cov_5, alpha=a, color=colors[2], legend_label='\theta_z')
@@ -94,15 +94,15 @@ def plot_triangulation_error(tri_dfs, feat_dfs):
     err_z = collections.defaultdict(list)
 
     for tri_df, feat_df in zip(tri_dfs, feat_dfs):
-        time = tri_df['time'].to_list()
-        feature = tri_df['feature'].to_list()
-        feat_x = tri_df['x'].to_list()
-        feat_y = tri_df['y'].to_list()
-        feat_z = tri_df['z'].to_list()
+        time = tri_df['time']
+        feature = tri_df['feature']
+        feat_x = tri_df['x']
+        feat_y = tri_df['y']
+        feat_z = tri_df['z']
 
-        true_x = feat_df['x'].to_list()
-        true_y = feat_df['y'].to_list()
-        true_z = feat_df['z'].to_list()
+        true_x = feat_df['x']
+        true_y = feat_df['y']
+        true_z = feat_df['z']
 
         for (t, f, x, y, z) in zip(time, feature, feat_x, feat_y, feat_z):
             err_x[t].append(x - true_x[int(f)])
