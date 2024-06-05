@@ -17,6 +17,7 @@
 
 #include <opencv2/aruco.hpp>
 #include <opencv2/aruco/charuco.hpp>
+#include <opencv2/core/cvstd.hpp>
 #include <opencv2/opencv.hpp>
 
 #include "trackers/tracker.hpp"
@@ -37,6 +38,76 @@ FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
 {
   m_pos_error = params.variance.segment<3>(0);
   m_ang_error = params.variance.segment<3>(3);
+
+  auto dict_name = static_cast<cv::aruco::PREDEFINED_DICTIONARY_NAME>(params.predefined_dict);
+  m_dict = cv::aruco::getPredefinedDictionary(dict_name);
+
+  if (params.detector_type == FiducialTypeEnum::ARUCO_BOARD) {
+    m_board = cv::aruco::GridBoard::create(5, 7, 0.04f, 0.02f, m_dict);
+  } else if (params.detector_type == FiducialTypeEnum::CHARUCO_BOARD) {
+    m_board = cv::aruco::CharucoBoard::create(5, 7, 0.04f, 0.02f, m_dict);
+  }
+}
+
+int FiducialTracker::InterpolateCorners(
+  cv::InputArrayOfArrays marker_corners,
+  cv::InputArray marker_ids,
+  cv::InputArray image,
+  cv::Ptr<cv::aruco::Board> board,
+  cv::OutputArray corners,
+  cv::OutputArray ids,
+  cv::InputArray camera_matrix,
+  cv::InputArray dist_coefficients
+)
+{
+  if (m_detector_type == FiducialTypeEnum::CHARUCO_BOARD) {
+    auto temp_board = board.staticCast<cv::aruco::CharucoBoard>();
+    return cv::aruco::interpolateCornersCharuco(
+      marker_corners, marker_ids, image, temp_board,
+      corners, ids, camera_matrix, dist_coefficients);
+  } else if (m_detector_type == FiducialTypeEnum::CHARUCO_BOARD) {
+    // corners = marker_corners;
+    // ids = marker_ids;
+    return marker_corners.dims();
+  } else {
+    return 0;
+  }
+}
+
+void FiducialTracker::DrawDetectedCorners(
+  cv::InputOutputArray image,
+  cv::InputArray corners,
+  cv::InputArray ids,
+  cv::Scalar corner_color
+)
+{
+  if (m_detector_type == FiducialTypeEnum::CHARUCO_BOARD) {
+    cv::aruco::drawDetectedCornersCharuco(image, corners, ids, corner_color);
+  } else if (m_detector_type == FiducialTypeEnum::ARUCO_BOARD) {
+    cv::aruco::drawDetectedMarkers(image, corners, ids);
+  }
+}
+
+bool FiducialTracker::EstimatePoseBoard(
+  cv::InputArray corners,
+  cv::InputArray ids,
+  cv::Ptr<cv::aruco::Board> board,
+  cv::InputArray camera_matrix,
+  cv::InputArray dist_coefficients,
+  cv::Vec3d & r_vec,
+  cv::Vec3d & t_vec
+)
+{
+  if (m_detector_type == FiducialTypeEnum::CHARUCO_BOARD) {
+    auto temp_board = board.staticCast<cv::aruco::CharucoBoard>();
+    return cv::aruco::estimatePoseCharucoBoard(
+      corners, ids, temp_board, camera_matrix, dist_coefficients, r_vec, t_vec);
+  } else if (m_detector_type == FiducialTypeEnum::ARUCO_BOARD) {
+    return cv::aruco::estimatePoseBoard(
+      corners, ids, board, camera_matrix, dist_coefficients, r_vec, t_vec);
+  } else {
+    return false;
+  }
 }
 
 void FiducialTracker::Track(
@@ -45,39 +116,34 @@ void FiducialTracker::Track(
   cv::Mat & img_in,
   cv::Mat & img_out)
 {
-  /// @todo(jhartzer): Make this part of constructor / input params
-  const cv::Ptr<cv::aruco::Dictionary> dictionary =
-    cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);
-  cv::Ptr<cv::aruco::CharucoBoard> board =
-    cv::aruco::CharucoBoard::create(5, 7, 0.04f, 0.02f, dictionary);
   cv::Ptr<cv::aruco::DetectorParameters> params = cv::makePtr<cv::aruco::DetectorParameters>();
   std::vector<int> marker_ids;
   cv::Mat camera_matrix = GenerateCameraMatrix(m_intrinsics);
   cv::Mat dist_coeff = GenerateDistortionVector(m_intrinsics);
 
-  std::vector<std::vector<cv::Point2f>> marker_corners;
-  cv::aruco::detectMarkers(img_in, dictionary, marker_corners, marker_ids, params);
+  std::vector<std::vector<cv::Point2f>> marker_corners, rejected_corners;
+  cv::aruco::detectMarkers(img_in, m_dict, marker_corners, marker_ids, params, rejected_corners);
   bool detection_made {false};
 
   // if at least one marker detected
   if (marker_ids.size() > 0) {
     img_out = img_in.clone();
     cv::aruco::drawDetectedMarkers(img_out, marker_corners, marker_ids);
-    std::vector<cv::Point2f> charuco_corners;
-    std::vector<int> charuco_ids;
-    cv::aruco::interpolateCornersCharuco(
-      marker_corners, marker_ids, img_in, board, charuco_corners,
-      charuco_ids, camera_matrix, dist_coeff);
+    std::vector<cv::Point2f> corners;
+    std::vector<int> ids;
 
-    // if at least one charuco corner detected
-    if (charuco_ids.size() > 0) {
+    FiducialTracker::InterpolateCorners(
+      marker_corners, marker_ids, img_in, m_board, corners, ids, camera_matrix, dist_coeff);
+
+    // If at least one corner detected
+    if (ids.size() > 0) {
       cv::Scalar color = cv::Scalar(255, 0, 0);
-      cv::aruco::drawDetectedCornersCharuco(img_out, charuco_corners, charuco_ids, color);
+      FiducialTracker::DrawDetectedCorners(img_out, corners, ids, color);
       cv::Vec3d r_vec, t_vec;
-      bool valid = cv::aruco::estimatePoseCharucoBoard(
-        charuco_corners, charuco_ids, board, camera_matrix, dist_coeff, r_vec, t_vec);
+      bool valid = FiducialTracker::EstimatePoseBoard(
+        corners, ids, m_board, camera_matrix, dist_coeff, r_vec, t_vec);
 
-      // if charuco pose is valid
+      // if marker pose is valid
       if (valid) {
         cv::drawFrameAxes(img_out, camera_matrix, dist_coeff, r_vec, t_vec, 0.1f);
       }

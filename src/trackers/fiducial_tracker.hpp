@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 
+#include <opencv2/aruco.hpp>
 #include <opencv2/features2d.hpp>
 #include <opencv2/opencv.hpp>
 
@@ -37,8 +38,7 @@
 enum class FiducialTypeEnum
 {
   ARUCO_BOARD,
-  CHARUCO_BOARD,
-  APRIL_GRID,
+  CHARUCO_BOARD
 };
 
 ///
@@ -54,8 +54,9 @@ public:
   typedef struct Parameters : public Tracker::Parameters
   {
     FiducialTypeEnum detector_type;                 ///< @brief Detector type
-    unsigned int squares_x {1U};                    ///< @brief Number of squares in the x direction
-    unsigned int squares_y {1U};                    ///< @brief Number of squares in the y direction
+    unsigned int predefined_dict{10};               ///< @brief Predefined dictionary
+    unsigned int squares_x {1};                     ///< @brief Number of squares in the x direction
+    unsigned int squares_y {1};                     ///< @brief Number of squares in the y direction
     double square_length {1.0};                     ///< @brief Checkerboard square length
     double marker_length {1.0};                     ///< @brief Marker length
     unsigned int initial_id{0};                     ///< @brief Initial ID
@@ -79,11 +80,69 @@ public:
   ///
   void Track(double time, int frame_id, cv::Mat & img_in, cv::Mat & img_out);
 
+  ///
+  /// @brief
+  /// @param marker_corners
+  /// @param marker_ids
+  /// @param image
+  /// @param board
+  /// @param corners
+  /// @param ids
+  /// @param camera_matrix
+  /// @param dist_coefficients
+  ///
+  int InterpolateCorners(
+    cv::InputArrayOfArrays marker_corners,
+    cv::InputArray marker_ids,
+    cv::InputArray image,
+    cv::Ptr<cv::aruco::Board> board,
+    cv::OutputArray corners,
+    cv::OutputArray ids,
+    cv::InputArray camera_matrix,
+    cv::InputArray dist_coefficients
+  );
+
+  ///
+  /// @brief
+  /// @param image
+  /// @param corners
+  /// @param ids
+  /// @param corner_color
+  ///
+  void DrawDetectedCorners(
+    cv::InputOutputArray image,
+    cv::InputArray corners,
+    cv::InputArray ids,
+    cv::Scalar corner_color
+  );
+
+  ///
+  /// @brief
+  /// @param corners
+  /// @param ids
+  /// @param board
+  /// @param camera_matrix
+  /// @param dist_coefficients
+  /// @param r_vec
+  /// @param t_vec
+  ///
+  bool EstimatePoseBoard(
+    cv::InputArray corners,
+    cv::InputArray ids,
+    cv::Ptr<cv::aruco::Board> board,
+    cv::InputArray camera_matrix,
+    cv::InputArray dist_coefficients,
+    cv::Vec3d & r_vec,
+    cv::Vec3d & t_vec
+  );
+
 protected:
   FiducialUpdater m_fiducial_updater;  ///< @brief MSCKF updater object
   FiducialTypeEnum m_detector_type;    ///< @brief Detector type
 
 private:
+  cv::Ptr<cv::aruco::Dictionary> m_dict;
+  cv::Ptr<cv::aruco::Board> m_board;
   BoardTrack m_board_track;
   Eigen::Vector3d m_pos_error;
   Eigen::Vector3d m_ang_error;

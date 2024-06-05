@@ -24,7 +24,7 @@
 #include "sensors/imu.hpp"
 #include "sensors/camera.hpp"
 
-TEST(test_fiducial_tracker, track) {
+TEST(test_fiducial_tracker, charuco_track) {
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   auto ekf = std::make_shared<EKF>(logger, 10.0, false, "");
 
@@ -60,9 +60,18 @@ TEST(test_fiducial_tracker, track) {
     cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);
   cv::Ptr<cv::aruco::CharucoBoard> board =
     cv::aruco::CharucoBoard::create(5, 7, 0.04f, 0.02f, dictionary);
-  cv::Mat boardImage;
-  board->draw(cv::Size(600, 500), boardImage, 10, 1);
+  cv::Mat board_grey, board_rgb;
+  board->draw(cv::Size(600, 800), board_grey, 10, 1);
 
-  auto cam_msg = std::make_shared<CameraMessage>(boardImage);
+  std::vector<cv::Mat> channels;
+  channels.push_back(board_grey);
+  channels.push_back(board_grey);
+  channels.push_back(board_grey);
+  cv::merge(channels, board_rgb);
+
+  auto cam_msg = std::make_shared<CameraMessage>(board_rgb);
   cam.Callback(cam_msg);
+
+  cv::imwrite("../../src/ekf_cal/src/trackers/test/images/fiducial_track.png", cam.m_out_img);
+
 }

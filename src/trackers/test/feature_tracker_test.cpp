@@ -105,7 +105,7 @@ TEST(test_feature_tracker, track) {
   cam.Callback(cam_msg_1);
   cam.Callback(cam_msg_2);
 
-  cv::imwrite("../../src/ekf_cal/src/trackers/test/images/track.png", cam.m_out_img);
+  cv::imwrite("../../src/ekf_cal/src/trackers/test/images/feature_track.png", cam.m_out_img);
 
   std::cout << ekf->m_state.m_body_state.m_position << std::endl;
 
