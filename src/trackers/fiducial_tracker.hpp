@@ -81,68 +81,73 @@ public:
   void Track(double time, int frame_id, cv::Mat & img_in, cv::Mat & img_out);
 
   ///
-  /// @brief
-  /// @param marker_corners
-  /// @param marker_ids
-  /// @param image
-  /// @param board
-  /// @param corners
-  /// @param ids
-  /// @param camera_matrix
-  /// @param dist_coefficients
+  /// @brief Function to interpolate corners of charuco boards
+  /// @param marker_corners Input marker corners
+  /// @param marker_ids Input marker IDs
+  /// @param image Image on which to perform interpolation
+  /// @param board Fiducial board
+  /// @param corners Output corners
+  /// @param ids Output ids
+  /// @param camera_matrix Input camera matrix
+  /// @param dist_coefficients Input camera distortion coefficients
   ///
   int InterpolateCorners(
-    cv::InputArrayOfArrays marker_corners,
-    cv::InputArray marker_ids,
-    cv::InputArray image,
-    cv::Ptr<cv::aruco::Board> board,
-    cv::OutputArray corners,
-    cv::OutputArray ids,
-    cv::InputArray camera_matrix,
-    cv::InputArray dist_coefficients
+    std::vector<std::vector<cv::Point2f>> & marker_corners,
+    std::vector<int> & marker_ids,
+    cv::Mat & image,
+    cv::Ptr<cv::aruco::Board> & board,
+    std::vector<cv::Point2f> & corners,
+    std::vector<int> & ids,
+    cv::Mat & camera_matrix,
+    cv::Mat & dist_coefficients
   );
 
   ///
-  /// @brief
-  /// @param image
-  /// @param corners
-  /// @param ids
-  /// @param corner_color
+  /// @brief DrawDetectedCorners
+  /// @param image Image on which to draw corners
+  /// @param marker_corners Input aruco corners
+  /// @param corners Input charuco corners
+  /// @param ids Detected IDs
+  /// @param corner_color Colors for drawing
   ///
   void DrawDetectedCorners(
-    cv::InputOutputArray image,
-    cv::InputArray corners,
-    cv::InputArray ids,
+    cv::Mat & image,
+    std::vector<std::vector<cv::Point2f>> & marker_corners,
+    std::vector<cv::Point2f> & corners,
+    std::vector<int> & ids,
     cv::Scalar corner_color
   );
 
   ///
-  /// @brief
-  /// @param corners
-  /// @param ids
-  /// @param board
-  /// @param camera_matrix
-  /// @param dist_coefficients
-  /// @param r_vec
-  /// @param t_vec
+  /// @brief Estimate pose of board
+  /// @param marker_corners Input aruco corners
+  /// @param corners Input charuco corners
+  /// @param ids Fiducial IDs
+  /// @param board Fiducial board
+  /// @param camera_matrix Input camera matrix
+  /// @param dist_coefficients Input camera distortion coefficients
+  /// @param r_vec Output rotation vector of board
+  /// @param t_vec Output translation vector of board
   ///
   bool EstimatePoseBoard(
-    cv::InputArray corners,
-    cv::InputArray ids,
+    std::vector<std::vector<cv::Point2f>> & marker_corners,
+    cv::InputArray & corners,
+    cv::InputArray & ids,
     cv::Ptr<cv::aruco::Board> board,
-    cv::InputArray camera_matrix,
-    cv::InputArray dist_coefficients,
+    cv::InputArray & camera_matrix,
+    cv::InputArray & dist_coefficients,
     cv::Vec3d & r_vec,
     cv::Vec3d & t_vec
   );
+
+  cv::Ptr<cv::aruco::Dictionary> m_dict;  ///< @brief Fiducial board dictionary
+  cv::Ptr<cv::aruco::Board> m_board;      ///< @brief Fiducial board
 
 protected:
   FiducialUpdater m_fiducial_updater;  ///< @brief MSCKF updater object
   FiducialTypeEnum m_detector_type;    ///< @brief Detector type
 
 private:
-  cv::Ptr<cv::aruco::Dictionary> m_dict;
-  cv::Ptr<cv::aruco::Board> m_board;
   BoardTrack m_board_track;
   Eigen::Vector3d m_pos_error;
   Eigen::Vector3d m_ang_error;

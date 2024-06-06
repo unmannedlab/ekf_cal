@@ -164,7 +164,8 @@
         "__hash_table": "cpp",
         "__tree": "cpp",
         "__bit_reference": "cpp",
-        "locale": "cpp"
+        "locale": "cpp",
+        "filesystem": "cpp"
     },
     "cmake.configureOnOpen": true,
     "flake8.args": [
