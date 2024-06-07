@@ -49,19 +49,17 @@ public:
 
   ///
   /// @brief Generate list of true measurement times
-  /// @param rng Random number generator
   /// @param m_rate Sensor rate
   /// @return List of sensor measurement times
   ///
-  std::vector<double> GenerateMeasurementTimes(SimRNG rng, double m_rate);
+  std::vector<double> GenerateMeasurementTimes(double m_rate);
 
   ///
   /// @brief Apply errors, if necessary, to sensor measurement time
-  /// @param rng Random number generator
   /// @param true_time True measurement time
   /// @return Time with error
   ///
-  double ApplyTimeError(SimRNG rng, double true_time);
+  double ApplyTimeError(double true_time);
 
 protected:
   bool m_no_errors {false};              ///< @brief Flag to remove measurement errors

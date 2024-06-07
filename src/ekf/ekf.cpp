@@ -486,6 +486,9 @@ unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, int frame_id)
     }
   }
 
+  std::stringstream msg;
+  msg << "Augmented State not Found: " << std::to_string(cam_id) << std::to_string(frame_id);
+  m_logger->Log(LogLevel::ERROR, msg.str());
   return -1;
 }
 

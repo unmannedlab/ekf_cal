@@ -36,7 +36,8 @@
 SimFeatureTracker::SimFeatureTracker(
   SimFeatureTracker::Parameters params,
   std::shared_ptr<TruthEngine> truthEngine)
-: FeatureTracker(params.tracker_params)
+: FeatureTracker(params.tracker_params),
+  m_rng(params.rng)
 {
   m_px_error = params.tracker_params.px_error;
   m_no_errors = params.no_errors;
@@ -53,8 +54,7 @@ SimFeatureTracker::SimFeatureTracker(
   m_proj_matrix.at<double>(2, 2) = 1;
 }
 
-std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(
-  SimRNG rng, double time, int sensor_id)
+std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int sensor_id)
 {
   Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(time);
   Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(time);
@@ -107,8 +107,8 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(
         feat.pt.x = projected_points[i].x;
         feat.pt.y = projected_points[i].y;
       } else {
-        feat.pt.x = round(rng.NormRand(projected_points[i].x, m_px_error));
-        feat.pt.y = round(rng.NormRand(projected_points[i].y, m_px_error));
+        feat.pt.x = round(m_rng.NormRand(projected_points[i].x, m_px_error));
+        feat.pt.y = round(m_rng.NormRand(projected_points[i].y, m_px_error));
       }
       projected_features.push_back(feat);
     }
@@ -118,7 +118,7 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(
 }
 
 std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::GenerateMessages(
-  SimRNG rng, std::vector<double> message_times, int sensor_id)
+  std::vector<double> message_times, int sensor_id)
 {
   m_logger->Log(
     LogLevel::INFO, "Generating " + std::to_string(message_times.size()) + " Feature measurements");
@@ -130,7 +130,7 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::Genera
     std::vector<std::vector<FeaturePoint>> feature_tracks;
 
     std::vector<cv::KeyPoint> key_points =
-      VisibleKeypoints(rng, message_times[frame_id], sensor_id);
+      VisibleKeypoints(message_times[frame_id], sensor_id);
 
     for (auto & key_point : key_points) {
       auto feature_track = FeaturePoint{frame_id, key_point};

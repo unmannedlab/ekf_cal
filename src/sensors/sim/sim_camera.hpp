@@ -76,10 +76,9 @@ public:
 
   ///
   /// @brief Generate simulated IMU messages
-  /// @param rng Random number generator
   /// @return Generated camera messages
   ///
-  std::vector<std::shared_ptr<SimCameraMessage>> GenerateMessages(SimRNG rng);
+  std::vector<std::shared_ptr<SimCameraMessage>> GenerateMessages();
 
 private:
   Eigen::Vector3d m_pos_error;

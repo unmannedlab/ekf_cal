@@ -23,7 +23,8 @@
 SimFiducialTracker::SimFiducialTracker(
   SimFiducialTracker::Parameters params,
   std::shared_ptr<TruthEngine> truth_engine)
-: FiducialTracker(params.fiducial_params)
+: FiducialTracker(params.fiducial_params),
+  m_rng(params.rng)
 {
   m_no_errors = params.no_errors;
   m_truth = truth_engine;
@@ -42,6 +43,18 @@ SimFiducialTracker::SimFiducialTracker(
   m_proj_matrix.at<double>(0, 2) = static_cast<double>(m_intrinsics.width) / 2.0;
   m_proj_matrix.at<double>(1, 2) = static_cast<double>(m_intrinsics.height) / 2.0;
   m_proj_matrix.at<double>(2, 2) = 1;
+
+  Eigen::Vector3d pos_f_in_g_true;
+  Eigen::Quaterniond ang_f_to_g_true;
+  if (m_no_errors) {
+    pos_f_in_g_true = params.fiducial_params.pos_f_in_g;
+    ang_f_to_g_true = params.fiducial_params.ang_f_to_g;
+  } else {
+    pos_f_in_g_true = m_rng.VecNormRand(params.fiducial_params.pos_f_in_g, params.pos_error);
+    ang_f_to_g_true = m_rng.QuatNormRand(params.fiducial_params.ang_f_to_g, params.ang_error);
+  }
+  truth_engine->SetBoardPosition(m_id, pos_f_in_g_true);
+  truth_engine->SetBoardOrientation(m_id, ang_f_to_g_true);
 }
 
 bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
@@ -101,7 +114,7 @@ bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
 }
 
 std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::GenerateMessages(
-  SimRNG rng, std::vector<double> message_times, int sensor_id)
+  std::vector<double> message_times, int sensor_id)
 {
   m_logger->Log(
     LogLevel::INFO,
@@ -137,14 +150,14 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
 
       BoardDetection board_detection;
       board_detection.frame_id = frame_id;
-      board_detection.t_vec_f_in_c[0] = rng.NormRand(pos_f_in_c_true[0], m_t_vec_error[0]);
-      board_detection.t_vec_f_in_c[1] = rng.NormRand(pos_f_in_c_true[1], m_t_vec_error[1]);
-      board_detection.t_vec_f_in_c[2] = rng.NormRand(pos_f_in_c_true[2], m_t_vec_error[2]);
+      board_detection.t_vec_f_in_c[0] = m_rng.NormRand(pos_f_in_c_true[0], m_t_vec_error[0]);
+      board_detection.t_vec_f_in_c[1] = m_rng.NormRand(pos_f_in_c_true[1], m_t_vec_error[1]);
+      board_detection.t_vec_f_in_c[2] = m_rng.NormRand(pos_f_in_c_true[2], m_t_vec_error[2]);
 
       Eigen::Vector3d ang_f_to_c_error_rpy;
-      ang_f_to_c_error_rpy(0) = rng.NormRand(0.0, m_r_vec_error[0]);
-      ang_f_to_c_error_rpy(1) = rng.NormRand(0.0, m_r_vec_error[1]);
-      ang_f_to_c_error_rpy(2) = rng.NormRand(0.0, m_r_vec_error[2]);
+      ang_f_to_c_error_rpy(0) = m_rng.NormRand(0.0, m_r_vec_error[0]);
+      ang_f_to_c_error_rpy(1) = m_rng.NormRand(0.0, m_r_vec_error[1]);
+      ang_f_to_c_error_rpy(2) = m_rng.NormRand(0.0, m_r_vec_error[2]);
       Eigen::Quaterniond ang_f_to_c = EigVecToQuat(ang_f_to_c_error_rpy) *
         ang_c_to_b_true.inverse() * ang_b_to_g.inverse() * ang_f_to_g_true;
       board_detection.r_vec_f_to_c = QuatToRodrigues(ang_f_to_c);

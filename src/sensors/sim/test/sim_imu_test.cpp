@@ -54,5 +54,5 @@ TEST(test_SimIMU, Constructor) {
   SimIMU sim_imu(sim_imu_params, truthEngine);
   SimRNG rng;
   rng.SetSeed(1.0);
-  std::vector<std::shared_ptr<SimImuMessage>> imu_messages = sim_imu.GenerateMessages(rng);
+  std::vector<std::shared_ptr<SimImuMessage>> imu_messages = sim_imu.GenerateMessages();
 }

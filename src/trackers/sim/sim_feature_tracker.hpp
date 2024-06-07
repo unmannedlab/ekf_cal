@@ -46,6 +46,7 @@ public:
     unsigned int feature_count{0};              ///< @brief Total feature count
     double room_size{10.0};                     ///< @brief Size of "Room" for features
     bool no_errors {false};                     ///< @brief Perfect measurements flag
+    SimRNG rng;                                 ///< @brief Random number generator
     FeatureTracker::Parameters tracker_params;  ///< @brief Tracker parameters
   } Parameters;
 
@@ -66,7 +67,7 @@ public:
   /// @return Generated feature tracker messages
   ///
   std::vector<std::shared_ptr<SimFeatureTrackerMessage>> GenerateMessages(
-    SimRNG rng, std::vector<double> message_times, int sensor_id);
+    std::vector<double> message_times, int sensor_id);
 
   ///
   /// @brief Return currently visible keypoints
@@ -74,7 +75,7 @@ public:
   /// @param time Current time
   /// @param sensor_id Camera sensor ID
   ///
-  std::vector<cv::KeyPoint> VisibleKeypoints(SimRNG rng, double time, int sensor_id);
+  std::vector<cv::KeyPoint> VisibleKeypoints(double time, int sensor_id);
 
   ///
   /// @brief Callback for feature tracker
@@ -84,6 +85,7 @@ public:
   void Callback(double time, std::shared_ptr<SimFeatureTrackerMessage> msg);
 
 private:
+  SimRNG m_rng;
   double m_px_error;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};

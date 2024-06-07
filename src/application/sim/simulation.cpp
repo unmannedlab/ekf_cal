@@ -267,7 +267,7 @@ int main(int argc, char * argv[])
     sensor_map[imu->GetId()] = imu;
 
     // Calculate sensor measurements
-    auto imu_messages = imu->GenerateMessages(rng);
+    auto imu_messages = imu->GenerateMessages();
     messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
   }
 
@@ -296,8 +296,9 @@ int main(int argc, char * argv[])
     SimFeatureTracker::Parameters sim_tracker_params;
     sim_tracker_params.feature_count = sim_node["feature_count"].as<unsigned int>(1.0e2);
     sim_tracker_params.room_size = sim_node["room_size"].as<double>(10.0);
-    sim_tracker_params.tracker_params = track_params;
     sim_tracker_params.no_errors = trk_node["no_errors"].as<bool>(false);
+    sim_tracker_params.rng = rng;
+    sim_tracker_params.tracker_params = track_params;
 
     tracker_map[track_params.name] = sim_tracker_params;
     truth_engine->GenerateFeatures(
@@ -337,21 +338,10 @@ int main(int argc, char * argv[])
     sim_fiducial_params.r_vec_error =
       StdToEigVec(sim_node["r_vec_error"].as<std::vector<double>>(def_vec));
     sim_fiducial_params.no_errors = sim_node["no_errors"].as<bool>(false);
+    sim_fiducial_params.rng = rng;
     sim_fiducial_params.fiducial_params = fiducial_params;
 
     fiducial_map[fiducial_params.name] = sim_fiducial_params;
-
-    Eigen::Vector3d pos_f_in_g_true;
-    Eigen::Quaterniond ang_f_to_g_true;
-    if (sim_fiducial_params.no_errors) {
-      pos_f_in_g_true = fiducial_params.pos_f_in_g;
-      ang_f_to_g_true = fiducial_params.ang_f_to_g;
-    } else {
-      pos_f_in_g_true = rng.VecNormRand(fiducial_params.pos_f_in_g, sim_fiducial_params.pos_error);
-      ang_f_to_g_true = rng.QuatNormRand(fiducial_params.ang_f_to_g, sim_fiducial_params.ang_error);
-    }
-    truth_engine->SetBoardPosition(i, pos_f_in_g_true);
-    truth_engine->SetBoardOrientation(i, ang_f_to_g_true);
   }
   ekf->SetMaxTrackLength(max_track_length);
 
@@ -409,7 +399,7 @@ int main(int argc, char * argv[])
     sensor_map[cam->GetId()] = cam;
 
     // Calculate sensor measurements
-    auto imu_messages = cam->GenerateMessages(rng);
+    auto imu_messages = cam->GenerateMessages();
     messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
   }
 
@@ -450,7 +440,7 @@ int main(int argc, char * argv[])
     sensor_map[gps->GetId()] = gps;
 
     // Calculate sensor measurements
-    auto gps_messages = gps->GenerateMessages(rng);
+    auto gps_messages = gps->GenerateMessages();
     messages.insert(messages.end(), gps_messages.begin(), gps_messages.end());
   }
 

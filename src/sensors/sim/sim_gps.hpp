@@ -60,10 +60,9 @@ public:
 
   ///
   /// @brief Generate simulated GPS messages
-  /// @param rng Random number generator
   /// @return Generated GPS messages
   ///
-  std::vector<std::shared_ptr<SimGpsMessage>> GenerateMessages(SimRNG rng);
+  std::vector<std::shared_ptr<SimGpsMessage>> GenerateMessages();
 
 private:
   Eigen::Vector3d m_lla_error{1e-9, 1e-9, 1e-9};

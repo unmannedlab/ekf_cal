@@ -59,10 +59,9 @@ public:
 
   ///
   /// @brief Generate simulated IMU messages
-  /// @param rng Random number generator
   /// @return Generated IMU messages
   ///
-  std::vector<std::shared_ptr<SimImuMessage>> GenerateMessages(SimRNG rng);
+  std::vector<std::shared_ptr<SimImuMessage>> GenerateMessages();
 
 private:
   Eigen::Vector3d m_acc_error;

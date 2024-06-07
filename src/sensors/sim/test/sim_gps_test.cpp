@@ -68,7 +68,7 @@ TEST(test_SimIMU, Constructor) {
 
   SimRNG rng;
   rng.SetSeed(0.0);
-  auto gps_msgs = sim_gps.GenerateMessages(rng);
+  auto gps_msgs = sim_gps.GenerateMessages();
 
   EXPECT_NEAR(gps_msgs[1]->m_time - gps_msgs[0]->m_time, 0.2, 1e-3);
   EXPECT_NEAR(gps_msgs[2]->m_time - gps_msgs[1]->m_time, 0.2, 1e-3);

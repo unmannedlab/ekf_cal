@@ -60,17 +60,16 @@ SimCamera::SimCamera(
 
   truth_engine->SetCameraPosition(m_id, pos_c_in_b_true);
   truth_engine->SetCameraAngularPosition(m_id, ang_c_to_b_true);
-
 }
 
-std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages(SimRNG rng)
+std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages()
 {
   std::vector<std::shared_ptr<SimCameraMessage>> messages;
-  std::vector<double> measurement_times = GenerateMeasurementTimes(rng, m_rate);
+  std::vector<double> measurement_times = GenerateMeasurementTimes(m_rate);
 
   // Tracker Messages
   for (auto const & trk_iter : m_trackers) {
-    auto trk_msgs = m_trackers[trk_iter.first]->GenerateMessages(rng, measurement_times, m_id);
+    auto trk_msgs = m_trackers[trk_iter.first]->GenerateMessages(measurement_times, m_id);
     cv::Mat blank_img;
     for (auto trk_msg : trk_msgs) {
       auto cam_msg = std::make_shared<SimCameraMessage>(blank_img);
@@ -86,7 +85,7 @@ std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages(SimRN
 
   // Fiducial Messages
   for (auto const & fid_iter : m_fiducials) {
-    auto fid_msgs = m_fiducials[fid_iter.first]->GenerateMessages(rng, measurement_times, m_id);
+    auto fid_msgs = m_fiducials[fid_iter.first]->GenerateMessages(measurement_times, m_id);
     cv::Mat blank_img;
     for (auto fid_msg : fid_msgs) {
       auto cam_msg = std::make_shared<SimCameraMessage>(blank_img);

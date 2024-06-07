@@ -64,9 +64,9 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truth_eng
   m_truth->SetImuGyroscopeBias(m_id, omg_bias_true);
 }
 
-std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(SimRNG rng)
+std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages()
 {
-  std::vector<double> measurement_times = GenerateMeasurementTimes(rng, m_rate);
+  std::vector<double> measurement_times = GenerateMeasurementTimes(m_rate);
 
   m_logger->Log(
     LogLevel::INFO, "Generating " + std::to_string(measurement_times.size()) + " IMU measurements");
@@ -100,8 +100,8 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(SimRNG rng)
     sim_imu_msg->m_angular_rate = imu_omg_i;
 
     if (!m_no_errors) {
-      sim_imu_msg->m_acceleration += rng.VecNormRand(acc_bias_true, m_acc_error);
-      sim_imu_msg->m_angular_rate += rng.VecNormRand(gyr_bias_true, m_omg_error);
+      sim_imu_msg->m_acceleration += m_rng.VecNormRand(acc_bias_true, m_acc_error);
+      sim_imu_msg->m_angular_rate += m_rng.VecNormRand(gyr_bias_true, m_omg_error);
     }
 
     Eigen::Vector3d accSigmas(m_acc_error[0], m_acc_error[1], m_acc_error[2]);
