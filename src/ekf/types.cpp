@@ -238,7 +238,7 @@ Eigen::VectorXd ImuState::ToVector()
     out_vec = Eigen::VectorXd::Zero(6);
     out_vec.segment<3>(0) = acc_bias;
     out_vec.segment<3>(3) = omg_bias;
-  } else if (is_extrinsic) {
+  } else {
     out_vec = Eigen::VectorXd::Zero(0);
   }
 

@@ -392,6 +392,7 @@ TEST(test_TruthEngineCyclic, WriteTruthData) {
   Eigen::Quaterniond cam_ang_pos{-0.5, 0.5, -0.5, 0.5};
   Eigen::Vector3d board_pos {1, 2, 3};
   Eigen::Quaterniond board_ang{-0.5, 0.5, -0.5, 0.5};
+  Eigen::Vector3d gps_pos {1, 2, 3};
 
   truth_engine_cyclic.SetImuPosition(1, imu_pos);
   truth_engine_cyclic.SetImuAngularPosition(1, imu_ang_pos);
@@ -401,6 +402,7 @@ TEST(test_TruthEngineCyclic, WriteTruthData) {
   truth_engine_cyclic.SetCameraAngularPosition(2, cam_ang_pos);
   truth_engine_cyclic.SetBoardPosition(3, board_pos);
   truth_engine_cyclic.SetBoardOrientation(3, board_ang);
+  truth_engine_cyclic.SetGpsPosition(4, gps_pos);
 
   SimRNG rng;
   truth_engine_cyclic.GenerateFeatures(1e3, 10, rng);

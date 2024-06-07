@@ -217,14 +217,14 @@ TEST(test_MathHelper, average_quaternions) {
   EXPECT_EQ(average_quaternion_2.z(), 0.0);
 
   std::vector<Eigen::Quaterniond> quaternions_3;
-  quaternions_3.push_back(Eigen::Quaterniond(0.9914449, 0.1305262, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(0.9238795, 0.3826834, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(0.7372773, 0.6755902, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(0.6755902, 0.7372773, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(0.6755902, -0.7372773, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(0.7372773, -0.6755902, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(0.9238795, -0.3826834, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(0.9914449, -0.1305262, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(-0.9914449, 0.1305262, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(-0.9238795, 0.3826834, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(-0.7372773, 0.6755902, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(-0.6755902, 0.7372773, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(-0.6755902, -0.7372773, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(-0.7372773, -0.6755902, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(-0.9238795, -0.3826834, 0.0, 0.0));
+  quaternions_3.push_back(Eigen::Quaterniond(-0.9914449, -0.1305262, 0.0, 0.0));
 
   std::vector<double> weights_3;
   weights_3.push_back(1.0);
@@ -338,4 +338,15 @@ TEST(test_MathHelper, maximum_distance) {
   double max_dist = maximum_distance(eigen_points);
 
   EXPECT_EQ(max_dist, 4.0);
+}
+
+TEST(test_MathHelper, average_doubles) {
+  std::vector<double> doubles_vector;
+  doubles_vector.push_back(1.0);
+  doubles_vector.push_back(2.0);
+  doubles_vector.push_back(3.0);
+  doubles_vector.push_back(4.0);
+  doubles_vector.push_back(5.0);
+
+  EXPECT_EQ(average_doubles(doubles_vector), 3.0);
 }

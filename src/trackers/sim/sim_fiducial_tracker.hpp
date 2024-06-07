@@ -95,8 +95,8 @@ private:
   Intrinsics m_intrinsics;
   cv::Mat m_proj_matrix;
 
-  unsigned int m_min_track_length {2U};
-  unsigned int m_max_track_length {20U};
+  unsigned int m_min_track_length {0U};
+  unsigned int m_max_track_length {1U};
 };
 
 

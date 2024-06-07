@@ -401,20 +401,3 @@ double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vector
 
   return std::sqrt(square_sum_of_difference) / input_vectors.size();
 }
-
-double mean_standard_deviation(const std::vector<double> & input_doubles)
-{
-  if (input_doubles.size()) {
-    double square_sum_of_difference{0.0};
-    double mean_var = average_doubles(input_doubles);
-
-    for (auto & value : input_doubles) {
-      double diff = value - mean_var;
-      square_sum_of_difference += diff * diff;
-    }
-
-    return std::sqrt(square_sum_of_difference) / input_doubles.size();
-  } else {
-    return 0.0;
-  }
-}

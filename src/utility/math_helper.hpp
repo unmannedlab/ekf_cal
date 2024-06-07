@@ -190,8 +190,11 @@ bool kabsch_2d(
 ///
 double maximum_distance(const std::vector<Eigen::Vector3d> & eigen_points);
 
+///
+/// @brief Calculate standard deviation of the mean of a vector of vectors
+/// @param input_vectors Vector of vectors to calculate standard deviation
+/// @return Standard deviation of the mean
+///
 double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vectors);
-
-double mean_standard_deviation(const std::vector<double> & input_doubles);
 
 #endif  // UTILITY__MATH_HELPER_HPP_
