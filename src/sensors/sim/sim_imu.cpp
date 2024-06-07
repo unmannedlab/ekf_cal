@@ -30,24 +30,38 @@
 #include "utility/sim/sim_rng.hpp"
 #include "utility/type_helper.hpp"
 
-SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truthEngine)
-: IMU(params.imu_params)
+SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truth_engine)
+: IMU(params.imu_params), SimSensor(params)
 {
-  m_time_error = params.time_error;
   m_acc_error = params.acc_error;
   m_omg_error = params.omg_error;
   m_acc_bias_error = params.acc_bias_error;
   m_omg_bias_error = params.omg_bias_error;
   m_pos_error = params.pos_error;
   m_ang_error = params.ang_error;
-  m_no_errors = params.no_errors;
-  m_truth = truthEngine;
+  m_truth = truth_engine;
 
+  // Set true IMU values
+  Eigen::Vector3d pos_i_in_b_true;
+  Eigen::Quaterniond ang_i_to_b_true;
+  Eigen::Vector3d acc_bias_true;
+  Eigen::Vector3d omg_bias_true;
   if (m_no_errors) {
-    m_time_bias_error = 0.0;
+    pos_i_in_b_true = params.imu_params.pos_i_in_b;
+    ang_i_to_b_true = params.imu_params.ang_i_to_b;
+    acc_bias_true = params.imu_params.acc_bias;
+    omg_bias_true = params.imu_params.omg_bias;
   } else {
-    m_time_bias_error = params.time_bias_error;
+    pos_i_in_b_true = m_rng.VecNormRand(params.imu_params.pos_i_in_b, params.pos_error);
+    ang_i_to_b_true = m_rng.QuatNormRand(params.imu_params.ang_i_to_b, params.ang_error);
+    acc_bias_true = m_rng.VecNormRand(params.imu_params.acc_bias, params.acc_error);
+    omg_bias_true = m_rng.VecNormRand(params.imu_params.omg_bias, params.omg_error);
   }
+
+  m_truth->SetImuPosition(m_id, pos_i_in_b_true);
+  m_truth->SetImuAngularPosition(m_id, ang_i_to_b_true);
+  m_truth->SetImuAccelerometerBias(m_id, acc_bias_true);
+  m_truth->SetImuGyroscopeBias(m_id, omg_bias_true);
 }
 
 std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(SimRNG rng)
@@ -86,7 +100,6 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages(SimRNG rng)
     sim_imu_msg->m_angular_rate = imu_omg_i;
 
     if (!m_no_errors) {
-      sim_imu_msg->m_time += rng.NormRand(m_time_bias_error, m_time_error);
       sim_imu_msg->m_acceleration += rng.VecNormRand(acc_bias_true, m_acc_error);
       sim_imu_msg->m_angular_rate += rng.VecNormRand(gyr_bias_true, m_omg_error);
     }

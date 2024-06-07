@@ -19,6 +19,21 @@
 #include "utility/sim/sim_rng.hpp"
 
 
+SimSensor::SimSensor(Parameters params)
+: m_no_errors(params.no_errors),
+  m_rng(params.rng)
+{
+  if (m_no_errors) {
+    m_time_error = 0.0;
+    m_time_bias_error = 0.0;
+    m_time_skew_error = 0.0;
+  } else {
+    m_time_error = params.time_error;
+    m_time_bias_error = params.time_bias_error;
+    m_time_skew_error = params.time_skew_error;
+  }
+}
+
 std::vector<double> SimSensor::GenerateMeasurementTimes(SimRNG rng, double m_rate)
 {
   unsigned int num_measurements = static_cast<int>(std::floor(m_truth->m_max_time * m_rate));

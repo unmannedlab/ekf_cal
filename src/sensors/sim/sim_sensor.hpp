@@ -39,12 +39,13 @@ public:
     double time_error {0.0};       ///< @brief Time offset error
     double time_bias_error {0.0};  ///< @brief Time offset bias
     double time_skew_error {0.0};  ///< @brief Time offset error
+    SimRNG rng;                    ///< @brief Random number generator
   } Parameters;
 
   ///
   /// @brief SimSensor constructor
   ///
-  SimSensor() {}
+  explicit SimSensor(Parameters params);
 
   ///
   /// @brief Generate list of true measurement times
@@ -63,10 +64,11 @@ public:
   double ApplyTimeError(SimRNG rng, double true_time);
 
 protected:
+  bool m_no_errors {false};              ///< @brief Flag to remove measurement errors
   double m_time_error {1e-9};            ///< @brief Time offset error
   double m_time_bias_error{0.0};         ///< @brief Time offset bias
   double m_time_skew_error{0.0};         ///< @brief Time offset error
-  bool m_no_errors {false};              ///< @brief Flag to remove measurement errors
+  SimRNG m_rng;                          ///< @brief Random number generator
   std::shared_ptr<TruthEngine> m_truth;  ///< @brief Truth engine pointer
 };
 

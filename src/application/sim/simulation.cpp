@@ -211,6 +211,20 @@ int main(int argc, char * argv[])
     debug_logger->Log(LogLevel::ERROR, msg.str());
   }
 
+  // Set global position
+  auto pos_l_in_g = StdToEigVec(sim_params["pos_l_in_g"].as<std::vector<double>>(def_vec));
+  auto ang_l_to_g = sim_params["ang_l_to_g"].as<double>(0.0);
+  auto pos_l_in_g_err = StdToEigVec(sim_params["pos_l_in_g_err"].as<std::vector<double>>(def_vec));
+  auto ang_l_to_g_err = sim_params["ang_l_to_g_err"].as<double>(0.0);
+
+  Eigen::Vector3d pos_l_in_g_true;
+  pos_l_in_g_true(0) = rng.NormRand(pos_l_in_g(0), wgs84_m_to_deg(pos_l_in_g_err(0)));
+  pos_l_in_g_true(1) = rng.NormRand(pos_l_in_g(1), wgs84_m_to_deg(pos_l_in_g_err(1)));
+  pos_l_in_g_true(2) = rng.NormRand(pos_l_in_g(2), pos_l_in_g_err(2));
+  double ang_l_to_g_true = rng.NormRand(ang_l_to_g, ang_l_to_g_err);
+  truth_engine->SetLocalPosition(pos_l_in_g_true);
+  truth_engine->SetLocalHeading(ang_l_to_g_true);
+
   // Load IMUs and generate measurements
   bool using_any_imu_for_prediction {false};
   debug_logger->Log(LogLevel::INFO, "Loading IMUs");
@@ -246,32 +260,11 @@ int main(int argc, char * argv[])
       StdToEigVec(sim_node["acc_bias_error"].as<std::vector<double>>(def_vec));
     sim_imu_params.omg_bias_error =
       StdToEigVec(sim_node["omg_bias_error"].as<std::vector<double>>(def_vec));
+    sim_imu_params.rng = rng;
 
     // Add sensor to map
     auto imu = std::make_shared<SimIMU>(sim_imu_params, truth_engine);
     sensor_map[imu->GetId()] = imu;
-
-    // Set true IMU values
-    Eigen::Vector3d pos_i_in_b_true;
-    Eigen::Quaterniond ang_i_to_b_true;
-    Eigen::Vector3d acc_bias_true;
-    Eigen::Vector3d omg_bias_true;
-    if (sim_imu_params.no_errors) {
-      pos_i_in_b_true = imu_params.pos_i_in_b;
-      ang_i_to_b_true = imu_params.ang_i_to_b;
-      acc_bias_true = imu_params.acc_bias;
-      omg_bias_true = imu_params.omg_bias;
-    } else {
-      pos_i_in_b_true = rng.VecNormRand(imu_params.pos_i_in_b, sim_imu_params.pos_error);
-      ang_i_to_b_true = rng.QuatNormRand(imu_params.ang_i_to_b, sim_imu_params.ang_error);
-      acc_bias_true = rng.VecNormRand(imu_params.acc_bias, sim_imu_params.acc_error);
-      omg_bias_true = rng.VecNormRand(imu_params.omg_bias, sim_imu_params.omg_error);
-    }
-
-    truth_engine->SetImuPosition(imu->GetId(), pos_i_in_b_true);
-    truth_engine->SetImuAngularPosition(imu->GetId(), ang_i_to_b_true);
-    truth_engine->SetImuAccelerometerBias(imu->GetId(), acc_bias_true);
-    truth_engine->SetImuGyroscopeBias(imu->GetId(), omg_bias_true);
 
     // Calculate sensor measurements
     auto imu_messages = imu->GenerateMessages(rng);
@@ -394,6 +387,7 @@ int main(int argc, char * argv[])
     sim_cam_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>(def_vec));
     sim_cam_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>(def_vec));
     sim_cam_params.cam_params = cam_params;
+    sim_cam_params.rng = rng;
 
     // Add sensor to map
     auto cam = std::make_shared<SimCamera>(sim_cam_params, truth_engine);
@@ -413,20 +407,6 @@ int main(int argc, char * argv[])
     }
 
     sensor_map[cam->GetId()] = cam;
-
-    // Set true camera values
-    Eigen::Vector3d pos_c_in_b_true;
-    Eigen::Quaterniond ang_c_to_b_true;
-    if (sim_cam_params.no_errors) {
-      pos_c_in_b_true = cam_params.pos_c_in_b;
-      ang_c_to_b_true = cam_params.ang_c_to_b;
-    } else {
-      pos_c_in_b_true = rng.VecNormRand(cam_params.pos_c_in_b, sim_cam_params.pos_error);
-      ang_c_to_b_true = rng.QuatNormRand(cam_params.ang_c_to_b, sim_cam_params.ang_error);
-    }
-
-    truth_engine->SetCameraPosition(cam->GetId(), pos_c_in_b_true);
-    truth_engine->SetCameraAngularPosition(cam->GetId(), ang_c_to_b_true);
 
     // Calculate sensor measurements
     auto imu_messages = cam->GenerateMessages(rng);
@@ -463,31 +443,11 @@ int main(int argc, char * argv[])
     sim_gps_params.pos_l_in_g_err =
       StdToEigVec(sim_node["pos_l_in_g_err"].as<std::vector<double>>(def_vec));
     sim_gps_params.ang_l_to_g_err = sim_node["ang_l_to_g_err"].as<double>(1e-9);
+    sim_gps_params.rng = rng;
 
     // Add sensor to map
     auto gps = std::make_shared<SimGPS>(sim_gps_params, truth_engine);
     sensor_map[gps->GetId()] = gps;
-
-    // Set true camera values
-    Eigen::Vector3d pos_a_in_b;
-    Eigen::Vector3d pos_l_in_g;
-    double ang_l_to_g;
-    if (sim_gps_params.no_errors) {
-      pos_a_in_b = gps_params.pos_a_in_b;
-      pos_l_in_g = gps_params.pos_l_in_g;
-      ang_l_to_g = gps_params.ang_l_to_g;
-    } else {
-      pos_a_in_b = rng.VecNormRand(gps_params.pos_a_in_b, sim_gps_params.pos_a_in_b_err);
-      pos_l_in_g(0) =
-        rng.NormRand(gps_params.pos_l_in_g(0), wgs84_m_to_deg(sim_gps_params.pos_l_in_g_err(0)));
-      pos_l_in_g(1) =
-        rng.NormRand(gps_params.pos_l_in_g(1), wgs84_m_to_deg(sim_gps_params.pos_l_in_g_err(1)));
-      pos_l_in_g(2) = rng.NormRand(gps_params.pos_l_in_g(2), sim_gps_params.pos_l_in_g_err(2));
-      ang_l_to_g = rng.NormRand(gps_params.ang_l_to_g, sim_gps_params.ang_l_to_g_err);
-    }
-    truth_engine->SetGpsPosition(gps->GetId(), pos_a_in_b);
-    truth_engine->SetLocalPosition(pos_l_in_g);
-    truth_engine->SetLocalHeading(ang_l_to_g);
 
     // Calculate sensor measurements
     auto gps_messages = gps->GenerateMessages(rng);

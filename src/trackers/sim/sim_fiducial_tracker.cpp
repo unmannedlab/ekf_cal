@@ -22,11 +22,11 @@
 
 SimFiducialTracker::SimFiducialTracker(
   SimFiducialTracker::Parameters params,
-  std::shared_ptr<TruthEngine> truthEngine)
+  std::shared_ptr<TruthEngine> truth_engine)
 : FiducialTracker(params.fiducial_params)
 {
   m_no_errors = params.no_errors;
-  m_truth = truthEngine;
+  m_truth = truth_engine;
 
   m_pos_error = params.pos_error;
   m_ang_error = params.ang_error;

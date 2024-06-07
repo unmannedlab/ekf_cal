@@ -24,6 +24,10 @@
                 - [0.0, 0.1, 0.0]
                 - [0.0, 0.0, 0.1]
                 - [0.0, 0.0, 0.0]
+            pos_l_in_g: [0.0, 0.0, 0.0]
+            ang_l_to_g: 0.0
+            pos_l_in_g_err: [1.0e-9, 1.0e-9, 1.0e-9]
+            ang_l_to_g_err: 1.0e-9
 
         filter_params:
             process_noise: [
@@ -84,8 +88,6 @@
                 rate: 10.0
                 topic: "/gps1"
                 pos_a_in_b: [0.0, 0.0, 0.0]
-                pos_l_in_g: [0.0, 0.0, 0.0]
-                ang_l_to_g: 0.0
                 variance: [1.0, 1.0, 1.0]
                 data_log_rate: 5.0
                 initialization_type: 0
@@ -99,5 +101,3 @@
                     time_error: 1.0e-9
                     lla_error: [1.0, 1.0, 1.0]
                     pos_a_in_b_err: [1.0e-1, 1.0e-1, 1.0e-1]
-                    pos_l_in_g_err: [1.0e-9, 1.0e-9, 1.0e-9]
-                    ang_l_to_g_err: 1.0e-9

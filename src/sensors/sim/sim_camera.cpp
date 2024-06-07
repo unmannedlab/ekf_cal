@@ -41,14 +41,26 @@
 SimCamera::SimCamera(
   Parameters params,
   std::shared_ptr<TruthEngine> truth_engine)
-: Camera(params.cam_params)
+: Camera(params.cam_params), SimSensor(params)
 {
-  m_time_error = params.time_error;
   m_pos_error = params.pos_error;
   m_ang_error = params.ang_error;
-  m_no_errors = params.no_errors;
   m_truth = truth_engine;
-  m_time_bias_error = params.time_bias_error;
+
+  // Set true camera values
+  Eigen::Vector3d pos_c_in_b_true;
+  Eigen::Quaterniond ang_c_to_b_true;
+  if (m_no_errors) {
+    pos_c_in_b_true = params.cam_params.pos_c_in_b;
+    ang_c_to_b_true = params.cam_params.ang_c_to_b;
+  } else {
+    pos_c_in_b_true = m_rng.VecNormRand(params.cam_params.pos_c_in_b, params.pos_error);
+    ang_c_to_b_true = m_rng.QuatNormRand(params.cam_params.ang_c_to_b, params.ang_error);
+  }
+
+  truth_engine->SetCameraPosition(m_id, pos_c_in_b_true);
+  truth_engine->SetCameraAngularPosition(m_id, ang_c_to_b_true);
+
 }
 
 std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages(SimRNG rng)

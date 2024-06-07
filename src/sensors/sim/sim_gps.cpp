@@ -27,14 +27,20 @@
 #include "utility/gps_helper.hpp"
 #include "utility/sim/sim_rng.hpp"
 
-SimGPS::SimGPS(SimGPS::Parameters params, std::shared_ptr<TruthEngine> truthEngine)
-: GPS(params.gps_params)
+SimGPS::SimGPS(SimGPS::Parameters params, std::shared_ptr<TruthEngine> truth_engine)
+: GPS(params.gps_params), SimSensor(params)
 {
-  m_time_bias_error = params.time_bias_error;
-  m_time_error = std::max(params.time_error, 1e-9);
   m_lla_error = params.lla_error;
-  m_no_errors = params.no_errors;
-  m_truth = truthEngine;
+  m_truth = truth_engine;
+
+  // Set true camera values
+  Eigen::Vector3d pos_a_in_b;
+  if (m_no_errors) {
+    pos_a_in_b = params.gps_params.pos_a_in_b;
+  } else {
+    pos_a_in_b = m_rng.VecNormRand(params.gps_params.pos_a_in_b, params.pos_a_in_b_err);
+  }
+  m_truth->SetGpsPosition(m_id, pos_a_in_b);
 }
 
 std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages(SimRNG rng)
