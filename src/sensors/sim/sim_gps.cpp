@@ -53,9 +53,9 @@ std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages()
   std::vector<std::shared_ptr<SimGpsMessage>> messages;
   for (auto measurement_time : measurement_times) {
     auto sim_gps_msg = std::make_shared<SimGpsMessage>();
-    sim_gps_msg->m_time = measurement_time;
-    sim_gps_msg->m_sensor_id = m_id;
-    sim_gps_msg->m_sensor_type = SensorType::GPS;
+    sim_gps_msg->time = measurement_time;
+    sim_gps_msg->sensor_id = m_id;
+    sim_gps_msg->sensor_type = SensorType::GPS;
 
     /// @todo(jhartzer): Implement GPS error model
     Eigen::Vector3d pos_b_in_l = m_truth->GetBodyPosition(measurement_time);
@@ -73,7 +73,7 @@ std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages()
 
     Eigen::Vector3d antenna_enu = local_to_enu(pos_a_in_l, ang_l_to_g);
 
-    sim_gps_msg->m_gps_lla = enu_to_lla(antenna_enu, pos_l_in_g);
+    sim_gps_msg->gps_lla = enu_to_lla(antenna_enu, pos_l_in_g);
 
     messages.push_back(sim_gps_msg);
   }

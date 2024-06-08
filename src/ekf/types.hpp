@@ -47,12 +47,12 @@ public:
   ///
   void SetState(Eigen::VectorXd state);
 
-  Eigen::Vector3d m_position{0.0, 0.0, 0.0};              ///< @brief Body position
-  Eigen::Vector3d m_velocity{0.0, 0.0, 0.0};              ///< @brief Body velocity
-  Eigen::Vector3d m_acceleration{0.0, 0.0, 0.0};          ///< @brief Body acceleration
-  Eigen::Quaterniond m_ang_b_to_g{1.0, 0.0, 0.0, 0.0};    ///< @brief Body orientation
-  Eigen::Vector3d m_angular_velocity{0.0, 0.0, 0.0};      ///< @brief Body angular rate
-  Eigen::Vector3d m_angular_acceleration{0.0, 0.0, 0.0};  ///< @brief Body angular acceleration
+  Eigen::Vector3d pos_b_in_l{0.0, 0.0, 0.0};          ///< @brief Body position
+  Eigen::Vector3d vel_b_in_l{0.0, 0.0, 0.0};          ///< @brief Body velocity
+  Eigen::Vector3d acc_b_in_l{0.0, 0.0, 0.0};          ///< @brief Body acceleration
+  Eigen::Quaterniond ang_b_to_l{1.0, 0.0, 0.0, 0.0};  ///< @brief Body orientation
+  Eigen::Vector3d ang_vel_b_in_l{0.0, 0.0, 0.0};      ///< @brief Body angular rate
+  Eigen::Vector3d ang_acc_b_in_l{0.0, 0.0, 0.0};      ///< @brief Body angular acceleration
 };
 
 ///
@@ -105,8 +105,8 @@ public:
 typedef struct AugmentedState
 {
   int frame_id {-1};                                  ///< @brief Augmented frame ID
-  Eigen::Vector3d pos_b_in_g{0.0, 0.0, 0.0};          ///< @brief Augmented IMU position
-  Eigen::Quaterniond ang_b_to_g{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
+  Eigen::Vector3d pos_b_in_l{0.0, 0.0, 0.0};          ///< @brief Augmented IMU position
+  Eigen::Quaterniond ang_b_to_l{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
   Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Augmented camera position
   Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented camera orientation
 } AugmentedState;
@@ -156,6 +156,17 @@ typedef struct BoardDetection
 typedef std::vector<BoardDetection> BoardTrack;
 
 ///
+/// @brief Fiducial state structure
+///
+typedef struct FidState
+{
+  int frame_id;                   ///< @brief Fiducial board ID
+  bool is_extrinsic{false};       ///< @brief Extrinsic calibration flag
+  Eigen::Vector3d pos_f_in_l;     ///< @brief Fiducial position in the local frame
+  Eigen::Quaterniond ang_f_to_l;  ///< @brief Fiducial position in the local frame
+} FidState;
+
+///
 /// @class State
 /// @brief EKF State Class
 ///
@@ -179,10 +190,11 @@ public:
   ///
   unsigned int GetStateSize();
 
-  BodyState m_body_state {};                        ///< @brief Body state
-  std::map<unsigned int, ImuState> m_imu_states{};  ///< @brief IMU states
-  std::map<unsigned int, GpsState> m_gps_states{};  ///< @brief GPS states
-  std::map<unsigned int, CamState> m_cam_states{};  ///< @brief Camera States
+  BodyState body_state {};                        ///< @brief Body state
+  std::map<unsigned int, ImuState> imu_states{};  ///< @brief IMU states
+  std::map<unsigned int, GpsState> gps_states{};  ///< @brief GPS states
+  std::map<unsigned int, CamState> cam_states{};  ///< @brief Camera states
+  std::map<unsigned int, FidState> fid_states{};  ///< @brief Fiducial states
 };
 
 BodyState & operator+=(BodyState & l_body_state, BodyState & r_body_state);
@@ -195,6 +207,9 @@ std::map<unsigned int, GpsState> & operator+=(
   Eigen::VectorXd & r_vector);
 std::map<unsigned int, CamState> & operator+=(
   std::map<unsigned int, CamState> & l_cam_state,
+  Eigen::VectorXd & r_vector);
+std::map<unsigned int, FidState> & operator+=(
+  std::map<unsigned int, FidState> & l_fid_state,
   Eigen::VectorXd & r_vector);
 std::vector<AugmentedState> & operator+=(
   std::vector<AugmentedState> & l_augState,

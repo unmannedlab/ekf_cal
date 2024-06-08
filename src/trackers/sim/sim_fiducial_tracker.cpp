@@ -47,11 +47,11 @@ SimFiducialTracker::SimFiducialTracker(
   Eigen::Vector3d pos_f_in_g_true;
   Eigen::Quaterniond ang_f_to_g_true;
   if (m_no_errors) {
-    pos_f_in_g_true = params.fiducial_params.pos_f_in_g;
-    ang_f_to_g_true = params.fiducial_params.ang_f_to_g;
+    pos_f_in_g_true = params.fiducial_params.pos_f_in_l;
+    ang_f_to_g_true = params.fiducial_params.ang_f_to_l;
   } else {
-    pos_f_in_g_true = m_rng.VecNormRand(params.fiducial_params.pos_f_in_g, params.pos_error);
-    ang_f_to_g_true = m_rng.QuatNormRand(params.fiducial_params.ang_f_to_g, params.ang_error);
+    pos_f_in_g_true = m_rng.VecNormRand(params.fiducial_params.pos_f_in_l, params.pos_error);
+    ang_f_to_g_true = m_rng.QuatNormRand(params.fiducial_params.ang_f_to_l, params.ang_error);
   }
   truth_engine->SetBoardPosition(m_id, pos_f_in_g_true);
   truth_engine->SetBoardOrientation(m_id, ang_f_to_g_true);
@@ -128,12 +128,12 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
   for (int frame_id = 0; static_cast<unsigned int>(frame_id) < message_times.size(); ++frame_id) {
     std::vector<std::vector<FeaturePoint>> feature_tracks;
     auto tracker_message = std::make_shared<SimFiducialTrackerMessage>();
-    tracker_message->m_time = message_times[frame_id];
-    tracker_message->m_tracker_id = m_id;
-    tracker_message->m_sensor_id = sensor_id;
-    tracker_message->m_sensor_type = SensorType::Tracker;
-    tracker_message->m_pos_error = m_t_vec_error;
-    tracker_message->m_ang_error = m_r_vec_error;
+    tracker_message->time = message_times[frame_id];
+    tracker_message->tracker_id = m_id;
+    tracker_message->sensor_id = sensor_id;
+    tracker_message->sensor_type = SensorType::Tracker;
+    tracker_message->pos_error = m_t_vec_error;
+    tracker_message->ang_error = m_r_vec_error;
 
     bool is_board_visible = IsBoardVisible(message_times[frame_id], sensor_id);
     if (is_board_visible) {
@@ -168,7 +168,7 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
     }
 
     if (!is_board_visible || board_track.size() >= m_max_track_length) {
-      tracker_message->m_board_track = board_track;
+      tracker_message->board_track = board_track;
       board_track.clear();
     }
 
@@ -182,7 +182,7 @@ void SimFiducialTracker::Callback(double time, std::shared_ptr<SimFiducialTracke
   m_fiducial_updater.UpdateEKF(
     m_ekf,
     time,
-    msg->m_board_track,
-    msg->m_pos_error.norm(),
-    msg->m_ang_error.norm());
+    msg->board_track,
+    msg->pos_error.norm(),
+    msg->ang_error.norm());
 }

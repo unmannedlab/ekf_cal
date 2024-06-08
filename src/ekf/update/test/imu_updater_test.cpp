@@ -30,7 +30,7 @@ TEST(test_imu_updater, update) {
 
   double time_init = 0.0;
   BodyState body_state;
-  body_state.m_velocity = Eigen::Vector3d::Ones();
+  body_state.vel_b_in_l = Eigen::Vector3d::Ones();
   ekf->Initialize(time_init, body_state);
 
   unsigned int imu_id{0};
@@ -61,36 +61,36 @@ TEST(test_imu_updater, update) {
   bool use_for_prediction {false};
 
   State state = ekf->m_state;
-  EXPECT_EQ(state.m_body_state.m_position[0], 0);
-  EXPECT_EQ(state.m_body_state.m_position[1], 0);
-  EXPECT_EQ(state.m_body_state.m_position[2], 0);
+  EXPECT_EQ(state.body_state.pos_b_in_l[0], 0);
+  EXPECT_EQ(state.body_state.pos_b_in_l[1], 0);
+  EXPECT_EQ(state.body_state.pos_b_in_l[2], 0);
 
   double time = time_init + 1;
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov, use_for_prediction);
 
   state = ekf->m_state;
-  EXPECT_EQ(state.m_body_state.m_position[0], 1);
-  EXPECT_EQ(state.m_body_state.m_position[1], 1);
-  EXPECT_EQ(state.m_body_state.m_position[2], 1);
+  EXPECT_EQ(state.body_state.pos_b_in_l[0], 1);
+  EXPECT_EQ(state.body_state.pos_b_in_l[1], 1);
+  EXPECT_EQ(state.body_state.pos_b_in_l[2], 1);
 
   time += 1;
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov, use_for_prediction);
 
   state = ekf->m_state;
-  EXPECT_EQ(state.m_body_state.m_position[0], 2);
-  EXPECT_EQ(state.m_body_state.m_position[1], 2);
-  EXPECT_EQ(state.m_body_state.m_position[2], 2);
+  EXPECT_EQ(state.body_state.pos_b_in_l[0], 2);
+  EXPECT_EQ(state.body_state.pos_b_in_l[1], 2);
+  EXPECT_EQ(state.body_state.pos_b_in_l[2], 2);
 
   time -= 1;
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov, use_for_prediction);
 
   state = ekf->m_state;
-  EXPECT_EQ(state.m_body_state.m_position[0], 2);
-  EXPECT_EQ(state.m_body_state.m_position[1], 2);
-  EXPECT_EQ(state.m_body_state.m_position[2], 2);
+  EXPECT_EQ(state.body_state.pos_b_in_l[0], 2);
+  EXPECT_EQ(state.body_state.pos_b_in_l[1], 2);
+  EXPECT_EQ(state.body_state.pos_b_in_l[2], 2);
 }
 
 TEST(test_imu_updater, imu_prediction_update) {
@@ -99,7 +99,7 @@ TEST(test_imu_updater, imu_prediction_update) {
 
   double time_init = 0.0;
   BodyState body_state;
-  body_state.m_velocity = Eigen::Vector3d::Ones();
+  body_state.vel_b_in_l = Eigen::Vector3d::Ones();
   ekf->Initialize(time_init, body_state);
 
   unsigned int imu_id{0};
@@ -122,36 +122,36 @@ TEST(test_imu_updater, imu_prediction_update) {
   bool use_for_prediction {true};
 
   State state = ekf->m_state;
-  EXPECT_EQ(state.m_body_state.m_position[0], 0);
-  EXPECT_EQ(state.m_body_state.m_position[1], 0);
-  EXPECT_EQ(state.m_body_state.m_position[2], 0);
+  EXPECT_EQ(state.body_state.pos_b_in_l[0], 0);
+  EXPECT_EQ(state.body_state.pos_b_in_l[1], 0);
+  EXPECT_EQ(state.body_state.pos_b_in_l[2], 0);
 
   double time = time_init + 1;
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov, use_for_prediction);
 
   state = ekf->m_state;
-  EXPECT_EQ(state.m_body_state.m_position[0], 1);
-  EXPECT_EQ(state.m_body_state.m_position[1], 1);
-  EXPECT_EQ(state.m_body_state.m_position[2], 1);
+  EXPECT_EQ(state.body_state.pos_b_in_l[0], 1);
+  EXPECT_EQ(state.body_state.pos_b_in_l[1], 1);
+  EXPECT_EQ(state.body_state.pos_b_in_l[2], 1);
 
   time += 1;
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov, use_for_prediction);
 
   state = ekf->m_state;
-  EXPECT_EQ(state.m_body_state.m_position[0], 2);
-  EXPECT_EQ(state.m_body_state.m_position[1], 2);
-  EXPECT_EQ(state.m_body_state.m_position[2], 2);
+  EXPECT_EQ(state.body_state.pos_b_in_l[0], 2);
+  EXPECT_EQ(state.body_state.pos_b_in_l[1], 2);
+  EXPECT_EQ(state.body_state.pos_b_in_l[2], 2);
 
   time -= 1;
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov, use_for_prediction);
 
   state = ekf->m_state;
-  EXPECT_EQ(state.m_body_state.m_position[0], 2);
-  EXPECT_EQ(state.m_body_state.m_position[1], 2);
-  EXPECT_EQ(state.m_body_state.m_position[2], 2);
+  EXPECT_EQ(state.body_state.pos_b_in_l[0], 2);
+  EXPECT_EQ(state.body_state.pos_b_in_l[1], 2);
+  EXPECT_EQ(state.body_state.pos_b_in_l[2], 2);
 }
 
 TEST(test_imu_updater, non_initialized_time) {
@@ -178,16 +178,16 @@ TEST(test_imu_updater, non_initialized_time) {
   bool use_for_prediction {true};
 
   State state = ekf->m_state;
-  EXPECT_EQ(state.m_body_state.m_position[0], 0);
-  EXPECT_EQ(state.m_body_state.m_position[1], 0);
-  EXPECT_EQ(state.m_body_state.m_position[2], 0);
+  EXPECT_EQ(state.body_state.pos_b_in_l[0], 0);
+  EXPECT_EQ(state.body_state.pos_b_in_l[1], 0);
+  EXPECT_EQ(state.body_state.pos_b_in_l[2], 0);
 
   double time = 1;
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov, use_for_prediction);
 
   state = ekf->m_state;
-  EXPECT_EQ(state.m_body_state.m_position[0], 0);
-  EXPECT_EQ(state.m_body_state.m_position[1], 0);
-  EXPECT_EQ(state.m_body_state.m_position[2], 0);
+  EXPECT_EQ(state.body_state.pos_b_in_l[0], 0);
+  EXPECT_EQ(state.body_state.pos_b_in_l[1], 0);
+  EXPECT_EQ(state.body_state.pos_b_in_l[2], 0);
 }

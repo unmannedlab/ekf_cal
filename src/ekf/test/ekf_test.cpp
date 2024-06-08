@@ -114,9 +114,9 @@ TEST(test_EKF, MatchState) {
   Eigen::Vector3d zero_vec {0, 0, 0};
 
   EXPECT_EQ(aug_state.frame_id, -1);
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.ang_b_to_g, zero_quat, 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.ang_b_to_l, zero_quat, 1e-6));
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.ang_c_to_b, zero_quat, 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.pos_b_in_g, zero_vec, 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.pos_b_in_l, zero_vec, 1e-6));
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.pos_c_in_b, zero_vec, 1e-6));
 
   EXPECT_EQ(ekf->GetAugStateStartIndex(0, 0), -1);

@@ -79,30 +79,30 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(
   Eigen::Matrix3d A = Eigen::Matrix3d::Zero();
   Eigen::Vector3d b = Eigen::Vector3d::Zero();
 
-  const Eigen::Vector3d position_i0_in_g = aug_state_0.pos_b_in_g;
-  const Eigen::Matrix3d rotation_i0_to_g = aug_state_0.ang_b_to_g.toRotationMatrix();
+  const Eigen::Vector3d position_i0_in_l = aug_state_0.pos_b_in_l;
+  const Eigen::Matrix3d rotation_i0_to_l = aug_state_0.ang_b_to_l.toRotationMatrix();
   const Eigen::Vector3d position_c0_in_i0 = aug_state_0.pos_c_in_b;
   const Eigen::Matrix3d rotation_c0_to_i0 = aug_state_0.ang_c_to_b.toRotationMatrix();
 
-  const Eigen::Matrix3d rotation_g_to_i0 = rotation_i0_to_g.transpose();
+  const Eigen::Matrix3d rotation_l_to_i0 = rotation_i0_to_l.transpose();
   const Eigen::Matrix3d rotation_i0_to_c0 = rotation_c0_to_i0.transpose();
 
   for (unsigned int i = 0; i < feature_track.size(); ++i) {
     AugmentedState aug_state_i = ekf->MatchState(m_id, feature_track[i].frame_id);
 
-    const Eigen::Vector3d position_bi_in_g = aug_state_i.pos_b_in_g;
-    const Eigen::Matrix3d rotation_bi_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
+    const Eigen::Vector3d position_bi_in_l = aug_state_i.pos_b_in_l;
+    const Eigen::Matrix3d rotation_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
     const Eigen::Vector3d position_ci_in_bi = aug_state_i.pos_c_in_b;
     const Eigen::Matrix3d rotation_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
 
     // Convert current position relative to anchor
     Eigen::Matrix3d rotation_ci_to_c0 =
-      rotation_i0_to_c0 * rotation_g_to_i0 * rotation_bi_to_g * rotation_ci_to_bi;
+      rotation_i0_to_c0 * rotation_l_to_i0 * rotation_bi_to_l * rotation_ci_to_bi;
     Eigen::Vector3d position_ci_in_c0 =
-      rotation_i0_to_c0 * rotation_g_to_i0 *
+      rotation_i0_to_c0 * rotation_l_to_i0 *
       (
-      (rotation_bi_to_g * position_ci_in_bi + position_bi_in_g) -
-      (rotation_i0_to_g * position_c0_in_i0 + position_i0_in_g));
+      (rotation_bi_to_l * position_ci_in_bi + position_bi_in_l) -
+      (rotation_i0_to_l * position_c0_in_i0 + position_i0_in_l));
 
     // Get the UV coordinate normal
     Eigen::Vector3d b_i;
@@ -124,14 +124,14 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(
 
   // Solve linear triangulation for 3D cartesian estimate of feature position
   Eigen::Vector3d position_f_in_c0 = A.colPivHouseholderQr().solve(b);
-  Eigen::Vector3d position_f_in_g =
-    rotation_i0_to_g * (rotation_c0_to_i0 * position_f_in_c0 + position_c0_in_i0) +
-    position_i0_in_g;
+  Eigen::Vector3d position_f_in_l =
+    rotation_i0_to_l * (rotation_c0_to_i0 * position_f_in_c0 + position_c0_in_i0) +
+    position_i0_in_l;
 
   /// @todo condition check
   /// @todo max and min distance check
 
-  return position_f_in_g;
+  return position_f_in_l;
 }
 
 void MsckfUpdater::projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian)
@@ -231,13 +231,13 @@ void MsckfUpdater::UpdateEKF(
     m_logger->Log(LogLevel::DEBUG, "Feature Track size: " + std::to_string(feature_track.size()));
 
     // Get triangulated estimate of feature position
-    Eigen::Vector3d pos_f_in_g = TriangulateFeature(ekf, feature_track);
+    Eigen::Vector3d pos_f_in_l = TriangulateFeature(ekf, feature_track);
 
     /// @todo Additional non-linear optimization
 
-    if (pos_f_in_g.norm() < m_min_feat_dist) {
+    if (pos_f_in_l.norm() < m_min_feat_dist) {
       std::stringstream err_msg;
-      err_msg << "MSCKF Triangulated Point is too close. r = " << pos_f_in_g.norm();
+      err_msg << "MSCKF Triangulated Point is too close. r = " << pos_f_in_l.norm();
       m_logger->Log(LogLevel::INFO, err_msg.str());
       continue;
     }
@@ -245,9 +245,9 @@ void MsckfUpdater::UpdateEKF(
     std::stringstream msg;
     msg << std::setprecision(3) << time;
     msg << "," << std::to_string(feature_track[0].key_point.class_id);
-    msg << "," << pos_f_in_g[0];
-    msg << "," << pos_f_in_g[1];
-    msg << "," << pos_f_in_g[2];
+    msg << "," << pos_f_in_l[0];
+    msg << "," << pos_f_in_l[1];
+    msg << "," << pos_f_in_l[2];
     m_triangulation_logger.RateLimitedLog(msg.str(), time);
 
     unsigned int aug_state_size = g_aug_state_size *
@@ -261,15 +261,15 @@ void MsckfUpdater::UpdateEKF(
       AugmentedState aug_state_i = ekf->MatchState(m_id, feature_track[i].frame_id);
 
       Eigen::Matrix3d rot_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
-      Eigen::Matrix3d rot_bi_to_g = aug_state_i.ang_b_to_g.toRotationMatrix();
+      Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
       Eigen::Matrix3d rot_bi_to_ci = rot_ci_to_bi.transpose();
-      Eigen::Matrix3d rot_g_to_ci = rot_bi_to_ci * rot_bi_to_g.transpose();
+      Eigen::Matrix3d rot_l_to_ci = rot_bi_to_ci * rot_bi_to_l.transpose();
 
       Eigen::Vector3d pos_ci_in_bi = aug_state_i.pos_c_in_b;
-      Eigen::Vector3d pos_bi_in_g = aug_state_i.pos_b_in_g;
+      Eigen::Vector3d pos_bi_in_l = aug_state_i.pos_b_in_l;
 
       // Project the current feature into the current frame of reference
-      Eigen::Vector3d pos_f_in_bi = rot_bi_to_g.transpose() * (pos_f_in_g - pos_bi_in_g);
+      Eigen::Vector3d pos_f_in_bi = rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l);
       Eigen::Vector3d pos_f_in_ci = rot_ci_to_bi.transpose() * (pos_f_in_bi - pos_ci_in_bi);
       Eigen::Vector2d xz_predicted;
       xz_predicted(0) = pos_f_in_ci(0) / pos_f_in_ci(2);
@@ -292,16 +292,16 @@ void MsckfUpdater::UpdateEKF(
       distortion_jacobian(xz_measured, m_intrinsics, H_d);
 
       // Entire feature Jacobian
-      H_f.block<2, 3>(2 * i, 0) = H_d * H_p * rot_g_to_ci;
+      H_f.block<2, 3>(2 * i, 0) = H_d * H_p * rot_l_to_ci;
 
       // Augmented state Jacobian
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, 12);
-      H_t.block<3, 3>(0, 0) = -rot_g_to_ci;
+      H_t.block<3, 3>(0, 0) = -rot_l_to_ci;
       H_t.block<3, 3>(0, 3) = rot_bi_to_ci * SkewSymmetric(pos_f_in_bi);
       /// @todo(jhartzer): Enable calibration Jacobian
       // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity(3, 3);
       // H_t.block<3, 3>(0, 9) =
-      //   SkewSymmetric(rot_bi_to_ci * rot_bi_to_g.transpose() * (pos_f_in_g - pos_bi_in_g));
+      //   SkewSymmetric(rot_bi_to_ci * rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l));
 
       H_c.block<2, 12>(2 * i, aug_state_start - cam_state_start) = H_d * H_p * H_t;
     }
@@ -342,9 +342,9 @@ void MsckfUpdater::UpdateEKF(
   Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_states_size);
   Eigen::VectorXd cam_update = update.segment(g_body_state_size + imu_states_size, cam_states_size);
 
-  ekf->m_state.m_body_state += body_update;
-  ekf->m_state.m_imu_states += imu_update;
-  ekf->m_state.m_cam_states += cam_update;
+  ekf->m_state.body_state += body_update;
+  ekf->m_state.imu_states += imu_update;
+  ekf->m_state.cam_states += cam_update;
 
   ekf->m_cov =
     (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * ekf->m_cov *
@@ -355,7 +355,7 @@ void MsckfUpdater::UpdateEKF(
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
   // Write outputs
-  Eigen::VectorXd cam_state_vec = ekf->m_state.m_cam_states[m_id].ToVector();
+  Eigen::VectorXd cam_state_vec = ekf->m_state.cam_states[m_id].ToVector();
   Eigen::Vector3d cam_pos = cam_state_vec.segment<3>(0);
   Eigen::Quaterniond cam_ang_pos = RotVecToQuat(cam_state_vec.segment<3>(3));
   Eigen::VectorXd cam_sub_update = update.segment(cam_state_start, g_cam_state_size);

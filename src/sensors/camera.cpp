@@ -56,12 +56,12 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
 {
   m_logger->Log(
     LogLevel::DEBUG, "Camera " + std::to_string(
-      camera_message->m_sensor_id) + " callback called at time = " +
-    std::to_string(camera_message->m_time));
+      camera_message->sensor_id) + " callback called at time = " +
+    std::to_string(camera_message->time));
 
   if (!camera_message->image.empty()) {
     if (!m_trackers.empty() || !m_fiducials.empty()) {
-      m_ekf->ProcessModel(camera_message->m_time);
+      m_ekf->ProcessModel(camera_message->time);
 
       unsigned int frameID = GenerateFrameID();
 
@@ -69,14 +69,14 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
 
       for (auto const & track_iter : m_trackers) {
         m_trackers[track_iter.first]->Track(
-          camera_message->m_time, frameID, camera_message->image, m_out_img);
+          camera_message->time, frameID, camera_message->image, m_out_img);
         /// @todo Undistort points post track?
         // cv::undistortPoints();
       }
 
       for (auto const & fiducial_iter : m_fiducials) {
         m_fiducials[fiducial_iter.first]->Track(
-          camera_message->m_time, frameID, camera_message->image, m_out_img);
+          camera_message->time, frameID, camera_message->image, m_out_img);
       }
     } else {
       m_logger->Log(LogLevel::WARN, "Camera has no trackers ");

@@ -69,7 +69,7 @@ TEST(test_msckf_updater, update) {
   auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   auto ekf = std::make_shared<EKF>(debug_logger, 10.0, false, "");
   BodyState body_state;
-  body_state.m_velocity = Eigen::Vector3d{0, 5, 0};
+  body_state.vel_b_in_l = Eigen::Vector3d{0, 5, 0};
   ekf->Initialize(0.0, body_state);
 
   unsigned int cam_id{1};

@@ -61,7 +61,6 @@ public:
 
   ///
   /// @brief Generate simulated tracker messages
-  /// @param rng Random number generator to use in generation
   /// @param message_times Vector of message times
   /// @param sensor_id Camera sensor ID
   /// @return Generated feature tracker messages
@@ -71,7 +70,6 @@ public:
 
   ///
   /// @brief Return currently visible keypoints
-  /// @param rng Random number generator
   /// @param time Current time
   /// @param sensor_id Camera sensor ID
   ///

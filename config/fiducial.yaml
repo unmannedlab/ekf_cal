@@ -15,7 +15,6 @@
             stationary_time: 5.0
             pos_frequency: [0.3, 0.5, 0.7]
             ang_frequency: [0.0, 0.0, 0.0]
-            # ang_frequency: [0.3, 0.4, 0.5]
             pos_offset: [0.0, 0.0, 0.0]
             ang_offset: [0.0, 0.0, 0.0]
             ang_amplitude: 0.1
@@ -101,8 +100,8 @@
                 squares_y: 7
                 square_length: 0.04
                 marker_length: 0.02
-                pos_f_in_g: [5.0, 0.0, 0.0]
-                ang_f_to_g: [1.0, 0.0, 0.0, 0.0]
+                pos_f_in_l: [5.0, 0.0, 0.0]
+                ang_f_to_l: [1.0, 0.0, 0.0, 0.0]
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 min_track_length: 0
                 max_track_length: 1

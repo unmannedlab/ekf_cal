@@ -27,8 +27,8 @@ FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
 : Tracker(params),
   m_fiducial_updater(
     params.camera_id,
-    params.pos_f_in_g,
-    params.ang_f_to_g,
+    params.pos_f_in_l,
+    params.ang_f_to_l,
     params.output_directory,
     params.data_logging_on,
     params.data_log_rate,

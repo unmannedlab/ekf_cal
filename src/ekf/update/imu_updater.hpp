@@ -53,15 +53,17 @@ public:
 
   ///
   /// @brief Predict measurement method
+  /// @param ekf EKF pointer
   /// @return Predicted measurement vector
   ///
-  Eigen::VectorXd PredictMeasurement();
+  Eigen::VectorXd PredictMeasurement(std::shared_ptr<EKF> ekf);
 
   ///
   /// @brief Measurement Jacobian method
+  /// @param ekf EKF pointer
   /// @return Measurement Jacobian matrix
   ///
-  Eigen::MatrixXd GetMeasurementJacobian();
+  Eigen::MatrixXd GetMeasurementJacobian(std::shared_ptr<EKF> ekf);
 
   ///
   /// @brief EKF update method for IMU measurements

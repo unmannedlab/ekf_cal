@@ -32,10 +32,10 @@ TEST(test_sensor, Constructor) {
 TEST(test_sensor, MessageCompare) {
   cv::Mat cam_img = cv::Mat::zeros(cv::Size(640, 480), CV_8UC3);
   auto camera_message = std::make_shared<CameraMessage>(cam_img);
-  camera_message->m_time = 0.0;
+  camera_message->time = 0.0;
 
   auto imu_message = std::make_shared<ImuMessage>();
-  imu_message->m_time = 0.1;
+  imu_message->time = 0.1;
 
   EXPECT_TRUE(MessageCompare(camera_message, imu_message));
   EXPECT_FALSE(MessageCompare(imu_message, camera_message));

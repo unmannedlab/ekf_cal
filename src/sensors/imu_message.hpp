@@ -29,10 +29,10 @@ class ImuMessage : public SensorMessage
 {
 public:
   ImuMessage() {}
-  Eigen::Vector3d m_acceleration;              ///< @brief IMU acceleration
-  Eigen::Vector3d m_angular_rate;              ///< @brief IMU angular rate
-  Eigen::Matrix3d m_acceleration_covariance;   ///< @brief IMU acceleration covariance
-  Eigen::Matrix3d m_angular_rate_covariance;   ///< @brief IMU angular rate covariance
+  Eigen::Vector3d acceleration;              ///< @brief IMU acceleration
+  Eigen::Vector3d angular_rate;              ///< @brief IMU angular rate
+  Eigen::Matrix3d acceleration_covariance;   ///< @brief IMU acceleration covariance
+  Eigen::Matrix3d angular_rate_covariance;   ///< @brief IMU angular rate covariance
 };
 
 #endif  // SENSORS__IMU_MESSAGE_HPP_

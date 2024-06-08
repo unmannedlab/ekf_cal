@@ -74,10 +74,10 @@ std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages()
     for (auto trk_msg : trk_msgs) {
       auto cam_msg = std::make_shared<SimCameraMessage>(blank_img);
 
-      cam_msg->m_feature_track_message = trk_msg;
-      cam_msg->m_sensor_id = m_id;
-      cam_msg->m_time = trk_msg->m_time;
-      cam_msg->m_sensor_type = SensorType::Camera;
+      cam_msg->feature_track_message = trk_msg;
+      cam_msg->sensor_id = m_id;
+      cam_msg->time = trk_msg->time;
+      cam_msg->sensor_type = SensorType::Camera;
 
       messages.push_back(cam_msg);
     }
@@ -90,10 +90,10 @@ std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages()
     for (auto fid_msg : fid_msgs) {
       auto cam_msg = std::make_shared<SimCameraMessage>(blank_img);
 
-      cam_msg->m_fiducial_track_message = fid_msg;
-      cam_msg->m_sensor_id = m_id;
-      cam_msg->m_time = fid_msg->m_time;
-      cam_msg->m_sensor_type = SensorType::Camera;
+      cam_msg->fiducial_track_message = fid_msg;
+      cam_msg->sensor_id = m_id;
+      cam_msg->time = fid_msg->time;
+      cam_msg->sensor_type = SensorType::Camera;
 
       messages.push_back(cam_msg);
     }
@@ -113,19 +113,19 @@ void SimCamera::AddFiducial(std::shared_ptr<SimFiducialTracker> fiducial)
 
 void SimCamera::Callback(std::shared_ptr<SimCameraMessage> sim_camera_message)
 {
-  m_ekf->ProcessModel(sim_camera_message->m_time);
+  m_ekf->ProcessModel(sim_camera_message->time);
 
   int frame_id = GenerateFrameID();
 
   m_ekf->AugmentState(m_id, frame_id);
 
-  if (sim_camera_message->m_feature_track_message != NULL) {
-    if (sim_camera_message->m_feature_track_message->m_feature_tracks.size() > 0) {
-      m_trackers[sim_camera_message->m_feature_track_message->m_tracker_id]->Callback(
-        sim_camera_message->m_time, sim_camera_message->m_feature_track_message);
+  if (sim_camera_message->feature_track_message != NULL) {
+    if (sim_camera_message->feature_track_message->feature_tracks.size() > 0) {
+      m_trackers[sim_camera_message->feature_track_message->tracker_id]->Callback(
+        sim_camera_message->time, sim_camera_message->feature_track_message);
     }
-  } else if (sim_camera_message->m_fiducial_track_message != NULL) {
-    m_fiducials[sim_camera_message->m_fiducial_track_message->m_tracker_id]->Callback(
-      sim_camera_message->m_time, sim_camera_message->m_fiducial_track_message);
+  } else if (sim_camera_message->fiducial_track_message != NULL) {
+    m_fiducials[sim_camera_message->fiducial_track_message->tracker_id]->Callback(
+      sim_camera_message->time, sim_camera_message->fiducial_track_message);
   }
 }

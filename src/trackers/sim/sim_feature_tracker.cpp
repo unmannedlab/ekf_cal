@@ -153,11 +153,11 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::Genera
       }
     }
     auto tracker_message = std::make_shared<SimFeatureTrackerMessage>();
-    tracker_message->m_feature_tracks = feature_tracks;
-    tracker_message->m_time = message_times[frame_id];
-    tracker_message->m_tracker_id = m_id;
-    tracker_message->m_sensor_id = sensor_id;
-    tracker_message->m_sensor_type = SensorType::Tracker;
+    tracker_message->feature_tracks = feature_tracks;
+    tracker_message->time = message_times[frame_id];
+    tracker_message->tracker_id = m_id;
+    tracker_message->sensor_id = sensor_id;
+    tracker_message->sensor_type = SensorType::Tracker;
     tracker_messages.push_back(tracker_message);
   }
   return tracker_messages;
@@ -168,6 +168,6 @@ void SimFeatureTracker::Callback(double time, std::shared_ptr<SimFeatureTrackerM
   m_msckf_updater.UpdateEKF(
     m_ekf,
     time,
-    msg->m_feature_tracks,
+    msg->feature_tracks,
     m_px_error);
 }

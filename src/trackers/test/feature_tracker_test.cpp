@@ -59,7 +59,7 @@ TEST(test_feature_tracker, track) {
   auto logger = std::make_shared<DebugLogger>(LogLevel::INFO, "");
   auto ekf = std::make_shared<EKF>(logger, 10.0, false, "");
   BodyState body_state_init;
-  body_state_init.m_velocity[1] = -0.1;
+  body_state_init.vel_b_in_l[1] = -0.1;
   ekf->Initialize(0.0, body_state_init);
 
   IMU::Parameters imu_params;
@@ -99,17 +99,17 @@ TEST(test_feature_tracker, track) {
   auto cam_msg_1 = std::make_shared<CameraMessage>(img_1);
   auto cam_msg_2 = std::make_shared<CameraMessage>(img_2);
 
-  cam_msg_1->m_time = 0.0;
-  cam_msg_2->m_time = 1.0;
+  cam_msg_1->time = 0.0;
+  cam_msg_2->time = 1.0;
 
   cam.Callback(cam_msg_1);
   cam.Callback(cam_msg_2);
 
   cv::imwrite("../../src/ekf_cal/src/trackers/test/images/feature_track.png", cam.m_out_img);
 
-  std::cout << ekf->m_state.m_body_state.m_position << std::endl;
+  std::cout << ekf->m_state.body_state.pos_b_in_l << std::endl;
 
-  EXPECT_NEAR(ekf->m_state.m_body_state.m_position[0], 0.0, 1e-1);
-  EXPECT_NEAR(ekf->m_state.m_body_state.m_position[1], -0.1, 1e-1);
-  EXPECT_NEAR(ekf->m_state.m_body_state.m_position[2], 0.0, 1e-1);
+  EXPECT_NEAR(ekf->m_state.body_state.pos_b_in_l[0], 0.0, 1e-1);
+  EXPECT_NEAR(ekf->m_state.body_state.pos_b_in_l[1], -0.1, 1e-1);
+  EXPECT_NEAR(ekf->m_state.body_state.pos_b_in_l[2], 0.0, 1e-1);
 }

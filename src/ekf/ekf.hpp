@@ -99,6 +99,12 @@ public:
   unsigned int GetGpsStateSize();
 
   ///
+  /// @brief Camera state size getter method
+  /// @return Camera state size
+  ///
+  unsigned int GetCamStateSize();
+
+  ///
   /// @brief Camera count getter method
   /// @return Camera count
   ///
@@ -189,6 +195,8 @@ public:
   /// @param covariance Initial camera covariance
   ///
   void RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixXd covariance);
+
+  void RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::MatrixXd covariance);
 
   ///
   /// @brief Generate augmented state Jacobian matrix

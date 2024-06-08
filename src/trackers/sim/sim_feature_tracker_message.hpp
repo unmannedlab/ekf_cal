@@ -29,8 +29,8 @@ class SimFeatureTrackerMessage : public SensorMessage
 {
 public:
   SimFeatureTrackerMessage() {}
-  unsigned int m_tracker_id {0};                            ///< @brief Associated Tracker ID
-  std::vector<std::vector<FeaturePoint>> m_feature_tracks;  ///< @brief Feature Tracks
+  unsigned int tracker_id {0};                            ///< @brief Associated Tracker ID
+  std::vector<std::vector<FeaturePoint>> feature_tracks;  ///< @brief Feature Tracks
 };
 
 #endif  // TRACKERS__SIM__SIM_FEATURE_TRACKER_MESSAGE_HPP_

@@ -22,6 +22,6 @@
 
 RosGpsMessage::RosGpsMessage(const sensor_msgs::msg::NavSatFix::SharedPtr msg)
 {
-  m_time = RosHeaderToTime(msg->header);
-  m_gps_lla = Eigen::Vector3d{msg->latitude, msg->longitude, msg->altitude};
+  time = RosHeaderToTime(msg->header);
+  gps_lla = Eigen::Vector3d{msg->latitude, msg->longitude, msg->altitude};
 }

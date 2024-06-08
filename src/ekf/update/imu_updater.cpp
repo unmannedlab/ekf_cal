@@ -67,17 +67,26 @@ ImuUpdater::ImuUpdater(
   m_data_logger.SetLogRate(data_log_rate);
 }
 
-Eigen::VectorXd ImuUpdater::PredictMeasurement()
+Eigen::VectorXd ImuUpdater::PredictMeasurement(std::shared_ptr<EKF> ekf)
 {
+  BodyState body_state = ekf->m_state.body_state;
+  ImuState imu_state = ekf->m_state.imu_states[m_id];
+  Eigen::Vector3d pos_i_in_g = imu_state.pos_i_in_b;
+  Eigen::Quaterniond ang_i_to_b = imu_state.ang_i_to_b;
+  Eigen::Vector3d acc_bias = imu_state.acc_bias;
+  Eigen::Vector3d omg_bias = imu_state.omg_bias;
+
   Eigen::VectorXd predicted_measurement(6);
+
   // Transform acceleration to IMU location
-  Eigen::Vector3d imu_acc_b = m_ang_b_to_g.inverse() * (m_body_acc + g_gravity) +
-    m_body_ang_acc.cross(m_pos_i_in_g) +
-    m_body_ang_vel.cross((m_body_ang_vel.cross(m_pos_i_in_g)));
+  Eigen::Vector3d imu_acc_b = body_state.ang_b_to_l.inverse() *
+    (body_state.acc_b_in_l + g_gravity) +
+    body_state.ang_acc_b_in_l.cross(pos_i_in_g) +
+    body_state.ang_vel_b_in_l.cross((body_state.ang_vel_b_in_l.cross(pos_i_in_g)));
 
   // Rotate measurements in place
-  Eigen::Vector3d imu_acc_i = m_acc_bias + m_ang_i_to_b.inverse() * imu_acc_b;
-  Eigen::Vector3d imu_omg_i = m_omg_bias + m_ang_i_to_b.inverse() * m_body_ang_vel;
+  Eigen::Vector3d imu_acc_i = acc_bias + ang_i_to_b.inverse() * imu_acc_b;
+  Eigen::Vector3d imu_omg_i = omg_bias + ang_i_to_b.inverse() * body_state.ang_vel_b_in_l;
 
   predicted_measurement.segment<3>(0) = imu_acc_i;
   predicted_measurement.segment<3>(3) = imu_omg_i;
@@ -85,9 +94,15 @@ Eigen::VectorXd ImuUpdater::PredictMeasurement()
   return predicted_measurement;
 }
 
-Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian()
+Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
 {
-  /// @todo Check if extrinsic/intrinsic first
+  BodyState body_state = ekf->m_state.body_state;
+  ImuState imu_state = ekf->m_state.imu_states[m_id];
+  Eigen::Vector3d pos_i_in_g = imu_state.pos_i_in_b;
+  Eigen::Quaterniond ang_i_to_b = imu_state.ang_i_to_b;
+  Eigen::Vector3d acc_bias = imu_state.acc_bias;
+  Eigen::Vector3d omg_bias = imu_state.omg_bias;
+
   unsigned int jacobian_size = g_body_state_size;
 
   if (m_is_extrinsic) {jacobian_size += g_imu_extrinsic_state_size;}
@@ -96,50 +111,50 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian()
   Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(6, jacobian_size);
 
   // Body Acceleration
-  measurement_jacobian.block<3, 3>(0, 6) = m_ang_i_to_b.inverse().toRotationMatrix() *
-    m_ang_b_to_g.inverse().toRotationMatrix();
+  measurement_jacobian.block<3, 3>(0, 6) = ang_i_to_b.inverse().toRotationMatrix() *
+    body_state.ang_b_to_l.inverse().toRotationMatrix();
 
   // Body Angular Velocity
-  measurement_jacobian.block<3, 3>(0, 12) = m_ang_i_to_b.inverse().toRotationMatrix() * (
-    SkewSymmetric(m_body_ang_vel) *
-    SkewSymmetric(m_pos_i_in_g).transpose() +
-    SkewSymmetric(m_body_ang_vel.cross(m_pos_i_in_g)).transpose()
+  measurement_jacobian.block<3, 3>(0, 12) = ang_i_to_b.inverse().toRotationMatrix() * (
+    SkewSymmetric(body_state.ang_vel_b_in_l) *
+    SkewSymmetric(pos_i_in_g).transpose() +
+    SkewSymmetric(body_state.ang_vel_b_in_l.cross(pos_i_in_g)).transpose()
   );
 
   // Body Angular Acceleration
-  measurement_jacobian.block<3, 3>(0, 15) = m_ang_i_to_b.inverse().toRotationMatrix() *
-    SkewSymmetric(m_pos_i_in_g);
+  measurement_jacobian.block<3, 3>(0, 15) = ang_i_to_b.inverse().toRotationMatrix() *
+    SkewSymmetric(pos_i_in_g);
 
   // IMU Body Angular Velocity
-  measurement_jacobian.block<3, 3>(3, 12) = m_ang_i_to_b.inverse().toRotationMatrix() *
-    m_ang_b_to_g.inverse().toRotationMatrix();
+  measurement_jacobian.block<3, 3>(3, 12) = ang_i_to_b.inverse().toRotationMatrix() *
+    body_state.ang_b_to_l.inverse().toRotationMatrix();
 
   // IMU Positional Offset
   unsigned int extrinsic_offset{0};
   if (m_is_extrinsic) {
     // IMU Positional Offset
     measurement_jacobian.block<3, 3>(0, g_body_state_size) =
-      m_ang_i_to_b.inverse().toRotationMatrix() * (
-      SkewSymmetric(m_body_ang_acc) +
-      SkewSymmetric(m_body_ang_vel) * SkewSymmetric(m_body_ang_vel)
+      ang_i_to_b.inverse().toRotationMatrix() * (
+      SkewSymmetric(body_state.ang_acc_b_in_l) +
+      SkewSymmetric(body_state.ang_vel_b_in_l) * SkewSymmetric(body_state.ang_vel_b_in_l)
       );
 
     // IMU Angular Offset
     measurement_jacobian.block<3, 3>(0, g_body_state_size + 3) = SkewSymmetric(
-      m_ang_i_to_b.inverse().toRotationMatrix() * (
-        m_body_ang_acc.cross(m_pos_i_in_g) +
-        m_body_ang_vel.cross(m_body_ang_vel.cross(m_pos_i_in_g)) +
-        m_ang_b_to_g.inverse().toRotationMatrix() * (
-          m_body_acc + g_gravity
+      ang_i_to_b.inverse().toRotationMatrix() * (
+        body_state.ang_acc_b_in_l.cross(pos_i_in_g) +
+        body_state.ang_vel_b_in_l.cross(body_state.ang_vel_b_in_l.cross(pos_i_in_g)) +
+        body_state.ang_b_to_l.inverse().toRotationMatrix() * (
+          body_state.acc_b_in_l + g_gravity
         )
       )
     );
 
     // IMU Angular Offset
     measurement_jacobian.block<3, 3>(3, g_body_state_size + 3) = SkewSymmetric(
-      m_ang_i_to_b.inverse().toRotationMatrix() *
-      m_ang_b_to_g.inverse().toRotationMatrix() *
-      m_body_ang_vel
+      ang_i_to_b.inverse().toRotationMatrix() *
+      body_state.ang_b_to_l.inverse().toRotationMatrix() *
+      body_state.ang_vel_b_in_l
     );
     extrinsic_offset = 3;
   }
@@ -173,19 +188,7 @@ void ImuUpdater::UpdateEKF(
 
   ekf->ProcessModel(time);
 
-  BodyState body_state = ekf->m_state.m_body_state;
-  m_body_pos = body_state.m_position;
-  m_body_vel = body_state.m_velocity;
-  m_body_acc = body_state.m_acceleration;
-  m_ang_b_to_g = body_state.m_ang_b_to_g;
-  m_body_ang_vel = body_state.m_angular_velocity;
-  m_body_ang_acc = body_state.m_angular_acceleration;
-
-  ImuState imu_state = ekf->GetImuState(m_id);
-  m_pos_i_in_g = imu_state.pos_i_in_b;
-  m_ang_i_to_b = imu_state.ang_i_to_b;
-  m_acc_bias = imu_state.acc_bias;
-  m_omg_bias = imu_state.omg_bias;
+  BodyState body_state = ekf->m_state.body_state;
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
@@ -193,7 +196,7 @@ void ImuUpdater::UpdateEKF(
   z.segment<3>(0) = acceleration;
   z.segment<3>(3) = angular_rate;
 
-  Eigen::VectorXd z_pred = PredictMeasurement();
+  Eigen::VectorXd z_pred = PredictMeasurement(ekf);
   Eigen::VectorXd resid = z - z_pred;
 
   unsigned int imu_state_start = ekf->GetImuStateStartIndex(m_id);
@@ -203,7 +206,7 @@ void ImuUpdater::UpdateEKF(
   if (m_is_extrinsic) {imu_update_size += g_imu_extrinsic_state_size;}
   if (m_is_intrinsic) {imu_update_size += g_imu_intrinsic_state_size;}
 
-  Eigen::MatrixXd subH = GetMeasurementJacobian();
+  Eigen::MatrixXd subH = GetMeasurementJacobian(ekf);
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(6, update_size);
 
   H.block<6, g_body_state_size>(0, 0) = subH.block<6, g_body_state_size>(0, 0);
@@ -225,8 +228,8 @@ void ImuUpdater::UpdateEKF(
   Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
   Eigen::VectorXd imu_update = update.segment(g_body_state_size, update_size - g_body_state_size);
 
-  ekf->m_state.m_body_state += body_update;
-  ekf->m_state.m_imu_states += imu_update;
+  ekf->m_state.body_state += body_update;
+  ekf->m_state.imu_states += imu_update;
 
   ekf->m_cov.block(0, 0, update_size, update_size) =
     (Eigen::MatrixXd::Identity(update_size, update_size) - K * H) *
@@ -241,10 +244,10 @@ void ImuUpdater::UpdateEKF(
   std::stringstream msg;
 
   msg << time;
-  msg << VectorToCommaString(ekf->m_state.m_imu_states[m_id].pos_i_in_b);
-  msg << QuaternionToCommaString(ekf->m_state.m_imu_states[m_id].ang_i_to_b);
-  msg << VectorToCommaString(ekf->m_state.m_imu_states[m_id].acc_bias);
-  msg << VectorToCommaString(ekf->m_state.m_imu_states[m_id].omg_bias);
+  msg << VectorToCommaString(ekf->m_state.imu_states[m_id].pos_i_in_b);
+  msg << QuaternionToCommaString(ekf->m_state.imu_states[m_id].ang_i_to_b);
+  msg << VectorToCommaString(ekf->m_state.imu_states[m_id].acc_bias);
+  msg << VectorToCommaString(ekf->m_state.imu_states[m_id].omg_bias);
   if (imu_update_size) {
     Eigen::VectorXd cov_diag = ekf->m_cov.block(
       imu_state_start, imu_state_start, imu_update_size, imu_update_size).diagonal();

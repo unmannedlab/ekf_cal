@@ -29,7 +29,7 @@ class GpsMessage : public SensorMessage
 {
 public:
   GpsMessage() {}
-  Eigen::Vector3d m_gps_lla;  ///< @brief GPS lat-lon-alt
+  Eigen::Vector3d gps_lla;  ///< @brief GPS lat-lon-alt
 };
 
 #endif  // SENSORS__GPS_MESSAGE_HPP_

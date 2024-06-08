@@ -68,8 +68,8 @@ public:
 
 private:
   /// @todo: Replace these member variables with state look-ups
-  Eigen::Vector3d m_pos_f_in_g;
-  Eigen::Quaterniond m_ang_f_to_g;
+  Eigen::Vector3d m_pos_f_in_l;
+  Eigen::Quaterniond m_ang_f_to_l;
 
   DataLogger m_fiducial_logger;
   DataLogger m_triangulation_logger;

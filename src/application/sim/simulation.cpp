@@ -315,10 +315,10 @@ int main(int argc, char * argv[])
     FiducialTracker::Parameters fiducial_params;
     LoadTrackerParams(
       fiducial_params, fid_node, fiducials[i], out_dir, data_logging_on, ekf, debug_logger);
-    fiducial_params.pos_f_in_g =
-      StdToEigVec(fid_node["pos_f_in_g"].as<std::vector<double>>(def_vec));
-    fiducial_params.ang_f_to_g =
-      StdToEigQuat(fid_node["ang_f_to_g"].as<std::vector<double>>(def_quat));
+    fiducial_params.pos_f_in_l =
+      StdToEigVec(fid_node["pos_f_in_l"].as<std::vector<double>>(def_vec));
+    fiducial_params.ang_f_to_l =
+      StdToEigQuat(fid_node["ang_f_to_l"].as<std::vector<double>>(def_quat));
     fiducial_params.variance = StdToEigVec(fid_node["variance"].as<std::vector<double>>(def_vec));
     fiducial_params.squares_x = fid_node["squares_x"].as<unsigned int>(1U);
     fiducial_params.squares_y = fid_node["squares_y"].as<unsigned int>(1U);
@@ -455,17 +455,17 @@ int main(int argc, char * argv[])
   // Run measurements through sensors and EKF
   debug_logger->Log(LogLevel::INFO, "Begin Simulation");
   for (auto message : messages) {
-    auto it = sensor_map.find(message->m_sensor_id);
+    auto it = sensor_map.find(message->sensor_id);
     if (it != sensor_map.end()) {
-      if (message->m_sensor_type == SensorType::IMU) {
+      if (message->sensor_type == SensorType::IMU) {
         auto imu = std::static_pointer_cast<SimIMU>(it->second);
         auto msg = std::static_pointer_cast<SimImuMessage>(message);
         imu->Callback(msg);
-      } else if (message->m_sensor_type == SensorType::Camera) {
+      } else if (message->sensor_type == SensorType::Camera) {
         auto cam = std::static_pointer_cast<SimCamera>(it->second);
         auto msg = std::static_pointer_cast<SimCameraMessage>(message);
         cam->Callback(msg);
-      } else if (message->m_sensor_type == SensorType::GPS) {
+      } else if (message->sensor_type == SensorType::GPS) {
         auto gps = std::static_pointer_cast<SimGPS>(it->second);
         auto msg = std::static_pointer_cast<SimGpsMessage>(message);
         gps->Callback(msg);

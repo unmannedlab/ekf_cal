@@ -27,5 +27,5 @@
 RosCameraMessage::RosCameraMessage(const sensor_msgs::msg::Image::SharedPtr msg)
 : CameraMessage(cv_bridge::toCvCopy(msg)->image)
 {
-  m_time = RosHeaderToTime(msg->header);
+  time = RosHeaderToTime(msg->header);
 }

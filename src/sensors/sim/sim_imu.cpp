@@ -74,9 +74,9 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages()
   std::vector<std::shared_ptr<SimImuMessage>> messages;
   for (auto measurement_time : measurement_times) {
     auto sim_imu_msg = std::make_shared<SimImuMessage>();
-    sim_imu_msg->m_time = measurement_time;
-    sim_imu_msg->m_sensor_id = m_id;
-    sim_imu_msg->m_sensor_type = SensorType::IMU;
+    sim_imu_msg->time = measurement_time;
+    sim_imu_msg->sensor_id = m_id;
+    sim_imu_msg->sensor_type = SensorType::IMU;
 
     Eigen::Vector3d body_acc_g = m_truth->GetBodyAcceleration(measurement_time);
     Eigen::Quaterniond body_b_to_g = m_truth->GetBodyAngularPosition(measurement_time);
@@ -96,19 +96,19 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages()
     Eigen::Vector3d imu_acc_i = ang_i_to_b_true.inverse() * imu_acc_b;
     Eigen::Vector3d imu_omg_i = ang_i_to_b_true.inverse() * body_ang_vel_g;
 
-    sim_imu_msg->m_acceleration = imu_acc_i;
-    sim_imu_msg->m_angular_rate = imu_omg_i;
+    sim_imu_msg->acceleration = imu_acc_i;
+    sim_imu_msg->angular_rate = imu_omg_i;
 
     if (!m_no_errors) {
-      sim_imu_msg->m_acceleration += m_rng.VecNormRand(acc_bias_true, m_acc_error);
-      sim_imu_msg->m_angular_rate += m_rng.VecNormRand(gyr_bias_true, m_omg_error);
+      sim_imu_msg->acceleration += m_rng.VecNormRand(acc_bias_true, m_acc_error);
+      sim_imu_msg->angular_rate += m_rng.VecNormRand(gyr_bias_true, m_omg_error);
     }
 
     Eigen::Vector3d accSigmas(m_acc_error[0], m_acc_error[1], m_acc_error[2]);
     Eigen::Vector3d omgSigmas(m_omg_error[0], m_omg_error[1], m_omg_error[2]);
 
-    sim_imu_msg->m_acceleration_covariance = accSigmas.asDiagonal() * 10.0;
-    sim_imu_msg->m_angular_rate_covariance = omgSigmas.asDiagonal() * 10.0;
+    sim_imu_msg->acceleration_covariance = accSigmas.asDiagonal() * 10.0;
+    sim_imu_msg->angular_rate_covariance = omgSigmas.asDiagonal() * 10.0;
     messages.push_back(sim_imu_msg);
   }
   return messages;

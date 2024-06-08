@@ -60,8 +60,8 @@ public:
     double square_length {1.0};                     ///< @brief Checkerboard square length
     double marker_length {1.0};                     ///< @brief Marker length
     unsigned int initial_id{0};                     ///< @brief Initial ID
-    Eigen::Vector3d pos_f_in_g;                     ///< @brief Fiducial position
-    Eigen::Quaterniond ang_f_to_g;                  ///< @brief Fiducial orientation
+    Eigen::Vector3d pos_f_in_l;                     ///< @brief Fiducial position
+    Eigen::Quaterniond ang_f_to_l;                  ///< @brief Fiducial orientation
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1}};  ///< @brief Fiducial marker variance
   } Parameters;
 

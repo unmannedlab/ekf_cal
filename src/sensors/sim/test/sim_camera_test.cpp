@@ -148,7 +148,7 @@ TEST(test_SimCamera, fiducial_track) {
   truth_engine->SetCameraAngularPosition(sim_camera.GetId(), cam_params.ang_c_to_b);
 
   FiducialTracker::Parameters fiducial_params;
-  fiducial_params.pos_f_in_g = Eigen::Vector3d{5, 0, 0};
+  fiducial_params.pos_f_in_l = Eigen::Vector3d{5, 0, 0};
   fiducial_params.ekf = ekf;
   fiducial_params.logger = logger;
   fiducial_params.camera_id = sim_camera.GetId();

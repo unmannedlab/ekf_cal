@@ -70,10 +70,10 @@ TEST(test_SimIMU, Constructor) {
   rng.SetSeed(0.0);
   auto gps_msgs = sim_gps.GenerateMessages();
 
-  EXPECT_NEAR(gps_msgs[1]->m_time - gps_msgs[0]->m_time, 0.2, 1e-3);
-  EXPECT_NEAR(gps_msgs[2]->m_time - gps_msgs[1]->m_time, 0.2, 1e-3);
-  EXPECT_NEAR(gps_msgs[3]->m_time - gps_msgs[2]->m_time, 0.2, 1e-3);
-  EXPECT_NEAR(gps_msgs[4]->m_time - gps_msgs[3]->m_time, 0.2, 1e-3);
+  EXPECT_NEAR(gps_msgs[1]->time - gps_msgs[0]->time, 0.2, 1e-3);
+  EXPECT_NEAR(gps_msgs[2]->time - gps_msgs[1]->time, 0.2, 1e-3);
+  EXPECT_NEAR(gps_msgs[3]->time - gps_msgs[2]->time, 0.2, 1e-3);
+  EXPECT_NEAR(gps_msgs[4]->time - gps_msgs[3]->time, 0.2, 1e-3);
 
 
   Eigen::Vector3d lla_ref, lla_0, lla_1, lla_2, lla_3, lla_4;
@@ -81,11 +81,11 @@ TEST(test_SimIMU, Constructor) {
   lla_ref[1] = 0.0;
   lla_ref[2] = 0.0;
 
-  lla_0 = gps_msgs[0]->m_gps_lla;
-  lla_1 = gps_msgs[1]->m_gps_lla;
-  lla_2 = gps_msgs[2]->m_gps_lla;
-  lla_3 = gps_msgs[3]->m_gps_lla;
-  lla_4 = gps_msgs[4]->m_gps_lla;
+  lla_0 = gps_msgs[0]->gps_lla;
+  lla_1 = gps_msgs[1]->gps_lla;
+  lla_2 = gps_msgs[2]->gps_lla;
+  lla_3 = gps_msgs[3]->gps_lla;
+  lla_4 = gps_msgs[4]->gps_lla;
 
   Eigen::Vector3d enu_0 = lla_to_enu(lla_0, lla_ref);
   Eigen::Vector3d enu_1 = lla_to_enu(lla_1, lla_ref);

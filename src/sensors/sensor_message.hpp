@@ -29,13 +29,13 @@ public:
   SensorMessage() {}
 
   /// @brief Associated sensor ID of measurement
-  unsigned int m_sensor_id;
+  unsigned int sensor_id;
 
   /// @brief Associated sensor type of measurement
-  SensorType m_sensor_type;
+  SensorType sensor_type;
 
   /// @brief Measurement time
-  double m_time;
+  double time;
 };
 
 #endif  // SENSORS__SENSOR_MESSAGE_HPP_

@@ -36,10 +36,10 @@ public:
   using CameraMessage::CameraMessage;
 
   /// @brief Message output from feature tracker
-  std::shared_ptr<SimFeatureTrackerMessage> m_feature_track_message;
+  std::shared_ptr<SimFeatureTrackerMessage> feature_track_message;
 
   /// @brief Message output from fiducial tracker
-  std::shared_ptr<SimFiducialTrackerMessage> m_fiducial_track_message;
+  std::shared_ptr<SimFiducialTrackerMessage> fiducial_track_message;
 };
 
 #endif  // SENSORS__SIM__SIM_CAMERA_MESSAGE_HPP_
