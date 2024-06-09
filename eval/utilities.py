@@ -28,8 +28,8 @@ from scipy.spatial.transform import Rotation
 import yaml
 
 
-colors = ['red', 'green', 'blue', 'magenta']
-# colors = ['cyan', 'yellow', 'magenta']
+# colors = ['red', 'green', 'blue', 'magenta']
+colors = ['cyan', 'yellow', 'magenta', 'white']
 
 
 def calculate_alpha(line_count: int):

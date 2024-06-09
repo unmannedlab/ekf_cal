@@ -33,7 +33,7 @@ import os
 
 from bokeh.embed import components
 from bokeh.models import Spacer, Tabs
-from bokeh.plotting import save
+from bokeh.plotting import curdoc, save
 from input_parser import InputParser
 from tab_body import tab_body
 from tab_fiducial import tab_fiducial
@@ -113,7 +113,7 @@ def plot_sim_results(config_sets, output_embed):
                         with open(os.path.join(plot_dir, 'html', f'{title}.html'), 'w') as f:
                             f.write(div)
         else:
-            # curdoc().theme = 'dark_minimal'
+            curdoc().theme = 'dark_minimal'
             # TODO(jhartzer): Figure out how to add stylesheet to output
             # style_sheet = GlobalInlineStyleSheet(css=
             # """

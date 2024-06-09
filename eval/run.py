@@ -77,6 +77,7 @@ def run_sim(yaml_path: str):
 
     # Write stderr
     if (proc.stderr):
+        print(f'Warning: run {yaml_path} has errors', flush=True)
         with open(os.path.join(yaml_dir, 'sim.stderr'), 'wb') as output:
             output.write(proc.stderr)
 
