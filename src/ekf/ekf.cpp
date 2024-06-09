@@ -342,7 +342,12 @@ unsigned int EKF::GetGpsCount()
 
 unsigned int EKF::GetGpsStateSize()
 {
-  return g_gps_state_size * m_state.gps_states.size();
+  unsigned int gps_state_size {0};
+  for (auto & gps_iter : m_state.gps_states) {
+    unsigned int gps_id = gps_iter.first;
+    if (m_state.gps_states[gps_id].is_extrinsic) {gps_state_size += g_gps_extrinsic_state_size;}
+  }
+  return gps_state_size;
 }
 
 unsigned int EKF::GetCamStateSize()
@@ -402,9 +407,10 @@ void EKF::RegisterGPS(unsigned int gps_id, GpsState gps_state, Eigen::Matrix3d c
 
   unsigned int gps_state_end = g_body_state_size + GetImuStateSize() + GetGpsStateSize();
   m_state.gps_states[gps_id] = gps_state;
-  m_cov = InsertInMatrix(covariance, m_cov, gps_state_end, gps_state_end);
-  m_state_size += g_gps_state_size;
-
+  if (gps_state.is_extrinsic) {
+    m_cov = InsertInMatrix(covariance, m_cov, gps_state_end, gps_state_end);
+    m_state_size += g_gps_extrinsic_state_size;
+  }
   std::stringstream log_msg;
   log_msg << "Register GPS: " << gps_id << ", stateSize: " << m_state_size;
   m_logger->Log(LogLevel::INFO, log_msg.str());
@@ -479,8 +485,8 @@ unsigned int EKF::GetGpsStateStartIndex(unsigned int gps_id)
   for (auto const & gps_iter : m_state.gps_states) {
     if (gps_iter.first == gps_id) {
       break;
-    } else {
-      state_start_index += g_gps_state_size;
+    } else if (gps_iter.second.is_extrinsic) {
+      state_start_index += g_gps_extrinsic_state_size;
     }
   }
   return state_start_index;

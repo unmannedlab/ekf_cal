@@ -112,8 +112,10 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
   }
 
   for (auto & gps_iter : l_state.gps_states) {
-    gps_iter.second.pos_a_in_b += r_vector.segment<3>(n);
-    n += g_gps_state_size;
+    if (gps_iter.second.is_extrinsic) {
+      gps_iter.second.pos_a_in_b += r_vector.segment<3>(n);
+      n += g_gps_extrinsic_state_size;
+    }
   }
 
   for (auto & cam_iter : l_state.cam_states) {
@@ -347,6 +349,12 @@ unsigned int State::GetStateSize()
     }
     if (imu_iter.second.is_intrinsic) {
       state_size += g_imu_intrinsic_state_size;
+    }
+  }
+
+  for (auto const & gps_iter : gps_states) {
+    if (gps_iter.second.is_extrinsic) {
+      state_size += g_gps_extrinsic_state_size;
     }
   }
 

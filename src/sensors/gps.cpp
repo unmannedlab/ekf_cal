@@ -35,6 +35,7 @@ GPS::GPS(GPS::Parameters params)
     params.init_pos_thresh,
     params.init_ang_thresh,
     params.init_baseline_dist,
+    params.is_extrinsic,
     params.output_directory,
     params.data_logging_on,
     params.data_log_rate,

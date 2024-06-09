@@ -422,6 +422,7 @@ int main(int argc, char * argv[])
     gps_params.init_pos_thresh = gps_node["init_pos_thresh"].as<double>(1.0);
     gps_params.init_ang_thresh = gps_node["init_ang_thresh"].as<double>(1.0);
     gps_params.init_baseline_dist = gps_node["init_baseline_dist"].as<double>(1.0);
+    gps_params.is_extrinsic = gps_node["is_extrinsic"].as<bool>(false);
 
     // SimParams
     SimGPS::Parameters sim_gps_params;

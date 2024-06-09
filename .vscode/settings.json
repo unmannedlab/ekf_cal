@@ -34,6 +34,7 @@
         "GFTT",
         "ggplot",
         "htmlonly",
+        "ICRA",
         "imread",
         "ImuUpdater",
         "imwrite",
@@ -55,6 +56,7 @@
         "PLANTUML",
         "Raphson's",
         "RCLCPP",
+        "Rehder",
         "Rodrigues",
         "Roumeliotis",
         "RVIZ",
@@ -176,8 +178,8 @@
     "terminal.integrated.gpuAcceleration": "off",
     "cmake.debugConfig": {
         "args": [
-            "${workspaceFolder}/config/fiducial.yaml",
-            "${workspaceFolder}/config/fiducial/"
+            "${workspaceFolder}/config/example.yaml",
+            "${workspaceFolder}/config/example/"
         ]
     },
     "todo.embedded.exclude": [

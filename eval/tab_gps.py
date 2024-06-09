@@ -117,13 +117,14 @@ def print_gps_init_hdg_error(gps_dfs):
 
 def tab_gps(gps_dfs, body_truth_dfs):
 
-    layout_plots = [
-        [plot_gps_measurements(gps_dfs), plot_ant_pos_error(gps_dfs, body_truth_dfs)],
-        [plot_gps_residuals(gps_dfs), plot_gps_cov(gps_dfs)],
-        [plot_update_timing(gps_dfs), Spacer()],
-        [print_gps_init_pos_error(gps_dfs)],
-        [print_gps_init_hdg_error(gps_dfs)]
-    ]
+    layout_plots = [[plot_gps_measurements(gps_dfs), plot_gps_residuals(gps_dfs)]]
+
+    if ('gps_cov_0' in gps_dfs[0].keys()):
+        layout_plots.append([plot_ant_pos_error(gps_dfs, body_truth_dfs), plot_gps_cov(gps_dfs)])
+
+    layout_plots.append([plot_update_timing(gps_dfs), Spacer()])
+    layout_plots.append([print_gps_init_pos_error(gps_dfs)])
+    layout_plots.append([print_gps_init_hdg_error(gps_dfs)])
 
     tab_layout = layout(layout_plots, sizing_mode='stretch_width')
     tab = TabPanel(child=tab_layout, title=f"GPS {gps_dfs[0].attrs['id']}")

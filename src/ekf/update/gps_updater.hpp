@@ -50,6 +50,7 @@ public:
     double init_pos_thresh,
     double init_ang_thresh,
     double init_baseline_dist,
+    bool is_extrinsic,
     std::string log_file_directory,
     bool data_logging_on,
     double data_log_rate,
@@ -105,6 +106,7 @@ private:
   double m_init_pos_thresh;
   double m_init_ang_thresh;
   double m_init_baseline_dist;
+  bool m_is_extrinsic {false};
   DataLogger m_data_logger;
   std::vector<double> m_gps_time_vec;
   std::vector<Eigen::Vector3d> m_gps_ecef_vec;

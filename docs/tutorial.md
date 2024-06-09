@@ -294,6 +294,7 @@ The following is an example of a GPS input configuration.
                 data_log_rate: 5.0                      # Data log rate
                 init_pos_thresh: 1.0                    # Local frame position error threshold
                 init_ang_thresh: 0.1                    # Local frame heading error threshold
+                is_extrinsic: false                     # Flag to calibrate GPS extrinsics
                 sim_params:
                     no_errors: false                    # Flag to disable errors in simulation
                     time_bias_error: 0.0                # Time bias error

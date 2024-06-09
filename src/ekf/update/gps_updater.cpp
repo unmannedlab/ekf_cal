@@ -38,6 +38,7 @@ GpsUpdater::GpsUpdater(
   double init_pos_thresh,
   double init_ang_thresh,
   double init_baseline_dist,
+  bool is_extrinsic,
   std::string log_file_directory,
   bool data_logging_on,
   double data_log_rate,
@@ -48,14 +49,17 @@ GpsUpdater::GpsUpdater(
   m_init_pos_thresh(init_pos_thresh),
   m_init_ang_thresh(init_ang_thresh),
   m_init_baseline_dist(init_baseline_dist),
+  m_is_extrinsic(is_extrinsic),
   m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
 {
   std::stringstream header;
   header << "time,lat,lon,alt,x,y,z"
          << ",ref_lat,ref_lon,ref_alt,ref_heading,pos_stddev,ang_stddev,is_initialized";
-  header << EnumerateHeader("antenna", g_gps_state_size);
-  header << EnumerateHeader("gps_cov", g_gps_state_size);
-  header << EnumerateHeader("residual", g_gps_state_size);
+  header << EnumerateHeader("antenna", g_gps_extrinsic_state_size);
+  if (m_is_extrinsic) {
+    header << EnumerateHeader("gps_cov", g_gps_extrinsic_state_size);
+  }
+  header << EnumerateHeader("residual", g_gps_extrinsic_state_size);
   header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(header.str());
@@ -163,10 +167,6 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
-  unsigned int gps_state_start = ekf->GetGpsStateStartIndex(m_id);
-  Eigen::VectorXd cov_diag = ekf->m_cov.block(
-    gps_state_start, gps_state_start, g_gps_state_size, g_gps_state_size).diagonal();
-
   // Write outputs
   std::stringstream msg;
   msg << time;
@@ -178,7 +178,13 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   msg << "," << m_ang_stddev;
   msg << "," << ekf->IsLlaInitialized();
   msg << VectorToCommaString(ekf->GetGpsState(m_id).pos_a_in_b);
-  msg << VectorToCommaString(cov_diag);
+  if (m_is_extrinsic) {
+    unsigned int gps_state_start = ekf->GetGpsStateStartIndex(m_id);
+    Eigen::VectorXd cov_diag = ekf->m_cov.block(
+      gps_state_start, gps_state_start, g_gps_extrinsic_state_size,
+      g_gps_extrinsic_state_size).diagonal();
+    msg << VectorToCommaString(cov_diag);
+  }
   msg << VectorToCommaString(residual);
   msg << "," << t_execution.count();
   m_data_logger.Log(msg.str());

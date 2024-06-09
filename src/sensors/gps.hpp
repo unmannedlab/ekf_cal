@@ -51,6 +51,7 @@ public:
     double init_pos_thresh {1.0};          ///< @brief Minimum projection error to initialize pos
     double init_ang_thresh {1.0};          ///< @brief Minimum projection error to initialize ang
     double init_baseline_dist {1.0};       ///< @brief Baseline distance threshold
+    bool is_extrinsic {false};             ///< @brief Flag to enable online extrinsic calibration
     double pos_stability {1e-9};           ///< @brief Position stability
   } Parameters;
 

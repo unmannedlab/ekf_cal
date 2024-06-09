@@ -70,6 +70,7 @@ TEST(test_EKF, duplicate_sensors) {
   ekf->RegisterIMU(0, imu_state, imu_covariance);
 
   GpsState gps_state;
+  gps_state.is_extrinsic = true;
   Eigen::Matrix3d gps_cov = Eigen::Matrix3d::Zero(3, 3);
   ekf->RegisterGPS(1, gps_state, gps_cov);
   ekf->RegisterGPS(1, gps_state, gps_cov);
