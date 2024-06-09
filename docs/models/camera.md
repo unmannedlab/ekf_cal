@@ -11,7 +11,7 @@ The Camera error model used for a FeatureTracker is
         {}^C p_{f_y} \\
         {}^C p_{f_z}
     \end{bmatrix} =
-    R({}^C_G q)(p^G_F - p^G_C)
+    R({}^C_L q)(p^L_F - p^L_C)
 \f}
 
 \f{align}{
@@ -54,10 +54,10 @@ The Camera error model used for a FiducialTracker is
     {}^C p_f =
     R({}^B_C q)^T
     \left(
-    R({}^G_B q)^T
+    R({}^L_B q)^T
     \left[
-    {}^G p_f -
-    {}^G p_B
+    {}^L p_f -
+    {}^L p_B
     \right] -
     {}^B p_C
     \right) +
@@ -67,9 +67,9 @@ The Camera error model used for a FiducialTracker is
 where
 - \f$ {}^C q_f \f$ is the measured position of the fiducial in the camera frame,
 - \f$ {}^B_C q \f$ is the rotation from the camera frame to the body frame,
-- \f$ {}^G_B q \f$ is the rotation from the body frame to the global frame,
-- \f$ {}^G p_f \f$ is the position of the fiducial in the global frame,
-- \f$ {}^G p_C \f$ is the position of the camera in the global frame, and
+- \f$ {}^L_B q \f$ is the rotation from the body frame to the local frame,
+- \f$ {}^L p_f \f$ is the position of the fiducial in the local frame,
+- \f$ {}^L p_C \f$ is the position of the camera in the local frame, and
 - \f$ n_p      \f$ is the position Gaussian white noise process.
 
 \f{align}{
@@ -90,8 +90,8 @@ where
         0 & \sin(n_\gamma) &  \cos(n_\gamma)
     \end{bmatrix}
     {}^B_C q^{-1}
-    {}^G_B q^{-1}
-    {}^G_F q
+    {}^L_B q^{-1}
+    {}^L_F q
 \f}
 
 where
@@ -100,5 +100,5 @@ where
 - \f$ n_\beta  \f$ is the pitch Gaussian white noise,
 - \f$ n_\gamma \f$ is the roll Gaussian white noise,
 - \f$ {}^B_C q \f$ is the rotation from the camera to the body frame,
-- \f$ {}^G_B q \f$ is the rotation from the body to the global frame, and
-- \f$ {}^G_F q \f$ is the rotation from the fiducial frame to the global frame
+- \f$ {}^L_B q \f$ is the rotation from the body to the local frame, and
+- \f$ {}^L_F q \f$ is the rotation from the fiducial frame to the local frame

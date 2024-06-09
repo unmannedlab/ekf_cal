@@ -33,8 +33,8 @@ public:
   /// @brief Setter for body cycle frequencies
   /// @param pos_frequency Vector of position frequencies
   /// @param ang_frequency Vector of angular frequencies
-  /// @param pos_offset Initial position offset in the global frame
-  /// @param ang_offset Initial angular offset to the global frame rpy
+  /// @param pos_offset Initial position offset in the local frame
+  /// @param ang_offset Initial angular offset to the local frame rpy
   /// @param pos_amplitude Amplitude of position cycle
   /// @param ang_amplitude Amplitude of angular cycle
   /// @param stationary_time Time to be stationary before beginning motion

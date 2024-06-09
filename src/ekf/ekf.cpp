@@ -169,18 +169,18 @@ void EKF::PredictModel(
 
   Eigen::Quaterniond ang_i_to_b = m_state.body_state.ang_b_to_l;
 
-  Eigen::Vector3d acceleration_global = ang_i_to_b * acceleration;
-  Eigen::Vector3d angular_rate_global = ang_i_to_b * angular_rate;
+  Eigen::Vector3d acceleration_local = ang_i_to_b * acceleration;
+  Eigen::Vector3d angular_rate_local = ang_i_to_b * angular_rate;
 
   Eigen::Vector3d rot_vec(angular_rate[0] * dT, angular_rate[1] * dT,
     angular_rate[2] * dT);
 
   m_state.body_state.pos_b_in_l +=
-    dT * m_state.body_state.vel_b_in_l + dT * dT / 2 * acceleration_global;
-  m_state.body_state.vel_b_in_l += dT * acceleration_global;
-  m_state.body_state.acc_b_in_l = acceleration_global;
+    dT * m_state.body_state.vel_b_in_l + dT * dT / 2 * acceleration_local;
+  m_state.body_state.vel_b_in_l += dT * acceleration_local;
+  m_state.body_state.acc_b_in_l = acceleration_local;
   m_state.body_state.ang_b_to_l = m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec);
-  m_state.body_state.ang_vel_b_in_l = angular_rate_global;
+  m_state.body_state.ang_vel_b_in_l = angular_rate_local;
   m_state.body_state.ang_acc_b_in_l.setZero();
 
   Eigen::MatrixXd dF = GetStateTransition(dT);
@@ -546,10 +546,10 @@ Eigen::MatrixXd EKF::AugmentJacobian(
       Eigen::MatrixXd::Identity(after_size, after_size);
   }
 
-  // Body Position in Global Frame
+  // Body Position in Local Frame
   jacobian.block<3, 3>(aug_state_start + 0, 0) = Eigen::MatrixXd::Identity(3, 3);
 
-  // Body Orientation to Global Frame
+  // Body Orientation to Local Frame
   jacobian.block<3, 3>(aug_state_start + 3, 9) = Eigen::MatrixXd::Identity(3, 3);
 
   // Camera Position in IMU Frame

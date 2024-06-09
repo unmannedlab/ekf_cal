@@ -238,7 +238,7 @@ public:
   void GenerateFeatures(unsigned int feature_count, double room_size, SimRNG rng);
 
   ///
-  /// @brief Getter function for global features
+  /// @brief Getter function for features
   /// @return Vector of all feature positions
   ///
   std::vector<cv::Point3d> GetFeatures();
