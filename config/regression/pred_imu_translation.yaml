@@ -13,7 +13,7 @@
             ang_frequency: [0.0, 0.0, 0.0]
             pos_offset: [0.0, 0.0, 0.0]
             no_errors: False
-            number_of_runs: 20
+            number_of_runs: 10
             run_number: 0
 
         filter_params:

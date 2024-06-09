@@ -8,7 +8,7 @@
             seed: 0.0
             use_seed: true
             max_time: 5.0
-            no_errors: true
+            no_errors: False
             number_of_runs: 10
             run_number: 0
             stationary_time: 5.0
