@@ -59,4 +59,6 @@ Existing Work:
 ## Plotting and Analysis
 Other package features are the Monte Carlo report generation and statistical summary functions that simplify the analysis of algorithm changes and development. 
 
+![Simulated positions generated from spline inputs.\label{fig:pos}](png/pos.png)
+
 # References
