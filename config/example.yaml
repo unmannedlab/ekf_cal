@@ -8,14 +8,14 @@
                                             #   4: INFO
                                             #   5: DEBUG
         data_logging_on: true               # Flag to enable data logging
-        body_data_rate: 10.0                # EKF body data logging rate
+        body_data_rate: 100.0               # EKF body data logging rate
         sim_params:
             seed: 0.0                       # Seed to provide to random number generator
             use_seed: true                  # Flag to use seed (required for deterministic runs)
             max_time: 10.0                  # Maximum simulation time
             number_of_runs: 10              # Number of runs for Multi-Threaded Simulation
             run_number: 0                   # Start run number (also used to initialize seed)
-            stationary_time: 5.0            # Time to be stationary before motion begins
+            stationary_time: 1.0            # Time to be stationary before motion begins
             truth_type: "cyclic"            # TruthType:
                                             #   "Cyclic"
                                             #   "Spline"
@@ -72,7 +72,7 @@
 
         imu:
             imu_1:
-                use_for_prediction: false           # Flag to use IMU for filter prediction
+                use_for_prediction: true            # Flag to use IMU for filter prediction
                 is_extrinsic: false                 # Flag to calibrate IMU extrinsics
                 is_intrinsic: false                 # Flag to calibrate IMU intrinsics
                 rate: 400.0                         # Measurement update rate

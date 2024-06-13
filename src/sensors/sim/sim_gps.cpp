@@ -57,7 +57,6 @@ std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages()
     sim_gps_msg->sensor_id = m_id;
     sim_gps_msg->sensor_type = SensorType::GPS;
 
-    /// @todo(jhartzer): Implement GPS error model
     Eigen::Vector3d pos_b_in_l = m_truth->GetBodyPosition(measurement_time);
     Eigen::Quaterniond ang_b_to_l = m_truth->GetBodyAngularPosition(measurement_time);
     Eigen::Vector3d pos_a_in_b = m_truth->GetGpsPosition(m_id);
