@@ -35,7 +35,6 @@ import os
 import random
 import subprocess
 import traceback
-from typing import List
 
 from input_parser import InputParser
 import yaml
@@ -135,22 +134,17 @@ def generate_mc_from_yaml(
     return yaml_files
 
 
-def add_jobs(
-    inputs: List[str],
-    jobs=None,
-    runs=None,
-    time=None
-):
+def add_jobs(args):
     """Add simulation jobs to pool given list of top-level input yaml files."""
-    cpu_count = jobs if (jobs) else multiprocessing.cpu_count() - 1
+    cpu_count = args.jobs if (args.jobs) else multiprocessing.cpu_count() - 1
     pool = multiprocessing.Pool(cpu_count)
 
-    for yaml_file in inputs:
+    for yaml_file in args.inputs:
         input_yaml_path = os.path.abspath(yaml_file)
         list_of_runs = generate_mc_from_yaml(
             input_yaml_path,
-            runs=runs,
-            time=time
+            runs=args.runs,
+            time=args.time
         )
         for single_run in list_of_runs:
             pool.apply_async(run_sim, args=(single_run,), error_callback=print_err)
@@ -163,9 +157,4 @@ def add_jobs(
 if __name__ == '__main__':
     parser = InputParser()
     args = parser.parse_args()
-    add_jobs(
-        args.inputs,
-        jobs=args.jobs,
-        runs=args.runs,
-        time=args.time
-    )
+    add_jobs(args)

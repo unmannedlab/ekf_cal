@@ -44,7 +44,7 @@ from utilities import find_and_read_data_frames, generate_mc_lists
 
 
 # TODO(jhartzer): Split for loop into thread pool
-def plot_sim_results(config_sets, output_embed):
+def plot_sim_results(config_sets, args):
     """Top level function to plot simulation results from sets of config files."""
     for config_set in config_sets:
         data_dirs = [config.split('.yaml')[0] for config in config_set]
@@ -64,12 +64,12 @@ def plot_sim_results(config_sets, output_embed):
         for key in body_state_dfs_dict:
             body_state_dfs = body_state_dfs_dict[key]
             body_truth_dfs = body_truth_dfs_dict[key]
-            tabs.append(tab_body(body_state_dfs, body_truth_dfs))
+            tabs.append(tab_body(body_state_dfs, body_truth_dfs, args).get_tab())
 
         imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
         for key in sorted(imu_dfs_dict.keys()):
             imu_dfs = imu_dfs_dict[key]
-            tabs.append(tab_imu(imu_dfs))
+            tabs.append(tab_imu(imu_dfs, args).get_tab())
 
         mskcf_dfs_dict = find_and_read_data_frames(data_dirs, 'msckf')
         tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
@@ -78,7 +78,7 @@ def plot_sim_results(config_sets, output_embed):
             mskcf_dfs = mskcf_dfs_dict[key]
             tri_dfs = tri_dfs_dict[key]
             feat_dfs = feat_dfs_dict[0]
-            tabs.append(tab_msckf(mskcf_dfs, tri_dfs, feat_dfs))
+            tabs.append(tab_msckf(mskcf_dfs, tri_dfs, feat_dfs, args).get_tab())
 
         fiducial_dfs_dict = find_and_read_data_frames(data_dirs, 'fiducial')
         tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
@@ -87,15 +87,15 @@ def plot_sim_results(config_sets, output_embed):
             fiducial_dfs = fiducial_dfs_dict[key]
             tri_dfs = tri_dfs_dict[key]
             board_dfs = board_dfs_dict[0]
-            tabs.append(tab_fiducial(fiducial_dfs, tri_dfs, board_dfs))
+            tabs.append(tab_fiducial(fiducial_dfs, tri_dfs, board_dfs, args).get_tab())
 
         gps_dfs_dict = find_and_read_data_frames(data_dirs, 'gps')
         for key in sorted(gps_dfs_dict.keys()):
             gps_dfs = gps_dfs_dict[key]
             body_truth_dfs = body_truth_dfs_dict[0]
-            tabs.append(tab_gps(gps_dfs, body_truth_dfs))
+            tabs.append(tab_gps(gps_dfs, body_truth_dfs, args).get_tab())
 
-        if (output_embed):
+        if (args.embed):
             if not os.path.exists(os.path.join(plot_dir, 'js')):
                 os.makedirs(os.path.join(plot_dir, 'js'))
             if not os.path.exists(os.path.join(plot_dir, 'html')):
@@ -113,8 +113,9 @@ def plot_sim_results(config_sets, output_embed):
                         with open(os.path.join(plot_dir, 'html', f'{title}.html'), 'w') as f:
                             f.write(div)
         else:
-            # TODO(jhartzer): Select theme from input
-            # curdoc().theme = 'dark_minimal'
+            if not args.light:
+                curdoc().theme = 'dark_minimal'
+
             # TODO(jhartzer): Figure out how to add stylesheet to output
             # style_sheet = GlobalInlineStyleSheet(css=
             # """
@@ -143,5 +144,5 @@ if __name__ == '__main__':
     parser = InputParser()
     args = parser.parse_args()
 
-    config_files = generate_mc_lists(args.inputs, runs=args.runs)
-    plot_sim_results(config_files, args.embed)
+    config_files = generate_mc_lists(args)
+    plot_sim_results(config_files, args)

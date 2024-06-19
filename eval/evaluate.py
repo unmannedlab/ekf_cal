@@ -40,13 +40,9 @@ if __name__ == '__main__':
     parser = InputParser()
     args = parser.parse_args()
 
-    add_jobs(
-        args.inputs,
-        jobs=args.jobs,
-        runs=args.runs,
-        time=args.time)
+    add_jobs(args)
 
-    config_files = generate_mc_lists(args.inputs, runs=args.runs)
+    config_files = generate_mc_lists(args)
     if (not args.no_plot):
-        plot_sim_results(config_files, args.embed)
+        plot_sim_results(config_files, args)
     calc_sim_stats(config_files, args)

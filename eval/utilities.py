@@ -27,9 +27,12 @@ import pandas as pd
 from scipy.spatial.transform import Rotation
 import yaml
 
-# TODO(jhartzer): Select theme from input
-colors = ['red', 'green', 'blue', 'magenta']
-# colors = ['cyan', 'yellow', 'magenta', 'white']
+
+def get_colors(args):
+    if args.light:
+        return ['red', 'green', 'blue', 'magenta']
+    else:
+        return ['cyan', 'yellow', 'magenta', 'white']
 
 
 def calculate_alpha(line_count: int):
@@ -160,18 +163,18 @@ def find_and_read_data_frames(directories, prefix):
     return data_frame_sets
 
 
-def generate_mc_lists(input_files, runs=None):
+def generate_mc_lists(args):
     """Generate sets of yaml configuration files to plot."""
     mc_lists = []
-    for input_file in input_files:
+    for input_file in args.inputs:
         yaml_files = []
         with open(input_file, 'r') as input_stream:
             try:
                 top_yaml = yaml.safe_load(input_stream)
                 sim_yaml = top_yaml['/EkfCalNode']['ros__parameters']['sim_params']
                 num_runs = sim_yaml['number_of_runs']
-                if (runs):
-                    num_runs = runs
+                if (args.runs):
+                    num_runs = args.runs
                 if (num_runs > 1):
                     top_name = os.path.basename(input_file).split('.yaml')[0]
                     yaml_dir = input_file.split('.yaml')[0] + os.sep

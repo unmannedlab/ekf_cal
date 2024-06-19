@@ -316,7 +316,7 @@ def write_summary(directory, stats):
 
 
 # TODO(jhartzer): Split for loop into thread pool
-def calc_sim_stats(config_sets, settings):
+def calc_sim_stats(config_sets, args):
     """Top level function to plot simulation results from sets of config files."""
     for config_set in config_sets:
 
@@ -377,5 +377,5 @@ if __name__ == '__main__':
     parser = InputParser()
     args = parser.parse_args()
 
-    config_files = generate_mc_lists(args.inputs, runs=args.runs)
+    config_files = generate_mc_lists(args)
     calc_sim_stats(config_files, args)

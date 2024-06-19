@@ -23,151 +23,257 @@ from bokeh.plotting import ColumnDataSource, figure
 
 import numpy as np
 
-from utilities import calculate_alpha, colors, plot_update_timing
+from utilities import calculate_alpha, get_colors, plot_update_timing
 
 
-def plot_camera_pos(mskcf_dfs):
-    """Plot camera position offsets."""
-    fig = figure(width=800, height=300, x_axis_label='Time [s]',
-                 y_axis_label='Position [m]', title='Camera Position')
-    a = calculate_alpha(len(mskcf_dfs))
-    for mskcf_df in mskcf_dfs:
-        t_cam = mskcf_df['time']
-        fig.line(t_cam, mskcf_df['cam_pos_0'], alpha=a, color=colors[0])
-        fig.line(t_cam, mskcf_df['cam_pos_1'], alpha=a, color=colors[1])
-        fig.line(t_cam, mskcf_df['cam_pos_2'], alpha=a, color=colors[2])
-    return fig
+class tab_msckf:
 
+    def __init__(self, mskcf_dfs, tri_dfs, feat_dfs, args):
+        self.mskcf_dfs = mskcf_dfs
+        self.tri_dfs = tri_dfs
+        self.feat_dfs = feat_dfs
 
-def plot_camera_ang(mskcf_dfs):
-    """Plot camera angular offsets."""
-    fig = figure(width=800, height=300, x_axis_label='Time [s]',
-                 y_axis_label='Orientation', title='Camera Orientation')
-    a = calculate_alpha(len(mskcf_dfs))
-    for mskcf_df in mskcf_dfs:
-        t_cam = mskcf_df['time']
-        fig.line(t_cam, mskcf_df['cam_ang_pos_0'], alpha=a, color=colors[0])
-        fig.line(t_cam, mskcf_df['cam_ang_pos_1'], alpha=a, color=colors[1])
-        fig.line(t_cam, mskcf_df['cam_ang_pos_2'], alpha=a, color=colors[2])
-    return fig
+        self.alpha = calculate_alpha(len(self.mskcf_dfs))
+        self.colors = get_colors(args)
 
+    def plot_camera_pos(self):
+        """Plot camera position offsets."""
+        fig = figure(
+            width=800,
+            height=300,
+            x_axis_label='Time [s]',
+            y_axis_label='Position [m]',
+            title='Camera Position')
+        for mskcf_df in self.mskcf_dfs:
+            t_cam = mskcf_df['time']
+            fig.line(
+                t_cam,
+                mskcf_df['cam_pos_0'],
+                alpha=self.alpha,
+                color=self.colors[0])
+            fig.line(
+                t_cam,
+                mskcf_df['cam_pos_1'],
+                alpha=self.alpha,
+                color=self.colors[1])
+            fig.line(
+                t_cam,
+                mskcf_df['cam_pos_2'],
+                alpha=self.alpha,
+                color=self.colors[2])
+        return fig
 
-def plot_cam_pos_cov(mskcf_dfs):
-    """Plot extrinsic position covariance."""
-    fig = figure(width=800, height=300, x_axis_label='Time [s]',
-                 y_axis_label='Position Covariance [m]', title='Position Covariance')
-    a = calculate_alpha(len(mskcf_dfs))
-    for mskcf_df in mskcf_dfs:
-        t_cam = mskcf_df['time']
-        cam_cov_0 = mskcf_df['cam_cov_0']
-        cam_cov_1 = mskcf_df['cam_cov_1']
-        cam_cov_2 = mskcf_df['cam_cov_2']
-        fig.line(t_cam, cam_cov_0, alpha=a, color=colors[0], legend_label='p_x')
-        fig.line(t_cam, cam_cov_1, alpha=a, color=colors[1], legend_label='p_y')
-        fig.line(t_cam, cam_cov_2, alpha=a, color=colors[2], legend_label='p_z')
-    return fig
+    def plot_camera_ang(self):
+        """Plot camera angular offsets."""
+        fig = figure(
+            width=800,
+            height=300,
+            x_axis_label='Time [s]',
+            y_axis_label='Orientation',
+            title='Camera Orientation')
+        for mskcf_df in self.mskcf_dfs:
+            t_cam = mskcf_df['time']
+            fig.line(
+                t_cam,
+                mskcf_df['cam_ang_pos_0'],
+                alpha=self.alpha,
+                color=self.colors[0])
+            fig.line(
+                t_cam,
+                mskcf_df['cam_ang_pos_1'],
+                alpha=self.alpha,
+                color=self.colors[1])
+            fig.line(
+                t_cam,
+                mskcf_df['cam_ang_pos_2'],
+                alpha=self.alpha,
+                color=self.colors[2])
+        return fig
 
+    def plot_cam_pos_cov(self):
+        """Plot extrinsic position covariance."""
+        fig = figure(
+            width=800,
+            height=300,
+            x_axis_label='Time [s]',
+            y_axis_label='Position Covariance [m]',
+            title='Position Covariance')
+        for mskcf_df in self.mskcf_dfs:
+            t_cam = mskcf_df['time']
+            cam_cov_0 = mskcf_df['cam_cov_0']
+            cam_cov_1 = mskcf_df['cam_cov_1']
+            cam_cov_2 = mskcf_df['cam_cov_2']
+            fig.line(
+                t_cam,
+                cam_cov_0,
+                alpha=self.alpha,
+                color=self.colors[0],
+                legend_label='p_x')
+            fig.line(
+                t_cam,
+                cam_cov_1,
+                alpha=self.alpha,
+                color=self.colors[1],
+                legend_label='p_y')
+            fig.line(
+                t_cam,
+                cam_cov_2,
+                alpha=self.alpha,
+                color=self.colors[2],
+                legend_label='p_z')
+        return fig
 
-def plot_cam_ang_cov(mskcf_dfs):
-    """Plot extrinsic angle covariance."""
-    fig = figure(width=800, height=300, x_axis_label='Time [s]',
-                 y_axis_label='Angle Covariance [m]', title='Angle Covariance')
-    a = calculate_alpha(len(mskcf_dfs))
-    for mskcf_df in mskcf_dfs:
-        t_cam = mskcf_df['time']
-        cam_cov_3 = mskcf_df['cam_cov_3']
-        cam_cov_4 = mskcf_df['cam_cov_4']
-        cam_cov_5 = mskcf_df['cam_cov_5']
-        fig.line(t_cam, cam_cov_3, alpha=a, color=colors[0], legend_label='\theta_x')
-        fig.line(t_cam, cam_cov_4, alpha=a, color=colors[1], legend_label='\theta_y')
-        fig.line(t_cam, cam_cov_5, alpha=a, color=colors[2], legend_label='\theta_z')
-    return fig
+    def plot_cam_ang_cov(self):
+        """Plot extrinsic angle covariance."""
+        fig = figure(
+            width=800,
+            height=300,
+            x_axis_label='Time [s]',
+            y_axis_label='Angle Covariance [m]',
+            title='Angle Covariance')
+        for mskcf_df in self.mskcf_dfs:
+            t_cam = mskcf_df['time']
+            cam_cov_3 = mskcf_df['cam_cov_3']
+            cam_cov_4 = mskcf_df['cam_cov_4']
+            cam_cov_5 = mskcf_df['cam_cov_5']
+            fig.line(
+                t_cam,
+                cam_cov_3,
+                alpha=self.alpha,
+                color=self.colors[0],
+                legend_label='\theta_x')
+            fig.line(
+                t_cam,
+                cam_cov_4,
+                alpha=self.alpha,
+                color=self.colors[1],
+                legend_label='\theta_y')
+            fig.line(
+                t_cam,
+                cam_cov_5,
+                alpha=self.alpha,
+                color=self.colors[2],
+                legend_label='\theta_z')
+        return fig
 
+    def plot_triangulation_error(self):
+        """Plot MSCKF feature point triangulation error."""
+        fig = figure(
+            width=800,
+            height=300,
+            x_axis_label='Time [s]',
+            y_axis_label='Triangulation Error [m]',
+            title='MSCKF Triangulation Error')
 
-def plot_triangulation_error(tri_dfs, feat_dfs):
-    """Plot MSCKF feature point triangulation error."""
-    fig = figure(width=800, height=300, x_axis_label='Time [s]',
-                 y_axis_label='Triangulation Error [m]', title='MSCKF Triangulation Error')
+        err_x = collections.defaultdict(list)
+        err_y = collections.defaultdict(list)
+        err_z = collections.defaultdict(list)
 
-    err_x = collections.defaultdict(list)
-    err_y = collections.defaultdict(list)
-    err_z = collections.defaultdict(list)
+        for tri_df, feat_df in zip(self.tri_dfs, self.feat_dfs):
+            time = tri_df['time']
+            feature = tri_df['feature']
+            feat_x = tri_df['x']
+            feat_y = tri_df['y']
+            feat_z = tri_df['z']
 
-    for tri_df, feat_df in zip(tri_dfs, feat_dfs):
-        time = tri_df['time']
-        feature = tri_df['feature']
-        feat_x = tri_df['x']
-        feat_y = tri_df['y']
-        feat_z = tri_df['z']
+            true_x = feat_df['x']
+            true_y = feat_df['y']
+            true_z = feat_df['z']
 
-        true_x = feat_df['x']
-        true_y = feat_df['y']
-        true_z = feat_df['z']
+            for (t, f, x, y, z) in zip(time, feature, feat_x, feat_y, feat_z):
+                err_x[t].append(x - true_x[int(f)])
+                err_y[t].append(y - true_y[int(f)])
+                err_z[t].append(z - true_z[int(f)])
+        times = []
+        mean_x = []
+        mean_y = []
+        mean_z = []
+        std_x = []
+        std_y = []
+        std_z = []
 
-        for (t, f, x, y, z) in zip(time, feature, feat_x, feat_y, feat_z):
-            err_x[t].append(x - true_x[int(f)])
-            err_y[t].append(y - true_y[int(f)])
-            err_z[t].append(z - true_z[int(f)])
-    times = []
-    mean_x = []
-    mean_y = []
-    mean_z = []
-    std_x = []
-    std_y = []
-    std_z = []
+        for time in err_x:
+            times.append(time)
+            mean_x.append(np.mean(err_x[time]))
+            mean_y.append(np.mean(err_y[time]))
+            mean_z.append(np.mean(err_z[time]))
+            std_x.append(np.std(err_x[time]))
+            std_y.append(np.std(err_y[time]))
+            std_z.append(np.std(err_z[time]))
 
-    for time in err_x:
-        times.append(time)
-        mean_x.append(np.mean(err_x[time]))
-        mean_y.append(np.mean(err_y[time]))
-        mean_z.append(np.mean(err_z[time]))
-        std_x.append(np.std(err_x[time]))
-        std_y.append(np.std(err_y[time]))
-        std_z.append(np.std(err_z[time]))
+        times = np.array(times)
+        mean_x = np.array(mean_x)
+        mean_y = np.array(mean_y)
+        mean_z = np.array(mean_z)
+        std_x = np.array(std_x)
+        std_y = np.array(std_y)
+        std_z = np.array(std_z)
 
-    times = np.array(times)
-    mean_x = np.array(mean_x)
-    mean_y = np.array(mean_y)
-    mean_z = np.array(mean_z)
-    std_x = np.array(std_x)
-    std_y = np.array(std_y)
-    std_z = np.array(std_z)
+        t_indices = times.argsort()
+        times = times[t_indices]
+        mean_x = mean_x[t_indices]
+        mean_y = mean_y[t_indices]
+        mean_z = mean_z[t_indices]
+        std_x = std_x[t_indices]
+        std_y = std_y[t_indices]
+        std_z = std_z[t_indices]
 
-    t_indices = times.argsort()
-    times = times[t_indices]
-    mean_x = mean_x[t_indices]
-    mean_y = mean_y[t_indices]
-    mean_z = mean_z[t_indices]
-    std_x = std_x[t_indices]
-    std_y = std_y[t_indices]
-    std_z = std_z[t_indices]
+        fig.line(
+            times,
+            mean_x,
+            color=self.colors[0])
+        fig.line(
+            times,
+            mean_y,
+            color=self.colors[1])
+        fig.line(
+            times,
+            mean_z,
+            color=self.colors[2])
 
-    fig.line(times, mean_x, color=colors[0])
-    fig.line(times, mean_y, color=colors[1])
-    fig.line(times, mean_z, color=colors[2])
+        cds_x = ColumnDataSource({'base': times, 'lower': mean_x - std_x, 'upper': mean_x + std_x})
+        cds_y = ColumnDataSource({'base': times, 'lower': mean_y - std_y, 'upper': mean_y + std_y})
+        cds_z = ColumnDataSource({'base': times, 'lower': mean_z - std_z, 'upper': mean_z + std_z})
 
-    cds_x = ColumnDataSource({'base': times, 'lower': mean_x - std_x, 'upper': mean_x + std_x})
-    cds_y = ColumnDataSource({'base': times, 'lower': mean_y - std_y, 'upper': mean_y + std_y})
-    cds_z = ColumnDataSource({'base': times, 'lower': mean_z - std_z, 'upper': mean_z + std_z})
+        fig.add_layout(
+            Band(
+                base='base',
+                lower='lower',
+                upper='upper',
+                fill_alpha=0.3,
+                source=cds_x,
+                fill_color=self.colors[0],
+                line_color=self.colors[0]))
+        fig.add_layout(
+            Band(
+                base='base',
+                lower='lower',
+                upper='upper',
+                fill_alpha=0.3,
+                source=cds_y,
+                fill_color=self.colors[1],
+                line_color=self.colors[1]))
+        fig.add_layout(
+            Band(
+                base='base',
+                lower='lower',
+                upper='upper',
+                fill_alpha=0.3,
+                source=cds_z,
+                fill_color=self.colors[2],
+                line_color=self.colors[2]))
 
-    fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_x,
-                        fill_color=colors[0], line_color=colors[0]))
-    fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_y,
-                        fill_color=colors[1], line_color=colors[1]))
-    fig.add_layout(Band(base='base', lower='lower', upper='upper', fill_alpha=0.3, source=cds_z,
-                        fill_color=colors[2], line_color=colors[2]))
+        return fig
 
-    return fig
+    def get_tab(self):
+        layout_plots = [
+            [self.plot_camera_pos(), self.plot_camera_ang()],
+            [self.plot_cam_pos_cov(), self.plot_cam_ang_cov()],
+            [plot_update_timing(self.mskcf_dfs), self.plot_triangulation_error()]
+        ]
 
+        tab_layout = layout(layout_plots, sizing_mode='stretch_width')
+        tab = TabPanel(child=tab_layout,
+                       title=f"MSCKF {self.mskcf_dfs[0].attrs['id']}")
 
-def tab_msckf(mskcf_dfs, tri_dfs, feat_dfs):
-    layout_plots = [
-        [plot_camera_pos(mskcf_dfs), plot_camera_ang(mskcf_dfs)],
-        [plot_cam_pos_cov(mskcf_dfs), plot_cam_ang_cov(mskcf_dfs)],
-        [plot_update_timing(mskcf_dfs), plot_triangulation_error(tri_dfs, feat_dfs)]
-    ]
-
-    tab_layout = layout(layout_plots, sizing_mode='stretch_width')
-    tab = TabPanel(child=tab_layout, title=f"MSCKF {mskcf_dfs[0].attrs['id']}")
-
-    return tab
+        return tab

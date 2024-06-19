@@ -32,6 +32,7 @@ class InputParser:
         self.parser.add_argument('--no_plot', action='store_true')
         self.parser.add_argument('--embed', action='store_true')
         self.parser.add_argument('--rate_line', action='store_true')
+        self.parser.add_argument('--light', action='store_true')
 
     def parse_args(self):
         self.args = self.parser.parse_args()
