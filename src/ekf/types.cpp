@@ -315,6 +315,13 @@ Eigen::VectorXd State::ToVector()
     }
   }
 
+  for (auto const & gps_iter : gps_states) {
+    if (gps_iter.second.is_extrinsic) {
+      out_vec.segment<3>(n) = gps_iter.second.pos_a_in_b;
+      n += g_gps_extrinsic_state_size;
+    }
+  }
+
   for (auto const & cam_iter : cam_states) {
     out_vec.segment<3>(n + 0) = cam_iter.second.pos_c_in_b;
     out_vec.segment<3>(n + 3) = QuatToRotVec(cam_iter.second.ang_c_to_b);

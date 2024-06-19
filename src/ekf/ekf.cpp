@@ -240,10 +240,13 @@ void EKF::AddProccessNoise(double delta_time)
   }
 
   for (auto const & gps_iter : m_state.gps_states) {
-    unsigned int gps_state_start = GetGpsStateStartIndex(gps_iter.first);
-    Eigen::Matrix3d process_noise = Eigen::Matrix3d::Identity(3, 3) * gps_iter.second.pos_stability;
+    if (gps_iter.second.is_extrinsic) {
+      unsigned int gps_state_start = GetGpsStateStartIndex(gps_iter.first);
+      Eigen::Matrix3d process_noise =
+        Eigen::Matrix3d::Identity(3, 3) * gps_iter.second.pos_stability;
 
-    m_cov.block<3, 3>(gps_state_start, gps_state_start) += process_noise;
+      m_cov.block<3, 3>(gps_state_start, gps_state_start) += process_noise;
+    }
   }
 
   for (auto const & cam_iter : m_state.cam_states) {
@@ -288,8 +291,10 @@ void EKF::LimitUncertainty()
   }
 
   for (auto gps_state : m_state.gps_states) {
-    unsigned int gps_index = GetGpsStateStartIndex(gps_state.first);
-    MaxBoundDiagonal(m_cov, 1e-1, gps_index + 0, 3);
+    if (gps_state.second.is_extrinsic) {
+      unsigned int gps_index = GetGpsStateStartIndex(gps_state.first);
+      MaxBoundDiagonal(m_cov, 1e-1, gps_index + 0, 3);
+    }
   }
 
   for (auto cam_state : m_state.cam_states) {

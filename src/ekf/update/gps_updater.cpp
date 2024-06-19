@@ -126,8 +126,10 @@ Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
   /// @todo(jhartzer): Need to debug this Jacobian
   // measurement_jacobian.block<3, 3>(0, 9) = -ang_b_to_g.toRotationMatrix() *
   // SkewSymmetric(pos_a_in_b) * quaternion_jacobian(ang_b_to_g);
-  measurement_jacobian.block<3, 3>(0, gps_state_start) = Eigen::Matrix3d::Identity(3, 3);
-  // ang_b_to_g.toRotationMatrix();
+  if (m_is_extrinsic) {
+    measurement_jacobian.block<3, 3>(0, gps_state_start) = Eigen::Matrix3d::Identity(3, 3);
+    // ang_b_to_g.toRotationMatrix();
+  }
   return measurement_jacobian;
 }
 
@@ -156,7 +158,7 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
     Eigen::Vector3d pos_b_in_g = ekf->m_state.body_state.pos_b_in_l;
     Eigen::Quaterniond ang_b_to_g = ekf->m_state.body_state.ang_b_to_l;
     Eigen::Vector3d pos_a_in_b = ekf->GetGpsState(m_id).pos_a_in_b;
-    Eigen::Vector3d pos_a_in_g_hat = pos_b_in_g + pos_a_in_b;  // + ang_b_to_g *
+    Eigen::Vector3d pos_a_in_g_hat = pos_b_in_g + pos_a_in_b;   // + ang_b_to_g *
     residual = pos_a_in_g - pos_a_in_g_hat;
     Eigen::MatrixXd jacobian = GetMeasurementJacobian(ekf);
     Eigen::MatrixXd measurement_noise = Eigen::MatrixXd::Identity(3, 3) * 50.0;
