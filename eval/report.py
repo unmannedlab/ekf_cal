@@ -116,24 +116,23 @@ def plot_sim_results(config_sets, args):
             if not args.light:
                 curdoc().theme = 'dark_minimal'
 
-            # TODO(jhartzer): Figure out how to add stylesheet to output
-            # style_sheet = GlobalInlineStyleSheet(css=
-            # """
-            # body{
-            #     background-color: #15191c;
-            # }
-            # .bk-tab {
-            #     color: white;
-            #     background-color: #15191c;
-            #     border-color: white;
-            # }
-            # """)
+            template = """
+            {% block preamble %}
+            <style>
+            body {
+                background: #15191c;
+                color: #fff;
+            }
+            </style>
+            {% endblock %}
+            """
 
             save(
                 obj=Tabs(tabs=tabs, sizing_mode='stretch_width'),
                 filename=os.path.join(plot_dir, f'{config_name}-report.html'),
                 resources='cdn',
-                title=f'{config_name}-report.html'
+                title=f'{config_name}-report.html',
+                template=template
             )
 
 
