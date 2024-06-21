@@ -9,6 +9,14 @@
     "files.exclude": {
         "**/__pycache__": true
     },
+    "C_Cpp.default.systemIncludePath": [
+        "/opt/ros/iron/include/**",
+        "/usr/include/**",
+        "/usr/src/googletest",
+        "${workspaceFolder}/src/**",
+        "${workspaceFolder}/../../build/ekf_cal/",
+        "/usr/include/c++/11"
+    ],
     "[cpp]": {
         "editor.wordBasedSuggestions": "off",
         "editor.suggest.insertMode": "replace",
