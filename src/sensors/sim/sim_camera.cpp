@@ -60,6 +60,7 @@ SimCamera::SimCamera(
 
   truth_engine->SetCameraPosition(m_id, pos_c_in_b_true);
   truth_engine->SetCameraAngularPosition(m_id, ang_c_to_b_true);
+  truth_engine->SetCameraIntrinsics(m_id, params.cam_params.intrinsics);
 }
 
 std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages()

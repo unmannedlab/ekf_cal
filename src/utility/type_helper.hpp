@@ -104,18 +104,4 @@ std::vector<Eigen::Vector3d> operator-(
   const std::vector<Eigen::Vector3d> & vector_of_vectors,
   const Eigen::Vector3d & vector_to_subtract);
 
-///
-/// @brief Generate camera matrix from intrinsics
-/// @param intrinsics Camera intrinsic structure
-/// @return Camera matrix
-///
-cv::Mat GenerateCameraMatrix(Intrinsics intrinsics);
-
-///
-/// @brief Generate distortion vector from intrinsics
-/// @param intrinsics Camera intrinsic structure
-/// @return Distortion vector
-///
-cv::Mat GenerateDistortionVector(Intrinsics intrinsics);
-
 #endif  // UTILITY__TYPE_HELPER_HPP_

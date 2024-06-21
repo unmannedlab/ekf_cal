@@ -64,7 +64,6 @@ public:
 private:
   DataLogger m_fiducial_logger;
   DataLogger m_triangulation_logger;
-  Intrinsics m_intrinsics;
 };
 
 #endif  // EKF__UPDATE__FIDUCIAL_UPDATER_HPP_

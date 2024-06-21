@@ -25,6 +25,7 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "ekf/types.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "utility/sim/sim_rng.hpp"
 
@@ -117,6 +118,12 @@ public:
   Eigen::Quaterniond GetCameraAngularPosition(unsigned int sensor_id);
 
   ///
+  /// @brief True camera intrinsics getter
+  /// @param sensor_id Camera ID
+  ///
+  Intrinsics GetCameraIntrinsics(unsigned int sensor_id);
+
+  ///
   /// @brief GPS sensor position getter
   /// @param sensor_id GPS ID
   /// @return Antenna position
@@ -174,6 +181,14 @@ public:
   /// @param cam_ang_pos sensor parameter
   ///
   void SetCameraAngularPosition(unsigned int sensor_id, Eigen::Quaterniond cam_ang_pos);
+
+
+  ///
+  /// @brief True camera intrinsics setter
+  /// @param sensor_id Camera ID
+  /// @param intrinsics Camera intrinsics
+  ///
+  void SetCameraIntrinsics(unsigned int sensor_id, Intrinsics intrinsics);
 
   ///
   /// @brief Fiducial board position setter
@@ -257,6 +272,7 @@ private:
   std::map<unsigned int, Eigen::Quaterniond> m_cam_ang_pos;
   std::map<unsigned int, Eigen::Vector3d> m_board_pos;
   std::map<unsigned int, Eigen::Quaterniond> m_board_ang;
+  std::map<unsigned int, Intrinsics> m_cam_intrinsics;
   std::vector<cv::Point3d> m_feature_points;
   std::map<unsigned int, Eigen::Vector3d> m_gps_pos;
   Eigen::Vector3d m_lla_reference;

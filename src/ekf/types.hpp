@@ -36,9 +36,24 @@ enum class SensorType
 ///
 /// @brief Camera intrinsics data structure
 ///
-typedef struct Intrinsics
+class Intrinsics
 {
-  double F {1.0};             ///< @brief Nominal focal length [m]
+public:
+  Intrinsics() {}
+
+  ///
+  /// @brief Generate camera matrix from intrinsics
+  /// @return Camera matrix
+  ///
+  cv::Mat ToCameraMatrix();
+
+  ///
+  /// @brief Generate distortion vector from intrinsics
+  /// @return Distortion vector
+  ///
+  cv::Mat ToDistortionVector();
+
+  double F {1.0};             ///< @brief Nominal focal length [mm]
   double f_x {1.0};           ///< @brief X focal length [px]
   double f_y {1.0};           ///< @brief Y focal length [px]
   double c_x {0.0};           ///< @brief X optical center [px]
@@ -47,10 +62,10 @@ typedef struct Intrinsics
   double k_2 {0.0};           ///< @brief Radial coefficient 2
   double p_1 {0.0};           ///< @brief Tangential coefficient 1
   double p_2 {0.0};           ///< @brief Tangential coefficient 1
-  double pixel_size {0.010};  ///< @brief Pixel size
+  double pixel_size {0.010};  ///< @brief Pixel size [mm]
   unsigned int width {640};   ///< @brief Image width
   unsigned int height {480};  ///< @brief Image height
-} Intrinsics;
+};
 
 ///
 /// @brief BodyState structure
@@ -187,6 +202,7 @@ public:
   Eigen::VectorXd ToVector() const;
 
   int frame_id {-1};                                  ///< @brief Augmented frame ID
+  double time {0.0};                                  ///< @brief Augmented frame ID
   Eigen::Vector3d pos_b_in_l{0.0, 0.0, 0.0};          ///< @brief Augmented IMU position
   Eigen::Quaterniond ang_b_to_l{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
   Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Augmented camera position
@@ -213,6 +229,7 @@ public:
   double ang_stability {1e-9};                        ///< @brief Extrinsic orientation stability
   Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Camera state position
   Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera state orientation
+  Intrinsics intrinsics;                              ///< @brief Camera Intrinsics
   unsigned int size{g_cam_state_size};                ///< @brief State size
   int index{-1};                                      ///< @brief State index
 };

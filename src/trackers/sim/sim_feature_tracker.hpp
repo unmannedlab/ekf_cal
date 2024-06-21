@@ -88,9 +88,6 @@ private:
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
   unsigned int m_feature_count {0};
-
-  Intrinsics m_intrinsics;
-  cv::Mat m_proj_matrix;
 };
 
 

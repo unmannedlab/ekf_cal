@@ -36,7 +36,6 @@ public:
   ///
   /// @brief MSCKF EKF Updater constructor
   /// @param cam_id Camera sensor ID
-  /// @param intrinsics Camera intrinsic parameters
   /// @param log_file_directory Directory to save log files
   /// @param data_logging_on Flag to enable data logging
   /// @param data_log_rate Maximum average rate to log data
@@ -45,7 +44,6 @@ public:
   ///
   explicit MsckfUpdater(
     int cam_id,
-    Intrinsics intrinsics,
     std::string log_file_directory,
     bool data_logging_on,
     double data_log_rate,
@@ -97,7 +95,6 @@ public:
 private:
   DataLogger m_msckf_logger;
   DataLogger m_triangulation_logger;
-  Intrinsics m_intrinsics;
   double m_min_feat_dist{1.0};
 };
 

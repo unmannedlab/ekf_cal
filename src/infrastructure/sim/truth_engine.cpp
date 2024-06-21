@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 
+#include "ekf/types.hpp"
 #include "infrastructure/data_logger.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "utility/sim/sim_rng.hpp"
@@ -264,4 +265,14 @@ void TruthEngine::WriteTruthData(
     msg << "," << m_feature_points[i].z;
     feature_logger.Log(msg.str());
   }
+}
+
+Intrinsics TruthEngine::GetCameraIntrinsics(unsigned int sensor_id)
+{
+  return m_cam_intrinsics[sensor_id];
+}
+
+void TruthEngine::SetCameraIntrinsics(unsigned int sensor_id, Intrinsics intrinsics)
+{
+  m_cam_intrinsics[sensor_id] = intrinsics;
 }

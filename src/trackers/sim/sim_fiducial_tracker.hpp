@@ -93,9 +93,6 @@ private:
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
 
-  Intrinsics m_intrinsics;
-  cv::Mat m_proj_matrix;
-
   unsigned int m_min_track_length {0U};
   unsigned int m_max_track_length {1U};
 };

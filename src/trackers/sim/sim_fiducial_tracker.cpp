@@ -36,14 +36,6 @@ SimFiducialTracker::SimFiducialTracker(
   m_min_track_length = params.fiducial_params.min_track_length;
   m_max_track_length = params.fiducial_params.max_track_length;
 
-  m_intrinsics = params.fiducial_params.intrinsics;
-  m_proj_matrix = cv::Mat(3, 3, cv::DataType<double>::type, 0.0);
-  m_proj_matrix.at<double>(0, 0) = m_intrinsics.f_x / m_intrinsics.pixel_size;
-  m_proj_matrix.at<double>(1, 1) = m_intrinsics.f_y / m_intrinsics.pixel_size;
-  m_proj_matrix.at<double>(0, 2) = static_cast<double>(m_intrinsics.width) / 2.0;
-  m_proj_matrix.at<double>(1, 2) = static_cast<double>(m_intrinsics.height) / 2.0;
-  m_proj_matrix.at<double>(2, 2) = 1;
-
   Eigen::Vector3d pos_f_in_g_true;
   Eigen::Quaterniond ang_f_to_g_true;
   if (m_no_errors) {
@@ -63,6 +55,7 @@ bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
   Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(time);
   Eigen::Vector3d pos_c_in_b_true = m_truth->GetCameraPosition(sensor_id);
   Eigen::Quaterniond ang_c_to_b_true = m_truth->GetCameraAngularPosition(sensor_id);
+  Intrinsics intrinsics = m_truth->GetCameraIntrinsics(sensor_id);
   Eigen::Quaterniond ang_c_to_b = ang_c_to_b_true;
   Eigen::Matrix3d ang_g_to_c = (ang_b_to_g * ang_c_to_b).toRotationMatrix().transpose();
   cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);
@@ -79,12 +72,9 @@ bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
   t_vec.at<double>(1) = pos_g_in_c[1];
   t_vec.at<double>(2) = pos_g_in_c[2];
 
-  // Create distortion matrix. Defined in CV2 as (k1,k2,p1,p2)
-  cv::Mat distortion(4, 1, cv::DataType<double>::type);
-  distortion.at<double>(0) = m_intrinsics.k_1;
-  distortion.at<double>(1) = m_intrinsics.k_2;
-  distortion.at<double>(2) = m_intrinsics.p_1;
-  distortion.at<double>(3) = m_intrinsics.p_2;
+  // Create intrinsic matrices
+  cv::Mat camera_matrix = intrinsics.ToCameraMatrix();
+  cv::Mat distortion = intrinsics.ToDistortionVector();
 
   // Project points
   std::vector<cv::Point2d> projected_points;
@@ -97,15 +87,15 @@ bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
   board_position_vector.push_back(board_position);
 
   cv::projectPoints(
-    board_position_vector, r_vec, t_vec, m_proj_matrix, distortion, projected_points);
+    board_position_vector, r_vec, t_vec, camera_matrix, distortion, projected_points);
 
   Eigen::Vector3d cam_plane_vec = ang_g_to_c.transpose() * Eigen::Vector3d(0, 0, 1);
   // Check that board is in front of camera plane
   if (cam_plane_vec.dot(pos_f_in_g_true) > 0 &&
     projected_points[0].x >= 0 &&
     projected_points[0].y >= 0 &&
-    projected_points[0].x <= m_intrinsics.width &&
-    projected_points[0].y <= m_intrinsics.height)
+    projected_points[0].x <= intrinsics.width &&
+    projected_points[0].y <= intrinsics.height)
   {
     return true;
   } else {

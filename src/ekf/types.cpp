@@ -383,51 +383,86 @@ bool ImuState::get_is_extrinsic() const
 {
   return is_extrinsic;
 }
+
 bool ImuState::get_is_intrinsic() const
 {
   return is_intrinsic;
 }
+
 bool GpsState::get_is_extrinsic() const
 {
   return is_extrinsic;
 }
+
 bool FidState::get_is_extrinsic() const
 {
   return is_extrinsic;
 }
+
 void ImuState::set_is_extrinsic(bool extrinsic)
 {
   is_extrinsic = extrinsic;
   refresh_size();
 }
+
 void ImuState::set_is_intrinsic(bool intrinsic)
 {
   is_intrinsic = intrinsic;
   refresh_size();
 }
+
 void ImuState::refresh_size()
 {
   size = 0;
   if (is_extrinsic) {size += g_imu_extrinsic_state_size;}
   if (is_intrinsic) {size += g_imu_intrinsic_state_size;}
 }
+
 void GpsState::set_is_extrinsic(bool extrinsic)
 {
   is_extrinsic = extrinsic;
   refresh_size();
 }
+
 void GpsState::refresh_size()
 {
   size = 0;
   if (is_extrinsic) {size += g_gps_extrinsic_state_size;}
 }
+
 void FidState::set_is_extrinsic(bool extrinsic)
 {
   is_extrinsic = extrinsic;
   refresh_size();
 }
+
 void FidState::refresh_size()
 {
   size = 0;
   if (is_extrinsic) {size += g_imu_extrinsic_state_size;}
+}
+
+cv::Mat Intrinsics::ToCameraMatrix()
+{
+  cv::Mat camera_matrix = cv::Mat(3, 3, CV_64F, 0.0);
+
+  camera_matrix.at<double>(0, 0) = f_x;
+  camera_matrix.at<double>(1, 1) = f_y;
+  camera_matrix.at<double>(0, 2) = c_x;
+  camera_matrix.at<double>(1, 2) = c_y;
+  camera_matrix.at<double>(2, 2) = 1.0;
+
+  return camera_matrix;
+}
+
+cv::Mat Intrinsics::ToDistortionVector()
+{
+  cv::Mat distortion_vector = cv::Mat(4, 1, CV_64F, 0.0);
+
+  distortion_vector.at<double>(0) = k_1;
+  distortion_vector.at<double>(1) = k_2;
+  distortion_vector.at<double>(2) = p_1;
+  distortion_vector.at<double>(3) = p_2;
+
+  return distortion_vector;
 }

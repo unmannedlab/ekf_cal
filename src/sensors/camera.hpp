@@ -92,7 +92,6 @@ private:
 
   std::vector<double> m_rad_distortion_k{0.0, 0.0, 0.0};
   std::vector<double> m_tan_distortion_d{0.0, 0.0};
-  Intrinsics m_intrinsics;
 };
 
 #endif  // SENSORS__CAMERA_HPP_

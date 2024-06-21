@@ -38,13 +38,13 @@ Camera::Camera(Camera::Parameters cam_params)
 : Sensor(cam_params), m_ekf(cam_params.ekf)
 {
   m_rate = cam_params.rate;
-  m_intrinsics = cam_params.intrinsics;
 
   CamState cam_state;
   cam_state.pos_c_in_b = cam_params.pos_c_in_b;
   cam_state.ang_c_to_b = cam_params.ang_c_to_b;
   cam_state.pos_stability = cam_params.pos_stability;
   cam_state.ang_stability = cam_params.ang_stability;
+  cam_state.intrinsics = cam_params.intrinsics;
   MinBoundVector(cam_params.variance, 1e-6);
 
   Eigen::MatrixXd cov = cam_params.variance.asDiagonal();

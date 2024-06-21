@@ -21,7 +21,6 @@ unsigned int Tracker::m_tracker_count = 0;
 Tracker::Tracker(Tracker::Parameters params)
 : m_id(++m_tracker_count),
   m_camera_id(params.camera_id),
-  m_intrinsics(params.intrinsics),
   m_min_track_length(params.min_track_length),
   m_max_track_length(params.max_track_length),
   m_ekf(params.ekf),

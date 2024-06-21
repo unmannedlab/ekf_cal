@@ -43,14 +43,6 @@ SimFeatureTracker::SimFeatureTracker(
   m_feature_count = params.feature_count;
   m_max_track_length = params.tracker_params.max_track_length;
   m_truth = truthEngine;
-
-  m_intrinsics = params.tracker_params.intrinsics;
-  m_proj_matrix = cv::Mat(3, 3, cv::DataType<double>::type, 0.0);
-  m_proj_matrix.at<double>(0, 0) = m_intrinsics.f_x / m_intrinsics.pixel_size;
-  m_proj_matrix.at<double>(1, 1) = m_intrinsics.f_y / m_intrinsics.pixel_size;
-  m_proj_matrix.at<double>(0, 2) = static_cast<double>(m_intrinsics.width) / 2.0;
-  m_proj_matrix.at<double>(1, 2) = static_cast<double>(m_intrinsics.height) / 2.0;
-  m_proj_matrix.at<double>(2, 2) = 1;
 }
 
 std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int sensor_id)
@@ -59,8 +51,8 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
   Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(time);
   Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(sensor_id);
   Eigen::Quaterniond ang_c_to_b = m_truth->GetCameraAngularPosition(sensor_id);
+  Intrinsics intrinsics = m_truth->GetCameraIntrinsics(sensor_id);
   Eigen::Matrix3d ang_g_to_c = (ang_b_to_g * ang_c_to_b).toRotationMatrix().transpose();
-
   cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);
   EigenMatrixToCv(ang_g_to_c, ang_g_to_c_cv);
 
@@ -75,15 +67,15 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
   t_vec.at<double>(1) = pos_g_in_c[1];
   t_vec.at<double>(2) = pos_g_in_c[2];
 
-  // Create zero distortion
-  /// @todo grab this from input
-  cv::Mat distortion(4, 1, cv::DataType<double>::type, 0.0);
+  // Create intrinsic matrices
+  cv::Mat camera_matrix = intrinsics.ToCameraMatrix();
+  cv::Mat distortion = intrinsics.ToDistortionVector();
 
   // Project points
   std::vector<cv::Point2d> projected_points;
 
   std::vector<cv::Point3d> feature_points = m_truth->GetFeatures();
-  cv::projectPoints(feature_points, r_vec, t_vec, m_proj_matrix, distortion, projected_points);
+  cv::projectPoints(feature_points, r_vec, t_vec, camera_matrix, distortion, projected_points);
 
   // Convert to feature points
   std::vector<cv::KeyPoint> projected_features;
@@ -97,8 +89,8 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
       cam_plane_vec.dot(pointEig) > 0 &&
       projected_points[i].x >= 0 &&
       projected_points[i].y >= 0 &&
-      projected_points[i].x <= m_intrinsics.width &&
-      projected_points[i].y <= m_intrinsics.height)
+      projected_points[i].x <= intrinsics.width &&
+      projected_points[i].y <= intrinsics.height)
     {
       cv::KeyPoint feat;
       feat.class_id = i;
