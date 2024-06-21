@@ -106,19 +106,19 @@ class tab_fiducial:
                 cam_cov_0,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='p_x')
+                legend_label='X')
             fig.line(
                 t_cam,
                 cam_cov_1,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='p_y')
+                legend_label='Y')
             fig.line(
                 t_cam,
                 cam_cov_2,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='p_z')
+                legend_label='Z')
         return fig
 
     def plot_cam_ang_cov(self, fiducial_dfs):
@@ -139,19 +139,19 @@ class tab_fiducial:
                 cam_cov_3,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='\theta_x')
+                legend_label='X')
             fig.line(
                 t_cam,
                 cam_cov_4,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='\theta_y')
+                legend_label='Y')
             fig.line(
                 t_cam,
                 cam_cov_5,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='\theta_z')
+                legend_label='Z')
         return fig
 
     def plot_fiducial_error_pos(self, tri_dfs, board_dfs):

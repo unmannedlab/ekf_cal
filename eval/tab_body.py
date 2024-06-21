@@ -43,19 +43,19 @@ class tab_body:
                 body_df['body_pos_0'],
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 time,
                 body_df['body_pos_1'],
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 time,
                 body_df['body_pos_2'],
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_body_vel(self):
@@ -69,19 +69,19 @@ class tab_body:
                 body_df['body_vel_0'],
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 time,
                 body_df['body_vel_1'],
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 time,
                 body_df['body_vel_2'],
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_body_acc(self):
@@ -95,19 +95,19 @@ class tab_body:
                 body_df['body_acc_0'],
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 time,
                 body_df['body_acc_1'],
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 time,
                 body_df['body_acc_2'],
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_body_ang(self):
@@ -127,19 +127,19 @@ class tab_body:
                 body_df['body_ang_pos_1'],
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 time,
                 body_df['body_ang_pos_2'],
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 time,
                 body_df['body_ang_pos_3'],
                 alpha=self.alpha,
                 color=self.colors[3],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_body_ang_vel(self):
@@ -153,19 +153,19 @@ class tab_body:
                 body_df['body_ang_vel_0'],
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 time,
                 body_df['body_ang_vel_1'],
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 time,
                 body_df['body_ang_vel_2'],
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_body_ang_acc(self):
@@ -179,19 +179,19 @@ class tab_body:
                 body_df['body_ang_acc_0'],
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 time,
                 body_df['body_ang_acc_1'],
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 time,
                 body_df['body_ang_acc_2'],
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_body_err_pos(self):
@@ -218,19 +218,19 @@ class tab_body:
                 err_pos_0,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 est_time,
                 err_pos_1,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 est_time,
                 err_pos_2,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
 
         return fig
 
@@ -258,19 +258,19 @@ class tab_body:
                 err_vel_0,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 est_time,
                 err_vel_1,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 est_time,
                 err_vel_2,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
 
         return fig
 
@@ -298,19 +298,19 @@ class tab_body:
                 err_acc_0,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 est_time,
                 err_acc_1,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 est_time,
                 err_acc_2,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_body_err_ang(self):
@@ -355,19 +355,19 @@ class tab_body:
                 err_ang_pos_x,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 est_time,
                 err_ang_pos_y,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 est_time,
                 err_ang_pos_z,
                 alpha=self.alpha,
                 color=self.colors[3],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_body_err_ang_vel(self):
@@ -395,19 +395,19 @@ class tab_body:
                 err_ang_vel_0,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 est_time,
                 err_ang_vel_1,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 est_time,
                 err_ang_vel_2,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_body_err_ang_acc(self):
@@ -435,19 +435,19 @@ class tab_body:
                 err_ang_acc_0,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 est_time,
                 err_ang_acc_1,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 est_time,
                 err_ang_acc_2,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_body_pos_cov(self):
@@ -460,17 +460,20 @@ class tab_body:
                 time,
                 body_df['body_cov_0'],
                 alpha=self.alpha,
-                color=self.colors[0])
+                color=self.colors[0],
+                legend_label='X')
             fig.line(
                 time,
                 body_df['body_cov_1'],
                 alpha=self.alpha,
-                color=self.colors[1])
+                color=self.colors[1],
+                legend_label='Y')
             fig.line(
                 time,
                 body_df['body_cov_2'],
                 alpha=self.alpha,
-                color=self.colors[2])
+                color=self.colors[2],
+                legend_label='Z')
         return fig
 
     def plot_body_vel_cov(self):
@@ -484,19 +487,19 @@ class tab_body:
                 body_df['body_cov_3'],
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 time,
                 body_df['body_cov_4'],
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 time,
                 body_df['body_cov_5'],
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_body_acc_cov(self):
@@ -509,17 +512,20 @@ class tab_body:
                 time,
                 body_df['body_cov_6'],
                 alpha=self.alpha,
-                color=self.colors[0])
+                color=self.colors[0],
+                legend_label='X')
             fig.line(
                 time,
                 body_df['body_cov_7'],
                 alpha=self.alpha,
-                color=self.colors[1])
+                color=self.colors[1],
+                legend_label='Y')
             fig.line(
                 time,
                 body_df['body_cov_8'],
                 alpha=self.alpha,
-                color=self.colors[2])
+                color=self.colors[2],
+                legend_label='Z')
         return fig
 
     def plot_body_ang_cov(self):
@@ -533,19 +539,19 @@ class tab_body:
                 body_df['body_cov_9'],
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 time,
                 body_df['body_cov_10'],
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 time,
                 body_df['body_cov_11'],
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_body_ang_vel_cov(self):
@@ -559,19 +565,19 @@ class tab_body:
                 body_df['body_cov_12'],
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 time,
                 body_df['body_cov_13'],
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 time,
                 body_df['body_cov_14'],
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_body_ang_acc_cov(self):
@@ -586,19 +592,19 @@ class tab_body:
                 body_df['body_cov_15'],
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 time,
                 body_df['body_cov_16'],
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 time,
                 body_df['body_cov_17'],
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def get_tab(self):

@@ -47,19 +47,19 @@ class tab_gps:
                 gps_df['x'],
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 t_gps,
                 gps_df['y'],
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 t_gps,
                 gps_df['z'],
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_gps_residuals(self):
@@ -77,19 +77,19 @@ class tab_gps:
                 gps_df['residual_0'],
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 t_gps,
                 gps_df['residual_1'],
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 t_gps,
                 gps_df['residual_2'],
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_ant_pos_error(self, gps_dfs, body_truth_dfs):
@@ -120,19 +120,19 @@ class tab_gps:
                 err_pos_0,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 t_gps,
                 err_pos_1,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 t_gps,
                 err_pos_2,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_gps_cov(self):
@@ -153,19 +153,19 @@ class tab_gps:
                 gps_int_cov_3,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 t_gps,
                 gps_int_cov_4,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 t_gps,
                 gps_int_cov_5,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def print_gps_init_pos_error(self):

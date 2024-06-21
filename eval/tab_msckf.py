@@ -50,17 +50,20 @@ class tab_msckf:
                 t_cam,
                 mskcf_df['cam_pos_0'],
                 alpha=self.alpha,
-                color=self.colors[0])
+                color=self.colors[0],
+                legend_label='X')
             fig.line(
                 t_cam,
                 mskcf_df['cam_pos_1'],
                 alpha=self.alpha,
-                color=self.colors[1])
+                color=self.colors[1],
+                legend_label='Y')
             fig.line(
                 t_cam,
                 mskcf_df['cam_pos_2'],
                 alpha=self.alpha,
-                color=self.colors[2])
+                color=self.colors[2],
+                legend_label='Z')
         return fig
 
     def plot_camera_ang(self):
@@ -77,17 +80,20 @@ class tab_msckf:
                 t_cam,
                 mskcf_df['cam_ang_pos_0'],
                 alpha=self.alpha,
-                color=self.colors[0])
+                color=self.colors[0],
+                legend_label='X')
             fig.line(
                 t_cam,
                 mskcf_df['cam_ang_pos_1'],
                 alpha=self.alpha,
-                color=self.colors[1])
+                color=self.colors[1],
+                legend_label='Y')
             fig.line(
                 t_cam,
                 mskcf_df['cam_ang_pos_2'],
                 alpha=self.alpha,
-                color=self.colors[2])
+                color=self.colors[2],
+                legend_label='X')
         return fig
 
     def plot_cam_pos_cov(self):
@@ -108,19 +114,19 @@ class tab_msckf:
                 cam_cov_0,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='p_x')
+                legend_label='X')
             fig.line(
                 t_cam,
                 cam_cov_1,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='p_y')
+                legend_label='Y')
             fig.line(
                 t_cam,
                 cam_cov_2,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='p_z')
+                legend_label='Z')
         return fig
 
     def plot_cam_ang_cov(self):
@@ -141,19 +147,19 @@ class tab_msckf:
                 cam_cov_3,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='\theta_x')
+                legend_label='X')
             fig.line(
                 t_cam,
                 cam_cov_4,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='\theta_y')
+                legend_label='Y')
             fig.line(
                 t_cam,
                 cam_cov_5,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='\theta_z')
+                legend_label='Z')
         return fig
 
     def plot_triangulation_error(self):
