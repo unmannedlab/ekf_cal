@@ -120,12 +120,12 @@ void SimCamera::Callback(std::shared_ptr<SimCameraMessage> sim_camera_message)
 
   m_ekf->AugmentStateIfNeeded(m_id, frame_id);
 
-  if (sim_camera_message->feature_track_message != NULL) {
+  if (sim_camera_message->feature_track_message != nullptr) {
     if (sim_camera_message->feature_track_message->feature_tracks.size() > 0) {
       m_trackers[sim_camera_message->feature_track_message->tracker_id]->Callback(
         sim_camera_message->time, sim_camera_message->feature_track_message);
     }
-  } else if (sim_camera_message->fiducial_track_message != NULL) {
+  } else if (sim_camera_message->fiducial_track_message != nullptr) {
     m_fiducials[sim_camera_message->fiducial_track_message->tracker_id]->Callback(
       sim_camera_message->time, sim_camera_message->fiducial_track_message);
   }

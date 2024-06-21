@@ -28,8 +28,8 @@
 class RosDebugLogger_test : public ::testing::Test
 {
 protected:
-  virtual void SetUp() {rclcpp::init(0, NULL);}  ///< @brief EKF CAL Test node set up method
-  virtual void TearDown() {rclcpp::shutdown();}  ///< @brief EKF CAL Test node tear down method
+  virtual void SetUp() {rclcpp::init(0, nullptr);}  ///< @brief EKF CAL Test node set up method
+  virtual void TearDown() {rclcpp::shutdown();}     ///< @brief EKF CAL Test node tear down method
 };
 
 TEST_F(RosDebugLogger_test, debug_logger) {

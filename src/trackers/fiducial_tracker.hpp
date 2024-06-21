@@ -62,7 +62,6 @@ public:
     Eigen::Vector3d pos_f_in_l;                     ///< @brief Fiducial position
     Eigen::Quaterniond ang_f_to_l;                  ///< @brief Fiducial orientation
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1}};  ///< @brief Fiducial marker variance
-    std::shared_ptr<EKF> ekf;                       ///< @brief EKF for intrinsics
   } Parameters;
 
   ///

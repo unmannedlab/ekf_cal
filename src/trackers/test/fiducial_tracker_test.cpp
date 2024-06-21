@@ -53,9 +53,6 @@ TEST(test_fiducial_tracker, charuco_track) {
   auto fid_tracker = std::make_shared<FiducialTracker>(fid_params);
   cam.AddFiducial(fid_tracker);
 
-  CamState cam_state;
-  Eigen::MatrixXd cam_covariance(6, 6);
-
   auto board = fid_tracker->m_board.staticCast<cv::aruco::CharucoBoard>();
   cv::Mat board_grey, board_rgb;
   board->draw(cv::Size(600, 800), board_grey, 10, 1);
@@ -101,9 +98,6 @@ TEST(test_fiducial_tracker, aruco_track) {
   auto fid_tracker = std::make_shared<FiducialTracker>(fid_params);
 
   cam.AddFiducial(fid_tracker);
-
-  CamState cam_state;
-  Eigen::MatrixXd cam_covariance(6, 6);
 
   cv::Mat board_grey, board_rgb;
   auto board = fid_tracker->m_board.staticCast<cv::aruco::GridBoard>();
