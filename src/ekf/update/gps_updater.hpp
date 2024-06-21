@@ -35,18 +35,19 @@ public:
   ///
   /// @brief GPS EKF Updater Constructor
   /// @param gps_id GPS Sensor ID
-  /// @param initialization_type Type of GPS initialization to use
+  /// @param init_type Type of GPS initialization to use
   /// @param init_pos_thresh Error limit to initialize local reference frame pos
   /// @param init_ang_thresh Error limit to initialize local reference frame ang
   /// @param init_baseline_dist Distance threshold to initialize
   /// @param log_file_directory Logging file directory
+  /// @param is_extrinsic Is GPS extrinsic calibrating
   /// @param data_logging_on Logging flag
   /// @param data_log_rate Maximum data logging rate
   /// @param logger Debug logger pointer
   ///
   GpsUpdater(
     unsigned int gps_id,
-    GpsInitializationType initialization_type,
+    GpsInitType init_type,
     double init_pos_thresh,
     double init_ang_thresh,
     double init_baseline_dist,
@@ -102,7 +103,7 @@ public:
 private:
   double m_pos_stddev {0.0};
   double m_ang_stddev {0.0};
-  GpsInitializationType m_initialization_type;
+  GpsInitType m_init_type;
   double m_init_pos_thresh;
   double m_init_ang_thresh;
   double m_init_baseline_dist;

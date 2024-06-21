@@ -38,21 +38,20 @@ class GPS : public Sensor
 public:
   ///
   /// @brief GPS initialization parameters structure
-  /// @todo Change initialization_type to enum class
+  /// @todo Change init_type to enum class
   ///
   typedef struct Parameters : public Sensor::Parameters
   {
-    Eigen::Vector3d pos_a_in_b {0, 0, 0};  ///< @brief GPS antenna position offset vector
-    Eigen::Vector3d pos_l_in_g {0, 0, 0};  ///< @brief Local frame LLA position in global frame
-    double ang_l_to_g {0.0};               ///< @brief Local frame angle to global frame
-    Eigen::Vector3d variance {{1, 1, 1}};  ///< @brief Initial state variance
-    /// @brief Flag to use baseline initialization
-    GpsInitializationType initialization_type {GpsInitializationType::CONSTANT};
-    double init_pos_thresh {1.0};          ///< @brief Minimum projection error to initialize pos
-    double init_ang_thresh {1.0};          ///< @brief Minimum projection error to initialize ang
-    double init_baseline_dist {1.0};       ///< @brief Baseline distance threshold
-    bool is_extrinsic {false};             ///< @brief Flag to enable online extrinsic calibration
-    double pos_stability {1e-9};           ///< @brief Position stability
+    Eigen::Vector3d pos_a_in_b {0, 0, 0};           ///< @brief GPS antenna position offset vector
+    Eigen::Vector3d pos_l_in_g {0, 0, 0};           ///< @brief Local LLA position in global
+    double ang_l_to_g {0.0};                        ///< @brief Local angle to global
+    Eigen::Vector3d variance {{1, 1, 1}};           ///< @brief Initial state variance
+    GpsInitType init_type {GpsInitType::CONSTANT};  /// @brief Flag to use baseline initialization
+    double init_pos_thresh {1.0};                   ///< @brief Minimum pos projection error
+    double init_ang_thresh {1.0};                   ///< @brief Minimum ang projection error
+    double init_baseline_dist {1.0};                ///< @brief Baseline distance threshold
+    bool is_extrinsic {false};                      ///< @brief Online extrinsic calibration flag
+    double pos_stability {1e-9};                    ///< @brief Position stability
   } Parameters;
 
   ///

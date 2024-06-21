@@ -34,7 +34,7 @@
 
 GpsUpdater::GpsUpdater(
   unsigned int gps_id,
-  GpsInitializationType initialization_type,
+  GpsInitType init_type,
   double init_pos_thresh,
   double init_ang_thresh,
   double init_baseline_dist,
@@ -45,7 +45,7 @@ GpsUpdater::GpsUpdater(
   std::shared_ptr<DebugLogger> logger
 )
 : Updater(gps_id, logger),
-  m_initialization_type(initialization_type),
+  m_init_type(init_type),
   m_init_pos_thresh(init_pos_thresh),
   m_init_ang_thresh(init_ang_thresh),
   m_init_baseline_dist(init_baseline_dist),
@@ -98,9 +98,9 @@ void GpsUpdater::AttemptInitialization(
 
     double max_distance = maximum_distance(gps_states_enu);
 
-    if (((m_initialization_type == GpsInitializationType::BASELINE_DIST) &&
+    if (((m_init_type == GpsInitType::BASELINE_DIST) &&
       (max_distance > m_init_baseline_dist)) ||
-      ((m_initialization_type == GpsInitializationType::ERROR_THRESHOLD) && is_successful &&
+      ((m_init_type == GpsInitType::ERROR_THRESHOLD) && is_successful &&
       (m_pos_stddev < m_init_pos_thresh) && m_ang_stddev &&
       (m_ang_stddev < std::tan(m_init_ang_thresh))))
     {

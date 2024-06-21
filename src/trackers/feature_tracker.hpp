@@ -34,7 +34,7 @@
 ///
 /// @brief Detector Enumerations
 ///
-enum class FeatureDetectorEnum
+enum class Detector
 {
   BRISK,
   FAST,
@@ -47,7 +47,7 @@ enum class FeatureDetectorEnum
 ///
 /// @brief Descriptor Enumerations
 ///
-enum class DescriptorExtractorEnum
+enum class Descriptor
 {
   ORB,
   SIFT
@@ -56,7 +56,7 @@ enum class DescriptorExtractorEnum
 ///
 /// @brief Matcher Enumerations
 ///
-enum class DescriptorMatcherEnum
+enum class Matcher
 {
   BRUTE_FORCE,
   FLANN
@@ -74,12 +74,12 @@ public:
   ///
   typedef struct Parameters : public Tracker::Parameters
   {
-    FeatureDetectorEnum detector {FeatureDetectorEnum::FAST};            ///< @brief Detector
-    DescriptorExtractorEnum descriptor {DescriptorExtractorEnum::ORB};  ///< @brief Descriptor
-    DescriptorMatcherEnum matcher {DescriptorMatcherEnum::FLANN};       ///< @brief Matcher
-    double threshold {20.0};                                            ///< @brief Threshold
-    double px_error{1e-9};                ///< @brief Pixel error standard deviation
-    double min_feat_dist {1.0};           ///< @brief Minimum feature distance to consider
+    Detector detector {Detector::FAST};       ///< @brief Detector
+    Descriptor descriptor {Descriptor::ORB};  ///< @brief Descriptor
+    Matcher matcher {Matcher::FLANN};         ///< @brief Matcher
+    double threshold {20.0};                  ///< @brief Threshold
+    double px_error{1e-9};                    ///< @brief Pixel error standard deviation
+    double min_feat_dist {1.0};               ///< @brief Minimum feature distance to consider
   } Parameters;
 
   ///
@@ -131,12 +131,9 @@ protected:
   MsckfUpdater m_msckf_updater;  ///< @brief MSCKF updater object
 
 private:
-  cv::Ptr<cv::FeatureDetector> InitFeatureDetector(
-    FeatureDetectorEnum detector, double threshold);
-  cv::Ptr<cv::DescriptorExtractor> InitDescriptorExtractor(
-    DescriptorExtractorEnum extractor, double threshold);
-  cv::Ptr<cv::DescriptorMatcher> InitDescriptorMatcher(
-    DescriptorMatcherEnum matcher);
+  cv::Ptr<cv::FeatureDetector> InitFeatureDetector(Detector detector, double threshold);
+  cv::Ptr<cv::DescriptorExtractor> InitDescriptorExtractor(Descriptor extractor, double threshold);
+  cv::Ptr<cv::DescriptorMatcher> InitDescriptorMatcher(Matcher matcher);
 
   cv::Ptr<cv::FeatureDetector> m_feature_detector;
   cv::Ptr<cv::DescriptorExtractor> m_descriptor_extractor;

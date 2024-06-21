@@ -39,7 +39,7 @@ TEST(test_fiducial_tracker, charuco_track) {
   Camera cam(cam_params);
 
   FiducialTracker::Parameters fid_params;
-  fid_params.detector_type = FiducialTypeEnum::CHARUCO_BOARD;
+  fid_params.detector_type = FiducialType::CHARUCO_BOARD;
   fid_params.squares_x = 5;
   fid_params.squares_y = 7;
   fid_params.square_length = 0.04;
@@ -87,7 +87,7 @@ TEST(test_fiducial_tracker, aruco_track) {
   Camera cam(cam_params);
 
   FiducialTracker::Parameters fid_params;
-  fid_params.detector_type = FiducialTypeEnum::ARUCO_BOARD;
+  fid_params.detector_type = FiducialType::ARUCO_BOARD;
   fid_params.squares_x = 5;
   fid_params.squares_y = 7;
   fid_params.square_length = 0.04;

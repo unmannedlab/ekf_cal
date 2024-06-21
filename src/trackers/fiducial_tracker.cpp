@@ -42,13 +42,13 @@ FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
   auto dict_name = static_cast<cv::aruco::PREDEFINED_DICTIONARY_NAME>(params.predefined_dict);
   m_dict = cv::aruco::getPredefinedDictionary(dict_name);
 
-  if (params.detector_type == FiducialTypeEnum::ARUCO_BOARD) {
+  if (params.detector_type == FiducialType::ARUCO_BOARD) {
     m_board = cv::aruco::GridBoard::create(
       params.squares_x,
       params.squares_y,
       params.square_length,
       params.marker_length, m_dict);
-  } else if (params.detector_type == FiducialTypeEnum::CHARUCO_BOARD) {
+  } else if (params.detector_type == FiducialType::CHARUCO_BOARD) {
     m_board = cv::aruco::CharucoBoard::create(
       params.squares_x,
       params.squares_y,
@@ -68,12 +68,12 @@ int FiducialTracker::InterpolateCorners(
   cv::Mat & dist_coefficients
 )
 {
-  if (m_detector_type == FiducialTypeEnum::CHARUCO_BOARD) {
+  if (m_detector_type == FiducialType::CHARUCO_BOARD) {
     auto temp_board = board.staticCast<cv::aruco::CharucoBoard>();
     return cv::aruco::interpolateCornersCharuco(
       marker_corners, marker_ids, image, temp_board,
       corners, ids, camera_matrix, dist_coefficients);
-  } else if (m_detector_type == FiducialTypeEnum::ARUCO_BOARD) {
+  } else if (m_detector_type == FiducialType::ARUCO_BOARD) {
     ids = marker_ids;
     return ids.size();
   } else {
@@ -89,9 +89,9 @@ void FiducialTracker::DrawDetectedCorners(
   cv::Scalar corner_color
 )
 {
-  if (m_detector_type == FiducialTypeEnum::CHARUCO_BOARD) {
+  if (m_detector_type == FiducialType::CHARUCO_BOARD) {
     cv::aruco::drawDetectedCornersCharuco(image, corners, ids, corner_color);
-  } else if (m_detector_type == FiducialTypeEnum::ARUCO_BOARD) {
+  } else if (m_detector_type == FiducialType::ARUCO_BOARD) {
     cv::aruco::drawDetectedMarkers(image, marker_corners, ids, corner_color);
   }
 }
@@ -107,11 +107,11 @@ bool FiducialTracker::EstimatePoseBoard(
   cv::Vec3d & t_vec
 )
 {
-  if (m_detector_type == FiducialTypeEnum::CHARUCO_BOARD) {
+  if (m_detector_type == FiducialType::CHARUCO_BOARD) {
     auto temp_board = board.staticCast<cv::aruco::CharucoBoard>();
     return cv::aruco::estimatePoseCharucoBoard(
       corners, ids, temp_board, camera_matrix, dist_coefficients, r_vec, t_vec);
-  } else if (m_detector_type == FiducialTypeEnum::ARUCO_BOARD) {
+  } else if (m_detector_type == FiducialType::ARUCO_BOARD) {
     return cv::aruco::estimatePoseBoard(
       marker_corners, ids, board, camera_matrix, dist_coefficients, r_vec, t_vec);
   } else {

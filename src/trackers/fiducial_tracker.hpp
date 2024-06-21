@@ -35,7 +35,7 @@
 ///
 /// @brief Detector Enumerations
 ///
-enum class FiducialTypeEnum
+enum class FiducialType
 {
   ARUCO_BOARD,
   CHARUCO_BOARD
@@ -53,7 +53,7 @@ public:
   ///
   typedef struct Parameters : public Tracker::Parameters
   {
-    FiducialTypeEnum detector_type;                 ///< @brief Detector type
+    FiducialType detector_type;                     ///< @brief Detector type
     unsigned int predefined_dict{10};               ///< @brief Predefined dictionary
     unsigned int squares_x {1};                     ///< @brief Number of squares in the x direction
     unsigned int squares_y {1};                     ///< @brief Number of squares in the y direction
@@ -145,7 +145,7 @@ public:
 
 protected:
   FiducialUpdater m_fiducial_updater;  ///< @brief MSCKF updater object
-  FiducialTypeEnum m_detector_type;    ///< @brief Detector type
+  FiducialType m_detector_type;        ///< @brief Detector type
 
 private:
   BoardTrack m_board_track;

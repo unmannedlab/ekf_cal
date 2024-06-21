@@ -26,30 +26,30 @@ TEST(test_feature_tracker, initialization) {
   FeatureTracker::Parameters params;
   params.camera_id = 1;
 
-  params.detector = FeatureDetectorEnum::BRISK;
-  params.descriptor = DescriptorExtractorEnum::ORB;
-  params.matcher = DescriptorMatcherEnum::BRUTE_FORCE;
+  params.detector = Detector::BRISK;
+  params.descriptor = Descriptor::ORB;
+  params.matcher = Matcher::BRUTE_FORCE;
   FeatureTracker feature_tracker_1 {params};
 
-  params.detector = FeatureDetectorEnum::FAST;
+  params.detector = Detector::FAST;
   FeatureTracker feature_tracker_2 {params};
 
-  params.detector = FeatureDetectorEnum::GFTT;
+  params.detector = Detector::GFTT;
   FeatureTracker feature_tracker_3 {params};
 
-  params.detector = FeatureDetectorEnum::MSER;
+  params.detector = Detector::MSER;
   FeatureTracker feature_tracker_4 {params};
 
-  params.detector = FeatureDetectorEnum::ORB;
+  params.detector = Detector::ORB;
   FeatureTracker feature_tracker_5 {params};
 
-  params.detector = FeatureDetectorEnum::SIFT;
+  params.detector = Detector::SIFT;
   FeatureTracker feature_tracker_6 {params};
 
-  params.descriptor = DescriptorExtractorEnum::SIFT;
+  params.descriptor = Descriptor::SIFT;
   FeatureTracker feature_tracker_7 {params};
 
-  params.matcher = DescriptorMatcherEnum::FLANN;
+  params.matcher = Matcher::FLANN;
   FeatureTracker feature_tracker_8 {params};
 
   EXPECT_EQ(feature_tracker_1.GetID(), 1U);
@@ -86,7 +86,7 @@ TEST(test_feature_tracker, track) {
   tracker_params.ekf = ekf;
   tracker_params.min_feat_dist = 0.1;
   tracker_params.logger = logger;
-  tracker_params.detector = FeatureDetectorEnum::FAST;
+  tracker_params.detector = Detector::FAST;
 
   auto feature_tracker = std::make_shared<FeatureTracker>(tracker_params);
   cam.AddTracker(feature_tracker);

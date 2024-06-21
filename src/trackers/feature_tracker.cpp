@@ -53,29 +53,29 @@ FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
 
 /// @todo Check what parameters are used by open_vins
 cv::Ptr<cv::FeatureDetector> FeatureTracker::InitFeatureDetector(
-  FeatureDetectorEnum detector,
+  Detector detector,
   double threshold)
 {
   cv::Ptr<cv::FeatureDetector> feature_detector;
   switch (detector) {
-    case FeatureDetectorEnum::BRISK:
+    case Detector::BRISK:
       feature_detector = cv::BRISK::create(threshold, 3, 1.0);
       break;
-    case FeatureDetectorEnum::FAST:
+    case Detector::FAST:
       feature_detector =
         cv::FastFeatureDetector::create(threshold, true, cv::FastFeatureDetector::TYPE_9_16);
       break;
-    case FeatureDetectorEnum::GFTT:
+    case Detector::GFTT:
       feature_detector = cv::GFTTDetector::create();
       break;
-    case FeatureDetectorEnum::MSER:
+    case Detector::MSER:
       feature_detector = cv::MSER::create();
       break;
-    case FeatureDetectorEnum::ORB:
+    case Detector::ORB:
       feature_detector =
         cv::ORB::create(1000, 1.2f, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
       break;
-    case FeatureDetectorEnum::SIFT:
+    case Detector::SIFT:
       feature_detector = cv::SIFT::create();
       break;
   }
@@ -85,16 +85,16 @@ cv::Ptr<cv::FeatureDetector> FeatureTracker::InitFeatureDetector(
 
 
 cv::Ptr<cv::DescriptorExtractor> FeatureTracker::InitDescriptorExtractor(
-  DescriptorExtractorEnum extractor,
+  Descriptor extractor,
   double threshold)
 {
   cv::Ptr<cv::DescriptorExtractor> descriptor_extractor;
   switch (extractor) {
-    case DescriptorExtractorEnum::ORB:
+    case Descriptor::ORB:
       descriptor_extractor =
         cv::ORB::create(500, 1.2f, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
       break;
-    case DescriptorExtractorEnum::SIFT:
+    case Descriptor::SIFT:
       descriptor_extractor = cv::SIFT::create();
       break;
   }
@@ -103,14 +103,14 @@ cv::Ptr<cv::DescriptorExtractor> FeatureTracker::InitDescriptorExtractor(
 }
 
 
-cv::Ptr<cv::DescriptorMatcher> FeatureTracker::InitDescriptorMatcher(DescriptorMatcherEnum matcher)
+cv::Ptr<cv::DescriptorMatcher> FeatureTracker::InitDescriptorMatcher(Matcher matcher)
 {
   cv::Ptr<cv::DescriptorMatcher> descriptor_matcher;
   switch (matcher) {
-    case DescriptorMatcherEnum::BRUTE_FORCE:
+    case Matcher::BRUTE_FORCE:
       descriptor_matcher = cv::BFMatcher::create();
       break;
-    case DescriptorMatcherEnum::FLANN:
+    case Matcher::FLANN:
       descriptor_matcher = cv::FlannBasedMatcher::create();
       break;
   }
