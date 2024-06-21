@@ -16,7 +16,7 @@
 #ifndef SENSORS__SENSOR_MESSAGE_HPP_
 #define SENSORS__SENSOR_MESSAGE_HPP_
 
-#include "sensors/types.hpp"
+#include "ekf/types.hpp"
 
 ///
 /// @class SensorMessage

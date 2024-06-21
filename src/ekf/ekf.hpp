@@ -170,6 +170,12 @@ public:
   ///
   void RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixXd covariance);
 
+  ///
+  /// @brief Fiducial Registration function
+  /// @param fid_id Fiducial ID
+  /// @param fid_state Initial fiducial state
+  /// @param covariance Initial fiducial covariance
+  ///
   void RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::MatrixXd covariance);
 
   ///

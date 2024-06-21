@@ -17,19 +17,18 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <ostream>
 #include <utility>
 #include <vector>
-#include <iostream>
 
 #include <opencv2/opencv.hpp>
 
 #include "ekf/types.hpp"
 #include "ekf/update/msckf_updater.hpp"
 #include "infrastructure/debug_logger.hpp"
-#include "sensors/types.hpp"
 #include "trackers/sim/sim_feature_tracker_message.hpp"
 #include "utility/type_helper.hpp"
 

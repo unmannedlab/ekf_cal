@@ -28,7 +28,6 @@
 #include <opencv2/opencv.hpp>
 
 #include "ekf/types.hpp"
-#include "sensors/types.hpp"
 #include "trackers/tracker.hpp"
 
 

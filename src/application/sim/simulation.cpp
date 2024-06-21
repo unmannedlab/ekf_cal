@@ -28,6 +28,7 @@
 #include <opencv2/opencv.hpp>
 
 #include "ekf/ekf.hpp"
+#include "ekf/types.hpp"
 #include "infrastructure/data_logger.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "infrastructure/ekf_cal_version.hpp"
@@ -40,12 +41,11 @@
 #include "sensors/sensor.hpp"
 #include "sensors/sim/sim_camera_message.hpp"
 #include "sensors/sim/sim_camera.hpp"
-#include "sensors/sim/sim_imu_message.hpp"
-#include "sensors/sim/sim_imu.hpp"
-#include "sensors/types.hpp"
-#include "trackers/feature_tracker.hpp"
 #include "sensors/sim/sim_gps_message.hpp"
 #include "sensors/sim/sim_gps.hpp"
+#include "sensors/sim/sim_imu_message.hpp"
+#include "sensors/sim/sim_imu.hpp"
+#include "trackers/feature_tracker.hpp"
 #include "trackers/sim/sim_feature_tracker.hpp"
 #include "trackers/sim/sim_fiducial_tracker.hpp"
 #include "utility/gps_helper.hpp"

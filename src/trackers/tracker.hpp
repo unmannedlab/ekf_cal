@@ -20,8 +20,8 @@
 #include <string>
 
 #include "ekf/ekf.hpp"
+#include "ekf/types.hpp"
 #include "infrastructure/debug_logger.hpp"
-#include "sensors/types.hpp"
 
 ///
 /// @class Tracker

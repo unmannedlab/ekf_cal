@@ -25,7 +25,6 @@
 #include "ekf/types.hpp"
 #include "ekf/update/updater.hpp"
 #include "infrastructure/data_logger.hpp"
-#include "sensors/types.hpp"
 
 ///
 /// @class FiducialUpdater

@@ -29,8 +29,8 @@
 
 #include "ekf/constants.hpp"
 #include "ekf/ekf.hpp"
+#include "ekf/types.hpp"
 #include "infrastructure/debug_logger.hpp"
-#include "sensors/types.hpp"
 #include "utility/math_helper.hpp"
 #include "utility/string_helper.hpp"
 #include "utility/type_helper.hpp"

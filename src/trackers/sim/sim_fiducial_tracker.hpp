@@ -24,9 +24,9 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "ekf/types.hpp"
 #include "infrastructure/data_logger.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
-#include "sensors/types.hpp"
 #include "trackers/fiducial_tracker.hpp"
 #include "trackers/sim/sim_fiducial_tracker_message.hpp"
 #include "utility/sim/sim_rng.hpp"

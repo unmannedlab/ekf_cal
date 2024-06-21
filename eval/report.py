@@ -110,7 +110,7 @@ def plot_sim_results(config_sets, args):
                             ResetTool(),
                             SaveTool()
                         ]
-                        fig.legend.click_policy = "hide"
+                        fig.legend.click_policy = 'hide'
 
         if (args.embed):
             if not os.path.exists(os.path.join(plot_dir, 'js')):

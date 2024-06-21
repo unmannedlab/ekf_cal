@@ -21,8 +21,8 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "ekf/types.hpp"
 #include "infrastructure/debug_logger.hpp"
-#include "sensors/types.hpp"
 
 
 Eigen::VectorXd StdToEigVec(std::vector<double> const & in)

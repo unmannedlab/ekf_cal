@@ -25,6 +25,33 @@
 
 #include <opencv2/opencv.hpp>
 
+enum class SensorType
+{
+  IMU,
+  Camera,
+  Tracker,
+  GPS
+};
+
+///
+/// @brief Camera intrinsics data structure
+///
+typedef struct Intrinsics
+{
+  double F {1.0};             ///< @brief Nominal focal length [m]
+  double f_x {1.0};           ///< @brief X focal length [px]
+  double f_y {1.0};           ///< @brief Y focal length [px]
+  double c_x {0.0};           ///< @brief X optical center [px]
+  double c_y {0.0};           ///< @brief Y optical center [px]
+  double k_1 {0.0};           ///< @brief Radial coefficient 1
+  double k_2 {0.0};           ///< @brief Radial coefficient 2
+  double p_1 {0.0};           ///< @brief Tangential coefficient 1
+  double p_2 {0.0};           ///< @brief Tangential coefficient 1
+  double pixel_size {0.010};  ///< @brief Pixel size
+  unsigned int width {640};   ///< @brief Image width
+  unsigned int height {480};  ///< @brief Image height
+} Intrinsics;
+
 ///
 /// @brief BodyState structure
 ///

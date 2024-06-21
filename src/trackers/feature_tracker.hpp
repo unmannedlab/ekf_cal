@@ -28,7 +28,6 @@
 #include "ekf/types.hpp"
 #include "ekf/update/msckf_updater.hpp"
 #include "infrastructure/debug_logger.hpp"
-#include "sensors/types.hpp"
 #include "trackers/tracker.hpp"
 
 ///

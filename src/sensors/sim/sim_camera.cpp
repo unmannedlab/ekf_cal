@@ -29,7 +29,7 @@
 #include "infrastructure/debug_logger.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/sim/sim_camera_message.hpp"
-#include "sensors/types.hpp"
+#include "ekf/types.hpp"
 #include "trackers/sim/sim_feature_tracker_message.hpp"
 #include "trackers/sim/sim_feature_tracker.hpp"
 #include "trackers/sim/sim_fiducial_tracker.hpp"

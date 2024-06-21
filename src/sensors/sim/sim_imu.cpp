@@ -23,10 +23,10 @@
 #include <string>
 
 #include "ekf/constants.hpp"
+#include "ekf/types.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/sim/sim_imu_message.hpp"
-#include "sensors/types.hpp"
 #include "utility/sim/sim_rng.hpp"
 #include "utility/type_helper.hpp"
 

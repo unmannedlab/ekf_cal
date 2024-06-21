@@ -22,7 +22,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "sensors/types.hpp"
+#include "ekf/types.hpp"
 
 ///
 /// @brief Converts std::vector into Eigen Quaternion

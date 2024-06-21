@@ -29,7 +29,6 @@
 #include "ekf/types.hpp"
 #include "ekf/update/fiducial_updater.hpp"
 #include "infrastructure/debug_logger.hpp"
-#include "sensors/types.hpp"
 #include "trackers/tracker.hpp"
 
 ///
