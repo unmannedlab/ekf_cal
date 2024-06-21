@@ -38,16 +38,12 @@
 
 FiducialUpdater::FiducialUpdater(
   int cam_id,
-  Eigen::Vector3d fiducial_pos,
-  Eigen::Quaterniond fiducial_ang,
   std::string log_file_directory,
   bool data_logging_on,
   double data_log_rate,
   std::shared_ptr<DebugLogger> logger
 )
 : Updater(cam_id, logger),
-  m_pos_f_in_l(fiducial_pos),
-  m_ang_f_to_l(fiducial_ang),
   m_fiducial_logger(log_file_directory, "fiducial_" + std::to_string(cam_id) + ".csv"),
   m_triangulation_logger(log_file_directory, "triangulation_" + std::to_string(cam_id) + ".csv")
 {
@@ -130,18 +126,20 @@ void FiducialUpdater::UpdateEKF(
   // Eigen::Quaterniond ang_f_to_l_est = average_quaternions(ang_f_to_l_vec, ang_weights);
 
   // /// Project fiducial onto 3-sigma error bound
-  // Eigen::Vector3d f_pos_delta = pos_f_in_l_est - m_pos_f_in_l;
-  // Eigen::Quaterniond f_ang_delta = ang_f_to_l_est * m_ang_f_to_l.inverse();
+  // Eigen::Vector3d f_pos_delta = pos_f_in_l_est - ekf->m_state.fid_states[m_id].pos_f_in_l;
+  // Eigen::Quaterniond f_ang_delta =
+  //   ang_f_to_l_est * ekf->m_state.fid_states[m_id].ang_f_to_l.inverse();
   // Eigen::AngleAxisd f_ang_delta_vec{f_ang_delta};
   // if (f_pos_delta.norm() > 3 * pos_error) {
   //   f_pos_delta = (3 * pos_error) / f_pos_delta.norm() * f_pos_delta;
-  //   Eigen::Vector3d pos_f_in_l_est_temp = m_pos_f_in_l + f_pos_delta;
+  //   Eigen::Vector3d pos_f_in_l_est_temp = ekf->m_state.fid_states[m_id].pos_f_in_l + f_pos_delta;
   //   pos_f_in_l_est = pos_f_in_l_est_temp;
   // }
   // if (f_ang_delta_vec.angle() > 3 * ang_error) {
   //   f_ang_delta_vec.angle() = 3 * ang_error;
   //   f_ang_delta = Eigen::Quaterniond(f_ang_delta_vec);
-  //   Eigen::Quaterniond ang_f_to_l_est_temp = f_ang_delta * m_ang_f_to_l;
+  //   Eigen::Quaterniond ang_f_to_l_est_temp =
+  //     f_ang_delta * ekf->m_state.fid_states[m_id].ang_f_to_l;
   //   ang_f_to_l_est = ang_f_to_l_est_temp;
   // }
 

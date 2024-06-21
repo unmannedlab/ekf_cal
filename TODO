@@ -4,23 +4,16 @@ Package Features:
     - Implement flag for calibration settling
     - Implement flag for calibration shifting
     - Interpolation between stochastic clones
-    - Feature comparisons between cameras
-    - Option to pre-fuse IMU measurements
-    - LOST initialization: https://gtsam.org/2023/02/04/lost-triangulation.html
     - First estimate Jacobians
     - Zero-Velocity Update / Stationary Filter
     - Option for complementary IMU filter
     - Intrinsic calibration filtering
-    - Condition and distance thresholds
     - Check covariance matrix condition
     - Add colcon build/test action to github
 
 Software Work:
-    - Define types/transforms to force different coordinate frames
-    - Define types/transforms to force different time values
     - Auto-generate rviz configuration from yaml
     - CI/CD for unit tests
-    - Set of single metrics for performance evaluation/testing
     - Integration tests
     - Move feature detection out of tracker callback
     - Add mutex to EKF class and have mutex locked by updaters

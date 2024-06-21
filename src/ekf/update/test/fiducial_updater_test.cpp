@@ -29,8 +29,6 @@ TEST(test_imu_updater, constructor) {
 
   FiducialUpdater fiducial_updater(
     cam_id,
-    fiducial_pos,
-    fiducial_ang,
     log_file_directory,
     data_logging_on,
     data_log_rate,

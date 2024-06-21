@@ -232,7 +232,6 @@ Camera::Parameters EkfCalNode::GetCameraParameters(std::string camera_name)
   return camera_params;
 }
 
-/// @todo Change Feature Detector et. al. to be strings?
 void EkfCalNode::DeclareTrackerParameters(std::string tracker_name)
 {
   // Declare parameters

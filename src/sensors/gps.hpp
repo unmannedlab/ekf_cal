@@ -30,7 +30,6 @@
 ///
 /// @class GPS
 /// @brief GPS Sensor Class
-/// @todo Add parameter input/defaults for covariance
 /// @todo Bias Stability and Noise process inputs for GPSs
 ///
 class GPS : public Sensor
@@ -38,7 +37,6 @@ class GPS : public Sensor
 public:
   ///
   /// @brief GPS initialization parameters structure
-  /// @todo Change init_type to enum class
   ///
   typedef struct Parameters : public Sensor::Parameters
   {

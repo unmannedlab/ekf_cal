@@ -33,7 +33,6 @@
 /// @todo Implement check for correlation coefficients to be between +/- 1
 /// @todo Add gravity initialization/check
 /// @todo Create generic function to update(r,H,R)
-/// @todo Add map of sensor IDs to start index and state size
 ///
 class EKF
 {

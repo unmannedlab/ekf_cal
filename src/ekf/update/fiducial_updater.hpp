@@ -37,8 +37,6 @@ public:
   ///
   /// @brief MSCKF EKF Updater constructor
   /// @param cam_id Camera sensor ID
-  /// @param fiducial_pos Fiducial position
-  /// @param fiducial_ang Fiducial orientation
   /// @param log_file_directory Directory to save log files
   /// @param data_logging_on Flag to enable data logging
   /// @param data_log_rate Maximum average rate to log data
@@ -46,8 +44,6 @@ public:
   ///
   explicit FiducialUpdater(
     int cam_id,
-    Eigen::Vector3d fiducial_pos,
-    Eigen::Quaterniond fiducial_ang,
     std::string log_file_directory,
     bool data_logging_on,
     double data_log_rate,
@@ -67,10 +63,6 @@ public:
     double time, BoardTrack board_track, double pos_error, double ang_error);
 
 private:
-  /// @todo: Replace these member variables with state look-ups
-  Eigen::Vector3d m_pos_f_in_l;
-  Eigen::Quaterniond m_ang_f_to_l;
-
   DataLogger m_fiducial_logger;
   DataLogger m_triangulation_logger;
   Intrinsics m_intrinsics;

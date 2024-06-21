@@ -376,7 +376,6 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
 
   unsigned int imu_state_end = g_body_state_size + GetImuStateSize();
 
-  /// @todo check size of matrix being inserted
   m_state.imu_states[imu_id] = imu_state;
   if (imu_state.get_is_extrinsic() || imu_state.get_is_intrinsic()) {
     m_cov = InsertInMatrix(
@@ -460,7 +459,6 @@ void EKF::RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::Matri
     return;
   }
 
-  /// @todo check size of matrix being inserted
   m_state.fid_states[fid_id] = fid_state;
   if (fid_state.get_is_extrinsic()) {
     m_cov = InsertInMatrix(

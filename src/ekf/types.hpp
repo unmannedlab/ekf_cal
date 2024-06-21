@@ -27,7 +27,6 @@
 
 ///
 /// @brief BodyState structure
-/// @todo Make member variable naming consistent
 ///
 class BodyState
 {

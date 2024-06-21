@@ -85,7 +85,6 @@ void MaxBoundDiagonal(
   }
 }
 
-/// @todo Do in place
 Eigen::MatrixXd InsertInMatrix(
   Eigen::MatrixXd sub_mat, Eigen::MatrixXd in_mat, unsigned int row,
   unsigned int col)
@@ -107,7 +106,6 @@ Eigen::MatrixXd InsertInMatrix(
   return out_mat;
 }
 
-/// @todo Do in place
 Eigen::MatrixXd RemoveFromMatrix(
   Eigen::MatrixXd in_mat, unsigned int row,
   unsigned int col, unsigned int size)
@@ -190,7 +188,6 @@ Eigen::Quaterniond average_quaternions(
   Eigen::Quaterniond average_quaternion{1.0, 0.0, 0.0, 0.0};
   Eigen::MatrixXd accum_matrix(4, quaternions.size());
 
-  /// @todo(jhartzer): Check that the vectors are equally sized. Log warning otherwise
   for (unsigned int i = 0; i < quaternions.size(); ++i) {
     if (quaternions[i].w() < 0) {
       weights[i] *= -1;

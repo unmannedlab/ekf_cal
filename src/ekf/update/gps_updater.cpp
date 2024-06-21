@@ -67,7 +67,6 @@ GpsUpdater::GpsUpdater(
   m_data_logger.SetLogRate(data_log_rate);
 }
 
-/// @todo(jhartzer): Add option to check max distance of baseline to initialize
 void GpsUpdater::AttemptInitialization(
   double time,
   std::shared_ptr<EKF> ekf,
