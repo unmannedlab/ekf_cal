@@ -65,7 +65,7 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
 
       unsigned int frameID = GenerateFrameID();
 
-      m_ekf->AugmentState(m_id, frameID);
+      m_ekf->AugmentStateIfNeeded(m_id, frameID);
 
       for (auto const & track_iter : m_trackers) {
         m_trackers[track_iter.first]->Track(

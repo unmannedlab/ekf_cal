@@ -117,7 +117,7 @@ void SimCamera::Callback(std::shared_ptr<SimCameraMessage> sim_camera_message)
 
   int frame_id = GenerateFrameID();
 
-  m_ekf->AugmentState(m_id, frame_id);
+  m_ekf->AugmentStateIfNeeded(m_id, frame_id);
 
   if (sim_camera_message->feature_track_message != NULL) {
     if (sim_camera_message->feature_track_message->feature_tracks.size() > 0) {

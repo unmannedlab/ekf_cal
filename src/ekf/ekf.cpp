@@ -208,8 +208,8 @@ void EKF::AddProccessNoise(double delta_time)
   m_cov.block<g_body_state_size, g_body_state_size>(0, 0) += m_process_noise * delta_time;
 
   for (auto const & imu_iter : m_state.imu_states) {
-    if (imu_iter.second.is_intrinsic && imu_iter.second.is_extrinsic) {
-      unsigned int imu_state_start = GetImuStateStartIndex(imu_iter.first);
+    unsigned int imu_index = imu_iter.second.index;
+    if (imu_iter.second.get_is_intrinsic() && imu_iter.second.get_is_extrinsic()) {
       Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(12, 12);
 
       process_noise.block<3, 3>(0, 0) *= delta_time * imu_iter.second.pos_stability;
@@ -217,46 +217,44 @@ void EKF::AddProccessNoise(double delta_time)
       process_noise.block<3, 3>(6, 6) *= delta_time * imu_iter.second.acc_bias_stability;
       process_noise.block<3, 3>(9, 9) *= delta_time * imu_iter.second.omg_bias_stability;
 
-      m_cov.block<12, 12>(imu_state_start, imu_state_start) += process_noise;
+      m_cov.block<12, 12>(imu_index, imu_index) += process_noise;
 
-    } else if (imu_iter.second.is_intrinsic) {
-      unsigned int imu_state_start = GetImuStateStartIndex(imu_iter.first);
+    } else if (imu_iter.second.get_is_intrinsic()) {
       Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
 
       process_noise.block<3, 3>(0, 0) *= delta_time * imu_iter.second.acc_bias_stability;
       process_noise.block<3, 3>(3, 3) *= delta_time * imu_iter.second.omg_bias_stability;
 
-      m_cov.block<6, 6>(imu_state_start, imu_state_start) += process_noise;
+      m_cov.block<6, 6>(imu_index, imu_index) += process_noise;
 
-    } else if (imu_iter.second.is_extrinsic) {
-      unsigned int imu_state_start = GetImuStateStartIndex(imu_iter.first);
+    } else if (imu_iter.second.get_is_extrinsic()) {
       Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
 
       process_noise.block<3, 3>(0, 0) *= delta_time * imu_iter.second.pos_stability;
       process_noise.block<3, 3>(3, 3) *= delta_time * imu_iter.second.ang_stability;
 
-      m_cov.block<6, 6>(imu_state_start, imu_state_start) += process_noise;
+      m_cov.block<6, 6>(imu_index, imu_index) += process_noise;
     }
   }
 
   for (auto const & gps_iter : m_state.gps_states) {
-    if (gps_iter.second.is_extrinsic) {
-      unsigned int gps_state_start = GetGpsStateStartIndex(gps_iter.first);
+    if (gps_iter.second.get_is_extrinsic()) {
+      unsigned int gps_index = gps_iter.second.index;
       Eigen::Matrix3d process_noise =
         Eigen::Matrix3d::Identity(3, 3) * gps_iter.second.pos_stability;
 
-      m_cov.block<3, 3>(gps_state_start, gps_state_start) += process_noise;
+      m_cov.block<3, 3>(gps_index, gps_index) += process_noise;
     }
   }
 
   for (auto const & cam_iter : m_state.cam_states) {
-    unsigned int cam_state_start = GetCamStateStartIndex(cam_iter.first);
+    unsigned int cam_index = cam_iter.second.index;
     Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
 
     process_noise.block<3, 3>(0, 0) *= delta_time * cam_iter.second.pos_stability;
     process_noise.block<3, 3>(3, 3) *= delta_time * cam_iter.second.ang_stability;
 
-    m_cov.block<6, 6>(cam_state_start, cam_state_start) += process_noise;
+    m_cov.block<6, 6>(cam_index, cam_index) += process_noise;
   }
 }
 
@@ -275,30 +273,30 @@ void EKF::LimitUncertainty()
   MaxBoundDiagonal(m_cov, 1e0, 15, 3);
 
   for (auto imu_state : m_state.imu_states) {
-    unsigned int imu_index = GetImuStateStartIndex(imu_state.first);
-    if (imu_state.second.is_extrinsic && imu_state.second.is_intrinsic) {
+    unsigned int imu_index = imu_state.second.index;
+    if (imu_state.second.get_is_extrinsic() && imu_state.second.get_is_intrinsic()) {
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 0, 3);
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 3, 3);
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 6, 3);
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 9, 3);
-    } else if (imu_state.second.is_extrinsic) {
+    } else if (imu_state.second.get_is_extrinsic()) {
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 0, 3);
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 3, 3);
-    } else if (imu_state.second.is_intrinsic) {
+    } else if (imu_state.second.get_is_intrinsic()) {
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 0, 3);
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 3, 3);
     }
   }
 
   for (auto gps_state : m_state.gps_states) {
-    if (gps_state.second.is_extrinsic) {
-      unsigned int gps_index = GetGpsStateStartIndex(gps_state.first);
+    if (gps_state.second.get_is_extrinsic()) {
+      unsigned int gps_index = gps_state.second.index;
       MaxBoundDiagonal(m_cov, 1e-1, gps_index + 0, 3);
     }
   }
 
   for (auto cam_state : m_state.cam_states) {
-    unsigned int cam_index = GetCamStateStartIndex(cam_state.first);
+    unsigned int cam_index = cam_state.second.index;
     MaxBoundDiagonal(m_cov, 1e-1, cam_index + 0, 3);
     MaxBoundDiagonal(m_cov, 1e-1, cam_index + 3, 3);
   }
@@ -331,13 +329,7 @@ unsigned int EKF::GetImuCount()
 
 unsigned int EKF::GetImuStateSize()
 {
-  unsigned int imu_state_size {0};
-  for (auto & imu_iter : m_state.imu_states) {
-    unsigned int imu_id = imu_iter.first;
-    if (m_state.imu_states[imu_id].is_extrinsic) {imu_state_size += g_imu_extrinsic_state_size;}
-    if (m_state.imu_states[imu_id].is_intrinsic) {imu_state_size += g_imu_intrinsic_state_size;}
-  }
-  return imu_state_size;
+  return m_imu_state_size;
 }
 
 unsigned int EKF::GetGpsCount()
@@ -347,27 +339,22 @@ unsigned int EKF::GetGpsCount()
 
 unsigned int EKF::GetGpsStateSize()
 {
-  unsigned int gps_state_size {0};
-  for (auto & gps_iter : m_state.gps_states) {
-    unsigned int gps_id = gps_iter.first;
-    if (m_state.gps_states[gps_id].is_extrinsic) {gps_state_size += g_gps_extrinsic_state_size;}
-  }
-  return gps_state_size;
+  return m_gps_state_size;
 }
 
 unsigned int EKF::GetCamStateSize()
 {
-  unsigned int cam_state_size {0};
-  for (auto & cam_iter : m_state.cam_states) {
-    cam_state_size += g_cam_state_size;
-    cam_state_size += cam_iter.second.augmented_states.size() * g_aug_state_size;
-  }
-  return cam_state_size;
+  return m_cam_state_size;
 }
 
 unsigned int EKF::GetCamCount()
 {
   return m_state.cam_states.size();
+}
+
+unsigned int EKF::GetAugStateSize()
+{
+  return m_aug_state_size;
 }
 
 void EKF::Initialize(double timeInit, BodyState body_state_init)
@@ -384,17 +371,27 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
     std::stringstream imu_id_used_warning;
     imu_id_used_warning << "IMU ID " << imu_id << " has already been registered.";
     m_logger->Log(LogLevel::WARN, imu_id_used_warning.str());
+    return;
   }
 
   unsigned int imu_state_end = g_body_state_size + GetImuStateSize();
 
   /// @todo check size of matrix being inserted
   m_state.imu_states[imu_id] = imu_state;
-  if (imu_state.is_extrinsic || imu_state.is_intrinsic) {
-    m_cov = InsertInMatrix(covariance, m_cov, imu_state_end, imu_state_end);
+  if (imu_state.get_is_extrinsic() || imu_state.get_is_intrinsic()) {
+    m_cov = InsertInMatrix(
+      covariance.block(0, 0, imu_state.size, imu_state.size), m_cov, imu_state_end, imu_state_end);
   }
-  if (imu_state.is_extrinsic) {m_state_size += g_imu_extrinsic_state_size;}
-  if (imu_state.is_intrinsic) {m_state_size += g_imu_intrinsic_state_size;}
+  if (imu_state.get_is_extrinsic()) {
+    m_state_size += g_imu_extrinsic_state_size;
+    m_imu_state_size += g_imu_extrinsic_state_size;
+  }
+  if (imu_state.get_is_intrinsic()) {
+    m_state_size += g_imu_intrinsic_state_size;
+    m_imu_state_size += g_imu_intrinsic_state_size;
+  }
+
+  RefreshIndices();
 
   std::stringstream log_msg;
   log_msg << "Register IMU: " << imu_id << ", stateSize: " << m_state_size;
@@ -408,14 +405,20 @@ void EKF::RegisterGPS(unsigned int gps_id, GpsState gps_state, Eigen::Matrix3d c
     std::stringstream gps_id_used_warning;
     gps_id_used_warning << "GPS ID " << gps_id << " has already been registered.";
     m_logger->Log(LogLevel::WARN, gps_id_used_warning.str());
+    return;
   }
 
   unsigned int gps_state_end = g_body_state_size + GetImuStateSize() + GetGpsStateSize();
   m_state.gps_states[gps_id] = gps_state;
-  if (gps_state.is_extrinsic) {
-    m_cov = InsertInMatrix(covariance, m_cov, gps_state_end, gps_state_end);
+  if (gps_state.get_is_extrinsic()) {
+    m_cov = InsertInMatrix(
+      covariance.block(0, 0, gps_state.size, gps_state.size), m_cov, gps_state_end, gps_state_end);
     m_state_size += g_gps_extrinsic_state_size;
+    m_gps_state_size += g_gps_extrinsic_state_size;
   }
+
+  RefreshIndices();
+
   std::stringstream log_msg;
   log_msg << "Register GPS: " << gps_id << ", stateSize: " << m_state_size;
   m_logger->Log(LogLevel::INFO, log_msg.str());
@@ -428,14 +431,19 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
     std::stringstream cam_id_used_warning;
     cam_id_used_warning << "Camera ID " << cam_id << " has already been registered.";
     m_logger->Log(LogLevel::WARN, cam_id_used_warning.str());
+    return;
   }
 
   unsigned int cam_state_end = g_body_state_size +
     GetImuStateSize() + GetGpsStateSize() + GetCamStateSize();
 
   m_state.cam_states[cam_id] = cam_state;
-  m_cov = InsertInMatrix(covariance, m_cov, cam_state_end, cam_state_end);
+  m_cov = InsertInMatrix(
+    covariance.block(0, 0, cam_state.size, cam_state.size), m_cov, cam_state_end, cam_state_end);
   m_state_size += g_cam_state_size;
+  m_cam_state_size += g_cam_state_size;
+
+  RefreshIndices();
 
   std::stringstream log_msg;
   log_msg << "Register Camera: " << cam_id << ", stateSize: " << m_state_size;
@@ -449,13 +457,16 @@ void EKF::RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::Matri
     std::stringstream fid_id_used_warning;
     fid_id_used_warning << "FID ID " << fid_id << " has already been registered.";
     m_logger->Log(LogLevel::WARN, fid_id_used_warning.str());
+    return;
   }
 
   /// @todo check size of matrix being inserted
   m_state.fid_states[fid_id] = fid_state;
-  if (fid_state.is_extrinsic) {
-    m_cov = InsertInMatrix(covariance, m_cov, m_state_size, m_state_size);
+  if (fid_state.get_is_extrinsic()) {
+    m_cov = InsertInMatrix(
+      covariance.block(0, 0, fid_state.size, fid_state.size), m_cov, m_state_size, m_state_size);
     m_state_size += g_fid_extrinsic_state_size;
+    m_fid_state_size += g_fid_extrinsic_state_size;
   }
 
   std::stringstream log_msg;
@@ -463,93 +474,16 @@ void EKF::RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::Matri
   m_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-/// @todo Replace this lookup with a map
-unsigned int EKF::GetImuStateStartIndex(unsigned int imu_id)
-{
-  unsigned int state_start_index = g_body_state_size;
-  for (auto const & imu_iter : m_state.imu_states) {
-    if (imu_iter.first == imu_id) {
-      break;
-    } else {
-      if (m_state.imu_states[imu_iter.first].is_extrinsic) {
-        state_start_index += g_imu_extrinsic_state_size;
-      }
-      if (m_state.imu_states[imu_iter.first].is_intrinsic) {
-        state_start_index += g_imu_intrinsic_state_size;
-      }
-    }
-  }
-  return state_start_index;
-}
-
-/// @todo Replace this lookup with a map
-unsigned int EKF::GetGpsStateStartIndex(unsigned int gps_id)
-{
-  unsigned int state_start_index = g_body_state_size;
-  state_start_index += GetImuStateSize();
-  for (auto const & gps_iter : m_state.gps_states) {
-    if (gps_iter.first == gps_id) {
-      break;
-    } else if (gps_iter.second.is_extrinsic) {
-      state_start_index += g_gps_extrinsic_state_size;
-    }
-  }
-  return state_start_index;
-}
-
-/// @todo Replace this lookup with a map
-unsigned int EKF::GetCamStateStartIndex(unsigned int cam_id)
-{
-  unsigned int state_start_index = g_body_state_size;
-  state_start_index += GetImuStateSize();
-  state_start_index += GetGpsStateSize();
-  for (auto const & cam_iter : m_state.cam_states) {
-    if (cam_iter.first == cam_id) {
-      break;
-    } else {
-      state_start_index += g_cam_state_size +
-        g_aug_state_size * cam_iter.second.augmented_states.size();
-    }
-  }
-  return state_start_index;
-}
-
-/// @todo Replace this lookup with a map
-unsigned int EKF::GetAugStateStartIndex(unsigned int cam_id, int frame_id)
-{
-  unsigned int state_start_index = g_body_state_size;
-  state_start_index += GetImuStateSize();
-  state_start_index += GetGpsStateSize();
-  for (auto const & cam_iter : m_state.cam_states) {
-    state_start_index += g_cam_state_size;
-    for (auto const & augIter : cam_iter.second.augmented_states) {
-      if ((cam_iter.first == cam_id) && (augIter.frame_id == frame_id)) {
-        return state_start_index;
-      } else {
-        state_start_index += g_aug_state_size;
-      }
-    }
-  }
-
-  std::stringstream msg;
-  msg << "Augmented State not Found: " << std::to_string(cam_id) << std::to_string(frame_id);
-  m_logger->Log(LogLevel::ERROR, msg.str());
-  return -1;
-}
-
 /// @todo Don't return a Jacobian but rather just apply a Jacobian to the covariance
-Eigen::MatrixXd EKF::AugmentJacobian(
-  unsigned int cam_state_start,
-  unsigned int aug_state_start)
+Eigen::MatrixXd EKF::AugmentJacobian(unsigned int cam_index, unsigned int aug_index)
 {
   Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(m_state_size, m_state_size - g_aug_state_size);
 
-  unsigned int after_start = aug_state_start;
-  unsigned int after_size = m_state_size - aug_state_start - g_aug_state_size;
+  unsigned int after_start = aug_index;
+  unsigned int after_size = m_state_size - aug_index - g_aug_state_size;
 
   // Before augmented state Jacobian
-  jacobian.block(0, 0, aug_state_start, aug_state_start) =
-    Eigen::MatrixXd::Identity(aug_state_start, aug_state_start);
+  jacobian.block(0, 0, aug_index, aug_index) = Eigen::MatrixXd::Identity(aug_index, aug_index);
 
   // After augmented state Jacobian
   if (after_size > 0) {
@@ -558,59 +492,58 @@ Eigen::MatrixXd EKF::AugmentJacobian(
   }
 
   // Body Position in Local Frame
-  jacobian.block<3, 3>(aug_state_start + 0, 0) = Eigen::MatrixXd::Identity(3, 3);
+  jacobian.block<3, 3>(aug_index + 0, 0) = Eigen::MatrixXd::Identity(3, 3);
 
   // Body Orientation to Local Frame
-  jacobian.block<3, 3>(aug_state_start + 3, 9) = Eigen::MatrixXd::Identity(3, 3);
+  jacobian.block<3, 3>(aug_index + 3, 9) = Eigen::MatrixXd::Identity(3, 3);
 
   // Camera Position in IMU Frame
-  jacobian.block<3, 3>(aug_state_start + 6, cam_state_start + 0) = Eigen::MatrixXd::Identity(3, 3);
+  jacobian.block<3, 3>(aug_index + 6, cam_index + 0) = Eigen::MatrixXd::Identity(3, 3);
 
   // Camera Orientation to IMU Frame
-  jacobian.block<3, 3>(aug_state_start + 9, cam_state_start + 3) = Eigen::MatrixXd::Identity(3, 3);
+  jacobian.block<3, 3>(aug_index + 9, cam_index + 3) = Eigen::MatrixXd::Identity(3, 3);
 
   return jacobian;
 }
 
-void EKF::AugmentState(unsigned int camera_id, int frame_id)
+void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
 {
   std::stringstream msg;
   msg << "Aug State Frame: " << std::to_string(frame_id);
   m_logger->Log(LogLevel::DEBUG, msg.str());
-  AugmentedState aug_state;
-  aug_state.frame_id = frame_id;
   Eigen::Vector3d pos_b_in_l = m_state.body_state.pos_b_in_l;
   Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
 
+  AugState aug_state;
+  aug_state.frame_id = frame_id;
   aug_state.pos_b_in_l = pos_b_in_l;
   aug_state.ang_b_to_l = ang_b_to_l;
   aug_state.pos_c_in_b = m_state.cam_states[camera_id].pos_c_in_b;
   aug_state.ang_c_to_b = m_state.cam_states[camera_id].ang_c_to_b;
-  m_state.cam_states[camera_id].augmented_states.push_back(aug_state);
+  m_state.aug_states[frame_id] = aug_state;
 
-  unsigned int aug_state_start;
-  unsigned int cam_state_start = GetCamStateStartIndex(camera_id);
+  unsigned int cam_index = m_state.cam_states[camera_id].index;
 
   // Limit augmented states to m_max_track_length
-  if (m_state.cam_states[camera_id].augmented_states.size() <= m_max_track_length) {
-    aug_state_start = GetAugStateStartIndex(camera_id, frame_id);
-
+  if (m_state.aug_states.size() <= m_max_track_length) {
     m_state_size += g_aug_state_size;
+    m_aug_state_size += g_aug_state_size;
   } else {
     /// @todo(jhartzer): Evaluate switching to second element / creating map
     // Remove first element from state
-    m_state.cam_states[camera_id].augmented_states.erase(
-      m_state.cam_states[camera_id].augmented_states.begin());
+    m_state.aug_states.erase(
+      m_state.aug_states.begin());
 
     // Remove first element from covariance
     m_cov = RemoveFromMatrix(
-      m_cov, cam_state_start + g_cam_state_size,
-      cam_state_start + g_cam_state_size, g_aug_state_size);
-
-    aug_state_start = GetAugStateStartIndex(camera_id, frame_id);
+      m_cov, cam_index + g_cam_state_size,
+      cam_index + g_cam_state_size, g_aug_state_size);
   }
 
-  Eigen::MatrixXd augment_jacobian = AugmentJacobian(cam_state_start, aug_state_start);
+  RefreshIndices();
+  unsigned int aug_index = m_state.aug_states[frame_id].index;
+
+  Eigen::MatrixXd augment_jacobian = AugmentJacobian(cam_index, aug_index);
   /// @todo doing this is very expensive. Apply Jacobian in place without large multiplications
   /// Most elements are identity/zeros anyways
   m_cov = (augment_jacobian * m_cov * augment_jacobian.transpose()).eval();
@@ -621,20 +554,9 @@ void EKF::SetProcessNoise(Eigen::VectorXd process_noise)
   m_process_noise = process_noise.asDiagonal();
 }
 
-AugmentedState EKF::MatchState(int camera_id, int frame_id)
+AugState EKF::GetAugState(int camera_id, int frame_id)
 {
-  AugmentedState aug_state_match;
-
-  for (auto & aug_state : m_state.cam_states[camera_id].augmented_states) {
-    if (aug_state.frame_id == frame_id) {
-      return aug_state;
-    }
-  }
-
-  std::stringstream warning_msg;
-  warning_msg << "No matching augmented state for frame " << frame_id;
-  m_logger->Log(LogLevel::WARN, warning_msg.str());
-  return aug_state_match;
+  return m_state.aug_states[frame_id];
 }
 
 void EKF::SetMaxTrackLength(unsigned int max_track_length)
@@ -665,4 +587,33 @@ double EKF::GetReferenceAngle()
 bool EKF::IsLlaInitialized()
 {
   return m_is_lla_initialized;
+}
+
+void EKF::RefreshIndices()
+{
+  unsigned int current_index{0};
+  m_state.body_state.index = current_index;
+  current_index += g_body_state_size;
+
+  for (auto & imu_iter : m_state.imu_states) {
+    imu_iter.second.index = current_index;
+    if (imu_iter.second.get_is_extrinsic()) {current_index += g_imu_extrinsic_state_size;}
+    if (imu_iter.second.get_is_intrinsic()) {current_index += g_imu_intrinsic_state_size;}
+  }
+  for (auto & gps_iter : m_state.gps_states) {
+    gps_iter.second.index = current_index;
+    if (gps_iter.second.get_is_extrinsic()) {current_index += g_gps_extrinsic_state_size;}
+  }
+  for (auto & cam_iter : m_state.cam_states) {
+    cam_iter.second.index = current_index;
+    current_index += g_cam_state_size;
+  }
+  for (auto & fid_iter : m_state.fid_states) {
+    fid_iter.second.index = current_index;
+    if (fid_iter.second.get_is_extrinsic()) {current_index += g_fid_extrinsic_state_size;}
+  }
+  for (auto & aug_iter : m_state.aug_states) {
+    aug_iter.second.index = current_index;
+    current_index += g_aug_state_size;
+  }
 }

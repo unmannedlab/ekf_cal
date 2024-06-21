@@ -141,31 +141,6 @@ public:
   Eigen::MatrixXd GetStateTransition(double dT);
 
   ///
-  /// @brief Getter for IMU state start index
-  /// @param imu_id IMU sensor ID
-  ///
-  unsigned int GetImuStateStartIndex(unsigned int imu_id);
-
-  ///
-  /// @brief Getter for GPS state start index
-  /// @param gps_id GPS sensor ID
-  ///
-  unsigned int GetGpsStateStartIndex(unsigned int gps_id);
-
-  ///
-  /// @brief Getter for camera state start index
-  /// @param cam_id Camera sensor ID
-  ///
-  unsigned int GetCamStateStartIndex(unsigned int cam_id);
-
-  ///
-  /// @brief Getter for augmented state start index
-  /// @param cam_id Camera sensor ID
-  /// @param frame_id Camera frame ID
-  ///
-  unsigned int GetAugStateStartIndex(unsigned int cam_id, int frame_id);
-
-  ///
   /// @brief EKF state initialization method
   /// @param timeInit Initial time
   /// @param bodyStateInit Initial state
@@ -200,20 +175,20 @@ public:
 
   ///
   /// @brief Generate augmented state Jacobian matrix
-  /// @param cam_state_start Camera state start index
-  /// @param aug_state_start Augmented state start index
+  /// @param cam_index Camera state start index
+  /// @param aug_index Augmented state start index
   /// @return Augmented state Jacobian matrix
   ///
   Eigen::MatrixXd AugmentJacobian(
-    unsigned int cam_state_start,
-    unsigned int aug_state_start);
+    unsigned int cam_index,
+    unsigned int aug_index);
 
   ///
   /// @brief Function to augment current state for camera frame
   /// @param camera_id Current camera ID
   /// @param frame_id Current frame ID
   ///
-  void AugmentState(unsigned int camera_id, int frame_id);
+  void AugmentStateIfNeeded(unsigned int camera_id, int frame_id);
 
   ///
   /// @brief Setter for maximum track length
@@ -269,7 +244,18 @@ public:
   /// @param frame_id Desired frame ID
   /// @return Matching augmented state
   ///
-  AugmentedState MatchState(int camera_id, int frame_id);
+  AugState GetAugState(int camera_id, int frame_id);
+
+  ///
+  /// @brief Get augmented state size
+  /// @return Augmented state size
+  ///
+  unsigned int GetAugStateSize();
+
+  ///
+  /// @brief Refresh the sub-state indices
+  ///
+  void RefreshIndices();
 
   /// @brief EKF state
   State m_state;
@@ -279,6 +265,11 @@ public:
 
 private:
   unsigned int m_state_size{g_body_state_size};
+  unsigned int m_imu_state_size{0};
+  unsigned int m_gps_state_size{0};
+  unsigned int m_cam_state_size{0};
+  unsigned int m_aug_state_size{0};
+  unsigned int m_fid_state_size{0};
   double m_current_time {0};
   bool m_time_initialized {false};
   std::shared_ptr<DebugLogger> m_logger;

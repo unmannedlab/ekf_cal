@@ -21,6 +21,8 @@
 #include <map>
 #include <vector>
 
+#include "ekf/constants.hpp"
+
 #include <opencv2/opencv.hpp>
 
 ///
@@ -39,7 +41,7 @@ public:
   /// @brief Get EKF state as a vector
   /// @return EKF state as a vector
   ///
-  Eigen::VectorXd ToVector();
+  Eigen::VectorXd ToVector() const;
 
   ///
   /// @brief Function to set state using vector
@@ -53,6 +55,8 @@ public:
   Eigen::Quaterniond ang_b_to_l{1.0, 0.0, 0.0, 0.0};  ///< @brief Body orientation
   Eigen::Vector3d ang_vel_b_in_l{0.0, 0.0, 0.0};      ///< @brief Body angular rate
   Eigen::Vector3d ang_acc_b_in_l{0.0, 0.0, 0.0};      ///< @brief Body angular acceleration
+  unsigned int size{g_body_state_size};               ///< @brief State size
+  int index{-1};                                      ///< @brief State index
 };
 
 ///
@@ -67,10 +71,29 @@ public:
   /// @brief Get IMU state as a vector
   /// @return IMU state as a vector
   ///
-  Eigen::VectorXd ToVector();
+  Eigen::VectorXd ToVector() const;
 
-  bool is_extrinsic{false};                           ///< @brief Extrinsic calibration flag
-  bool is_intrinsic{false};                           ///< @brief Intrinsic calibration flag
+  ///
+  /// @brief is_extrinsic getter function
+  /// @return is_extrinsic
+  ///
+  bool get_is_extrinsic() const;
+  ///
+  /// @brief is_intrinsic getter function
+  /// @return is_intrinsic
+  ///
+  bool get_is_intrinsic() const;
+  ///
+  /// @brief is_extrinsic setter function
+  /// @param extrinsic value to use for setting
+  ///
+  void set_is_extrinsic(bool extrinsic);
+  ///
+  /// @brief is_intrinsic setter function
+  /// @param intrinsic value to use for setting
+  ///
+  void set_is_intrinsic(bool intrinsic);
+
   double pos_stability {1e-9};                        ///< @brief Extrinsic position stability
   double ang_stability {1e-9};                        ///< @brief Extrinsic orientation stability
   double acc_bias_stability {1e-9};                   ///< @brief Accelerometer bias stability
@@ -79,6 +102,13 @@ public:
   Eigen::Quaterniond ang_i_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Orientation
   Eigen::Vector3d acc_bias{0.0, 0.0, 0.0};            ///< @brief Acceleration bias
   Eigen::Vector3d omg_bias{0.0, 0.0, 0.0};            ///< @brief Angular rate bias
+  unsigned int size{0};                               ///< @brief State size
+  int index{-1};                                      ///< @brief State index
+
+private:
+  void refresh_size();
+  bool is_extrinsic{false};                           ///< @brief Extrinsic calibration flag
+  bool is_intrinsic{false};                           ///< @brief Intrinsic calibration flag
 };
 
 ///
@@ -93,24 +123,51 @@ public:
   /// @brief Get GPS state as a vector
   /// @return GPS state as a vector
   ///
-  Eigen::VectorXd ToVector();
+  Eigen::VectorXd ToVector() const;
 
-  bool is_extrinsic{false};                   ///< @brief Extrinsic calibration flag
+  ///
+  /// @brief is_extrinsic getter function
+  /// @return is_extrinsic
+  ///
+  bool get_is_extrinsic() const;
+  ///
+  /// @brief is_extrinsic setter function
+  /// @param extrinsic value to use for setting
+  ///
+  void set_is_extrinsic(bool extrinsic);
+
   Eigen::Vector3d pos_a_in_b{0.0, 0.0, 0.0};  ///< @brief Antenna position in body frame
   double pos_stability {1e-9};                ///< @brief Antenna position stability
+  unsigned int size{0};                       ///< @brief State size
+  int index{-1};                              ///< @brief State index
+
+private:
+  void refresh_size();
+  bool is_extrinsic{false};                   ///< @brief Extrinsic calibration flag
 };
 
 ///
-/// @brief AugmentedState structure
+/// @brief AugState structure
 ///
-typedef struct AugmentedState
+class AugState
 {
+public:
+  AugState() {}
+
+  ///
+  /// @brief Get augmented state as a vector
+  /// @return Augmented state as a vector
+  ///
+  Eigen::VectorXd ToVector() const;
+
   int frame_id {-1};                                  ///< @brief Augmented frame ID
   Eigen::Vector3d pos_b_in_l{0.0, 0.0, 0.0};          ///< @brief Augmented IMU position
   Eigen::Quaterniond ang_b_to_l{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
   Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Augmented camera position
   Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented camera orientation
-} AugmentedState;
+  unsigned int size{g_aug_state_size};                ///< @brief State size
+  int index{-1};                                      ///< @brief State index
+};
 
 ///
 /// @brief CamState structure
@@ -124,13 +181,14 @@ public:
   /// @brief Get camera state as a vector
   /// @return Camera state as a vector
   ///
-  Eigen::VectorXd ToVector();
+  Eigen::VectorXd ToVector() const;
 
   double pos_stability {1e-9};                        ///< @brief Extrinsic position stability
   double ang_stability {1e-9};                        ///< @brief Extrinsic orientation stability
   Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Camera state position
   Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera state orientation
-  std::vector<AugmentedState> augmented_states;       ///< @brief Camera augmented states
+  unsigned int size{g_cam_state_size};                ///< @brief State size
+  int index{-1};                                      ///< @brief State index
 };
 
 ///
@@ -159,13 +217,38 @@ typedef std::vector<BoardDetection> BoardTrack;
 ///
 /// @brief Fiducial state structure
 ///
-typedef struct FidState
+class FidState
 {
+public:
+  FidState() {}
+
+  ///
+  /// @brief Get fiducial state as a vector
+  /// @return Fiducial state as a vector
+  ///
+  Eigen::VectorXd ToVector() const;
+
+  ///
+  /// @brief is_extrinsic getter function
+  /// @return is_extrinsic
+  ///
+  bool get_is_extrinsic() const;
+  ///
+  /// @brief is_extrinsic setter function
+  /// @param extrinsic value to use for setting
+  ///
+  void set_is_extrinsic(bool extrinsic);
+
   int frame_id;                   ///< @brief Fiducial board ID
-  bool is_extrinsic{false};       ///< @brief Extrinsic calibration flag
   Eigen::Vector3d pos_f_in_l;     ///< @brief Fiducial position in the local frame
   Eigen::Quaterniond ang_f_to_l;  ///< @brief Fiducial position in the local frame
-} FidState;
+  unsigned int size{0};           ///< @brief State size
+  int index{-1};                  ///< @brief State index
+
+private:
+  void refresh_size();
+  bool is_extrinsic{false};       ///< @brief Extrinsic calibration flag
+};
 
 ///
 /// @class State
@@ -183,19 +266,20 @@ public:
   /// @brief Get EKF state as a vector
   /// @return EKF state as a vector
   ///
-  Eigen::VectorXd ToVector();
+  Eigen::VectorXd ToVector() const;
 
   ///
   /// @brief Get EKF state size
   /// @return EKF state size as an integer
   ///
-  unsigned int GetStateSize();
+  unsigned int GetStateSize() const;
 
   BodyState body_state {};                        ///< @brief Body state
   std::map<unsigned int, ImuState> imu_states{};  ///< @brief IMU states
   std::map<unsigned int, GpsState> gps_states{};  ///< @brief GPS states
   std::map<unsigned int, CamState> cam_states{};  ///< @brief Camera states
   std::map<unsigned int, FidState> fid_states{};  ///< @brief Fiducial states
+  std::map<unsigned int, AugState> aug_states{};  ///< @brief Fiducial states
 };
 
 BodyState & operator+=(BodyState & l_body_state, BodyState & r_body_state);
@@ -212,14 +296,14 @@ std::map<unsigned int, CamState> & operator+=(
 std::map<unsigned int, FidState> & operator+=(
   std::map<unsigned int, FidState> & l_fid_state,
   Eigen::VectorXd & r_vector);
-std::vector<AugmentedState> & operator+=(
-  std::vector<AugmentedState> & l_augState,
+std::vector<AugState> & operator+=(
+  std::vector<AugState> & l_augState,
   Eigen::VectorXd & r_vector);
 
 State & operator+=(State & l_state, State & rState);
 State & operator+=(State & l_state, Eigen::VectorXd & r_vector);
 
-enum class GpsInitializationType
+enum class GpsInitType
 {
   CONSTANT,
   BASELINE_DIST,

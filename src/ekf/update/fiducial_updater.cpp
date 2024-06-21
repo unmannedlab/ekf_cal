@@ -92,7 +92,7 @@ void FiducialUpdater::UpdateEKF(
 
   /// @todo(jhartzer): Wrap this in a function
   for (auto board_detection : board_track) {
-    AugmentedState aug_state_i = ekf->MatchState(m_id, board_detection.frame_id);
+    AugState aug_state_i = ekf->GetAugState(m_id, board_detection.frame_id);
 
     const Eigen::Vector3d pos_bi_in_g = aug_state_i.pos_b_in_l;
     const Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
@@ -148,9 +148,9 @@ void FiducialUpdater::UpdateEKF(
   Eigen::Matrix3d rot_f_to_l_est = ang_f_to_l_est.toRotationMatrix();
 
   unsigned int max_meas_size = g_fid_measurement_size * board_track.size();
-  unsigned int state_size = ekf->m_state.GetStateSize();
-  unsigned int cam_state_start = ekf->GetCamStateStartIndex(m_id);
-  unsigned int aug_state_size = g_aug_state_size * ekf->GetCamState(m_id).augmented_states.size();
+  unsigned int state_size = ekf->GetStateSize();
+  unsigned int cam_index = ekf->m_state.cam_states[m_id].index;
+  unsigned int aug_state_size = ekf->GetAugStateSize();
 
   Eigen::VectorXd res_x = Eigen::VectorXd::Zero(max_meas_size);
   Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(max_meas_size, state_size);
@@ -160,8 +160,8 @@ void FiducialUpdater::UpdateEKF(
   Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(max_meas_size, g_cam_state_size + aug_state_size);
 
   for (unsigned int i = 0; i < board_track.size(); ++i) {
-    AugmentedState aug_state_i = ekf->MatchState(m_id, board_track[i].frame_id);
-    unsigned int aug_state_start = ekf->GetAugStateStartIndex(m_id, board_track[i].frame_id);
+    AugState aug_state_i = ekf->GetAugState(m_id, board_track[i].frame_id);
+    unsigned int aug_index = ekf->GetAugState(m_id, board_track[i].frame_id).index;
 
     Eigen::Matrix3d rot_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
     Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
@@ -192,7 +192,7 @@ void FiducialUpdater::UpdateEKF(
     res_f.segment<3>(meas_row + 0) = pos_residual;
     res_f.segment<3>(meas_row + 3) = QuatToRotVec(ang_residual);
 
-    unsigned int H_c_aug_start = aug_state_start - cam_state_start;
+    unsigned int H_c_aug_start = aug_index - cam_index;
 
     H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 0) = -rot_bi_to_ci * rot_l_to_bi;
 
@@ -220,7 +220,7 @@ void FiducialUpdater::UpdateEKF(
   /// @todo Chi^2 distance check
 
   // Append our Jacobian and residual
-  H_x.block(0, cam_state_start, H_c.rows(), H_c.cols()) = H_c;
+  H_x.block(0, cam_index, H_c.rows(), H_c.cols()) = H_c;
   res_x.block(0, 0, res_f.rows(), 1) = res_f;
 
   if (board_track.size() > 1) {
@@ -264,7 +264,7 @@ void FiducialUpdater::UpdateEKF(
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
   Eigen::VectorXd cov_diag = ekf->m_cov.block(
-    cam_state_start, cam_state_start, g_cam_state_size, g_cam_state_size).diagonal();
+    cam_index, cam_index, g_cam_state_size, g_cam_state_size).diagonal();
 
   // Write outputs
   std::stringstream msg;

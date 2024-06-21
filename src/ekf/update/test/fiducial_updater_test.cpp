@@ -49,7 +49,7 @@ TEST(test_imu_updater, constructor) {
   board_detection.r_vec_f_to_c = cv::Vec3d{0, 0, 0};
   board_track.push_back(board_detection);
 
-  ekf->AugmentState(cam_id, board_detection.frame_id);
+  ekf->AugmentStateIfNeeded(cam_id, board_detection.frame_id);
 
   fiducial_updater.UpdateEKF(ekf, 0.0, board_track, 1e-2, 1e-2);
 }

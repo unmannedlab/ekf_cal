@@ -38,8 +38,8 @@ IMU::IMU(IMU::Parameters params)
   m_rate = params.rate;
 
   ImuState imu_state;
-  imu_state.is_extrinsic = params.is_extrinsic;
-  imu_state.is_intrinsic = params.is_intrinsic;
+  imu_state.set_is_extrinsic(params.is_extrinsic);
+  imu_state.set_is_intrinsic(params.is_intrinsic);
   imu_state.pos_stability = params.pos_stability;
   imu_state.ang_stability = params.ang_stability;
   imu_state.acc_bias_stability = params.acc_bias_stability;
@@ -51,9 +51,9 @@ IMU::IMU(IMU::Parameters params)
   MinBoundVector(params.variance, 1e-6);
 
   Eigen::MatrixXd cov;
-  if (imu_state.is_extrinsic && imu_state.is_intrinsic) {
+  if (imu_state.get_is_extrinsic() && imu_state.get_is_intrinsic()) {
     cov = params.variance.segment<12>(0).asDiagonal();
-  } else if (imu_state.is_extrinsic || imu_state.is_intrinsic) {
+  } else if (imu_state.get_is_extrinsic() || imu_state.get_is_intrinsic()) {
     cov = params.variance.segment<6>(0).asDiagonal();
   }
 

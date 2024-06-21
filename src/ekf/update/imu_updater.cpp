@@ -199,7 +199,7 @@ void ImuUpdater::UpdateEKF(
   Eigen::VectorXd z_pred = PredictMeasurement(ekf);
   Eigen::VectorXd resid = z - z_pred;
 
-  unsigned int imu_state_start = ekf->GetImuStateStartIndex(m_id);
+  unsigned int imu_index = ekf->m_state.imu_states[m_id].index;
 
   unsigned int update_size = g_body_state_size + ekf->GetImuStateSize();
   unsigned int imu_update_size {0};
@@ -212,7 +212,7 @@ void ImuUpdater::UpdateEKF(
   H.block<6, g_body_state_size>(0, 0) = subH.block<6, g_body_state_size>(0, 0);
 
   if (imu_update_size) {
-    H.block(0, imu_state_start, 6, imu_update_size) =
+    H.block(0, imu_index, 6, imu_update_size) =
       subH.block(0, g_body_state_size, 6, imu_update_size);
   }
 
@@ -250,7 +250,7 @@ void ImuUpdater::UpdateEKF(
   msg << VectorToCommaString(ekf->m_state.imu_states[m_id].omg_bias);
   if (imu_update_size) {
     Eigen::VectorXd cov_diag = ekf->m_cov.block(
-      imu_state_start, imu_state_start, imu_update_size, imu_update_size).diagonal();
+      imu_index, imu_index, imu_update_size, imu_update_size).diagonal();
     msg << VectorToCommaString(cov_diag);
   }
   msg << VectorToCommaString(acceleration);
@@ -258,7 +258,7 @@ void ImuUpdater::UpdateEKF(
   msg << VectorToCommaString(resid);
   msg << VectorToCommaString(body_update);
   if (imu_update_size) {
-    Eigen::VectorXd imu_sub_update = update.segment(imu_state_start, imu_update_size);
+    Eigen::VectorXd imu_sub_update = update.segment(imu_index, imu_update_size);
     msg << VectorToCommaString(imu_sub_update);
   }
   msg << "," << t_execution.count();

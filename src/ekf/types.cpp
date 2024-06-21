@@ -71,14 +71,6 @@ State & operator+=(State & l_state, State & r_state)
     l_state.cam_states[cam_id].pos_c_in_b += r_state.cam_states[cam_id].pos_c_in_b;
     l_state.cam_states[cam_id].ang_c_to_b =
       r_state.cam_states[cam_id].ang_c_to_b * l_state.cam_states[cam_id].ang_c_to_b;
-    for (unsigned int i = 0; i < l_state.cam_states[cam_id].augmented_states.size(); ++i) {
-      AugmentedState & l_aug_state = l_state.cam_states[cam_id].augmented_states[i];
-      AugmentedState & r_aug_state = r_state.cam_states[cam_id].augmented_states[i];
-      l_aug_state.pos_b_in_l += r_aug_state.pos_b_in_l;
-      l_aug_state.ang_b_to_l = r_aug_state.ang_b_to_l * l_aug_state.ang_b_to_l;
-      l_aug_state.pos_c_in_b += r_aug_state.pos_c_in_b;
-      l_aug_state.ang_c_to_b = r_aug_state.ang_c_to_b * l_aug_state.ang_c_to_b;
-    }
   }
 
   for (auto & fid_iter : l_state.fid_states) {
@@ -86,6 +78,16 @@ State & operator+=(State & l_state, State & r_state)
     l_state.fid_states[fid_id].pos_f_in_l += r_state.fid_states[fid_id].pos_f_in_l;
     l_state.fid_states[fid_id].ang_f_to_l =
       r_state.fid_states[fid_id].ang_f_to_l * l_state.fid_states[fid_id].ang_f_to_l;
+  }
+
+  for (auto & aug_iter : l_state.aug_states) {
+    unsigned int aug_id = aug_iter.first;
+    l_state.aug_states[aug_id].pos_b_in_l += r_state.aug_states[aug_id].pos_b_in_l;
+    l_state.aug_states[aug_id].ang_b_to_l = r_state.aug_states[aug_id].ang_b_to_l *
+      l_state.aug_states[aug_id].ang_b_to_l;
+    l_state.aug_states[aug_id].pos_c_in_b += r_state.aug_states[aug_id].pos_c_in_b;
+    l_state.aug_states[aug_id].ang_c_to_b = r_state.aug_states[aug_id].ang_c_to_b *
+      l_state.aug_states[aug_id].ang_c_to_b;
   }
 
   return l_state;
@@ -98,13 +100,13 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
 
   unsigned int n = g_body_state_size;
   for (auto & imu_iter : l_state.imu_states) {
-    if (imu_iter.second.is_extrinsic) {
+    if (imu_iter.second.get_is_extrinsic()) {
       imu_iter.second.pos_i_in_b += r_vector.segment<3>(n + 0);
       imu_iter.second.ang_i_to_b =
         imu_iter.second.ang_i_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
       n += g_imu_extrinsic_state_size;
     }
-    if (imu_iter.second.is_intrinsic) {
+    if (imu_iter.second.get_is_intrinsic()) {
       imu_iter.second.acc_bias += r_vector.segment<3>(n + 0);
       imu_iter.second.omg_bias += r_vector.segment<3>(n + 3);
       n += g_imu_intrinsic_state_size;
@@ -112,7 +114,7 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
   }
 
   for (auto & gps_iter : l_state.gps_states) {
-    if (gps_iter.second.is_extrinsic) {
+    if (gps_iter.second.get_is_extrinsic()) {
       gps_iter.second.pos_a_in_b += r_vector.segment<3>(n);
       n += g_gps_extrinsic_state_size;
     }
@@ -123,26 +125,25 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
     cam_iter.second.ang_c_to_b =
       cam_iter.second.ang_c_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
     n += g_cam_state_size;
-    for (unsigned int i = 0; i < cam_iter.second.augmented_states.size(); ++i) {
-      cam_iter.second.augmented_states[i].pos_b_in_l += r_vector.segment<3>(n + 0);
-      cam_iter.second.augmented_states[i].ang_b_to_l =
-        cam_iter.second.augmented_states[i].ang_b_to_l *
-        RotVecToQuat(r_vector.segment<3>(n + 3));
-      cam_iter.second.augmented_states[i].pos_c_in_b += r_vector.segment<3>(n + 6);
-      cam_iter.second.augmented_states[i].ang_c_to_b =
-        cam_iter.second.augmented_states[i].ang_c_to_b *
-        RotVecToQuat(r_vector.segment<3>(n + 9));
-      n += g_aug_state_size;
-    }
   }
 
   for (auto & fid_iter : l_state.fid_states) {
-    if (fid_iter.second.is_extrinsic) {
+    if (fid_iter.second.get_is_extrinsic()) {
       fid_iter.second.pos_f_in_l += r_vector.segment<3>(n);
       fid_iter.second.ang_f_to_l =
         fid_iter.second.ang_f_to_l * RotVecToQuat(r_vector.segment<3>(n + 3));
       n += g_fid_extrinsic_state_size;
     }
+  }
+
+  for (auto & aug_iter : l_state.aug_states) {
+    aug_iter.second.pos_b_in_l += r_vector.segment<3>(n + 0);
+    aug_iter.second.ang_b_to_l =
+      aug_iter.second.ang_b_to_l * RotVecToQuat(r_vector.segment<3>(n + 3));
+    aug_iter.second.pos_c_in_b += r_vector.segment<3>(n + 6);
+    aug_iter.second.ang_c_to_b =
+      aug_iter.second.ang_c_to_b * RotVecToQuat(r_vector.segment<3>(n + 9));
+    n += g_aug_state_size;
   }
 
   return l_state;
@@ -154,13 +155,13 @@ std::map<unsigned int, ImuState> & operator+=(
   unsigned int n {0};
   for (auto & imu_iter : l_imu_state) {
     unsigned int imu_id = imu_iter.first;
-    if (l_imu_state[imu_id].is_extrinsic) {
+    if (l_imu_state[imu_id].get_is_extrinsic()) {
       l_imu_state[imu_id].pos_i_in_b += r_vector.segment<3>(n + 0);
       l_imu_state[imu_id].ang_i_to_b = l_imu_state[imu_id].ang_i_to_b * RotVecToQuat(
         r_vector.segment<3>(n + 3));
       n += g_imu_extrinsic_state_size;
     }
-    if (l_imu_state[imu_id].is_intrinsic) {
+    if (l_imu_state[imu_id].get_is_intrinsic()) {
       l_imu_state[imu_id].acc_bias += r_vector.segment<3>(n + 0);
       l_imu_state[imu_id].omg_bias += r_vector.segment<3>(n + 3);
       n += g_imu_intrinsic_state_size;
@@ -171,21 +172,17 @@ std::map<unsigned int, ImuState> & operator+=(
 }
 
 std::map<unsigned int, CamState> & operator+=(
-  std::map<unsigned int, CamState> & lCamState, Eigen::VectorXd & r_vector)
+  std::map<unsigned int, CamState> & l_cam_state, Eigen::VectorXd & r_vector)
 {
   unsigned int n {0};
-  for (auto & cam_iter : lCamState) {
+  for (auto & cam_iter : l_cam_state) {
     unsigned int cam_id = cam_iter.first;
-    lCamState[cam_id].pos_c_in_b += r_vector.segment<3>(n + 0);
-    lCamState[cam_id].ang_c_to_b =
-      lCamState[cam_id].ang_c_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
-    unsigned int aug_size = lCamState[cam_id].augmented_states.size() * g_aug_state_size;
-    Eigen::VectorXd augUpdate = r_vector.segment(n + g_cam_state_size, aug_size);
-    lCamState[cam_id].augmented_states += augUpdate;
-    n += g_cam_state_size + aug_size;
+    l_cam_state[cam_id].pos_c_in_b += r_vector.segment<3>(n + 0);
+    l_cam_state[cam_id].ang_c_to_b =
+      l_cam_state[cam_id].ang_c_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
   }
 
-  return lCamState;
+  return l_cam_state;
 }
 
 std::map<unsigned int, FidState> & operator+=(
@@ -194,7 +191,7 @@ std::map<unsigned int, FidState> & operator+=(
   unsigned int n {0};
   for (auto & fid_iter : l_fid_state) {
     unsigned int fid_id = fid_iter.first;
-    if (l_fid_state[fid_id].is_extrinsic) {
+    if (l_fid_state[fid_id].get_is_extrinsic()) {
       l_fid_state[fid_id].pos_f_in_l += r_vector.segment<3>(n + 0);
       l_fid_state[fid_id].ang_f_to_l =
         l_fid_state[fid_id].ang_f_to_l * RotVecToQuat(r_vector.segment<3>(n + 3));
@@ -205,8 +202,8 @@ std::map<unsigned int, FidState> & operator+=(
   return l_fid_state;
 }
 
-std::vector<AugmentedState> & operator+=(
-  std::vector<AugmentedState> & l_aug_state, Eigen::VectorXd & r_vector)
+std::vector<AugState> & operator+=(
+  std::vector<AugState> & l_aug_state, Eigen::VectorXd & r_vector)
 {
   unsigned int n {0};
   for (auto & aug_iter : l_aug_state) {
@@ -220,7 +217,7 @@ std::vector<AugmentedState> & operator+=(
   return l_aug_state;
 }
 
-Eigen::VectorXd BodyState::ToVector()
+Eigen::VectorXd BodyState::ToVector() const
 {
   Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(g_body_state_size);
 
@@ -234,54 +231,62 @@ Eigen::VectorXd BodyState::ToVector()
   return out_vec;
 }
 
-Eigen::VectorXd CamState::ToVector()
+Eigen::VectorXd CamState::ToVector() const
 {
-  Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(
-    g_cam_state_size + g_aug_state_size * augmented_states.size());
+  Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(g_cam_state_size);
 
   out_vec.segment<3>(0) = pos_c_in_b;
   out_vec.segment<3>(3) = QuatToRotVec(ang_c_to_b);
 
-  unsigned int n = g_cam_state_size;
-  for (auto const & aug_state : augmented_states) {
-    out_vec.segment<3>(n + 0) = aug_state.pos_b_in_l;
-    out_vec.segment<3>(n + 3) = QuatToRotVec(aug_state.ang_b_to_l);
-    out_vec.segment<3>(n + 6) = aug_state.pos_c_in_b;
-    out_vec.segment<3>(n + 9) = QuatToRotVec(aug_state.ang_c_to_b);
-    n += g_aug_state_size;
-  }
-
   return out_vec;
 }
 
-Eigen::VectorXd ImuState::ToVector()
+Eigen::VectorXd AugState::ToVector() const
 {
-  Eigen::VectorXd out_vec;
+  Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(g_aug_state_size);
 
-  if (is_extrinsic && is_intrinsic) {
-    out_vec = Eigen::VectorXd::Zero(12);
-    out_vec.segment<3>(0) = pos_i_in_b;
-    out_vec.segment<3>(3) = QuatToRotVec(ang_i_to_b);
-    out_vec.segment<3>(6) = acc_bias;
-    out_vec.segment<3>(9) = omg_bias;
-  } else if (is_extrinsic) {
-    out_vec = Eigen::VectorXd::Zero(6);
-    out_vec.segment<3>(0) = pos_i_in_b;
-    out_vec.segment<3>(3) = QuatToRotVec(ang_i_to_b);
-  } else if (is_intrinsic) {
-    out_vec = Eigen::VectorXd::Zero(6);
-    out_vec.segment<3>(0) = acc_bias;
-    out_vec.segment<3>(3) = omg_bias;
-  } else {
-    out_vec = Eigen::VectorXd::Zero(0);
+  out_vec.segment<3>(0) = pos_b_in_l;
+  out_vec.segment<3>(3) = QuatToRotVec(ang_b_to_l);
+  out_vec.segment<3>(6) = pos_c_in_b;
+  out_vec.segment<3>(9) = QuatToRotVec(ang_c_to_b);
+
+  return out_vec;
+}
+
+Eigen::VectorXd ImuState::ToVector() const
+{
+  Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(size);
+  unsigned int n {0};
+
+  if (is_extrinsic) {
+    out_vec.segment<3>(n + 0) = pos_i_in_b;
+    out_vec.segment<3>(n + 3) = QuatToRotVec(ang_i_to_b);
+    n += g_imu_extrinsic_state_size;
+  }
+  if (is_intrinsic) {
+    out_vec.segment<3>(n + 0) = acc_bias;
+    out_vec.segment<3>(n + 3) = omg_bias;
+    n += g_imu_intrinsic_state_size;
   }
 
   return out_vec;
 }
 
-Eigen::VectorXd GpsState::ToVector()
+Eigen::VectorXd GpsState::ToVector() const
 {
   return pos_a_in_b;
+}
+
+Eigen::VectorXd FidState::ToVector() const
+{
+  Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(size);
+
+  if (is_extrinsic) {
+    out_vec.segment<3>(0) = pos_f_in_l;
+    out_vec.segment<3>(3) = QuatToRotVec(ang_f_to_l);
+  }
+
+  return out_vec;
 }
 
 void BodyState::SetState(Eigen::VectorXd state)
@@ -295,7 +300,7 @@ void BodyState::SetState(Eigen::VectorXd state)
 }
 
 
-Eigen::VectorXd State::ToVector()
+Eigen::VectorXd State::ToVector() const
 {
   Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(GetStateSize());
 
@@ -303,77 +308,126 @@ Eigen::VectorXd State::ToVector()
   unsigned int n = g_body_state_size;
 
   for (auto const & imu_iter : imu_states) {
-    if (imu_iter.second.is_extrinsic) {
-      out_vec.segment<3>(n + 0) = imu_iter.second.pos_i_in_b;
-      out_vec.segment<3>(n + 3) = QuatToRotVec(imu_iter.second.ang_i_to_b);
-      n += g_imu_extrinsic_state_size;
-    }
-    if (imu_iter.second.is_intrinsic) {
-      out_vec.segment<3>(n + 0) = imu_iter.second.acc_bias;
-      out_vec.segment<3>(n + 3) = imu_iter.second.omg_bias;
-      n += g_imu_intrinsic_state_size;
+    if (imu_iter.second.get_is_extrinsic() || imu_iter.second.get_is_extrinsic()) {
+      Eigen::VectorXd temp_vec = imu_iter.second.ToVector();
+      out_vec.segment(n, temp_vec.size()) = temp_vec;
+      n += temp_vec.size();
     }
   }
 
   for (auto const & gps_iter : gps_states) {
-    if (gps_iter.second.is_extrinsic) {
+    if (gps_iter.second.get_is_extrinsic()) {
       out_vec.segment<3>(n) = gps_iter.second.pos_a_in_b;
       n += g_gps_extrinsic_state_size;
     }
   }
 
   for (auto const & cam_iter : cam_states) {
-    out_vec.segment<3>(n + 0) = cam_iter.second.pos_c_in_b;
-    out_vec.segment<3>(n + 3) = QuatToRotVec(cam_iter.second.ang_c_to_b);
-    n += g_cam_state_size;
-    for (auto const & aug_state : cam_iter.second.augmented_states) {
-      out_vec.segment<3>(n + 0) = aug_state.pos_b_in_l;
-      out_vec.segment<3>(n + 3) = QuatToRotVec(aug_state.ang_b_to_l);
-      out_vec.segment<3>(n + 6) = aug_state.pos_c_in_b;
-      out_vec.segment<3>(n + 9) = QuatToRotVec(aug_state.ang_c_to_b);
-      n += g_aug_state_size;
-    }
+    Eigen::VectorXd temp_vec = cam_iter.second.ToVector();
+    out_vec.segment(n, temp_vec.size()) = temp_vec;
+    n += temp_vec.size();
   }
 
   for (auto const & fid_iter : fid_states) {
-    if (fid_iter.second.is_extrinsic) {
+    if (fid_iter.second.get_is_extrinsic()) {
       out_vec.segment<3>(n + 0) = fid_iter.second.pos_f_in_l;
       out_vec.segment<3>(n + 3) = QuatToRotVec(fid_iter.second.ang_f_to_l);
       n += g_fid_extrinsic_state_size;
     }
   }
 
+  for (auto const & aug_iter : aug_states) {
+    out_vec.segment<3>(n + 0) = aug_iter.second.pos_b_in_l;
+    out_vec.segment<3>(n + 3) = QuatToRotVec(aug_iter.second.ang_b_to_l);
+    out_vec.segment<3>(n + 6) = aug_iter.second.pos_c_in_b;
+    out_vec.segment<3>(n + 9) = QuatToRotVec(aug_iter.second.ang_c_to_b);
+    n += g_aug_state_size;
+  }
+
   return out_vec;
 }
 
-unsigned int State::GetStateSize()
+unsigned int State::GetStateSize() const
 {
   unsigned int state_size = g_body_state_size;
 
   for (auto const & imu_iter : imu_states) {
-    if (imu_iter.second.is_extrinsic) {
+    if (imu_iter.second.get_is_extrinsic()) {
       state_size += g_imu_extrinsic_state_size;
     }
-    if (imu_iter.second.is_intrinsic) {
+    if (imu_iter.second.get_is_intrinsic()) {
       state_size += g_imu_intrinsic_state_size;
     }
   }
 
   for (auto const & gps_iter : gps_states) {
-    if (gps_iter.second.is_extrinsic) {
+    if (gps_iter.second.get_is_extrinsic()) {
       state_size += g_gps_extrinsic_state_size;
     }
   }
 
-  for (auto const & cam_iter : cam_states) {
-    state_size += g_cam_state_size + g_aug_state_size * cam_iter.second.augmented_states.size();
-  }
+  state_size += g_cam_state_size * cam_states.size();
 
   for (auto const & fid_iter : fid_states) {
-    if (fid_iter.second.is_extrinsic) {
+    if (fid_iter.second.get_is_extrinsic()) {
       state_size += g_fid_extrinsic_state_size;
     }
   }
 
+  state_size += g_aug_state_size * aug_states.size();
+
   return state_size;
+}
+
+bool ImuState::get_is_extrinsic() const
+{
+  return is_extrinsic;
+}
+bool ImuState::get_is_intrinsic() const
+{
+  return is_intrinsic;
+}
+bool GpsState::get_is_extrinsic() const
+{
+  return is_extrinsic;
+}
+bool FidState::get_is_extrinsic() const
+{
+  return is_extrinsic;
+}
+void ImuState::set_is_extrinsic(bool extrinsic)
+{
+  is_extrinsic = extrinsic;
+  refresh_size();
+}
+void ImuState::set_is_intrinsic(bool intrinsic)
+{
+  is_intrinsic = intrinsic;
+  refresh_size();
+}
+void ImuState::refresh_size()
+{
+  size = 0;
+  if (is_extrinsic) {size += g_imu_extrinsic_state_size;}
+  if (is_intrinsic) {size += g_imu_intrinsic_state_size;}
+}
+void GpsState::set_is_extrinsic(bool extrinsic)
+{
+  is_extrinsic = extrinsic;
+  refresh_size();
+}
+void GpsState::refresh_size()
+{
+  size = 0;
+  if (is_extrinsic) {size += g_gps_extrinsic_state_size;}
+}
+void FidState::set_is_extrinsic(bool extrinsic)
+{
+  is_extrinsic = extrinsic;
+  refresh_size();
+}
+void FidState::refresh_size()
+{
+  size = 0;
+  if (is_extrinsic) {size += g_imu_extrinsic_state_size;}
 }

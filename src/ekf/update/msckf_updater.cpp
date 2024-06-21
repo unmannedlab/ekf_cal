@@ -73,7 +73,7 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(
   std::shared_ptr<EKF> ekf,
   std::vector<FeaturePoint> & feature_track)
 {
-  AugmentedState aug_state_0 = ekf->MatchState(m_id, feature_track[0].frame_id);
+  AugState aug_state_0 = ekf->GetAugState(m_id, feature_track[0].frame_id);
 
   // 3D Cartesian Triangulation
   Eigen::Matrix3d A = Eigen::Matrix3d::Zero();
@@ -88,7 +88,7 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(
   const Eigen::Matrix3d rotation_i0_to_c0 = rotation_c0_to_i0.transpose();
 
   for (unsigned int i = 0; i < feature_track.size(); ++i) {
-    AugmentedState aug_state_i = ekf->MatchState(m_id, feature_track[i].frame_id);
+    AugState aug_state_i = ekf->GetAugState(m_id, feature_track[i].frame_id);
 
     const Eigen::Vector3d position_bi_in_l = aug_state_i.pos_b_in_l;
     const Eigen::Matrix3d rotation_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
@@ -218,8 +218,8 @@ void MsckfUpdater::UpdateEKF(
   }
 
   unsigned int ct_meas = 0;
-  unsigned int state_size = ekf->m_state.GetStateSize();
-  unsigned int cam_state_start = ekf->GetCamStateStartIndex(m_id);
+  unsigned int state_size = ekf->GetStateSize();
+  unsigned int cam_index = ekf->m_state.cam_states[m_id].index;
 
   Eigen::VectorXd res_x = Eigen::VectorXd::Zero(max_meas_size);
   Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(max_meas_size, state_size);
@@ -250,15 +250,14 @@ void MsckfUpdater::UpdateEKF(
     msg << "," << pos_f_in_l[2];
     m_triangulation_logger.RateLimitedLog(msg.str(), time);
 
-    unsigned int aug_state_size = g_aug_state_size *
-      ekf->GetCamState(m_id).augmented_states.size();
+    unsigned int aug_state_size = ekf->GetAugStateSize();
     Eigen::VectorXd res_f = Eigen::VectorXd::Zero(2 * feature_track.size());
     Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feature_track.size(), 3);
     Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(
       2 * feature_track.size(), g_cam_state_size + aug_state_size);
 
     for (unsigned int i = 0; i < feature_track.size(); ++i) {
-      AugmentedState aug_state_i = ekf->MatchState(m_id, feature_track[i].frame_id);
+      AugState aug_state_i = ekf->GetAugState(m_id, feature_track[i].frame_id);
 
       Eigen::Matrix3d rot_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
       Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
@@ -281,7 +280,7 @@ void MsckfUpdater::UpdateEKF(
       xz_residual = xz_measured - xz_predicted;
       res_f.segment<2>(2 * i) = xz_residual;
 
-      unsigned int aug_state_start = ekf->GetAugStateStartIndex(m_id, feature_track[i].frame_id);
+      unsigned int aug_index = ekf->GetAugState(m_id, feature_track[i].frame_id).index;
 
       // Projection Jacobian
       Eigen::MatrixXd H_p(2, 3);
@@ -303,14 +302,14 @@ void MsckfUpdater::UpdateEKF(
       // H_t.block<3, 3>(0, 9) =
       //   SkewSymmetric(rot_bi_to_ci * rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l));
 
-      H_c.block<2, 12>(2 * i, aug_state_start - cam_state_start) = H_d * H_p * H_t;
+      H_c.block<2, 12>(2 * i, aug_index - cam_index) = H_d * H_p * H_t;
     }
     ApplyLeftNullspace(H_f, H_c, res_f);
 
     /// @todo Chi^2 distance check
 
     // Append Jacobian and residual
-    H_x.block(ct_meas, cam_state_start, H_c.rows(), H_c.cols()) = H_c;
+    H_x.block(ct_meas, cam_index, H_c.rows(), H_c.cols()) = H_c;
     res_x.block(ct_meas, 0, res_f.rows(), 1) = res_f;
 
     ct_meas += H_c.rows();
@@ -358,9 +357,9 @@ void MsckfUpdater::UpdateEKF(
   Eigen::VectorXd cam_state_vec = ekf->m_state.cam_states[m_id].ToVector();
   Eigen::Vector3d cam_pos = cam_state_vec.segment<3>(0);
   Eigen::Quaterniond cam_ang_pos = RotVecToQuat(cam_state_vec.segment<3>(3));
-  Eigen::VectorXd cam_sub_update = update.segment(cam_state_start, g_cam_state_size);
+  Eigen::VectorXd cam_sub_update = update.segment(cam_index, g_cam_state_size);
   Eigen::VectorXd cov_diag = ekf->m_cov.block(
-    cam_state_start, cam_state_start, g_cam_state_size, g_cam_state_size).diagonal();
+    cam_index, cam_index, g_cam_state_size, g_cam_state_size).diagonal();
 
   std::stringstream msg;
   msg << time;

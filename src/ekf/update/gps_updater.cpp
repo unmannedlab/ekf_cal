@@ -119,7 +119,7 @@ Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
   unsigned int state_size = ekf->GetStateSize();
   Eigen::Vector3d pos_a_in_b = ekf->m_state.body_state.pos_b_in_l;
   Eigen::Quaterniond ang_b_to_g = ekf->m_state.body_state.ang_b_to_l;
-  unsigned int gps_state_start = ekf->GetGpsStateStartIndex(m_id);
+  unsigned int gps_index = ekf->m_state.gps_states[m_id].index;
 
   Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, state_size);
   // measurement_jacobian.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity(3, 3);
@@ -127,7 +127,7 @@ Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
   // measurement_jacobian.block<3, 3>(0, 9) = -ang_b_to_g.toRotationMatrix() *
   // SkewSymmetric(pos_a_in_b) * quaternion_jacobian(ang_b_to_g);
   if (m_is_extrinsic) {
-    measurement_jacobian.block<3, 3>(0, gps_state_start) = Eigen::Matrix3d::Identity(3, 3);
+    measurement_jacobian.block<3, 3>(0, gps_index) = Eigen::Matrix3d::Identity(3, 3);
     // ang_b_to_g.toRotationMatrix();
   }
   return measurement_jacobian;
@@ -181,9 +181,9 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   msg << "," << ekf->IsLlaInitialized();
   msg << VectorToCommaString(ekf->GetGpsState(m_id).pos_a_in_b);
   if (m_is_extrinsic) {
-    unsigned int gps_state_start = ekf->GetGpsStateStartIndex(m_id);
+    unsigned int gps_index = ekf->m_state.gps_states[m_id].index;
     Eigen::VectorXd cov_diag = ekf->m_cov.block(
-      gps_state_start, gps_state_start, g_gps_extrinsic_state_size,
+      gps_index, gps_index, g_gps_extrinsic_state_size,
       g_gps_extrinsic_state_size).diagonal();
     msg << VectorToCommaString(cov_diag);
   }
