@@ -292,6 +292,11 @@ The following is an example of a GPS input configuration.
                 pos_a_in_b: [1.0, 0, 0]                 # Antenna position in body frame
                 variance: [5.0, 5.0, 5.0]               # Antenna position variance
                 data_log_rate: 5.0                      # Data log rate
+                initialization_type: 0                  # Initialization Type
+                                                        #   0: CONSTANT
+                                                        #   1: BASELINE_DIST
+                                                        #   2: ERROR_THRESHOLD
+                init_baseline_dist: 100.0               # Baseline distance threshold to initialize
                 init_pos_thresh: 1.0                    # Local frame position error threshold
                 init_ang_thresh: 0.1                    # Local frame heading error threshold
                 is_extrinsic: false                     # Flag to calibrate GPS extrinsics
