@@ -32,8 +32,9 @@ python3 eval/plot-bokeh.py --help
 import os
 
 from bokeh.embed import components
-from bokeh.models import Spacer, Tabs
-from bokeh.plotting import curdoc, save
+from bokeh.models import BoxZoomTool, FullscreenTool, PanTool, ResetTool, \
+    SaveTool, Spacer, Tabs, WheelZoomTool
+from bokeh.plotting import curdoc, figure, save
 from input_parser import InputParser
 from tab_body import tab_body
 from tab_fiducial import tab_fiducial
@@ -95,6 +96,22 @@ def plot_sim_results(config_sets, args):
             body_truth_dfs = body_truth_dfs_dict[0]
             tabs.append(tab_gps(gps_dfs, body_truth_dfs, args).get_tab())
 
+        # Hide legends on click
+        for tab in tabs:
+            for row in tab.child.children:
+                for fig in row.children:
+                    if (isinstance(fig, figure) and fig.legend):
+                        fig.toolbar.logo = None
+                        fig.tools = [
+                            PanTool(),
+                            BoxZoomTool(),
+                            WheelZoomTool(),
+                            FullscreenTool(),
+                            ResetTool(),
+                            SaveTool()
+                        ]
+                        fig.legend.click_policy = "hide"
+
         if (args.embed):
             if not os.path.exists(os.path.join(plot_dir, 'js')):
                 os.makedirs(os.path.join(plot_dir, 'js'))
@@ -102,11 +119,11 @@ def plot_sim_results(config_sets, args):
                 os.makedirs(os.path.join(plot_dir, 'html'))
             for tab in tabs:
                 for row in tab.child.children:
-                    for figure in row.children:
-                        if isinstance(figure, Spacer):
+                    for fig in row.children:
+                        if isinstance(fig, Spacer):
                             continue
-                        title = figure.title.text.replace(' ', '_')
-                        script, div = components(figure, wrap_script=False)
+                        title = fig.title.text.replace(' ', '_')
+                        script, div = components(fig, wrap_script=False)
                         with open(os.path.join(plot_dir, 'js', f'{title}.js'), 'w') as f:
                             f.write(script)
 
