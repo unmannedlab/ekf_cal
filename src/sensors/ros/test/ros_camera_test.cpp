@@ -28,8 +28,9 @@
 #include "trackers/feature_tracker.hpp"
 
 TEST(test_ros_camera, constructor) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
   Camera::Parameters cam_params;
   cam_params.name = "test_Camera";
   cam_params.ekf = ekf;
@@ -45,8 +46,9 @@ TEST(test_ros_camera, ros_camera_message) {
 }
 
 TEST(test_ros_camera, ros_camera_callback) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
   auto image_message = std::make_shared<sensor_msgs::msg::Image>();
   image_message->encoding = "bgr8";
   cv::Mat img = cv::Mat::zeros(cv::Size(640, 480), CV_8UC3);
@@ -58,13 +60,13 @@ TEST(test_ros_camera, ros_camera_callback) {
   Camera::Parameters cam_params;
   cam_params.name = "test_Camera";
   cam_params.ekf = ekf;
-  cam_params.logger = logger;
+  cam_params.logger = ekf_params.debug_logger;
   RosCamera rosCamera(cam_params);
   rosCamera.Callback(ros_camera_message);
 
   FeatureTracker::Parameters tracker_params;
   tracker_params.ekf = ekf;
-  tracker_params.logger = logger;
+  tracker_params.logger = ekf_params.debug_logger;
   auto feature_tracker = std::make_shared<FeatureTracker>(tracker_params);
   rosCamera.AddTracker(feature_tracker);
   rosCamera.Callback(ros_camera_message);

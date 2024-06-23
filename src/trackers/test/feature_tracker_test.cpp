@@ -56,15 +56,16 @@ TEST(test_feature_tracker, initialization) {
 }
 
 TEST(test_feature_tracker, track) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::INFO, "");
-  auto ekf = std::make_shared<EKF>(logger, 10.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
   BodyState body_state_init;
   body_state_init.vel_b_in_l[1] = -0.1;
   ekf->Initialize(0.0, body_state_init);
 
   IMU::Parameters imu_params;
   imu_params.ekf = ekf;
-  imu_params.logger = logger;
+  imu_params.logger = ekf_params.debug_logger;
   IMU imu(imu_params);
 
   Camera::Parameters cam_params;
@@ -76,7 +77,7 @@ TEST(test_feature_tracker, track) {
   cam_params.intrinsics.f_x = 512.8;
   cam_params.intrinsics.f_y = 512.8;
   cam_params.ekf = ekf;
-  cam_params.logger = logger;
+  cam_params.logger = ekf_params.debug_logger;
   Camera cam(cam_params);
 
   FeatureTracker::Parameters tracker_params;
@@ -85,7 +86,7 @@ TEST(test_feature_tracker, track) {
   tracker_params.camera_id = cam.GetId();
   tracker_params.ekf = ekf;
   tracker_params.min_feat_dist = 0.1;
-  tracker_params.logger = logger;
+  tracker_params.logger = ekf_params.debug_logger;
   tracker_params.detector = Detector::FAST;
 
   auto feature_tracker = std::make_shared<FeatureTracker>(tracker_params);

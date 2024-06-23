@@ -57,6 +57,11 @@ EkfCalNode::EkfCalNode()
   // Declare Parameters
   this->declare_parameter("debug_log_level", 0);
   this->declare_parameter("data_logging_on", false);
+  this->declare_parameter("body_data_rate", 0.0);
+  this->declare_parameter("augmenting_type", 0);
+  this->declare_parameter("augmenting_time", 0.0);
+  this->declare_parameter("augmenting_pos_error", 0.0);
+  this->declare_parameter("augmenting_ang_error", 0.0);
   this->declare_parameter("imu_list", std::vector<std::string>{});
   this->declare_parameter("camera_list", std::vector<std::string>{});
   this->declare_parameter("tracker_list", std::vector<std::string>{});
@@ -77,7 +82,17 @@ void EkfCalNode::Initialize()
   m_state_data_logger.SetOutputFileName("state_vector.csv");
   m_state_data_logger.DefineHeader("");
   m_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
-  m_ekf = std::make_shared<EKF>(m_logger, 10.0, data_logging_on, "~/log/");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = m_logger;
+  ekf_params.body_data_rate =
+    ekf_params.data_logging_on = data_logging_on;
+  ekf_params.log_directory = "~/log/";
+  ekf_params.augmenting_type =
+    static_cast<AugmentationType>(this->get_parameter("augmenting_type").as_int());
+  ekf_params.augmenting_time = this->get_parameter("augmenting_time").as_double();
+  ekf_params.augmenting_pos_error = this->get_parameter("augmenting_pos_error").as_double();
+  ekf_params.augmenting_ang_error = this->get_parameter("augmenting_ang_error").as_double();
+  m_ekf = std::make_shared<EKF>(ekf_params);
 
   // Load lists of sensors
   m_imu_list = this->get_parameter("imu_list").as_string_array();

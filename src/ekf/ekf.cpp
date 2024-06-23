@@ -31,15 +31,10 @@
 #include "utility/string_helper.hpp"
 #include "utility/type_helper.hpp"
 
-EKF::EKF(
-  std::shared_ptr<DebugLogger> logger,
-  double body_data_rate,
-  bool data_logging_on,
-  std::string log_directory
-)
-: m_logger(logger),
-  m_data_logging_on(data_logging_on),
-  m_data_logger(log_directory, "body_state.csv")
+EKF::EKF(Parameters params)
+: m_debug_logger(params.debug_logger),
+  m_data_logging_on(params.data_logging_on),
+  m_data_logger(params.log_directory, "body_state.csv")
 {
   std::stringstream header;
   header << "time";
@@ -54,7 +49,7 @@ EKF::EKF(
 
   m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(m_data_logging_on);
-  m_data_logger.SetLogRate(body_data_rate);
+  m_data_logger.SetLogRate(params.body_data_rate);
 }
 
 Eigen::MatrixXd EKF::GetStateTransition(double dT)
@@ -88,26 +83,26 @@ void EKF::LogBodyStateIfNeeded(int execution_count)
 
 void EKF::ProcessModel(double time)
 {
-  m_logger->Log(LogLevel::DEBUG, "ProcessModel at t=" + std::to_string(time));
+  m_debug_logger->Log(LogLevel::DEBUG, "ProcessModel at t=" + std::to_string(time));
 
   // Don't predict if time is not initialized
   if (!m_time_initialized) {
     m_current_time = time;
     m_time_initialized = true;
-    m_logger->Log(
+    m_debug_logger->Log(
       LogLevel::INFO,
       "ProcessModel initialized time at t=" + std::to_string(time));
     return;
   }
 
   if (time < m_current_time) {
-    m_logger->Log(
+    m_debug_logger->Log(
       LogLevel::WARN, "Requested prediction to time in the past. Current t=" +
       std::to_string(m_current_time) + ", Requested t=" +
       std::to_string(time));
     return;
   } else if (time == m_current_time) {
-    m_logger->Log(LogLevel::DEBUG, "Requested prediction to current time.");
+    m_debug_logger->Log(LogLevel::DEBUG, "Requested prediction to current time.");
     return;
   }
 
@@ -143,20 +138,20 @@ void EKF::PredictModel(
   Eigen::Vector3d acceleration,
   Eigen::Vector3d angular_rate)
 {
-  m_logger->Log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(time));
+  m_debug_logger->Log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(time));
 
   // Don't predict if time is not initialized
   if (!m_time_initialized) {
     m_current_time = time;
     m_time_initialized = true;
-    m_logger->Log(
+    m_debug_logger->Log(
       LogLevel::INFO,
       "EKF::Predict initialized time at t=" + std::to_string(time));
     return;
   }
 
   if (time <= m_current_time) {
-    m_logger->Log(
+    m_debug_logger->Log(
       LogLevel::WARN, "Requested prediction to time in the past. Current t=" +
       std::to_string(m_current_time) + ", Requested t=" +
       std::to_string(time));
@@ -370,7 +365,7 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
   if (m_state.imu_states.find(imu_id) != m_state.imu_states.end()) {
     std::stringstream imu_id_used_warning;
     imu_id_used_warning << "IMU ID " << imu_id << " has already been registered.";
-    m_logger->Log(LogLevel::WARN, imu_id_used_warning.str());
+    m_debug_logger->Log(LogLevel::WARN, imu_id_used_warning.str());
     return;
   }
 
@@ -394,7 +389,7 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
 
   std::stringstream log_msg;
   log_msg << "Register IMU: " << imu_id << ", stateSize: " << m_state_size;
-  m_logger->Log(LogLevel::INFO, log_msg.str());
+  m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
 void EKF::RegisterGPS(unsigned int gps_id, GpsState gps_state, Eigen::Matrix3d covariance)
@@ -403,7 +398,7 @@ void EKF::RegisterGPS(unsigned int gps_id, GpsState gps_state, Eigen::Matrix3d c
   if (m_state.gps_states.find(gps_id) != m_state.gps_states.end()) {
     std::stringstream gps_id_used_warning;
     gps_id_used_warning << "GPS ID " << gps_id << " has already been registered.";
-    m_logger->Log(LogLevel::WARN, gps_id_used_warning.str());
+    m_debug_logger->Log(LogLevel::WARN, gps_id_used_warning.str());
     return;
   }
 
@@ -420,7 +415,7 @@ void EKF::RegisterGPS(unsigned int gps_id, GpsState gps_state, Eigen::Matrix3d c
 
   std::stringstream log_msg;
   log_msg << "Register GPS: " << gps_id << ", stateSize: " << m_state_size;
-  m_logger->Log(LogLevel::INFO, log_msg.str());
+  m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
 void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixXd covariance)
@@ -429,7 +424,7 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
   if (m_state.cam_states.find(cam_id) != m_state.cam_states.end()) {
     std::stringstream cam_id_used_warning;
     cam_id_used_warning << "Camera ID " << cam_id << " has already been registered.";
-    m_logger->Log(LogLevel::WARN, cam_id_used_warning.str());
+    m_debug_logger->Log(LogLevel::WARN, cam_id_used_warning.str());
     return;
   }
 
@@ -446,7 +441,7 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
 
   std::stringstream log_msg;
   log_msg << "Register Camera: " << cam_id << ", stateSize: " << m_state_size;
-  m_logger->Log(LogLevel::INFO, log_msg.str());
+  m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
 void EKF::RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::MatrixXd covariance)
@@ -455,7 +450,7 @@ void EKF::RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::Matri
   if (m_state.fid_states.find(fid_id) != m_state.fid_states.end()) {
     std::stringstream fid_id_used_warning;
     fid_id_used_warning << "FID ID " << fid_id << " has already been registered.";
-    m_logger->Log(LogLevel::WARN, fid_id_used_warning.str());
+    m_debug_logger->Log(LogLevel::WARN, fid_id_used_warning.str());
     return;
   }
 
@@ -469,7 +464,7 @@ void EKF::RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::Matri
 
   std::stringstream log_msg;
   log_msg << "Register Fiducial: " << fid_id << ", stateSize: " << m_state_size;
-  m_logger->Log(LogLevel::INFO, log_msg.str());
+  m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
 /// @todo Don't return a Jacobian but rather just apply a Jacobian to the covariance
@@ -508,7 +503,7 @@ void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
 {
   std::stringstream msg;
   msg << "Aug State Frame: " << std::to_string(frame_id);
-  m_logger->Log(LogLevel::DEBUG, msg.str());
+  m_debug_logger->Log(LogLevel::DEBUG, msg.str());
   Eigen::Vector3d pos_b_in_l = m_state.body_state.pos_b_in_l;
   Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
 
@@ -572,7 +567,7 @@ void EKF::SetGpsReference(Eigen::VectorXd reference_lla, double ang_l_to_g)
 Eigen::VectorXd EKF::GetReferenceLLA()
 {
   if (!m_is_lla_initialized) {
-    m_logger->Log(LogLevel::WARN, "LLA is being accessed before initialization!");
+    m_debug_logger->Log(LogLevel::WARN, "LLA is being accessed before initialization!");
   }
   return m_reference_lla;
 }

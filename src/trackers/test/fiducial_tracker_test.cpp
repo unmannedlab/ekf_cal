@@ -25,17 +25,18 @@
 #include "sensors/camera.hpp"
 
 TEST(test_fiducial_tracker, charuco_track) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(logger, 10.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
 
   IMU::Parameters imu_params;
   imu_params.ekf = ekf;
-  imu_params.logger = logger;
+  imu_params.logger = ekf_params.debug_logger;
   IMU imu(imu_params);
 
   Camera::Parameters cam_params;
   cam_params.ekf = ekf;
-  cam_params.logger = logger;
+  cam_params.logger = ekf_params.debug_logger;
   Camera cam(cam_params);
 
   FiducialTracker::Parameters fid_params;
@@ -47,7 +48,7 @@ TEST(test_fiducial_tracker, charuco_track) {
   fid_params.initial_id = 0;
   fid_params.camera_id = cam.GetId();
   fid_params.ekf = ekf;
-  fid_params.logger = logger;
+  fid_params.logger = ekf_params.debug_logger;
   fid_params.max_track_length = 1;
 
   auto fid_tracker = std::make_shared<FiducialTracker>(fid_params);
@@ -70,17 +71,18 @@ TEST(test_fiducial_tracker, charuco_track) {
 }
 
 TEST(test_fiducial_tracker, aruco_track) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(logger, 10.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
 
   IMU::Parameters imu_params;
   imu_params.ekf = ekf;
-  imu_params.logger = logger;
+  imu_params.logger = ekf_params.debug_logger;
   IMU imu(imu_params);
 
   Camera::Parameters cam_params;
   cam_params.ekf = ekf;
-  cam_params.logger = logger;
+  cam_params.logger = ekf_params.debug_logger;
   Camera cam(cam_params);
 
   FiducialTracker::Parameters fid_params;
@@ -92,7 +94,7 @@ TEST(test_fiducial_tracker, aruco_track) {
   fid_params.initial_id = 0;
   fid_params.camera_id = cam.GetId();
   fid_params.ekf = ekf;
-  fid_params.logger = logger;
+  fid_params.logger = ekf_params.debug_logger;
   fid_params.max_track_length = 1;
 
   auto fid_tracker = std::make_shared<FiducialTracker>(fid_params);

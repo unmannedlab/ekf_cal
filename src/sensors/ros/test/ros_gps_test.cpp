@@ -23,10 +23,11 @@
 
 
 TEST(test_RosGPS, Constructor) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
   GPS::Parameters ros_gps_params;
-  ros_gps_params.logger = logger;
+  ros_gps_params.logger = ekf_params.debug_logger;
   ros_gps_params.ekf = ekf;
   RosGPS rosGPS(ros_gps_params);
 }
@@ -38,10 +39,11 @@ TEST(test_RosGPS, ros_gps_message) {
 }
 
 TEST(test_ros_camera, ros_gps_callback) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
   GPS::Parameters ros_gps_params;
-  ros_gps_params.logger = logger;
+  ros_gps_params.logger = ekf_params.debug_logger;
   ros_gps_params.ekf = ekf;
   RosGPS rosGPS(ros_gps_params);
 

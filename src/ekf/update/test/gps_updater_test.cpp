@@ -26,8 +26,9 @@
 #include "utility/gps_helper.hpp"
 
 TEST(test_gps_updater, update) {
-  auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(debug_logger, 10.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
 
   double time_init = 0.0;
   BodyState body_state;

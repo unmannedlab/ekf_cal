@@ -19,11 +19,12 @@
 
 
 TEST(test_gps, Callback) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
 
   GPS::Parameters params;
-  params.logger = logger;
+  params.logger = ekf_params.debug_logger;
   params.ekf = ekf;
 
   GPS gps(params);

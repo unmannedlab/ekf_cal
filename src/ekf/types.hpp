@@ -33,6 +33,14 @@ enum class SensorType
   GPS
 };
 
+enum class AugmentationType
+{
+  ALL,      // All camera frames are augmented
+  PRIMARY,  // Only the primary camera frames are augmented
+  TIME,     // Time-based frame augmentation
+  ERROR     // Linear Error-based frame augmentation
+};
+
 ///
 /// @brief Camera intrinsics data structure
 ///

@@ -24,8 +24,9 @@
 #include "trackers/sim/sim_fiducial_tracker.hpp"
 
 TEST(test_SimCamera, feature_track) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
   Eigen::Vector3d pos_frequency{1, 2, 3};
   Eigen::Vector3d ang_frequency{4, 5, 6};
   Eigen::Vector3d pos_offset{1, 2, 3};
@@ -44,7 +45,7 @@ TEST(test_SimCamera, feature_track) {
     ang_amplitude,
     stationary_time,
     max_time,
-    logger
+    ekf_params.debug_logger
   );
 
   SimRNG rng;
@@ -63,7 +64,7 @@ TEST(test_SimCamera, feature_track) {
 
   Camera::Parameters cam_params;
   cam_params.ekf = ekf;
-  cam_params.logger = logger;
+  cam_params.logger = ekf_params.debug_logger;
   cam_params.rate = 20.0;
   cam_params.intrinsics = intrinsics;
   cam_params.ang_c_to_b = Eigen::Quaterniond{-0.5, 0.5, -0.5, 0.5};
@@ -79,7 +80,7 @@ TEST(test_SimCamera, feature_track) {
 
   FeatureTracker::Parameters feature_params;
   feature_params.ekf = ekf;
-  feature_params.logger = logger;
+  feature_params.logger = ekf_params.debug_logger;
   feature_params.camera_id = sim_camera.GetId();
   SimFeatureTracker::Parameters sim_feature_params;
   sim_feature_params.tracker_params = feature_params;
@@ -94,8 +95,9 @@ TEST(test_SimCamera, feature_track) {
 }
 
 TEST(test_SimCamera, fiducial_track) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
   Eigen::Vector3d pos_frequency{1, 2, 3};
   Eigen::Vector3d ang_frequency{4, 5, 6};
   Eigen::Vector3d pos_offset{1, 2, 3};
@@ -114,7 +116,7 @@ TEST(test_SimCamera, fiducial_track) {
     ang_amplitude,
     stationary_time,
     max_time,
-    logger
+    ekf_params.debug_logger
   );
 
   SimRNG rng;
@@ -133,7 +135,7 @@ TEST(test_SimCamera, fiducial_track) {
 
   Camera::Parameters cam_params;
   cam_params.ekf = ekf;
-  cam_params.logger = logger;
+  cam_params.logger = ekf_params.debug_logger;
   cam_params.rate = 10.0;
   cam_params.intrinsics = intrinsics;
   cam_params.pos_c_in_b = Eigen::Vector3d{0, 0, 0};
@@ -149,7 +151,7 @@ TEST(test_SimCamera, fiducial_track) {
 
   FiducialTracker::Parameters fiducial_params;
   fiducial_params.ekf = ekf;
-  fiducial_params.logger = logger;
+  fiducial_params.logger = ekf_params.debug_logger;
   fiducial_params.camera_id = sim_camera.GetId();
   SimFiducialTracker::Parameters sim_fiducial_params;
   sim_fiducial_params.fiducial_params = fiducial_params;

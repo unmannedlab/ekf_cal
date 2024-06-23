@@ -146,12 +146,28 @@ int main(int argc, char * argv[])
   std::vector<std::vector<double>> def_mat{{0.0, 0.0, 0.0}};
 
   // Logging parameters
+  EKF::Parameters ekf_params;
   YAML::Node ros_params = root["/EkfCalNode"]["ros__parameters"];
   unsigned int debug_log_level = ros_params["debug_log_level"].as<unsigned int>(0U);
+  auto debug_logger = std::make_shared<DebugLogger>(debug_log_level, out_dir);
+  debug_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
+
+  // EKF parameters
   bool data_logging_on = ros_params["data_logging_on"].as<bool>(true);
   double body_data_rate = ros_params["body_data_rate"].as<double>(1.0);
+  ekf_params.debug_logger = debug_logger;
+  ekf_params.body_data_rate = body_data_rate;
+  ekf_params.data_logging_on = data_logging_on;
+  ekf_params.log_directory = out_dir;
+  ekf_params.augmenting_type =
+    static_cast<AugmentationType>(ros_params["augmenting_type"].as<unsigned int>(0));
+  ekf_params.augmenting_time = ros_params["augmenting_type"].as<double>(1.0);
+  ekf_params.augmenting_pos_error = ros_params["augmenting_type"].as<double>(0.1);
+  ekf_params.augmenting_ang_error = ros_params["augmenting_type"].as<double>(0.1);
+  auto ekf = std::make_shared<EKF>(ekf_params);
   std::vector<double> process_noise =
     ros_params["filter_params"]["process_noise"].as<std::vector<double>>(def_vec);
+  ekf->SetProcessNoise(StdToEigVec(process_noise));
 
   // Simulation parameters
   YAML::Node sim_params = ros_params["sim_params"];
@@ -159,18 +175,12 @@ int main(int argc, char * argv[])
   bool use_seed = sim_params["use_seed"].as<bool>(false);
   double max_time = sim_params["max_time"].as<double>(10.0);
 
-  auto debug_logger = std::make_shared<DebugLogger>(debug_log_level, out_dir);
-  debug_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
-
   SimRNG rng;
   if (use_seed) {
     rng.SetSeed(rng_seed);
   }
 
-  // Set EKF parameters
-  auto ekf = std::make_shared<EKF>(debug_logger, body_data_rate, data_logging_on, out_dir);
-  ekf->SetProcessNoise(StdToEigVec(process_noise));
-
+  // Truth parameters
   std::string truth_type = sim_params["truth_type"].as<std::string>("cyclic");
   double stationary_time = sim_params["stationary_time"].as<double>(0.0);
   std::shared_ptr<TruthEngine> truth_engine;

@@ -24,8 +24,9 @@
 
 
 TEST(test_EKF, get_counts) {
-  auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(debug_logger, 10.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
   EXPECT_EQ(ekf->GetImuCount(), 0);
   EXPECT_EQ(ekf->GetCamCount(), 0);
 
@@ -51,8 +52,9 @@ TEST(test_EKF, get_counts) {
 }
 
 TEST(test_EKF, duplicate_sensors) {
-  auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(debug_logger, 10.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
   EXPECT_EQ(ekf->GetImuCount(), 0);
   EXPECT_EQ(ekf->GetCamCount(), 0);
 
@@ -95,15 +97,17 @@ TEST(test_EKF, duplicate_sensors) {
 }
 
 TEST(test_EKF, SetProcessNoise) {
-  auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(debug_logger, 10.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
   Eigen::VectorXd process_noise = Eigen::VectorXd::Ones(18);
   ekf->SetProcessNoise(process_noise);
 }
 
 TEST(test_EKF, MatchState) {
-  auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(debug_logger, 10.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
   AugState aug_state = ekf->GetAugState(0, 0);
 
   Eigen::Quaterniond zero_quat {1, 0, 0, 0};

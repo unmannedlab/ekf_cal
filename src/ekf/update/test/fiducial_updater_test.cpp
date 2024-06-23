@@ -25,16 +25,18 @@ TEST(test_imu_updater, constructor) {
   std::string log_file_directory("");
   bool data_logging_on{true};
   double data_log_rate{1.0};
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = debug_logger;
 
   FiducialUpdater fiducial_updater(
     cam_id,
     log_file_directory,
     data_logging_on,
     data_log_rate,
-    logger);
+    debug_logger);
 
-  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
 
   CamState cam_state;
   Eigen::MatrixXd covariance = Eigen::MatrixXd::Identity(6, 6) * 1e-3;

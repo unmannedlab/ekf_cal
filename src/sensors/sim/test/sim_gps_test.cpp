@@ -23,8 +23,9 @@
 #include "utility/gps_helper.hpp"
 
 TEST(test_SimIMU, Constructor) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(logger, 0.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
 
   GPS::Parameters gps_params;
   gps_params.name = "GPS_1";
@@ -33,7 +34,7 @@ TEST(test_SimIMU, Constructor) {
   gps_params.pos_a_in_b = Eigen::Vector3d{0, 0, 0};
   gps_params.variance = Eigen::Vector3d{5.0, 5.0, 5.0};
   gps_params.ekf = ekf;
-  gps_params.logger = logger;
+  gps_params.logger = ekf_params.debug_logger;
 
   SimGPS::Parameters sim_gps_params;
   sim_gps_params.lla_error = Eigen::Vector3d{5.0, 5.0, 5.0};
@@ -59,7 +60,7 @@ TEST(test_SimIMU, Constructor) {
     ang_amplitude,
     stationary_time,
     max_time,
-    logger
+    ekf_params.debug_logger
   );
 
   auto truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);

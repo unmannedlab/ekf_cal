@@ -64,8 +64,9 @@ TEST(test_msckf_updater, distortion_jacobian) {
 
 
 TEST(test_msckf_updater, update) {
-  auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(debug_logger, 10.0, false, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
   BodyState body_state;
   body_state.vel_b_in_l = Eigen::Vector3d{0, 5, 0};
   ekf->Initialize(0.0, body_state);

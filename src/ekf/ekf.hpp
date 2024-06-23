@@ -38,14 +38,25 @@ class EKF
 {
 public:
   ///
-  /// @brief EKF class constructor
+  /// @brief EKF class parameters
   ///
-  EKF(
-    std::shared_ptr<DebugLogger> logger,
-    double body_data_rate,
-    bool data_logging_on,
-    std::string log_directory
-  );
+  typedef struct Parameters
+  {
+    std::shared_ptr<DebugLogger> debug_logger;                ///< @brief
+    double body_data_rate{1.0};                               ///< @brief
+    bool data_logging_on{false};                              ///< @brief
+    std::string log_directory{""};                            ///< @brief
+    AugmentationType augmenting_type{AugmentationType::ALL};  ///< @brief
+    double augmenting_time{1.0};                              ///< @brief
+    double augmenting_pos_error{0.1};                         ///< @brief
+    double augmenting_ang_error{0.1};                         ///< @brief
+  } Parameters;
+
+  ///
+  /// @brief EKF class constructor
+  /// @param params EKF class parameters
+  ///
+  explicit EKF(Parameters params);
 
   ///
   /// @brief Getter for state size
@@ -277,7 +288,7 @@ private:
   unsigned int m_fid_state_size{0};
   double m_current_time {0};
   bool m_time_initialized {false};
-  std::shared_ptr<DebugLogger> m_logger;
+  std::shared_ptr<DebugLogger> m_debug_logger;
   bool m_data_logging_on;
   unsigned int m_max_track_length{20};
   Eigen::MatrixXd m_process_noise =
