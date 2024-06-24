@@ -164,10 +164,9 @@ int main(int argc, char * argv[])
   ekf_params.augmenting_time = ros_params["augmenting_type"].as<double>(1.0);
   ekf_params.augmenting_pos_error = ros_params["augmenting_type"].as<double>(0.1);
   ekf_params.augmenting_ang_error = ros_params["augmenting_type"].as<double>(0.1);
+  ekf_params.process_noise =
+    StdToEigVec(ros_params["process_noise"].as<std::vector<double>>(def_vec));
   auto ekf = std::make_shared<EKF>(ekf_params);
-  std::vector<double> process_noise =
-    ros_params["filter_params"]["process_noise"].as<std::vector<double>>(def_vec);
-  ekf->SetProcessNoise(StdToEigVec(process_noise));
 
   // Simulation parameters
   YAML::Node sim_params = ros_params["sim_params"];

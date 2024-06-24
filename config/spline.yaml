@@ -4,6 +4,14 @@
         debug_log_level: 2
         data_logging_on: true
         body_data_rate: 10.0
+        process_noise: [
+            1.0e-3, 1.0e-3, 1.0e-3,
+            1.0e-4, 1.0e-4, 1.0e-4,
+            1.0e-5, 1.0e-5, 1.0e-5,
+            1.0e-3, 1.0e-3, 1.0e-3,
+            1.0e-4, 1.0e-4, 1.0e-4,
+            1.0e-5, 1.0e-5, 1.0e-5,
+        ]
         sim_params:
             seed: 0.0
             use_seed: true
@@ -22,16 +30,6 @@
                 - [0.00, 0.00, 0.00]
                 - [0.01, 0.01, 0.01]
                 - [0.00, 0.00, 0.00]
-
-        filter_params:
-            process_noise: [
-                0.0, 0.0, 0.0, # Position
-                0.0, 0.0, 0.0, # Velocity
-                1.0e-2, 1.0e-2, 1.0e-2, # Acceleration
-                0.0, 0.0, 0.0, # Angular Position
-                1.0e-2, 1.0e-2, 1.0e-2, # Angular Velocity
-                0.0, 0.0, 0.0, # Angular Acceleration
-            ]
 
         imu_list:
             - "vn300"

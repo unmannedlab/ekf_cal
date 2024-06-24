@@ -50,6 +50,7 @@ EKF::EKF(Parameters params)
   m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(m_data_logging_on);
   m_data_logger.SetLogRate(params.body_data_rate);
+  SetProcessNoise(params.process_noise);
 }
 
 Eigen::MatrixXd EKF::GetStateTransition(double dT)

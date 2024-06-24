@@ -42,14 +42,15 @@ public:
   ///
   typedef struct Parameters
   {
-    std::shared_ptr<DebugLogger> debug_logger;                ///< @brief
-    double body_data_rate{1.0};                               ///< @brief
-    bool data_logging_on{false};                              ///< @brief
-    std::string log_directory{""};                            ///< @brief
-    AugmentationType augmenting_type{AugmentationType::ALL};  ///< @brief
-    double augmenting_time{1.0};                              ///< @brief
-    double augmenting_pos_error{0.1};                         ///< @brief
-    double augmenting_ang_error{0.1};                         ///< @brief
+    std::shared_ptr<DebugLogger> debug_logger;                  ///< @brief
+    double body_data_rate{1.0};                                 ///< @brief
+    bool data_logging_on{false};                                ///< @brief
+    std::string log_directory{""};                              ///< @brief
+    AugmentationType augmenting_type{AugmentationType::ALL};    ///< @brief
+    double augmenting_time{1.0};                                ///< @brief
+    double augmenting_pos_error{0.1};                           ///< @brief
+    double augmenting_ang_error{0.1};                           ///< @brief
+    Eigen::VectorXd process_noise {Eigen::VectorXd::Ones(18)};  ///< @brief
   } Parameters;
 
   ///
@@ -291,8 +292,7 @@ private:
   std::shared_ptr<DebugLogger> m_debug_logger;
   bool m_data_logging_on;
   unsigned int m_max_track_length{20};
-  Eigen::MatrixXd m_process_noise =
-    Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-9;
+  Eigen::MatrixXd m_process_noise;
   DataLogger m_data_logger;
 
   bool m_is_lla_initialized{false};

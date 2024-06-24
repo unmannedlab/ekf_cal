@@ -62,6 +62,7 @@ EkfCalNode::EkfCalNode()
   this->declare_parameter("augmenting_time", 0.0);
   this->declare_parameter("augmenting_pos_error", 0.0);
   this->declare_parameter("augmenting_ang_error", 0.0);
+  this->declare_parameter("process_noise", 0.0);
   this->declare_parameter("imu_list", std::vector<std::string>{});
   this->declare_parameter("camera_list", std::vector<std::string>{});
   this->declare_parameter("tracker_list", std::vector<std::string>{});
@@ -92,6 +93,7 @@ void EkfCalNode::Initialize()
   ekf_params.augmenting_time = this->get_parameter("augmenting_time").as_double();
   ekf_params.augmenting_pos_error = this->get_parameter("augmenting_pos_error").as_double();
   ekf_params.augmenting_ang_error = this->get_parameter("augmenting_ang_error").as_double();
+  ekf_params.process_noise = StdToEigVec(this->get_parameter("process_noise").as_double_array());
   m_ekf = std::make_shared<EKF>(ekf_params);
 
   // Load lists of sensors
@@ -208,6 +210,42 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
   return imu_params;
 }
 
+void EkfCalNode::DeclareIntrinsicParameters(std::string intrinsics_prefix)
+{
+  this->declare_parameter(intrinsics_prefix + ".F", 0.0);
+  this->declare_parameter(intrinsics_prefix + ".f_x", 0.0);
+  this->declare_parameter(intrinsics_prefix + ".f_y", 0.0);
+  this->declare_parameter(intrinsics_prefix + ".c_x", 0.0);
+  this->declare_parameter(intrinsics_prefix + ".c_y", 0.0);
+  this->declare_parameter(intrinsics_prefix + ".k_1", 0.0);
+  this->declare_parameter(intrinsics_prefix + ".k_2", 0.0);
+  this->declare_parameter(intrinsics_prefix + ".p_1", 0.0);
+  this->declare_parameter(intrinsics_prefix + ".p_2", 0.0);
+  this->declare_parameter(intrinsics_prefix + ".pixel_size", 0.0);
+  this->declare_parameter(intrinsics_prefix + ".width", 0);
+  this->declare_parameter(intrinsics_prefix + ".height", 0);
+}
+
+Intrinsics EkfCalNode::GetIntrinsicParameters(std::string intrinsics_prefix)
+{
+  Intrinsics intrinsics;
+
+  intrinsics.F = this->get_parameter(intrinsics_prefix + ".F").as_double();
+  intrinsics.f_x = this->get_parameter(intrinsics_prefix + ".f_x").as_double();
+  intrinsics.f_y = this->get_parameter(intrinsics_prefix + ".f_y").as_double();
+  intrinsics.c_x = this->get_parameter(intrinsics_prefix + ".c_x").as_double();
+  intrinsics.c_y = this->get_parameter(intrinsics_prefix + ".c_y").as_double();
+  intrinsics.k_1 = this->get_parameter(intrinsics_prefix + ".k_1").as_double();
+  intrinsics.k_2 = this->get_parameter(intrinsics_prefix + ".k_2").as_double();
+  intrinsics.p_1 = this->get_parameter(intrinsics_prefix + ".p_1").as_double();
+  intrinsics.p_2 = this->get_parameter(intrinsics_prefix + ".p_2").as_double();
+  intrinsics.pixel_size = this->get_parameter(intrinsics_prefix + ".pixel_size").as_double();
+  intrinsics.width = this->get_parameter(intrinsics_prefix + ".width").as_int();
+  intrinsics.height = this->get_parameter(intrinsics_prefix + ".height").as_int();
+
+  return intrinsics;
+}
+
 void EkfCalNode::DeclareCameraParameters(std::string camera_name)
 {
   // Declare parameters
@@ -218,6 +256,7 @@ void EkfCalNode::DeclareCameraParameters(std::string camera_name)
   this->declare_parameter(cam_prefix + ".ang_c_to_b", std::vector<double>{1, 0, 0, 0});
   this->declare_parameter(cam_prefix + ".variance", std::vector<double>{1, 1, 1, 1, 1, 1});
   this->declare_parameter(cam_prefix + ".tracker", "");
+  DeclareIntrinsicParameters(cam_prefix + ".intrinsics");
 }
 
 Camera::Parameters EkfCalNode::GetCameraParameters(std::string camera_name)
@@ -232,6 +271,8 @@ Camera::Parameters EkfCalNode::GetCameraParameters(std::string camera_name)
     this->get_parameter(cam_prefix + ".ang_c_to_b").as_double_array();
   std::vector<double> variance = this->get_parameter(cam_prefix + ".variance").as_double_array();
   std::string tracker_name = this->get_parameter(cam_prefix + ".tracker").as_string();
+  double pos_stability = this->get_parameter(cam_prefix + ".pos_stability").as_double();
+  double ang_stability = this->get_parameter(cam_prefix + ".ang_stability").as_double();
 
   // Assign parameters to struct
   Camera::Parameters camera_params;
@@ -242,8 +283,11 @@ Camera::Parameters EkfCalNode::GetCameraParameters(std::string camera_name)
   camera_params.ang_c_to_b = StdToEigQuat(ang_c_to_b);
   camera_params.variance = StdToEigVec(variance);
   camera_params.tracker = tracker_name;
+  camera_params.pos_stability = pos_stability;
+  camera_params.ang_stability = ang_stability;
   camera_params.ekf = m_ekf;
   camera_params.logger = m_logger;
+  camera_params.intrinsics = GetIntrinsicParameters(cam_prefix + ".intrinsics");
   return camera_params;
 }
 
@@ -255,6 +299,10 @@ void EkfCalNode::DeclareTrackerParameters(std::string tracker_name)
   this->declare_parameter(tracker_prefix + ".descriptor_extractor", 0);
   this->declare_parameter(tracker_prefix + ".descriptor_matcher", 0);
   this->declare_parameter(tracker_prefix + ".detector_threshold", 20.0);
+  this->declare_parameter(tracker_prefix + ".pixel_error", 1.0);
+  this->declare_parameter(tracker_prefix + ".min_feature_distance", 1.0);
+  this->declare_parameter(tracker_prefix + ".min_track_length", 2);
+  this->declare_parameter(tracker_prefix + ".max_track_length", 20);
 }
 
 FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_name)
@@ -264,13 +312,21 @@ FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_
   int detector = this->get_parameter(tracker_prefix + ".feature_detector").as_int();
   int extractor = this->get_parameter(tracker_prefix + ".descriptor_extractor").as_int();
   int matcher = this->get_parameter(tracker_prefix + ".descriptor_matcher").as_int();
+  double threshold = this->get_parameter(tracker_prefix + ".detector_threshold").as_double();
+  double px_error = this->get_parameter(tracker_prefix + ".pixel_error").as_double();
+  double min_feat_dist = this->get_parameter(tracker_prefix + ".min_feature_distance").as_double();
+  int min_track_length = this->get_parameter(tracker_prefix + ".min_track_length").as_int();
+  int max_track_length = this->get_parameter(tracker_prefix + ".max_track_length").as_int();
 
   FeatureTracker::Parameters tracker_params;
   tracker_params.detector = static_cast<Detector>(detector);
   tracker_params.descriptor = static_cast<Descriptor>(extractor);
   tracker_params.matcher = static_cast<Matcher>(matcher);
-  tracker_params.threshold =
-    this->get_parameter(tracker_prefix + ".detector_threshold").as_double();
+  tracker_params.threshold = threshold;
+  tracker_params.px_error = px_error;
+  tracker_params.min_feat_dist = min_feat_dist;
+  tracker_params.min_track_length = min_track_length;
+  tracker_params.max_track_length = max_track_length;
   tracker_params.ekf = m_ekf;
   tracker_params.logger = m_logger;
   return tracker_params;

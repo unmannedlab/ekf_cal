@@ -87,21 +87,21 @@ public:
   void LoadGps(std::string gps_name);
 
   ///
-  /// @brief Function for declaring and loading IMU parameters
+  /// @brief Function for loading IMU parameters
   /// @param imu_name Name of parameter structure
   /// @return IMU parameters
   ///
   IMU::Parameters GetImuParameters(std::string imu_name);
 
   ///
-  /// @brief Function for declaring and loading camera parameters
+  /// @brief Function for loading camera parameters
   /// @param camera_name Name of parameter structure
   /// @return Camera parameters
   ///
   Camera::Parameters GetCameraParameters(std::string camera_name);
 
   ///
-  /// @brief Function for declaring and loading camera parameters
+  /// @brief Function for loading camera parameters
   /// @param gps_name Name of parameter structure
   /// @return GPS parameters
   ///
@@ -131,13 +131,25 @@ public:
   void DeclareTrackerParameters(std::string tracker_name);
 
   ///
+  /// @brief Declare camera intrinsic parameters
+  /// @param intrinsics_prefix Camera intrinsic prefix
+  ///
+  void DeclareIntrinsicParameters(std::string intrinsics_prefix);
+
+  ///
+  /// @brief Load camera intrinsic parameters
+  /// @param intrinsics_prefix Camera intrinsic prefix
+  ///
+  Intrinsics GetIntrinsicParameters(std::string intrinsics_prefix);
+
+  ///
   /// @brief Declare GPS parameters
   /// @param gps_name GPS name
   ///
   void DeclareGpsParameters(std::string gps_name);
 
   ///
-  /// @brief Function for declaring and loading tracker parameters
+  /// @brief Load tracker parameters
   /// @param tracker_name Name of parameter structure
   /// @return trackerParameters
   ///

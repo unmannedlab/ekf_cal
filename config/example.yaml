@@ -17,6 +17,15 @@
         augmenting_time: 0.5
         augmenting_pos_error: 0.1
         augmenting_ang_error: 0.1
+        process_noise: [
+            1.0e-3, 1.0e-3, 1.0e-3,     # Position
+            1.0e-4, 1.0e-4, 1.0e-4,     # Velocity
+            1.0e-5, 1.0e-5, 1.0e-5,     # Acceleration
+            1.0e-3, 1.0e-3, 1.0e-3,     # Angular Position
+            1.0e-4, 1.0e-4, 1.0e-4,     # Angular Velocity
+            1.0e-5, 1.0e-5, 1.0e-5,     # Angular Acceleration
+        ]
+
         sim_params:
             seed: 0.0                       # Seed to provide to random number generator
             use_seed: true                  # Flag to use seed (required for deterministic runs)
@@ -52,16 +61,6 @@
             ang_l_to_g: 0.0                 # Local frame heading in global frame
             pos_l_in_g_err: [1.0, 1.0, 1.0] # Local frame position error
             ang_l_to_g_err: 0.1             # Local frame heading error
-
-        filter_params:
-            process_noise: [
-                1.0e-3, 1.0e-3, 1.0e-3,     # Position
-                1.0e-4, 1.0e-4, 1.0e-4,     # Velocity
-                1.0e-5, 1.0e-5, 1.0e-5,     # Acceleration
-                1.0e-3, 1.0e-3, 1.0e-3,     # Angular Position
-                1.0e-4, 1.0e-4, 1.0e-4,     # Angular Velocity
-                1.0e-5, 1.0e-5, 1.0e-5,     # Angular Acceleration
-            ]
 
         imu_list:       # List of imu. Can be empty but list must exist
             - "imu_1"
