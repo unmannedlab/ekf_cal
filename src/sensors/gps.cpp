@@ -31,10 +31,6 @@ GPS::GPS(GPS::Parameters params)
   m_ekf(params.ekf),
   m_gps_updater(
     m_id,
-    params.init_type,
-    params.init_pos_thresh,
-    params.init_ang_thresh,
-    params.init_baseline_dist,
     params.is_extrinsic,
     params.output_directory,
     params.data_logging_on,
@@ -47,9 +43,6 @@ GPS::GPS(GPS::Parameters params)
   gps_state.pos_stability = params.pos_stability;
   Eigen::Matrix3d gps_cov = params.variance.asDiagonal();
   m_ekf->RegisterGPS(m_id, gps_state, gps_cov);
-  if (params.init_type == GpsInitType::CONSTANT) {
-    m_ekf->SetGpsReference(params.pos_l_in_g, params.ang_l_to_g);
-  }
 }
 
 void GPS::Callback(std::shared_ptr<GpsMessage> gps_message)

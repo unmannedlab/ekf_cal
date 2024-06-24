@@ -166,6 +166,12 @@ int main(int argc, char * argv[])
   ekf_params.augmenting_ang_error = ros_params["augmenting_type"].as<double>(0.1);
   ekf_params.process_noise =
     StdToEigVec(ros_params["process_noise"].as<std::vector<double>>(def_vec));
+  ekf_params.pos_l_in_g = StdToEigVec(ros_params["pos_l_in_g"].as<std::vector<double>>(def_vec));
+  ekf_params.ang_l_to_g = ros_params["ang_l_to_g"].as<double>(0.0);
+  ekf_params.gps_init_type = static_cast<GpsInitType>(ros_params["init_type"].as<unsigned int>(0));
+  ekf_params.gps_init_baseline_dist = ros_params["init_pos_thresh"].as<double>(1.0);
+  ekf_params.gps_init_pos_thresh = ros_params["init_ang_thresh"].as<double>(1.0);
+  ekf_params.gps_init_ang_thresh = ros_params["init_baseline_dist"].as<double>(1.0);
   auto ekf = std::make_shared<EKF>(ekf_params);
 
   // Simulation parameters
@@ -220,17 +226,15 @@ int main(int argc, char * argv[])
     debug_logger->Log(LogLevel::ERROR, msg.str());
   }
 
-  // Set global position
-  auto pos_l_in_g = StdToEigVec(sim_params["pos_l_in_g"].as<std::vector<double>>(def_vec));
-  auto ang_l_to_g = sim_params["ang_l_to_g"].as<double>(0.0);
+  // Global position Error
   auto pos_l_in_g_err = StdToEigVec(sim_params["pos_l_in_g_err"].as<std::vector<double>>(def_vec));
   auto ang_l_to_g_err = sim_params["ang_l_to_g_err"].as<double>(0.0);
 
   Eigen::Vector3d pos_l_in_g_true;
-  pos_l_in_g_true(0) = rng.NormRand(pos_l_in_g(0), wgs84_m_to_deg(pos_l_in_g_err(0)));
-  pos_l_in_g_true(1) = rng.NormRand(pos_l_in_g(1), wgs84_m_to_deg(pos_l_in_g_err(1)));
-  pos_l_in_g_true(2) = rng.NormRand(pos_l_in_g(2), pos_l_in_g_err(2));
-  double ang_l_to_g_true = rng.NormRand(ang_l_to_g, ang_l_to_g_err);
+  pos_l_in_g_true(0) = rng.NormRand(ekf_params.pos_l_in_g(0), wgs84_m_to_deg(pos_l_in_g_err(0)));
+  pos_l_in_g_true(1) = rng.NormRand(ekf_params.pos_l_in_g(1), wgs84_m_to_deg(pos_l_in_g_err(1)));
+  pos_l_in_g_true(2) = rng.NormRand(ekf_params.pos_l_in_g(2), pos_l_in_g_err(2));
+  double ang_l_to_g_true = rng.NormRand(ekf_params.ang_l_to_g, ang_l_to_g_err);
   truth_engine->SetLocalPosition(pos_l_in_g_true);
   truth_engine->SetLocalHeading(ang_l_to_g_true);
 
@@ -427,10 +431,6 @@ int main(int argc, char * argv[])
     gps_params.pos_l_in_g = StdToEigVec(gps_node["pos_l_in_g"].as<std::vector<double>>(def_vec));
     gps_params.ang_l_to_g = gps_node["ang_l_to_g"].as<double>(0.0);
     gps_params.pos_stability = gps_node["pos_stability"].as<double>(0.0);
-    gps_params.init_type = static_cast<GpsInitType>(gps_node["init_type"].as<unsigned int>(0));
-    gps_params.init_pos_thresh = gps_node["init_pos_thresh"].as<double>(1.0);
-    gps_params.init_ang_thresh = gps_node["init_ang_thresh"].as<double>(1.0);
-    gps_params.init_baseline_dist = gps_node["init_baseline_dist"].as<double>(1.0);
     gps_params.is_extrinsic = gps_node["is_extrinsic"].as<bool>(false);
 
     // SimParams

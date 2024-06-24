@@ -34,10 +34,6 @@
 
 GpsUpdater::GpsUpdater(
   unsigned int gps_id,
-  GpsInitType init_type,
-  double init_pos_thresh,
-  double init_ang_thresh,
-  double init_baseline_dist,
   bool is_extrinsic,
   std::string log_file_directory,
   bool data_logging_on,
@@ -45,16 +41,12 @@ GpsUpdater::GpsUpdater(
   std::shared_ptr<DebugLogger> logger
 )
 : Updater(gps_id, logger),
-  m_init_type(init_type),
-  m_init_pos_thresh(init_pos_thresh),
-  m_init_ang_thresh(init_ang_thresh),
-  m_init_baseline_dist(init_baseline_dist),
   m_is_extrinsic(is_extrinsic),
   m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
 {
   std::stringstream header;
   header << "time,lat,lon,alt,x,y,z"
-         << ",ref_lat,ref_lon,ref_alt,ref_heading,pos_stddev,ang_stddev,is_initialized";
+         << ",ref_lat,ref_lon,ref_alt,ref_heading,is_initialized";
   header << EnumerateHeader("antenna", g_gps_extrinsic_state_size);
   if (m_is_extrinsic) {
     header << EnumerateHeader("gps_cov", g_gps_extrinsic_state_size);
@@ -65,52 +57,6 @@ GpsUpdater::GpsUpdater(
   m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(data_logging_on);
   m_data_logger.SetLogRate(data_log_rate);
-}
-
-void GpsUpdater::AttemptInitialization(
-  double time,
-  std::shared_ptr<EKF> ekf,
-  Eigen::Vector3d gps_lla)
-{
-  Eigen::Vector3d gps_ecef = lla_to_ecef(gps_lla);
-
-  m_gps_time_vec.push_back(time);
-  m_gps_ecef_vec.push_back(gps_ecef);
-  m_local_xyz_vec.push_back(ekf->m_state.body_state.pos_b_in_l);
-
-  if (m_gps_time_vec.size() >= 4) {
-    Eigen::Vector3d init_ref_ecef = average_vectors(m_gps_ecef_vec);
-    Eigen::Vector3d init_ref_lla = ecef_to_lla(init_ref_ecef);
-
-    std::vector<Eigen::Vector3d> gps_states_enu;
-    for (auto gps_ecef : m_gps_ecef_vec) {
-      gps_states_enu.push_back(ecef_to_enu(gps_ecef, init_ref_lla));
-    }
-
-    Eigen::Affine3d transformation;
-    bool is_successful = kabsch_2d(
-      m_local_xyz_vec,
-      gps_states_enu,
-      transformation,
-      m_pos_stddev,
-      m_ang_stddev);
-
-    double max_distance = maximum_distance(gps_states_enu);
-
-    if (((m_init_type == GpsInitType::BASELINE_DIST) &&
-      (max_distance > m_init_baseline_dist)) ||
-      ((m_init_type == GpsInitType::ERROR_THRESHOLD) && is_successful &&
-      (m_pos_stddev < m_init_pos_thresh) && m_ang_stddev &&
-      (m_ang_stddev < std::tan(m_init_ang_thresh))))
-    {
-      Eigen::Vector3d delta_ref_enu = transformation.translation();
-      Eigen::Vector3d reference_lla = enu_to_lla(-delta_ref_enu, init_ref_lla);
-      double ang_l_to_g = affine_angle(transformation);
-
-      m_logger->Log(LogLevel::INFO, "GPS Updater Initialized");
-      ekf->SetGpsReference(reference_lla, ang_l_to_g);
-    }
-  }
 }
 
 Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
@@ -144,10 +90,10 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   double ang_l_to_g = ekf->GetReferenceAngle();
   if (!ekf->IsLlaInitialized()) {
     m_logger->Log(LogLevel::INFO, "GPS Updater Attempt Initialization");
-    AttemptInitialization(time, ekf, gps_lla);
+    ekf->AttemptGpsInitialization(time, gps_lla);
     if (ekf->IsLlaInitialized()) {
       // Perform single update with compressed measurements
-      MultiUpdateEKF(ekf, m_gps_time_vec, m_gps_ecef_vec, m_local_xyz_vec);
+      MultiUpdateEKF(ekf);
     }
   } else {
     reference_lla = ekf->GetReferenceLLA();
@@ -175,8 +121,6 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   msg << VectorToCommaString(pos_a_in_g);
   msg << VectorToCommaString(reference_lla, 12);
   msg << "," << ang_l_to_g;
-  msg << "," << m_pos_stddev;
-  msg << "," << m_ang_stddev;
   msg << "," << ekf->IsLlaInitialized();
   msg << VectorToCommaString(ekf->GetGpsState(m_id).pos_a_in_b);
   if (m_is_extrinsic) {
@@ -191,12 +135,12 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   m_data_logger.Log(msg.str());
 }
 
-void GpsUpdater::MultiUpdateEKF(
-  std::shared_ptr<EKF> ekf,
-  std::vector<double> gps_time_vec,
-  std::vector<Eigen::Vector3d> gps_ecef_vec,
-  std::vector<Eigen::Vector3d> local_xyz_vec)
+void GpsUpdater::MultiUpdateEKF(std::shared_ptr<EKF> ekf)
 {
+  std::vector<double> gps_time_vec = ekf->GetGpsTimeVector();
+  std::vector<Eigen::Vector3d> gps_ecef_vec = ekf->GetGpsEcefVector();
+  std::vector<Eigen::Vector3d> local_xyz_vec = ekf->GetGpsXyzVector();
+
   unsigned int measurement_size = 3 * gps_time_vec.size();
   unsigned int state_size = ekf->GetStateSize();
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(measurement_size, state_size);

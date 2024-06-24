@@ -32,7 +32,7 @@ void Updater::KalmanUpdate(
   Eigen::MatrixXd S = jacobian * ekf->m_cov * jacobian.transpose() + measurement_noise;
   Eigen::MatrixXd K = ekf->m_cov * jacobian.transpose() * S.inverse();
   Eigen::VectorXd update = K * residual;
-  // std::cout << update << std::endl;
+
   ekf->m_state += update;
   ekf->m_cov =
     (Eigen::MatrixXd::Identity(update.size(), update.size()) - K * jacobian) * ekf->m_cov *

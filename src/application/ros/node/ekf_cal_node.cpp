@@ -54,7 +54,7 @@ using std::placeholders::_1;
 EkfCalNode::EkfCalNode()
 : Node("EkfCalNode")
 {
-  // Declare Parameters
+  // Declare EKF Parameters
   this->declare_parameter("debug_log_level", 0);
   this->declare_parameter("data_logging_on", false);
   this->declare_parameter("body_data_rate", 0.0);
@@ -62,10 +62,20 @@ EkfCalNode::EkfCalNode()
   this->declare_parameter("augmenting_time", 0.0);
   this->declare_parameter("augmenting_pos_error", 0.0);
   this->declare_parameter("augmenting_ang_error", 0.0);
-  this->declare_parameter("process_noise", 0.0);
+  this->declare_parameter(
+    "process_noise", std::vector<double>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+  this->declare_parameter("pos_l_in_g", std::vector<double>{0, 0, 0});
+  this->declare_parameter("ang_l_to_g", 0.0);
+  this->declare_parameter("init_type", 0);
+  this->declare_parameter("init_pos_thresh", 1.0);
+  this->declare_parameter("init_ang_thresh", 1.0);
+  this->declare_parameter("init_baseline_dist", 1.0);
+
+  // Declare Sensor Lists
   this->declare_parameter("imu_list", std::vector<std::string>{});
   this->declare_parameter("camera_list", std::vector<std::string>{});
   this->declare_parameter("tracker_list", std::vector<std::string>{});
+  this->declare_parameter("fiducial_list", std::vector<std::string>{});
   this->declare_parameter("gps_list", std::vector<std::string>{});
 
   m_state_pub_timer =
@@ -94,12 +104,19 @@ void EkfCalNode::Initialize()
   ekf_params.augmenting_pos_error = this->get_parameter("augmenting_pos_error").as_double();
   ekf_params.augmenting_ang_error = this->get_parameter("augmenting_ang_error").as_double();
   ekf_params.process_noise = StdToEigVec(this->get_parameter("process_noise").as_double_array());
+  ekf_params.pos_l_in_g = StdToEigVec(this->get_parameter("pos_l_in_g").as_double_array());
+  ekf_params.ang_l_to_g = this->get_parameter("ang_l_to_g").as_double();
+  ekf_params.gps_init_type = static_cast<GpsInitType>(this->get_parameter("init_type").as_int());
+  ekf_params.gps_init_baseline_dist = this->get_parameter("init_pos_thresh").as_double();
+  ekf_params.gps_init_pos_thresh = this->get_parameter("init_ang_thresh").as_double();
+  ekf_params.gps_init_ang_thresh = this->get_parameter("init_baseline_dist").as_double();
   m_ekf = std::make_shared<EKF>(ekf_params);
 
   // Load lists of sensors
   m_imu_list = this->get_parameter("imu_list").as_string_array();
   m_camera_list = this->get_parameter("camera_list").as_string_array();
   m_tracker_list = this->get_parameter("tracker_list").as_string_array();
+  m_fiducial_list = this->get_parameter("fiducial_list").as_string_array();
   m_gps_list = this->get_parameter("gps_list").as_string_array();
 }
 
@@ -113,6 +130,9 @@ void EkfCalNode::DeclareSensors()
   }
   for (std::string & tracker_name : m_tracker_list) {
     DeclareTrackerParameters(tracker_name);
+  }
+  for (std::string & fiducial_name : m_fiducial_list) {
+    DeclareFiducialParameters(fiducial_name);
   }
   for (std::string & gps_name : m_gps_list) {
     DeclareGpsParameters(gps_name);
@@ -256,6 +276,8 @@ void EkfCalNode::DeclareCameraParameters(std::string camera_name)
   this->declare_parameter(cam_prefix + ".ang_c_to_b", std::vector<double>{1, 0, 0, 0});
   this->declare_parameter(cam_prefix + ".variance", std::vector<double>{1, 1, 1, 1, 1, 1});
   this->declare_parameter(cam_prefix + ".tracker", "");
+  this->declare_parameter(cam_prefix + ".pos_stability", 1e-9);
+  this->declare_parameter(cam_prefix + ".ang_stability", 1e-9);
   DeclareIntrinsicParameters(cam_prefix + ".intrinsics");
 }
 
@@ -332,6 +354,56 @@ FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_
   return tracker_params;
 }
 
+void EkfCalNode::DeclareFiducialParameters(std::string fid_name)
+{
+  // Declare parameters
+  std::string fiducial_prefix = "tracker." + fid_name;
+  this->declare_parameter(fiducial_prefix + ".fiducial_type", 0);
+  this->declare_parameter(fiducial_prefix + ".squares_x", 0);
+  this->declare_parameter(fiducial_prefix + ".squares_y", 0);
+  this->declare_parameter(fiducial_prefix + ".square_length", 0.0);
+  this->declare_parameter(fiducial_prefix + ".marker_length", 0.0);
+  this->declare_parameter(fiducial_prefix + ".pos_f_in_l", std::vector<double>{0, 0, 0});
+  this->declare_parameter(fiducial_prefix + ".ang_f_to_l", 0.0);
+  this->declare_parameter(fiducial_prefix + ".variance", std::vector<double>{0, 0, 0, 0, 0, 0});
+  this->declare_parameter(fiducial_prefix + ".min_track_length", 2);
+  this->declare_parameter(fiducial_prefix + ".max_track_length", 20);
+  this->declare_parameter(fiducial_prefix + ".data_log_rate", 0.0);
+}
+
+FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(std::string fiducial_name)
+{
+  // Get parameters
+  std::string fiducial_prefix = "fiducial." + fiducial_name;
+  auto fiducial_type = this->get_parameter(fiducial_prefix + ".fiducial_type").as_int();
+  auto squares_x = this->get_parameter(fiducial_prefix + ".squares_x").as_int();
+  auto squares_y = this->get_parameter(fiducial_prefix + ".squares_y").as_int();
+  auto square_length = this->get_parameter(fiducial_prefix + ".square_length").as_double();
+  auto marker_length = this->get_parameter(fiducial_prefix + ".marker_length").as_double();
+  auto pos_f_in_l = this->get_parameter(fiducial_prefix + ".pos_f_in_l").as_double_array();
+  auto ang_f_to_l = this->get_parameter(fiducial_prefix + ".ang_f_to_l").as_double_array();
+  auto variance = this->get_parameter(fiducial_prefix + ".variance").as_double_array();
+  auto min_track_length = this->get_parameter(fiducial_prefix + ".min_track_length").as_int();
+  auto max_track_length = this->get_parameter(fiducial_prefix + ".max_track_length").as_int();
+  auto data_log_rate = this->get_parameter(fiducial_prefix + ".data_log_rate").as_double();
+
+  FiducialTracker::Parameters fiducial_params;
+  fiducial_params.detector_type = static_cast<FiducialType>(fiducial_type);
+  fiducial_params.squares_x = squares_x;
+  fiducial_params.squares_y = squares_y;
+  fiducial_params.square_length = square_length;
+  fiducial_params.marker_length = marker_length;
+  fiducial_params.pos_f_in_l = StdToEigVec(pos_f_in_l);
+  fiducial_params.ang_f_to_l = StdToEigQuat(ang_f_to_l);
+  fiducial_params.variance = StdToEigVec(variance);
+  fiducial_params.min_track_length = min_track_length;
+  fiducial_params.max_track_length = max_track_length;
+  fiducial_params.data_log_rate = data_log_rate;
+  fiducial_params.ekf = m_ekf;
+  fiducial_params.logger = m_logger;
+  return fiducial_params;
+}
+
 void EkfCalNode::DeclareGpsParameters(std::string gps_name)
 {
   // Declare parameters
@@ -341,6 +413,7 @@ void EkfCalNode::DeclareGpsParameters(std::string gps_name)
   this->declare_parameter(gps_prefix + ".pos_a_in_b", std::vector<double>{0, 0, 0});
   this->declare_parameter(gps_prefix + ".pos_l_in_g", std::vector<double>{0, 0, 0});
   this->declare_parameter(gps_prefix + ".ang_l_to_g", 0.0);
+  this->declare_parameter(gps_prefix + ".pos_stability", 1e-9);
   this->declare_parameter(gps_prefix + ".variance", std::vector<double>{1, 1, 1});
 }
 
@@ -356,6 +429,7 @@ GPS::Parameters EkfCalNode::GetGpsParameters(std::string gps_name)
     this->get_parameter(gps_prefix + ".pos_l_in_g").as_double_array();
   double ang_l_to_g = this->get_parameter(gps_prefix + ".ang_l_to_g").as_double();
   std::vector<double> variance = this->get_parameter(gps_prefix + ".variance").as_double_array();
+  double pos_stability = this->get_parameter(gps_prefix + ".pos_stability").as_double();
   GPS::Parameters gps_params;
   gps_params.name = gps_name;
   gps_params.topic = topic;
@@ -364,6 +438,7 @@ GPS::Parameters EkfCalNode::GetGpsParameters(std::string gps_name)
   gps_params.pos_l_in_g = StdToEigVec(pos_l_in_g);
   gps_params.ang_l_to_g = ang_l_to_g;
   gps_params.variance = StdToEigVec(variance);
+  gps_params.pos_stability = pos_stability;
   gps_params.ekf = m_ekf;
   gps_params.logger = m_logger;
   return gps_params;
@@ -397,17 +472,25 @@ void EkfCalNode::RegisterImu(std::shared_ptr<RosIMU> imu_ptr, std::string topic)
 
 void EkfCalNode::LoadCamera(std::string camera_name)
 {
-  // Load parameters
+  // Load camera parameters
   Camera::Parameters camera_params = GetCameraParameters(camera_name);
-  FeatureTracker::Parameters tParams = GetTrackerParameters(camera_params.tracker);
+  std::shared_ptr<RosCamera> camera_ptr = std::make_shared<RosCamera>(camera_params);
   m_logger->Log(LogLevel::INFO, "Loaded Camera: " + camera_name);
 
-  // Create new RosCamera and bind callback to ID
-  std::shared_ptr<RosCamera> camera_ptr = std::make_shared<RosCamera>(camera_params);
-  tParams.camera_id = camera_ptr->GetId();
-  std::shared_ptr<FeatureTracker> trkPtr = std::make_shared<FeatureTracker>(tParams);
-  camera_ptr->AddTracker(trkPtr);
+  if (!camera_params.tracker.empty()) {
+    FeatureTracker::Parameters trk_params = GetTrackerParameters(camera_params.tracker);
+    trk_params.camera_id = camera_ptr->GetId();
+    std::shared_ptr<FeatureTracker> trk_ptr = std::make_shared<FeatureTracker>(trk_params);
+    camera_ptr->AddTracker(trk_ptr);
+  }
+  if (!camera_params.fiducial.empty()) {
+    FiducialTracker::Parameters fid_params = GetFiducialParameters(camera_params.fiducial);
+    fid_params.camera_id = camera_ptr->GetId();
+    std::shared_ptr<FiducialTracker> fid_ptr = std::make_shared<FiducialTracker>(fid_params);
+    camera_ptr->AddFiducial(fid_ptr);
+  }
 
+  // Create new RosCamera and bind callback to ID
   RegisterCamera(camera_ptr, camera_params.topic);
 }
 

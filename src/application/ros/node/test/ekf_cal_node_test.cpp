@@ -48,72 +48,72 @@ TEST_F(EkfCalNode_test, hello_world)
 
   node.set_parameter(rclcpp::Parameter("debug_log_level", 1));
   node.set_parameter(rclcpp::Parameter("data_logging_on", true));
-  node.set_parameter(rclcpp::Parameter("imu_list", std::vector<std::string>{"TestImu"}));
-  node.set_parameter(rclcpp::Parameter("camera_list", std::vector<std::string>{"TestCamera"}));
-  node.set_parameter(rclcpp::Parameter("tracker_list", std::vector<std::string>{"TestTracker"}));
-  node.set_parameter(rclcpp::Parameter("gps_list", std::vector<std::string>{"TestGps"}));
+  node.set_parameter(rclcpp::Parameter("imu_list", std::vector<std::string>{"imu_1"}));
+  node.set_parameter(rclcpp::Parameter("camera_list", std::vector<std::string>{"cam_2"}));
+  node.set_parameter(rclcpp::Parameter("tracker_list", std::vector<std::string>{"tracker_3"}));
+  node.set_parameter(rclcpp::Parameter("gps_list", std::vector<std::string>{"gps_4"}));
 
   node.Initialize();
   node.DeclareSensors();
 
-  node.set_parameter(rclcpp::Parameter("imu.TestImu.is_extrinsic", false));
-  node.set_parameter(rclcpp::Parameter("imu.TestImu.is_intrinsic", false));
-  node.set_parameter(rclcpp::Parameter("imu.TestImu.rate", 400.0));
-  node.set_parameter(rclcpp::Parameter("imu.TestImu.topic", "/ImuTopic"));
+  node.set_parameter(rclcpp::Parameter("imu.imu_1.is_extrinsic", false));
+  node.set_parameter(rclcpp::Parameter("imu.imu_1.is_intrinsic", false));
+  node.set_parameter(rclcpp::Parameter("imu.imu_1.rate", 400.0));
+  node.set_parameter(rclcpp::Parameter("imu.imu_1.topic", "/ImuTopic"));
   node.set_parameter(
     rclcpp::Parameter(
-      "imu.TestImu.variance",
+      "imu.imu_1.variance",
       std::vector<double>{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01}));
   node.set_parameter(
     rclcpp::Parameter(
-      "imu.TestImu.pos_i_in_b",
+      "imu.imu_1.pos_i_in_b",
       std::vector<double>{0.0, 0.0, 0.0}));
   node.set_parameter(
     rclcpp::Parameter(
-      "imu.TestImu.ang_i_to_b",
+      "imu.imu_1.ang_i_to_b",
       std::vector<double>{1.0, 0.0, 0.0, 0.0}));
   node.set_parameter(
     rclcpp::Parameter(
-      "imu.TestImu.acc_bias", std::vector<double>{0.0, 0.0,
+      "imu.imu_1.acc_bias", std::vector<double>{0.0, 0.0,
         0.0}));
   node.set_parameter(
     rclcpp::Parameter(
-      "imu.TestImu.omg_bias", std::vector<double>{0.0, 0.0,
+      "imu.imu_1.omg_bias", std::vector<double>{0.0, 0.0,
         0.0}));
 
-  node.set_parameter(rclcpp::Parameter("camera.TestCamera.rate", 5.0));
-  node.set_parameter(rclcpp::Parameter("camera.TestCamera.topic", "/CameraTopic"));
+  node.set_parameter(rclcpp::Parameter("camera.cam_2.rate", 5.0));
+  node.set_parameter(rclcpp::Parameter("camera.cam_2.topic", "/CameraTopic"));
   node.set_parameter(
     rclcpp::Parameter(
-      "camera.TestCamera.pos_c_in_b",
+      "camera.cam_2.pos_c_in_b",
       std::vector<double>{0.0, 0.0, 0.0}));
   node.set_parameter(
     rclcpp::Parameter(
-      "camera.TestCamera.ang_c_to_b",
+      "camera.cam_2.ang_c_to_b",
       std::vector<double>{1.0, 0.0, 0.0, 0.0}));
   node.set_parameter(
     rclcpp::Parameter(
-      "camera.TestCamera.variance",
+      "camera.cam_2.variance",
       std::vector<double>{0.1, 0.1, 0.1, 0.1, 0.1, 0.1}));
-  node.set_parameter(rclcpp::Parameter("camera.TestCamera.tracker", "TestTracker"));
+  node.set_parameter(rclcpp::Parameter("camera.cam_2.tracker", "tracker_3"));
 
-  node.set_parameter(rclcpp::Parameter("tracker.TestTracker.feature_detector", 4));
-  node.set_parameter(rclcpp::Parameter("tracker.TestTracker.descriptor_extractor", 0));
-  node.set_parameter(rclcpp::Parameter("tracker.TestTracker.descriptor_matcher", 0));
-  node.set_parameter(rclcpp::Parameter("tracker.TestTracker.detector_threshold", 10.0));
+  node.set_parameter(rclcpp::Parameter("tracker.tracker_3.feature_detector", 4));
+  node.set_parameter(rclcpp::Parameter("tracker.tracker_3.descriptor_extractor", 0));
+  node.set_parameter(rclcpp::Parameter("tracker.tracker_3.descriptor_matcher", 0));
+  node.set_parameter(rclcpp::Parameter("tracker.tracker_3.detector_threshold", 10.0));
 
-  node.set_parameter(rclcpp::Parameter("gps.TestGps.topic", "/gps1"));
-  node.set_parameter(rclcpp::Parameter("gps.TestGps.rate", 10.0));
-  node.set_parameter(rclcpp::Parameter("gps.TestGps.variance", std::vector<double>{1.0, 1.0, 1.0}));
+  node.set_parameter(rclcpp::Parameter("gps.gps_4.topic", "/gps1"));
+  node.set_parameter(rclcpp::Parameter("gps.gps_4.rate", 10.0));
+  node.set_parameter(rclcpp::Parameter("gps.gps_4.variance", std::vector<double>{1.0, 1.0, 1.0}));
   node.set_parameter(
     rclcpp::Parameter(
-      "gps.TestGps.pos_a_in_b",
+      "gps.gps_4.pos_a_in_b",
       std::vector<double>{0.0, 0.0, 0.0}));
   node.set_parameter(
     rclcpp::Parameter(
-      "gps.TestGps.pos_l_in_g",
+      "gps.gps_4.pos_l_in_g",
       std::vector<double>{0.0, 0.0, 0.0}));
-  node.set_parameter(rclcpp::Parameter("gps.TestGps.ang_l_to_g", 0.0));
+  node.set_parameter(rclcpp::Parameter("gps.gps_4.ang_l_to_g", 0.0));
 
   node.LoadSensors();
   auto imu_msg = std::make_shared<sensor_msgs::msg::Imu>();

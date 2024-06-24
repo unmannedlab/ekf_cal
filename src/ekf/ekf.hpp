@@ -21,6 +21,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "ekf/constants.hpp"
 #include "ekf/types.hpp"
@@ -51,6 +52,12 @@ public:
     double augmenting_pos_error{0.1};                           ///< @brief
     double augmenting_ang_error{0.1};                           ///< @brief
     Eigen::VectorXd process_noise {Eigen::VectorXd::Ones(18)};  ///< @brief
+    Eigen::Vector3d pos_l_in_g {Eigen::Vector3d::Zero()};       ///< @brief
+    double ang_l_to_g{0.0};                                     ///< @brief
+    GpsInitType gps_init_type {GpsInitType::CONSTANT};          ///< @brief GPS initialization type
+    double gps_init_baseline_dist {100.0};  ///< @brief Minimum pos projection error
+    double gps_init_pos_thresh {0.1};       ///< @brief Minimum ang projection error
+    double gps_init_ang_thresh {0.1};       ///< @brief Baseline distance threshold
   } Parameters;
 
   ///
@@ -274,6 +281,31 @@ public:
   ///
   void RefreshIndices();
 
+  ///
+  /// @brief GPS LLA to ENU Initialization Routine
+  /// @param time GPS measured time
+  /// @param gps_lla GPS measured lat-lon-alt
+  ///
+  void AttemptGpsInitialization(
+    double time,
+    Eigen::Vector3d gps_lla);
+
+  ///
+  /// @brief GPS time vector getter
+  /// @return GPS time vector
+  ///
+  std::vector<double> GetGpsTimeVector();
+  ///
+  /// @brief GPS ECEF vector getter
+  /// @return GPS ECEF vector
+  ///
+  std::vector<Eigen::Vector3d> GetGpsEcefVector();
+  ///
+  /// @brief GPS XYZ vector getter
+  /// @return GPS XYZ vector
+  ///
+  std::vector<Eigen::Vector3d> GetGpsXyzVector();
+
   /// @brief EKF state
   State m_state;
 
@@ -292,12 +324,19 @@ private:
   std::shared_ptr<DebugLogger> m_debug_logger;
   bool m_data_logging_on;
   unsigned int m_max_track_length{20};
-  Eigen::MatrixXd m_process_noise;
+  Eigen::MatrixXd m_process_noise {Eigen::MatrixXd::Zero(18, 18)};
   DataLogger m_data_logger;
 
-  bool m_is_lla_initialized{false};
-  Eigen::Vector3d m_reference_lla{0, 0, 0};
-  double m_ang_l_to_g{0};
+  GpsInitType m_gps_init_type;
+  double m_gps_init_pos_thresh;
+  double m_gps_init_ang_thresh;
+  double m_gps_init_baseline_dist;
+  bool m_is_lla_initialized;
+  Eigen::Vector3d m_pos_l_in_g;
+  double m_ang_l_to_g;
+  std::vector<double> m_gps_time_vec;
+  std::vector<Eigen::Vector3d> m_gps_ecef_vec;
+  std::vector<Eigen::Vector3d> m_gps_xyz_vec;
 };
 
 #endif  // EKF__EKF_HPP_

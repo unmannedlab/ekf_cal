@@ -27,6 +27,7 @@
 #include "ekf/types.hpp"
 #include "infrastructure/data_logger.hpp"
 #include "infrastructure/debug_logger.hpp"
+#include "utility/gps_helper.hpp"
 #include "utility/math_helper.hpp"
 #include "utility/string_helper.hpp"
 #include "utility/type_helper.hpp"
@@ -34,7 +35,13 @@
 EKF::EKF(Parameters params)
 : m_debug_logger(params.debug_logger),
   m_data_logging_on(params.data_logging_on),
-  m_data_logger(params.log_directory, "body_state.csv")
+  m_data_logger(params.log_directory, "body_state.csv"),
+  m_gps_init_type(params.gps_init_type),
+  m_gps_init_pos_thresh(params.gps_init_pos_thresh),
+  m_gps_init_ang_thresh(params.gps_init_ang_thresh),
+  m_gps_init_baseline_dist(params.gps_init_baseline_dist),
+  m_pos_l_in_g(params.pos_l_in_g),
+  m_ang_l_to_g(params.ang_l_to_g)
 {
   std::stringstream header;
   header << "time";
@@ -51,6 +58,12 @@ EKF::EKF(Parameters params)
   m_data_logger.SetLogging(m_data_logging_on);
   m_data_logger.SetLogRate(params.body_data_rate);
   SetProcessNoise(params.process_noise);
+
+  if (params.gps_init_type == GpsInitType::CONSTANT) {
+    m_is_lla_initialized = true;
+  } else {
+    m_is_lla_initialized = false;
+  }
 }
 
 Eigen::MatrixXd EKF::GetStateTransition(double dT)
@@ -558,9 +571,9 @@ void EKF::SetMaxTrackLength(unsigned int max_track_length)
   m_max_track_length = max_track_length;
 }
 
-void EKF::SetGpsReference(Eigen::VectorXd reference_lla, double ang_l_to_g)
+void EKF::SetGpsReference(Eigen::VectorXd pos_l_in_g, double ang_l_to_g)
 {
-  m_reference_lla = reference_lla;
+  m_pos_l_in_g = pos_l_in_g;
   m_ang_l_to_g = ang_l_to_g;
   m_is_lla_initialized = true;
 }
@@ -570,7 +583,7 @@ Eigen::VectorXd EKF::GetReferenceLLA()
   if (!m_is_lla_initialized) {
     m_debug_logger->Log(LogLevel::WARN, "LLA is being accessed before initialization!");
   }
-  return m_reference_lla;
+  return m_pos_l_in_g;
 }
 
 double EKF::GetReferenceAngle()
@@ -610,4 +623,64 @@ void EKF::RefreshIndices()
     aug_iter.second.index = current_index;
     current_index += g_aug_state_size;
   }
+}
+
+void EKF::AttemptGpsInitialization(
+  double time,
+  Eigen::Vector3d gps_lla)
+{
+  Eigen::Vector3d gps_ecef = lla_to_ecef(gps_lla);
+
+  m_gps_time_vec.push_back(time);
+  m_gps_ecef_vec.push_back(gps_ecef);
+  m_gps_xyz_vec.push_back(m_state.body_state.pos_b_in_l);
+
+  if (m_gps_time_vec.size() >= 4) {
+    Eigen::Vector3d init_ref_ecef = average_vectors(m_gps_ecef_vec);
+    Eigen::Vector3d init_ref_lla = ecef_to_lla(init_ref_ecef);
+
+    std::vector<Eigen::Vector3d> gps_states_enu;
+    for (auto gps_ecef : m_gps_ecef_vec) {
+      gps_states_enu.push_back(ecef_to_enu(gps_ecef, init_ref_lla));
+    }
+
+    double pos_stddev;
+    double ang_stddev;
+    Eigen::Affine3d transformation;
+    bool is_successful = kabsch_2d(
+      m_gps_xyz_vec,
+      gps_states_enu,
+      transformation,
+      pos_stddev,
+      ang_stddev);
+
+    double max_distance = maximum_distance(gps_states_enu);
+
+    if (((m_gps_init_type == GpsInitType::BASELINE_DIST) &&
+      (max_distance > m_gps_init_baseline_dist)) ||
+      ((m_gps_init_type == GpsInitType::ERROR_THRESHOLD) && is_successful &&
+      (pos_stddev < m_gps_init_pos_thresh) && ang_stddev &&
+      (ang_stddev < std::tan(m_gps_init_ang_thresh))))
+    {
+      Eigen::Vector3d delta_ref_enu = transformation.translation();
+      Eigen::Vector3d reference_lla = enu_to_lla(-delta_ref_enu, init_ref_lla);
+      double ang_l_to_g = affine_angle(transformation);
+
+      m_debug_logger->Log(LogLevel::INFO, "GPS Updater Initialized");
+      SetGpsReference(reference_lla, ang_l_to_g);
+    }
+  }
+}
+
+std::vector<double> EKF::GetGpsTimeVector()
+{
+  return m_gps_time_vec;
+}
+std::vector<Eigen::Vector3d> EKF::GetGpsEcefVector()
+{
+  return m_gps_ecef_vec;
+}
+std::vector<Eigen::Vector3d> EKF::GetGpsXyzVector()
+{
+  return m_gps_xyz_vec;
 }

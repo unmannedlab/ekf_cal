@@ -137,6 +137,12 @@ public:
   void DeclareIntrinsicParameters(std::string intrinsics_prefix);
 
   ///
+  /// @brief Declare fiducial parameters
+  /// @param fid_name Fiducial name
+  ///
+  void DeclareFiducialParameters(std::string fid_name);
+
+  ///
   /// @brief Load camera intrinsic parameters
   /// @param intrinsics_prefix Camera intrinsic prefix
   ///
@@ -151,9 +157,16 @@ public:
   ///
   /// @brief Load tracker parameters
   /// @param tracker_name Name of parameter structure
-  /// @return trackerParameters
+  /// @return Tracker parameters
   ///
   FeatureTracker::Parameters GetTrackerParameters(std::string tracker_name);
+
+  ///
+  /// @brief Load fiducial parameters
+  /// @param fiducial_name Name of parameter structure
+  /// @return Fiducial parameters
+  ///
+  FiducialTracker::Parameters GetFiducialParameters(std::string fiducial_name);
 
   ///
   /// @brief Callback method for IMU sensor messages
@@ -215,6 +228,7 @@ private:
   std::vector<std::string> m_imu_list {};
   std::vector<std::string> m_camera_list {};
   std::vector<std::string> m_tracker_list {};
+  std::vector<std::string> m_fiducial_list {};
   std::vector<std::string> m_gps_list {};
 
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_img_publisher;

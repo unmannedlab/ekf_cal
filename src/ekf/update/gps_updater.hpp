@@ -35,10 +35,6 @@ public:
   ///
   /// @brief GPS EKF Updater Constructor
   /// @param gps_id GPS Sensor ID
-  /// @param init_type Type of GPS initialization to use
-  /// @param init_pos_thresh Error limit to initialize local reference frame pos
-  /// @param init_ang_thresh Error limit to initialize local reference frame ang
-  /// @param init_baseline_dist Distance threshold to initialize
   /// @param log_file_directory Logging file directory
   /// @param is_extrinsic Is GPS extrinsic calibrating
   /// @param data_logging_on Logging flag
@@ -47,27 +43,12 @@ public:
   ///
   GpsUpdater(
     unsigned int gps_id,
-    GpsInitType init_type,
-    double init_pos_thresh,
-    double init_ang_thresh,
-    double init_baseline_dist,
     bool is_extrinsic,
     std::string log_file_directory,
     bool data_logging_on,
     double data_log_rate,
     std::shared_ptr<DebugLogger> logger
   );
-
-  ///
-  /// @brief GPS LLA to ENU Initialization Routine
-  /// @param time GPS measured time
-  /// @param ekf EKF pointer
-  /// @param gps_lla GPS measured lat-lon-alt
-  ///
-  void AttemptInitialization(
-    double time,
-    std::shared_ptr<EKF> ekf,
-    Eigen::Vector3d gps_lla);
 
   ///
   /// @brief Measurement Jacobian method
@@ -94,24 +75,13 @@ public:
   /// @param gps_ecef_vec
   /// @param local_xyz_vec
   ///
-  void MultiUpdateEKF(
-    std::shared_ptr<EKF> ekf,
-    std::vector<double> gps_time_vec,
-    std::vector<Eigen::Vector3d> gps_ecef_vec,
-    std::vector<Eigen::Vector3d> local_xyz_vec);
+  void MultiUpdateEKF(std::shared_ptr<EKF> ekf);
 
 private:
   double m_pos_stddev {0.0};
   double m_ang_stddev {0.0};
-  GpsInitType m_init_type;
-  double m_init_pos_thresh;
-  double m_init_ang_thresh;
-  double m_init_baseline_dist;
   bool m_is_extrinsic {false};
   DataLogger m_data_logger;
-  std::vector<double> m_gps_time_vec;
-  std::vector<Eigen::Vector3d> m_gps_ecef_vec;
-  std::vector<Eigen::Vector3d> m_local_xyz_vec;
 };
 
 #endif  // EKF__UPDATE__GPS_UPDATER_HPP_

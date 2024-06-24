@@ -26,6 +26,16 @@
             1.0e-5, 1.0e-5, 1.0e-5,     # Angular Acceleration
         ]
 
+        pos_l_in_g: [0.0, 0.0, 0.0]     # Local frame position in global frame
+        ang_l_to_g: 0.0                 # Local frame heading in global frame
+        gps_init_type: 0                # GPS Initialization Type
+                                        #   0: CONSTANT
+                                        #   1: BASELINE_DIST
+                                        #   2: ERROR_THRESHOLD
+        gps_init_baseline_dist: 100.0   # Baseline distance threshold to initialize
+        gps_init_pos_thresh: 1.0        # Local frame position error threshold
+        gps_init_ang_thresh: 0.1        # Local frame heading error threshold
+
         sim_params:
             seed: 0.0                       # Seed to provide to random number generator
             use_seed: true                  # Flag to use seed (required for deterministic runs)
@@ -57,8 +67,6 @@
             pos_errors: [1.0, 1.0, 1.0]     # Error in achieving translational vectors
             ang_errors: [0.1, 0.1, 0.1]     # Error in achieving rotational vectors
 
-            pos_l_in_g: [0.0, 0.0, 0.0]     # Local frame position in global frame
-            ang_l_to_g: 0.0                 # Local frame heading in global frame
             pos_l_in_g_err: [1.0, 1.0, 1.0] # Local frame position error
             ang_l_to_g_err: 0.1             # Local frame heading error
 
@@ -198,13 +206,6 @@
                 pos_a_in_b: [1.0, 0, 0]                 # Antenna position in body frame
                 variance: [5.0, 5.0, 5.0]               # Antenna position variance
                 data_log_rate: 5.0                      # Data log rate
-                initialization_type: 0                  # Initialization Type
-                                                        #   0: CONSTANT
-                                                        #   1: BASELINE_DIST
-                                                        #   2: ERROR_THRESHOLD
-                init_baseline_dist: 100.0               # Baseline distance threshold to initialize
-                init_pos_thresh: 1.0                    # Local frame position error threshold
-                init_ang_thresh: 0.1                    # Local frame heading error threshold
                 is_extrinsic: false                     # Flag to calibrate GPS extrinsics
                 sim_params:
                     no_errors: false                    # Flag to disable errors in simulation
