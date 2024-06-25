@@ -69,17 +69,12 @@ public:
     Eigen::Vector3d gps_lla);
 
   ///
-  /// @brief
-  /// @param ekf
-  /// @param gps_time_vec
-  /// @param gps_ecef_vec
-  /// @param local_xyz_vec
+  /// @brief Update/marginalize EKF using GPS measurements used to initialize local frame
+  /// @param ekf EKF pointer
   ///
   void MultiUpdateEKF(std::shared_ptr<EKF> ekf);
 
 private:
-  double m_pos_stddev {0.0};
-  double m_ang_stddev {0.0};
   bool m_is_extrinsic {false};
   DataLogger m_data_logger;
 };

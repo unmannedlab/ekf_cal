@@ -232,7 +232,7 @@ void FiducialUpdater::UpdateEKF(
   }
 
   /// @todo(jhartzer): This doesn't account for angular errors. Apply transform to R?
-  double position_sigma = 3 * pos_error;  // / std::sqrt(board_track.size());
+  double position_sigma = 3 * pos_error * ang_error;  // / std::sqrt(board_track.size());
   Eigen::MatrixXd R = position_sigma * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
   // Apply Kalman update

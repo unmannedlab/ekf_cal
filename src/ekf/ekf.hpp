@@ -43,17 +43,17 @@ public:
   ///
   typedef struct Parameters
   {
-    std::shared_ptr<DebugLogger> debug_logger;                  ///< @brief
-    double body_data_rate{1.0};                                 ///< @brief
-    bool data_logging_on{false};                                ///< @brief
-    std::string log_directory{""};                              ///< @brief
-    AugmentationType augmenting_type{AugmentationType::ALL};    ///< @brief
-    double augmenting_time{1.0};                                ///< @brief
-    double augmenting_pos_error{0.1};                           ///< @brief
-    double augmenting_ang_error{0.1};                           ///< @brief
-    Eigen::VectorXd process_noise {Eigen::VectorXd::Ones(18)};  ///< @brief
-    Eigen::Vector3d pos_l_in_g {Eigen::Vector3d::Zero()};       ///< @brief
-    double ang_l_to_g{0.0};                                     ///< @brief
+    std::shared_ptr<DebugLogger> debug_logger;                  ///< @brief Debug logger
+    double body_data_rate{1.0};                                 ///< @brief Body data log rate
+    bool data_logging_on{false};                                ///< @brief Data logging flag
+    std::string log_directory{""};                              ///< @brief Data log directory
+    AugmentationType augmenting_type{AugmentationType::ALL};    ///< @brief Augmenting type
+    double augmenting_time{1.0};                                ///< @brief Augmenting time
+    double augmenting_pos_error{0.1};                           ///< @brief Augmenting pos error
+    double augmenting_ang_error{0.1};                           ///< @brief Augmenting ang error
+    Eigen::VectorXd process_noise {Eigen::VectorXd::Ones(18)};  ///< @brief Process noise
+    Eigen::Vector3d pos_l_in_g {Eigen::Vector3d::Zero()};       ///< @brief Local frame position
+    double ang_l_to_g{0.0};                                     ///< @brief Local frame heading
     GpsInitType gps_init_type {GpsInitType::CONSTANT};          ///< @brief GPS initialization type
     double gps_init_baseline_dist {100.0};  ///< @brief Minimum pos projection error
     double gps_init_pos_thresh {0.1};       ///< @brief Minimum ang projection error

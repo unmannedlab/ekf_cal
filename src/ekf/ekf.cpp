@@ -538,13 +538,11 @@ void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
   } else {
     /// @todo(jhartzer): Evaluate switching to second element / creating map
     // Remove first element from state
-    m_state.aug_states.erase(
-      m_state.aug_states.begin());
+    m_state.aug_states.erase(m_state.aug_states.begin());
 
     // Remove first element from covariance
     m_cov = RemoveFromMatrix(
-      m_cov, cam_index + g_cam_state_size,
-      cam_index + g_cam_state_size, g_aug_state_size);
+      m_cov, cam_index + g_cam_state_size, cam_index + g_cam_state_size, g_aug_state_size);
   }
 
   RefreshIndices();

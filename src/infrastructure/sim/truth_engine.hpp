@@ -245,7 +245,7 @@ public:
   void WriteTruthData(double body_data_rate, std::string output_directory);
 
   ///
-  /// @brief
+  /// @brief Feature generation function
   /// @param feature_count Number of features to generate
   /// @param room_size Size of room to distribute features in
   /// @param rng Random number generator to use in generation
