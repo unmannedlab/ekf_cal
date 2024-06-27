@@ -534,7 +534,28 @@ void EKF::AugmentStateIfNeeded()
       augmented_state_needed = true;
     }
   } else if (m_augmenting_type == AugmentationType::ERROR) {
-    /// @todo(jhartzer): This
+    AugState last_aug = m_state.aug_states[0].back();
+    double delta_time = m_current_time - last_aug.time;
+    Eigen::Vector3d delta_pos = m_state.body_state.pos_b_in_l -
+      delta_time * m_state.body_state.vel_b_in_l -
+      0.5 * delta_time * delta_time * m_state.body_state.acc_b_in_l -
+      last_aug.pos_b_in_l;
+
+    Eigen::Vector3d rot_vec(
+      m_state.body_state.ang_vel_b_in_l[0] * delta_time +
+      m_state.body_state.ang_acc_b_in_l[0] * 0.5 * delta_time * delta_time,
+      m_state.body_state.ang_vel_b_in_l[1] * delta_time +
+      m_state.body_state.ang_acc_b_in_l[1] * 0.5 * delta_time * delta_time,
+      m_state.body_state.ang_vel_b_in_l[2] * delta_time +
+      m_state.body_state.ang_acc_b_in_l[2] * 0.5 * delta_time * delta_time);
+
+    Eigen::Quaterniond delta_ang =
+      m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec).inverse() *
+      last_aug.ang_b_to_l.inverse();
+
+    if (delta_pos.norm() > m_augmenting_pos_error || delta_ang.norm() > m_augmenting_ang_error) {
+      augmented_state_needed = true;
+    }
   }
 
   // Prune old states
