@@ -238,6 +238,7 @@ public:
   Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Camera state position
   Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera state orientation
   Intrinsics intrinsics;                              ///< @brief Camera Intrinsics
+  double rate{1.0};                                   ///< @brief Frame rate
   unsigned int size{g_cam_state_size};                ///< @brief State size
   int index{-1};                                      ///< @brief State index
 };

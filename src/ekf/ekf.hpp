@@ -349,6 +349,8 @@ private:
   double m_augmenting_pos_error;
   double m_augmenting_ang_error;
   double m_primary_camera_id;
+  double m_max_frame_period {0.0};
+  double m_max_track_duration {0.0};
 };
 
 #endif  // EKF__EKF_HPP_

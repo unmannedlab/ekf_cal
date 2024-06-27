@@ -17,6 +17,7 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -145,6 +146,8 @@ void EKF::ProcessModel(double time)
 
   m_current_time = time;
 
+  AugmentStateIfNeeded();
+
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
@@ -208,6 +211,8 @@ void EKF::PredictModel(
   LimitUncertainty();
 
   m_current_time = time;
+
+  AugmentStateIfNeeded();
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
@@ -446,6 +451,9 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
     return;
   }
 
+  m_max_frame_period = std::max(m_max_frame_period, 1 / cam_state.rate);
+  m_max_track_duration = m_max_frame_period * m_max_track_length;
+
   unsigned int cam_state_end = g_body_state_size +
     GetImuStateSize() + GetGpsStateSize() + GetCamStateSize();
 
@@ -518,49 +526,82 @@ Eigen::MatrixXd EKF::AugmentJacobian(unsigned int cam_index, unsigned int aug_in
 
 void EKF::AugmentStateIfNeeded()
 {
-  /// @todo(jhartzer): Actually use this function
-  /// @todo(jhartzer): Check if pruning is necessary based on elapsed time
-  return;
+  bool augmented_state_needed {false};
 
   if (m_augmenting_type == AugmentationType::TIME) {
     if (abs(m_current_time - m_augmenting_prev_time) > m_augmenting_delta_time) {
       m_augmenting_prev_time = m_current_time;
+      augmented_state_needed = true;
     }
   } else if (m_augmenting_type == AugmentationType::ERROR) {
     /// @todo(jhartzer): This
+  }
+
+  // Prune old states
+  for (int i = m_state.aug_states[0].size() - 1; i >= 0; --i) {
+    // Check if any states are too old
+    if (m_current_time - m_state.aug_states[0][i].time > m_max_track_duration) {
+      m_state_size -= g_aug_state_size;
+      m_aug_state_size -= g_aug_state_size;
+      unsigned int aug_index = m_state.aug_states[0][i].index;
+
+      // Prune old states
+      m_state.aug_states[0].erase(m_state.aug_states[0].begin() + i);
+      m_cov = RemoveFromMatrix(m_cov, aug_index, aug_index, g_aug_state_size);
+
+      RefreshIndices();
+    }
+  }
+
+  if (augmented_state_needed) {
+    AugState aug_state;
+    aug_state.time = m_current_time;
+    aug_state.frame_id = -1;
+    aug_state.pos_b_in_l = m_state.body_state.pos_b_in_l;
+    aug_state.ang_b_to_l = m_state.body_state.ang_b_to_l;
+    aug_state.pos_c_in_b = m_state.cam_states[0].pos_c_in_b;
+    aug_state.ang_c_to_b = m_state.cam_states[0].ang_c_to_b;
+    m_state.aug_states[0].push_back(aug_state);
+
+    m_state_size += g_aug_state_size;
+    m_aug_state_size += g_aug_state_size;
+
+    RefreshIndices();
+    unsigned int cam_index = m_state.cam_states[0].index;
+    unsigned int aug_index = m_state.aug_states[0].back().index;
+
+    Eigen::MatrixXd augment_jacobian = AugmentJacobian(cam_index, aug_index);
+    /// @todo doing this is very expensive. Apply Jacobian in place without large multiplications
+    /// Most elements are identity/zeros anyways
+    m_cov = (augment_jacobian * m_cov * augment_jacobian.transpose()).eval();
   }
 }
 
 void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
 {
-  if (m_augmenting_type == AugmentationType::PRIMARY ||
-    m_augmenting_type == AugmentationType::ALL)
+  if (m_augmenting_type == AugmentationType::ALL ||
+    (m_augmenting_type == AugmentationType::PRIMARY && camera_id == m_primary_camera_id))
   {
-    if (m_augmenting_type == AugmentationType::PRIMARY && camera_id != m_primary_camera_id) {
-      return;
-    }
-
     std::stringstream msg;
     msg << "Aug State Frame: " << std::to_string(frame_id);
     m_debug_logger->Log(LogLevel::DEBUG, msg.str());
-    Eigen::Vector3d pos_b_in_l = m_state.body_state.pos_b_in_l;
-    Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
 
     AugState aug_state;
+    aug_state.time = m_current_time;
     aug_state.frame_id = frame_id;
-    aug_state.pos_b_in_l = pos_b_in_l;
-    aug_state.ang_b_to_l = ang_b_to_l;
+    aug_state.pos_b_in_l = m_state.body_state.pos_b_in_l;
+    aug_state.ang_b_to_l = m_state.body_state.ang_b_to_l;
     aug_state.pos_c_in_b = m_state.cam_states[camera_id].pos_c_in_b;
     aug_state.ang_c_to_b = m_state.cam_states[camera_id].ang_c_to_b;
     m_state.aug_states[camera_id].push_back(aug_state);
-
-    unsigned int aug_start = m_state_size - m_aug_state_size;
 
     // Limit augmented states to m_max_track_length
     if (m_state.aug_states[camera_id].size() <= m_max_track_length) {
       m_state_size += g_aug_state_size;
       m_aug_state_size += g_aug_state_size;
     } else {
+      unsigned int aug_start = m_state.aug_states[camera_id][0].index;
+
       /// @todo(jhartzer): Evaluate switching to second element / creating map
       // Remove first element from state
       m_state.aug_states[camera_id].erase(m_state.aug_states[camera_id].begin());
@@ -602,6 +643,7 @@ AugState EKF::GetAugState(int camera_id, int frame_id)
 void EKF::SetMaxTrackLength(unsigned int max_track_length)
 {
   m_max_track_length = max_track_length;
+  m_max_track_duration = m_max_frame_period * m_max_track_length;
 }
 
 void EKF::SetGpsReference(Eigen::VectorXd pos_l_in_g, double ang_l_to_g)

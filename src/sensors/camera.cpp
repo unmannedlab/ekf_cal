@@ -40,6 +40,7 @@ Camera::Camera(Camera::Parameters cam_params)
   m_rate = cam_params.rate;
 
   CamState cam_state;
+  cam_state.rate = cam_params.rate;
   cam_state.pos_c_in_b = cam_params.pos_c_in_b;
   cam_state.ang_c_to_b = cam_params.ang_c_to_b;
   cam_state.pos_stability = cam_params.pos_stability;
