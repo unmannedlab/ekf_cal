@@ -330,26 +330,21 @@ public:
   std::map<unsigned int, GpsState> gps_states{};  ///< @brief GPS states
   std::map<unsigned int, CamState> cam_states{};  ///< @brief Camera states
   std::map<unsigned int, FidState> fid_states{};  ///< @brief Fiducial states
-  std::map<unsigned int, AugState> aug_states{};  ///< @brief Fiducial states
+  std::map<unsigned int, std::vector<AugState>> aug_states{};  ///< @brief Fiducial states
 };
 
 BodyState & operator+=(BodyState & l_body_state, BodyState & r_body_state);
 BodyState & operator+=(BodyState & l_body_state, Eigen::VectorXd & r_vector);
 std::map<unsigned int, ImuState> & operator+=(
-  std::map<unsigned int, ImuState> & l_imu_state,
-  Eigen::VectorXd & r_vector);
+  std::map<unsigned int, ImuState> & l_imu_state, Eigen::VectorXd & r_vector);
 std::map<unsigned int, GpsState> & operator+=(
-  std::map<unsigned int, GpsState> & l_gps_state,
-  Eigen::VectorXd & r_vector);
+  std::map<unsigned int, GpsState> & l_gps_state, Eigen::VectorXd & r_vector);
 std::map<unsigned int, CamState> & operator+=(
-  std::map<unsigned int, CamState> & l_cam_state,
-  Eigen::VectorXd & r_vector);
+  std::map<unsigned int, CamState> & l_cam_state, Eigen::VectorXd & r_vector);
 std::map<unsigned int, FidState> & operator+=(
-  std::map<unsigned int, FidState> & l_fid_state,
-  Eigen::VectorXd & r_vector);
+  std::map<unsigned int, FidState> & l_fid_state, Eigen::VectorXd & r_vector);
 std::vector<AugState> & operator+=(
-  std::vector<AugState> & l_augState,
-  Eigen::VectorXd & r_vector);
+  std::vector<AugState> & l_augState, Eigen::VectorXd & r_vector);
 
 State & operator+=(State & l_state, State & rState);
 State & operator+=(State & l_state, Eigen::VectorXd & r_vector);

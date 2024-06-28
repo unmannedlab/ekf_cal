@@ -59,7 +59,7 @@ EkfCalNode::EkfCalNode()
   this->declare_parameter("data_logging_on", false);
   this->declare_parameter("body_data_rate", 0.0);
   this->declare_parameter("augmenting_type", 0);
-  this->declare_parameter("augmenting_time", 0.0);
+  this->declare_parameter("augmenting_delta_time", 0.0);
   this->declare_parameter("augmenting_pos_error", 0.0);
   this->declare_parameter("augmenting_ang_error", 0.0);
   this->declare_parameter(
@@ -100,7 +100,7 @@ void EkfCalNode::Initialize()
   ekf_params.log_directory = "~/log/";
   ekf_params.augmenting_type =
     static_cast<AugmentationType>(this->get_parameter("augmenting_type").as_int());
-  ekf_params.augmenting_time = this->get_parameter("augmenting_time").as_double();
+  ekf_params.augmenting_delta_time = this->get_parameter("augmenting_delta_time").as_double();
   ekf_params.augmenting_pos_error = this->get_parameter("augmenting_pos_error").as_double();
   ekf_params.augmenting_ang_error = this->get_parameter("augmenting_ang_error").as_double();
   ekf_params.process_noise = StdToEigVec(this->get_parameter("process_noise").as_double_array());

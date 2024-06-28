@@ -161,7 +161,7 @@ int main(int argc, char * argv[])
   ekf_params.log_directory = out_dir;
   ekf_params.augmenting_type =
     static_cast<AugmentationType>(ros_params["augmenting_type"].as<unsigned int>(0));
-  ekf_params.augmenting_time = ros_params["augmenting_type"].as<double>(1.0);
+  ekf_params.augmenting_delta_time = ros_params["augmenting_type"].as<double>(1.0);
   ekf_params.augmenting_pos_error = ros_params["augmenting_type"].as<double>(0.1);
   ekf_params.augmenting_ang_error = ros_params["augmenting_type"].as<double>(0.1);
   ekf_params.process_noise =

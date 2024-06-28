@@ -48,7 +48,7 @@ public:
     bool data_logging_on{false};                                ///< @brief Data logging flag
     std::string log_directory{""};                              ///< @brief Data log directory
     AugmentationType augmenting_type{AugmentationType::ALL};    ///< @brief Augmenting type
-    double augmenting_time{1.0};                                ///< @brief Augmenting time
+    double augmenting_delta_time{1.0};                          ///< @brief Augmenting time
     double augmenting_pos_error{0.1};                           ///< @brief Augmenting pos error
     double augmenting_ang_error{0.1};                           ///< @brief Augmenting ang error
     Eigen::VectorXd process_noise {Eigen::VectorXd::Ones(18)};  ///< @brief Process noise
@@ -208,7 +208,12 @@ public:
     unsigned int aug_index);
 
   ///
-  /// @brief Function to augment current state for camera frame
+  /// @brief Check if state should be augmented using current state
+  ///
+  void AugmentStateIfNeeded();
+
+  ///
+  /// @brief Check if state should be augmented using camera frame
   /// @param camera_id Current camera ID
   /// @param frame_id Current frame ID
   ///
@@ -337,6 +342,13 @@ private:
   std::vector<double> m_gps_time_vec;
   std::vector<Eigen::Vector3d> m_gps_ecef_vec;
   std::vector<Eigen::Vector3d> m_gps_xyz_vec;
+
+  AugmentationType m_augmenting_type;
+  double m_augmenting_prev_time;
+  double m_augmenting_delta_time;
+  double m_augmenting_pos_error;
+  double m_augmenting_ang_error;
+  double m_primary_camera_id;
 };
 
 #endif  // EKF__EKF_HPP_

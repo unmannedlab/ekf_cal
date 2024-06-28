@@ -41,7 +41,11 @@ EKF::EKF(Parameters params)
   m_gps_init_ang_thresh(params.gps_init_ang_thresh),
   m_gps_init_baseline_dist(params.gps_init_baseline_dist),
   m_pos_l_in_g(params.pos_l_in_g),
-  m_ang_l_to_g(params.ang_l_to_g)
+  m_ang_l_to_g(params.ang_l_to_g),
+  m_augmenting_type(params.augmenting_type),
+  m_augmenting_delta_time(params.augmenting_delta_time),
+  m_augmenting_pos_error(params.augmenting_pos_error),
+  m_augmenting_ang_error(params.augmenting_ang_error)
 {
   std::stringstream header;
   header << "time";
@@ -481,7 +485,6 @@ void EKF::RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::Matri
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-/// @todo Don't return a Jacobian but rather just apply a Jacobian to the covariance
 Eigen::MatrixXd EKF::AugmentJacobian(unsigned int cam_index, unsigned int aug_index)
 {
   Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(m_state_size, m_state_size - g_aug_state_size);
@@ -513,45 +516,68 @@ Eigen::MatrixXd EKF::AugmentJacobian(unsigned int cam_index, unsigned int aug_in
   return jacobian;
 }
 
+void EKF::AugmentStateIfNeeded()
+{
+  /// @todo(jhartzer): Actually use this function
+  /// @todo(jhartzer): Check if pruning is necessary based on elapsed time
+  return;
+
+  if (m_augmenting_type == AugmentationType::TIME) {
+    if (abs(m_current_time - m_augmenting_prev_time) > m_augmenting_delta_time) {
+      m_augmenting_prev_time = m_current_time;
+    }
+  } else if (m_augmenting_type == AugmentationType::ERROR) {
+    /// @todo(jhartzer): This
+  }
+}
+
 void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
 {
-  std::stringstream msg;
-  msg << "Aug State Frame: " << std::to_string(frame_id);
-  m_debug_logger->Log(LogLevel::DEBUG, msg.str());
-  Eigen::Vector3d pos_b_in_l = m_state.body_state.pos_b_in_l;
-  Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
+  if (m_augmenting_type == AugmentationType::PRIMARY ||
+    m_augmenting_type == AugmentationType::ALL)
+  {
+    if (m_augmenting_type == AugmentationType::PRIMARY && camera_id != m_primary_camera_id) {
+      return;
+    }
 
-  AugState aug_state;
-  aug_state.frame_id = frame_id;
-  aug_state.pos_b_in_l = pos_b_in_l;
-  aug_state.ang_b_to_l = ang_b_to_l;
-  aug_state.pos_c_in_b = m_state.cam_states[camera_id].pos_c_in_b;
-  aug_state.ang_c_to_b = m_state.cam_states[camera_id].ang_c_to_b;
-  m_state.aug_states[frame_id] = aug_state;
+    std::stringstream msg;
+    msg << "Aug State Frame: " << std::to_string(frame_id);
+    m_debug_logger->Log(LogLevel::DEBUG, msg.str());
+    Eigen::Vector3d pos_b_in_l = m_state.body_state.pos_b_in_l;
+    Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
 
-  unsigned int cam_index = m_state.cam_states[camera_id].index;
+    AugState aug_state;
+    aug_state.frame_id = frame_id;
+    aug_state.pos_b_in_l = pos_b_in_l;
+    aug_state.ang_b_to_l = ang_b_to_l;
+    aug_state.pos_c_in_b = m_state.cam_states[camera_id].pos_c_in_b;
+    aug_state.ang_c_to_b = m_state.cam_states[camera_id].ang_c_to_b;
+    m_state.aug_states[camera_id].push_back(aug_state);
 
-  // Limit augmented states to m_max_track_length
-  if (m_state.aug_states.size() <= m_max_track_length) {
-    m_state_size += g_aug_state_size;
-    m_aug_state_size += g_aug_state_size;
-  } else {
-    /// @todo(jhartzer): Evaluate switching to second element / creating map
-    // Remove first element from state
-    m_state.aug_states.erase(m_state.aug_states.begin());
+    unsigned int aug_start = m_state_size - m_aug_state_size;
 
-    // Remove first element from covariance
-    m_cov = RemoveFromMatrix(
-      m_cov, cam_index + g_cam_state_size, cam_index + g_cam_state_size, g_aug_state_size);
+    // Limit augmented states to m_max_track_length
+    if (m_state.aug_states[camera_id].size() <= m_max_track_length) {
+      m_state_size += g_aug_state_size;
+      m_aug_state_size += g_aug_state_size;
+    } else {
+      /// @todo(jhartzer): Evaluate switching to second element / creating map
+      // Remove first element from state
+      m_state.aug_states[camera_id].erase(m_state.aug_states[camera_id].begin());
+
+      // Remove first element from covariance
+      m_cov = RemoveFromMatrix(m_cov, aug_start, aug_start, g_aug_state_size);
+    }
+
+    RefreshIndices();
+    unsigned int cam_index = m_state.cam_states[camera_id].index;
+    unsigned int aug_index = m_state.aug_states[camera_id].back().index;
+
+    Eigen::MatrixXd augment_jacobian = AugmentJacobian(cam_index, aug_index);
+    /// @todo doing this is very expensive. Apply Jacobian in place without large multiplications
+    /// Most elements are identity/zeros anyways
+    m_cov = (augment_jacobian * m_cov * augment_jacobian.transpose()).eval();
   }
-
-  RefreshIndices();
-  unsigned int aug_index = m_state.aug_states[frame_id].index;
-
-  Eigen::MatrixXd augment_jacobian = AugmentJacobian(cam_index, aug_index);
-  /// @todo doing this is very expensive. Apply Jacobian in place without large multiplications
-  /// Most elements are identity/zeros anyways
-  m_cov = (augment_jacobian * m_cov * augment_jacobian.transpose()).eval();
 }
 
 void EKF::SetProcessNoise(Eigen::VectorXd process_noise)
@@ -561,7 +587,16 @@ void EKF::SetProcessNoise(Eigen::VectorXd process_noise)
 
 AugState EKF::GetAugState(int camera_id, int frame_id)
 {
-  return m_state.aug_states[frame_id];
+  AugState aug_state;
+
+  for (unsigned int i = 0; i < m_state.aug_states[camera_id].size(); ++i) {
+    if (m_state.aug_states[camera_id][i].frame_id == frame_id) {
+      aug_state = m_state.aug_states[camera_id][i];
+      break;
+    }
+  }
+
+  return aug_state;
 }
 
 void EKF::SetMaxTrackLength(unsigned int max_track_length)
@@ -618,8 +653,11 @@ void EKF::RefreshIndices()
     if (fid_iter.second.get_is_extrinsic()) {current_index += g_fid_extrinsic_state_size;}
   }
   for (auto & aug_iter : m_state.aug_states) {
-    aug_iter.second.index = current_index;
-    current_index += g_aug_state_size;
+    unsigned int aug_id = aug_iter.first;
+    for (unsigned int i = 0; i < m_state.aug_states[aug_id].size(); ++i) {
+      m_state.aug_states[aug_id][i].index = current_index;
+      current_index += g_aug_state_size;
+    }
   }
 }
 
