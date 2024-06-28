@@ -48,7 +48,7 @@ TEST(test_EKF, get_counts) {
   EXPECT_EQ(ekf->m_state.imu_states[0].index, 18);
   EXPECT_EQ(ekf->m_state.cam_states[1].index, 24);
   EXPECT_EQ(ekf->GetAugState(1, 0).index, 30);
-  EXPECT_EQ(ekf->GetAugState(1, 1).index, 42);
+  EXPECT_EQ(ekf->GetAugState(1, 1).index, 36);
 }
 
 TEST(test_EKF, duplicate_sensors) {
@@ -93,7 +93,7 @@ TEST(test_EKF, duplicate_sensors) {
   EXPECT_EQ(ekf->m_state.gps_states[1].index, 24);
   EXPECT_EQ(ekf->m_state.cam_states[2].index, 27);
   EXPECT_EQ(ekf->GetAugState(2, 0).index, 33);
-  EXPECT_EQ(ekf->GetAugState(2, 1).index, 45);
+  EXPECT_EQ(ekf->GetAugState(2, 1).index, 39);
 }
 
 TEST(test_EKF, SetProcessNoise) {
@@ -115,9 +115,7 @@ TEST(test_EKF, MatchState) {
 
   EXPECT_EQ(aug_state.frame_id, -1);
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.ang_b_to_l, zero_quat, 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.ang_c_to_b, zero_quat, 1e-6));
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.pos_b_in_l, zero_vec, 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.pos_c_in_b, zero_vec, 1e-6));
 
   EXPECT_EQ(ekf->GetAugState(0, 0).index, -1);
 }

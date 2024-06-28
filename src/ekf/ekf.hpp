@@ -199,13 +199,10 @@ public:
 
   ///
   /// @brief Generate augmented state Jacobian matrix
-  /// @param cam_index Camera state start index
   /// @param aug_index Augmented state start index
   /// @return Augmented state Jacobian matrix
   ///
-  Eigen::MatrixXd AugmentJacobian(
-    unsigned int cam_index,
-    unsigned int aug_index);
+  Eigen::MatrixXd AugmentJacobian(unsigned int aug_index);
 
   ///
   /// @brief Check if state should be augmented using current state
@@ -317,6 +314,12 @@ public:
   /// @brief EKF covariance
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-6;
 
+  unsigned int get_imu_state_start();
+  unsigned int get_gps_state_start();
+  unsigned int get_cam_state_start();
+  unsigned int get_aug_state_start();
+  unsigned int get_fid_state_start();
+
 private:
   unsigned int m_state_size{g_body_state_size};
   unsigned int m_imu_state_size{0};
@@ -351,6 +354,12 @@ private:
   double m_primary_camera_id;
   double m_max_frame_period {0.0};
   double m_max_track_duration {0.0};
+
+  unsigned int m_imu_state_start{0};
+  unsigned int m_gps_state_start{0};
+  unsigned int m_cam_state_start{0};
+  unsigned int m_aug_state_start{0};
+  unsigned int m_fid_state_start{0};
 };
 
 #endif  // EKF__EKF_HPP_

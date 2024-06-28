@@ -116,7 +116,7 @@ void EKF::ProcessModel(double time)
 
   if (time < m_current_time) {
     m_debug_logger->Log(
-      LogLevel::WARN, "Requested prediction to time in the past. Current t=" +
+      LogLevel::INFO, "Requested prediction to time in the past. Current t=" +
       std::to_string(m_current_time) + ", Requested t=" +
       std::to_string(time));
     return;
@@ -173,7 +173,7 @@ void EKF::PredictModel(
 
   if (time <= m_current_time) {
     m_debug_logger->Log(
-      LogLevel::WARN, "Requested prediction to time in the past. Current t=" +
+      LogLevel::INFO, "Requested prediction to time in the past. Current t=" +
       std::to_string(m_current_time) + ", Requested t=" +
       std::to_string(time));
     return;
@@ -493,7 +493,7 @@ void EKF::RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::Matri
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-Eigen::MatrixXd EKF::AugmentJacobian(unsigned int cam_index, unsigned int aug_index)
+Eigen::MatrixXd EKF::AugmentJacobian(unsigned int aug_index)
 {
   Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(m_state_size, m_state_size - g_aug_state_size);
 
@@ -514,12 +514,6 @@ Eigen::MatrixXd EKF::AugmentJacobian(unsigned int cam_index, unsigned int aug_in
 
   // Body Orientation to Local Frame
   jacobian.block<3, 3>(aug_index + 3, 9) = Eigen::MatrixXd::Identity(3, 3);
-
-  // Camera Position in IMU Frame
-  jacobian.block<3, 3>(aug_index + 6, cam_index + 0) = Eigen::MatrixXd::Identity(3, 3);
-
-  // Camera Orientation to IMU Frame
-  jacobian.block<3, 3>(aug_index + 9, cam_index + 3) = Eigen::MatrixXd::Identity(3, 3);
 
   return jacobian;
 }
@@ -584,18 +578,16 @@ void EKF::AugmentStateIfNeeded()
     aug_state.frame_id = -1;
     aug_state.pos_b_in_l = m_state.body_state.pos_b_in_l;
     aug_state.ang_b_to_l = m_state.body_state.ang_b_to_l;
-    aug_state.pos_c_in_b = m_state.cam_states[0].pos_c_in_b;
-    aug_state.ang_c_to_b = m_state.cam_states[0].ang_c_to_b;
     m_state.aug_states[0].push_back(aug_state);
 
     m_state_size += g_aug_state_size;
     m_aug_state_size += g_aug_state_size;
 
     RefreshIndices();
-    unsigned int cam_index = m_state.cam_states[0].index;
+
     unsigned int aug_index = m_state.aug_states[0].back().index;
 
-    Eigen::MatrixXd augment_jacobian = AugmentJacobian(cam_index, aug_index);
+    Eigen::MatrixXd augment_jacobian = AugmentJacobian(aug_index);
     /// @todo doing this is very expensive. Apply Jacobian in place without large multiplications
     /// Most elements are identity/zeros anyways
     m_cov = (augment_jacobian * m_cov * augment_jacobian.transpose()).eval();
@@ -616,8 +608,6 @@ void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
     aug_state.frame_id = frame_id;
     aug_state.pos_b_in_l = m_state.body_state.pos_b_in_l;
     aug_state.ang_b_to_l = m_state.body_state.ang_b_to_l;
-    aug_state.pos_c_in_b = m_state.cam_states[camera_id].pos_c_in_b;
-    aug_state.ang_c_to_b = m_state.cam_states[camera_id].ang_c_to_b;
     m_state.aug_states[camera_id].push_back(aug_state);
 
     // Limit augmented states to m_max_track_length
@@ -636,10 +626,10 @@ void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
     }
 
     RefreshIndices();
-    unsigned int cam_index = m_state.cam_states[camera_id].index;
+
     unsigned int aug_index = m_state.aug_states[camera_id].back().index;
 
-    Eigen::MatrixXd augment_jacobian = AugmentJacobian(cam_index, aug_index);
+    Eigen::MatrixXd augment_jacobian = AugmentJacobian(aug_index);
     /// @todo doing this is very expensive. Apply Jacobian in place without large multiplications
     /// Most elements are identity/zeros anyways
     m_cov = (augment_jacobian * m_cov * augment_jacobian.transpose()).eval();
@@ -702,23 +692,32 @@ void EKF::RefreshIndices()
   m_state.body_state.index = current_index;
   current_index += g_body_state_size;
 
+  m_imu_state_start = current_index;
   for (auto & imu_iter : m_state.imu_states) {
     imu_iter.second.index = current_index;
     if (imu_iter.second.get_is_extrinsic()) {current_index += g_imu_extrinsic_state_size;}
     if (imu_iter.second.get_is_intrinsic()) {current_index += g_imu_intrinsic_state_size;}
   }
+
+  m_gps_state_start = current_index;
   for (auto & gps_iter : m_state.gps_states) {
     gps_iter.second.index = current_index;
     if (gps_iter.second.get_is_extrinsic()) {current_index += g_gps_extrinsic_state_size;}
   }
+
+  m_cam_state_start = current_index;
   for (auto & cam_iter : m_state.cam_states) {
     cam_iter.second.index = current_index;
     current_index += g_cam_state_size;
   }
+
+  m_fid_state_start = current_index;
   for (auto & fid_iter : m_state.fid_states) {
     fid_iter.second.index = current_index;
     if (fid_iter.second.get_is_extrinsic()) {current_index += g_fid_extrinsic_state_size;}
   }
+
+  m_aug_state_start = current_index;
   for (auto & aug_iter : m_state.aug_states) {
     unsigned int aug_id = aug_iter.first;
     for (unsigned int i = 0; i < m_state.aug_states[aug_id].size(); ++i) {
@@ -786,4 +785,25 @@ std::vector<Eigen::Vector3d> EKF::GetGpsEcefVector()
 std::vector<Eigen::Vector3d> EKF::GetGpsXyzVector()
 {
   return m_gps_xyz_vec;
+}
+
+unsigned int EKF::get_imu_state_start()
+{
+  return m_imu_state_start;
+}
+unsigned int EKF::get_gps_state_start()
+{
+  return m_gps_state_start;
+}
+unsigned int EKF::get_cam_state_start()
+{
+  return m_cam_state_start;
+}
+unsigned int EKF::get_aug_state_start()
+{
+  return m_aug_state_start;
+}
+unsigned int EKF::get_fid_state_start()
+{
+  return m_fid_state_start;
 }

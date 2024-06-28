@@ -213,8 +213,6 @@ public:
   double time {0.0};                                  ///< @brief Augmented frame ID
   Eigen::Vector3d pos_b_in_l{0.0, 0.0, 0.0};          ///< @brief Augmented IMU position
   Eigen::Quaterniond ang_b_to_l{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
-  Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Augmented camera position
-  Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented camera orientation
   unsigned int size{g_aug_state_size};                ///< @brief State size
   int index{-1};                                      ///< @brief State index
 };

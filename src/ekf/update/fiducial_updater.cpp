@@ -104,7 +104,7 @@ void FiducialUpdater::UpdateEKF(
     pos_f_in_l_vec.push_back(pos_f_in_l);
 
     Eigen::Quaterniond ang_f_to_c = RodriguesToQuat(board_detection.r_vec_f_to_c);
-    Eigen::Quaterniond ang_f_to_l = aug_state_i.ang_b_to_l * aug_state_i.ang_c_to_b * ang_f_to_c;
+    Eigen::Quaterniond ang_f_to_l = aug_state_i.ang_b_to_l * cam_state.ang_c_to_b * ang_f_to_c;
     ang_f_to_l_vec.push_back(ang_f_to_l);
     pos_weights.push_back(1.0);
     ang_weights.push_back(1.0);

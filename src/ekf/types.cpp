@@ -86,9 +86,6 @@ State & operator+=(State & l_state, State & r_state)
       l_state.aug_states[aug_id][i].pos_b_in_l += r_state.aug_states[aug_id][i].pos_b_in_l;
       l_state.aug_states[aug_id][i].ang_b_to_l = r_state.aug_states[aug_id][i].ang_b_to_l *
         l_state.aug_states[aug_id][i].ang_b_to_l;
-      l_state.aug_states[aug_id][i].pos_c_in_b += r_state.aug_states[aug_id][i].pos_c_in_b;
-      l_state.aug_states[aug_id][i].ang_c_to_b = r_state.aug_states[aug_id][i].ang_c_to_b *
-        l_state.aug_states[aug_id][i].ang_c_to_b;
     }
   }
 
@@ -144,9 +141,6 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
       l_state.aug_states[aug_id][i].pos_b_in_l += r_vector.segment<3>(n + 0);
       l_state.aug_states[aug_id][i].ang_b_to_l = l_state.aug_states[aug_id][i].ang_b_to_l *
         RotVecToQuat(r_vector.segment<3>(n + 3));
-      l_state.aug_states[aug_id][i].pos_c_in_b += r_vector.segment<3>(n + 6);
-      l_state.aug_states[aug_id][i].ang_c_to_b = l_state.aug_states[aug_id][i].ang_c_to_b *
-        RotVecToQuat(r_vector.segment<3>(n + 9));
       n += g_aug_state_size;
     }
   }
@@ -214,9 +208,7 @@ std::vector<AugState> & operator+=(
   for (auto & aug_iter : l_aug_state) {
     aug_iter.pos_b_in_l += r_vector.segment<3>(n + 0);
     aug_iter.ang_b_to_l = aug_iter.ang_b_to_l * RotVecToQuat(r_vector.segment<3>(n + 3));
-    aug_iter.pos_c_in_b += r_vector.segment<3>(n + 6);
-    aug_iter.ang_c_to_b = aug_iter.ang_c_to_b * RotVecToQuat(r_vector.segment<3>(n + 9));
-    n += 12;
+    n += g_aug_state_size;
   }
 
   return l_aug_state;
@@ -252,8 +244,6 @@ Eigen::VectorXd AugState::ToVector() const
 
   out_vec.segment<3>(0) = pos_b_in_l;
   out_vec.segment<3>(3) = QuatToRotVec(ang_b_to_l);
-  out_vec.segment<3>(6) = pos_c_in_b;
-  out_vec.segment<3>(9) = QuatToRotVec(ang_c_to_b);
 
   return out_vec;
 }
@@ -345,8 +335,6 @@ Eigen::VectorXd State::ToVector() const
     for (unsigned int i = 0; i < aug_iter.second.size(); ++i) {
       out_vec.segment<3>(n + 0) = aug_iter.second[i].pos_b_in_l;
       out_vec.segment<3>(n + 3) = QuatToRotVec(aug_iter.second[i].ang_b_to_l);
-      out_vec.segment<3>(n + 6) = aug_iter.second[i].pos_c_in_b;
-      out_vec.segment<3>(n + 9) = QuatToRotVec(aug_iter.second[i].ang_c_to_b);
       n += g_aug_state_size;
     }
   }
