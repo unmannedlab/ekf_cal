@@ -72,6 +72,7 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(
   std::vector<FeaturePoint> & feature_track)
 {
   AugState aug_state_0 = ekf->GetAugState(m_id, feature_track[0].frame_id);
+  CamState cam_state = ekf->m_state.cam_states[m_id];
   Intrinsics intrinsics = ekf->m_state.cam_states[m_id].intrinsics;
 
   // 3D Cartesian Triangulation
@@ -80,8 +81,8 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(
 
   const Eigen::Vector3d position_i0_in_l = aug_state_0.pos_b_in_l;
   const Eigen::Matrix3d rotation_i0_to_l = aug_state_0.ang_b_to_l.toRotationMatrix();
-  const Eigen::Vector3d position_c0_in_i0 = aug_state_0.pos_c_in_b;
-  const Eigen::Matrix3d rotation_c0_to_i0 = aug_state_0.ang_c_to_b.toRotationMatrix();
+  const Eigen::Vector3d position_c0_in_i0 = cam_state.pos_c_in_b;
+  const Eigen::Matrix3d rotation_c0_to_i0 = cam_state.ang_c_to_b.toRotationMatrix();
 
   const Eigen::Matrix3d rotation_l_to_i0 = rotation_i0_to_l.transpose();
   const Eigen::Matrix3d rotation_i0_to_c0 = rotation_c0_to_i0.transpose();
@@ -91,8 +92,8 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(
 
     const Eigen::Vector3d position_bi_in_l = aug_state_i.pos_b_in_l;
     const Eigen::Matrix3d rotation_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
-    const Eigen::Vector3d position_ci_in_bi = aug_state_i.pos_c_in_b;
-    const Eigen::Matrix3d rotation_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
+    const Eigen::Vector3d position_ci_in_bi = cam_state.pos_c_in_b;
+    const Eigen::Matrix3d rotation_ci_to_bi = cam_state.ang_c_to_b.toRotationMatrix();
 
     // Convert current position relative to anchor
     Eigen::Matrix3d rotation_ci_to_c0 =
@@ -251,6 +252,7 @@ void MsckfUpdater::UpdateEKF(
     m_triangulation_logger.RateLimitedLog(msg.str(), time);
 
     unsigned int aug_state_size = ekf->GetAugStateSize();
+    CamState cam_state = ekf->m_state.cam_states[m_id];
     Eigen::VectorXd res_f = Eigen::VectorXd::Zero(2 * feature_track.size());
     Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feature_track.size(), 3);
     Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(
@@ -259,12 +261,12 @@ void MsckfUpdater::UpdateEKF(
     for (unsigned int i = 0; i < feature_track.size(); ++i) {
       AugState aug_state_i = ekf->GetAugState(m_id, feature_track[i].frame_id);
 
-      Eigen::Matrix3d rot_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
+      Eigen::Matrix3d rot_ci_to_bi = cam_state.ang_c_to_b.toRotationMatrix();
       Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
       Eigen::Matrix3d rot_bi_to_ci = rot_ci_to_bi.transpose();
       Eigen::Matrix3d rot_l_to_ci = rot_bi_to_ci * rot_bi_to_l.transpose();
 
-      Eigen::Vector3d pos_ci_in_bi = aug_state_i.pos_c_in_b;
+      Eigen::Vector3d pos_ci_in_bi = cam_state.pos_c_in_b;
       Eigen::Vector3d pos_bi_in_l = aug_state_i.pos_b_in_l;
 
       // Project the current feature into the current frame of reference

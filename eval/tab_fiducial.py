@@ -34,7 +34,7 @@ class tab_fiducial:
         self.alpha = calculate_alpha(len(self.fiducial_dfs))
         self.colors = get_colors(args)
 
-    def plot_camera_pos(self, fiducial_dfs):
+    def plot_camera_pos(self):
         """Plot camera position offsets."""
         fig = figure(
             width=800,
@@ -42,7 +42,7 @@ class tab_fiducial:
             x_axis_label='Time [s]',
             y_axis_label='Position [m]',
             title='Camera Position')
-        for mskcf_df in fiducial_dfs:
+        for mskcf_df in self.fiducial_dfs:
             t_cam = mskcf_df['time']
             fig.line(
                 t_cam,
@@ -61,7 +61,7 @@ class tab_fiducial:
                 color=self.colors[2])
         return fig
 
-    def plot_camera_ang(self, fiducial_dfs):
+    def plot_camera_ang(self):
         """Plot camera angular offsets."""
         fig = figure(
             width=800,
@@ -69,7 +69,7 @@ class tab_fiducial:
             x_axis_label='Time [s]',
             y_axis_label='Orientation',
             title='Camera Orientation')
-        for mskcf_df in fiducial_dfs:
+        for mskcf_df in self.fiducial_dfs:
             t_cam = mskcf_df['time']
             fig.line(
                 t_cam,
@@ -88,7 +88,7 @@ class tab_fiducial:
                 color=self.colors[2])
         return fig
 
-    def plot_cam_pos_cov(self, fiducial_dfs):
+    def plot_cam_pos_cov(self):
         """Plot extrinsic position covariance."""
         fig = figure(
             width=800,
@@ -96,7 +96,7 @@ class tab_fiducial:
             x_axis_label='Time [s]',
             y_axis_label='Position Covariance [m]',
             title='Camera Position Covariance')
-        for mskcf_df in fiducial_dfs:
+        for mskcf_df in self.fiducial_dfs:
             t_cam = mskcf_df['time']
             cam_cov_0 = mskcf_df['cam_cov_0']
             cam_cov_1 = mskcf_df['cam_cov_1']
@@ -121,7 +121,7 @@ class tab_fiducial:
                 legend_label='Z')
         return fig
 
-    def plot_cam_ang_cov(self, fiducial_dfs):
+    def plot_cam_ang_cov(self):
         """Plot extrinsic angle covariance."""
         fig = figure(
             width=800,
@@ -129,7 +129,7 @@ class tab_fiducial:
             x_axis_label='Time [s]',
             y_axis_label='Angle Covariance [m]',
             title='Camera Angle Covariance')
-        for mskcf_df in fiducial_dfs:
+        for mskcf_df in self.fiducial_dfs:
             t_cam = mskcf_df['time']
             cam_cov_3 = mskcf_df['cam_cov_3']
             cam_cov_4 = mskcf_df['cam_cov_4']
@@ -154,7 +154,7 @@ class tab_fiducial:
                 legend_label='Z')
         return fig
 
-    def plot_fiducial_error_pos(self, tri_dfs, board_dfs):
+    def plot_fiducial_error_pos(self):
         """Plot fiducial position error."""
         fig = figure(
             width=800,
@@ -167,7 +167,7 @@ class tab_fiducial:
         err_py = collections.defaultdict(list)
         err_pz = collections.defaultdict(list)
 
-        for tri_df, board_df in zip(tri_dfs, board_dfs):
+        for tri_df, board_df in zip(self.tri_dfs, self.board_dfs):
             time = tri_df['time']
             board = tri_df['board']
             board_px = tri_df['pos_x']
@@ -257,7 +257,7 @@ class tab_fiducial:
 
         return fig
 
-    def plot_fiducial_error_ang(self, tri_dfs, board_dfs):
+    def plot_fiducial_error_ang(self):
         """Plot fiducial angular error."""
         fig = figure(
             width=800,
@@ -271,7 +271,7 @@ class tab_fiducial:
         err_qy = collections.defaultdict(list)
         err_qz = collections.defaultdict(list)
 
-        for tri_df, board_df in zip(tri_dfs, board_dfs):
+        for tri_df, board_df in zip(self.tri_dfs, self.board_dfs):
             time = tri_df['time']
             board = tri_df['board']
             board_qw = tri_df['quat_w']

@@ -86,14 +86,16 @@ void FiducialUpdater::UpdateEKF(
   std::vector<Eigen::Vector3d> pos_f_in_l_vec;
   std::vector<Eigen::Quaterniond> ang_f_to_l_vec;
 
+  CamState cam_state = ekf->m_state.cam_states[m_id];
+
   /// @todo(jhartzer): Wrap this in a function
   for (auto board_detection : board_track) {
     AugState aug_state_i = ekf->GetAugState(m_id, board_detection.frame_id);
 
     const Eigen::Vector3d pos_bi_in_g = aug_state_i.pos_b_in_l;
     const Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
-    const Eigen::Vector3d pos_ci_in_bi = aug_state_i.pos_c_in_b;
-    const Eigen::Matrix3d rot_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
+    const Eigen::Vector3d pos_ci_in_bi = cam_state.pos_c_in_b;
+    const Eigen::Matrix3d rot_ci_to_bi = cam_state.ang_c_to_b.toRotationMatrix();
 
     Eigen::Vector3d pos_f_in_c;
     CvVectorToEigen(board_detection.t_vec_f_in_c, pos_f_in_c);
@@ -161,14 +163,14 @@ void FiducialUpdater::UpdateEKF(
     AugState aug_state_i = ekf->GetAugState(m_id, board_track[i].frame_id);
     unsigned int aug_index = ekf->GetAugState(m_id, board_track[i].frame_id).index;
 
-    Eigen::Matrix3d rot_ci_to_bi = aug_state_i.ang_c_to_b.toRotationMatrix();
+    Eigen::Matrix3d rot_ci_to_bi = cam_state.ang_c_to_b.toRotationMatrix();
     Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
     Eigen::Matrix3d rot_bi_to_ci = rot_ci_to_bi.transpose();
     Eigen::Matrix3d rot_l_to_bi = rot_bi_to_l.transpose();
     Eigen::Matrix3d rot_l_to_ci = rot_bi_to_ci * rot_bi_to_l.transpose();
     Eigen::Quaterniond ang_l_to_ci(rot_l_to_ci);
 
-    Eigen::Vector3d pos_ci_in_bi = aug_state_i.pos_c_in_b;
+    Eigen::Vector3d pos_ci_in_bi = cam_state.pos_c_in_b;
     Eigen::Vector3d pos_bi_in_g = aug_state_i.pos_b_in_l;
 
     Eigen::Vector3d pos_predicted, pos_measured, pos_residual;
@@ -202,13 +204,13 @@ void FiducialUpdater::UpdateEKF(
 
     H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 9) = rot_bi_to_ci *
       SkewSymmetric(rot_l_to_bi * (pos_f_in_l_est - pos_bi_in_g) - pos_ci_in_bi) *
-      quaternion_jacobian_inv(aug_state_i.ang_c_to_b);
+      quaternion_jacobian_inv(cam_state.ang_c_to_b);
 
     H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) =
       rot_bi_to_ci * rot_l_to_bi * quaternion_jacobian_inv(aug_state_i.ang_b_to_l) * rot_f_to_l_est;
 
     H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 9) =
-      rot_bi_to_ci * quaternion_jacobian_inv(aug_state_i.ang_c_to_b) * rot_l_to_bi * rot_f_to_l_est;
+      rot_bi_to_ci * quaternion_jacobian_inv(cam_state.ang_c_to_b) * rot_l_to_bi * rot_f_to_l_est;
 
     // Feature Jacobian
     H_f.block<3, 3>(meas_row + 0, 0) = rot_ci_to_bi.transpose() * rot_bi_to_l.transpose();
