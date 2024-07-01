@@ -443,8 +443,8 @@ cv::Mat Intrinsics::ToCameraMatrix()
 
   camera_matrix.at<double>(0, 0) = f_x;
   camera_matrix.at<double>(1, 1) = f_y;
-  camera_matrix.at<double>(0, 2) = c_x;
-  camera_matrix.at<double>(1, 2) = c_y;
+  camera_matrix.at<double>(0, 2) = width / 2;
+  camera_matrix.at<double>(1, 2) = height / 2;
   camera_matrix.at<double>(2, 2) = 1.0;
 
   return camera_matrix;

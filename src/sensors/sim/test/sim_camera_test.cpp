@@ -53,14 +53,15 @@ TEST(test_SimCamera, feature_track) {
   truth_engine->GenerateFeatures(1000, 10, rng);
 
   Intrinsics intrinsics;
-  intrinsics.F = 1.0;
-  intrinsics.c_x = 320.0;
-  intrinsics.c_y = 240.0;
+  intrinsics.f_x = 0.01;
+  intrinsics.f_y = 0.01;
+  intrinsics.width = 640.0;
+  intrinsics.height = 480.0;
   intrinsics.k_1 = 0.0;
   intrinsics.k_2 = 0.0;
   intrinsics.p_1 = 0.0;
   intrinsics.p_2 = 0.0;
-  intrinsics.pixel_size = 1.0e-2;
+  intrinsics.pixel_size = 5.0e-6;
 
   Camera::Parameters cam_params;
   cam_params.ekf = ekf;
@@ -124,14 +125,15 @@ TEST(test_SimCamera, fiducial_track) {
   truth_engine->GenerateFeatures(1000, 10, rng);
 
   Intrinsics intrinsics;
-  intrinsics.F = 1.0;
-  intrinsics.c_x = 320.0;
-  intrinsics.c_y = 240.0;
+  intrinsics.f_x = 0.01;
+  intrinsics.f_y = 0.01;
+  intrinsics.width = 640.0;
+  intrinsics.height = 480.0;
   intrinsics.k_1 = 0.0;
   intrinsics.k_2 = 0.0;
   intrinsics.p_1 = 0.0;
   intrinsics.p_2 = 0.0;
-  intrinsics.pixel_size = 1.0e-2;
+  intrinsics.pixel_size = 5.0e-6;
 
   Camera::Parameters cam_params;
   cam_params.ekf = ekf;

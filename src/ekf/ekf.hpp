@@ -308,6 +308,8 @@ public:
   ///
   std::vector<Eigen::Vector3d> GetGpsXyzVector();
 
+  double GetCurrentTime();
+
   /// @brief EKF state
   State m_state;
 

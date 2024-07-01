@@ -235,33 +235,28 @@ void EkfCalNode::DeclareIntrinsicParameters(std::string intrinsics_prefix)
   this->declare_parameter(intrinsics_prefix + ".F", 0.0);
   this->declare_parameter(intrinsics_prefix + ".f_x", 0.0);
   this->declare_parameter(intrinsics_prefix + ".f_y", 0.0);
-  this->declare_parameter(intrinsics_prefix + ".c_x", 0.0);
-  this->declare_parameter(intrinsics_prefix + ".c_y", 0.0);
   this->declare_parameter(intrinsics_prefix + ".k_1", 0.0);
   this->declare_parameter(intrinsics_prefix + ".k_2", 0.0);
   this->declare_parameter(intrinsics_prefix + ".p_1", 0.0);
   this->declare_parameter(intrinsics_prefix + ".p_2", 0.0);
   this->declare_parameter(intrinsics_prefix + ".pixel_size", 0.0);
-  this->declare_parameter(intrinsics_prefix + ".width", 0);
-  this->declare_parameter(intrinsics_prefix + ".height", 0);
+  this->declare_parameter(intrinsics_prefix + ".width", 0.0);
+  this->declare_parameter(intrinsics_prefix + ".height", 0.0);
 }
 
 Intrinsics EkfCalNode::GetIntrinsicParameters(std::string intrinsics_prefix)
 {
   Intrinsics intrinsics;
 
-  intrinsics.F = this->get_parameter(intrinsics_prefix + ".F").as_double();
   intrinsics.f_x = this->get_parameter(intrinsics_prefix + ".f_x").as_double();
   intrinsics.f_y = this->get_parameter(intrinsics_prefix + ".f_y").as_double();
-  intrinsics.c_x = this->get_parameter(intrinsics_prefix + ".c_x").as_double();
-  intrinsics.c_y = this->get_parameter(intrinsics_prefix + ".c_y").as_double();
   intrinsics.k_1 = this->get_parameter(intrinsics_prefix + ".k_1").as_double();
   intrinsics.k_2 = this->get_parameter(intrinsics_prefix + ".k_2").as_double();
   intrinsics.p_1 = this->get_parameter(intrinsics_prefix + ".p_1").as_double();
   intrinsics.p_2 = this->get_parameter(intrinsics_prefix + ".p_2").as_double();
   intrinsics.pixel_size = this->get_parameter(intrinsics_prefix + ".pixel_size").as_double();
-  intrinsics.width = this->get_parameter(intrinsics_prefix + ".width").as_int();
-  intrinsics.height = this->get_parameter(intrinsics_prefix + ".height").as_int();
+  intrinsics.width = this->get_parameter(intrinsics_prefix + ".width").as_double();
+  intrinsics.height = this->get_parameter(intrinsics_prefix + ".height").as_double();
 
   return intrinsics;
 }

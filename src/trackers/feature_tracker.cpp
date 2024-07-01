@@ -229,11 +229,13 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
     for (const auto & m : matches_good) {
       if (m_prev_key_points[m.queryIdx].class_id == -1) {
         m_prev_key_points[m.queryIdx].class_id = GenerateFeatureID();
-        auto feature_point = FeaturePoint{m_prev_frame_id, m_prev_key_points[m.queryIdx]};
+        auto feature_point = FeaturePoint{
+          m_prev_frame_id, m_prev_frame_time, m_prev_key_points[m.queryIdx]};
         m_feature_track_map[m_prev_key_points[m.queryIdx].class_id].push_back(feature_point);
       }
       curr_key_points[m.trainIdx].class_id = m_prev_key_points[m.queryIdx].class_id;
-      auto feature_point = FeaturePoint{frame_id, curr_key_points[m.trainIdx]};
+      auto feature_point = FeaturePoint{
+        frame_id, m_ekf->GetCurrentTime(), curr_key_points[m.trainIdx]};
       m_feature_track_map[curr_key_points[m.trainIdx].class_id].push_back(feature_point);
     }
 
@@ -259,6 +261,7 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
   }
 
   m_prev_frame_id = frame_id;
+  m_prev_frame_time = m_ekf->GetCurrentTime();
   m_prev_key_points = curr_key_points;
   m_prev_descriptors = curr_descriptors;
 }

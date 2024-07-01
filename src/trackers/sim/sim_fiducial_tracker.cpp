@@ -92,10 +92,10 @@ bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
   Eigen::Vector3d cam_plane_vec = ang_g_to_c.transpose() * Eigen::Vector3d(0, 0, 1);
   // Check that board is in front of camera plane
   if (cam_plane_vec.dot(pos_f_in_g_true) > 0 &&
-    projected_points[0].x >= 0 &&
-    projected_points[0].y >= 0 &&
-    projected_points[0].x <= intrinsics.width &&
-    projected_points[0].y <= intrinsics.height)
+    projected_points[0].x >= -(intrinsics.width / 2) &&
+    projected_points[0].y >= -(intrinsics.height / 2) &&
+    projected_points[0].x <= (intrinsics.width / 2) &&
+    projected_points[0].y <= (intrinsics.height / 2))
   {
     return true;
   } else {

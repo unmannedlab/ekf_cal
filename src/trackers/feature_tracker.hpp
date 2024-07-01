@@ -139,6 +139,7 @@ private:
   cv::Ptr<cv::DescriptorMatcher> m_descriptor_matcher;
 
   int m_prev_frame_id;
+  double m_prev_frame_time;
   cv::Mat m_prev_descriptors;
   std::vector<cv::KeyPoint> m_prev_key_points;
 

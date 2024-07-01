@@ -52,15 +52,15 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
   Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(sensor_id);
   Eigen::Quaterniond ang_c_to_b = m_truth->GetCameraAngularPosition(sensor_id);
   Intrinsics intrinsics = m_truth->GetCameraIntrinsics(sensor_id);
-  Eigen::Matrix3d ang_g_to_c = (ang_b_to_g * ang_c_to_b).toRotationMatrix().transpose();
+  Eigen::Matrix3d rot_g_to_c = (ang_b_to_g * ang_c_to_b).toRotationMatrix().transpose();
   cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);
-  EigenMatrixToCv(ang_g_to_c, ang_g_to_c_cv);
+  EigenMatrixToCv(rot_g_to_c, ang_g_to_c_cv);
 
   // Creating Rodrigues rotation matrix
   cv::Mat r_vec(3, 1, cv::DataType<double>::type);
   cv::Rodrigues(ang_g_to_c_cv, r_vec);
 
-  Eigen::Vector3d pos_g_in_c = ang_g_to_c * (-(pos_b_in_g + ang_b_to_g * pos_c_in_b));
+  Eigen::Vector3d pos_g_in_c = rot_g_to_c * (-(pos_b_in_g + ang_b_to_g * pos_c_in_b));
 
   cv::Mat t_vec(3, 1, cv::DataType<double>::type);
   t_vec.at<double>(0) = pos_g_in_c[0];
@@ -79,18 +79,18 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
 
   // Convert to feature points
   std::vector<cv::KeyPoint> projected_features;
-  Eigen::Vector3d cam_plane_vec = ang_g_to_c.transpose() * Eigen::Vector3d(0, 0, 1);
+  Eigen::Vector3d cam_plane_vec = rot_g_to_c.transpose() * Eigen::Vector3d(0, 0, 1);
   for (unsigned int i = 0; i < projected_points.size(); ++i) {
-    cv::Point3d pointCV = feature_points[i];
-    Eigen::Vector3d pointEig(pointCV.x, pointCV.y, pointCV.z);
+    cv::Point3d point_cv = feature_points[i];
+    Eigen::Vector3d point_eig(point_cv.x, point_cv.y, point_cv.z);
 
     // Check that point is in front of camera plane and within sensor limits
     if (
-      cam_plane_vec.dot(pointEig) > 0 &&
-      projected_points[i].x >= 0 &&
-      projected_points[i].y >= 0 &&
-      projected_points[i].x <= intrinsics.width &&
-      projected_points[i].y <= intrinsics.height)
+      cam_plane_vec.dot(point_eig) > 0 &&
+      projected_points[i].x >= -(intrinsics.width / 2) &&
+      projected_points[i].y >= -(intrinsics.height / 2) &&
+      projected_points[i].x <= (intrinsics.width / 2) &&
+      projected_points[i].y <= (intrinsics.height / 2))
     {
       cv::KeyPoint feat;
       feat.class_id = i;
@@ -124,7 +124,7 @@ std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::Genera
       VisibleKeypoints(message_times[frame_id], sensor_id);
 
     for (auto & key_point : key_points) {
-      auto feature_track = FeaturePoint{frame_id, key_point};
+      auto feature_track = FeaturePoint{frame_id, message_times[frame_id], key_point};
       feature_track_map[key_point.class_id].push_back(feature_track);
     }
 

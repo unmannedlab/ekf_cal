@@ -61,18 +61,15 @@ public:
   ///
   cv::Mat ToDistortionVector();
 
-  double F {1.0};             ///< @brief Nominal focal length [mm]
   double f_x {1.0};           ///< @brief X focal length [px]
   double f_y {1.0};           ///< @brief Y focal length [px]
-  double c_x {0.0};           ///< @brief X optical center [px]
-  double c_y {0.0};           ///< @brief Y optical center [px]
   double k_1 {0.0};           ///< @brief Radial coefficient 1
   double k_2 {0.0};           ///< @brief Radial coefficient 2
   double p_1 {0.0};           ///< @brief Tangential coefficient 1
   double p_2 {0.0};           ///< @brief Tangential coefficient 1
+  double width {640};         ///< @brief Image width
+  double height {480};        ///< @brief Image height
   double pixel_size {0.010};  ///< @brief Pixel size [mm]
-  unsigned int width {640};   ///< @brief Image width
-  unsigned int height {480};  ///< @brief Image height
 };
 
 ///
@@ -246,7 +243,8 @@ public:
 ///
 typedef struct FeaturePoint
 {
-  int frame_id;   ///< @brief Feature track frame ID
+  int frame_id;            ///< @brief Feature track frame ID
+  double frame_time;       ///< @brief Feature frame time
   cv::KeyPoint key_point;  ///< @brief Feature track key point
 } FeaturePoint;
 
@@ -257,7 +255,8 @@ typedef std::vector<std::vector<FeaturePoint>> FeatureTracks;
 ///
 typedef struct BoardDetection
 {
-  int frame_id;          ///< @brief Image frame ID
+  int frame_id;            ///< @brief Image frame ID
+  double frame_time;       ///< @brief Feature frame time
   cv::Vec3d t_vec_f_in_c;  ///< @brief Rotation vector of the board
   cv::Vec3d r_vec_f_to_c;  ///< @brief Translation vector of the board
 } BoardDetection;

@@ -791,19 +791,28 @@ unsigned int EKF::get_imu_state_start()
 {
   return m_imu_state_start;
 }
+
 unsigned int EKF::get_gps_state_start()
 {
   return m_gps_state_start;
 }
+
 unsigned int EKF::get_cam_state_start()
 {
   return m_cam_state_start;
 }
+
 unsigned int EKF::get_aug_state_start()
 {
   return m_aug_state_start;
 }
+
 unsigned int EKF::get_fid_state_start()
 {
   return m_fid_state_start;
+}
+
+double EKF::GetCurrentTime()
+{
+  return m_current_time;
 }

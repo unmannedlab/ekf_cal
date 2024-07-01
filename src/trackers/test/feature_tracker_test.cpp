@@ -72,8 +72,6 @@ TEST(test_feature_tracker, track) {
   cam_params.ang_c_to_b = Eigen::Quaterniond{0.5, -0.5, 0.5, -0.5};
   cam_params.intrinsics.height = 555;
   cam_params.intrinsics.width = 641;
-  cam_params.intrinsics.c_x = 320.5;
-  cam_params.intrinsics.c_y = 277.5;
   cam_params.intrinsics.f_x = 512.8;
   cam_params.intrinsics.f_y = 512.8;
   cam_params.ekf = ekf;
