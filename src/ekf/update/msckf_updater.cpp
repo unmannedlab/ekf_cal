@@ -101,9 +101,9 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(
 
     // Get the UV coordinate normal
     Eigen::Vector3d b_i;
-    b_i(0) = (feature_track[i].key_point.pt.x - (static_cast<double>(intrinsics.width) / 2)) /
+    b_i(0) = (feature_track[i].key_point.pt.x - intrinsics.width / 2) /
       (intrinsics.f_x / intrinsics.pixel_size);
-    b_i(1) = (feature_track[i].key_point.pt.y - (static_cast<double>(intrinsics.height) / 2)) /
+    b_i(1) = (feature_track[i].key_point.pt.y - intrinsics.height / 2) /
       (intrinsics.f_y / intrinsics.pixel_size);
     b_i(2) = 1;
 
@@ -225,6 +225,8 @@ void MsckfUpdater::UpdateEKF(
   for (auto & feature_track : feature_tracks) {
     m_logger->Log(LogLevel::DEBUG, "Feature Track size: " + std::to_string(feature_track.size()));
 
+    /// @todo(jhartzer): Add threshold for total distance/angle before triangulating
+
     // Get triangulated estimate of feature pos
     Eigen::Vector3d pos_f_in_l = TriangulateFeature(ekf, feature_track);
 
@@ -271,8 +273,10 @@ void MsckfUpdater::UpdateEKF(
       xz_predicted(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
 
       Eigen::Vector2d xz_measured, xz_residual;
-      xz_measured(0) = (feature_track[i].key_point.pt.x - intrinsics.c_x) / intrinsics.f_x;
-      xz_measured(1) = (feature_track[i].key_point.pt.y - intrinsics.c_y) / intrinsics.f_y;
+      xz_measured(0) = (feature_track[i].key_point.pt.x - intrinsics.width / 2) /
+        (intrinsics.f_x / intrinsics.pixel_size);
+      xz_measured(1) = (feature_track[i].key_point.pt.y - intrinsics.height / 2) /
+        (intrinsics.f_y / intrinsics.pixel_size);
       xz_residual = xz_measured - xz_predicted;
       res_f.segment<2>(2 * i) = xz_residual;
 

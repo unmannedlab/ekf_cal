@@ -87,10 +87,10 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
     // Check that point is in front of camera plane and within sensor limits
     if (
       cam_plane_vec.dot(point_eig) > 0 &&
-      projected_points[i].x >= -(intrinsics.width / 2) &&
-      projected_points[i].y >= -(intrinsics.height / 2) &&
-      projected_points[i].x <= (intrinsics.width / 2) &&
-      projected_points[i].y <= (intrinsics.height / 2))
+      projected_points[i].x >= 0 &&
+      projected_points[i].y >= 0 &&
+      projected_points[i].x <= intrinsics.width &&
+      projected_points[i].y <= intrinsics.height)
     {
       cv::KeyPoint feat;
       feat.class_id = i;
