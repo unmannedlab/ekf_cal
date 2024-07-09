@@ -63,12 +63,13 @@ public:
 
   ///
   /// @brief Generate simulated tracker messages
-  /// @param message_times Vector of message times
+  /// @param message_time Message time
+  /// @param frame_id Camera frame ID
   /// @param sensor_id Camera sensor ID
-  /// @return Generated fiducial tracker messages
+  /// @return Generated fiducial tracker message
   ///
-  std::vector<std::shared_ptr<SimFiducialTrackerMessage>> GenerateMessages(
-    std::vector<double> message_times, int sensor_id);
+  std::shared_ptr<SimFiducialTrackerMessage> GenerateMessage(
+    double message_time, int frame_id, int sensor_id);
 
   ///
   /// @brief Return currently visible keypoints
@@ -92,6 +93,7 @@ private:
   Eigen::Vector3d m_r_vec_error;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
+  BoardTrack m_board_track;
 
   unsigned int m_min_track_length {0U};
   unsigned int m_max_track_length {1U};

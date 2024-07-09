@@ -26,10 +26,10 @@ from utilities import calculate_alpha, get_colors, plot_update_timing
 
 class tab_fiducial:
 
-    def __init__(self, fiducial_dfs, tri_dfs, board_dfs, args):
+    def __init__(self, fiducial_dfs, board_dfs, board_truth_dfs, args):
         self.fiducial_dfs = fiducial_dfs
-        self.tri_dfs = tri_dfs
         self.board_dfs = board_dfs
+        self.board_truth_dfs = board_truth_dfs
 
         self.alpha = calculate_alpha(len(self.fiducial_dfs))
         self.colors = get_colors(args)
@@ -167,7 +167,7 @@ class tab_fiducial:
         err_py = collections.defaultdict(list)
         err_pz = collections.defaultdict(list)
 
-        for tri_df, board_df in zip(self.tri_dfs, self.board_dfs):
+        for tri_df, board_df in zip(self.board_dfs, self.board_truth_dfs):
             time = tri_df['time']
             board = tri_df['board']
             board_px = tri_df['pos_x']
@@ -271,7 +271,7 @@ class tab_fiducial:
         err_qy = collections.defaultdict(list)
         err_qz = collections.defaultdict(list)
 
-        for tri_df, board_df in zip(self.tri_dfs, self.board_dfs):
+        for tri_df, board_df in zip(self.board_dfs, self.board_truth_dfs):
             time = tri_df['time']
             board = tri_df['board']
             board_qw = tri_df['quat_w']

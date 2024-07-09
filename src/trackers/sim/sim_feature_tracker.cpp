@@ -108,50 +108,41 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
   return projected_features;
 }
 
-std::vector<std::shared_ptr<SimFeatureTrackerMessage>> SimFeatureTracker::GenerateMessages(
-  std::vector<double> message_times, int sensor_id)
+std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
+  double message_time, int frame_id, int sensor_id)
 {
-  m_logger->Log(
-    LogLevel::INFO, "Generating " + std::to_string(message_times.size()) + " Feature measurements");
+  std::vector<std::vector<FeaturePoint>> feature_tracks;
 
-  std::map<unsigned int, std::vector<FeaturePoint>> feature_track_map;
-  std::vector<std::shared_ptr<SimFeatureTrackerMessage>> tracker_messages;
+  std::vector<cv::KeyPoint> key_points = VisibleKeypoints(message_time, sensor_id);
 
-  for (int frame_id = 0; static_cast<unsigned int>(frame_id) < message_times.size(); ++frame_id) {
-    std::vector<std::vector<FeaturePoint>> feature_tracks;
-
-    std::vector<cv::KeyPoint> key_points =
-      VisibleKeypoints(message_times[frame_id], sensor_id);
-
-    for (auto & key_point : key_points) {
-      auto feature_track = FeaturePoint{frame_id, message_times[frame_id], key_point};
-      feature_track_map[key_point.class_id].push_back(feature_track);
-    }
-
-    // Update MSCKF on features no longer detected
-    for (auto it = feature_track_map.cbegin(); it != feature_track_map.cend(); ) {
-      const auto & feature_track = it->second;
-      if ((feature_track.back().frame_id < frame_id) ||
-        (feature_track.size() >= m_max_track_length))
-      {
-        // This feature does not exist in the latest frame
-        if (feature_track.size() > 1) {
-          feature_tracks.push_back(feature_track);
-        }
-        it = feature_track_map.erase(it);
-      } else {
-        ++it;
-      }
-    }
-    auto tracker_message = std::make_shared<SimFeatureTrackerMessage>();
-    tracker_message->feature_tracks = feature_tracks;
-    tracker_message->time = message_times[frame_id];
-    tracker_message->tracker_id = m_id;
-    tracker_message->sensor_id = sensor_id;
-    tracker_message->sensor_type = SensorType::Tracker;
-    tracker_messages.push_back(tracker_message);
+  for (auto & key_point : key_points) {
+    auto feature_track = FeaturePoint{frame_id, message_time, key_point};
+    m_feature_track_map[key_point.class_id].push_back(feature_track);
   }
-  return tracker_messages;
+
+  // Update MSCKF on features no longer detected
+  for (auto it = m_feature_track_map.cbegin(); it != m_feature_track_map.cend(); ) {
+    const auto & feature_track = it->second;
+    if ((feature_track.back().frame_id < frame_id) ||
+      (feature_track.size() >= m_max_track_length))
+    {
+      // This feature does not exist in the latest frame
+      if (feature_track.size() > 1) {
+        feature_tracks.push_back(feature_track);
+      }
+      it = m_feature_track_map.erase(it);
+    } else {
+      ++it;
+    }
+  }
+
+  auto tracker_message = std::make_shared<SimFeatureTrackerMessage>();
+  tracker_message->feature_tracks = feature_tracks;
+  tracker_message->time = message_time;
+  tracker_message->tracker_id = m_id;
+  tracker_message->sensor_id = sensor_id;
+  tracker_message->sensor_type = SensorType::Tracker;
+  return tracker_message;
 }
 
 void SimFeatureTracker::Callback(double time, std::shared_ptr<SimFeatureTrackerMessage> msg)

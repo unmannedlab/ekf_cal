@@ -18,6 +18,7 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -62,11 +63,12 @@ public:
   ///
   /// @brief Generate simulated tracker messages
   /// @param message_times Vector of message times
+  /// @param frame_id Camera frame ID
   /// @param sensor_id Camera sensor ID
-  /// @return Generated feature tracker messages
+  /// @return Generated feature tracker message
   ///
-  std::vector<std::shared_ptr<SimFeatureTrackerMessage>> GenerateMessages(
-    std::vector<double> message_times, int sensor_id);
+  std::shared_ptr<SimFeatureTrackerMessage> GenerateMessage(
+    double message_time, int frame_id, int sensor_id);
 
   ///
   /// @brief Return currently visible keypoints
@@ -88,6 +90,7 @@ private:
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
   unsigned int m_feature_count {0};
+  std::map<unsigned int, std::vector<FeaturePoint>> m_feature_track_map;
 };
 
 

@@ -82,12 +82,12 @@ def plot_sim_results(config_sets, args):
             tabs.append(tab_msckf(mskcf_dfs, tri_dfs, feat_dfs, args).get_tab())
 
         fiducial_dfs_dict = find_and_read_data_frames(data_dirs, 'fiducial')
-        tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
-        board_dfs_dict = find_and_read_data_frames(data_dirs, 'boards')
+        board_dfs_dict = find_and_read_data_frames(data_dirs, 'board')
+        board_truth_dfs_dict = find_and_read_data_frames(data_dirs, 'board_truth')
         for key in sorted(fiducial_dfs_dict.keys()):
             fiducial_dfs = fiducial_dfs_dict[key]
-            tri_dfs = tri_dfs_dict[key]
-            board_dfs = board_dfs_dict[0]
+            tri_dfs = board_dfs_dict[key]
+            board_dfs = board_truth_dfs_dict[0]
             tabs.append(tab_fiducial(fiducial_dfs, tri_dfs, board_dfs, args).get_tab())
 
         gps_dfs_dict = find_and_read_data_frames(data_dirs, 'gps')

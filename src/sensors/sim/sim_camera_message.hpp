@@ -18,6 +18,7 @@
 #define SENSORS__SIM__SIM_CAMERA_MESSAGE_HPP_
 
 #include <memory>
+#include <vector>
 
 #include "sensors/camera_message.hpp"
 #include "trackers/sim/sim_feature_tracker_message.hpp"
@@ -35,11 +36,14 @@ public:
   ///
   using CameraMessage::CameraMessage;
 
+  /// @brief Message frame ID
+  int frame_id;
+
   /// @brief Message output from feature tracker
-  std::shared_ptr<SimFeatureTrackerMessage> feature_track_message;
+  std::vector<std::shared_ptr<SimFeatureTrackerMessage>> feature_track_messages;
 
   /// @brief Message output from fiducial tracker
-  std::shared_ptr<SimFiducialTrackerMessage> fiducial_track_message;
+  std::vector<std::shared_ptr<SimFiducialTrackerMessage>> fiducial_track_messages;
 };
 
 #endif  // SENSORS__SIM__SIM_CAMERA_MESSAGE_HPP_

@@ -241,7 +241,7 @@ void TruthEngine::WriteTruthData(
     truth_logger.Log(msg.str());
   }
 
-  DataLogger board_logger(output_directory, "boards.csv");
+  DataLogger board_logger(output_directory, "board_truth.csv");
   board_logger.SetLogging(true);
   board_logger.DefineHeader("board,pos_x,pos_y,pos_z,quat_w,quat_x,quat_y,quat_z");
 

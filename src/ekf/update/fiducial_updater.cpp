@@ -45,7 +45,7 @@ FiducialUpdater::FiducialUpdater(
 )
 : Updater(cam_id, logger),
   m_fiducial_logger(log_file_directory, "fiducial_" + std::to_string(cam_id) + ".csv"),
-  m_triangulation_logger(log_file_directory, "triangulation_" + std::to_string(cam_id) + ".csv")
+  m_board_logger(log_file_directory, "board_" + std::to_string(cam_id) + ".csv")
 {
   std::stringstream header;
   header << "time";
@@ -61,9 +61,9 @@ FiducialUpdater::FiducialUpdater(
   m_fiducial_logger.DefineHeader(header.str());
   m_fiducial_logger.SetLogging(data_logging_on);
 
-  m_triangulation_logger.DefineHeader("time,board,pos_x,pos_y,pos_z,quat_w,quat_x,quat_y,quat_z");
-  m_triangulation_logger.SetLogging(data_logging_on);
-  m_triangulation_logger.SetLogRate(data_log_rate);
+  m_board_logger.DefineHeader("time,board,pos_x,pos_y,pos_z,quat_w,quat_x,quat_y,quat_z");
+  m_board_logger.SetLogging(data_logging_on);
+  m_board_logger.SetLogRate(data_log_rate);
 }
 
 void FiducialUpdater::UpdateEKF(
@@ -118,7 +118,7 @@ void FiducialUpdater::UpdateEKF(
     data_msg << "," << ang_f_to_l.x();
     data_msg << "," << ang_f_to_l.y();
     data_msg << "," << ang_f_to_l.z();
-    m_triangulation_logger.RateLimitedLog(data_msg.str(), time);
+    m_board_logger.RateLimitedLog(data_msg.str(), time);
   }
 
   Eigen::Vector3d pos_f_in_l_est = ekf->m_state.fid_states[m_id].pos_f_in_l;
@@ -160,7 +160,6 @@ void FiducialUpdater::UpdateEKF(
   Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(max_meas_size, g_cam_state_size + aug_state_size);
 
   for (unsigned int i = 0; i < board_track.size(); ++i) {
-    std::cout << board_track[i].frame_id << std::endl;
     AugState aug_state_i = ekf->GetAugState(m_id, board_track[i].frame_id);
     unsigned int aug_index = aug_state_i.index;
 
@@ -211,8 +210,8 @@ void FiducialUpdater::UpdateEKF(
     //   SkewSymmetric(rot_l_to_bi * (pos_f_in_l_est - pos_bi_in_g) - pos_ci_in_bi) *
     //   quaternion_jacobian_inv(cam_state.ang_c_to_b);
 
-    // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 9) =
-    //   rot_bi_to_ci * quaternion_jacobian_inv(cam_state.ang_c_to_b) * rot_l_to_bi * rot_f_to_l_est;
+    // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 9) = rot_bi_to_ci *
+    //   quaternion_jacobian_inv(cam_state.ang_c_to_b) * rot_l_to_bi * rot_f_to_l_est;
 
     // Feature Jacobian
     H_f.block<3, 3>(meas_row + 0, 0) = rot_ci_to_bi.transpose() * rot_bi_to_l.transpose();

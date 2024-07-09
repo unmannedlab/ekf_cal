@@ -104,68 +104,61 @@ bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
   }
 }
 
-std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::GenerateMessages(
-  std::vector<double> message_times, int sensor_id)
+std::shared_ptr<SimFiducialTrackerMessage> SimFiducialTracker::GenerateMessage(
+  double message_time, int frame_id, int sensor_id)
 {
-  m_logger->Log(
-    LogLevel::INFO,
-    "Generating " + std::to_string(message_times.size()) + " Fiducial measurements");
-
   std::vector<std::shared_ptr<SimFiducialTrackerMessage>> fiducial_tracker_messages;
   Eigen::Vector3d pos_f_in_g_true = m_truth->GetBoardPosition(m_id);
   Eigen::Quaterniond ang_f_to_g_true = m_truth->GetBoardOrientation(m_id);
 
-  BoardTrack board_track;
-  for (int frame_id = 0; static_cast<unsigned int>(frame_id) < message_times.size(); ++frame_id) {
-    std::vector<std::vector<FeaturePoint>> feature_tracks;
-    auto tracker_message = std::make_shared<SimFiducialTrackerMessage>();
-    tracker_message->time = message_times[frame_id];
-    tracker_message->tracker_id = m_id;
-    tracker_message->sensor_id = sensor_id;
-    tracker_message->sensor_type = SensorType::Tracker;
-    tracker_message->pos_error = m_t_vec_error;
-    tracker_message->ang_error = m_r_vec_error;
+  std::vector<std::vector<FeaturePoint>> feature_tracks;
 
-    bool is_board_visible = IsBoardVisible(message_times[frame_id], sensor_id);
-    if (is_board_visible) {
-      Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(message_times[frame_id]);
-      Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(message_times[frame_id]);
-      Eigen::Vector3d pos_c_in_b_true = m_truth->GetCameraPosition(sensor_id);
-      Eigen::Quaterniond ang_c_to_b_true = m_truth->GetCameraAngularPosition(sensor_id);
+  bool is_board_visible = IsBoardVisible(message_time, sensor_id);
+  if (is_board_visible) {
+    Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(message_time);
+    Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(message_time);
+    Eigen::Vector3d pos_c_in_b_true = m_truth->GetCameraPosition(sensor_id);
+    Eigen::Quaterniond ang_c_to_b_true = m_truth->GetCameraAngularPosition(sensor_id);
 
-      Eigen::Matrix3d rot_g_to_b = ang_b_to_g.toRotationMatrix().transpose();
-      Eigen::Matrix3d rot_b_to_c = ang_c_to_b_true.toRotationMatrix().transpose();
+    Eigen::Matrix3d rot_g_to_b = ang_b_to_g.toRotationMatrix().transpose();
+    Eigen::Matrix3d rot_b_to_c = ang_c_to_b_true.toRotationMatrix().transpose();
 
-      Eigen::Vector3d pos_f_in_c_true =
-        rot_b_to_c * (rot_g_to_b * (pos_f_in_g_true - pos_b_in_g) - pos_c_in_b_true);
+    Eigen::Vector3d pos_f_in_c_true =
+      rot_b_to_c * (rot_g_to_b * (pos_f_in_g_true - pos_b_in_g) - pos_c_in_b_true);
 
-      BoardDetection board_detection;
-      board_detection.frame_id = frame_id;
-      board_detection.t_vec_f_in_c[0] = m_rng.NormRand(pos_f_in_c_true[0], m_t_vec_error[0]);
-      board_detection.t_vec_f_in_c[1] = m_rng.NormRand(pos_f_in_c_true[1], m_t_vec_error[1]);
-      board_detection.t_vec_f_in_c[2] = m_rng.NormRand(pos_f_in_c_true[2], m_t_vec_error[2]);
+    BoardDetection board_detection;
+    board_detection.frame_id = frame_id;
+    board_detection.t_vec_f_in_c[0] = m_rng.NormRand(pos_f_in_c_true[0], m_t_vec_error[0]);
+    board_detection.t_vec_f_in_c[1] = m_rng.NormRand(pos_f_in_c_true[1], m_t_vec_error[1]);
+    board_detection.t_vec_f_in_c[2] = m_rng.NormRand(pos_f_in_c_true[2], m_t_vec_error[2]);
 
-      Eigen::Vector3d ang_f_to_c_error_rpy;
-      ang_f_to_c_error_rpy(0) = m_rng.NormRand(0.0, m_r_vec_error[0]);
-      ang_f_to_c_error_rpy(1) = m_rng.NormRand(0.0, m_r_vec_error[1]);
-      ang_f_to_c_error_rpy(2) = m_rng.NormRand(0.0, m_r_vec_error[2]);
-      Eigen::Quaterniond ang_f_to_c = EigVecToQuat(ang_f_to_c_error_rpy) *
-        ang_c_to_b_true.inverse() * ang_b_to_g.inverse() * ang_f_to_g_true;
-      board_detection.r_vec_f_to_c = QuatToRodrigues(ang_f_to_c);
+    Eigen::Vector3d ang_f_to_c_error_rpy;
+    ang_f_to_c_error_rpy(0) = m_rng.NormRand(0.0, m_r_vec_error[0]);
+    ang_f_to_c_error_rpy(1) = m_rng.NormRand(0.0, m_r_vec_error[1]);
+    ang_f_to_c_error_rpy(2) = m_rng.NormRand(0.0, m_r_vec_error[2]);
+    Eigen::Quaterniond ang_f_to_c = EigVecToQuat(ang_f_to_c_error_rpy) *
+      ang_c_to_b_true.inverse() * ang_b_to_g.inverse() * ang_f_to_g_true;
+    board_detection.r_vec_f_to_c = QuatToRodrigues(ang_f_to_c);
 
-      board_track.push_back(board_detection);
-    } else if (board_track.size() < m_min_track_length) {
-      board_track.clear();
-    }
-
-    if (!is_board_visible || board_track.size() >= m_max_track_length) {
-      tracker_message->board_track = board_track;
-      board_track.clear();
-    }
-
-    fiducial_tracker_messages.push_back(tracker_message);
+    m_board_track.push_back(board_detection);
+  } else if (m_board_track.size() < m_min_track_length) {
+    m_board_track.clear();
   }
-  return fiducial_tracker_messages;
+
+  auto tracker_message = std::make_shared<SimFiducialTrackerMessage>();
+  tracker_message->time = message_time;
+  tracker_message->tracker_id = m_id;
+  tracker_message->sensor_id = sensor_id;
+  tracker_message->sensor_type = SensorType::Tracker;
+  tracker_message->pos_error = m_t_vec_error;
+  tracker_message->ang_error = m_r_vec_error;
+
+  if (!is_board_visible || m_board_track.size() >= m_max_track_length) {
+    tracker_message->board_track = m_board_track;
+    m_board_track.clear();
+  }
+
+  return tracker_message;
 }
 
 void SimFiducialTracker::Callback(double time, std::shared_ptr<SimFiducialTrackerMessage> msg)
