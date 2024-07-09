@@ -80,10 +80,10 @@ bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
   std::vector<cv::Point2d> projected_points;
   std::vector<cv::Point3d> board_position_vector;
   cv::Point3d board_position;
-  Eigen::Vector3d pos_f_in_g_true = m_truth->GetBoardPosition(0);
-  board_position.x = pos_f_in_g_true[0];
-  board_position.y = pos_f_in_g_true[1];
-  board_position.z = pos_f_in_g_true[2];
+  Eigen::Vector3d pos_f_in_g_true = m_truth->GetBoardPosition(m_id);
+  board_position.x = pos_f_in_g_true.x();
+  board_position.y = pos_f_in_g_true.y();
+  board_position.z = pos_f_in_g_true.z();
   board_position_vector.push_back(board_position);
 
   cv::projectPoints(
@@ -91,11 +91,12 @@ bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
 
   Eigen::Vector3d cam_plane_vec = ang_g_to_c.transpose() * Eigen::Vector3d(0, 0, 1);
   // Check that board is in front of camera plane
+
   if (cam_plane_vec.dot(pos_f_in_g_true) > 0 &&
-    projected_points[0].x >= -(intrinsics.width / 2) &&
-    projected_points[0].y >= -(intrinsics.height / 2) &&
-    projected_points[0].x <= (intrinsics.width / 2) &&
-    projected_points[0].y <= (intrinsics.height / 2))
+    projected_points[0].x >= 0 &&
+    projected_points[0].y >= 0 &&
+    projected_points[0].x <= intrinsics.width &&
+    projected_points[0].y <= intrinsics.height)
   {
     return true;
   } else {
@@ -111,8 +112,8 @@ std::vector<std::shared_ptr<SimFiducialTrackerMessage>> SimFiducialTracker::Gene
     "Generating " + std::to_string(message_times.size()) + " Fiducial measurements");
 
   std::vector<std::shared_ptr<SimFiducialTrackerMessage>> fiducial_tracker_messages;
-  Eigen::Vector3d pos_f_in_g_true = m_truth->GetBoardPosition(0);
-  Eigen::Quaterniond ang_f_to_g_true = m_truth->GetBoardOrientation(0);
+  Eigen::Vector3d pos_f_in_g_true = m_truth->GetBoardPosition(m_id);
+  Eigen::Quaterniond ang_f_to_g_true = m_truth->GetBoardOrientation(m_id);
 
   BoardTrack board_track;
   for (int frame_id = 0; static_cast<unsigned int>(frame_id) < message_times.size(); ++frame_id) {

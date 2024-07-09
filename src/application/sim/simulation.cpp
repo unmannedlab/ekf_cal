@@ -412,8 +412,8 @@ int main(int argc, char * argv[])
     sensor_map[cam->GetId()] = cam;
 
     // Calculate sensor measurements
-    auto imu_messages = cam->GenerateMessages();
-    messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
+    auto cam_messages = cam->GenerateMessages();
+    messages.insert(messages.end(), cam_messages.begin(), cam_messages.end());
   }
 
   // Load GPSs and generate measurements

@@ -182,14 +182,12 @@ The following is an example of an camera input configuration.
                     0.1, 0.1, 0.1                           # Orientation
                     ]
                 tracker: "orb"                              # Tracker to use
+                fiducial: "charuco"                         # Fiducial to use
                 pos_stability: 1.0e-9                       # Position stability
                 ang_stability: 1.0e-9                       # Orientation stability
                 intrinsics:
-                    F: 1.0                                  # Nominal focal length [m]
                     f_x: 1.0                                # X focal length [px]
                     f_y: 1.0                                # Y focal length [px]
-                    c_x: 0.0                                # X optical center [px]
-                    c_y: 0.0                                # Y optical center [px]
                     k_1: 0.0                                # Radial coefficient 1
                     k_2: 0.0                                # Radial coefficient 2
                     p_1: 0.0                                # Tangential coefficient 1

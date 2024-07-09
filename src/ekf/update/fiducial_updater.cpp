@@ -160,8 +160,9 @@ void FiducialUpdater::UpdateEKF(
   Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(max_meas_size, g_cam_state_size + aug_state_size);
 
   for (unsigned int i = 0; i < board_track.size(); ++i) {
+    std::cout << board_track[i].frame_id << std::endl;
     AugState aug_state_i = ekf->GetAugState(m_id, board_track[i].frame_id);
-    unsigned int aug_index = ekf->GetAugState(m_id, board_track[i].frame_id).index;
+    unsigned int aug_index = aug_state_i.index;
 
     Eigen::Matrix3d rot_ci_to_bi = cam_state.ang_c_to_b.toRotationMatrix();
     Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
@@ -200,17 +201,18 @@ void FiducialUpdater::UpdateEKF(
       rot_l_to_bi * SkewSymmetric(pos_f_in_l_est - pos_bi_in_g) *
       quaternion_jacobian_inv(aug_state_i.ang_b_to_l);
 
-    H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 6) = -rot_bi_to_ci;
-
-    H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 9) = rot_bi_to_ci *
-      SkewSymmetric(rot_l_to_bi * (pos_f_in_l_est - pos_bi_in_g) - pos_ci_in_bi) *
-      quaternion_jacobian_inv(cam_state.ang_c_to_b);
-
     H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) =
       rot_bi_to_ci * rot_l_to_bi * quaternion_jacobian_inv(aug_state_i.ang_b_to_l) * rot_f_to_l_est;
 
-    H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 9) =
-      rot_bi_to_ci * quaternion_jacobian_inv(cam_state.ang_c_to_b) * rot_l_to_bi * rot_f_to_l_est;
+    /// @todo(jhartzer): Enable calibration Jacobian
+    // H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 6) = -rot_bi_to_ci;
+
+    // H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 9) = rot_bi_to_ci *
+    //   SkewSymmetric(rot_l_to_bi * (pos_f_in_l_est - pos_bi_in_g) - pos_ci_in_bi) *
+    //   quaternion_jacobian_inv(cam_state.ang_c_to_b);
+
+    // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 9) =
+    //   rot_bi_to_ci * quaternion_jacobian_inv(cam_state.ang_c_to_b) * rot_l_to_bi * rot_f_to_l_est;
 
     // Feature Jacobian
     H_f.block<3, 3>(meas_row + 0, 0) = rot_ci_to_bi.transpose() * rot_bi_to_l.transpose();

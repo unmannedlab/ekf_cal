@@ -48,7 +48,7 @@
                                             #   "Spline"
             # Cyclic Truth Parameters
             pos_frequency: [0.3, 0.5, 0.7]  # Cyclic position frequencies
-            ang_frequency: [0.0, 0.0, 0.0]  # Cyclic angular frequencies
+            ang_frequency: [0.1, 0.2, 0.3]  # Cyclic angular frequencies
             pos_offset: [0.0, 0.0, 0.0]     # Position offset for cyclic position
             ang_offset: [0.0, 0.0, 0.0]     # Position offset for cyclic position
             ang_amplitude: 0.1              # Amplitude of translational motion
@@ -128,19 +128,17 @@
                     0.1, 0.1, 0.1                           # Orientation
                     ]
                 tracker: "orb"                              # Tracker to use
+                fiducial: "charuco"                         # Fiducial to use
                 pos_stability: 1.0e-9                       # Position stability
                 ang_stability: 1.0e-9                       # Orientation stability
                 intrinsics:
-                    F: 1.0                                  # Nominal focal length [m]
-                    f_x: 1.0                                # X focal length [px]
-                    f_y: 1.0                                # Y focal length [px]
-                    c_x: 0.0                                # X optical center [px]
-                    c_y: 0.0                                # Y optical center [px]
+                    f_x: 0.01                               # X focal length [m]
+                    f_y: 0.01                               # Y focal length [m]
                     k_1: 0.0                                # Radial coefficient 1
                     k_2: 0.0                                # Radial coefficient 2
                     p_1: 0.0                                # Tangential coefficient 1
                     p_2: 0.0                                # Tangential coefficient 1
-                    pixel_size: 0.010                       # Pixel size
+                    pixel_size: 5.0e-6                      # Pixel size
                     width: 640                              # Image width
                     height: 480                             # Image height
 
