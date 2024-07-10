@@ -61,6 +61,7 @@ public:
     unsigned int initial_id{0};                     ///< @brief Initial ID
     Eigen::Vector3d pos_f_in_l;                     ///< @brief Fiducial position
     Eigen::Quaterniond ang_f_to_l;                  ///< @brief Fiducial orientation
+    bool is_extrinsic{false};                       ///< @brief Perform extrinsic calibration
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1}};  ///< @brief Fiducial marker variance
   } Parameters;
 

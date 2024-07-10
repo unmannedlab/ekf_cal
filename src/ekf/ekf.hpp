@@ -297,30 +297,60 @@ public:
   /// @return GPS time vector
   ///
   std::vector<double> GetGpsTimeVector();
+
   ///
   /// @brief GPS ECEF vector getter
   /// @return GPS ECEF vector
   ///
   std::vector<Eigen::Vector3d> GetGpsEcefVector();
+
   ///
   /// @brief GPS XYZ vector getter
   /// @return GPS XYZ vector
   ///
   std::vector<Eigen::Vector3d> GetGpsXyzVector();
 
+  ///
+  /// @brief Current time getter
+  /// @return Current time
+  ///
   double GetCurrentTime();
+
+  ///
+  /// @brief IMU state start getter
+  /// @return IMU state start
+  ///
+  unsigned int get_imu_state_start();
+
+  ///
+  /// @brief GPS state start getter
+  /// @return GPS state start
+  ///
+  unsigned int get_gps_state_start();
+
+  ///
+  /// @brief Camera state start getter
+  /// @return Camera state start
+  ///
+  unsigned int get_cam_state_start();
+
+  ///
+  /// @brief Augmented states start getter
+  /// @return Augmented states start
+  ///
+  unsigned int get_aug_state_start();
+
+  ///
+  /// @brief Fiducial state start getter
+  /// @return Fiducial state start
+  ///
+  unsigned int get_fid_state_start();
 
   /// @brief EKF state
   State m_state;
 
   /// @brief EKF covariance
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-6;
-
-  unsigned int get_imu_state_start();
-  unsigned int get_gps_state_start();
-  unsigned int get_cam_state_start();
-  unsigned int get_aug_state_start();
-  unsigned int get_fid_state_start();
 
 private:
   unsigned int m_state_size{g_body_state_size};

@@ -339,6 +339,7 @@ int main(int argc, char * argv[])
     fiducial_params.marker_length = fid_node["marker_length"].as<double>(0.0);
     fiducial_params.min_track_length = fid_node["min_track_length"].as<unsigned int>(2U);
     fiducial_params.max_track_length = fid_node["max_track_length"].as<unsigned int>(20U);
+    fiducial_params.is_extrinsic = fid_node["is_extrinsic"].as<bool>(false);
     fiducial_params.ekf = ekf;
     max_track_length = std::max(max_track_length, fiducial_params.max_track_length);
 

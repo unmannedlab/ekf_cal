@@ -53,6 +53,15 @@ FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
       params.square_length,
       params.marker_length, m_dict);
   }
+
+  FidState fid_state;
+  fid_state.set_is_extrinsic(params.is_extrinsic);
+  fid_state.pos_f_in_l = params.pos_f_in_l;
+  fid_state.ang_f_to_l = params.ang_f_to_l;
+  Eigen::MatrixXd covariance(g_fid_extrinsic_state_size, g_fid_extrinsic_state_size);
+  covariance = params.variance.asDiagonal();
+
+  m_ekf->RegisterFiducial(m_id, fid_state, covariance);
 }
 
 int FiducialTracker::InterpolateCorners(

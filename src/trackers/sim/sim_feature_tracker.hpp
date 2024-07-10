@@ -62,7 +62,7 @@ public:
 
   ///
   /// @brief Generate simulated tracker messages
-  /// @param message_times Vector of message times
+  /// @param message_time Message times
   /// @param frame_id Camera frame ID
   /// @param sensor_id Camera sensor ID
   /// @return Generated feature tracker message

@@ -20,6 +20,10 @@
 #include "infrastructure/sim/truth_engine_cyclic.hpp"
 
 TEST(test_fiducial_tracker, constructor) {
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
+
   Eigen::Vector3d pos_frequency {1, 2, 3};
   Eigen::Vector3d ang_frequency {1, 2, 3};
   Eigen::Vector3d pos_offset {0, 0, 0};
@@ -28,7 +32,6 @@ TEST(test_fiducial_tracker, constructor) {
   double ang_amplitude {0.1};
   double stationary_time {1.0};
   double max_time {1.0};
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
   auto truth_engine = std::make_shared<TruthEngineCyclic>(
     pos_frequency,
@@ -39,10 +42,13 @@ TEST(test_fiducial_tracker, constructor) {
     ang_amplitude,
     stationary_time,
     max_time,
-    logger
+    ekf_params.debug_logger
   );
 
-  FiducialTracker::Parameters params;
+  FiducialTracker::Parameters fiducial_params;
+  fiducial_params.ekf = ekf;
+  fiducial_params.is_extrinsic = true;
   SimFiducialTracker::Parameters sim_params;
+  sim_params.fiducial_params = fiducial_params;
   SimFiducialTracker sim_fiducial_tracker(sim_params, truth_engine);
 }

@@ -190,6 +190,7 @@
                 ]
                 min_track_length: 0                         # Minimum track length
                 max_track_length: 1                         # Maximum track length
+                is_extrinsic: false                         # Flag to calibrate fiducial extrinsics
                 data_log_rate: 20.0                         # Data log rate
                 sim_params:
                     pos_error: [1.0e-1, 1.0e-1, 1.0e-1]     # Position error

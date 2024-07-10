@@ -363,6 +363,7 @@ void EkfCalNode::DeclareFiducialParameters(std::string fid_name)
   this->declare_parameter(fiducial_prefix + ".variance", std::vector<double>{0, 0, 0, 0, 0, 0});
   this->declare_parameter(fiducial_prefix + ".min_track_length", 2);
   this->declare_parameter(fiducial_prefix + ".max_track_length", 20);
+  this->declare_parameter(fiducial_prefix + ".is_extrinsic", false);
   this->declare_parameter(fiducial_prefix + ".data_log_rate", 0.0);
 }
 
@@ -380,6 +381,7 @@ FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(std::string fiduci
   auto variance = this->get_parameter(fiducial_prefix + ".variance").as_double_array();
   auto min_track_length = this->get_parameter(fiducial_prefix + ".min_track_length").as_int();
   auto max_track_length = this->get_parameter(fiducial_prefix + ".max_track_length").as_int();
+  auto is_extrinsic = this->get_parameter(fiducial_prefix + ".is_extrinsic").as_bool();
   auto data_log_rate = this->get_parameter(fiducial_prefix + ".data_log_rate").as_double();
 
   FiducialTracker::Parameters fiducial_params;
@@ -394,6 +396,7 @@ FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(std::string fiduci
   fiducial_params.min_track_length = min_track_length;
   fiducial_params.max_track_length = max_track_length;
   fiducial_params.data_log_rate = data_log_rate;
+  fiducial_params.is_extrinsic = is_extrinsic;
   fiducial_params.ekf = m_ekf;
   fiducial_params.logger = m_logger;
   return fiducial_params;
