@@ -27,8 +27,10 @@
     },
     "cSpell.words": [
         "ARUCO",
+        "arxiv",
         "axvline",
         "bmatrix",
+        "boldsymbol",
         "booktitle",
         "curdoc",
         "cwise",
@@ -54,6 +56,7 @@
         "Kabsch",
         "keypoint",
         "mainpage",
+        "mathcal",
         "MATHHELPER",
         "Mirzaei",
         "mrad",
