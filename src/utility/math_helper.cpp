@@ -86,8 +86,7 @@ void MaxBoundDiagonal(
 }
 
 Eigen::MatrixXd InsertInMatrix(
-  Eigen::MatrixXd sub_mat, Eigen::MatrixXd in_mat, unsigned int row,
-  unsigned int col)
+  Eigen::MatrixXd sub_mat, Eigen::MatrixXd in_mat, unsigned int row, unsigned int col)
 {
   unsigned int in_rows = in_mat.rows();
   unsigned int in_cols = in_mat.cols();
@@ -98,10 +97,21 @@ Eigen::MatrixXd InsertInMatrix(
 
   Eigen::MatrixXd out_mat = Eigen::MatrixXd::Zero(out_rows, out_cols);
 
+  // Top Left
   out_mat.block(0, 0, row, col) = in_mat.block(0, 0, row, col);
-  out_mat.block(row, col, sub_rows, sub_cols) = sub_mat;
+
+  // Top Right
+  out_mat.block(0, col + sub_cols, row, in_cols - col) = in_mat.block(0, col, row, in_cols - col);
+
+  // Bottom Left
+  out_mat.block(row + sub_rows, 0, in_rows - row, col) = in_mat.block(row, 0, in_rows - row, col);
+
+  // Bottom Right
   out_mat.block(row + sub_rows, col + sub_cols, in_rows - row, in_cols - col) =
     in_mat.block(row, col, in_rows - row, in_cols - col);
+
+  // Center
+  out_mat.block(row, col, sub_rows, sub_cols) = sub_mat;
 
   return out_mat;
 }

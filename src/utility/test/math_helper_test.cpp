@@ -350,3 +350,41 @@ TEST(test_MathHelper, average_doubles) {
 
   EXPECT_EQ(average_doubles(doubles_vector), 3.0);
 }
+
+
+TEST(test_MathHelper, InsertInMatrix) {
+  Eigen::MatrixXd in_mat(2, 2);
+  in_mat << 1, 2, 3, 4;
+
+  Eigen::MatrixXd sub_mat(2, 2);
+  sub_mat << 1, 2, 3, 4;
+
+  in_mat = InsertInMatrix(sub_mat, in_mat, 1, 1);
+
+  EXPECT_EQ(in_mat(0, 0), 1);
+  EXPECT_EQ(in_mat(0, 3), 2);
+  EXPECT_EQ(in_mat(3, 0), 3);
+  EXPECT_EQ(in_mat(3, 3), 4);
+
+  EXPECT_EQ(in_mat(1, 1), 1);
+  EXPECT_EQ(in_mat(1, 2), 2);
+  EXPECT_EQ(in_mat(2, 1), 3);
+  EXPECT_EQ(in_mat(2, 2), 4);
+}
+
+TEST(test_MathHelper, matrix2d_from_vectors3d) {
+  std::vector<Eigen::Vector3d> input_vectors;
+  input_vectors.push_back(Eigen::Vector3d(0, 0, 0));
+  input_vectors.push_back(Eigen::Vector3d(1, 1, 1));
+  input_vectors.push_back(Eigen::Vector3d(2, 2, 2));
+  input_vectors.push_back(Eigen::Vector3d(3, 3, 3));
+
+  Eigen::MatrixXd out_mat = matrix2d_from_vectors3d(input_vectors);
+
+  EXPECT_EQ(out_mat.rows(), 2);
+  EXPECT_EQ(out_mat.cols(), 4);
+  EXPECT_EQ(out_mat(0, 0), 0);
+  EXPECT_EQ(out_mat(0, 1), 1);
+  EXPECT_EQ(out_mat(0, 2), 2);
+  EXPECT_EQ(out_mat(0, 3), 3);
+}
