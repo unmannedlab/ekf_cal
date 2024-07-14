@@ -106,8 +106,6 @@ TEST(test_feature_tracker, track) {
 
   cv::imwrite("../../src/ekf_cal/src/trackers/test/images/feature_track.png", cam.m_out_img);
 
-  std::cout << ekf->m_state.body_state.pos_b_in_l << std::endl;
-
   EXPECT_NEAR(ekf->m_state.body_state.pos_b_in_l[0], 0.0, 1e-1);
   EXPECT_NEAR(ekf->m_state.body_state.pos_b_in_l[1], -0.1, 1e-1);
   EXPECT_NEAR(ekf->m_state.body_state.pos_b_in_l[2], 0.0, 1e-1);

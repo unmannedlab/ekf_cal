@@ -169,7 +169,6 @@ void TruthEngine::WriteTruthData(
   double body_data_rate,
   std::string output_directory)
 {
-  std::cout << output_directory << std::endl;
   DataLogger truth_logger(output_directory, "body_truth.csv");
   truth_logger.SetLogging(true);
 
