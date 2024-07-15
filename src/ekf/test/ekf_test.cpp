@@ -119,3 +119,23 @@ TEST(test_EKF, MatchState) {
 
   EXPECT_EQ(ekf->GetAugState(0, 0).index, -1);
 }
+
+TEST(test_EKF, SetMaxTrackLength) {
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
+
+  ekf->SetMaxTrackLength(20);
+}
+
+TEST(test_EKF, SetGpsReference) {
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  auto ekf = std::make_shared<EKF>(ekf_params);
+
+  Eigen::Vector3d reference_lla {0, 0, 0};
+  double ang_l_to_g {0};
+
+  ekf->SetGpsReference(reference_lla, ang_l_to_g);
+  EXPECT_TRUE(ekf->IsLlaInitialized());
+}
