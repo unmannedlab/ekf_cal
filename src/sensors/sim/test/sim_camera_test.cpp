@@ -29,8 +29,8 @@ TEST(test_SimCamera, feature_track) {
   auto ekf = std::make_shared<EKF>(ekf_params);
   Eigen::Vector3d pos_frequency{1, 2, 3};
   Eigen::Vector3d ang_frequency{4, 5, 6};
-  Eigen::Vector3d pos_offset{1, 2, 3};
-  Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
+  Eigen::Vector3d pos_offset{0, 0, 0};
+  Eigen::Vector3d ang_offset{0, 0, 0};
   double stationary_time{0.0};
   double max_time{1.0};
   double pos_amplitude = 1.0;
@@ -101,8 +101,8 @@ TEST(test_SimCamera, fiducial_track) {
   auto ekf = std::make_shared<EKF>(ekf_params);
   Eigen::Vector3d pos_frequency{1, 2, 3};
   Eigen::Vector3d ang_frequency{4, 5, 6};
-  Eigen::Vector3d pos_offset{1, 2, 3};
-  Eigen::Vector3d ang_offset{0.1, 0.2, 0.3};
+  Eigen::Vector3d pos_offset{0, 0, 0};
+  Eigen::Vector3d ang_offset{0, 0, 0};
   double pos_amplitude = 1.0;
   double ang_amplitude = 0.1;
   double stationary_time{0.0};
@@ -141,7 +141,7 @@ TEST(test_SimCamera, fiducial_track) {
   cam_params.rate = 10.0;
   cam_params.intrinsics = intrinsics;
   cam_params.pos_c_in_b = Eigen::Vector3d{0, 0, 0};
-  cam_params.ang_c_to_b = Eigen::Quaterniond{-0.5, 0.5, -0.5, 0.5};
+  cam_params.ang_c_to_b = Eigen::Quaterniond{0.5, -0.5, 0.5, -0.5};
 
   SimCamera::Parameters sim_camera_params;
   sim_camera_params.cam_params = cam_params;
@@ -155,6 +155,7 @@ TEST(test_SimCamera, fiducial_track) {
   fiducial_params.ekf = ekf;
   fiducial_params.logger = ekf_params.debug_logger;
   fiducial_params.camera_id = sim_camera.GetId();
+  fiducial_params.pos_f_in_l = Eigen::Vector3d{5, 0, 0};
   SimFiducialTracker::Parameters sim_fiducial_params;
   sim_fiducial_params.fiducial_params = fiducial_params;
   auto fiducial_tracker = std::make_shared<SimFiducialTracker>(sim_fiducial_params, truth_engine);
