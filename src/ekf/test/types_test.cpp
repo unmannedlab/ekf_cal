@@ -29,23 +29,6 @@ TEST(test_ekf_types, state_plus_equals_state) {
   quat.y() = 0.0;
   quat.z() = 0.0;
 
-  ImuState imu_state;
-  imu_state.pos_i_in_b = Eigen::Vector3d::Ones() * 6.0;
-  imu_state.ang_i_to_b = quat;
-  imu_state.acc_bias = Eigen::Vector3d::Ones() * 7.0;
-  imu_state.omg_bias = Eigen::Vector3d::Ones() * 8.0;
-
-  GpsState gps_state;
-  gps_state.pos_a_in_b = Eigen::Vector3d::Ones() * 12.0;
-
-  CamState cam_state;
-  cam_state.pos_c_in_b = Eigen::Vector3d::Ones() * 9.0;
-  cam_state.ang_c_to_b = quat;
-
-  AugState aug_state;
-  aug_state.pos_b_in_l = Eigen::Vector3d::Ones() * 10.0;
-  aug_state.ang_b_to_l = quat;
-
   State left_state;
   left_state.body_state.pos_b_in_l = Eigen::Vector3d::Ones() * 1.0;
   left_state.body_state.vel_b_in_l = Eigen::Vector3d::Ones() * 2.0;
@@ -53,9 +36,35 @@ TEST(test_ekf_types, state_plus_equals_state) {
   left_state.body_state.ang_b_to_l = quat;
   left_state.body_state.ang_vel_b_in_l = Eigen::Vector3d::Ones() * 4.0;
   left_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Ones() * 5.0;
+
+  ImuState imu_state;
+  imu_state.set_is_extrinsic(true);
+  imu_state.set_is_intrinsic(true);
+  imu_state.pos_i_in_b = Eigen::Vector3d::Ones() * 6.0;
+  imu_state.ang_i_to_b = quat;
+  imu_state.acc_bias = Eigen::Vector3d::Ones() * 7.0;
+  imu_state.omg_bias = Eigen::Vector3d::Ones() * 8.0;
+
+  GpsState gps_state;
+  gps_state.set_is_extrinsic(true);
+  gps_state.pos_a_in_b = Eigen::Vector3d::Ones() * 9.0;
+
+  CamState cam_state;
+  cam_state.pos_c_in_b = Eigen::Vector3d::Ones() * 10.0;
+  cam_state.ang_c_to_b = quat;
+
+  FidState fid_state;
+  fid_state.pos_f_in_l = Eigen::Vector3d::Ones() * 12.0;
+  fid_state.ang_f_to_l = quat;
+
+  AugState aug_state;
+  aug_state.pos_b_in_l = Eigen::Vector3d::Ones() * 14.0;
+  aug_state.ang_b_to_l = quat;
+
   left_state.imu_states[1] = imu_state;
-  left_state.gps_states[3] = gps_state;
-  left_state.cam_states[2] = cam_state;
+  left_state.gps_states[2] = gps_state;
+  left_state.cam_states[3] = cam_state;
+  left_state.fid_states[4] = fid_state;
   left_state.aug_states[0].push_back(aug_state);
 
   left_state += left_state;
@@ -102,22 +111,31 @@ TEST(test_ekf_types, state_plus_equals_state) {
   EXPECT_EQ(left_state.imu_states[1].omg_bias(1), 16.0);
   EXPECT_EQ(left_state.imu_states[1].omg_bias(2), 16.0);
 
-  EXPECT_EQ(left_state.cam_states[2].pos_c_in_b(0), 18.0);
-  EXPECT_EQ(left_state.cam_states[2].pos_c_in_b(1), 18.0);
-  EXPECT_EQ(left_state.cam_states[2].pos_c_in_b(2), 18.0);
+  EXPECT_EQ(left_state.gps_states[2].pos_a_in_b(0), 18.0);
+  EXPECT_EQ(left_state.gps_states[2].pos_a_in_b(1), 18.0);
+  EXPECT_EQ(left_state.gps_states[2].pos_a_in_b(2), 18.0);
 
-  EXPECT_EQ(left_state.cam_states[2].ang_c_to_b.w(), 1.0);
-  EXPECT_EQ(left_state.cam_states[2].ang_c_to_b.x(), 0.0);
-  EXPECT_EQ(left_state.cam_states[2].ang_c_to_b.y(), 0.0);
-  EXPECT_EQ(left_state.cam_states[2].ang_c_to_b.z(), 0.0);
+  EXPECT_EQ(left_state.cam_states[3].pos_c_in_b(0), 20.0);
+  EXPECT_EQ(left_state.cam_states[3].pos_c_in_b(1), 20.0);
+  EXPECT_EQ(left_state.cam_states[3].pos_c_in_b(2), 20.0);
 
-  EXPECT_EQ(left_state.gps_states[3].pos_a_in_b(0), 24.0);
-  EXPECT_EQ(left_state.gps_states[3].pos_a_in_b(1), 24.0);
-  EXPECT_EQ(left_state.gps_states[3].pos_a_in_b(2), 24.0);
+  EXPECT_EQ(left_state.cam_states[3].ang_c_to_b.w(), 1.0);
+  EXPECT_EQ(left_state.cam_states[3].ang_c_to_b.x(), 0.0);
+  EXPECT_EQ(left_state.cam_states[3].ang_c_to_b.y(), 0.0);
+  EXPECT_EQ(left_state.cam_states[3].ang_c_to_b.z(), 0.0);
 
-  EXPECT_EQ(left_state.aug_states[0][0].pos_b_in_l(0), 20.0);
-  EXPECT_EQ(left_state.aug_states[0][0].pos_b_in_l(1), 20.0);
-  EXPECT_EQ(left_state.aug_states[0][0].pos_b_in_l(2), 20.0);
+  EXPECT_EQ(left_state.fid_states[4].pos_f_in_l(0), 24.0);
+  EXPECT_EQ(left_state.fid_states[4].pos_f_in_l(1), 24.0);
+  EXPECT_EQ(left_state.fid_states[4].pos_f_in_l(2), 24.0);
+
+  EXPECT_EQ(left_state.fid_states[4].ang_f_to_l.w(), 1.0);
+  EXPECT_EQ(left_state.fid_states[4].ang_f_to_l.x(), 0.0);
+  EXPECT_EQ(left_state.fid_states[4].ang_f_to_l.y(), 0.0);
+  EXPECT_EQ(left_state.fid_states[4].ang_f_to_l.z(), 0.0);
+
+  EXPECT_EQ(left_state.aug_states[0][0].pos_b_in_l(0), 28.0);
+  EXPECT_EQ(left_state.aug_states[0][0].pos_b_in_l(1), 28.0);
+  EXPECT_EQ(left_state.aug_states[0][0].pos_b_in_l(2), 28.0);
 
   EXPECT_EQ(left_state.aug_states[0][0].ang_b_to_l.w(), 1.0);
   EXPECT_EQ(left_state.aug_states[0][0].ang_b_to_l.x(), 0.0);
@@ -132,6 +150,14 @@ TEST(test_ekf_types, state_plus_equals_vector) {
   quat.y() = 0.0;
   quat.z() = 0.0;
 
+  State left_state;
+  left_state.body_state.pos_b_in_l = Eigen::Vector3d::Ones() * 1.0;
+  left_state.body_state.vel_b_in_l = Eigen::Vector3d::Ones() * 2.0;
+  left_state.body_state.acc_b_in_l = Eigen::Vector3d::Ones() * 3.0;
+  left_state.body_state.ang_b_to_l = quat;
+  left_state.body_state.ang_vel_b_in_l = Eigen::Vector3d::Ones() * 4.0;
+  left_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Ones() * 5.0;
+
   ImuState imu_state;
   imu_state.set_is_intrinsic(true);
   imu_state.set_is_extrinsic(true);
@@ -140,37 +166,48 @@ TEST(test_ekf_types, state_plus_equals_vector) {
   imu_state.acc_bias = Eigen::Vector3d::Ones() * 7.0;
   imu_state.omg_bias = Eigen::Vector3d::Ones() * 8.0;
 
+  GpsState gps_state;
+  gps_state.set_is_extrinsic(true);
+  gps_state.pos_a_in_b = Eigen::Vector3d::Ones() * 9.0;
+
   CamState cam_state;
-  cam_state.pos_c_in_b = Eigen::Vector3d::Ones() * 9.0;
+  cam_state.pos_c_in_b = Eigen::Vector3d::Ones() * 10.0;
   cam_state.ang_c_to_b = quat;
 
+  FidState fid_state;
+  fid_state.set_is_extrinsic(true);
+  fid_state.pos_f_in_l = Eigen::Vector3d::Ones() * 11.0;
+  fid_state.ang_f_to_l = quat;
+
   AugState aug_state;
-  aug_state.pos_b_in_l = Eigen::Vector3d::Ones() * 10.0;
+  aug_state.pos_b_in_l = Eigen::Vector3d::Ones() * 12.0;
   aug_state.ang_b_to_l = quat;
 
-  State left_state;
-  left_state.body_state.pos_b_in_l = Eigen::Vector3d::Ones() * 1.0;
-  left_state.body_state.vel_b_in_l = Eigen::Vector3d::Ones() * 2.0;
-  left_state.body_state.acc_b_in_l = Eigen::Vector3d::Ones() * 3.0;
-  left_state.body_state.ang_b_to_l = quat;
-  left_state.body_state.ang_vel_b_in_l = Eigen::Vector3d::Ones() * 4.0;
-  left_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Ones() * 5.0;
   left_state.imu_states[1] = imu_state;
-  left_state.cam_states[2] = cam_state;
+  left_state.gps_states[2] = gps_state;
+  left_state.cam_states[3] = cam_state;
+  left_state.fid_states[4] = fid_state;
   left_state.aug_states[0].push_back(aug_state);
 
-  Eigen::VectorXd state_vector = Eigen::VectorXd::Zero(48);
+  Eigen::VectorXd state_vector = Eigen::VectorXd::Zero(51);
+  // Body States
   state_vector.segment<3>(0) = Eigen::Vector3d::Ones() * 1.0;
   state_vector.segment<3>(3) = Eigen::Vector3d::Ones() * 2.0;
   state_vector.segment<3>(6) = Eigen::Vector3d::Ones() * 3.0;
   state_vector.segment<3>(12) = Eigen::Vector3d::Ones() * 4.0;
   state_vector.segment<3>(15) = Eigen::Vector3d::Ones() * 5.0;
+  // IMU States
   state_vector.segment<3>(18) = Eigen::Vector3d::Ones() * 6.0;
   state_vector.segment<3>(24) = Eigen::Vector3d::Ones() * 7.0;
   state_vector.segment<3>(27) = Eigen::Vector3d::Ones() * 8.0;
+  // GPS States
   state_vector.segment<3>(30) = Eigen::Vector3d::Ones() * 9.0;
-  state_vector.segment<3>(36) = Eigen::Vector3d::Ones() * 10.0;
-  state_vector.segment<3>(42) = Eigen::Vector3d::Ones() * 11.0;
+  // Camera States
+  state_vector.segment<3>(33) = Eigen::Vector3d::Ones() * 10.0;
+  // Fiducial States
+  state_vector.segment<3>(39) = Eigen::Vector3d::Ones() * 11.0;
+  // Augmented States
+  state_vector.segment<3>(45) = Eigen::Vector3d::Ones() * 12.0;
 
   left_state += state_vector;
 
@@ -216,18 +253,31 @@ TEST(test_ekf_types, state_plus_equals_vector) {
   EXPECT_EQ(left_state.imu_states[1].omg_bias(1), 16.0);
   EXPECT_EQ(left_state.imu_states[1].omg_bias(2), 16.0);
 
-  EXPECT_EQ(left_state.cam_states[2].pos_c_in_b(0), 18.0);
-  EXPECT_EQ(left_state.cam_states[2].pos_c_in_b(1), 18.0);
-  EXPECT_EQ(left_state.cam_states[2].pos_c_in_b(2), 18.0);
+  EXPECT_EQ(left_state.gps_states[2].pos_a_in_b(0), 18.0);
+  EXPECT_EQ(left_state.gps_states[2].pos_a_in_b(1), 18.0);
+  EXPECT_EQ(left_state.gps_states[2].pos_a_in_b(2), 18.0);
 
-  EXPECT_EQ(left_state.cam_states[2].ang_c_to_b.w(), 1.0);
-  EXPECT_EQ(left_state.cam_states[2].ang_c_to_b.x(), 0.0);
-  EXPECT_EQ(left_state.cam_states[2].ang_c_to_b.y(), 0.0);
-  EXPECT_EQ(left_state.cam_states[2].ang_c_to_b.z(), 0.0);
+  EXPECT_EQ(left_state.cam_states[3].pos_c_in_b(0), 20.0);
+  EXPECT_EQ(left_state.cam_states[3].pos_c_in_b(1), 20.0);
+  EXPECT_EQ(left_state.cam_states[3].pos_c_in_b(2), 20.0);
 
-  EXPECT_EQ(left_state.aug_states[0][0].pos_b_in_l(0), 20.0);
-  EXPECT_EQ(left_state.aug_states[0][0].pos_b_in_l(1), 20.0);
-  EXPECT_EQ(left_state.aug_states[0][0].pos_b_in_l(2), 20.0);
+  EXPECT_EQ(left_state.cam_states[3].ang_c_to_b.w(), 1.0);
+  EXPECT_EQ(left_state.cam_states[3].ang_c_to_b.x(), 0.0);
+  EXPECT_EQ(left_state.cam_states[3].ang_c_to_b.y(), 0.0);
+  EXPECT_EQ(left_state.cam_states[3].ang_c_to_b.z(), 0.0);
+
+  EXPECT_EQ(left_state.fid_states[4].pos_f_in_l(0), 22.0);
+  EXPECT_EQ(left_state.fid_states[4].pos_f_in_l(1), 22.0);
+  EXPECT_EQ(left_state.fid_states[4].pos_f_in_l(2), 22.0);
+
+  EXPECT_EQ(left_state.fid_states[4].ang_f_to_l.w(), 1.0);
+  EXPECT_EQ(left_state.fid_states[4].ang_f_to_l.x(), 0.0);
+  EXPECT_EQ(left_state.fid_states[4].ang_f_to_l.y(), 0.0);
+  EXPECT_EQ(left_state.fid_states[4].ang_f_to_l.z(), 0.0);
+
+  EXPECT_EQ(left_state.aug_states[0][0].pos_b_in_l(0), 24.0);
+  EXPECT_EQ(left_state.aug_states[0][0].pos_b_in_l(1), 24.0);
+  EXPECT_EQ(left_state.aug_states[0][0].pos_b_in_l(2), 24.0);
 
   EXPECT_EQ(left_state.aug_states[0][0].ang_b_to_l.w(), 1.0);
   EXPECT_EQ(left_state.aug_states[0][0].ang_b_to_l.x(), 0.0);
@@ -521,6 +571,24 @@ TEST(test_ekf_types, cam_state_to_vector) {
   EXPECT_EQ(cam_state_vector(5), 0.0);
 }
 
+TEST(test_ekf_types, fid_state_to_vector) {
+  FidState fid_state;
+  fid_state.set_is_extrinsic(true);
+  fid_state.pos_f_in_l = Eigen::Vector3d::Ones();
+  fid_state.ang_f_to_l = Eigen::Quaterniond{1, 0, 0, 0};
+  Eigen::VectorXd fid_state_vector = fid_state.ToVector();
+
+  EXPECT_EQ(fid_state_vector.size(), 6);
+
+  EXPECT_EQ(fid_state_vector(0), 1.0);
+  EXPECT_EQ(fid_state_vector(1), 1.0);
+  EXPECT_EQ(fid_state_vector(2), 1.0);
+
+  EXPECT_EQ(fid_state_vector(3), 0.0);
+  EXPECT_EQ(fid_state_vector(4), 0.0);
+  EXPECT_EQ(fid_state_vector(5), 0.0);
+}
+
 TEST(test_ekf_types, imu_state_to_vector) {
   ImuState imu_state;
   imu_state.set_is_intrinsic(true);
@@ -610,12 +678,20 @@ TEST(test_ekf_types, state_to_vector) {
   imu_state.acc_bias = Eigen::Vector3d::Ones() * 7.0;
   imu_state.omg_bias = Eigen::Vector3d::Ones() * 8.0;
 
+  GpsState gps_state;
+  gps_state.set_is_extrinsic(true);
+  gps_state.pos_a_in_b = Eigen::Vector3d::Ones() * 9.0;
+
   CamState cam_state;
-  cam_state.pos_c_in_b = Eigen::Vector3d::Ones() * 9.0;
+  cam_state.pos_c_in_b = Eigen::Vector3d::Ones() * 10.0;
   cam_state.ang_c_to_b = quat;
 
+  FidState fid_state;
+  fid_state.set_is_extrinsic(true);
+  fid_state.pos_f_in_l = Eigen::Vector3d::Ones() * 11.0;
+
   AugState aug_state;
-  aug_state.pos_b_in_l = Eigen::Vector3d::Ones() * 10.0;
+  aug_state.pos_b_in_l = Eigen::Vector3d::Ones() * 12.0;
   aug_state.ang_b_to_l = quat;
 
   State state;
@@ -626,12 +702,14 @@ TEST(test_ekf_types, state_to_vector) {
   state.body_state.ang_vel_b_in_l = Eigen::Vector3d::Ones() * 4.0;
   state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Ones() * 5.0;
   state.imu_states[1] = imu_state;
-  state.cam_states[2] = cam_state;
+  state.gps_states[2] = gps_state;
+  state.cam_states[3] = cam_state;
+  state.fid_states[4] = fid_state;
   state.aug_states[0].push_back(aug_state);
 
   Eigen::VectorXd state_vector = state.ToVector();
 
-  EXPECT_EQ(state_vector.size(), 42);
+  EXPECT_EQ(state_vector.size(), 51);
 
   EXPECT_EQ(state_vector(0), 1.0);
   EXPECT_EQ(state_vector(1), 1.0);
@@ -669,9 +747,17 @@ TEST(test_ekf_types, state_to_vector) {
   EXPECT_EQ(state_vector(31), 9.0);
   EXPECT_EQ(state_vector(32), 9.0);
 
-  EXPECT_EQ(state_vector(36), 10.0);
-  EXPECT_EQ(state_vector(37), 10.0);
-  EXPECT_EQ(state_vector(38), 10.0);
+  EXPECT_EQ(state_vector(33), 10.0);
+  EXPECT_EQ(state_vector(34), 10.0);
+  EXPECT_EQ(state_vector(35), 10.0);
+
+  EXPECT_EQ(state_vector(39), 11.0);
+  EXPECT_EQ(state_vector(40), 11.0);
+  EXPECT_EQ(state_vector(41), 11.0);
+
+  EXPECT_EQ(state_vector(45), 12.0);
+  EXPECT_EQ(state_vector(45), 12.0);
+  EXPECT_EQ(state_vector(47), 12.0);
 }
 
 TEST(test_ekf_types, state_get_state_size) {
@@ -714,6 +800,7 @@ TEST(test_ekf_types, set_body_state) {
 
 TEST(test_ekf_types, gps_state_to_vector) {
   GpsState gps_state;
+  gps_state.set_is_extrinsic(true);
   gps_state.pos_a_in_b = Eigen::Vector3d{1.0, 2.0, 3.0};
   EXPECT_EQ(gps_state.ToVector(), gps_state.pos_a_in_b);
 }

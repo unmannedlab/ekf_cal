@@ -184,22 +184,6 @@ std::map<unsigned int, CamState> & operator+=(
   return l_cam_state;
 }
 
-std::map<unsigned int, FidState> & operator+=(
-  std::map<unsigned int, FidState> & l_fid_state, Eigen::VectorXd & r_vector)
-{
-  unsigned int n {0};
-  for (auto & fid_iter : l_fid_state) {
-    unsigned int fid_id = fid_iter.first;
-    if (l_fid_state[fid_id].get_is_extrinsic()) {
-      l_fid_state[fid_id].pos_f_in_l += r_vector.segment<3>(n + 0);
-      l_fid_state[fid_id].ang_f_to_l =
-        l_fid_state[fid_id].ang_f_to_l * RotVecToQuat(r_vector.segment<3>(n + 3));
-      n += g_fid_extrinsic_state_size;
-    }
-  }
-
-  return l_fid_state;
-}
 
 std::vector<AugState> & operator+=(
   std::vector<AugState> & l_aug_state, Eigen::VectorXd & r_vector)
@@ -312,29 +296,26 @@ Eigen::VectorXd State::ToVector() const
 
   for (auto const & gps_iter : gps_states) {
     if (gps_iter.second.get_is_extrinsic()) {
-      out_vec.segment<3>(n) = gps_iter.second.pos_a_in_b;
+      out_vec.segment<g_gps_extrinsic_state_size>(n) = gps_iter.second.pos_a_in_b;
       n += g_gps_extrinsic_state_size;
     }
   }
 
   for (auto const & cam_iter : cam_states) {
-    Eigen::VectorXd temp_vec = cam_iter.second.ToVector();
-    out_vec.segment(n, temp_vec.size()) = temp_vec;
-    n += temp_vec.size();
+    out_vec.segment(n, g_cam_state_size) = cam_iter.second.ToVector();
+    n += g_cam_state_size;
   }
 
   for (auto const & fid_iter : fid_states) {
     if (fid_iter.second.get_is_extrinsic()) {
-      out_vec.segment<3>(n + 0) = fid_iter.second.pos_f_in_l;
-      out_vec.segment<3>(n + 3) = QuatToRotVec(fid_iter.second.ang_f_to_l);
+      out_vec.segment<g_fid_extrinsic_state_size>(n + 0) = fid_iter.second.ToVector();
       n += g_fid_extrinsic_state_size;
     }
   }
 
   for (auto const & aug_iter : aug_states) {
     for (unsigned int i = 0; i < aug_iter.second.size(); ++i) {
-      out_vec.segment<3>(n + 0) = aug_iter.second[i].pos_b_in_l;
-      out_vec.segment<3>(n + 3) = QuatToRotVec(aug_iter.second[i].ang_b_to_l);
+      out_vec.segment<g_aug_state_size>(n) = aug_iter.second[i].ToVector();
       n += g_aug_state_size;
     }
   }

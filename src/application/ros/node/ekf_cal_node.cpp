@@ -271,6 +271,7 @@ void EkfCalNode::DeclareCameraParameters(std::string camera_name)
   this->declare_parameter(cam_prefix + ".ang_c_to_b", std::vector<double>{1, 0, 0, 0});
   this->declare_parameter(cam_prefix + ".variance", std::vector<double>{1, 1, 1, 1, 1, 1});
   this->declare_parameter(cam_prefix + ".tracker", "");
+  this->declare_parameter(cam_prefix + ".fiducial", "");
   this->declare_parameter(cam_prefix + ".pos_stability", 1e-9);
   this->declare_parameter(cam_prefix + ".ang_stability", 1e-9);
   DeclareIntrinsicParameters(cam_prefix + ".intrinsics");
@@ -288,6 +289,7 @@ Camera::Parameters EkfCalNode::GetCameraParameters(std::string camera_name)
     this->get_parameter(cam_prefix + ".ang_c_to_b").as_double_array();
   std::vector<double> variance = this->get_parameter(cam_prefix + ".variance").as_double_array();
   std::string tracker_name = this->get_parameter(cam_prefix + ".tracker").as_string();
+  std::string fiducial_name = this->get_parameter(cam_prefix + ".fiducial").as_string();
   double pos_stability = this->get_parameter(cam_prefix + ".pos_stability").as_double();
   double ang_stability = this->get_parameter(cam_prefix + ".ang_stability").as_double();
 
@@ -300,6 +302,7 @@ Camera::Parameters EkfCalNode::GetCameraParameters(std::string camera_name)
   camera_params.ang_c_to_b = StdToEigQuat(ang_c_to_b);
   camera_params.variance = StdToEigVec(variance);
   camera_params.tracker = tracker_name;
+  camera_params.fiducial = fiducial_name;
   camera_params.pos_stability = pos_stability;
   camera_params.ang_stability = ang_stability;
   camera_params.ekf = m_ekf;
@@ -352,14 +355,14 @@ FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_
 void EkfCalNode::DeclareFiducialParameters(std::string fid_name)
 {
   // Declare parameters
-  std::string fiducial_prefix = "tracker." + fid_name;
+  std::string fiducial_prefix = "fiducial." + fid_name;
   this->declare_parameter(fiducial_prefix + ".fiducial_type", 0);
   this->declare_parameter(fiducial_prefix + ".squares_x", 0);
   this->declare_parameter(fiducial_prefix + ".squares_y", 0);
   this->declare_parameter(fiducial_prefix + ".square_length", 0.0);
   this->declare_parameter(fiducial_prefix + ".marker_length", 0.0);
   this->declare_parameter(fiducial_prefix + ".pos_f_in_l", std::vector<double>{0, 0, 0});
-  this->declare_parameter(fiducial_prefix + ".ang_f_to_l", 0.0);
+  this->declare_parameter(fiducial_prefix + ".ang_f_to_l", std::vector<double>{1, 0, 0, 0});
   this->declare_parameter(fiducial_prefix + ".variance", std::vector<double>{0, 0, 0, 0, 0, 0});
   this->declare_parameter(fiducial_prefix + ".min_track_length", 2);
   this->declare_parameter(fiducial_prefix + ".max_track_length", 20);
