@@ -493,29 +493,50 @@ void EKF::RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::Matri
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-Eigen::MatrixXd EKF::AugmentJacobian(unsigned int aug_index)
+Eigen::MatrixXd EKF::AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int index)
 {
-  Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(m_state_size, m_state_size - g_aug_state_size);
+  unsigned int in_rows = in_cov.rows();
+  unsigned int in_cols = in_cov.cols();
+  unsigned int out_rows = in_cov.rows() + g_aug_state_size;
+  unsigned int out_cols = in_cov.cols() + g_aug_state_size;
 
-  unsigned int after_start = aug_index;
-  unsigned int after_size = m_state_size - aug_index - g_aug_state_size;
+  Eigen::MatrixXd out_cov = Eigen::MatrixXd::Zero(out_rows, out_cols);
 
-  // Before augmented state Jacobian
-  jacobian.block(0, 0, aug_index, aug_index) = Eigen::MatrixXd::Identity(aug_index, aug_index);
+  // Top Left
+  out_cov.block(0, 0, index, index) = in_cov.block(0, 0, index, index);
 
-  // After augmented state Jacobian
-  if (after_size > 0) {
-    jacobian.block(after_start, after_start, after_size, after_size) =
-      Eigen::MatrixXd::Identity(after_size, after_size);
-  }
+  // Top Right
+  out_cov.block(0, index + g_aug_state_size, index, in_cols - index) =
+    in_cov.block(0, index, index, in_cols - index);
 
-  // Body Position in Local Frame
-  jacobian.block<3, 3>(aug_index + 0, 0) = Eigen::MatrixXd::Identity(3, 3);
+  // Bottom Left
+  out_cov.block(index + g_aug_state_size, 0, in_rows - index, index) =
+    in_cov.block(index, 0, in_rows - index, index);
 
-  // Body Orientation to Local Frame
-  jacobian.block<3, 3>(aug_index + 3, 9) = Eigen::MatrixXd::Identity(3, 3);
+  // Bottom Right
+  out_cov.block(
+    index + g_aug_state_size, index + g_aug_state_size, in_rows - index, in_cols - index) =
+    in_cov.block(index, index, in_rows - index, in_cols - index);
 
-  return jacobian;
+  // Copy Rows
+  out_cov.block(index + 0, 0, 3, out_cols) = out_cov.block(0, 0, 3, out_cols);
+  out_cov.block(index + 3, 0, 3, out_cols) = out_cov.block(9, 0, 3, out_cols);
+
+  // Copy Columns
+  out_cov.block(0, index + 0, out_rows, 3) = out_cov.block(0, 0, out_rows, 3);
+  out_cov.block(0, index + 3, out_rows, 3) = out_cov.block(0, 9, out_rows, 3);
+
+  // Copy diagonal variances
+  out_cov.block(index + 0, index + 0, 3, 3) = out_cov.block(0, 0, 3, 3);
+  out_cov.block(index + 3, index + 3, 3, 3) = out_cov.block(9, 9, 3, 3);
+
+  // Copy cross-covariances
+  out_cov.block(index + 0, 0, 3, 3) = out_cov.block(0, 0, 3, 3);
+  out_cov.block(0, index + 0, 3, 3) = out_cov.block(0, 0, 3, 3);
+  out_cov.block(index + 3, 9, 3, 3) = out_cov.block(9, 9, 3, 3);
+  out_cov.block(9, index + 3, 3, 3) = out_cov.block(9, 9, 3, 3);
+
+  return out_cov;
 }
 
 void EKF::AugmentStateIfNeeded()
@@ -585,12 +606,7 @@ void EKF::AugmentStateIfNeeded()
 
     RefreshIndices();
 
-    unsigned int aug_index = m_state.aug_states[0].back().index;
-
-    Eigen::MatrixXd augment_jacobian = AugmentJacobian(aug_index);
-    /// @todo doing this is very expensive. Apply Jacobian in place without large multiplications
-    /// Most elements are identity/zeros anyways
-    m_cov = (augment_jacobian * m_cov * augment_jacobian.transpose()).eval();
+    m_cov = AugmentCovariance(m_cov, m_state.aug_states[0].back().index);
   }
 }
 
@@ -627,12 +643,7 @@ void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
 
     RefreshIndices();
 
-    unsigned int aug_index = m_state.aug_states[camera_id].back().index;
-
-    Eigen::MatrixXd augment_jacobian = AugmentJacobian(aug_index);
-    /// @todo doing this is very expensive. Apply Jacobian in place without large multiplications
-    /// Most elements are identity/zeros anyways
-    m_cov = (augment_jacobian * m_cov * augment_jacobian.transpose()).eval();
+    m_cov = AugmentCovariance(m_cov, m_state.aug_states[camera_id].back().index);
   }
 }
 

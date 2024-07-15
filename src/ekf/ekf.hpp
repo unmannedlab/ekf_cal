@@ -198,11 +198,12 @@ public:
   void RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::MatrixXd covariance);
 
   ///
-  /// @brief Generate augmented state Jacobian matrix
-  /// @param aug_index Augmented state start index
-  /// @return Augmented state Jacobian matrix
+  /// @brief Augment the state covariance matrix
+  /// @param in_cov Original state covariance matrix
+  /// @param index Augmented state start index
+  /// @return Augmented state covariance matrix
   ///
-  Eigen::MatrixXd AugmentJacobian(unsigned int aug_index);
+  Eigen::MatrixXd AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int index);
 
   ///
   /// @brief Check if state should be augmented using current state
