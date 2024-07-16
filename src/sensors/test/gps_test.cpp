@@ -20,8 +20,12 @@
 
 TEST(test_gps, Callback) {
   EKF::Parameters ekf_params;
-  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  ekf_params.gps_init_type = GpsInitType::ERROR_THRESHOLD;
+  ekf_params.gps_init_pos_thresh = 10.0;
+  ekf_params.gps_init_ang_thresh = 10.0;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::INFO, "");
   auto ekf = std::make_shared<EKF>(ekf_params);
+  ekf->m_state.body_state.vel_b_in_l.x() = 1;
 
   GPS::Parameters params;
   params.logger = ekf_params.debug_logger;
@@ -32,8 +36,10 @@ TEST(test_gps, Callback) {
   auto gps_message = std::make_shared<GpsMessage>();
   gps_message->sensor_id = 1;
   gps_message->sensor_type = SensorType::GPS;
-  gps_message->time = 0.0;
   gps_message->gps_lla = Eigen::Vector3d{0.0, 0.0, 0.0};
 
-  gps.Callback(gps_message);
+  for (unsigned int i = 0; i < 10; ++i) {
+    gps_message->time = static_cast<double>(i);
+    gps.Callback(gps_message);
+  }
 }
