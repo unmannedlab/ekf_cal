@@ -33,9 +33,9 @@ Additionally, this software package provides example implementations of state-of
 
 Currently, there are not many software packages for prototyping and evaluating Kalman Filter-based calibration and localization algorithms. The most popular, which also includes a simulation architecture, is Open-VINS [@Geneva2020ICRA], which makes use of interpolated B-splines to define true motion data. Inertial measurements are sampled from the second derivative of the spline path, and bearing camera measurements are generated using global fixed features which are projected onto the camera sensor frame. The primary limitation of Open-VINS, and the inspiration for this work, is the limited types of sensors available and the constraint to a single IMU for filtering.
 
-Other packages, such as Kalibr [@Rehder], provide tools for performing calibration of multi-sensor systems, but do not provide these calibrations online.
+There exist other batch-based calibration packages, such as the Matlab Camera Calibration Toolbox [@matlab-cam-calib] for mono and stereo camera setups, where the primary limitations are the limited sensor types and closed-source codebase. Additionally, there are batch-based optimizers such as Kalibr [@Rehder] or OpenCalib [@opencalib] that provide tools for performing calibration of multi-sensor systems, but do not provide these calibrations online. These software applications are therefore susceptible to changing calibration parameters, such as drifts or shifts in mounting.
 
-The `ekf-cal` package seeks to provide additional avenues for testing Kalman filter based calibration and localization techniques while supporting multi-IMU filtering, GNSS sensors, and fiducial markers. Similar to existing work, this is all done on top of a B-spline based truth model and global feature points.
+The `ekf-cal` package, in contrast, seeks to provide additional avenues for testing Kalman filter based calibration and localization techniques while supporting multi-IMU filtering, GNSS sensors, and fiducial markers. Similar to existing work, this is all done on top of a B-spline based truth model and global feature points.
 
 In summary, this package
 
