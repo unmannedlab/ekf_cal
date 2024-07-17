@@ -44,20 +44,67 @@ In summary, this package
 - Provides analysis tools for plotting results and evaluating performance statistics
 
 # Capabilities
-`ekf_cal` supports any number or combination of the sensors listed in the following sections. Errors in sensor measurements and calibrations are varied across Monte Carlo runs, which allow for more robust testing of calibration and localization algorithms.
+`ekf_cal` supports any number or combination of the sensors listed in the following sections. Errors in sensor measurements and calibrations are varied across Monte Carlo runs, which allow for more robust testing of calibration and localization algorithms. The key parameters supported by all sensors are
+
+| Sensor Parameter | Description |
+| --- | --- |
+| `name`             | Sensor name |
+| `topic`            | ROS topic to subscribe to |
+| `rate`             | Update rate |
+| `data_logging_on`  | Flag to enable data logging |
+| `data_log_rate`    | Data logging rate |
+| `output_directory` | Data logging output directory |
 
 ### IMU
-`ekf_cal` supports the use of multiple IMU for updating the state estimate of acceleration and angular rates. A single IMU can be selected to provide state predictions, or all IMU can be used to provide state updates within an Extended Kalman Filter framework.
+`ekf_cal` supports the use of multiple IMU for updating the state estimate of acceleration and angular rates. A single IMU can be selected to provide state predictions, or all IMU can be used to provide state updates within an Extended Kalman Filter framework. The key IMU parameters supported are
+
+
+| IMU Parameter | Description |
+| --- | --- |
+| `is_extrinsic`       | Flag to enable extrinsic calibration |
+| `is_intrinsic`       | Flag to enable intrinsic calibration |
+| `pos_i_in_b`         | Position offset vector |
+| `ang_i_to_b`         | Angular offset quaternion |
+| `acc_bias`           | Accelerometer bias vector |
+| `omg_bias`           | Gyroscope bias vector |
+| `pos_stability`      | Position stability |
+| `ang_stability`      | Angular stability |
+| `acc_bias_stability` | Accelerometer bias stability |
+| `omg_bias_stability` | Gyroscope bias stability |
+| `use_for_prediction` | Flag to use measurements for prediction |
+| `variance`           | Initial state variance |
 
 ### Cameras
-`ekf_cal` supports the use of multiple camera that can simultaneously use MSCKF-based feature tracking and/or fiducial marker tracking for state updates. The package is designed to support the use of any OpenCV feature tracker, descriptor, or matcher for MSKCF-based visual inertial odometry. For fiducial measurements, the package supports the use of Aruco or Charuco grid boards.
+`ekf_cal` supports the use of multiple camera that can simultaneously use MSCKF-based feature tracking and/or fiducial marker tracking for state updates. The package is designed to support the use of any OpenCV feature tracker, descriptor, or matcher for MSKCF-based visual inertial odometry. For fiducial measurements, the package supports the use of Aruco or Charuco grid boards. The key camera parameters supported are
+
+| Camera Parameter | Description |
+| --- | --- |
+| `pos_c_in_b`    | Camera initial position offset |
+| `ang_c_to_b`    | Camera initial angular offset |
+| `pos_stability` | Position stability |
+| `ang_stability` | Angular stability |
+| `variance`      | Initial state variance |
+| `tracker`       | Tracker name |
+| `fiducial`      | Fiducial name |
+| `intrinsics`    | Camera intrinsics |
 
 ### GPS
-`ekf_cal` supports the use of multiple GPS antenna for updating the state estimate of position in the global frame. The currently implemented filter can utilize these measurements to estimate the initial global to local frame transformation as well as provide online estimates of the heading of the local frame.
+`ekf_cal` supports the use of multiple GPS antenna for updating the state estimate of position in the global frame. The currently implemented filter can utilize these measurements to estimate the initial global to local frame transformation as well as provide online estimates of the heading of the local frame. The key GPS parameters supported are
+
+| GPS Parameter | Description |
+| --- | --- |
+| `pos_a_in_b`    | GPS antenna position offset vector |
+| `pos_l_in_g`    | Local LLA position in global |
+| `ang_l_to_g`    | Local angle to global |
+| `variance`      | Initial state variance |
+| `is_extrinsic`  | Flag to enable extrinsic calibration |
+| `pos_stability` | Position stability |
 
 ### Plotting and Analysis
 Other package features are the Monte Carlo report generation and statistical summary functions that simplify the analysis of algorithm changes and development.
 
-![Simulated positions generated from spline inputs.\label{fig:pos}](png/pos.png)
+![Simulated positions generated from spline inputs.\label{fig:pos}](png/body-pos.png)
+
+![Convergence of filtered GPS antenna position over course of multiple Monte Carlo runs.\label{fig:ant}](png/gps-ant-pos-err.png)
 
 # References

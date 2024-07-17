@@ -92,15 +92,15 @@ class tab_gps:
                 legend_label='Z')
         return fig
 
-    def plot_ant_pos_error(self, gps_dfs, body_truth_dfs):
+    def plot_ant_pos_error(self):
         """Plot camera GPS residuals."""
         fig = figure(
             width=400,
             height=300,
             x_axis_label='Time [s]',
-            y_axis_label='Antenna Position Error [mm]',
-            title='Antenna Position Error')
-        for gps_df, body_truth in zip(gps_dfs, body_truth_dfs):
+            y_axis_label='Position Error [mm]',
+            title='GPS Antenna Position Error')
+        for gps_df, body_truth in zip(self.gps_dfs, self.body_truth_dfs):
             true_t = body_truth['time']
             true_p0 = body_truth[f"gps_pos_{gps_df.attrs['id']}_0"]
             true_p1 = body_truth[f"gps_pos_{gps_df.attrs['id']}_1"]

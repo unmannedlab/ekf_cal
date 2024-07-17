@@ -69,6 +69,10 @@ EKF::EKF(Parameters params)
   } else {
     m_is_lla_initialized = false;
   }
+
+  /// @todo Is this initialization necessary?
+  // m_cov.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity() * 1.0;
+  // m_cov.block<3, 3>(9, 9) = Eigen::Matrix3d::Identity() * 0.1;
 }
 
 Eigen::MatrixXd EKF::GetStateTransition(double dT)
@@ -286,9 +290,9 @@ void EKF::LimitUncertainty()
   MaxBoundDiagonal(m_cov, 1e0, 0, 3);
   MaxBoundDiagonal(m_cov, 1e0, 3, 3);
   MaxBoundDiagonal(m_cov, 1e0, 6, 3);
-  MaxBoundDiagonal(m_cov, 1e0, 9, 3);
-  MaxBoundDiagonal(m_cov, 1e0, 12, 3);
-  MaxBoundDiagonal(m_cov, 1e0, 15, 3);
+  MaxBoundDiagonal(m_cov, 1e-1, 9, 3);
+  MaxBoundDiagonal(m_cov, 1e-1, 12, 3);
+  MaxBoundDiagonal(m_cov, 1e-1, 15, 3);
 
   for (auto imu_state : m_state.imu_states) {
     unsigned int imu_index = imu_state.second.index;
