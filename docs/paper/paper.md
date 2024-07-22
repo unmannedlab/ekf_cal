@@ -39,7 +39,7 @@ The `ekf-cal` package, in contrast, seeks to provide additional avenues for test
 
 In summary, this package
 
-- Provides examples of the filtering techniques outlined in [@2022_Multi_Cam] and [@2023_Multi_IMU], which reference this work
+- Provides examples of the filtering techniques outlined in [@2022_Multi_Cam] and [@2023_Multi_IMU]
 - Provides a Monte Carlo architecture for testing filter-based calibration techniques
 - Provides analysis tools for plotting results and evaluating performance statistics
 
@@ -48,9 +48,9 @@ In summary, this package
 
 | Sensor Parameter | Description |
 | --- | --- |
-| `name`             | Sensor name |
+| `name`             | Identifying sensor name |
 | `topic`            | ROS topic to subscribe to |
-| `rate`             | Update rate |
+| `rate`             | Sensor update rate |
 | `data_logging_on`  | Flag to enable data logging |
 | `data_log_rate`    | Data logging rate |
 | `output_directory` | Data logging output directory |
@@ -61,16 +61,16 @@ In summary, this package
 
 | IMU Parameter | Description |
 | --- | --- |
+| `acc_bias_stability` | Intrinsic accelerometer bias stability |
+| `acc_bias`           | Accelerometer bias vector |
+| `ang_i_to_b`         | IMU Angular offset quaternion in body frame |
+| `ang_stability`      | Extrinsic angular stability |
 | `is_extrinsic`       | Flag to enable extrinsic calibration |
 | `is_intrinsic`       | Flag to enable intrinsic calibration |
-| `pos_i_in_b`         | Position offset vector |
-| `ang_i_to_b`         | Angular offset quaternion |
-| `acc_bias`           | Accelerometer bias vector |
+| `omg_bias_stability` | Intrinsic gyroscope bias stability |
 | `omg_bias`           | Gyroscope bias vector |
-| `pos_stability`      | Position stability |
-| `ang_stability`      | Angular stability |
-| `acc_bias_stability` | Accelerometer bias stability |
-| `omg_bias_stability` | Gyroscope bias stability |
+| `pos_i_in_b`         | IMU Position offset vector in body frame |
+| `pos_stability`      | Extrinsic position stability |
 | `use_for_prediction` | Flag to use measurements for prediction |
 | `variance`           | Initial state variance |
 
@@ -79,32 +79,35 @@ In summary, this package
 
 | Camera Parameter | Description |
 | --- | --- |
-| `pos_c_in_b`    | Camera initial position offset |
-| `ang_c_to_b`    | Camera initial angular offset |
-| `pos_stability` | Position stability |
-| `ang_stability` | Angular stability |
-| `variance`      | Initial state variance |
-| `tracker`       | Tracker name |
-| `fiducial`      | Fiducial name |
+| `ang_c_to_b`    | Camera angular offset quaternion in body frame |
+| `ang_stability` | Extrinsic angular stability |
+| `fiducial`      | Name of Fiducial to load |
 | `intrinsics`    | Camera intrinsics |
+| `pos_c_in_b`    | Camera position offset vector in body frame |
+| `pos_stability` | Extrinsic position stability |
+| `tracker`       | Name of Tracker to load |
+| `variance`      | Initial state variance |
 
 ### GPS
 `ekf_cal` supports the use of multiple GPS antenna for updating the state estimate of position in the global frame. The currently implemented filter can utilize these measurements to estimate the initial global to local frame transformation as well as provide online estimates of the heading of the local frame. The key GPS parameters supported are
 
 | GPS Parameter | Description |
 | --- | --- |
-| `pos_a_in_b`    | GPS antenna position offset vector |
-| `pos_l_in_g`    | Local LLA position in global |
-| `ang_l_to_g`    | Local angle to global |
-| `variance`      | Initial state variance |
+| `ang_l_to_g`    | Local angle to global frame |
 | `is_extrinsic`  | Flag to enable extrinsic calibration |
-| `pos_stability` | Position stability |
+| `pos_a_in_b`    | GPS antenna position offset vector in body frame |
+| `pos_l_in_g`    | Local LLA position in global frame |
+| `pos_stability` | Extrinsic position stability |
+| `variance`      | Initial state variance |
 
 ### Plotting and Analysis
-Other package features are the Monte Carlo report generation and statistical summary functions that simplify the analysis of algorithm changes and development.
+Other package features include the Monte Carlo testing, report generation, and statistical summary functions that simplify the analysis of algorithm changes and development. Perturbations are automatically added to not only sensor measurements, but the underlying truth model. This allows for variations in paths taken, sensor measurement times, and measurement values themselves, among others. An example of perturbations in true body positions is shown in Figure \ref{pos}.
 
-![Simulated positions generated from spline inputs.\label{fig:pos}](png/body-pos.png)
+![Simulated positions generated from spline inputs.\label{pos}](png/body-pos.png)
 
-![Convergence of filtered GPS antenna position over course of multiple Monte Carlo runs.\label{fig:ant}](png/gps-ant-pos-err.png)
+The main goal of this software is the evaluation of calibration kalman filters for stability and accuracy. Therefore, error plots are generated with respect to truth to show convergence over time for key parameters such as shown in Figure \ref{ant}
+
+
+![Convergence of filtered GPS antenna position over course of multiple Monte Carlo runs.\label{ant}](png/gps-ant-pos-err.png)
 
 # References
