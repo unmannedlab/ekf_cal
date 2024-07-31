@@ -84,7 +84,7 @@
         "zdata"
     ],
     "terminal.integrated.scrollback": 5000,
-    "cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}/",
+    "cmake.buildDirectory": "${workspaceFolder}/../../build/ekf_cal/",
     "files.associations": {
         "cctype": "cpp",
         "clocale": "cpp",

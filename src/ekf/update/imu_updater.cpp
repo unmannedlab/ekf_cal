@@ -172,6 +172,7 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
   return measurement_jacobian;
 }
 
+/// @todo Evaluate updating all states, not just Body/IMU
 void ImuUpdater::UpdateEKF(
   std::shared_ptr<EKF> ekf,
   double time, Eigen::Vector3d acceleration,

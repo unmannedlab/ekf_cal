@@ -371,7 +371,6 @@ def calc_sim_stats(config_sets, args):
 
 
 # TODO(jhartzer): Write tests
-# TODO(jhartzer): Add flag for low-memory usage (load single df at a time)
 # TODO(jhartzer): Compress functions into vector and quaternion errors
 if __name__ == '__main__':
     parser = InputParser()

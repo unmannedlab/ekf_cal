@@ -637,7 +637,6 @@ void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
     } else {
       unsigned int aug_start = m_state.aug_states[camera_id][0].index;
 
-      /// @todo(jhartzer): Evaluate switching to second element / creating map
       // Remove first element from state
       m_state.aug_states[camera_id].erase(m_state.aug_states[camera_id].begin());
 

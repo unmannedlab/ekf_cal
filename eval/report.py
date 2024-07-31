@@ -154,7 +154,6 @@ def plot_sim_results(config_sets, args):
 
 
 # TODO(jhartzer): Write tests
-# TODO(jhartzer): Add flag for low-memory usage (load single df at a time)
 # TODO(jhartzer): Add option for saving with no title (for papers)
 if __name__ == '__main__':
     parser = InputParser()
