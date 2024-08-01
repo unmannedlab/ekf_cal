@@ -71,7 +71,9 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(
   std::shared_ptr<EKF> ekf,
   std::vector<FeaturePoint> & feature_track)
 {
-  AugState aug_state_0 = ekf->GetAugState(m_id, feature_track[0].frame_id);
+
+  AugState aug_state_0 = ekf->GetAugState(
+    m_id, feature_track[0].frame_id, feature_track[0].frame_time);
   CamState cam_state = ekf->m_state.cam_states[m_id];
   Intrinsics intrinsics = ekf->m_state.cam_states[m_id].intrinsics;
 
@@ -88,7 +90,8 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(
   const Eigen::Matrix3d rot_b0_to_c0 = ang_c_to_b.transpose();
 
   for (unsigned int i = 0; i < feature_track.size(); ++i) {
-    AugState aug_state_i = ekf->GetAugState(m_id, feature_track[i].frame_id);
+    AugState aug_state_i = ekf->GetAugState(
+      m_id, feature_track[i].frame_id, feature_track[i].frame_time);
 
     const Eigen::Vector3d pos_bi_in_l = aug_state_i.pos_b_in_l;
     const Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
@@ -255,7 +258,7 @@ void MsckfUpdater::UpdateEKF(
     Eigen::MatrixXd H_a = Eigen::MatrixXd::Zero(2 * feature_track.size(), aug_state_size);
 
     for (unsigned int i = 0; i < feature_track.size(); ++i) {
-      AugState aug_state_i = ekf->GetAugState(m_id, feature_track[i].frame_id);
+      AugState aug_state_i = ekf->GetAugState(m_id, feature_track[i].frame_id, time);
 
       Eigen::Matrix3d ang_c_to_b = cam_state.ang_c_to_b.toRotationMatrix();
       Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
@@ -280,7 +283,7 @@ void MsckfUpdater::UpdateEKF(
       xz_residual = xz_measured - xz_predicted;
       res_f.segment<2>(2 * i) = xz_residual;
 
-      unsigned int aug_index = ekf->GetAugState(m_id, feature_track[i].frame_id).index;
+      unsigned int aug_index = ekf->GetAugState(m_id, feature_track[i].frame_id, time).index;
 
       // Projection Jacobian
       Eigen::MatrixXd H_p(2, 3);
@@ -297,6 +300,7 @@ void MsckfUpdater::UpdateEKF(
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, g_aug_state_size);
       H_t.block<3, 3>(0, 0) = -rot_l_to_ci;
       H_t.block<3, 3>(0, 3) = rot_bi_to_ci * SkewSymmetric(pos_f_in_bi);
+
       /// @todo(jhartzer): Enable calibration Jacobian
       // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity(3, 3);
       // H_t.block<3, 3>(0, 9) =

@@ -47,8 +47,8 @@ TEST(test_EKF, get_counts) {
 
   EXPECT_EQ(ekf->m_state.imu_states[0].index, 18);
   EXPECT_EQ(ekf->m_state.cam_states[1].index, 24);
-  EXPECT_EQ(ekf->GetAugState(1, 0).index, 30);
-  EXPECT_EQ(ekf->GetAugState(1, 1).index, 36);
+  EXPECT_EQ(ekf->GetAugState(1, 0, 0).index, 30);
+  EXPECT_EQ(ekf->GetAugState(1, 1, 0).index, 36);
 }
 
 TEST(test_EKF, duplicate_sensors) {
@@ -92,8 +92,8 @@ TEST(test_EKF, duplicate_sensors) {
   EXPECT_EQ(ekf->m_state.imu_states[0].index, 18);
   EXPECT_EQ(ekf->m_state.gps_states[1].index, 24);
   EXPECT_EQ(ekf->m_state.cam_states[2].index, 27);
-  EXPECT_EQ(ekf->GetAugState(2, 0).index, 33);
-  EXPECT_EQ(ekf->GetAugState(2, 1).index, 39);
+  EXPECT_EQ(ekf->GetAugState(2, 0, 0).index, 33);
+  EXPECT_EQ(ekf->GetAugState(2, 1, 0).index, 39);
 
   EXPECT_EQ(ekf->get_imu_state_start(), 18);
   EXPECT_EQ(ekf->get_gps_state_start(), 24);
@@ -114,7 +114,7 @@ TEST(test_EKF, MatchState) {
   EKF::Parameters ekf_params;
   ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   auto ekf = std::make_shared<EKF>(ekf_params);
-  AugState aug_state = ekf->GetAugState(0, 0);
+  AugState aug_state = ekf->GetAugState(0, 0, 0);
 
   Eigen::Quaterniond zero_quat {1, 0, 0, 0};
   Eigen::Vector3d zero_vec {0, 0, 0};
@@ -123,7 +123,7 @@ TEST(test_EKF, MatchState) {
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.ang_b_to_l, zero_quat, 1e-6));
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.pos_b_in_l, zero_vec, 1e-6));
 
-  EXPECT_EQ(ekf->GetAugState(0, 0).index, -1);
+  EXPECT_EQ(ekf->GetAugState(0, 0, 0).index, -1);
 }
 
 TEST(test_EKF, SetMaxTrackLength) {

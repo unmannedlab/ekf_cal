@@ -9,7 +9,7 @@
                                             #   5: DEBUG
         data_logging_on: true               # Flag to enable data logging
         body_data_rate: 100.0               # EKF body data logging rate
-        augmenting_type: 0                  # Camera state augmentation type
+        augmenting_type: 3                  # Camera state augmentation type
                                             #   0: All camera frames are augmented
                                             #   1: Only the primary camera frames are augmented
                                             #   2: Time-based frame augmentation

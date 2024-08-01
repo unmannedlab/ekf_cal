@@ -655,18 +655,48 @@ void EKF::SetProcessNoise(Eigen::VectorXd process_noise)
   m_process_noise = process_noise.asDiagonal();
 }
 
-AugState EKF::GetAugState(int camera_id, int frame_id)
+AugState EKF::GetAugState(int camera_id, int frame_id, double time)
 {
   AugState aug_state;
 
-  for (unsigned int i = 0; i < m_state.aug_states[camera_id].size(); ++i) {
-    if (m_state.aug_states[camera_id][i].frame_id == frame_id) {
-      aug_state = m_state.aug_states[camera_id][i];
-      break;
+  if (m_augmenting_type == AugmentationType::ALL) {
+    for (unsigned int i = 0; i < m_state.aug_states[camera_id].size(); ++i) {
+      if (m_state.aug_states[camera_id][i].frame_id == frame_id) {
+        aug_state = m_state.aug_states[camera_id][i];
+        break;
+      }
+    }
+  } else {
+
+    unsigned int aug_key;
+    if (m_augmenting_type == AugmentationType::PRIMARY) {
+      aug_key = m_primary_camera_id;
+    } else {
+      aug_key = 0;
+    }
+
+    for (unsigned int i = 0; i < m_state.aug_states[aug_key].size() - 1; ++i) {
+      if (m_state.aug_states[aug_key][i].time <= time &&
+        time <= m_state.aug_states[aug_key][i + 1].time)
+      {
+        double alpha = (time - m_state.aug_states[aug_key][i].time) /
+          (m_state.aug_states[aug_key][i + 1].time - m_state.aug_states[aug_key][i].time);
+
+        AugState aug_state_0 = m_state.aug_states[aug_key][i];
+        AugState aug_state_1 = m_state.aug_states[aug_key][i + 1];
+
+        Eigen::Vector3d pos_delta = aug_state_1.pos_b_in_l - aug_state_0.pos_b_in_l;
+
+        aug_state.pos_b_in_l = aug_state_0.pos_b_in_l + alpha * pos_delta;
+        aug_state.ang_b_to_l = aug_state_0.ang_b_to_l.slerp(alpha, aug_state_1.ang_b_to_l);
+        aug_state.time = time;
+        aug_state.index = aug_state_0.index;
+        aug_state.alpha = alpha;
+
+        break;
+      }
     }
   }
-
-  return aug_state;
 }
 
 void EKF::SetMaxTrackLength(unsigned int max_track_length)

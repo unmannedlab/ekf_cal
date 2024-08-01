@@ -266,12 +266,13 @@ public:
   bool IsLlaInitialized();
 
   ///
-  /// @brief Find augmented state matching a camera and frame ID pair
+  /// @brief Find or interpolate augmented state
   /// @param camera_id Desired camera ID
   /// @param frame_id Desired frame ID
-  /// @return Matching augmented state
+  /// @param time Frame time
+  /// @return Augmented state
   ///
-  AugState GetAugState(int camera_id, int frame_id);
+  AugState GetAugState(int camera_id, int frame_id, double time);
 
   ///
   /// @brief Get augmented state size

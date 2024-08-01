@@ -212,6 +212,7 @@ public:
   Eigen::Quaterniond ang_b_to_l{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
   unsigned int size{g_aug_state_size};                ///< @brief State size
   int index{-1};                                      ///< @brief State index
+  double alpha {0.0};                                 ///< @brief Interpolation Factor
 };
 
 ///

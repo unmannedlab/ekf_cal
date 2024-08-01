@@ -90,7 +90,7 @@ void FiducialUpdater::UpdateEKF(
 
   /// @todo(jhartzer): Wrap this in a function
   for (auto board_detection : board_track) {
-    AugState aug_state_i = ekf->GetAugState(m_id, board_detection.frame_id);
+    AugState aug_state_i = ekf->GetAugState(m_id, board_detection.frame_id, time);
 
     const Eigen::Vector3d pos_bi_in_g = aug_state_i.pos_b_in_l;
     const Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
@@ -160,7 +160,7 @@ void FiducialUpdater::UpdateEKF(
   Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(max_meas_size, g_cam_state_size + aug_state_size);
 
   for (unsigned int i = 0; i < board_track.size(); ++i) {
-    AugState aug_state_i = ekf->GetAugState(m_id, board_track[i].frame_id);
+    AugState aug_state_i = ekf->GetAugState(m_id, board_track[i].frame_id, time);
     unsigned int aug_index = aug_state_i.index;
 
     Eigen::Matrix3d rot_c_to_b = cam_state.ang_c_to_b.toRotationMatrix();
