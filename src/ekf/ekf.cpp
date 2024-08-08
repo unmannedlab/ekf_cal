@@ -657,17 +657,13 @@ void EKF::SetProcessNoise(Eigen::VectorXd process_noise)
 
 AugState EKF::GetAugState(int camera_id, int frame_id, double time)
 {
-  AugState aug_state;
-
   if (m_augmenting_type == AugmentationType::ALL) {
     for (unsigned int i = 0; i < m_state.aug_states[camera_id].size(); ++i) {
       if (m_state.aug_states[camera_id][i].frame_id == frame_id) {
-        aug_state = m_state.aug_states[camera_id][i];
-        break;
+        return m_state.aug_states[camera_id][i];
       }
     }
   } else {
-
     unsigned int aug_key;
     if (m_augmenting_type == AugmentationType::PRIMARY) {
       aug_key = m_primary_camera_id;
@@ -675,25 +671,38 @@ AugState EKF::GetAugState(int camera_id, int frame_id, double time)
       aug_key = 0;
     }
 
-    for (unsigned int i = 0; i < m_state.aug_states[aug_key].size() - 1; ++i) {
-      if (m_state.aug_states[aug_key][i].time <= time &&
-        time <= m_state.aug_states[aug_key][i + 1].time)
-      {
-        double alpha = (time - m_state.aug_states[aug_key][i].time) /
-          (m_state.aug_states[aug_key][i + 1].time - m_state.aug_states[aug_key][i].time);
+    double alpha;
+    AugState aug_state_0, aug_state_1;
 
-        AugState aug_state_0 = m_state.aug_states[aug_key][i];
-        AugState aug_state_1 = m_state.aug_states[aug_key][i + 1];
+    if (time <= m_state.aug_states[aug_key].back().time){
+      for (unsigned int i = 0; i < m_state.aug_states[aug_key].size() - 1; ++i) {
+        if (m_state.aug_states[aug_key][i].time <= time &&
+          time <= m_state.aug_states[aug_key][i + 1].time)
+        {
+          alpha = (time - m_state.aug_states[aug_key][i].time) /
+            (m_state.aug_states[aug_key][i + 1].time - m_state.aug_states[aug_key][i].time);
+
+          aug_state_0 = m_state.aug_states[aug_key][i];
+          aug_state_1 = m_state.aug_states[aug_key][i + 1];
+        } else {
+          alpha = (time - gm_state.aug_states[aug_key][i].time) /
+            (m_current_time - m_state.aug_states[aug_key][i].time);
+
+          aug_state_0 = m_state.aug_states[aug_key].back();
+          aug_state_1.pos_b_in_l = m_state.body_state.pos_b_in_l;
+          aug_state_1.ang_b_to_l = m_state.body_state.ang_b_to_l;
+        }
 
         Eigen::Vector3d pos_delta = aug_state_1.pos_b_in_l - aug_state_0.pos_b_in_l;
 
+        AugState aug_state;
         aug_state.pos_b_in_l = aug_state_0.pos_b_in_l + alpha * pos_delta;
         aug_state.ang_b_to_l = aug_state_0.ang_b_to_l.slerp(alpha, aug_state_1.ang_b_to_l);
         aug_state.time = time;
         aug_state.index = aug_state_0.index;
         aug_state.alpha = alpha;
 
-        break;
+        return aug_state;
       }
     }
   }
