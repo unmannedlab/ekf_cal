@@ -71,7 +71,6 @@ Eigen::Vector3d MsckfUpdater::TriangulateFeature(
   std::shared_ptr<EKF> ekf,
   std::vector<FeaturePoint> & feature_track)
 {
-
   AugState aug_state_0 = ekf->GetAugState(
     m_id, feature_track[0].frame_id, feature_track[0].frame_time);
   CamState cam_state = ekf->m_state.cam_states[m_id];

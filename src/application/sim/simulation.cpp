@@ -161,17 +161,18 @@ int main(int argc, char * argv[])
   ekf_params.log_directory = out_dir;
   ekf_params.augmenting_type =
     static_cast<AugmentationType>(ros_params["augmenting_type"].as<unsigned int>(0));
-  ekf_params.augmenting_delta_time = ros_params["augmenting_type"].as<double>(1.0);
-  ekf_params.augmenting_pos_error = ros_params["augmenting_type"].as<double>(0.1);
-  ekf_params.augmenting_ang_error = ros_params["augmenting_type"].as<double>(0.1);
+  ekf_params.augmenting_delta_time = ros_params["augmenting_delta_time"].as<double>(1.0);
+  ekf_params.augmenting_pos_error = ros_params["augmenting_pos_error"].as<double>(0.1);
+  ekf_params.augmenting_ang_error = ros_params["augmenting_ang_error"].as<double>(0.1);
   ekf_params.process_noise =
     StdToEigVec(ros_params["process_noise"].as<std::vector<double>>(def_vec));
   ekf_params.pos_l_in_g = StdToEigVec(ros_params["pos_l_in_g"].as<std::vector<double>>(def_vec));
   ekf_params.ang_l_to_g = ros_params["ang_l_to_g"].as<double>(0.0);
-  ekf_params.gps_init_type = static_cast<GpsInitType>(ros_params["init_type"].as<unsigned int>(0));
-  ekf_params.gps_init_baseline_dist = ros_params["init_pos_thresh"].as<double>(1.0);
-  ekf_params.gps_init_pos_thresh = ros_params["init_ang_thresh"].as<double>(1.0);
-  ekf_params.gps_init_ang_thresh = ros_params["init_baseline_dist"].as<double>(1.0);
+  ekf_params.gps_init_type =
+    static_cast<GpsInitType>(ros_params["gps_init_type"].as<unsigned int>(0));
+  ekf_params.gps_init_baseline_dist = ros_params["gps_init_baseline_dist"].as<double>(1.0);
+  ekf_params.gps_init_pos_thresh = ros_params["gps_init_pos_thresh"].as<double>(1.0);
+  ekf_params.gps_init_ang_thresh = ros_params["gps_init_ang_thresh"].as<double>(1.0);
   auto ekf = std::make_shared<EKF>(ekf_params);
 
   // Simulation parameters

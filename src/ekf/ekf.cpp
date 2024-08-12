@@ -547,13 +547,14 @@ void EKF::AugmentStateIfNeeded()
 {
   bool augmented_state_needed {false};
 
-  if (m_augmenting_type == AugmentationType::TIME) {
+  if (m_state.aug_states[0].size() == 0) {
+    augmented_state_needed = true;
+  } else if (m_augmenting_type == AugmentationType::TIME) {
     if (abs(m_current_time - m_augmenting_prev_time) > m_augmenting_delta_time) {
-      m_augmenting_prev_time = m_current_time;
       augmented_state_needed = true;
     }
   } else if (m_augmenting_type == AugmentationType::ERROR) {
-    if (m_state.aug_states[0].size() == 0) {
+    if ((m_current_time - m_state.aug_states[0].back().time) > m_max_track_duration) {
       augmented_state_needed = true;
     } else {
       AugState last_aug = m_state.aug_states[0].back();
@@ -584,7 +585,7 @@ void EKF::AugmentStateIfNeeded()
   // Prune old states
   for (int i = m_state.aug_states[0].size() - 1; i >= 0; --i) {
     // Check if any states are too old
-    if (m_current_time - m_state.aug_states[0][i].time > m_max_track_duration) {
+    if ((m_current_time - m_state.aug_states[0][i].time) > (2.0 * m_max_track_duration)) {
       m_state_size -= g_aug_state_size;
       m_aug_state_size -= g_aug_state_size;
       unsigned int aug_index = m_state.aug_states[0][i].index;
@@ -598,6 +599,8 @@ void EKF::AugmentStateIfNeeded()
   }
 
   if (augmented_state_needed) {
+    m_augmenting_prev_time = m_current_time;
+
     AugState aug_state;
     aug_state.time = m_current_time;
     aug_state.frame_id = -1;
@@ -657,10 +660,12 @@ void EKF::SetProcessNoise(Eigen::VectorXd process_noise)
 
 AugState EKF::GetAugState(int camera_id, int frame_id, double time)
 {
+  AugState aug_state;
+
   if (m_augmenting_type == AugmentationType::ALL) {
     for (unsigned int i = 0; i < m_state.aug_states[camera_id].size(); ++i) {
       if (m_state.aug_states[camera_id][i].frame_id == frame_id) {
-        return m_state.aug_states[camera_id][i];
+        aug_state = m_state.aug_states[camera_id][i];
       }
     }
   } else {
@@ -674,7 +679,7 @@ AugState EKF::GetAugState(int camera_id, int frame_id, double time)
     double alpha;
     AugState aug_state_0, aug_state_1;
 
-    if (time <= m_state.aug_states[aug_key].back().time){
+    if (time <= m_state.aug_states[aug_key].back().time) {
       for (unsigned int i = 0; i < m_state.aug_states[aug_key].size() - 1; ++i) {
         if (m_state.aug_states[aug_key][i].time <= time &&
           time <= m_state.aug_states[aug_key][i + 1].time)
@@ -684,28 +689,27 @@ AugState EKF::GetAugState(int camera_id, int frame_id, double time)
 
           aug_state_0 = m_state.aug_states[aug_key][i];
           aug_state_1 = m_state.aug_states[aug_key][i + 1];
-        } else {
-          alpha = (time - gm_state.aug_states[aug_key][i].time) /
-            (m_current_time - m_state.aug_states[aug_key][i].time);
-
-          aug_state_0 = m_state.aug_states[aug_key].back();
-          aug_state_1.pos_b_in_l = m_state.body_state.pos_b_in_l;
-          aug_state_1.ang_b_to_l = m_state.body_state.ang_b_to_l;
         }
-
-        Eigen::Vector3d pos_delta = aug_state_1.pos_b_in_l - aug_state_0.pos_b_in_l;
-
-        AugState aug_state;
-        aug_state.pos_b_in_l = aug_state_0.pos_b_in_l + alpha * pos_delta;
-        aug_state.ang_b_to_l = aug_state_0.ang_b_to_l.slerp(alpha, aug_state_1.ang_b_to_l);
-        aug_state.time = time;
-        aug_state.index = aug_state_0.index;
-        aug_state.alpha = alpha;
-
-        return aug_state;
       }
+    } else {
+      alpha = (time - m_state.aug_states[aug_key].back().time) /
+        (m_current_time - m_state.aug_states[aug_key].back().time);
+
+      aug_state_0 = m_state.aug_states[aug_key].back();
+      aug_state_1.pos_b_in_l = m_state.body_state.pos_b_in_l;
+      aug_state_1.ang_b_to_l = m_state.body_state.ang_b_to_l;
     }
+
+    Eigen::Vector3d pos_delta = aug_state_1.pos_b_in_l - aug_state_0.pos_b_in_l;
+
+    aug_state.pos_b_in_l = aug_state_0.pos_b_in_l + alpha * pos_delta;
+    aug_state.ang_b_to_l = aug_state_0.ang_b_to_l.slerp(alpha, aug_state_1.ang_b_to_l);
+    aug_state.time = time;
+    aug_state.index = aug_state_0.index;
+    aug_state.alpha = alpha;
   }
+
+  return aug_state;
 }
 
 void EKF::SetMaxTrackLength(unsigned int max_track_length)
