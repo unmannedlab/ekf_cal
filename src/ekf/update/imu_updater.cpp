@@ -100,8 +100,6 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
   ImuState imu_state = ekf->m_state.imu_states[m_id];
   Eigen::Vector3d pos_i_in_g = imu_state.pos_i_in_b;
   Eigen::Quaterniond ang_i_to_b = imu_state.ang_i_to_b;
-  Eigen::Vector3d acc_bias = imu_state.acc_bias;
-  Eigen::Vector3d omg_bias = imu_state.omg_bias;
 
   unsigned int jacobian_size = g_body_state_size;
 
@@ -188,8 +186,6 @@ void ImuUpdater::UpdateEKF(
   }
 
   ekf->ProcessModel(time);
-
-  BodyState body_state = ekf->m_state.body_state;
 
   auto t_start = std::chrono::high_resolution_clock::now();
 

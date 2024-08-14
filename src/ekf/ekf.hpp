@@ -388,6 +388,7 @@ private:
   double m_primary_camera_id;
   double m_max_frame_period {0.0};
   double m_max_track_duration {0.0};
+  double m_min_aug_period {1.0};
 
   unsigned int m_imu_state_start{0};
   unsigned int m_gps_state_start{0};

@@ -457,6 +457,7 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
 
   m_max_frame_period = std::max(m_max_frame_period, 1 / cam_state.rate);
   m_max_track_duration = m_max_frame_period * m_max_track_length;
+  m_min_aug_period = std::min(m_min_aug_period, 1 / cam_state.rate);
 
   unsigned int cam_state_end = g_body_state_size +
     GetImuStateSize() + GetGpsStateSize() + GetCamStateSize();
@@ -556,7 +557,7 @@ void EKF::AugmentStateIfNeeded()
   } else if (m_augmenting_type == AugmentationType::ERROR) {
     if ((m_current_time - m_state.aug_states[0].back().time) > m_max_track_duration) {
       augmented_state_needed = true;
-    } else {
+    } else if ((m_current_time - m_state.aug_states[0].back().time) > m_min_aug_period) {
       AugState last_aug = m_state.aug_states[0].back();
       double delta_time = m_current_time - last_aug.time;
       Eigen::Vector3d delta_pos = m_state.body_state.pos_b_in_l -
@@ -585,7 +586,10 @@ void EKF::AugmentStateIfNeeded()
   // Prune old states
   for (int i = m_state.aug_states[0].size() - 1; i >= 0; --i) {
     // Check if any states are too old
-    if ((m_current_time - m_state.aug_states[0][i].time) > (2.0 * m_max_track_duration)) {
+    if (
+      ((m_current_time - m_state.aug_states[0][i].time) > m_max_track_duration) &&
+      (static_cast<unsigned int>(i) < m_state.aug_states[0].size()))
+    {
       m_state_size -= g_aug_state_size;
       m_aug_state_size -= g_aug_state_size;
       unsigned int aug_index = m_state.aug_states[0][i].index;
