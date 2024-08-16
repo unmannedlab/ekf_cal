@@ -53,7 +53,7 @@ FiducialUpdater::FiducialUpdater(
   header << "time";
   header << ",track_size";
   header << EnumerateHeader("cam_pos", 3);
-  header << EnumerateHeader("cam_ang_pos", 4);
+  header << EnumerateHeader("cam_ang", 4);
   header << EnumerateHeader("residual", g_fid_measurement_size);
   header << EnumerateHeader("body_update", g_body_state_size);
   header << EnumerateHeader("cam_update", g_cam_state_size);
@@ -250,7 +250,7 @@ void FiducialUpdater::UpdateEKF(
   Eigen::VectorXd update = K * res_x;
   Eigen::VectorXd cam_state_vec = ekf->m_state.cam_states[m_camera_id].ToVector();
   Eigen::Vector3d cam_pos = cam_state_vec.segment<3>(0);
-  Eigen::Quaterniond cam_ang_pos = RotVecToQuat(cam_state_vec.segment<3>(3));
+  Eigen::Quaterniond cam_ang = RotVecToQuat(cam_state_vec.segment<3>(3));
   Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
   Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_states_size);
   Eigen::VectorXd cam_update = update.segment(g_body_state_size + imu_states_size, cam_states_size);
@@ -274,7 +274,7 @@ void FiducialUpdater::UpdateEKF(
   msg << time;
   msg << "," << std::to_string(board_track.size());
   msg << VectorToCommaString(cam_pos);
-  msg << QuaternionToCommaString(cam_ang_pos);
+  msg << QuaternionToCommaString(cam_ang);
   msg << VectorToCommaString(res_f.segment<g_fid_measurement_size>(0));
   msg << VectorToCommaString(body_update);
   msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));

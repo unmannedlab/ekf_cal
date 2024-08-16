@@ -22,6 +22,7 @@ from bokeh.models import Band, Spacer, TabPanel
 from bokeh.plotting import ColumnDataSource, figure
 import numpy as np
 from utilities import calculate_alpha, get_colors, plot_update_timing
+from scipy.spatial.transform import Rotation
 
 
 class tab_fiducial:
@@ -73,17 +74,17 @@ class tab_fiducial:
             t_cam = mskcf_df['time']
             fig.line(
                 t_cam,
-                mskcf_df['cam_ang_pos_0'],
+                mskcf_df['cam_ang_0'],
                 alpha=self.alpha,
                 color=self.colors[0])
             fig.line(
                 t_cam,
-                mskcf_df['cam_ang_pos_1'],
+                mskcf_df['cam_ang_1'],
                 alpha=self.alpha,
                 color=self.colors[1])
             fig.line(
                 t_cam,
-                mskcf_df['cam_ang_pos_2'],
+                mskcf_df['cam_ang_2'],
                 alpha=self.alpha,
                 color=self.colors[2])
         return fig
@@ -220,12 +221,15 @@ class tab_fiducial:
         fig.line(times, mean_py, color=self.colors[1])
         fig.line(times, mean_pz, color=self.colors[2])
 
-        cds_x = ColumnDataSource({'base': times, 'lower': mean_px -
-                                 std_px, 'upper': mean_px + std_px})
-        cds_y = ColumnDataSource({'base': times, 'lower': mean_py -
-                                 std_py, 'upper': mean_py + std_py})
-        cds_z = ColumnDataSource({'base': times, 'lower': mean_pz -
-                                 std_pz, 'upper': mean_pz + std_pz})
+        cds_x = ColumnDataSource({'base': times,
+                                  'lower': mean_px - std_px,
+                                  'upper': mean_px + std_px})
+        cds_y = ColumnDataSource({'base': times,
+                                  'lower': mean_py - std_py,
+                                  'upper': mean_py + std_py})
+        cds_z = ColumnDataSource({'base': times,
+                                  'lower': mean_pz - std_pz,
+                                  'upper': mean_pz + std_pz})
 
         fig.add_layout(
             Band(
@@ -266,10 +270,9 @@ class tab_fiducial:
             y_axis_label='Angular Error',
             title='Fiducial Angular Error')
 
-        err_qw = collections.defaultdict(list)
-        err_qx = collections.defaultdict(list)
-        err_qy = collections.defaultdict(list)
-        err_qz = collections.defaultdict(list)
+        err_x = collections.defaultdict(list)
+        err_y = collections.defaultdict(list)
+        err_z = collections.defaultdict(list)
 
         for tri_df, board_df in zip(self.board_dfs, self.board_truth_dfs):
             time = tri_df['time']
@@ -285,73 +288,68 @@ class tab_fiducial:
             true_qz = board_df['quat_z']
 
             for (t, b, qw, qx, qy, qz) in zip(time, board, board_qw, board_qx, board_qy, board_qz):
-                err_qw[t].append(qw - true_qw[int(b)])
-                err_qx[t].append(qx - true_qx[int(b)])
-                err_qy[t].append(qy - true_qy[int(b)])
-                err_qz[t].append(qz - true_qz[int(b)])
-        times = []
-        mean_qw = []
-        mean_qx = []
-        mean_qy = []
-        mean_qz = []
-        std_qw = []
-        std_qx = []
-        std_qy = []
-        std_qz = []
+                board_q = Rotation.from_quat([qw, qx, qy, qz])
+                true_q = Rotation.from_quat([
+                    true_qw[int(b)],
+                    true_qx[int(b)],
+                    true_qy[int(b)],
+                    true_qz[int(b)]])
+                error_q = board_q.inv() * true_q
+                error_eul = error_q.as_euler('XYZ')
+                err_x[t].append(error_eul[0])
+                err_y[t].append(error_eul[1])
+                err_z[t].append(error_eul[2])
 
-        for time in err_qw:
+        times = []
+        mean_x = []
+        mean_y = []
+        mean_z = []
+        std_x = []
+        std_y = []
+        std_z = []
+
+        for time in err_x:
             times.append(time)
-            mean_qw.append(np.mean(err_qw[time]))
-            mean_qx.append(np.mean(err_qx[time]))
-            mean_qy.append(np.mean(err_qy[time]))
-            mean_qz.append(np.mean(err_qz[time]))
-            std_qw.append(np.std(err_qw[time]))
-            std_qx.append(np.std(err_qx[time]))
-            std_qy.append(np.std(err_qy[time]))
-            std_qz.append(np.std(err_qz[time]))
+            mean_x.append(np.mean(err_x[time]))
+            mean_y.append(np.mean(err_y[time]))
+            mean_z.append(np.mean(err_z[time]))
+            std_x.append(np.std(err_x[time]))
+            std_y.append(np.std(err_y[time]))
+            std_z.append(np.std(err_z[time]))
 
         times = np.array(times)
-        mean_qw = np.array(mean_qw)
-        mean_qx = np.array(mean_qx)
-        mean_qy = np.array(mean_qy)
-        mean_qz = np.array(mean_qz)
-        std_qw = np.array(std_qw)
-        std_qx = np.array(std_qx)
-        std_qy = np.array(std_qy)
-        std_qz = np.array(std_qz)
+        mean_x = np.array(mean_x)
+        mean_y = np.array(mean_y)
+        mean_z = np.array(mean_z)
+        std_x = np.array(std_x)
+        std_y = np.array(std_y)
+        std_z = np.array(std_z)
 
         t_indices = times.argsort()
         times = times[t_indices]
-        mean_qw = mean_qw[t_indices]
-        mean_qx = mean_qx[t_indices]
-        mean_qy = mean_qy[t_indices]
-        mean_qz = mean_qz[t_indices]
-        std_qw = std_qw[t_indices]
-        std_qx = std_qx[t_indices]
-        std_qy = std_qy[t_indices]
-        std_qz = std_qz[t_indices]
+        mean_x = mean_x[t_indices]
+        mean_y = mean_y[t_indices]
+        mean_z = mean_z[t_indices]
+        std_x = std_x[t_indices]
+        std_y = std_y[t_indices]
+        std_z = std_z[t_indices]
 
-        fig.line(times, mean_qw, color=self.colors[0])
-        fig.line(times, mean_qx, color=self.colors[1])
-        fig.line(times, mean_qy, color=self.colors[2])
-        fig.line(times, mean_qz, color='purple')
+        fig.line(times, mean_x, color=self.colors[0])
+        fig.line(times, mean_y, color=self.colors[1])
+        fig.line(times, mean_z, color=self.colors[2])
 
-        cds_w = ColumnDataSource(
-            {'base': times,
-             'lower': mean_qw - std_qw,
-             'upper': mean_qw + std_qw})
         cds_x = ColumnDataSource(
             {'base': times,
-             'lower': mean_qx - std_qx,
-             'upper': mean_qx + std_qx})
+             'lower': mean_x - std_x,
+             'upper': mean_x + std_x})
         cds_y = ColumnDataSource(
             {'base': times,
-             'lower': mean_qy - std_qy,
-             'upper': mean_qy + std_qy})
+             'lower': mean_y - std_y,
+             'upper': mean_y + std_y})
         cds_z = ColumnDataSource(
             {'base': times,
-             'lower': mean_qz - std_qz,
-             'upper': mean_qz + std_qz})
+             'lower': mean_z - std_z,
+             'upper': mean_z + std_z})
 
         fig.add_layout(
             Band(
@@ -359,7 +357,7 @@ class tab_fiducial:
                 lower='lower',
                 upper='upper',
                 fill_alpha=0.3,
-                source=cds_w,
+                source=cds_x,
                 fill_color=self.colors[0],
                 line_color=self.colors[0]))
         fig.add_layout(
@@ -368,18 +366,9 @@ class tab_fiducial:
                 lower='lower',
                 upper='upper',
                 fill_alpha=0.3,
-                source=cds_x,
+                source=cds_y,
                 fill_color=self.colors[1],
                 line_color=self.colors[1]))
-        fig.add_layout(
-            Band(
-                base='base',
-                lower='lower',
-                upper='upper',
-                fill_alpha=0.3,
-                source=cds_y,
-                fill_color=self.colors[2],
-                line_color=self.colors[2]))
         fig.add_layout(
             Band(
                 base='base',
