@@ -45,7 +45,7 @@ TEST(test_fiducial_tracker, charuco_track) {
   fid_params.squares_y = 7;
   fid_params.square_length = 0.04;
   fid_params.marker_length = 0.02;
-  fid_params.initial_id = 0;
+  fid_params.id = 0;
   fid_params.camera_id = cam.GetId();
   fid_params.ekf = ekf;
   fid_params.logger = ekf_params.debug_logger;
@@ -91,7 +91,7 @@ TEST(test_fiducial_tracker, aruco_track) {
   fid_params.squares_y = 7;
   fid_params.square_length = 0.04;
   fid_params.marker_length = 0.02;
-  fid_params.initial_id = 0;
+  fid_params.id = 0;
   fid_params.camera_id = cam.GetId();
   fid_params.ekf = ekf;
   fid_params.logger = ekf_params.debug_logger;

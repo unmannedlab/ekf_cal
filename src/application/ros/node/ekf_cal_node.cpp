@@ -239,8 +239,8 @@ void EkfCalNode::DeclareIntrinsicParameters(std::string intrinsics_prefix)
   this->declare_parameter(intrinsics_prefix + ".p_1", 0.0);
   this->declare_parameter(intrinsics_prefix + ".p_2", 0.0);
   this->declare_parameter(intrinsics_prefix + ".pixel_size", 5.0e-6);
-  this->declare_parameter(intrinsics_prefix + ".width", 640);
-  this->declare_parameter(intrinsics_prefix + ".height", 480);
+  this->declare_parameter(intrinsics_prefix + ".width", 640.0);
+  this->declare_parameter(intrinsics_prefix + ".height", 480.0);
 }
 
 Intrinsics EkfCalNode::GetIntrinsicParameters(std::string intrinsics_prefix)

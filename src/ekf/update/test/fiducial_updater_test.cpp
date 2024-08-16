@@ -19,6 +19,7 @@
 #include "ekf/update/fiducial_updater.hpp"
 
 TEST(test_imu_updater, constructor) {
+  int fid_id {0U};
   int cam_id {1U};
   Eigen::Vector3d fiducial_pos{0.0, 0.0, 0.0};
   Eigen::Quaterniond fiducial_ang{1.0, 0.0, 0.0, 0.0};
@@ -30,6 +31,7 @@ TEST(test_imu_updater, constructor) {
   ekf_params.debug_logger = debug_logger;
 
   FiducialUpdater fiducial_updater(
+    fid_id,
     cam_id,
     log_file_directory,
     data_logging_on,
