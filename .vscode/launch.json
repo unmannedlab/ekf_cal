@@ -45,7 +45,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/eval/report.py",
             "args": [
-                "config/gps.yaml"
+                "config/example.yaml"
             ],
             "console": "integratedTerminal"
         },
@@ -55,7 +55,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/eval/stats.py",
             "args": [
-                "config/gps.yaml"
+                "config/example.yaml"
             ],
             "console": "integratedTerminal"
         }

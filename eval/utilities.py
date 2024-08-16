@@ -148,7 +148,8 @@ def find_and_read_data_frames(directories, prefix):
     """Find matching dataframes and read using pandas."""
     data_frame_sets = collections.defaultdict(list)
     for directory in directories:
-        file_paths_id = glob.glob(os.path.join(directory, prefix + '*.csv'))
+        file_paths_id = glob.glob(os.path.join(directory, prefix + '.csv'))
+        file_paths_id.extend(glob.glob(os.path.join(directory, prefix + '_[0-9].csv')))
         for file_path in file_paths_id:
             file_name = os.path.basename(file_path)
             df = pd.read_csv(file_path).dropna()

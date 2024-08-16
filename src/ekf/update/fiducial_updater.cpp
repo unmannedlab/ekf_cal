@@ -37,15 +37,17 @@
 #include "utility/type_helper.hpp"
 
 FiducialUpdater::FiducialUpdater(
-  int cam_id,
+  int fiducial_id,
+  int camera_id,
   std::string log_file_directory,
   bool data_logging_on,
   double data_log_rate,
   std::shared_ptr<DebugLogger> logger
 )
-: Updater(cam_id, logger),
-  m_fiducial_logger(log_file_directory, "fiducial_" + std::to_string(cam_id) + ".csv"),
-  m_board_logger(log_file_directory, "board_" + std::to_string(cam_id) + ".csv")
+: Updater(fiducial_id, logger),
+  m_fiducial_logger(log_file_directory, "fiducial_" + std::to_string(fiducial_id) + ".csv"),
+  m_board_logger(log_file_directory, "board_" + std::to_string(fiducial_id) + ".csv"),
+  m_camera_id(camera_id)
 {
   std::stringstream header;
   header << "time";
@@ -71,7 +73,7 @@ void FiducialUpdater::UpdateEKF(
   BoardTrack board_track, double pos_error, double ang_error)
 {
   m_logger->Log(
-    LogLevel::DEBUG, "Called Fiducial Update for camera ID: " + std::to_string(m_id));
+    LogLevel::DEBUG, "Called Fiducial Update for camera ID: " + std::to_string(m_camera_id));
 
   if (board_track.size() == 0) {
     return;
@@ -86,11 +88,11 @@ void FiducialUpdater::UpdateEKF(
   std::vector<Eigen::Vector3d> pos_f_in_l_vec;
   std::vector<Eigen::Quaterniond> ang_f_to_l_vec;
 
-  CamState cam_state = ekf->m_state.cam_states[m_id];
+  CamState cam_state = ekf->m_state.cam_states[m_camera_id];
 
   /// @todo(jhartzer): Wrap this in a function
   for (auto board_detection : board_track) {
-    AugState aug_state_i = ekf->GetAugState(m_id, board_detection.frame_id, time);
+    AugState aug_state_i = ekf->GetAugState(m_camera_id, board_detection.frame_id, time);
 
     const Eigen::Vector3d pos_bi_in_g = aug_state_i.pos_b_in_l;
     const Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
@@ -149,7 +151,7 @@ void FiducialUpdater::UpdateEKF(
 
   unsigned int max_meas_size = g_fid_measurement_size * board_track.size();
   unsigned int state_size = ekf->GetStateSize();
-  unsigned int cam_index = ekf->m_state.cam_states[m_id].index;
+  unsigned int cam_index = ekf->m_state.cam_states[m_camera_id].index;
   unsigned int aug_state_size = ekf->GetAugStateSize();
 
   Eigen::VectorXd res_x = Eigen::VectorXd::Zero(max_meas_size);
@@ -160,7 +162,7 @@ void FiducialUpdater::UpdateEKF(
   Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(max_meas_size, g_cam_state_size + aug_state_size);
 
   for (unsigned int i = 0; i < board_track.size(); ++i) {
-    AugState aug_state_i = ekf->GetAugState(m_id, board_track[i].frame_id, time);
+    AugState aug_state_i = ekf->GetAugState(m_camera_id, board_track[i].frame_id, time);
     unsigned int aug_index = aug_state_i.index;
 
     Eigen::Matrix3d rot_c_to_b = cam_state.ang_c_to_b.toRotationMatrix();
@@ -246,7 +248,7 @@ void FiducialUpdater::UpdateEKF(
   unsigned int cam_states_size = state_size - g_body_state_size - imu_states_size;
 
   Eigen::VectorXd update = K * res_x;
-  Eigen::VectorXd cam_state_vec = ekf->m_state.cam_states[m_id].ToVector();
+  Eigen::VectorXd cam_state_vec = ekf->m_state.cam_states[m_camera_id].ToVector();
   Eigen::Vector3d cam_pos = cam_state_vec.segment<3>(0);
   Eigen::Quaterniond cam_ang_pos = RotVecToQuat(cam_state_vec.segment<3>(3));
   Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);

@@ -475,17 +475,17 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-void EKF::RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::MatrixXd covariance)
+void EKF::RegisterFiducial(FidState fid_state, Eigen::MatrixXd covariance)
 {
   // Check that ID hasn't been used before
-  if (m_state.fid_states.find(fid_id) != m_state.fid_states.end()) {
+  if (m_state.fid_states.find(fid_state.id) != m_state.fid_states.end()) {
     std::stringstream fid_id_used_warning;
-    fid_id_used_warning << "FID ID " << fid_id << " has already been registered.";
+    fid_id_used_warning << "FID ID " << fid_state.id << " has already been registered.";
     m_debug_logger->Log(LogLevel::WARN, fid_id_used_warning.str());
     return;
   }
 
-  m_state.fid_states[fid_id] = fid_state;
+  m_state.fid_states[fid_state.id] = fid_state;
   if (fid_state.get_is_extrinsic()) {
     m_cov = InsertInMatrix(
       covariance.block(0, 0, fid_state.size, fid_state.size), m_cov, m_state_size, m_state_size);
@@ -494,7 +494,7 @@ void EKF::RegisterFiducial(unsigned int fid_id, FidState fid_state, Eigen::Matri
   }
 
   std::stringstream log_msg;
-  log_msg << "Register Fiducial: " << fid_id << ", stateSize: " << m_state_size;
+  log_msg << "Register Fiducial: " << fid_state.id << ", stateSize: " << m_state_size;
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 

@@ -58,7 +58,7 @@ public:
     unsigned int squares_y {1};                     ///< @brief Number of squares in the y direction
     double square_length {1.0};                     ///< @brief Checkerboard square length
     double marker_length {1.0};                     ///< @brief Marker length
-    unsigned int initial_id{0};                     ///< @brief Initial ID
+    unsigned int id{0};                             ///< @brief Initial ID
     Eigen::Vector3d pos_f_in_l;                     ///< @brief Fiducial position
     Eigen::Quaterniond ang_f_to_l;                  ///< @brief Fiducial orientation
     bool is_extrinsic{false};                       ///< @brief Perform extrinsic calibration

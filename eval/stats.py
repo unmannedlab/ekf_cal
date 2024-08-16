@@ -357,8 +357,9 @@ def calc_sim_stats(config_sets, args):
         fiducial_dfs_dict = find_and_read_data_frames(data_dirs, 'fiducial')
         for key in sorted(fiducial_dfs_dict.keys()):
             fiducial_dfs = fiducial_dfs_dict[key]
-            stats[f'fiducial_{key}_err_pos'] = sensor_err_pos(fiducial_dfs, body_truth_dfs, 'cam')
-            stats[f'fiducial_{key}_err_ang'] = sensor_err_ang(fiducial_dfs, body_truth_dfs, 'cam')
+            # TODO(jhartzer): This should use a separate function to read board static positions
+            # stats[f'fiducial_{key}_err_pos'] = sensor_err_pos(fiducial_dfs, body_truth_dfs, 'fid')
+            # stats[f'fiducial_{key}_err_ang'] = sensor_err_ang(fiducial_dfs, body_truth_dfs, 'fid')
 
         gps_dfs_dict = find_and_read_data_frames(data_dirs, 'gps')
         for key in sorted(gps_dfs_dict.keys()):

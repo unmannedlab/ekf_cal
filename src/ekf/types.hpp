@@ -294,6 +294,7 @@ public:
   Eigen::Quaterniond ang_f_to_l;  ///< @brief Fiducial position in the local frame
   unsigned int size{0};           ///< @brief State size
   int index{-1};                  ///< @brief State index
+  unsigned int id{0};             ///< @brief Fiducial ID
 
 private:
   void refresh_size();

@@ -360,6 +360,7 @@ void EkfCalNode::DeclareFiducialParameters(std::string fid_name)
   this->declare_parameter(fiducial_prefix + ".squares_y", 0);
   this->declare_parameter(fiducial_prefix + ".square_length", 0.0);
   this->declare_parameter(fiducial_prefix + ".marker_length", 0.0);
+  this->declare_parameter(fiducial_prefix + ".id", 0);
   this->declare_parameter(fiducial_prefix + ".pos_f_in_l", std::vector<double>{0, 0, 0});
   this->declare_parameter(fiducial_prefix + ".ang_f_to_l", std::vector<double>{1, 0, 0, 0});
   this->declare_parameter(fiducial_prefix + ".variance", std::vector<double>{0, 0, 0, 0, 0, 0});
@@ -378,6 +379,7 @@ FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(std::string fiduci
   auto squares_y = this->get_parameter(fiducial_prefix + ".squares_y").as_int();
   auto square_length = this->get_parameter(fiducial_prefix + ".square_length").as_double();
   auto marker_length = this->get_parameter(fiducial_prefix + ".marker_length").as_double();
+  auto id = this->get_parameter(fiducial_prefix + ".id").as_int();
   auto pos_f_in_l = this->get_parameter(fiducial_prefix + ".pos_f_in_l").as_double_array();
   auto ang_f_to_l = this->get_parameter(fiducial_prefix + ".ang_f_to_l").as_double_array();
   auto variance = this->get_parameter(fiducial_prefix + ".variance").as_double_array();
@@ -392,6 +394,7 @@ FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(std::string fiduci
   fiducial_params.squares_y = squares_y;
   fiducial_params.square_length = square_length;
   fiducial_params.marker_length = marker_length;
+  fiducial_params.id = static_cast<unsigned int>(id);
   fiducial_params.pos_f_in_l = StdToEigVec(pos_f_in_l);
   fiducial_params.ang_f_to_l = StdToEigQuat(ang_f_to_l);
   fiducial_params.variance = StdToEigVec(variance);

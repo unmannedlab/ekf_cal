@@ -26,6 +26,7 @@
 FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
 : Tracker(params),
   m_fiducial_updater(
+    params.id,
     params.camera_id,
     params.output_directory,
     params.data_logging_on,
@@ -58,10 +59,11 @@ FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
   fid_state.set_is_extrinsic(params.is_extrinsic);
   fid_state.pos_f_in_l = params.pos_f_in_l;
   fid_state.ang_f_to_l = params.ang_f_to_l;
+  fid_state.id = params.id;
   Eigen::MatrixXd covariance(g_fid_extrinsic_state_size, g_fid_extrinsic_state_size);
   covariance = params.variance.asDiagonal();
 
-  m_ekf->RegisterFiducial(m_id, fid_state, covariance);
+  m_ekf->RegisterFiducial(fid_state, covariance);
 }
 
 int FiducialTracker::InterpolateCorners(

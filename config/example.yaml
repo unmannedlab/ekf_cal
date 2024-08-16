@@ -52,7 +52,7 @@
             pos_offset: [0.0, 0.0, 0.0]     # Position offset for cyclic position
             ang_offset: [0.0, 0.0, 0.0]     # Position offset for cyclic position
             ang_amplitude: 0.1              # Amplitude of translational motion
-            pos_amplitude: 0.1              # Amplitude of rotational motion
+            pos_amplitude: 1.0              # Amplitude of rotational motion
 
             # Spline Truth Parameters:
             positions:                      # A list of translational vectors
@@ -182,6 +182,7 @@
                 squares_y: 7                                # Board squares in y
                 square_length: 0.04                         # Square length
                 marker_length: 0.02                         # Marker length
+                id: 0                                       # Initial marker ID
                 pos_f_in_l: [5.0, 0.0, 0.0]                 # Board position in local frame
                 ang_f_to_l: [1.0, 0.0, 0.0, 0.0]            # Board orientation in local frame
                 variance: [
