@@ -232,16 +232,15 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
 
 void EkfCalNode::DeclareIntrinsicParameters(std::string intrinsics_prefix)
 {
-  this->declare_parameter(intrinsics_prefix + ".F", 0.0);
-  this->declare_parameter(intrinsics_prefix + ".f_x", 0.0);
-  this->declare_parameter(intrinsics_prefix + ".f_y", 0.0);
+  this->declare_parameter(intrinsics_prefix + ".f_x", 0.01);
+  this->declare_parameter(intrinsics_prefix + ".f_y", 0.01);
   this->declare_parameter(intrinsics_prefix + ".k_1", 0.0);
   this->declare_parameter(intrinsics_prefix + ".k_2", 0.0);
   this->declare_parameter(intrinsics_prefix + ".p_1", 0.0);
   this->declare_parameter(intrinsics_prefix + ".p_2", 0.0);
-  this->declare_parameter(intrinsics_prefix + ".pixel_size", 0.0);
-  this->declare_parameter(intrinsics_prefix + ".width", 0.0);
-  this->declare_parameter(intrinsics_prefix + ".height", 0.0);
+  this->declare_parameter(intrinsics_prefix + ".pixel_size", 5.0e-6);
+  this->declare_parameter(intrinsics_prefix + ".width", 640);
+  this->declare_parameter(intrinsics_prefix + ".height", 480);
 }
 
 Intrinsics EkfCalNode::GetIntrinsicParameters(std::string intrinsics_prefix)

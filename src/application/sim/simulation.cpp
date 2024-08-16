@@ -376,15 +376,15 @@ int main(int argc, char * argv[])
     cam_params.ang_stability = cam_node["ang_stability"].as<double>(1.0e-9);
     cam_params.tracker = cam_node["tracker"].as<std::string>("");
     cam_params.fiducial = cam_node["fiducial"].as<std::string>("");
-    cam_params.intrinsics.f_x = cam_node["intrinsics"]["f_x"].as<double>(1.0);
-    cam_params.intrinsics.f_y = cam_node["intrinsics"]["f_y"].as<double>(1.0);
+    cam_params.intrinsics.f_x = cam_node["intrinsics"]["f_x"].as<double>(0.01);
+    cam_params.intrinsics.f_y = cam_node["intrinsics"]["f_y"].as<double>(0.01);
     cam_params.intrinsics.k_1 = cam_node["intrinsics"]["k_1"].as<double>(0.0);
     cam_params.intrinsics.k_2 = cam_node["intrinsics"]["k_2"].as<double>(0.0);
     cam_params.intrinsics.p_1 = cam_node["intrinsics"]["p_1"].as<double>(0.0);
     cam_params.intrinsics.p_2 = cam_node["intrinsics"]["p_2"].as<double>(0.0);
-    cam_params.intrinsics.width = cam_node["intrinsics"]["width"].as<double>(0.0);
-    cam_params.intrinsics.height = cam_node["intrinsics"]["height"].as<double>(0.0);
-    cam_params.intrinsics.pixel_size = cam_node["intrinsics"]["pixel_size"].as<double>(1e-2);
+    cam_params.intrinsics.width = cam_node["intrinsics"]["width"].as<double>(640);
+    cam_params.intrinsics.height = cam_node["intrinsics"]["height"].as<double>(480);
+    cam_params.intrinsics.pixel_size = cam_node["intrinsics"]["pixel_size"].as<double>(5.0e-6);
 
     // SimCamera::Parameters
     SimCamera::Parameters sim_cam_params;
