@@ -38,7 +38,7 @@
             ang_l_to_g_err: 1.0e-9
 
         imu_list:
-            - "vn300"
+            - "imu_1"
 
         camera_list:
 
@@ -50,12 +50,12 @@
             - "gps_1"
 
         imu:
-            vn300:
+            imu_1:
                 use_for_prediction: true
                 is_extrinsic: false
                 is_intrinsic: false
                 rate: 400.0
-                topic: "/vn300/imu_uncompensated"
+                topic: "/imu_1"
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 pos_i_in_b: [0.0, 0.0, 0.0]
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]

@@ -2,7 +2,7 @@
 /EkfCalNode:
     ros__parameters:
         debug_log_level: 2
-        data_logging_on: True
+        data_logging_on: true
         body_data_rate: 10.0
         process_noise: [
             1.0e-3, 1.0e-3, 1.0e-3,
@@ -14,33 +14,33 @@
         ]
         sim_params:
             seed: 0.0
-            use_seed: True
+            use_seed: true
             max_time: 60.0
             truth_type: "cyclic"
             pos_frequency: [0.3, 0.5, 0.7]
             ang_frequency: [0.2, 0.3, 0.4]
             pos_offset: [0.0, 0.0, 0.0]
-            no_errors: False
+            no_errors: false
             number_of_runs: 10
             run_number: 0
 
         imu_list:
-            - "vn300"
+            - "imu_1"
 
         camera_list:
-            - "ace"
+            - "cam_1"
 
         tracker_list:
-            - "ORB"
+            - "orb"
 
         imu:
-            vn300:
-                use_for_prediction: False
+            imu_1:
+                use_for_prediction: false
                 is_extrinsic: false
-                is_intrinsic: False
+                is_intrinsic: false
                 rate: 400.0
                 data_log_rate: 10.0
-                topic: "/vn300/imu_uncompensated"
+                topic: "/imu_1"
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 pos_i_in_b: [0.0, 0.0, 0.0]
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
@@ -55,14 +55,14 @@
                     ang_error: [0.0, 0.0, 0.0]
 
         camera:
-            ace:
+            cam_1:
                 rate: 20.0
                 data_log_rate: 10.0
-                topic:  "/my_camera/pylon_ros2_camera_node/image_raw"
+                topic:  "/cam_1"
                 pos_c_in_b: [0.0, 0.0, 0.0]
                 ang_c_to_b: [0.5, -0.5, 0.5, -0.5]
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-                tracker: "ORB"
+                tracker: "orb"
                 sim_params:
                     time_bias_error: 0.0
                     time_error: 1.0e-6

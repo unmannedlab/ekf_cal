@@ -2,7 +2,7 @@
 /EkfCalNode:
     ros__parameters:
         debug_log_level: 2
-        data_logging_on: True
+        data_logging_on: true
         body_data_rate: 10.0
         process_noise: [
             1.0e-3, 1.0e-3, 1.0e-3,
@@ -14,31 +14,31 @@
         ]
         sim_params:
             seed: 0.0
-            use_seed: True
+            use_seed: true
             max_time: 60.0
             truth_type: "cyclic"
             pos_frequency: [0.0, 0.0, 0.0]
             ang_frequency: [0.2, 0.3, 0.4]
             pos_offset: [0.0, 0.0, 0.0]
-            no_errors: False
+            no_errors: false
             number_of_runs: 10
             run_number: 0
 
         imu_list:
-            - "vn300"
+            - "imu_1"
 
         camera_list:
 
         tracker_list:
 
         imu:
-            vn300:
-                use_for_prediction: True
+            imu_1:
+                use_for_prediction: true
                 is_extrinsic: false
-                is_intrinsic: False
+                is_intrinsic: false
                 rate: 400.0
                 data_log_rate: 10.0
-                topic: "/vn300/imu_uncompensated"
+                topic: "/imu_1"
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 pos_i_in_b: [0.0, 0.0, 0.0]
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]

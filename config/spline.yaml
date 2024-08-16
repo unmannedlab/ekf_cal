@@ -15,11 +15,10 @@
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 5.0
-            no_errors: False
+            max_time: 20.0
             number_of_runs: 10
             run_number: 0
-            stationary_time: 5.0
+            stationary_time: 0.0
             truth_type: "spline"
             positions:
                 - [0.0, 0.0, 0.0]
@@ -32,22 +31,22 @@
                 - [0.00, 0.00, 0.00]
 
         imu_list:
-            - "vn300"
-            # - "vn100"
+            - "imu_1"
+            # - "imu_2"
 
         camera_list:
-            # - "ace"
+            - "cam_1"
 
         tracker_list:
             - "orb"
 
         imu:
-            vn300:
+            imu_1:
                 use_for_prediction: false
                 base_sensor: true
                 intrinsic: false
                 rate: 400.0
-                topic: "/vn300/imu_uncompensated"
+                topic: "/imu_1"
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 pos_i_in_b: [0.0, 0.0, 0.0]
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
@@ -66,12 +65,12 @@
                     omg_error: [1.0e-2, 1.0e-2, 1.0e-2]
                     acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
                     omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
-            vn100:
+            imu_2:
                 use_for_prediction: false
                 base_sensor: false
                 intrinsic: false
                 rate: 100.0
-                topic: "/vn100/imu_uncompensated"
+                topic: "/imu_2"
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 pos_i_in_b: [0.0, 0.0, 0.0]
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
@@ -92,9 +91,9 @@
                     omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
 
         camera:
-            ace:
+            cam_1:
                 rate: 20.0
-                topic:  "/my_camera/pylon_ros2_camera_node/image_raw"
+                topic:  "/cam_1"
                 pos_c_in_b: [0.0, 0.0, 0.0]
                 ang_c_to_b: [0.5, -0.5, 0.5, -0.5]
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
@@ -102,6 +101,7 @@
                 pos_stability: 1.0e-9
                 ang_stability: 1.0e-9
                 sim_params:
+                    no_errors: true
                     time_bias_error: 1.0e-3
                     time_error: 1.0e-6
                     pos_error: [1.0e-1, 1.0e-1, 1.0e-1]
