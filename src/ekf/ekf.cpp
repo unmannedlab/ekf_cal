@@ -546,6 +546,13 @@ Eigen::MatrixXd EKF::AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int inde
 
 void EKF::AugmentStateIfNeeded()
 {
+  if (
+    m_augmenting_type == AugmentationType::ALL ||
+    m_augmenting_type == AugmentationType::PRIMARY)
+  {
+    return;
+  }
+
   bool augmented_state_needed {false};
 
   if (m_state.aug_states[0].size() == 0) {

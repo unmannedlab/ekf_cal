@@ -53,19 +53,18 @@ bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
 {
   Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(time);
   Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(time);
-  Eigen::Vector3d pos_c_in_b_true = m_truth->GetCameraPosition(sensor_id);
-  Eigen::Quaterniond ang_c_to_b_true = m_truth->GetCameraAngularPosition(sensor_id);
+  Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(sensor_id);
+  Eigen::Quaterniond ang_c_to_b = m_truth->GetCameraAngularPosition(sensor_id);
   Intrinsics intrinsics = m_truth->GetCameraIntrinsics(sensor_id);
-  Eigen::Quaterniond ang_c_to_b = ang_c_to_b_true;
-  Eigen::Matrix3d ang_g_to_c = (ang_b_to_g * ang_c_to_b).toRotationMatrix().transpose();
+  Eigen::Matrix3d rot_g_to_c = (ang_b_to_g * ang_c_to_b).toRotationMatrix().transpose();
   cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);
-  EigenMatrixToCv(ang_g_to_c, ang_g_to_c_cv);
+  EigenMatrixToCv(rot_g_to_c, ang_g_to_c_cv);
 
   // Creating Rodrigues rotation vector
   cv::Mat r_vec(3, 1, cv::DataType<double>::type);
   cv::Rodrigues(ang_g_to_c_cv, r_vec);
 
-  Eigen::Vector3d pos_g_in_c = ang_g_to_c * (-(pos_b_in_g + ang_b_to_g * pos_c_in_b_true));
+  Eigen::Vector3d pos_g_in_c = rot_g_to_c * (-(pos_b_in_g + ang_b_to_g * pos_c_in_b));
 
   cv::Mat t_vec(3, 1, cv::DataType<double>::type);
   t_vec.at<double>(0) = pos_g_in_c[0];
@@ -89,7 +88,7 @@ bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
   cv::projectPoints(
     board_position_vector, r_vec, t_vec, camera_matrix, distortion, projected_points);
 
-  Eigen::Vector3d cam_plane_vec = ang_g_to_c.transpose() * Eigen::Vector3d(0, 0, 1);
+  Eigen::Vector3d cam_plane_vec = rot_g_to_c.transpose() * Eigen::Vector3d(0, 0, 1);
   // Check that board is in front of camera plane
 
   if (cam_plane_vec.dot(pos_f_in_g_true) > 0 &&
