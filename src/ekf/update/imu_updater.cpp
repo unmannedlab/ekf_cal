@@ -177,7 +177,18 @@ void ImuUpdater::UpdateEKF(
   Eigen::Matrix3d acceleration_covariance, Eigen::Vector3d angular_rate,
   Eigen::Matrix3d angular_rate_covariance, bool use_as_predictor)
 {
-  if (use_as_predictor) {
+  // Check for zero velocity
+  if (!ekf->IsGravityInitialized() ||
+    ekf->ZeroAccelerationUpdate(
+      m_id,
+      time,
+      acceleration,
+      acceleration_covariance,
+      angular_rate,
+      angular_rate_covariance))
+  {
+    return;
+  } else if (use_as_predictor) {
     ekf->PredictModel(
       time,
       acceleration,

@@ -347,6 +347,17 @@ public:
   ///
   unsigned int get_fid_state_start();
 
+  bool IsGravityInitialized();
+
+  bool ZeroAccelerationUpdate(
+    unsigned int imu_id,
+    double time,
+    Eigen::Vector3d acceleration,
+    Eigen::Matrix3d acceleration_covariance,
+    Eigen::Vector3d angular_rate,
+    Eigen::Matrix3d angular_rate_covariance
+  );
+
   /// @brief EKF state
   State m_state;
 
@@ -394,6 +405,8 @@ private:
   unsigned int m_cam_state_start{0};
   unsigned int m_aug_state_start{0};
   unsigned int m_fid_state_start{0};
+
+  bool m_is_gravity_initialized{false};
 };
 
 #endif  // EKF__EKF_HPP_
