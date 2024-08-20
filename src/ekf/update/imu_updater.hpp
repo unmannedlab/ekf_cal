@@ -80,6 +80,16 @@ public:
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d acceleration_covariance,
     Eigen::Vector3d angular_rate, Eigen::Matrix3d angular_rate_covariance, bool use_as_predictor);
 
+  bool ZeroAccelerationUpdate(
+    std::shared_ptr<EKF> ekf,
+    unsigned int imu_id,
+    double time,
+    Eigen::Vector3d acceleration,
+    Eigen::Matrix3d acceleration_covariance,
+    Eigen::Vector3d angular_rate,
+    Eigen::Matrix3d angular_rate_covariance
+  );
+
 private:
   Eigen::Vector3d m_body_pos {0.0, 0.0, 0.0};
   Eigen::Vector3d m_body_vel {0.0, 0.0, 0.0};

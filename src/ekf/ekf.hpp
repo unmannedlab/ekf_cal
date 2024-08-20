@@ -52,6 +52,8 @@ public:
     double augmenting_pos_error{0.1};                           ///< @brief Augmenting pos error
     double augmenting_ang_error{0.1};                           ///< @brief Augmenting ang error
     Eigen::VectorXd process_noise {Eigen::VectorXd::Ones(18)};  ///< @brief Process noise
+    Eigen::Vector3d pos_b_in_l{Eigen::Vector3d::Zero()};        ///< @brief Body local position
+    Eigen::Quaterniond ang_b_to_l {1, 0, 0, 0};                 ///< @brief Body local orientation
     Eigen::Vector3d pos_l_in_g {Eigen::Vector3d::Zero()};       ///< @brief Local frame position
     double ang_l_to_g{0.0};                                     ///< @brief Local frame heading
     GpsInitType gps_init_type {GpsInitType::CONSTANT};          ///< @brief GPS initialization type
@@ -348,15 +350,6 @@ public:
   unsigned int get_fid_state_start();
 
   bool IsGravityInitialized();
-
-  bool ZeroAccelerationUpdate(
-    unsigned int imu_id,
-    double time,
-    Eigen::Vector3d acceleration,
-    Eigen::Matrix3d acceleration_covariance,
-    Eigen::Vector3d angular_rate,
-    Eigen::Matrix3d angular_rate_covariance
-  );
 
   /// @brief EKF state
   State m_state;

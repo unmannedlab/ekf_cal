@@ -178,16 +178,18 @@ void ImuUpdater::UpdateEKF(
   Eigen::Matrix3d angular_rate_covariance, bool use_as_predictor)
 {
   // Check for zero velocity
-  if (!ekf->IsGravityInitialized() ||
-    ekf->ZeroAccelerationUpdate(
-      m_id,
-      time,
-      acceleration,
-      acceleration_covariance,
-      angular_rate,
-      angular_rate_covariance))
-  {
-    return;
+  if (!ekf->IsGravityInitialized()) {
+    if (ZeroAccelerationUpdate(
+        ekf,
+        m_id,
+        time,
+        acceleration,
+        acceleration_covariance,
+        angular_rate,
+        angular_rate_covariance))
+    {
+      return;
+    }
   } else if (use_as_predictor) {
     ekf->PredictModel(
       time,
@@ -271,4 +273,159 @@ void ImuUpdater::UpdateEKF(
   }
   msg << "," << t_execution.count();
   m_data_logger.RateLimitedLog(msg.str(), time);
+}
+
+
+/// @todo(jhartzer): Move this function to IMU updater
+bool ImuUpdater::ZeroAccelerationUpdate(
+  std::shared_ptr<EKF> ekf,
+  unsigned int imu_id,
+  double time,
+  Eigen::Vector3d acceleration,
+  Eigen::Matrix3d acceleration_covariance,
+  Eigen::Vector3d angular_rate,
+  Eigen::Matrix3d angular_rate_covariance)
+{
+  ekf->ProcessModel(time);
+
+  /// @todo(jhartzer): get this from input
+  double motion_detection_chi_squared {100.0};
+  /// @todo(jhartzer): get this from input
+  double scale_factor {1.0};
+
+  Eigen::Vector3d bias_a, bias_g;
+  Eigen::VectorXd z;
+  Eigen::MatrixXd H, sub_cov, R;
+  unsigned int sub_size{g_body_state_size}, imu_size{0}, imu_index{0};
+
+  auto t_start = std::chrono::high_resolution_clock::now();
+
+  if (!ekf->m_state.imu_states[imu_id].get_is_intrinsic()) {
+    sub_cov = ekf->m_cov.block<g_body_state_size, g_body_state_size>(0, 0);
+    H = Eigen::MatrixXd::Zero(3, g_body_state_size);
+    R = Eigen::MatrixXd::Zero(3, 3);
+    R.block<3, 3>(0, 0) = acceleration_covariance;
+
+    z = Eigen::VectorXd::Zero(3);
+    z.segment<3>(0) = -(acceleration -
+      ekf->m_state.imu_states[imu_id].ang_i_to_b.inverse() *
+      ekf->m_state.body_state.ang_b_to_l.inverse() * g_gravity);
+  } else {
+    bias_a = ekf->m_state.imu_states[imu_id].acc_bias;
+    bias_g = ekf->m_state.imu_states[imu_id].omg_bias;
+    unsigned int imu_index = ekf->m_state.imu_states[imu_id].index;
+    imu_size = ekf->m_state.imu_states[imu_id].size;
+    sub_size = g_body_state_size + imu_size;
+    unsigned int bias_index;
+    if (ekf->m_state.imu_states[imu_id].get_is_extrinsic()) {
+      bias_index = imu_index + g_imu_extrinsic_state_size;
+    } else {
+      bias_index = imu_index;
+    }
+
+    sub_cov = Eigen::MatrixXd::Zero(sub_size, sub_size);
+    sub_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
+      ekf->m_cov.block<g_body_state_size, g_body_state_size>(0, 0);
+    sub_cov.block(g_body_state_size, g_body_state_size, imu_size, imu_size) =
+      ekf->m_cov.block(imu_index, imu_index, imu_size, imu_size);
+    sub_cov.block(0, g_body_state_size, g_body_state_size, imu_size) =
+      ekf->m_cov.block(0, imu_index, g_body_state_size, imu_size);
+    sub_cov.block(g_body_state_size, 0, imu_size, g_body_state_size) =
+      ekf->m_cov.block(imu_index, 0, imu_size, g_body_state_size);
+
+    /// @todo(jhartzer): Need to add extrinsic calibration jacobian as well
+    H = Eigen::MatrixXd::Zero(6, sub_size);
+    H.block<3, 3>(0, bias_index + 0) = -Eigen::Matrix3d::Identity();
+    H.block<3, 3>(3, bias_index + 3) = -Eigen::Matrix3d::Identity();
+
+    R = Eigen::MatrixXd::Zero(6, 6);
+    R.block<3, 3>(0, 0) = acceleration_covariance;
+    R.block<3, 3>(0, 0) = angular_rate_covariance;
+    MinBoundDiagonal(R, 1e-6);
+
+    z = Eigen::VectorXd::Zero(6);
+    z.segment<3>(0) = -(acceleration - bias_a -
+      ekf->m_state.imu_states[imu_id].ang_i_to_b.inverse() *
+      ekf->m_state.body_state.ang_b_to_l.inverse() * g_gravity);
+    z.segment<3>(3) = -(angular_rate - bias_g);
+  }
+
+  H.block<3, 3>(0, 9) = -SkewSymmetric(
+    ekf->m_state.imu_states[imu_id].ang_i_to_b.inverse() *
+    ekf->m_state.body_state.ang_b_to_l.inverse() * g_gravity
+  );
+
+  Eigen::MatrixXd score_mat =
+    z.transpose() * (H * sub_cov * H.transpose() + scale_factor * R).inverse() * z;
+  double score = score_mat(0, 0);
+  if (score > motion_detection_chi_squared && ekf->IsGravityInitialized()) {
+    return false;
+  }
+
+  // Apply Kalman update
+  Eigen::MatrixXd S = H * sub_cov * H.transpose() + R;
+  Eigen::MatrixXd K = sub_cov * H.transpose() * S.inverse();
+
+  Eigen::VectorXd update = K * z;
+  Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
+  ekf->m_state.body_state += body_update;
+
+  sub_cov =
+    (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H) * sub_cov *
+    (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H).transpose() +
+    K * R * K.transpose();
+
+  ekf->m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
+    sub_cov.block<g_body_state_size, g_body_state_size>(0, 0);
+
+  if (imu_size) {
+    Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_size);
+    ekf->m_state.imu_states += imu_update;
+
+    ekf->m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
+      sub_cov.block<g_body_state_size, g_body_state_size>(0, 0);
+
+    ekf->m_cov.block(g_body_state_size, g_body_state_size, imu_size, imu_size) =
+      sub_cov.block(imu_index, imu_index, imu_size, imu_size);
+
+    ekf->m_cov.block(0, g_body_state_size, g_body_state_size, imu_size) =
+      sub_cov.block(0, imu_index, g_body_state_size, imu_size);
+
+    ekf->m_cov.block(g_body_state_size, 0, imu_size, g_body_state_size) =
+      sub_cov.block(imu_index, 0, imu_size, g_body_state_size);
+  }
+
+  auto t_end = std::chrono::high_resolution_clock::now();
+  auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
+
+  // Write outputs
+  std::stringstream msg;
+
+  msg << time;
+  msg << VectorToCommaString(ekf->m_state.imu_states[m_id].pos_i_in_b);
+  msg << QuaternionToCommaString(ekf->m_state.imu_states[m_id].ang_i_to_b);
+  msg << VectorToCommaString(ekf->m_state.imu_states[m_id].acc_bias);
+  msg << VectorToCommaString(ekf->m_state.imu_states[m_id].omg_bias);
+  if (imu_size) {
+    Eigen::VectorXd cov_diag = ekf->m_cov.block(
+      imu_index, imu_index, imu_size, imu_size).diagonal();
+    msg << VectorToCommaString(cov_diag);
+  }
+  msg << VectorToCommaString(acceleration);
+  msg << VectorToCommaString(angular_rate);
+  msg << VectorToCommaString(z);
+  if (!imu_size) {
+    msg << VectorToCommaString(Eigen::Vector3d::Zero());
+  }
+  msg << VectorToCommaString(body_update);
+  if (imu_size) {
+    Eigen::VectorXd imu_sub_update = update.segment(imu_index, imu_size);
+    msg << VectorToCommaString(imu_sub_update);
+  }
+  msg << "," << t_execution.count();
+  m_data_logger.RateLimitedLog(msg.str(), time);
+
+  ekf->LogBodyStateIfNeeded(t_execution.count());
+
+  return true;
 }

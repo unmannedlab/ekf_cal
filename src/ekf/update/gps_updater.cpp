@@ -62,8 +62,8 @@ GpsUpdater::GpsUpdater(
 Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
 {
   unsigned int state_size = ekf->GetStateSize();
-  Eigen::Vector3d pos_a_in_b = ekf->m_state.body_state.pos_b_in_l;
-  Eigen::Quaterniond ang_b_to_g = ekf->m_state.body_state.ang_b_to_l;
+  // Eigen::Vector3d pos_a_in_b = ekf->m_state.body_state.pos_b_in_l;
+  // Eigen::Quaterniond ang_b_to_g = ekf->m_state.body_state.ang_b_to_l;
   unsigned int gps_index = ekf->m_state.gps_states[m_id].index;
 
   Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, state_size);
@@ -101,7 +101,7 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
     pos_a_in_g = enu_to_local(gps_enu, ang_l_to_g);
 
     Eigen::Vector3d pos_b_in_g = ekf->m_state.body_state.pos_b_in_l;
-    Eigen::Quaterniond ang_b_to_g = ekf->m_state.body_state.ang_b_to_l;
+    // Eigen::Quaterniond ang_b_to_g = ekf->m_state.body_state.ang_b_to_l;
     Eigen::Vector3d pos_a_in_b = ekf->GetGpsState(m_id).pos_a_in_b;
     Eigen::Vector3d pos_a_in_g_hat = pos_b_in_g + pos_a_in_b;   // + ang_b_to_g *
     residual = pos_a_in_g - pos_a_in_g_hat;
