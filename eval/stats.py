@@ -46,22 +46,6 @@ def lists_to_rot(w_list, x_list, y_list, z_list):
     return r_list
 
 
-def calculate_rotation_errors(estimate, truth):
-    """Calculate errors from two lists of quaternions."""
-    w = []
-    x = []
-    y = []
-    z = []
-    for est, true in zip(estimate, truth):
-        r = est * true.inv()
-        q = r.as_quat()
-        x.append(q[0])
-        y.append(q[1])
-        z.append(q[2])
-        w.append(q[3])
-    return w, x, y, z
-
-
 def RMSE_from_vectors(x_list, y_list, z_list):
     """Calculate the root mean square errors from list of vector elements."""
     x_err = np.array(x_list)

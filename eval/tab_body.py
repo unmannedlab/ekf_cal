@@ -341,32 +341,26 @@ class tab_body:
             interp_z = np.interp(est_time, true_time, true_ang_pos_z)
             interp_r = lists_to_rot(interp_w, interp_x, interp_y, interp_z)
 
-            err_ang_pos_w, err_ang_pos_x, err_ang_pos_y, err_ang_pos_z = \
+            err_ang_pos_x, err_ang_pos_y, err_ang_pos_z = \
                 calculate_rotation_errors(est_ang_pos_r, interp_r)
 
             fig.line(
                 est_time,
-                err_ang_pos_w,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='w')
-            fig.line(
-                est_time,
                 err_ang_pos_x,
                 alpha=self.alpha,
-                color=self.colors[1],
+                color=self.colors[0],
                 legend_label='X')
             fig.line(
                 est_time,
                 err_ang_pos_y,
                 alpha=self.alpha,
-                color=self.colors[2],
+                color=self.colors[1],
                 legend_label='Y')
             fig.line(
                 est_time,
                 err_ang_pos_z,
                 alpha=self.alpha,
-                color=self.colors[3],
+                color=self.colors[2],
                 legend_label='Z')
         return fig
 
