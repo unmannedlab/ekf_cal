@@ -231,12 +231,12 @@ int main(int argc, char * argv[])
   }
 
   // Local Position Error
-  auto pos_b_in_l_err = StdToEigVec(sim_params["pos_error"].as<std::vector<double>>(def_vec));
-  auto ang_b_in_l_err = StdToEigVec(sim_params["ang_error"].as<std::vector<double>>(def_vec));
-  ang_b_in_l_err[2] = 0.0; // X is defined to be zero-error and aligned with the local frame
+  auto pos_b_in_l_err = StdToEigVec(sim_params["pos_b_in_l_err"].as<std::vector<double>>(def_vec));
+  auto ang_b_to_l_err = StdToEigVec(sim_params["ang_b_to_l_err"].as<std::vector<double>>(def_vec));
+  ang_b_to_l_err[2] = 0.0; // X is defined to be zero-error and aligned with the local frame
   BodyState initial_state;
   initial_state.pos_b_in_l = rng.VecNormRand(ekf_params.pos_b_in_l, pos_b_in_l_err);
-  initial_state.ang_b_to_l = rng.QuatNormRand(ekf_params.ang_b_to_l, ang_b_in_l_err);
+  initial_state.ang_b_to_l = rng.QuatNormRand(ekf_params.ang_b_to_l, ang_b_to_l_err);
   ekf->Initialize(0.0, initial_state);
 
   // Global Position Error
