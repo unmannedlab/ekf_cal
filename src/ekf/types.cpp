@@ -148,6 +148,24 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
   return l_state;
 }
 
+ImuState & operator+=(ImuState & l_imu_state, Eigen::VectorXd & r_vector)
+{
+  unsigned int n {0};
+  if (l_imu_state.get_is_extrinsic()) {
+    l_imu_state.pos_i_in_b += r_vector.segment<3>(n + 0);
+    l_imu_state.ang_i_to_b = l_imu_state.ang_i_to_b * RotVecToQuat(
+      r_vector.segment<3>(n + 3));
+    n += g_imu_extrinsic_state_size;
+  }
+  if (l_imu_state.get_is_intrinsic()) {
+    l_imu_state.acc_bias += r_vector.segment<3>(n + 0);
+    l_imu_state.omg_bias += r_vector.segment<3>(n + 3);
+    n += g_imu_intrinsic_state_size;
+  }
+
+  return l_imu_state;
+}
+
 std::map<unsigned int, ImuState> & operator+=(
   std::map<unsigned int, ImuState> & l_imu_state, Eigen::VectorXd & r_vector)
 {

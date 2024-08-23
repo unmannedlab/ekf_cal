@@ -376,7 +376,7 @@ bool ImuUpdater::ZeroAccelerationUpdate(
 
   if (imu_size) {
     Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_size);
-    ekf->m_state.imu_states += imu_update;
+    ekf->m_state.imu_states[m_id] += imu_update;
 
     ekf->m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
       sub_cov.block<g_body_state_size, g_body_state_size>(0, 0);

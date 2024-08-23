@@ -335,6 +335,7 @@ public:
 
 BodyState & operator+=(BodyState & l_body_state, BodyState & r_body_state);
 BodyState & operator+=(BodyState & l_body_state, Eigen::VectorXd & r_vector);
+ImuState & operator+=(ImuState & l_imu_state, Eigen::VectorXd & r_vector);
 std::map<unsigned int, ImuState> & operator+=(
   std::map<unsigned int, ImuState> & l_imu_state, Eigen::VectorXd & r_vector);
 std::map<unsigned int, GpsState> & operator+=(
