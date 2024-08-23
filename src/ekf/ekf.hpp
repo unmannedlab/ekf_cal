@@ -349,8 +349,6 @@ public:
   ///
   unsigned int get_fid_state_start();
 
-  bool IsGravityInitialized();
-
   /// @brief EKF state
   State m_state;
 

@@ -45,6 +45,8 @@ public:
     unsigned int imu_id,
     bool is_extrinsic,
     bool is_intrinsic,
+    double motion_detection_chi_squared,
+    double stationary_noise_scale_factor,
     std::string log_file_directory,
     bool data_logging_on,
     double data_log_rate,
@@ -103,6 +105,8 @@ private:
   Eigen::Vector3d m_omg_bias {0.0, 0.0, 0.0};
   bool m_is_extrinsic;
   bool m_is_intrinsic;
+  double m_motion_detection_chi_squared;
+  double m_stationary_noise_scale_factor;
 
   DataLogger m_data_logger;
 };

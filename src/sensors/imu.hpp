@@ -48,6 +48,8 @@ public:
     double acc_bias_stability {1e-9};            ///< @brief Accelerometer bias stability
     double omg_bias_stability {1e-9};            ///< @brief Gyroscope bias stability
     bool use_for_prediction {false};             ///< @brief Flag to use measurements for prediction
+    double motion_detection_threshold{1.0};      ///< @brief Motion detection chi-Squared threshold
+    double noise_scale_factor{1.0};              ///< @brief Stationary noise scale factor
     /// @brief Initial state variance
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
   } Parameters;

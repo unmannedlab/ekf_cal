@@ -35,6 +35,8 @@ ImuUpdater::ImuUpdater(
   unsigned int imu_id,
   bool is_extrinsic,
   bool is_intrinsic,
+  double motion_detection_chi_squared,
+  double stationary_noise_scale_factor,
   std::string log_file_directory,
   bool data_logging_on,
   double data_log_rate,
@@ -43,6 +45,8 @@ ImuUpdater::ImuUpdater(
 : Updater(imu_id, logger),
   m_is_extrinsic(is_extrinsic),
   m_is_intrinsic(is_intrinsic),
+  m_motion_detection_chi_squared(motion_detection_chi_squared),
+  m_stationary_noise_scale_factor(stationary_noise_scale_factor),
   m_data_logger(log_file_directory, "imu_" + std::to_string(imu_id) + ".csv")
 {
   std::stringstream header;
@@ -178,18 +182,16 @@ void ImuUpdater::UpdateEKF(
   Eigen::Matrix3d angular_rate_covariance, bool use_as_predictor)
 {
   // Check for zero velocity
-  if (!ekf->IsGravityInitialized()) {
-    if (ZeroAccelerationUpdate(
-        ekf,
-        m_id,
-        time,
-        acceleration,
-        acceleration_covariance,
-        angular_rate,
-        angular_rate_covariance))
-    {
-      return;
-    }
+  if (ZeroAccelerationUpdate(
+      ekf,
+      m_id,
+      time,
+      acceleration,
+      acceleration_covariance,
+      angular_rate,
+      angular_rate_covariance))
+  {
+    return;
   } else if (use_as_predictor) {
     ekf->PredictModel(
       time,
@@ -276,7 +278,6 @@ void ImuUpdater::UpdateEKF(
 }
 
 
-/// @todo(jhartzer): Move this function to IMU updater
 bool ImuUpdater::ZeroAccelerationUpdate(
   std::shared_ptr<EKF> ekf,
   unsigned int imu_id,
@@ -287,11 +288,6 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   Eigen::Matrix3d angular_rate_covariance)
 {
   ekf->ProcessModel(time);
-
-  /// @todo(jhartzer): get this from input
-  double motion_detection_chi_squared {100.0};
-  /// @todo(jhartzer): get this from input
-  double scale_factor {1.0};
 
   Eigen::Vector3d bias_a, bias_g;
   Eigen::VectorXd z;
@@ -355,10 +351,10 @@ bool ImuUpdater::ZeroAccelerationUpdate(
     ekf->m_state.body_state.ang_b_to_l.inverse() * g_gravity
   );
 
-  Eigen::MatrixXd score_mat =
-    z.transpose() * (H * sub_cov * H.transpose() + scale_factor * R).inverse() * z;
+  Eigen::MatrixXd score_mat = z.transpose() *
+    (H * sub_cov * H.transpose() + m_stationary_noise_scale_factor * R).inverse() * z;
   double score = score_mat(0, 0);
-  if (score > motion_detection_chi_squared && ekf->IsGravityInitialized()) {
+  if (score > m_motion_detection_chi_squared) {
     return false;
   }
 

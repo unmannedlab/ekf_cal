@@ -884,8 +884,3 @@ double EKF::GetCurrentTime()
 {
   return m_current_time;
 }
-
-bool EKF::IsGravityInitialized()
-{
-  return m_is_gravity_initialized;
-}
