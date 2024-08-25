@@ -354,8 +354,10 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   Eigen::MatrixXd score_mat = z.transpose() *
     (H * sub_cov * H.transpose() + m_stationary_noise_scale_factor * R).inverse() * z;
   double score = score_mat(0, 0);
-  if (score > m_motion_detection_chi_squared) {
+  if (score > m_motion_detection_chi_squared && ekf->IsGravityInitialized()) {
     return false;
+  } else if (score < m_motion_detection_chi_squared) {
+    ekf->InitializeGravity();
   }
 
   // Apply Kalman update

@@ -267,6 +267,17 @@ public:
   bool IsLlaInitialized();
 
   ///
+  /// @brief Checks if the gravity angle has been initialized
+  /// @return Gravity initialization boolean
+  ///
+  bool IsGravityInitialized();
+
+  ///
+  /// @brief Function to initialize gravity angle
+  ///
+  void InitializeGravity();
+
+  ///
   /// @brief Find or interpolate augmented state
   /// @param camera_id Desired camera ID
   /// @param frame_id Desired frame ID

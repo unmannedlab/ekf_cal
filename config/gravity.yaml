@@ -39,7 +39,7 @@
         sim_params:
             seed: 0.0                       # Seed to provide to random number generator
             use_seed: true                  # Flag to use seed (required for deterministic runs)
-            max_time: 1.0                  # Maximum simulation time
+            max_time: 2.0                  # Maximum simulation time
             number_of_runs: 10              # Number of runs for Multi-Threaded Simulation
             run_number: 0                   # Start run number (also used to initialize seed)
             stationary_time: 1.0            # Time to be stationary before motion begins
@@ -47,8 +47,8 @@
                                             #   "Cyclic"
                                             #   "Spline"
             # Cyclic Truth Parameters
-            pos_frequency: [0.0, 0.0, 0.0]  # Cyclic position frequencies
-            ang_frequency: [0.1, 0.2, 0.3]  # Cyclic angular frequencies
+            pos_frequency: [0.3, 0.4, 0.5]  # Cyclic position frequencies
+            ang_frequency: [0.0, 0.0, 0.0]  # Cyclic angular frequencies
             pos_offset: [0.0, 0.0, 0.0]     # Position offset for cyclic position
             ang_offset: [0.0, 0.0, 0.0]     # Position offset for cyclic position
             ang_amplitude: 0.5              # Amplitude of translational motion
@@ -89,7 +89,7 @@
 
         imu:
             imu_1:
-                use_for_prediction: true            # Flag to use IMU for filter prediction
+                use_for_prediction: false            # Flag to use IMU for filter prediction
                 is_extrinsic: false                 # Flag to calibrate IMU extrinsics
                 is_intrinsic: false                 # Flag to calibrate IMU intrinsics
                 rate: 400.0                         # Measurement update rate

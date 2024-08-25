@@ -25,6 +25,7 @@
 #include <utility>
 #include <vector>
 
+#include "ekf/constants.hpp"
 #include "ekf/types.hpp"
 #include "infrastructure/data_logger.hpp"
 #include "infrastructure/debug_logger.hpp"
@@ -175,7 +176,7 @@ void EKF::PredictModel(
     return;
   }
 
-  if (time <= m_current_time) {
+  if (time < m_current_time) {
     m_debug_logger->Log(
       LogLevel::INFO, "Requested prediction to time in the past. Current t=" +
       std::to_string(m_current_time) + ", Requested t=" +
@@ -187,10 +188,10 @@ void EKF::PredictModel(
 
   double dT = time - m_current_time;
 
-  Eigen::Quaterniond ang_i_to_b = m_state.body_state.ang_b_to_l;
+  Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
 
-  Eigen::Vector3d acceleration_local = ang_i_to_b * acceleration;
-  Eigen::Vector3d angular_rate_local = ang_i_to_b * angular_rate;
+  Eigen::Vector3d acceleration_local = (ang_b_to_l * acceleration) - g_gravity;
+  Eigen::Vector3d angular_rate_local = ang_b_to_l * angular_rate;
 
   Eigen::Vector3d rot_vec(angular_rate[0] * dT, angular_rate[1] * dT,
     angular_rate[2] * dT);
@@ -752,6 +753,16 @@ double EKF::GetReferenceAngle()
 bool EKF::IsLlaInitialized()
 {
   return m_is_lla_initialized;
+}
+
+bool EKF::IsGravityInitialized()
+{
+  return m_is_gravity_initialized;
+}
+
+void EKF::InitializeGravity()
+{
+  m_is_gravity_initialized = true;
 }
 
 void EKF::RefreshIndices()
