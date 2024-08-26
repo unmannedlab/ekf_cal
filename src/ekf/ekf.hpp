@@ -364,7 +364,7 @@ public:
   State m_state;
 
   /// @brief EKF covariance
-  Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-6;
+  Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-1;
 
 private:
   unsigned int m_state_size{g_body_state_size};

@@ -20,7 +20,7 @@
         process_noise: [
             1.0e-3, 1.0e-3, 1.0e-3,     # Position
             1.0e-4, 1.0e-4, 1.0e-4,     # Velocity
-            1.0e-5, 1.0e-5, 1.0e-5,     # Acceleration
+            1.0e-0, 1.0e-0, 1.0e-0,     # Acceleration
             1.0e-3, 1.0e-3, 1.0e-3,     # Angular Position
             1.0e-4, 1.0e-4, 1.0e-4,     # Angular Velocity
             1.0e-5, 1.0e-5, 1.0e-5,     # Angular Acceleration
@@ -42,7 +42,7 @@
             max_time: 2.0                  # Maximum simulation time
             number_of_runs: 10              # Number of runs for Multi-Threaded Simulation
             run_number: 0                   # Start run number (also used to initialize seed)
-            stationary_time: 1.0            # Time to be stationary before motion begins
+            stationary_time: 0.02           # Time to be stationary before motion begins
             truth_type: "cyclic"            # TruthType:
                                             #   "Cyclic"
                                             #   "Spline"

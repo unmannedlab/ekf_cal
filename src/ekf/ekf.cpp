@@ -288,9 +288,9 @@ void EKF::LimitUncertainty()
   MinBoundDiagonal(m_cov, 1e-6);
 
   // Create upper bound to uncertainty
-  MaxBoundDiagonal(m_cov, 1e0, 0, 3);
-  MaxBoundDiagonal(m_cov, 1e0, 3, 3);
-  MaxBoundDiagonal(m_cov, 1e0, 6, 3);
+  MaxBoundDiagonal(m_cov, 1e-0, 0, 3);
+  MaxBoundDiagonal(m_cov, 1e-1, 3, 3);
+  MaxBoundDiagonal(m_cov, 1e-1, 6, 3);
   MaxBoundDiagonal(m_cov, 1e-1, 9, 3);
   MaxBoundDiagonal(m_cov, 1e-1, 12, 3);
   MaxBoundDiagonal(m_cov, 1e-1, 15, 3);
