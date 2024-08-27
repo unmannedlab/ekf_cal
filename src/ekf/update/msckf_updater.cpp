@@ -250,7 +250,7 @@ void MsckfUpdater::UpdateEKF(
     m_triangulation_logger.RateLimitedLog(msg.str(), time);
 
     unsigned int aug_state_size = ekf->GetAugStateSize();
-    unsigned int aug_state_start = ekf->get_aug_state_start();
+    unsigned int aug_state_start = ekf->GetAugStateStart();
     CamState cam_state = ekf->m_state.cam_states[m_id];
     Eigen::VectorXd res_f = Eigen::VectorXd::Zero(2 * feature_track.size());
     Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feature_track.size(), 3);

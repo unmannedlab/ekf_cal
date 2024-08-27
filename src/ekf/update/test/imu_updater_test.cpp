@@ -39,14 +39,14 @@ TEST(test_imu_updater, update) {
   bool data_logging_on {true};
 
   ImuState imu_state_1, imu_state_2, imu_state_3;
-  imu_state_1.set_is_intrinsic(true);
-  imu_state_1.set_is_extrinsic(true);
+  imu_state_1.SetIsIntrinsic(true);
+  imu_state_1.SetIsExtrinsic(true);
   Eigen::MatrixXd imu_covariance_1 = Eigen::MatrixXd::Identity(12, 12);
-  imu_state_2.set_is_intrinsic(true);
-  imu_state_2.set_is_extrinsic(false);
+  imu_state_2.SetIsIntrinsic(true);
+  imu_state_2.SetIsExtrinsic(false);
   Eigen::MatrixXd imu_covariance_2 = Eigen::MatrixXd::Identity(6, 6);
-  imu_state_3.set_is_intrinsic(false);
-  imu_state_3.set_is_extrinsic(true);
+  imu_state_3.SetIsIntrinsic(false);
+  imu_state_3.SetIsExtrinsic(true);
   Eigen::MatrixXd imu_covariance_3 = Eigen::MatrixXd::Identity(6, 6);
   ekf->RegisterIMU(0, imu_state_1, imu_covariance_1);
   ekf->RegisterIMU(1, imu_state_2, imu_covariance_2);
@@ -110,8 +110,8 @@ TEST(test_imu_updater, imu_prediction_update) {
   bool data_logging_on {true};
 
   ImuState imu_state;
-  imu_state.set_is_extrinsic(true);
-  imu_state.set_is_intrinsic(true);
+  imu_state.SetIsExtrinsic(true);
+  imu_state.SetIsIntrinsic(true);
   Eigen::MatrixXd imu_cov = Eigen::MatrixXd::Zero(12, 12);
   ekf->RegisterIMU(imu_id, imu_state, imu_cov);
 
@@ -168,8 +168,8 @@ TEST(test_imu_updater, non_initialized_time) {
   bool data_logging_on {true};
 
   ImuState imu_state;
-  imu_state.set_is_extrinsic(true);
-  imu_state.set_is_intrinsic(true);
+  imu_state.SetIsExtrinsic(true);
+  imu_state.SetIsIntrinsic(true);
   Eigen::MatrixXd imu_cov = Eigen::MatrixXd::Zero(12, 12);
   ekf->RegisterIMU(imu_id, imu_state, imu_cov);
 

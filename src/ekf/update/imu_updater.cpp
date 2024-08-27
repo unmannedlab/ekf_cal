@@ -305,14 +305,14 @@ bool ImuUpdater::ZeroAccelerationUpdate(
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
-  if (ekf->m_state.imu_states[imu_id].get_is_extrinsic()) {
+  if (ekf->m_state.imu_states[imu_id].GetIsExtrinsic()) {
     ex_index = ekf->m_state.imu_states[imu_id].index;
     in_index += 3;
     sub_ex_index = 3;
     sub_size += 3;
   }
 
-  if (ekf->m_state.imu_states[imu_id].get_is_intrinsic()) {
+  if (ekf->m_state.imu_states[imu_id].GetIsIntrinsic()) {
     in_index += ekf->m_state.imu_states[imu_id].index;
     sub_in_index = sub_ex_index + 3;
     sub_size += 6;
@@ -336,7 +336,7 @@ bool ImuUpdater::ZeroAccelerationUpdate(
     ekf->m_state.imu_states[imu_id].ang_i_to_b.inverse() *
     ekf->m_state.body_state.ang_b_to_l.inverse() * g_gravity);
 
-  if (ekf->m_state.imu_states[imu_id].get_is_intrinsic()) {
+  if (ekf->m_state.imu_states[imu_id].GetIsIntrinsic()) {
     z.segment<3>(3) = -(angular_rate - bias_g);
     R.block<3, 3>(3, 3) = angular_rate_covariance;
     H.block<3, 3>(0, sub_in_index + 0) = -Eigen::Matrix3d::Identity();
@@ -346,13 +346,13 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   Eigen::MatrixXd sub_cov = Eigen::MatrixXd::Zero(sub_size, sub_size);
   sub_cov.block<3, 3>(0, 0) = ekf->m_cov.block<3, 3>(6, 6);
 
-  if (ekf->m_state.imu_states[imu_id].get_is_extrinsic()) {
+  if (ekf->m_state.imu_states[imu_id].GetIsExtrinsic()) {
     sub_cov.block(sub_ex_index, sub_ex_index, 3, 3) = ekf->m_cov.block(ex_index, ex_index, 3, 3);
     sub_cov.block(0, sub_ex_index, 3, 3) = ekf->m_cov.block(0, ex_index, 3, 3);
     sub_cov.block(sub_ex_index, 0, 3, 3) = ekf->m_cov.block(ex_index, 0, 3, 3);
   }
 
-  if (ekf->m_state.imu_states[imu_id].get_is_intrinsic()) {
+  if (ekf->m_state.imu_states[imu_id].GetIsIntrinsic()) {
     sub_cov.block(sub_in_index, sub_in_index, 6, 6) = ekf->m_cov.block(in_index, in_index, 6, 6);
     sub_cov.block(0, sub_in_index, 6, 6) = ekf->m_cov.block(0, in_index, 6, 6);
     sub_cov.block(sub_in_index, 0, 6, 6) = ekf->m_cov.block(in_index, 0, 6, 6);
@@ -387,13 +387,13 @@ bool ImuUpdater::ZeroAccelerationUpdate(
 
   ekf->m_cov.block<3, 3>(6, 6) = sub_cov.block<3, 3>(0, 0);
 
-  if (ekf->m_state.imu_states[imu_id].get_is_extrinsic()) {
+  if (ekf->m_state.imu_states[imu_id].GetIsExtrinsic()) {
     ekf->m_cov.block(ex_index, ex_index, 3, 3) = sub_cov.block(sub_ex_index, sub_ex_index, 3, 3);
     ekf->m_cov.block(0, ex_index, 3, 3) = sub_cov.block(0, sub_ex_index, 3, 3);
     ekf->m_cov.block(ex_index, 0, 3, 3) = sub_cov.block(sub_ex_index, 0, 3, 3);
   }
 
-  if (ekf->m_state.imu_states[imu_id].get_is_intrinsic()) {
+  if (ekf->m_state.imu_states[imu_id].GetIsIntrinsic()) {
     ekf->m_cov.block(in_index, in_index, 6, 6) = sub_cov.block(sub_in_index, sub_in_index, 6, 6);
     ekf->m_cov.block(0, in_index, 6, 6) = sub_cov.block(0, sub_in_index, 6, 6);
     ekf->m_cov.block(in_index, 0, 6, 6) = sub_cov.block(sub_in_index, 0, 6, 6);
@@ -411,12 +411,12 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   msg << VectorToCommaString(ekf->m_state.imu_states[m_id].acc_bias);
   msg << VectorToCommaString(ekf->m_state.imu_states[m_id].omg_bias);
 
-  if (ekf->m_state.imu_states[imu_id].get_is_extrinsic()) {
+  if (ekf->m_state.imu_states[imu_id].GetIsExtrinsic()) {
     Eigen::VectorXd ex_diag = ekf->m_cov.block(ex_index, ex_index, 6, 6).diagonal();
     msg << VectorToCommaString(ex_diag);
   }
 
-  if (ekf->m_state.imu_states[imu_id].get_is_intrinsic()) {
+  if (ekf->m_state.imu_states[imu_id].GetIsIntrinsic()) {
     Eigen::VectorXd in_diag = ekf->m_cov.block(in_index, in_index, 6, 6).diagonal();
     msg << VectorToCommaString(in_diag);
   }
@@ -428,12 +428,12 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   msg << VectorToCommaString(update.segment<3>(0));
   msg << VectorToCommaString(Eigen::VectorXd::Zero(6));
 
-  if (ekf->m_state.imu_states[imu_id].get_is_extrinsic()) {
+  if (ekf->m_state.imu_states[imu_id].GetIsExtrinsic()) {
     msg << VectorToCommaString(Eigen::VectorXd::Zero(3));
     msg << VectorToCommaString(update.segment(sub_ex_index, 3));
   }
 
-  if (ekf->m_state.imu_states[imu_id].get_is_intrinsic()) {
+  if (ekf->m_state.imu_states[imu_id].GetIsIntrinsic()) {
     msg << VectorToCommaString(update.segment(sub_ex_index, 6));
   }
 

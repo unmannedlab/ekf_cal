@@ -123,22 +123,22 @@ public:
   /// @brief is_extrinsic getter function
   /// @return is_extrinsic
   ///
-  bool get_is_extrinsic() const;
+  bool GetIsExtrinsic() const;
   ///
   /// @brief is_intrinsic getter function
   /// @return is_intrinsic
   ///
-  bool get_is_intrinsic() const;
+  bool GetIsIntrinsic() const;
   ///
   /// @brief is_extrinsic setter function
   /// @param extrinsic value to use for setting
   ///
-  void set_is_extrinsic(bool extrinsic);
+  void SetIsExtrinsic(bool extrinsic);
   ///
   /// @brief is_intrinsic setter function
   /// @param intrinsic value to use for setting
   ///
-  void set_is_intrinsic(bool intrinsic);
+  void SetIsIntrinsic(bool intrinsic);
 
   double pos_stability {1e-9};                        ///< @brief Extrinsic position stability
   double ang_stability {1e-9};                        ///< @brief Extrinsic orientation stability
@@ -175,12 +175,12 @@ public:
   /// @brief is_extrinsic getter function
   /// @return is_extrinsic
   ///
-  bool get_is_extrinsic() const;
+  bool GetIsExtrinsic() const;
   ///
   /// @brief is_extrinsic setter function
   /// @param extrinsic value to use for setting
   ///
-  void set_is_extrinsic(bool extrinsic);
+  void SetIsExtrinsic(bool extrinsic);
 
   Eigen::Vector3d pos_a_in_b{0.0, 0.0, 0.0};  ///< @brief Antenna position in body frame
   double pos_stability {1e-9};                ///< @brief Antenna position stability
@@ -282,12 +282,12 @@ public:
   /// @brief is_extrinsic getter function
   /// @return is_extrinsic
   ///
-  bool get_is_extrinsic() const;
+  bool GetIsExtrinsic() const;
   ///
   /// @brief is_extrinsic setter function
   /// @param extrinsic value to use for setting
   ///
-  void set_is_extrinsic(bool extrinsic);
+  void SetIsExtrinsic(bool extrinsic);
 
   int frame_id;                   ///< @brief Fiducial board ID
   Eigen::Vector3d pos_f_in_l;     ///< @brief Fiducial position in the local frame

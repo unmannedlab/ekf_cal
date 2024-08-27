@@ -31,8 +31,8 @@ TEST(test_EKF, get_counts) {
   EXPECT_EQ(ekf->GetCamCount(), 0);
 
   ImuState imu_state;
-  imu_state.set_is_intrinsic(true);
-  imu_state.set_is_extrinsic(false);
+  imu_state.SetIsIntrinsic(true);
+  imu_state.SetIsExtrinsic(false);
   Eigen::MatrixXd imu_covariance(6, 6);
   ekf->RegisterIMU(0, imu_state, imu_covariance);
 
@@ -59,14 +59,14 @@ TEST(test_EKF, duplicate_sensors) {
   EXPECT_EQ(ekf->GetCamCount(), 0);
 
   ImuState imu_state;
-  imu_state.set_is_intrinsic(true);
-  imu_state.set_is_extrinsic(false);
+  imu_state.SetIsIntrinsic(true);
+  imu_state.SetIsExtrinsic(false);
   Eigen::MatrixXd imu_covariance(6, 6);
   ekf->RegisterIMU(0, imu_state, imu_covariance);
   ekf->RegisterIMU(0, imu_state, imu_covariance);
 
   GpsState gps_state;
-  gps_state.set_is_extrinsic(true);
+  gps_state.SetIsExtrinsic(true);
   Eigen::Matrix3d gps_cov(3, 3);
   ekf->RegisterGPS(1, gps_state, gps_cov);
   ekf->RegisterGPS(1, gps_state, gps_cov);

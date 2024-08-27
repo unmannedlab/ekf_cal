@@ -38,15 +38,15 @@ TEST(test_ekf_types, state_plus_equals_state) {
   left_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Ones() * 5.0;
 
   ImuState imu_state;
-  imu_state.set_is_extrinsic(true);
-  imu_state.set_is_intrinsic(true);
+  imu_state.SetIsExtrinsic(true);
+  imu_state.SetIsIntrinsic(true);
   imu_state.pos_i_in_b = Eigen::Vector3d::Ones() * 6.0;
   imu_state.ang_i_to_b = quat;
   imu_state.acc_bias = Eigen::Vector3d::Ones() * 7.0;
   imu_state.omg_bias = Eigen::Vector3d::Ones() * 8.0;
 
   GpsState gps_state;
-  gps_state.set_is_extrinsic(true);
+  gps_state.SetIsExtrinsic(true);
   gps_state.pos_a_in_b = Eigen::Vector3d::Ones() * 9.0;
 
   CamState cam_state;
@@ -159,15 +159,15 @@ TEST(test_ekf_types, state_plus_equals_vector) {
   left_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Ones() * 5.0;
 
   ImuState imu_state;
-  imu_state.set_is_intrinsic(true);
-  imu_state.set_is_extrinsic(true);
+  imu_state.SetIsIntrinsic(true);
+  imu_state.SetIsExtrinsic(true);
   imu_state.pos_i_in_b = Eigen::Vector3d::Ones() * 6.0;
   imu_state.ang_i_to_b = quat;
   imu_state.acc_bias = Eigen::Vector3d::Ones() * 7.0;
   imu_state.omg_bias = Eigen::Vector3d::Ones() * 8.0;
 
   GpsState gps_state;
-  gps_state.set_is_extrinsic(true);
+  gps_state.SetIsExtrinsic(true);
   gps_state.pos_a_in_b = Eigen::Vector3d::Ones() * 9.0;
 
   CamState cam_state;
@@ -175,7 +175,7 @@ TEST(test_ekf_types, state_plus_equals_vector) {
   cam_state.ang_c_to_b = quat;
 
   FidState fid_state;
-  fid_state.set_is_extrinsic(true);
+  fid_state.SetIsExtrinsic(true);
   fid_state.pos_f_in_l = Eigen::Vector3d::Ones() * 11.0;
   fid_state.ang_f_to_l = quat;
 
@@ -403,8 +403,8 @@ TEST(test_ekf_types, body_state_plus_equals_vector) {
 
 TEST(test_ekf_types, imu_map_plus_equals) {
   ImuState imu_state;
-  imu_state.set_is_intrinsic(true);
-  imu_state.set_is_extrinsic(true);
+  imu_state.SetIsIntrinsic(true);
+  imu_state.SetIsExtrinsic(true);
   imu_state.pos_i_in_b = Eigen::Vector3d::Ones() * 1.0;
   imu_state.acc_bias = Eigen::Vector3d::Ones() * 2.0;
   imu_state.omg_bias = Eigen::Vector3d::Ones() * 3.0;
@@ -573,7 +573,7 @@ TEST(test_ekf_types, cam_state_to_vector) {
 
 TEST(test_ekf_types, fid_state_to_vector) {
   FidState fid_state;
-  fid_state.set_is_extrinsic(true);
+  fid_state.SetIsExtrinsic(true);
   fid_state.pos_f_in_l = Eigen::Vector3d::Ones();
   fid_state.ang_f_to_l = Eigen::Quaterniond{1, 0, 0, 0};
   Eigen::VectorXd fid_state_vector = fid_state.ToVector();
@@ -591,8 +591,8 @@ TEST(test_ekf_types, fid_state_to_vector) {
 
 TEST(test_ekf_types, imu_state_to_vector) {
   ImuState imu_state;
-  imu_state.set_is_intrinsic(true);
-  imu_state.set_is_extrinsic(true);
+  imu_state.SetIsIntrinsic(true);
+  imu_state.SetIsExtrinsic(true);
   imu_state.size = 12;
   imu_state.pos_i_in_b = Eigen::Vector3d::Ones() * 1.0;
   imu_state.ang_i_to_b.w() = 1.0;
@@ -622,8 +622,8 @@ TEST(test_ekf_types, imu_state_to_vector) {
   EXPECT_EQ(imu_state_vector(10), 3.0);
   EXPECT_EQ(imu_state_vector(11), 3.0);
 
-  imu_state.set_is_extrinsic(true);
-  imu_state.set_is_intrinsic(false);
+  imu_state.SetIsExtrinsic(true);
+  imu_state.SetIsIntrinsic(false);
   imu_state.size = 6;
 
   imu_state_vector = imu_state.ToVector();
@@ -638,8 +638,8 @@ TEST(test_ekf_types, imu_state_to_vector) {
   EXPECT_EQ(imu_state_vector(4), 0.0);
   EXPECT_EQ(imu_state_vector(5), 0.0);
 
-  imu_state.set_is_extrinsic(false);
-  imu_state.set_is_intrinsic(true);
+  imu_state.SetIsExtrinsic(false);
+  imu_state.SetIsIntrinsic(true);
   imu_state.size = 6;
 
   imu_state_vector = imu_state.ToVector();
@@ -654,8 +654,8 @@ TEST(test_ekf_types, imu_state_to_vector) {
   EXPECT_EQ(imu_state_vector(4), 3.0);
   EXPECT_EQ(imu_state_vector(5), 3.0);
 
-  imu_state.set_is_extrinsic(false);
-  imu_state.set_is_intrinsic(false);
+  imu_state.SetIsExtrinsic(false);
+  imu_state.SetIsIntrinsic(false);
   imu_state.size = 0;
 
   imu_state_vector = imu_state.ToVector();
@@ -671,15 +671,15 @@ TEST(test_ekf_types, state_to_vector) {
   quat.z() = 0.0;
 
   ImuState imu_state;
-  imu_state.set_is_intrinsic(true);
-  imu_state.set_is_extrinsic(true);
+  imu_state.SetIsIntrinsic(true);
+  imu_state.SetIsExtrinsic(true);
   imu_state.pos_i_in_b = Eigen::Vector3d::Ones() * 6.0;
   imu_state.ang_i_to_b = quat;
   imu_state.acc_bias = Eigen::Vector3d::Ones() * 7.0;
   imu_state.omg_bias = Eigen::Vector3d::Ones() * 8.0;
 
   GpsState gps_state;
-  gps_state.set_is_extrinsic(true);
+  gps_state.SetIsExtrinsic(true);
   gps_state.pos_a_in_b = Eigen::Vector3d::Ones() * 9.0;
 
   CamState cam_state;
@@ -687,7 +687,7 @@ TEST(test_ekf_types, state_to_vector) {
   cam_state.ang_c_to_b = quat;
 
   FidState fid_state;
-  fid_state.set_is_extrinsic(true);
+  fid_state.SetIsExtrinsic(true);
   fid_state.pos_f_in_l = Eigen::Vector3d::Ones() * 11.0;
 
   AugState aug_state;
@@ -766,8 +766,8 @@ TEST(test_ekf_types, state_get_state_size) {
   EXPECT_EQ(state.GetStateSize(), 18U);
 
   ImuState imu_state;
-  imu_state.set_is_intrinsic(true);
-  imu_state.set_is_extrinsic(true);
+  imu_state.SetIsIntrinsic(true);
+  imu_state.SetIsExtrinsic(true);
   state.imu_states[1] = imu_state;
 
   EXPECT_EQ(state.GetStateSize(), 30U);
@@ -800,7 +800,7 @@ TEST(test_ekf_types, set_body_state) {
 
 TEST(test_ekf_types, gps_state_to_vector) {
   GpsState gps_state;
-  gps_state.set_is_extrinsic(true);
+  gps_state.SetIsExtrinsic(true);
   gps_state.pos_a_in_b = Eigen::Vector3d{1.0, 2.0, 3.0};
   EXPECT_EQ(gps_state.ToVector(), gps_state.pos_a_in_b);
 }

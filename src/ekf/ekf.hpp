@@ -334,31 +334,31 @@ public:
   /// @brief IMU state start getter
   /// @return IMU state start
   ///
-  unsigned int get_imu_state_start();
+  unsigned int GetImuStateStart();
 
   ///
   /// @brief GPS state start getter
   /// @return GPS state start
   ///
-  unsigned int get_gps_state_start();
+  unsigned int GetGpsStateStart();
 
   ///
   /// @brief Camera state start getter
   /// @return Camera state start
   ///
-  unsigned int get_cam_state_start();
+  unsigned int GetCamStateStart();
 
   ///
   /// @brief Augmented states start getter
   /// @return Augmented states start
   ///
-  unsigned int get_aug_state_start();
+  unsigned int GetAugStateStart();
 
   ///
   /// @brief Fiducial state start getter
   /// @return Fiducial state start
   ///
-  unsigned int get_fid_state_start();
+  unsigned int GetFidStateStart();
 
   /// @brief EKF state
   State m_state;

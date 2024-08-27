@@ -99,13 +99,13 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
 
   unsigned int n = g_body_state_size;
   for (auto & imu_iter : l_state.imu_states) {
-    if (imu_iter.second.get_is_extrinsic()) {
+    if (imu_iter.second.GetIsExtrinsic()) {
       imu_iter.second.pos_i_in_b += r_vector.segment<3>(n + 0);
       imu_iter.second.ang_i_to_b =
         imu_iter.second.ang_i_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
       n += g_imu_extrinsic_state_size;
     }
-    if (imu_iter.second.get_is_intrinsic()) {
+    if (imu_iter.second.GetIsIntrinsic()) {
       imu_iter.second.acc_bias += r_vector.segment<3>(n + 0);
       imu_iter.second.omg_bias += r_vector.segment<3>(n + 3);
       n += g_imu_intrinsic_state_size;
@@ -113,7 +113,7 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
   }
 
   for (auto & gps_iter : l_state.gps_states) {
-    if (gps_iter.second.get_is_extrinsic()) {
+    if (gps_iter.second.GetIsExtrinsic()) {
       gps_iter.second.pos_a_in_b += r_vector.segment<3>(n);
       n += g_gps_extrinsic_state_size;
     }
@@ -127,7 +127,7 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
   }
 
   for (auto & fid_iter : l_state.fid_states) {
-    if (fid_iter.second.get_is_extrinsic()) {
+    if (fid_iter.second.GetIsExtrinsic()) {
       fid_iter.second.pos_f_in_l += r_vector.segment<3>(n);
       fid_iter.second.ang_f_to_l =
         fid_iter.second.ang_f_to_l * RotVecToQuat(r_vector.segment<3>(n + 3));
@@ -151,13 +151,13 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
 ImuState & operator+=(ImuState & l_imu_state, Eigen::VectorXd & r_vector)
 {
   unsigned int n {0};
-  if (l_imu_state.get_is_extrinsic()) {
+  if (l_imu_state.GetIsExtrinsic()) {
     l_imu_state.pos_i_in_b += r_vector.segment<3>(n + 0);
     l_imu_state.ang_i_to_b = l_imu_state.ang_i_to_b * RotVecToQuat(
       r_vector.segment<3>(n + 3));
     n += g_imu_extrinsic_state_size;
   }
-  if (l_imu_state.get_is_intrinsic()) {
+  if (l_imu_state.GetIsIntrinsic()) {
     l_imu_state.acc_bias += r_vector.segment<3>(n + 0);
     l_imu_state.omg_bias += r_vector.segment<3>(n + 3);
     n += g_imu_intrinsic_state_size;
@@ -172,13 +172,13 @@ std::map<unsigned int, ImuState> & operator+=(
   unsigned int n {0};
   for (auto & imu_iter : l_imu_state) {
     unsigned int imu_id = imu_iter.first;
-    if (l_imu_state[imu_id].get_is_extrinsic()) {
+    if (l_imu_state[imu_id].GetIsExtrinsic()) {
       l_imu_state[imu_id].pos_i_in_b += r_vector.segment<3>(n + 0);
       l_imu_state[imu_id].ang_i_to_b = l_imu_state[imu_id].ang_i_to_b * RotVecToQuat(
         r_vector.segment<3>(n + 3));
       n += g_imu_extrinsic_state_size;
     }
-    if (l_imu_state[imu_id].get_is_intrinsic()) {
+    if (l_imu_state[imu_id].GetIsIntrinsic()) {
       l_imu_state[imu_id].acc_bias += r_vector.segment<3>(n + 0);
       l_imu_state[imu_id].omg_bias += r_vector.segment<3>(n + 3);
       n += g_imu_intrinsic_state_size;
@@ -305,7 +305,7 @@ Eigen::VectorXd State::ToVector() const
   unsigned int n = g_body_state_size;
 
   for (auto const & imu_iter : imu_states) {
-    if (imu_iter.second.get_is_extrinsic() || imu_iter.second.get_is_extrinsic()) {
+    if (imu_iter.second.GetIsExtrinsic() || imu_iter.second.GetIsExtrinsic()) {
       Eigen::VectorXd temp_vec = imu_iter.second.ToVector();
       out_vec.segment(n, temp_vec.size()) = temp_vec;
       n += temp_vec.size();
@@ -313,7 +313,7 @@ Eigen::VectorXd State::ToVector() const
   }
 
   for (auto const & gps_iter : gps_states) {
-    if (gps_iter.second.get_is_extrinsic()) {
+    if (gps_iter.second.GetIsExtrinsic()) {
       out_vec.segment<g_gps_extrinsic_state_size>(n) = gps_iter.second.pos_a_in_b;
       n += g_gps_extrinsic_state_size;
     }
@@ -325,7 +325,7 @@ Eigen::VectorXd State::ToVector() const
   }
 
   for (auto const & fid_iter : fid_states) {
-    if (fid_iter.second.get_is_extrinsic()) {
+    if (fid_iter.second.GetIsExtrinsic()) {
       out_vec.segment<g_fid_extrinsic_state_size>(n + 0) = fid_iter.second.ToVector();
       n += g_fid_extrinsic_state_size;
     }
@@ -346,16 +346,16 @@ unsigned int State::GetStateSize() const
   unsigned int state_size = g_body_state_size;
 
   for (auto const & imu_iter : imu_states) {
-    if (imu_iter.second.get_is_extrinsic()) {
+    if (imu_iter.second.GetIsExtrinsic()) {
       state_size += g_imu_extrinsic_state_size;
     }
-    if (imu_iter.second.get_is_intrinsic()) {
+    if (imu_iter.second.GetIsIntrinsic()) {
       state_size += g_imu_intrinsic_state_size;
     }
   }
 
   for (auto const & gps_iter : gps_states) {
-    if (gps_iter.second.get_is_extrinsic()) {
+    if (gps_iter.second.GetIsExtrinsic()) {
       state_size += g_gps_extrinsic_state_size;
     }
   }
@@ -363,7 +363,7 @@ unsigned int State::GetStateSize() const
   state_size += g_cam_state_size * cam_states.size();
 
   for (auto const & fid_iter : fid_states) {
-    if (fid_iter.second.get_is_extrinsic()) {
+    if (fid_iter.second.GetIsExtrinsic()) {
       state_size += g_fid_extrinsic_state_size;
     }
   }
@@ -373,33 +373,33 @@ unsigned int State::GetStateSize() const
   return state_size;
 }
 
-bool ImuState::get_is_extrinsic() const
+bool ImuState::GetIsExtrinsic() const
 {
   return is_extrinsic;
 }
 
-bool ImuState::get_is_intrinsic() const
+bool ImuState::GetIsIntrinsic() const
 {
   return is_intrinsic;
 }
 
-bool GpsState::get_is_extrinsic() const
+bool GpsState::GetIsExtrinsic() const
 {
   return is_extrinsic;
 }
 
-bool FidState::get_is_extrinsic() const
+bool FidState::GetIsExtrinsic() const
 {
   return is_extrinsic;
 }
 
-void ImuState::set_is_extrinsic(bool extrinsic)
+void ImuState::SetIsExtrinsic(bool extrinsic)
 {
   is_extrinsic = extrinsic;
   refresh_size();
 }
 
-void ImuState::set_is_intrinsic(bool intrinsic)
+void ImuState::SetIsIntrinsic(bool intrinsic)
 {
   is_intrinsic = intrinsic;
   refresh_size();
@@ -412,7 +412,7 @@ void ImuState::refresh_size()
   if (is_intrinsic) {size += g_imu_intrinsic_state_size;}
 }
 
-void GpsState::set_is_extrinsic(bool extrinsic)
+void GpsState::SetIsExtrinsic(bool extrinsic)
 {
   is_extrinsic = extrinsic;
   refresh_size();
@@ -424,7 +424,7 @@ void GpsState::refresh_size()
   if (is_extrinsic) {size += g_gps_extrinsic_state_size;}
 }
 
-void FidState::set_is_extrinsic(bool extrinsic)
+void FidState::SetIsExtrinsic(bool extrinsic)
 {
   is_extrinsic = extrinsic;
   refresh_size();

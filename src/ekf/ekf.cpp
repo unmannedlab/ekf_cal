@@ -232,7 +232,7 @@ void EKF::AddProccessNoise(double delta_time)
 
   for (auto const & imu_iter : m_state.imu_states) {
     unsigned int imu_index = imu_iter.second.index;
-    if (imu_iter.second.get_is_intrinsic() && imu_iter.second.get_is_extrinsic()) {
+    if (imu_iter.second.GetIsIntrinsic() && imu_iter.second.GetIsExtrinsic()) {
       Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(12, 12);
 
       process_noise.block<3, 3>(0, 0) *= delta_time * imu_iter.second.pos_stability;
@@ -242,7 +242,7 @@ void EKF::AddProccessNoise(double delta_time)
 
       m_cov.block<12, 12>(imu_index, imu_index) += process_noise;
 
-    } else if (imu_iter.second.get_is_intrinsic()) {
+    } else if (imu_iter.second.GetIsIntrinsic()) {
       Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
 
       process_noise.block<3, 3>(0, 0) *= delta_time * imu_iter.second.acc_bias_stability;
@@ -250,7 +250,7 @@ void EKF::AddProccessNoise(double delta_time)
 
       m_cov.block<6, 6>(imu_index, imu_index) += process_noise;
 
-    } else if (imu_iter.second.get_is_extrinsic()) {
+    } else if (imu_iter.second.GetIsExtrinsic()) {
       Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
 
       process_noise.block<3, 3>(0, 0) *= delta_time * imu_iter.second.pos_stability;
@@ -261,7 +261,7 @@ void EKF::AddProccessNoise(double delta_time)
   }
 
   for (auto const & gps_iter : m_state.gps_states) {
-    if (gps_iter.second.get_is_extrinsic()) {
+    if (gps_iter.second.GetIsExtrinsic()) {
       unsigned int gps_index = gps_iter.second.index;
       Eigen::Matrix3d process_noise =
         Eigen::Matrix3d::Identity(3, 3) * gps_iter.second.pos_stability;
@@ -297,22 +297,22 @@ void EKF::LimitUncertainty()
 
   for (auto imu_state : m_state.imu_states) {
     unsigned int imu_index = imu_state.second.index;
-    if (imu_state.second.get_is_extrinsic() && imu_state.second.get_is_intrinsic()) {
+    if (imu_state.second.GetIsExtrinsic() && imu_state.second.GetIsIntrinsic()) {
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 0, 3);
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 3, 3);
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 6, 3);
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 9, 3);
-    } else if (imu_state.second.get_is_extrinsic()) {
+    } else if (imu_state.second.GetIsExtrinsic()) {
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 0, 3);
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 3, 3);
-    } else if (imu_state.second.get_is_intrinsic()) {
+    } else if (imu_state.second.GetIsIntrinsic()) {
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 0, 3);
       MaxBoundDiagonal(m_cov, 1e-1, imu_index + 3, 3);
     }
   }
 
   for (auto gps_state : m_state.gps_states) {
-    if (gps_state.second.get_is_extrinsic()) {
+    if (gps_state.second.GetIsExtrinsic()) {
       unsigned int gps_index = gps_state.second.index;
       MaxBoundDiagonal(m_cov, 1e-1, gps_index + 0, 3);
     }
@@ -400,15 +400,15 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
   unsigned int imu_state_end = g_body_state_size + GetImuStateSize();
 
   m_state.imu_states[imu_id] = imu_state;
-  if (imu_state.get_is_extrinsic() || imu_state.get_is_intrinsic()) {
+  if (imu_state.GetIsExtrinsic() || imu_state.GetIsIntrinsic()) {
     m_cov = InsertInMatrix(
       covariance.block(0, 0, imu_state.size, imu_state.size), m_cov, imu_state_end, imu_state_end);
   }
-  if (imu_state.get_is_extrinsic()) {
+  if (imu_state.GetIsExtrinsic()) {
     m_state_size += g_imu_extrinsic_state_size;
     m_imu_state_size += g_imu_extrinsic_state_size;
   }
-  if (imu_state.get_is_intrinsic()) {
+  if (imu_state.GetIsIntrinsic()) {
     m_state_size += g_imu_intrinsic_state_size;
     m_imu_state_size += g_imu_intrinsic_state_size;
   }
@@ -432,7 +432,7 @@ void EKF::RegisterGPS(unsigned int gps_id, GpsState gps_state, Eigen::Matrix3d c
 
   unsigned int gps_state_end = g_body_state_size + GetImuStateSize() + GetGpsStateSize();
   m_state.gps_states[gps_id] = gps_state;
-  if (gps_state.get_is_extrinsic()) {
+  if (gps_state.GetIsExtrinsic()) {
     m_cov = InsertInMatrix(
       covariance.block(0, 0, gps_state.size, gps_state.size), m_cov, gps_state_end, gps_state_end);
     m_state_size += g_gps_extrinsic_state_size;
@@ -487,7 +487,7 @@ void EKF::RegisterFiducial(FidState fid_state, Eigen::MatrixXd covariance)
   }
 
   m_state.fid_states[fid_state.id] = fid_state;
-  if (fid_state.get_is_extrinsic()) {
+  if (fid_state.GetIsExtrinsic()) {
     m_cov = InsertInMatrix(
       covariance.block(0, 0, fid_state.size, fid_state.size), m_cov, m_state_size, m_state_size);
     m_state_size += g_fid_extrinsic_state_size;
@@ -774,14 +774,14 @@ void EKF::RefreshIndices()
   m_imu_state_start = current_index;
   for (auto & imu_iter : m_state.imu_states) {
     imu_iter.second.index = current_index;
-    if (imu_iter.second.get_is_extrinsic()) {current_index += g_imu_extrinsic_state_size;}
-    if (imu_iter.second.get_is_intrinsic()) {current_index += g_imu_intrinsic_state_size;}
+    if (imu_iter.second.GetIsExtrinsic()) {current_index += g_imu_extrinsic_state_size;}
+    if (imu_iter.second.GetIsIntrinsic()) {current_index += g_imu_intrinsic_state_size;}
   }
 
   m_gps_state_start = current_index;
   for (auto & gps_iter : m_state.gps_states) {
     gps_iter.second.index = current_index;
-    if (gps_iter.second.get_is_extrinsic()) {current_index += g_gps_extrinsic_state_size;}
+    if (gps_iter.second.GetIsExtrinsic()) {current_index += g_gps_extrinsic_state_size;}
   }
 
   m_cam_state_start = current_index;
@@ -793,7 +793,7 @@ void EKF::RefreshIndices()
   m_fid_state_start = current_index;
   for (auto & fid_iter : m_state.fid_states) {
     fid_iter.second.index = current_index;
-    if (fid_iter.second.get_is_extrinsic()) {current_index += g_fid_extrinsic_state_size;}
+    if (fid_iter.second.GetIsExtrinsic()) {current_index += g_fid_extrinsic_state_size;}
   }
 
   m_aug_state_start = current_index;
@@ -866,27 +866,27 @@ std::vector<Eigen::Vector3d> EKF::GetGpsXyzVector()
   return m_gps_xyz_vec;
 }
 
-unsigned int EKF::get_imu_state_start()
+unsigned int EKF::GetImuStateStart()
 {
   return m_imu_state_start;
 }
 
-unsigned int EKF::get_gps_state_start()
+unsigned int EKF::GetGpsStateStart()
 {
   return m_gps_state_start;
 }
 
-unsigned int EKF::get_cam_state_start()
+unsigned int EKF::GetCamStateStart()
 {
   return m_cam_state_start;
 }
 
-unsigned int EKF::get_aug_state_start()
+unsigned int EKF::GetAugStateStart()
 {
   return m_aug_state_start;
 }
 
-unsigned int EKF::get_fid_state_start()
+unsigned int EKF::GetFidStateStart()
 {
   return m_fid_state_start;
 }
