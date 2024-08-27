@@ -95,11 +95,11 @@ TEST(test_EKF, duplicate_sensors) {
   EXPECT_EQ(ekf->GetAugState(2, 0, 0).index, 33);
   EXPECT_EQ(ekf->GetAugState(2, 1, 0).index, 39);
 
-  EXPECT_EQ(ekf->get_imu_state_start(), 18);
-  EXPECT_EQ(ekf->get_gps_state_start(), 24);
-  EXPECT_EQ(ekf->get_cam_state_start(), 27);
-  EXPECT_EQ(ekf->get_fid_state_start(), 33);
-  EXPECT_EQ(ekf->get_aug_state_start(), 33);
+  EXPECT_EQ(ekf->GetImuStateStart(), 18);
+  EXPECT_EQ(ekf->GetGpsStateStart(), 24);
+  EXPECT_EQ(ekf->GetCamStateStart(), 27);
+  EXPECT_EQ(ekf->GetFidStateStart(), 33);
+  EXPECT_EQ(ekf->GetAugStateStart(), 33);
 }
 
 TEST(test_EKF, SetProcessNoise) {
