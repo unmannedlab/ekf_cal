@@ -41,12 +41,14 @@ FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
     params.data_log_rate,
     params.min_feat_dist,
     params.logger
-  )
+  ),
+  m_px_error(params.px_error),
+  m_down_sample_height(params.down_sample_height),
+  m_down_sample_width(params.down_sample_width)
 {
   m_feature_detector = InitFeatureDetector(params.detector, params.threshold);
   m_descriptor_extractor = InitDescriptorExtractor(params.descriptor, params.threshold);
   m_descriptor_matcher = InitDescriptorMatcher(params.matcher);
-  m_px_error = params.px_error;
 }
 
 /// @todo Check what parameters are used by open_vins
@@ -169,8 +171,8 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
   /// @todo(jhartzer): Get down-sample parameters from input
   cv::Mat img_down;
   cv::Size down_sample_size;
-  down_sample_size.height = 480;
-  down_sample_size.width = 640;
+  down_sample_size.height = m_down_sample_height;
+  down_sample_size.width = m_down_sample_width;
   cv::resize(img_in, img_down, down_sample_size);
 
   std::vector<cv::KeyPoint> curr_key_points;

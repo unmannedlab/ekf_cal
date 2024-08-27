@@ -186,7 +186,6 @@ void EkfCalNode::DeclareImuParameters(std::string imu_name)
   this->declare_parameter(imu_prefix + ".omg_bias_stability", 1e-9);
 }
 
-/// @todo Move these getters into ROS helper?
 IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
 {
   // Load parameters
@@ -319,6 +318,8 @@ void EkfCalNode::DeclareTrackerParameters(std::string tracker_name)
   this->declare_parameter(tracker_prefix + ".descriptor_matcher", 0);
   this->declare_parameter(tracker_prefix + ".detector_threshold", 20.0);
   this->declare_parameter(tracker_prefix + ".pixel_error", 1.0);
+  this->declare_parameter(tracker_prefix + ".down_sample_height", 480.0);
+  this->declare_parameter(tracker_prefix + ".down_sample_width", 640.0);
   this->declare_parameter(tracker_prefix + ".min_feature_distance", 1.0);
   this->declare_parameter(tracker_prefix + ".min_track_length", 2);
   this->declare_parameter(tracker_prefix + ".max_track_length", 20);
@@ -333,6 +334,8 @@ FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_
   int matcher = this->get_parameter(tracker_prefix + ".descriptor_matcher").as_int();
   double threshold = this->get_parameter(tracker_prefix + ".detector_threshold").as_double();
   double px_error = this->get_parameter(tracker_prefix + ".pixel_error").as_double();
+  double down_height = this->get_parameter(tracker_prefix + ".down_sample_height").as_double();
+  double down_width = this->get_parameter(tracker_prefix + ".down_sample_width").as_double();
   double min_feat_dist = this->get_parameter(tracker_prefix + ".min_feature_distance").as_double();
   int min_track_length = this->get_parameter(tracker_prefix + ".min_track_length").as_int();
   int max_track_length = this->get_parameter(tracker_prefix + ".max_track_length").as_int();
@@ -343,6 +346,8 @@ FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_
   tracker_params.matcher = static_cast<Matcher>(matcher);
   tracker_params.threshold = threshold;
   tracker_params.px_error = px_error;
+  tracker_params.down_sample_height = down_height;
+  tracker_params.down_sample_width = down_width;
   tracker_params.min_feat_dist = min_feat_dist;
   tracker_params.min_track_length = min_track_length;
   tracker_params.max_track_length = max_track_length;

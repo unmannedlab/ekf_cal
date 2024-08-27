@@ -317,6 +317,8 @@ int main(int argc, char * argv[])
     track_params.min_track_length = trk_node["min_track_length"].as<unsigned int>(2U);
     track_params.max_track_length = trk_node["max_track_length"].as<unsigned int>(20U);
     track_params.min_feat_dist = trk_node["min_feat_dist"].as<double>(1.0);
+    track_params.down_sample_height = trk_node["down_sample_height"].as<double>(480.0);
+    track_params.down_sample_width = trk_node["down_sample_width"].as<double>(640.0);
     max_track_length = std::max(max_track_length, track_params.max_track_length);
 
     SimFeatureTracker::Parameters sim_tracker_params;

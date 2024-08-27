@@ -5,11 +5,8 @@ Package Features:
     - Implement flag for calibration shifting
     - Interpolation between stochastic clones
     - First estimate Jacobians
-    - Zero-Velocity Update / Stationary Filter
-    - Option for complementary IMU filter
     - Intrinsic calibration filtering
     - Check covariance matrix condition
-    - Add colcon build/test action to github
 
 Software Work:
     - Auto-generate rviz configuration from yaml
@@ -19,7 +16,6 @@ Software Work:
     - Add mutex to EKF class and have mutex locked by updaters
     - Switch to reentrant callback group
     - Show track images from simulation
-    - Automatically check regression results
 
     Additional Trackers:
         - FiducialTracker
