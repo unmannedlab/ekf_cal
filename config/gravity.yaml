@@ -39,10 +39,10 @@
         sim_params:
             seed: 0.0                       # Seed to provide to random number generator
             use_seed: true                  # Flag to use seed (required for deterministic runs)
-            max_time: 2.0                  # Maximum simulation time
+            max_time: 2.0                   # Maximum simulation time
             number_of_runs: 10              # Number of runs for Multi-Threaded Simulation
             run_number: 0                   # Start run number (also used to initialize seed)
-            stationary_time: 0.02           # Time to be stationary before motion begins
+            stationary_time: 1.0            # Time to be stationary before motion begins
             truth_type: "cyclic"            # TruthType:
                                             #   "Cyclic"
                                             #   "Spline"

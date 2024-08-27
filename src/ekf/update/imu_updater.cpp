@@ -28,6 +28,7 @@
 #include "ekf/types.hpp"
 #include "infrastructure/debug_logger.hpp"
 #include "utility/math_helper.hpp"
+#include "utility/type_helper.hpp"
 #include "utility/string_helper.hpp"
 
 
@@ -292,26 +293,16 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   Eigen::Vector3d bias_a, bias_g;
   Eigen::VectorXd z;
   Eigen::MatrixXd H, sub_cov, R;
-  unsigned int sub_size{g_body_state_size}, imu_size{0}, imu_index{0};
+  unsigned int sub_size{3}, imu_size{0}, imu_index{0};
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
-  if (!ekf->m_state.imu_states[imu_id].get_is_intrinsic()) {
-    sub_cov = ekf->m_cov.block<g_body_state_size, g_body_state_size>(0, 0);
-    H = Eigen::MatrixXd::Zero(3, g_body_state_size);
-    R = Eigen::MatrixXd::Zero(3, 3);
-    R.block<3, 3>(0, 0) = acceleration_covariance;
-
-    z = Eigen::VectorXd::Zero(3);
-    z.segment<3>(0) = -(acceleration -
-      ekf->m_state.imu_states[imu_id].ang_i_to_b.inverse() *
-      ekf->m_state.body_state.ang_b_to_l.inverse() * g_gravity);
-  } else {
+  if (ekf->m_state.imu_states[imu_id].get_is_intrinsic()) {
     bias_a = ekf->m_state.imu_states[imu_id].acc_bias;
     bias_g = ekf->m_state.imu_states[imu_id].omg_bias;
     unsigned int imu_index = ekf->m_state.imu_states[imu_id].index;
     imu_size = ekf->m_state.imu_states[imu_id].size;
-    sub_size = g_body_state_size + imu_size;
+    sub_size = 3 + imu_size;
     unsigned int bias_index;
     if (ekf->m_state.imu_states[imu_id].get_is_extrinsic()) {
       bias_index = imu_index + g_imu_extrinsic_state_size;
@@ -320,14 +311,11 @@ bool ImuUpdater::ZeroAccelerationUpdate(
     }
 
     sub_cov = Eigen::MatrixXd::Zero(sub_size, sub_size);
-    sub_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-      ekf->m_cov.block<g_body_state_size, g_body_state_size>(0, 0);
-    sub_cov.block(g_body_state_size, g_body_state_size, imu_size, imu_size) =
+    sub_cov.block<3, 3>(0, 0) = ekf->m_cov.block<3, 3>(6, 6);
+    sub_cov.block(3, 3, imu_size, imu_size) =
       ekf->m_cov.block(imu_index, imu_index, imu_size, imu_size);
-    sub_cov.block(0, g_body_state_size, g_body_state_size, imu_size) =
-      ekf->m_cov.block(0, imu_index, g_body_state_size, imu_size);
-    sub_cov.block(g_body_state_size, 0, imu_size, g_body_state_size) =
-      ekf->m_cov.block(imu_index, 0, imu_size, g_body_state_size);
+    sub_cov.block(0, 3, 3, imu_size) = ekf->m_cov.block(0, imu_index, 3, imu_size);
+    sub_cov.block(3, 0, imu_size, 3) = ekf->m_cov.block(imu_index, 0, imu_size, 3);
 
     /// @todo(jhartzer): Need to add extrinsic calibration jacobian as well
     H = Eigen::MatrixXd::Zero(6, sub_size);
@@ -336,7 +324,7 @@ bool ImuUpdater::ZeroAccelerationUpdate(
 
     R = Eigen::MatrixXd::Zero(6, 6);
     R.block<3, 3>(0, 0) = acceleration_covariance;
-    R.block<3, 3>(0, 0) = angular_rate_covariance;
+    R.block<3, 3>(3, 3) = angular_rate_covariance;
     MinBoundDiagonal(R, 1e-6);
 
     z = Eigen::VectorXd::Zero(6);
@@ -344,9 +332,19 @@ bool ImuUpdater::ZeroAccelerationUpdate(
       ekf->m_state.imu_states[imu_id].ang_i_to_b.inverse() *
       ekf->m_state.body_state.ang_b_to_l.inverse() * g_gravity);
     z.segment<3>(3) = -(angular_rate - bias_g);
+  } else {
+    sub_cov = ekf->m_cov.block<3, 3>(6, 6);
+    H = Eigen::MatrixXd::Zero(3, 3);
+    R = Eigen::MatrixXd::Zero(3, 3);
+    R.block<3, 3>(0, 0) = acceleration_covariance;
+
+    z = Eigen::VectorXd::Zero(3);
+    z.segment<3>(0) = -(acceleration -
+      ekf->m_state.imu_states[imu_id].ang_i_to_b.inverse() *
+      ekf->m_state.body_state.ang_b_to_l.inverse() * g_gravity);
   }
 
-  H.block<3, 3>(0, 9) = -SkewSymmetric(
+  H.block<3, 3>(0, 0) = -SkewSymmetric(
     ekf->m_state.imu_states[imu_id].ang_i_to_b.inverse() *
     ekf->m_state.body_state.ang_b_to_l.inverse() * g_gravity
   );
@@ -365,32 +363,29 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   Eigen::MatrixXd K = sub_cov * H.transpose() * S.inverse();
 
   Eigen::VectorXd update = K * z;
-  Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
-  ekf->m_state.body_state += body_update;
+  ekf->m_state.body_state.acc_b_in_l = Eigen::Vector3d::Zero();
+  ekf->m_state.body_state.ang_vel_b_in_l = Eigen::Vector3d::Zero();
+  ekf->m_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Zero();
+  ekf->m_state.body_state.ang_b_to_l =
+    ekf->m_state.body_state.ang_b_to_l * RotVecToQuat(update.segment<3>(0));
 
   sub_cov =
     (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H) * sub_cov *
     (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H).transpose() +
     K * R * K.transpose();
 
-  ekf->m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-    sub_cov.block<g_body_state_size, g_body_state_size>(0, 0);
+  ekf->m_cov.block<3, 3>(6, 6) = sub_cov.block<3, 3>(0, 0);
 
   if (imu_size) {
-    Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_size);
+    Eigen::VectorXd imu_update = update.segment(3, imu_size);
     ekf->m_state.imu_states[m_id] += imu_update;
 
-    ekf->m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-      sub_cov.block<g_body_state_size, g_body_state_size>(0, 0);
+    ekf->m_cov.block(imu_index, imu_index, imu_size, imu_size) =
+      sub_cov.block(3, 3, imu_size, imu_size);
 
-    ekf->m_cov.block(g_body_state_size, g_body_state_size, imu_size, imu_size) =
-      sub_cov.block(imu_index, imu_index, imu_size, imu_size);
+    ekf->m_cov.block(0, imu_index, 3, imu_size) = sub_cov.block(0, 3, 3, imu_size);
 
-    ekf->m_cov.block(0, g_body_state_size, g_body_state_size, imu_size) =
-      sub_cov.block(0, imu_index, g_body_state_size, imu_size);
-
-    ekf->m_cov.block(g_body_state_size, 0, imu_size, g_body_state_size) =
-      sub_cov.block(imu_index, 0, imu_size, g_body_state_size);
+    ekf->m_cov.block(imu_index, 0, imu_size, 3) = sub_cov.block(3, 0, imu_size, 3);
   }
 
   auto t_end = std::chrono::high_resolution_clock::now();
@@ -415,7 +410,9 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   if (!imu_size) {
     msg << VectorToCommaString(Eigen::Vector3d::Zero());
   }
-  msg << VectorToCommaString(body_update);
+  msg << VectorToCommaString(Eigen::VectorXd::Zero(9));
+  msg << VectorToCommaString(update.segment<3>(0));
+  msg << VectorToCommaString(Eigen::VectorXd::Zero(6));
   if (imu_size) {
     Eigen::VectorXd imu_sub_update = update.segment(imu_index, imu_size);
     msg << VectorToCommaString(imu_sub_update);
