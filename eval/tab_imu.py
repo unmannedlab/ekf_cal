@@ -20,6 +20,7 @@ from bokeh.models import Spacer, TabPanel
 from bokeh.plotting import figure
 import numpy as np
 from utilities import calculate_alpha, get_colors, plot_update_timing
+from scipy.spatial.transform import Rotation
 
 
 class tab_imu:
@@ -158,16 +159,17 @@ class tab_imu:
             x_axis_label='Time [s]',
             y_axis_label='Position Error [m]',
             title='Extrinsic Position Error')
-        t_imu = np.zeros([len(self.imu_dfs), len(self.imu_dfs[0]['time'])])
-        pos_0 = np.zeros([len(self.imu_dfs), len(self.imu_dfs[0]['time'])])
-        pos_1 = np.zeros([len(self.imu_dfs), len(self.imu_dfs[0]['time'])])
-        pos_2 = np.zeros([len(self.imu_dfs), len(self.imu_dfs[0]['time'])])
+        n = len(self.imu_dfs[0]['time'])
+        t_imu = np.zeros([len(self.imu_dfs), n])
+        pos_0 = np.zeros([len(self.imu_dfs), n])
+        pos_1 = np.zeros([len(self.imu_dfs), n])
+        pos_2 = np.zeros([len(self.imu_dfs), n])
 
         for i in range(len(self.imu_dfs)):
-            t_imu[i, :] = self.imu_dfs[i]['time']
-            pos_0[i, :] = np.array(self.imu_dfs[i]['imu_pos_0'])
-            pos_1[i, :] = np.array(self.imu_dfs[i]['imu_pos_1'])
-            pos_2[i, :] = np.array(self.imu_dfs[i]['imu_pos_2'])
+            t_imu[i, :] = self.imu_dfs[i]['time'][:n]
+            pos_0[i, :] = np.array(self.imu_dfs[i]['imu_pos_0'][:n])
+            pos_1[i, :] = np.array(self.imu_dfs[i]['imu_pos_1'][:n])
+            pos_2[i, :] = np.array(self.imu_dfs[i]['imu_pos_2'][:n])
             fig.line(
                 t_imu[i, :], pos_0[i, :],
                 alpha=self.alpha,
@@ -226,31 +228,37 @@ class tab_imu:
             title='Extrinsic Angle Error')
         for i in range(len(self.imu_dfs)):
             time = self.imu_dfs[i]['time']
-            err_img_ang_w = self.imu_dfs[i]['imu_ang_pos_0']
-            err_img_ang_x = self.imu_dfs[i]['imu_ang_pos_1']
-            err_img_ang_y = self.imu_dfs[i]['imu_ang_pos_2']
-            err_img_ang_z = self.imu_dfs[i]['imu_ang_pos_3']
+            quat_err_w = self.imu_dfs[i]['imu_ang_pos_0']
+            quat_err_x = self.imu_dfs[i]['imu_ang_pos_1']
+            quat_err_y = self.imu_dfs[i]['imu_ang_pos_2']
+            quat_err_z = self.imu_dfs[i]['imu_ang_pos_3']
+            eul_err_x = []
+            eul_err_y = []
+            eul_err_z = []
+
+            for (ew, ex, ey, ez) in zip(quat_err_w, quat_err_x, quat_err_y, quat_err_z):
+                # TODO(jhartzer): Compare to truth value
+                error_q = Rotation.from_quat([ew, ex, ey, ez])
+                error_eul = error_q.as_euler('XYZ')
+                eul_err_x.append(error_eul[0])
+                eul_err_y.append(error_eul[1])
+                eul_err_z.append(error_eul[2])
 
             fig.line(
                 time,
-                err_img_ang_w,
+                eul_err_x,
                 alpha=self.alpha,
                 color=self.colors[0])
             fig.line(
                 time,
-                err_img_ang_x,
+                eul_err_y,
                 alpha=self.alpha,
                 color=self.colors[1])
             fig.line(
                 time,
-                err_img_ang_y,
+                eul_err_z,
                 alpha=self.alpha,
                 color=self.colors[2])
-            fig.line(
-                time,
-                err_img_ang_z,
-                alpha=self.alpha,
-                color=self.colors[3])
         return fig
 
     def plot_acc_bias_err(self):

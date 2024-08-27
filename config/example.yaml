@@ -112,10 +112,10 @@
                     time_error: 1.0e-6                          # Measurement time error
                     pos_error: [0.0, 0.0, 0.0]                  # Error in position estimate
                     ang_error: [0.0, 0.0, 0.0]                  # Error in orientation estimate
-                    acc_error: [1.0e-3, 1.0e-3, 1.0e-3]         # True accelerometer bias
-                    omg_error: [1.0e-2, 1.0e-2, 1.0e-2]         # Accelerometer error
-                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]    # True gyroscope bias
-                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]    # Gyroscope error
+                    acc_error: [1.0e-3, 1.0e-3, 1.0e-3]         # Accelerometer error
+                    omg_error: [1.0e-2, 1.0e-2, 1.0e-2]         # Gyroscope error
+                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]    # Accelerometer bias error
+                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]    # Gyroscope bias error
 
         camera:
             cam_1:

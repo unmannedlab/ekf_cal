@@ -39,10 +39,10 @@
         sim_params:
             seed: 0.0                       # Seed to provide to random number generator
             use_seed: true                  # Flag to use seed (required for deterministic runs)
-            max_time: 2.0                   # Maximum simulation time
+            max_time: 0.2                   # Maximum simulation time
             number_of_runs: 10              # Number of runs for Multi-Threaded Simulation
             run_number: 0                   # Start run number (also used to initialize seed)
-            stationary_time: 1.0            # Time to be stationary before motion begins
+            stationary_time: 0.1            # Time to be stationary before motion begins
             truth_type: "cyclic"            # TruthType:
                                             #   "Cyclic"
                                             #   "Spline"
@@ -89,16 +89,16 @@
 
         imu:
             imu_1:
-                use_for_prediction: false            # Flag to use IMU for filter prediction
+                use_for_prediction: false           # Flag to use IMU for filter prediction
                 is_extrinsic: false                 # Flag to calibrate IMU extrinsics
-                is_intrinsic: false                 # Flag to calibrate IMU intrinsics
+                is_intrinsic: true                  # Flag to calibrate IMU intrinsics
                 rate: 400.0                         # Measurement update rate
                 topic: "/imu_1"                     # ROS topic to subscribe to
                 variance: [
-                    0.01, 0.01, 0.01,               # Position
-                    0.01, 0.01, 0.01,               # Orientation
-                    0.01, 0.01, 0.01,               # Accelerometer bias
-                    0.01, 0.01, 0.01                # Gyroscope bias
+                    1.0e-3, 1.0e-3, 1.0e-3,               # Position
+                    1.0e-3, 1.0e-3, 1.0e-3,               # Orientation
+                    1.0e-6, 1.0e-6, 1.0e-6,               # Accelerometer bias
+                    1.0e-6, 1.0e-6, 1.0e-6                # Gyroscope bias
                 ]
                 pos_i_in_b: [0.0, 0.0, 0.0]         # Initial position offset estimate
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]    # Initial angular offset estimate
@@ -114,10 +114,10 @@
                     time_error: 1.0e-6                          # Measurement time error
                     pos_error: [0.0, 0.0, 0.0]                  # Error in position estimate
                     ang_error: [0.0, 0.0, 0.0]                  # Error in orientation estimate
-                    acc_error: [1.0e-3, 1.0e-3, 1.0e-3]         # True accelerometer bias
-                    omg_error: [1.0e-2, 1.0e-2, 1.0e-2]         # Accelerometer error
-                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]    # True gyroscope bias
-                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]    # Gyroscope error
+                    acc_error: [1.0e-9, 1.0e-9, 1.0e-9]         # Accelerometer error
+                    omg_error: [1.0e-9, 1.0e-9, 1.0e-9]         # Gyroscope error
+                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]    # Accelerometer bias error
+                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]    # Gyroscope bias error
 
         camera:
             cam_1:
