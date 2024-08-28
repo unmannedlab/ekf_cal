@@ -191,7 +191,7 @@ int main(int argc, char * argv[])
 
   // Truth parameters
   std::string truth_type = sim_params["truth_type"].as<std::string>("cyclic");
-  double stationary_time = sim_params["stationary_time"].as<double>(0.0);
+  double stationary_time = std::max(sim_params["stationary_time"].as<double>(0.1), 0.1);
   std::shared_ptr<TruthEngine> truth_engine;
   if (truth_type == "cyclic") {
     Eigen::Vector3d pos_frequency =

@@ -61,10 +61,6 @@ ImuUpdater::ImuUpdater(
   header << EnumerateHeader("acc", 3);
   header << EnumerateHeader("omg", 3);
   header << EnumerateHeader("residual", 6);
-  header << EnumerateHeader("body_update", g_body_state_size);
-  if (m_is_extrinsic) {header << EnumerateHeader("imu_ext_update", g_imu_extrinsic_state_size);}
-  if (m_is_intrinsic) {header << EnumerateHeader("imu_int_update", g_imu_intrinsic_state_size);}
-
   header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(header.str());
@@ -174,7 +170,6 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
   return measurement_jacobian;
 }
 
-/// @todo Evaluate updating all states, not just Body/IMU
 void ImuUpdater::UpdateEKF(
   std::shared_ptr<EKF> ekf,
   double time, Eigen::Vector3d acceleration,
@@ -277,12 +272,6 @@ void ImuUpdater::UpdateEKF(
   msg << VectorToCommaString(acceleration);
   msg << VectorToCommaString(angular_rate);
   msg << VectorToCommaString(resid);
-  msg << VectorToCommaString(Eigen::VectorXd::Zero(6));
-  msg << VectorToCommaString(update.segment<12>(0));
-  if (imu_update_size) {
-    Eigen::VectorXd imu_sub_update = update.segment(sub_imu_index, imu_update_size);
-    msg << VectorToCommaString(imu_sub_update);
-  }
   msg << "," << t_execution.count();
   m_data_logger.RateLimitedLog(msg.str(), time);
 }
@@ -424,19 +413,6 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   msg << VectorToCommaString(acceleration);
   msg << VectorToCommaString(angular_rate);
   msg << VectorToCommaString(z);
-  msg << VectorToCommaString(Eigen::VectorXd::Zero(9));
-  msg << VectorToCommaString(update.segment<3>(0));
-  msg << VectorToCommaString(Eigen::VectorXd::Zero(6));
-
-  if (ekf->m_state.imu_states[imu_id].GetIsExtrinsic()) {
-    msg << VectorToCommaString(Eigen::VectorXd::Zero(3));
-    msg << VectorToCommaString(update.segment(sub_ex_index, 3));
-  }
-
-  if (ekf->m_state.imu_states[imu_id].GetIsIntrinsic()) {
-    msg << VectorToCommaString(update.segment(sub_ex_index, 6));
-  }
-
   msg << "," << t_execution.count();
   m_data_logger.RateLimitedLog(msg.str(), time);
 

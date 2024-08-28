@@ -159,7 +159,7 @@ class tab_imu:
             x_axis_label='Time [s]',
             y_axis_label='Position Error [m]',
             title='Extrinsic Position Error')
-        n = len(self.imu_dfs[0]['time'])
+        n = min([len(df['time']) for df in self.imu_dfs])
         t_imu = np.zeros([len(self.imu_dfs), n])
         pos_0 = np.zeros([len(self.imu_dfs), n])
         pos_1 = np.zeros([len(self.imu_dfs), n])
@@ -393,138 +393,6 @@ class tab_imu:
             alpha=self.alpha)
         return fig
 
-    def plot_imu_ext_pos_update(self):
-        """Plot extrinsic position update."""
-        fig = figure(
-            width=800,
-            height=300,
-            x_axis_label='Time [s]',
-            y_axis_label='Extrinsic Position Update [m]',
-            title='Extrinsic Position Update')
-        for imu_df in self.imu_dfs:
-            t_imu = imu_df['time']
-            imu_ext_update_0 = imu_df['imu_ext_update_0']
-            imu_ext_update_1 = imu_df['imu_ext_update_1']
-            imu_ext_update_2 = imu_df['imu_ext_update_2']
-            fig.line(
-                t_imu,
-                imu_ext_update_0,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='Pos x')
-            fig.line(
-                t_imu,
-                imu_ext_update_1,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Pos y')
-            fig.line(
-                t_imu,
-                imu_ext_update_2,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Pos z')
-        return fig
-
-    def plot_imu_ext_ang_update(self):
-        """Plot extrinsic angle update."""
-        fig = figure(
-            width=800,
-            height=300,
-            x_axis_label='Time [s]',
-            y_axis_label='Extrinsic Angle Update [m]',
-            title='Extrinsic Angle Update')
-        for imu_df in self.imu_dfs:
-            t_imu = imu_df['time']
-            imu_ext_update_3 = imu_df['imu_ext_update_3']
-            imu_ext_update_4 = imu_df['imu_ext_update_4']
-            imu_ext_update_5 = imu_df['imu_ext_update_5']
-            fig.line(
-                t_imu,
-                imu_ext_update_3,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='x')
-            fig.line(
-                t_imu,
-                imu_ext_update_4,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='y')
-            fig.line(
-                t_imu,
-                imu_ext_update_5,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='z')
-        return fig
-
-    def plot_imu_int_pos_update(self):
-        """Plot accelerometer bias updates."""
-        fig = figure(
-            width=800,
-            height=300,
-            x_axis_label='Time [s]',
-            y_axis_label='Accelerometer Bias Updates [m/s/s]',
-            title='Accelerometer Bias Updates')
-        for imu_df in self.imu_dfs:
-            t_imu = imu_df['time']
-            imu_int_update_0 = imu_df['imu_int_update_0']
-            imu_int_update_1 = imu_df['imu_int_update_1']
-            imu_int_update_2 = imu_df['imu_int_update_2']
-            fig.line(
-                t_imu,
-                imu_int_update_0,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                t_imu,
-                imu_int_update_1,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                t_imu,
-                imu_int_update_2,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
-        return fig
-
-    def plot_imu_int_ang_update(self):
-        """Plot intrinsic gyroscope bias updates."""
-        fig = figure(
-            width=800,
-            height=300,
-            x_axis_label='Time [s]',
-            y_axis_label='Gyroscope Bias Updates [rad/s]',
-            title='Gyroscope Bias Updates')
-        for imu_df in self.imu_dfs:
-            t_imu = imu_df['time']
-            imu_int_update_3 = imu_df['imu_int_update_3']
-            imu_int_update_4 = imu_df['imu_int_update_4']
-            imu_int_update_5 = imu_df['imu_int_update_5']
-            fig.line(
-                t_imu,
-                imu_int_update_3,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                t_imu,
-                imu_int_update_4,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                t_imu,
-                imu_int_update_5,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
-        return fig
-
     def plot_imu_ext_pos_cov(self):
         """Plot extrinsic position covariance."""
         fig = figure(
@@ -664,12 +532,10 @@ class tab_imu:
         ]
 
         if ('imu_ext_cov_0' in self.imu_dfs[0].keys()):
-            layout_plots.append([self.plot_imu_ext_pos_update(), self.plot_imu_ext_ang_update()])
             layout_plots.append([self.plot_imu_ext_pos_cov(), self.plot_imu_ext_ang_cov()])
             layout_plots.append([self.plot_ext_pos_err(), self.plot_ext_ang_err()])
 
         if ('imu_int_cov_0' in self.imu_dfs[0].keys()):
-            layout_plots.append([self.plot_imu_int_pos_update(), self.plot_imu_int_ang_update()])
             layout_plots.append([self.plot_imu_int_pos_cov(), self.plot_imu_int_ang_cov()])
             layout_plots.append([self.plot_acc_bias_err(), self.plot_omg_bias_err()])
 
