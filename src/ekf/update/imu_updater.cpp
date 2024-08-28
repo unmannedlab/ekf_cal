@@ -124,39 +124,35 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
   measurement_jacobian.block<3, 3>(0, 9) = ang_i_to_b.inverse().toRotationMatrix() *
     SkewSymmetric(pos_i_in_g);
 
-  // IMU Body Angular Velocity
-  measurement_jacobian.block<3, 3>(3, 12) = ang_i_to_b.inverse().toRotationMatrix() *
+  // Body Angular Velocity
+  measurement_jacobian.block<3, 3>(3, 6) = ang_i_to_b.inverse().toRotationMatrix() *
     body_state.ang_b_to_l.inverse().toRotationMatrix();
 
-  // IMU Positional Offset
   unsigned int imu_ex_start = ekf->m_state.imu_states[m_id].index - ekf->GetImuStateStart() + 12;
   unsigned int imu_in_start = imu_ex_start;
+
   if (m_is_extrinsic) {
-    // IMU Positional Offset
-    measurement_jacobian.block<3, 3>(0, imu_ex_start + 0) =
-      ang_i_to_b.inverse().toRotationMatrix() * (
-      SkewSymmetric(body_state.ang_acc_b_in_l) +
-      SkewSymmetric(body_state.ang_vel_b_in_l) * SkewSymmetric(body_state.ang_vel_b_in_l)
-      );
+    // // IMU Positional Offset
+    // measurement_jacobian.block<3, 3>(0, imu_ex_start + 0) =
+    //   ang_i_to_b.inverse() * (
+    //   SkewSymmetric(body_state.ang_acc_b_in_l) +
+    //   SkewSymmetric(body_state.ang_vel_b_in_l) * SkewSymmetric(body_state.ang_vel_b_in_l)
+    //   );
+
+    // // IMU Angular Offset
+    // measurement_jacobian.block<3, 3>(0, imu_ex_start + 3) = SkewSymmetric(
+    //   ang_i_to_b.inverse() * (
+    //     body_state.ang_acc_b_in_l.cross(pos_i_in_g) +
+    //     body_state.ang_vel_b_in_l.cross(body_state.ang_vel_b_in_l.cross(pos_i_in_g)) +
+    //     body_state.ang_b_to_l.inverse() * (body_state.acc_b_in_l + g_gravity)
+    //   )
+    // );
 
     // IMU Angular Offset
-    measurement_jacobian.block<3, 3>(0, imu_ex_start + 3) = SkewSymmetric(
-      ang_i_to_b.inverse().toRotationMatrix() * (
-        body_state.ang_acc_b_in_l.cross(pos_i_in_g) +
-        body_state.ang_vel_b_in_l.cross(body_state.ang_vel_b_in_l.cross(pos_i_in_g)) +
-        body_state.ang_b_to_l.inverse().toRotationMatrix() * (
-          body_state.acc_b_in_l + g_gravity
-        )
-      )
-    );
+    measurement_jacobian.block<3, 3>(3, imu_ex_start + 3) = -SkewSymmetric(
+      ang_i_to_b.inverse() * body_state.ang_b_to_l.inverse() * body_state.ang_vel_b_in_l);
 
-    // IMU Angular Offset
-    measurement_jacobian.block<3, 3>(3, imu_ex_start + 3) = SkewSymmetric(
-      ang_i_to_b.inverse().toRotationMatrix() *
-      body_state.ang_b_to_l.inverse().toRotationMatrix() *
-      body_state.ang_vel_b_in_l
-    );
-    imu_in_start += 3;
+    imu_in_start += 6;
   }
 
   if (m_is_intrinsic) {
@@ -206,13 +202,11 @@ void ImuUpdater::UpdateEKF(
   Eigen::VectorXd z_pred = PredictMeasurement(ekf);
   Eigen::VectorXd resid = z - z_pred;
 
-
   unsigned int imu_size = ekf->GetImuStateSize();
   unsigned int imu_start = ekf->GetImuStateStart();
   unsigned int sub_size = 12 + imu_size;
   unsigned int imu_update_size {0};
   unsigned int imu_index = ekf->m_state.imu_states[m_id].index;
-  unsigned int sub_imu_index = ekf->m_state.imu_states[m_id].index - imu_start + 12;
   if (m_is_extrinsic) {imu_update_size += g_imu_extrinsic_state_size;}
   if (m_is_intrinsic) {imu_update_size += g_imu_intrinsic_state_size;}
 
@@ -309,10 +303,8 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   }
 
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(meas_size, sub_size);
-  H.block<3, 3>(0, 0) = -SkewSymmetric(
-    ekf->m_state.imu_states[imu_id].ang_i_to_b.inverse() *
-    ekf->m_state.body_state.ang_b_to_l.inverse() * g_gravity
-  );
+  H.block<3, 3>(0, 0) = -ekf->m_state.imu_states[imu_id].ang_i_to_b.inverse().toRotationMatrix() *
+    SkewSymmetric(ekf->m_state.body_state.ang_b_to_l.inverse() * g_gravity);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(meas_size, meas_size);
   R.block<3, 3>(0, 0) = acceleration_covariance;
@@ -325,23 +317,24 @@ bool ImuUpdater::ZeroAccelerationUpdate(
     ekf->m_state.imu_states[imu_id].ang_i_to_b.inverse() *
     ekf->m_state.body_state.ang_b_to_l.inverse() * g_gravity);
 
-  if (ekf->m_state.imu_states[imu_id].GetIsIntrinsic()) {
-    z.segment<3>(3) = -(angular_rate - bias_g);
-    R.block<3, 3>(3, 3) = angular_rate_covariance;
-    H.block<3, 3>(0, sub_in_index + 0) = -Eigen::Matrix3d::Identity();
-    H.block<3, 3>(3, sub_in_index + 3) = -Eigen::Matrix3d::Identity();
-  }
-
   Eigen::MatrixXd sub_cov = Eigen::MatrixXd::Zero(sub_size, sub_size);
   sub_cov.block<3, 3>(0, 0) = ekf->m_cov.block<3, 3>(6, 6);
 
   if (ekf->m_state.imu_states[imu_id].GetIsExtrinsic()) {
+    H.block<3, 3>(0, 0) = -SkewSymmetric(
+      ekf->m_state.imu_states[imu_id].ang_i_to_b.inverse() *
+      ekf->m_state.body_state.ang_b_to_l.inverse() * g_gravity
+    );
     sub_cov.block(sub_ex_index, sub_ex_index, 3, 3) = ekf->m_cov.block(ex_index, ex_index, 3, 3);
     sub_cov.block(0, sub_ex_index, 3, 3) = ekf->m_cov.block(0, ex_index, 3, 3);
     sub_cov.block(sub_ex_index, 0, 3, 3) = ekf->m_cov.block(ex_index, 0, 3, 3);
   }
 
   if (ekf->m_state.imu_states[imu_id].GetIsIntrinsic()) {
+    z.segment<3>(3) = -(angular_rate - bias_g);
+    R.block<3, 3>(3, 3) = angular_rate_covariance;
+    H.block<3, 3>(0, sub_in_index + 0) = -Eigen::Matrix3d::Identity();
+    H.block<3, 3>(3, sub_in_index + 3) = -Eigen::Matrix3d::Identity();
     sub_cov.block(sub_in_index, sub_in_index, 6, 6) = ekf->m_cov.block(in_index, in_index, 6, 6);
     sub_cov.block(0, sub_in_index, 6, 6) = ekf->m_cov.block(0, in_index, 6, 6);
     sub_cov.block(sub_in_index, 0, 6, 6) = ekf->m_cov.block(in_index, 0, 6, 6);
