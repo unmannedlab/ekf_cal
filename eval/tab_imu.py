@@ -173,15 +173,18 @@ class tab_imu:
             fig.line(
                 t_imu[i, :], pos_0[i, :],
                 alpha=self.alpha,
-                color=self.colors[0])
+                color=self.colors[0],
+                legend_label='x')
             fig.line(
                 t_imu[i, :], pos_1[i, :],
                 alpha=self.alpha,
-                color=self.colors[1])
+                color=self.colors[1],
+                legend_label='y')
             fig.line(
                 t_imu[i, :], pos_2[i, :],
                 alpha=self.alpha,
-                color=self.colors[2])
+                color=self.colors[2],
+                legend_label='z')
 
         pos_0_std = np.std(pos_0, axis=0)
         pos_1_std = np.std(pos_1, axis=0)
@@ -238,7 +241,7 @@ class tab_imu:
 
             for (ew, ex, ey, ez) in zip(quat_err_w, quat_err_x, quat_err_y, quat_err_z):
                 # TODO(jhartzer): Compare to truth value
-                error_q = Rotation.from_quat([ew, ex, ey, ez])
+                error_q = Rotation.from_quat([ew, ex, ey, ez], scalar_first=True)
                 error_eul = error_q.as_euler('XYZ')
                 eul_err_x.append(error_eul[0])
                 eul_err_y.append(error_eul[1])
@@ -248,17 +251,20 @@ class tab_imu:
                 time,
                 eul_err_x,
                 alpha=self.alpha,
-                color=self.colors[0])
+                color=self.colors[0],
+                legend_label='x')
             fig.line(
                 time,
                 eul_err_y,
                 alpha=self.alpha,
-                color=self.colors[1])
+                color=self.colors[1],
+                legend_label='y')
             fig.line(
                 time,
                 eul_err_z,
                 alpha=self.alpha,
-                color=self.colors[2])
+                color=self.colors[2],
+                legend_label='z')
         return fig
 
     def plot_acc_bias_err(self):
@@ -411,19 +417,19 @@ class tab_imu:
                 imu_ext_cov_0,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='Pos x')
+                legend_label='x')
             fig.line(
                 t_imu,
                 imu_ext_cov_1,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='Pos y')
+                legend_label='y')
             fig.line(
                 t_imu,
                 imu_ext_cov_2,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='Pos z')
+                legend_label='z')
         return fig
 
     def plot_imu_ext_ang_cov(self):

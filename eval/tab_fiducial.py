@@ -288,12 +288,12 @@ class tab_fiducial:
             true_qz = board_df['quat_z']
 
             for (t, b, qw, qx, qy, qz) in zip(time, board, board_qw, board_qx, board_qy, board_qz):
-                board_q = Rotation.from_quat([qw, qx, qy, qz])
+                board_q = Rotation.from_quat([qw, qx, qy, qz], scalar_first=True)
                 true_q = Rotation.from_quat([
                     true_qw[int(b)],
                     true_qx[int(b)],
                     true_qy[int(b)],
-                    true_qz[int(b)]])
+                    true_qz[int(b)]], scalar_first=True)
                 error_q = board_q.inv() * true_q
                 error_eul = error_q.as_euler('XYZ')
                 err_x[t].append(error_eul[0])

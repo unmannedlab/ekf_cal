@@ -41,7 +41,7 @@ def lists_to_rot(w_list, x_list, y_list, z_list):
     """Convert lists of quaternion elements to a list of scipy rotations."""
     r_list = []
     for w, x, y, z in zip(w_list, x_list, y_list, z_list):
-        r = Rotation.from_quat([w, x, y, z])
+        r = Rotation.from_quat([w, x, y, z], scalar_first=True)
         r_list.append(r)
     return r_list
 

@@ -406,6 +406,11 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   msg << VectorToCommaString(acceleration);
   msg << VectorToCommaString(angular_rate);
   msg << VectorToCommaString(z);
+
+  if (!ekf->m_state.imu_states[imu_id].GetIsIntrinsic()) {
+    msg << VectorToCommaString(Eigen::Vector3d::Zero());
+  }
+
   msg << "," << t_execution.count();
   m_data_logger.RateLimitedLog(msg.str(), time);
 
