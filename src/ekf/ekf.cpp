@@ -285,7 +285,7 @@ void EKF::AddProccessNoise(double delta_time)
 void EKF::LimitUncertainty()
 {
   // Create lower bound to uncertainty
-  MinBoundDiagonal(m_cov, 1e-6);
+  MinBoundDiagonal(m_cov, 1e-9);
 
   // Create upper bound to uncertainty
   MaxBoundDiagonal(m_cov, 1e-0, 0, 3);

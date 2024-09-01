@@ -148,9 +148,9 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
     //   )
     // );
 
-    // IMU Angular Offset
-    measurement_jacobian.block<3, 3>(3, imu_ex_start + 3) = -SkewSymmetric(
-      ang_i_to_b.inverse() * body_state.ang_b_to_l.inverse() * body_state.ang_vel_b_in_l);
+    // // IMU Angular Offset
+    // measurement_jacobian.block<3, 3>(3, imu_ex_start + 3) = -SkewSymmetric(
+    //   ang_i_to_b.inverse() * body_state.ang_b_to_l.inverse() * body_state.ang_vel_b_in_l);
 
     imu_in_start += 6;
   }
@@ -210,12 +210,12 @@ void ImuUpdater::UpdateEKF(
   if (m_is_extrinsic) {imu_update_size += g_imu_extrinsic_state_size;}
   if (m_is_intrinsic) {imu_update_size += g_imu_intrinsic_state_size;}
 
-  Eigen::MatrixXd sub_H = GetMeasurementJacobian(ekf);
+  Eigen::MatrixXd H = GetMeasurementJacobian(ekf);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
   R.block<3, 3>(0, 0) = acceleration_covariance * 3;
   R.block<3, 3>(3, 3) = angular_rate_covariance * 3;
-  MinBoundDiagonal(R, 1e-6);
+  MinBoundDiagonal(R, 1e-3);
 
   Eigen::MatrixXd sub_cov = Eigen::MatrixXd::Zero(sub_size, sub_size);
   sub_cov.block<12, 12>(0, 0) = ekf->m_cov.block<12, 12>(6, 6);
@@ -224,8 +224,8 @@ void ImuUpdater::UpdateEKF(
   sub_cov.block(12, 12, imu_size, imu_size) =
     ekf->m_cov.block(imu_start, imu_start, imu_size, imu_size);
 
-  Eigen::MatrixXd S = sub_H * sub_cov * sub_H.transpose() + R;
-  Eigen::MatrixXd K = sub_cov * sub_H.transpose() * S.inverse();
+  Eigen::MatrixXd S = H * sub_cov * H.transpose() + R;
+  Eigen::MatrixXd K = sub_cov * H.transpose() * S.inverse();
 
   Eigen::VectorXd update = K * resid;
   Eigen::VectorXd imu_update = update.segment(12, sub_size - 12);
@@ -238,8 +238,10 @@ void ImuUpdater::UpdateEKF(
 
   ekf->m_state.imu_states += imu_update;
 
-  sub_cov = (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * sub_H) * sub_cov *
-    (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * sub_H).transpose() + K * R * K.transpose();
+  sub_cov =
+    (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H) * sub_cov *
+    (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H).transpose() +
+    K * R * K.transpose();
 
   ekf->m_cov.block<12, 12>(6, 6) = sub_cov.block<12, 12>(0, 0);
   ekf->m_cov.block(imu_start, 0, imu_size, 12) = sub_cov.block(12, 0, imu_size, 12);
@@ -340,7 +342,7 @@ bool ImuUpdater::ZeroAccelerationUpdate(
     sub_cov.block(sub_in_index, 0, 6, 6) = ekf->m_cov.block(in_index, 0, 6, 6);
   }
 
-  MinBoundDiagonal(R, 1e-6);
+  MinBoundDiagonal(R, 1e-2);
 
   Eigen::MatrixXd score_mat = z.transpose() *
     (H * sub_cov * H.transpose() + m_stationary_noise_scale_factor * R).inverse() * z;
