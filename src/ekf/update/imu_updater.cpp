@@ -36,8 +36,6 @@ ImuUpdater::ImuUpdater(
   unsigned int imu_id,
   bool is_extrinsic,
   bool is_intrinsic,
-  double motion_detection_chi_squared,
-  double stationary_noise_scale_factor,
   std::string log_file_directory,
   bool data_logging_on,
   double data_log_rate,
@@ -46,8 +44,6 @@ ImuUpdater::ImuUpdater(
 : Updater(imu_id, logger),
   m_is_extrinsic(is_extrinsic),
   m_is_intrinsic(is_intrinsic),
-  m_motion_detection_chi_squared(motion_detection_chi_squared),
-  m_stationary_noise_scale_factor(stationary_noise_scale_factor),
   m_data_logger(log_file_directory, "imu_" + std::to_string(imu_id) + ".csv")
 {
   std::stringstream header;
@@ -345,11 +341,11 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   MinBoundDiagonal(R, 1e-2);
 
   Eigen::MatrixXd score_mat = z.transpose() *
-    (H * sub_cov * H.transpose() + m_stationary_noise_scale_factor * R).inverse() * z;
+    (H * sub_cov * H.transpose() + ekf->GetImuNoiseScaleFactor() * R).inverse() * z;
   double score = score_mat(0, 0);
-  if (score > m_motion_detection_chi_squared && ekf->IsGravityInitialized()) {
+  if (score > ekf->GetMotionDetectionChiSquared() && ekf->IsGravityInitialized()) {
     return false;
-  } else if (score < m_motion_detection_chi_squared) {
+  } else if (score < ekf->GetMotionDetectionChiSquared()) {
     ekf->InitializeGravity();
   }
 

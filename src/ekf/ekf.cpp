@@ -47,7 +47,9 @@ EKF::EKF(Parameters params)
   m_augmenting_type(params.augmenting_type),
   m_augmenting_delta_time(params.augmenting_delta_time),
   m_augmenting_pos_error(params.augmenting_pos_error),
-  m_augmenting_ang_error(params.augmenting_ang_error)
+  m_augmenting_ang_error(params.augmenting_ang_error),
+  m_motion_detection_chi_squared(params.motion_detection_chi_squared),
+  m_imu_noise_scale_factor(params.imu_noise_scale_factor)
 {
   std::stringstream header;
   header << "time";
@@ -894,4 +896,14 @@ unsigned int EKF::GetFidStateStart()
 double EKF::GetCurrentTime()
 {
   return m_current_time;
+}
+
+double EKF::GetMotionDetectionChiSquared()
+{
+  return m_motion_detection_chi_squared;
+}
+
+double EKF::GetImuNoiseScaleFactor()
+{
+  return m_imu_noise_scale_factor;
 }

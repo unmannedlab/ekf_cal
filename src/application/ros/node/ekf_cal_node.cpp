@@ -70,6 +70,8 @@ EkfCalNode::EkfCalNode()
   this->declare_parameter("init_pos_thresh", 1.0);
   this->declare_parameter("init_ang_thresh", 1.0);
   this->declare_parameter("init_baseline_dist", 1.0);
+  this->declare_parameter("motion_detection_chi_squared", 1.0);
+  this->declare_parameter("imu_noise_scale_factor", 1.0);
 
   // Declare Sensor Lists
   this->declare_parameter("imu_list", std::vector<std::string>{});
@@ -107,9 +109,13 @@ void EkfCalNode::Initialize()
   ekf_params.pos_l_in_g = StdToEigVec(this->get_parameter("pos_l_in_g").as_double_array());
   ekf_params.ang_l_to_g = this->get_parameter("ang_l_to_g").as_double();
   ekf_params.gps_init_type = static_cast<GpsInitType>(this->get_parameter("init_type").as_int());
-  ekf_params.gps_init_baseline_dist = this->get_parameter("init_pos_thresh").as_double();
-  ekf_params.gps_init_pos_thresh = this->get_parameter("init_ang_thresh").as_double();
-  ekf_params.gps_init_ang_thresh = this->get_parameter("init_baseline_dist").as_double();
+  ekf_params.gps_init_baseline_dist = this->get_parameter("init_baseline_dist").as_double();
+  ekf_params.gps_init_pos_thresh = this->get_parameter("init_pos_thresh").as_double();
+  ekf_params.gps_init_ang_thresh = this->get_parameter("init_ang_thresh").as_double();
+  ekf_params.motion_detection_chi_squared =
+    this->get_parameter("motion_detection_chi_squared").as_double();
+  ekf_params.imu_noise_scale_factor = this->get_parameter("imu_noise_scale_factor").as_double();
+
   m_ekf = std::make_shared<EKF>(ekf_params);
 
   // Load lists of sensors

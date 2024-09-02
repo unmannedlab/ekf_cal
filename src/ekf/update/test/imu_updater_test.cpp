@@ -53,8 +53,7 @@ TEST(test_imu_updater, update) {
   ekf->RegisterIMU(2, imu_state_3, imu_covariance_3);
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  ImuUpdater imu_updater(
-    imu_id, true, true, 1.0, 1.0, log_file_directory, data_logging_on, 0.0, logger);
+  ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on, 0.0, logger);
 
   Eigen::Vector3d acceleration = g_gravity;
   Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Identity() * 1e-3;
@@ -116,8 +115,7 @@ TEST(test_imu_updater, imu_prediction_update) {
   ekf->RegisterIMU(imu_id, imu_state, imu_cov);
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  ImuUpdater imu_updater(
-    imu_id, true, true, 1.0, 1.0, log_file_directory, data_logging_on, 0.0, logger);
+  ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on, 0.0, logger);
 
   Eigen::Vector3d acceleration = g_gravity;
   Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Zero();
@@ -174,8 +172,7 @@ TEST(test_imu_updater, non_initialized_time) {
   ekf->RegisterIMU(imu_id, imu_state, imu_cov);
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  ImuUpdater imu_updater(
-    imu_id, true, true, 1.0, 1.0, log_file_directory, data_logging_on, 0.0, logger);
+  ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on, 0.0, logger);
 
   Eigen::Vector3d acceleration = g_gravity;
   Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Zero();
