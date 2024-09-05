@@ -70,8 +70,8 @@ EkfCalNode::EkfCalNode()
   this->declare_parameter("init_pos_thresh", 1.0);
   this->declare_parameter("init_ang_thresh", 1.0);
   this->declare_parameter("init_baseline_dist", 1.0);
-  this->declare_parameter("motion_detection_chi_squared", 1.0);
-  this->declare_parameter("imu_noise_scale_factor", 1.0);
+  this->declare_parameter("motion_detection_chi_squared", 0.1);
+  this->declare_parameter("imu_noise_scale_factor", 100.0);
 
   // Declare Sensor Lists
   this->declare_parameter("imu_list", std::vector<std::string>{});

@@ -177,8 +177,8 @@ int main(int argc, char * argv[])
   ekf_params.gps_init_pos_thresh = ros_params["gps_init_pos_thresh"].as<double>(1.0);
   ekf_params.gps_init_ang_thresh = ros_params["gps_init_ang_thresh"].as<double>(1.0);
   ekf_params.motion_detection_chi_squared =
-    ros_params["motion_detection_chi_squared"].as<double>(1.0);
-  ekf_params.imu_noise_scale_factor = ros_params["imu_noise_scale_factor"].as<double>(1.0);
+    ros_params["motion_detection_chi_squared"].as<double>(0.1);
+  ekf_params.imu_noise_scale_factor = ros_params["imu_noise_scale_factor"].as<double>(100.0);
   auto ekf = std::make_shared<EKF>(ekf_params);
 
   // Simulation parameters
