@@ -80,6 +80,16 @@ public:
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d acceleration_covariance,
     Eigen::Vector3d angular_rate, Eigen::Matrix3d angular_rate_covariance, bool use_as_predictor);
 
+  ///
+  /// @brief Check for and perform a zero-acceleration update
+  /// @param ekf EKF pointer
+  /// @param imu_id ID of relevant IMU
+  /// @param time Measurement time
+  /// @param acceleration Measured acceleration
+  /// @param acceleration_covariance Estimated acceleration error
+  /// @param angular_rate Measured angular rate
+  /// @param angular_rate_covariance Estimated angular rate error
+  ///
   bool ZeroAccelerationUpdate(
     std::shared_ptr<EKF> ekf,
     unsigned int imu_id,
