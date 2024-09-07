@@ -7,9 +7,9 @@
         process_noise: [
             1.0e-3, 1.0e-3, 1.0e-3,
             1.0e-4, 1.0e-4, 1.0e-4,
-            1.0e-5, 1.0e-5, 1.0e-5,
+            1.0e-1, 1.0e-1, 1.0e-1,
             1.0e-3, 1.0e-3, 1.0e-3,
-            1.0e-4, 1.0e-4, 1.0e-4,
+            1.0e-1, 1.0e-1, 1.0e-1,
             1.0e-5, 1.0e-5, 1.0e-5,
         ]
         sim_params:
@@ -36,7 +36,7 @@
                 use_for_prediction: false
                 is_extrinsic: false
                 is_intrinsic: false
-                rate: 4000.0
+                rate: 400.0
                 topic: "/imu_1"
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 pos_i_in_b: [0.0, 0.0, 0.0]
@@ -44,6 +44,7 @@
                 acc_bias: [0.0, 0.0, 0.0]
                 omg_bias: [0.0, 0.0, 0.0]
                 sim_params:
+                    data_log_rate: 10.0
                     time_bias_error: 0.0
                     time_error: 1.0e-6
                     acc_bias_error: [1.0e-3, 1.0e-3, 1.0e-3]
