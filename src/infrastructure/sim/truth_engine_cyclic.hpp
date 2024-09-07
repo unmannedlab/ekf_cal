@@ -120,7 +120,7 @@ private:
   Eigen::Vector3d m_ang_offset {0.0, 0.0, 0.0};
   double m_ang_amplitude = 0.1;
   double m_pos_amplitude = 1.0;
-  double m_stationary_time {0.0};
+  double m_stationary_time {0.1};
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTH_ENGINE_CYCLIC_HPP_
