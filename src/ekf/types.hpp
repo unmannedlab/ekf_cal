@@ -256,10 +256,10 @@ typedef std::vector<std::vector<FeaturePoint>> FeatureTracks;
 ///
 typedef struct BoardDetection
 {
-  int frame_id;            ///< @brief Image frame ID
-  double frame_time;       ///< @brief Feature frame time
-  cv::Vec3d t_vec_f_in_c;  ///< @brief Rotation vector of the board
-  cv::Vec3d r_vec_f_to_c;  ///< @brief Translation vector of the board
+  int frame_id{-1};         ///< @brief Image frame ID
+  double frame_time{-1.0};  ///< @brief Feature frame time
+  cv::Vec3d t_vec_f_in_c;   ///< @brief Rotation vector of the board
+  cv::Vec3d r_vec_f_to_c;   ///< @brief Translation vector of the board
 } BoardDetection;
 
 typedef std::vector<BoardDetection> BoardTrack;
