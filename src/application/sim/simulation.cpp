@@ -327,7 +327,7 @@ int main(int argc, char * argv[])
     SimFeatureTracker::Parameters sim_tracker_params;
     sim_tracker_params.feature_count = sim_node["feature_count"].as<unsigned int>(1.0e2);
     sim_tracker_params.room_size = sim_node["room_size"].as<double>(10.0);
-    sim_tracker_params.no_errors = trk_node["no_errors"].as<bool>(false);
+    sim_tracker_params.no_errors = sim_node["no_errors"].as<bool>(false);
     sim_tracker_params.rng = rng;
     sim_tracker_params.tracker_params = track_params;
 

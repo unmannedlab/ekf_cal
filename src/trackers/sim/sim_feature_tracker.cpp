@@ -52,7 +52,10 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
   Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(sensor_id);
   Eigen::Quaterniond ang_c_to_b = m_truth->GetCameraAngularPosition(sensor_id);
   Intrinsics intrinsics = m_truth->GetCameraIntrinsics(sensor_id);
-  Eigen::Matrix3d rot_g_to_c = (ang_b_to_g * ang_c_to_b).toRotationMatrix().transpose();
+  Eigen::Matrix3d rot_c_to_g = (ang_b_to_g * ang_c_to_b).toRotationMatrix();
+  Eigen::Matrix3d rot_g_to_c = rot_c_to_g.transpose();
+
+  // Create OpenCV rotation matrix
   cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);
   EigenMatrixToCv(rot_g_to_c, ang_g_to_c_cv);
 
@@ -61,6 +64,7 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
   cv::Rodrigues(ang_g_to_c_cv, r_vec);
 
   Eigen::Vector3d pos_g_in_c = rot_g_to_c * (-(pos_b_in_g + ang_b_to_g * pos_c_in_b));
+  Eigen::Vector3d pos_c_in_g = pos_b_in_g + ang_b_to_g * pos_c_in_b;
 
   cv::Mat t_vec(3, 1, cv::DataType<double>::type);
   t_vec.at<double>(0) = pos_g_in_c[0];
@@ -79,10 +83,13 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
 
   // Convert to feature points
   std::vector<cv::KeyPoint> projected_features;
-  Eigen::Vector3d cam_plane_vec = rot_g_to_c.transpose() * Eigen::Vector3d(0, 0, 1);
+  Eigen::Vector3d cam_plane_vec = rot_c_to_g * Eigen::Vector3d(0, 0, 1);
   for (unsigned int i = 0; i < projected_points.size(); ++i) {
     cv::Point3d point_cv = feature_points[i];
-    Eigen::Vector3d point_eig(point_cv.x, point_cv.y, point_cv.z);
+    Eigen::Vector3d point_eig(
+      point_cv.x - pos_c_in_g[0],
+      point_cv.y - pos_c_in_g[1],
+      point_cv.z - pos_c_in_g[2]);
 
     // Check that point is in front of camera plane and within sensor limits
     if (
@@ -121,8 +128,8 @@ std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
   }
 
   // Update MSCKF on features no longer detected
-  for (auto it = m_feature_track_map.cbegin(); it != m_feature_track_map.cend(); ) {
-    const auto & feature_track = it->second;
+  for (auto feat_it = m_feature_track_map.cbegin(); feat_it != m_feature_track_map.cend(); ) {
+    const auto & feature_track = feat_it->second;
     if ((feature_track.back().frame_id < frame_id) ||
       (feature_track.size() >= m_max_track_length))
     {
@@ -130,9 +137,9 @@ std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
       if (feature_track.size() > 1) {
         feature_tracks.push_back(feature_track);
       }
-      it = m_feature_track_map.erase(it);
+      feat_it = m_feature_track_map.erase(feat_it);
     } else {
-      ++it;
+      ++feat_it;
     }
   }
 
