@@ -60,8 +60,8 @@ public:
     double gps_init_baseline_dist {100.0};  ///< @brief Minimum pos projection error
     double gps_init_pos_thresh {0.1};       ///< @brief Minimum ang projection error
     double gps_init_ang_thresh {0.1};       ///< @brief Baseline distance threshold
-    double motion_detection_chi_squared {0.1};  ///< @brief Motion detection chi squared threshold
-    double imu_noise_scale_factor {100.0};      ///< @brief Motion detection IMU noise scale factor
+    double motion_detection_chi_squared {0.01};  ///< @brief Motion detection chi squared threshold
+    double imu_noise_scale_factor {100.0};       ///< @brief Motion detection IMU noise scale factor
   } Parameters;
 
   ///
@@ -423,7 +423,7 @@ private:
   unsigned int m_fid_state_start{0};
 
   bool m_is_gravity_initialized{false};
-  double m_motion_detection_chi_squared{0.1};
+  double m_motion_detection_chi_squared{0.01};
   double m_imu_noise_scale_factor{100.0};
 };
 

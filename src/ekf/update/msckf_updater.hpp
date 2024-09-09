@@ -55,11 +55,13 @@ public:
   /// @brief Triangulate feature seen from multiple camera frames
   /// @param ekf EKF pointer
   /// @param feature_track Single feature track
-  /// @return Estimate of feature position in camera frame given observations
+  /// @param pos_f_in_l Output estimate of feature position in camera frame given observations
+  /// @return If triangulation was successful
   ///
-  Eigen::Vector3d TriangulateFeature(
+  bool TriangulateFeature(
     std::shared_ptr<EKF> ekf,
-    std::vector<FeaturePoint> & feature_track);
+    std::vector<FeaturePoint> & feature_track,
+    Eigen::Vector3d & pos_f_in_l);
 
   ///
   /// @brief EKF updater function
@@ -96,6 +98,7 @@ private:
   DataLogger m_msckf_logger;
   DataLogger m_triangulation_logger;
   double m_min_feat_dist{1.0};
+  double m_max_feat_dist{100.0};  /// @todo: Get from input
 };
 
 #endif  // EKF__UPDATE__MSCKF_UPDATER_HPP_
