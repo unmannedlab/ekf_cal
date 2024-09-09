@@ -1,4 +1,3 @@
-
 /EkfCalNode:
     ros__parameters:
         debug_log_level: 2
@@ -62,7 +61,7 @@
                 data_log_rate: 10.0
                 topic:  "/cam_1"
                 pos_c_in_b: [0.0, 0.0, 0.0]
-                ang_c_to_b: [0.5, -0.5, 0.5, -0.5]
+                ang_c_to_b: [-0.5, 0.5, -0.5, 0.5]
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 tracker: "orb"
                 sim_params:

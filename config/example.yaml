@@ -1,4 +1,3 @@
-
 /EkfCalNode:
     ros__parameters:
         debug_log_level: 2                  # Debug_Log_Level:
@@ -122,7 +121,7 @@
                 rate: 20.0                                  # Sensor Rate
                 topic:  "/cam_1"                            # ROS topic
                 pos_c_in_b: [0.0, 0.0, 0.0]                 # Position in body frame
-                ang_c_to_b: [0.5, -0.5, 0.5, -0.5]          # Orientation in body frame
+                ang_c_to_b: [-0.5, 0.5, -0.5, 0.5]          # Orientation in body frame
                 variance: [
                     0.1, 0.1, 0.1,                          # Position
                     0.1, 0.1, 0.1                           # Orientation

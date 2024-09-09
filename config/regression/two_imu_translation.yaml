@@ -1,4 +1,3 @@
-# TODO: Test this regression input
 /EkfCalNode:
     ros__parameters:
         debug_log_level: 2
