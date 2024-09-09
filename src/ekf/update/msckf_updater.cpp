@@ -123,7 +123,7 @@ bool MsckfUpdater::TriangulateFeature(
   // Solve linear triangulation for 3D cartesian estimate of feature pos
   Eigen::Vector3d pos_f_in_c0 = A.colPivHouseholderQr().solve(b);
 
-  if (pos_f_in_c0.norm() < m_min_feat_dist || m_max_feat_dist < pos_f_in_c0.norm()) {
+  if (pos_f_in_c0.z() < m_min_feat_dist || m_max_feat_dist < pos_f_in_c0.z()) {
     std::stringstream err_msg;
     err_msg << "MSCKF triangulated point out of bounds. r = " << pos_f_in_l.norm();
     m_logger->Log(LogLevel::INFO, err_msg.str());
@@ -347,15 +347,15 @@ void MsckfUpdater::UpdateEKF(
   Eigen::VectorXd cam_update = update.segment(g_body_state_size + imu_states_size, cam_states_size);
 
   /// @todo: Needs to be debugged
-  // ekf->m_state.body_state += body_update;
+  ekf->m_state.body_state += body_update;
   ekf->m_state.imu_states += imu_update;
   ekf->m_state.cam_states += cam_update;
 
   /// @todo: Needs to be debugged
-  // ekf->m_cov =
-  //   (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * ekf->m_cov *
-  //   (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x).transpose() +
-  //   K * R * K.transpose();
+  ekf->m_cov =
+    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * ekf->m_cov *
+    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x).transpose() +
+    K * R * K.transpose();
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);

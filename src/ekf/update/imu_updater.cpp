@@ -280,6 +280,7 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   Eigen::Matrix3d angular_rate_covariance)
 {
   /// @todo: Need a cohesive method to handle stationary rotations about the gravity axis
+  return false;
   ekf->ProcessModel(time);
 
   unsigned int sub_size{3}, meas_size{3};
