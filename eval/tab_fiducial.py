@@ -287,6 +287,7 @@ class tab_fiducial:
             true_qy = board_df['quat_y']
             true_qz = board_df['quat_z']
 
+            # TODO(jhartzer): Use common euler function
             for (t, b, qw, qx, qy, qz) in zip(time, board, board_qw, board_qx, board_qy, board_qz):
                 board_q = Rotation.from_quat([qw, qx, qy, qz], scalar_first=True)
                 true_q = Rotation.from_quat([

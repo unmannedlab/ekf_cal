@@ -47,7 +47,7 @@ ImuUpdater::ImuUpdater(
   m_data_logger(log_file_directory, "imu_" + std::to_string(imu_id) + ".csv")
 {
   std::stringstream header;
-  header << "time";
+  header << "time,stationary,score";
   header << EnumerateHeader("imu_pos", 3);
   header << EnumerateHeader("imu_ang_pos", 4);
   header << EnumerateHeader("imu_acc_bias", 3);
@@ -252,6 +252,7 @@ void ImuUpdater::UpdateEKF(
   std::stringstream msg;
 
   msg << time;
+  msg << ",0," << ekf->GetMotionDetectionChiSquared();
   msg << VectorToCommaString(ekf->m_state.imu_states[m_id].pos_i_in_b);
   msg << QuaternionToCommaString(ekf->m_state.imu_states[m_id].ang_i_to_b);
   msg << VectorToCommaString(ekf->m_state.imu_states[m_id].acc_bias);
@@ -365,6 +366,8 @@ bool ImuUpdater::ZeroAccelerationUpdate(
     (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H).transpose() +
     K * R * K.transpose();
 
+  MinBoundDiagonal(sub_cov, 1e-2, 0, 3);
+
   ekf->m_cov.block<3, 3>(6, 6) = sub_cov.block<3, 3>(0, 0);
 
   if (ekf->m_state.imu_states[imu_id].GetIsExtrinsic()) {
@@ -386,6 +389,7 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   std::stringstream msg;
 
   msg << time;
+  msg << ",1," << score;
   msg << VectorToCommaString(ekf->m_state.imu_states[m_id].pos_i_in_b);
   msg << QuaternionToCommaString(ekf->m_state.imu_states[m_id].ang_i_to_b);
   msg << VectorToCommaString(ekf->m_state.imu_states[m_id].acc_bias);

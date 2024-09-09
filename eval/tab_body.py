@@ -20,6 +20,7 @@ from bokeh.layouts import layout
 from bokeh.models import Spacer, TabPanel
 from bokeh.plotting import figure
 import numpy as np
+from scipy.spatial.transform import Rotation
 from utilities import calculate_alpha, calculate_rotation_errors, get_colors, interpolate_error, \
     lists_to_rot, plot_update_timing
 
@@ -115,30 +116,42 @@ class tab_body:
         fig = figure(width=800, height=300, x_axis_label='Time [s]',
                      y_axis_label='Angle', title='Body Angle')
         for body_df in self.body_state_dfs:
+
+            body_w = body_df['body_ang_pos_0']
+            body_x = body_df['body_ang_pos_1']
+            body_y = body_df['body_ang_pos_2']
+            body_z = body_df['body_ang_pos_3']
+
+            body_a = []
+            body_b = []
+            body_g = []
+
+            # TODO(jhartzer): Use common euler function
+            for (w, x, y, z) in zip(body_w, body_x, body_y, body_z):
+                body_rot = Rotation.from_quat([w, x, y, z], scalar_first=True)
+                body_eul = body_rot.as_euler('XYZ')
+                body_a.append(body_eul[0])
+                body_b.append(body_eul[1])
+                body_g.append(body_eul[2])
+
             time = body_df['time']
             fig.line(
                 time,
-                body_df['body_ang_pos_0'],
+                body_a,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='w')
-            fig.line(
-                time,
-                body_df['body_ang_pos_1'],
-                alpha=self.alpha,
-                color=self.colors[1],
                 legend_label='X')
             fig.line(
                 time,
-                body_df['body_ang_pos_2'],
+                body_b,
                 alpha=self.alpha,
-                color=self.colors[2],
+                color=self.colors[1],
                 legend_label='Y')
             fig.line(
                 time,
-                body_df['body_ang_pos_3'],
+                body_g,
                 alpha=self.alpha,
-                color=self.colors[3],
+                color=self.colors[2],
                 legend_label='Z')
         return fig
 

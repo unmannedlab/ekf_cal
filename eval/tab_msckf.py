@@ -93,7 +93,7 @@ class tab_msckf:
                 mskcf_df['cam_ang_pos_2'],
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='X')
+                legend_label='Z')
         return fig
 
     def plot_cam_pos_cov(self):
@@ -227,15 +227,18 @@ class tab_msckf:
         fig.line(
             times,
             mean_x,
-            color=self.colors[0])
+            color=self.colors[0],
+            legend_label='X')
         fig.line(
             times,
             mean_y,
-            color=self.colors[1])
+            color=self.colors[1],
+            legend_label='Y')
         fig.line(
             times,
             mean_z,
-            color=self.colors[2])
+            color=self.colors[2],
+            legend_label='Z')
 
         cds_x = ColumnDataSource({'base': times, 'lower': mean_x - std_x, 'upper': mean_x + std_x})
         cds_y = ColumnDataSource({'base': times, 'lower': mean_y - std_y, 'upper': mean_y + std_y})

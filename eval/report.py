@@ -100,7 +100,7 @@ def plot_sim_results(config_sets, args):
         for tab in tabs:
             for row in tab.child.children:
                 for fig in row.children:
-                    if (isinstance(fig, figure) and fig.legend):
+                    if (isinstance(fig, figure)):
                         fig.toolbar.logo = None
                         fig.tools = [
                             PanTool(),
@@ -110,7 +110,8 @@ def plot_sim_results(config_sets, args):
                             ResetTool(),
                             SaveTool()
                         ]
-                        fig.legend.click_policy = 'hide'
+                        if (fig.legend):
+                            fig.legend.click_policy = 'hide'
 
         if (args.embed):
             if not os.path.exists(os.path.join(plot_dir, 'js')):

@@ -16,7 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from bokeh.layouts import layout
-from bokeh.models import Spacer, TabPanel
+from bokeh.models import TabPanel
 from bokeh.plotting import figure
 import numpy as np
 from utilities import calculate_alpha, get_colors, plot_update_timing
@@ -239,6 +239,7 @@ class tab_imu:
             eul_err_y = []
             eul_err_z = []
 
+            # TODO(jhartzer): Use common euler function
             for (ew, ex, ey, ez) in zip(quat_err_w, quat_err_x, quat_err_y, quat_err_z):
                 # TODO(jhartzer): Compare to truth value
                 error_q = Rotation.from_quat([ew, ex, ey, ez], scalar_first=True)
@@ -531,6 +532,30 @@ class tab_imu:
                 legend_label='Z')
         return fig
 
+    def plot_stationary(self):
+        """Plot is stationary update being performed."""
+        fig = figure(
+            width=800,
+            height=300,
+            x_axis_label='Time [s]',
+            y_axis_label='Is Stationary',
+            title='Is Stationary')
+        for imu_df in self.imu_dfs:
+            t_imu = imu_df['time']
+            is_stationary = imu_df['stationary']
+            score = imu_df['score']
+            fig.line(
+                t_imu,
+                is_stationary,
+                alpha=self.alpha,
+                color=self.colors[0])
+            fig.line(
+                t_imu,
+                score,
+                alpha=self.alpha,
+                color=self.colors[1])
+        return fig
+
     def get_tab(self):
         layout_plots = [
             [self.plot_acc_measurements(), self.plot_omg_measurements()],
@@ -545,7 +570,7 @@ class tab_imu:
             layout_plots.append([self.plot_imu_int_pos_cov(), self.plot_imu_int_ang_cov()])
             layout_plots.append([self.plot_acc_bias_err(), self.plot_omg_bias_err()])
 
-        layout_plots.append([plot_update_timing(self.imu_dfs), Spacer()])
+        layout_plots.append([plot_update_timing(self.imu_dfs), self.plot_stationary()])
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')
         tab = TabPanel(child=tab_layout,
                        title=f"IMU {self.imu_dfs[0].attrs['id']}")
