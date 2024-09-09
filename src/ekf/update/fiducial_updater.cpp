@@ -90,7 +90,7 @@ void FiducialUpdater::UpdateEKF(
 
   CamState cam_state = ekf->m_state.cam_states[m_camera_id];
 
-  /// @todo(jhartzer): Wrap this in a function
+  /// @todo: Wrap this in a function
   for (auto board_detection : board_track) {
     AugState aug_state_i = ekf->GetAugState(m_camera_id, board_detection.frame_id, time);
 
@@ -205,7 +205,7 @@ void FiducialUpdater::UpdateEKF(
     H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) =
       rot_bi_to_c * rot_l_to_bi * quaternion_jacobian_inv(aug_state_i.ang_b_to_l) * rot_f_to_l_est;
 
-    /// @todo(jhartzer): Enable calibration Jacobian
+    /// @todo: Enable calibration Jacobian
     // H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 6) = -rot_bi_to_c;
 
     // H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 9) = rot_bi_to_c *
@@ -236,7 +236,7 @@ void FiducialUpdater::UpdateEKF(
     return;
   }
 
-  /// @todo(jhartzer): This doesn't account for angular errors. Apply transform to R?
+  /// @todo: This doesn't account for angular errors. Apply transform to R?
   double position_sigma = 3 * pos_error * ang_error;  // / std::sqrt(board_track.size());
   Eigen::MatrixXd R = position_sigma * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 

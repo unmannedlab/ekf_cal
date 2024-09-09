@@ -31,7 +31,7 @@ Eigen::Vector3d lla_to_ecef(const Eigen::Vector3d & lla)
   Eigen::Vector3d out;
 
   if ((lla(0) < -90.0) || (lla(0) > +90.0) || (lla(1) < -180.0) || (lla(1) > +180.0)) {
-    /// @todo(jhartzer): Replace with logger
+    /// @todo: Replace with logger
     std::cout << "WGS lat or WGS lon out of range" << std::endl;
     return out;
   }

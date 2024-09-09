@@ -168,7 +168,7 @@ std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
 void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat & img_out)
 {
   // Down sample image
-  /// @todo(jhartzer): Get down-sample parameters from input
+  /// @todo: Get down-sample parameters from input
   cv::Mat img_down;
   cv::Size down_sample_size;
   down_sample_size.height = m_down_sample_height;
@@ -205,7 +205,7 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
     ratio_test(matches_forward);
     ratio_test(matches_backward);
 
-    /// @todo(jhartzer): Symmetry testing?
+    /// @todo: Symmetry testing?
 
     matches_good.reserve(matches_forward.size());
     for (unsigned int i = 0; i < matches_forward.size(); ++i) {

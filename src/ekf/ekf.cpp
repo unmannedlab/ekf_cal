@@ -143,7 +143,7 @@ void EKF::ProcessModel(double time)
 
   m_state.body_state += process_update;
 
-  /// @todo(jhartzer): Check matrix condition
+  /// @todo: Check matrix condition
   m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
     F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose();
 
@@ -161,6 +161,7 @@ void EKF::ProcessModel(double time)
   LogBodyStateIfNeeded(t_execution.count());
 }
 
+/// @todo: Use RK4 or other higher-order prediction step
 void EKF::PredictModel(
   double time,
   Eigen::Vector3d acceleration,
@@ -209,7 +210,7 @@ void EKF::PredictModel(
   Eigen::MatrixXd dF = GetStateTransition(dT);
   Eigen::MatrixXd F = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) + dF;
 
-  /// @todo(jhartzer): Check matrix condition
+  /// @todo: Check matrix condition
   m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
     F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose();
 
@@ -227,7 +228,7 @@ void EKF::PredictModel(
   LogBodyStateIfNeeded(t_execution.count());
 }
 
-/// @todo(jhartzer): Adjust process noise for offsets and biases
+/// @todo: Adjust process noise for offsets and biases
 void EKF::AddProccessNoise(double delta_time)
 {
   m_cov.block<g_body_state_size, g_body_state_size>(0, 0) += m_process_noise * delta_time;

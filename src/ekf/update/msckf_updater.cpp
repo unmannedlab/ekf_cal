@@ -227,7 +227,7 @@ void MsckfUpdater::UpdateEKF(
   for (auto & feature_track : feature_tracks) {
     m_logger->Log(LogLevel::DEBUG, "Feature Track size: " + std::to_string(feature_track.size()));
 
-    /// @todo(jhartzer): Add threshold for total distance/angle before triangulating
+    /// @todo: Add threshold for total distance/angle before triangulating
 
     // Get triangulated estimate of feature pos
     Eigen::Vector3d pos_f_in_l = TriangulateFeature(ekf, feature_track);

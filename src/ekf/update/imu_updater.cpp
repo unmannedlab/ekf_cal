@@ -106,7 +106,7 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
   measurement_jacobian.block<3, 3>(0, 0) = ang_i_to_b.inverse().toRotationMatrix() *
     body_state.ang_b_to_l.inverse().toRotationMatrix();
 
-  /// @todo(jhartzer): Body Angular Position
+  /// @todo: Body Angular Position
   // measurement_jacobian.block<3, 3>(0, 3) = ;
 
   // Body Angular Velocity
@@ -279,6 +279,7 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   Eigen::Vector3d angular_rate,
   Eigen::Matrix3d angular_rate_covariance)
 {
+  /// @todo: Need a cohesive method to handle stationary rotations about the gravity axis
   ekf->ProcessModel(time);
 
   unsigned int sub_size{3}, meas_size{3};

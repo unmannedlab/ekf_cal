@@ -68,7 +68,7 @@ Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
 
   Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, state_size);
   // measurement_jacobian.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity(3, 3);
-  /// @todo(jhartzer): Need to debug this Jacobian
+  /// @todo: Need to debug this Jacobian
   // measurement_jacobian.block<3, 3>(0, 9) = -ang_b_to_g.toRotationMatrix() *
   // SkewSymmetric(pos_a_in_b) * quaternion_jacobian(ang_b_to_g);
   if (m_is_extrinsic) {
