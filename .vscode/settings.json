@@ -9,14 +9,6 @@
     "files.exclude": {
         "**/__pycache__": true
     },
-    "C_Cpp.default.systemIncludePath": [
-        "/opt/ros/iron/include/**",
-        "/usr/include/**",
-        "/usr/src/googletest",
-        "${workspaceFolder}/src/**",
-        "${workspaceFolder}/../../build/ekf_cal/",
-        "/usr/include/c++/11"
-    ],
     "[cpp]": {
         "editor.wordBasedSuggestions": "off",
         "editor.suggest.insertMode": "replace",
@@ -197,8 +189,8 @@
     "terminal.integrated.gpuAcceleration": "off",
     "cmake.debugConfig": {
         "args": [
-            "${workspaceFolder}/config/regression/two_imu.yaml",
-            "${workspaceFolder}/config/regression/two_imu/"
+            "${workspaceFolder}/config/example.yaml",
+            "${workspaceFolder}/config/example/"
         ]
     },
     "todo.embedded.exclude": [

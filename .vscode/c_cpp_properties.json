@@ -1,15 +1,11 @@
 {
     "configurations": [
         {
-            "name": "ROS",
+            "name": "Linux",
             "includePath": [
-                "/opt/ros/iron/include/**",
-                "/usr/include/**",
-                "/usr/src/googletest",
-                "${workspaceFolder}/src",
-                "${workspaceFolder}/../../build/ekf_cal/",
-                "/usr/include/c++/11"
-            ]
+                "${workspaceFolder}/src/**"
+            ],
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4
