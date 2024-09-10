@@ -1,6 +1,5 @@
 # ekf_cal
 [![Documentation](https://github.com/unmannedlab/ekf_cal/actions/workflows/documentation.yaml/badge.svg)](https://github.com/unmannedlab/ekf_cal/actions/workflows/documentation.yaml)
-[![Plant Tree](https://img.shields.io/badge/dynamic/json?color=brightgreen&label=Plant%20Tree&query=%24.total&url=https%3A%2F%2Fpublic.offset.earth%2Fusers%2Ftreeware%2Ftrees)](https://plant.treeware.earth/unmannedlab/ekf_cal)
 
 Extended Kalman Filter Calibration and Localization: ekf_cal is a package focused on the simulation
 and development of a multi-sensor online calibration kalman filter. It combines the architecture of
@@ -11,9 +10,6 @@ For full documentation, please see below:
 - [Github Repository](https://github.com/unmannedlab/ekf_cal/)
 - [Documentation](https://unmannedlab.org/ekf_cal/)
 - [Getting Started](https://unmannedlab.org/ekf_cal/tutorial.html)
-
-## License
-This package is [Treeware](https://treeware.earth). If you use it in production, then we ask that you [**buy the world a tree**](https://plant.treeware.earth/unmannedlab/ekf_cal) to thank us for our work. By contributing to the Treeware forest you’ll be creating employment for local families and restoring wildlife habitats.
 
 ## References
 
