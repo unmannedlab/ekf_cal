@@ -297,9 +297,9 @@ void MsckfUpdater::UpdateEKF(
       // Augmented state Jacobian
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, g_aug_state_size);
       H_t.block<3, 3>(0, 0) = -rot_l_to_ci;
-      /// @todo: Needs to be debugged
-      // H_t.block<3, 3>(0, 3) = rot_ci_to_b.transpose() *
-      //   SkewSymmetric(rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l));
+      H_t.block<3, 3>(0, 3) = rot_ci_to_b.transpose() * rot_bi_to_l.transpose() *
+        SkewSymmetric(pos_f_in_l - pos_bi_in_l) *
+        quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
 
       /// @todo: Enable calibration Jacobian
       // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity(3, 3);
@@ -331,7 +331,7 @@ void MsckfUpdater::UpdateEKF(
     return;
   }
 
-  Eigen::MatrixXd R = px_error * px_error * std::sqrt(max_meas_size) *
+  Eigen::MatrixXd R = px_error * px_error * max_meas_size * max_meas_size *
     Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
   // Apply Kalman update
