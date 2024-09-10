@@ -7,7 +7,7 @@
             1.0e-3, 1.0e-3, 1.0e-3,
             1.0e-4, 1.0e-4, 1.0e-4,
             1.0e-1, 1.0e-1, 1.0e-1,
-            1.0e-3, 1.0e-3, 1.0e-3,
+            1.0e-0, 1.0e-0, 1.0e-0,
             1.0e-1, 1.0e-1, 1.0e-1,
             1.0e-5, 1.0e-5, 1.0e-5,
         ]
@@ -76,7 +76,7 @@
                 descriptor_extractor: 0
                 descriptor_matcher: 0
                 detector_threshold: 10.0
-                pixel_error: 0.5
+                pixel_error: 1.0
                 sim_params:
                     feature_count: 1000
                     room_size: 10.0

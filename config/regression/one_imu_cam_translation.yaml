@@ -7,20 +7,20 @@
             1.0e-3, 1.0e-3, 1.0e-3,
             1.0e-4, 1.0e-4, 1.0e-4,
             1.0e-1, 1.0e-1, 1.0e-1,
-            1.0e-3, 1.0e-3, 1.0e-3,
+            1.0e-0, 1.0e-0, 1.0e-0,
             1.0e-1, 1.0e-1, 1.0e-1,
             1.0e-5, 1.0e-5, 1.0e-5,
         ]
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 20.0
+            max_time: 60.0
             truth_type: "cyclic"
             pos_frequency: [0.3, 0.5, 0.7]
             ang_frequency: [0.0, 0.0, 0.0]
             pos_offset: [0.0, 0.0, 0.0]
             no_errors: false
-            number_of_runs: 10
+            number_of_runs: 3
             run_number: 0
 
         imu_list:
@@ -76,7 +76,7 @@
                 descriptor_extractor: 0
                 descriptor_matcher: 0
                 detector_threshold: 10.0
-                pixel_error: 0.5
+                pixel_error: 1.0
                 sim_params:
                     feature_count: 1000
                     room_size: 10.0

@@ -7,18 +7,19 @@
             1.0e-3, 1.0e-3, 1.0e-3,
             1.0e-4, 1.0e-4, 1.0e-4,
             1.0e-1, 1.0e-1, 1.0e-1,
-            1.0e-3, 1.0e-3, 1.0e-3,
+            1.0e-1, 1.0e-1, 1.0e-1,
             1.0e-1, 1.0e-1, 1.0e-1,
             1.0e-5, 1.0e-5, 1.0e-5,
         ]
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 60.0
+            max_time: 30.0
             truth_type: "cyclic"
-            pos_frequency: [0.3, 0.5, 0.7]
+            pos_frequency: [1.0, 2.0, 3.0]
             ang_frequency: [0.0, 0.0, 0.0]
             pos_offset: [0.0, 0.0, 0.0]
+            pos_amplitude: 5.0
             no_errors: false
             number_of_runs: 10
             run_number: 0
@@ -45,6 +46,7 @@
                 acc_bias: [0.0, 0.0, 0.0]
                 omg_bias: [0.0, 0.0, 0.0]
                 sim_params:
+                    no_errors: true
                     data_log_rate: 10.0
                     time_bias_error: 0.0
                     time_error: 1.0e-6
@@ -76,7 +78,9 @@
                 descriptor_extractor: 0
                 descriptor_matcher: 0
                 detector_threshold: 10.0
-                pixel_error: 0.5
+                pixel_error: 1.0
+                min_feat_dist: 1.0
+                max_track_length: 20
                 sim_params:
                     feature_count: 1000
                     room_size: 10.0

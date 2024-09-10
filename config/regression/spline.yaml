@@ -101,7 +101,7 @@
                 pos_stability: 1.0e-9
                 ang_stability: 1.0e-9
                 sim_params:
-                    no_errors: true
+                    no_errors: false
                     time_bias_error: 1.0e-3
                     time_error: 1.0e-6
                     pos_error: [1.0e-1, 1.0e-1, 1.0e-1]

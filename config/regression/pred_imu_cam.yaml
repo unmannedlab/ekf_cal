@@ -7,7 +7,7 @@
             1.0e-3, 1.0e-3, 1.0e-3,
             1.0e-4, 1.0e-4, 1.0e-4,
             1.0e-1, 1.0e-1, 1.0e-1,
-            1.0e-3, 1.0e-3, 1.0e-3,
+            1.0e-1, 1.0e-1, 1.0e-1,
             1.0e-1, 1.0e-1, 1.0e-1,
             1.0e-5, 1.0e-5, 1.0e-5,
         ]
@@ -45,6 +45,7 @@
                 acc_bias: [0.0, 0.0, 0.0]
                 omg_bias: [0.0, 0.0, 0.0]
                 sim_params:
+                    no_errors: true
                     data_log_rate: 10.0
                     time_bias_error: 0.0
                     time_error: 1.0e-6
@@ -64,16 +65,6 @@
                 ang_c_to_b: [-0.5, 0.5, -0.5, 0.5]
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 tracker: "orb"
-                intrinsics:
-                    f_x: 0.01
-                    f_y: 0.01
-                    k_1: 0.0
-                    k_2: 0.0
-                    p_1: 0.0
-                    p_2: 0.0
-                    pixel_size: 5.0e-6
-                    width: 640
-                    height: 480
                 sim_params:
                     time_bias_error: 0.0
                     time_error: 1.0e-6

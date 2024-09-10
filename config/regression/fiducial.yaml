@@ -102,7 +102,7 @@
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 min_track_length: 0
                 max_track_length: 1
-                data_log_rate: 20.0
+                data_log_rate: 10.0
                 sim_params:
                     pos_error: [1.0e-1, 1.0e-1, 1.0e-1]
                     ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
