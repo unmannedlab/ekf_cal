@@ -320,12 +320,13 @@ int main(int argc, char * argv[])
     track_params.min_track_length = trk_node["min_track_length"].as<unsigned int>(2U);
     track_params.max_track_length = trk_node["max_track_length"].as<unsigned int>(20U);
     track_params.min_feat_dist = trk_node["min_feat_dist"].as<double>(1.0);
+    track_params.down_sample = trk_node["down_sample"].as<bool>(false);
     track_params.down_sample_height = trk_node["down_sample_height"].as<double>(480.0);
     track_params.down_sample_width = trk_node["down_sample_width"].as<double>(640.0);
     max_track_length = std::max(max_track_length, track_params.max_track_length);
 
     SimFeatureTracker::Parameters sim_tracker_params;
-    sim_tracker_params.feature_count = sim_node["feature_count"].as<unsigned int>(1.0e2);
+    sim_tracker_params.feature_count = sim_node["feature_count"].as<unsigned int>(100);
     sim_tracker_params.room_size = sim_node["room_size"].as<double>(10.0);
     sim_tracker_params.no_errors = sim_node["no_errors"].as<bool>(false);
     sim_tracker_params.rng = rng;

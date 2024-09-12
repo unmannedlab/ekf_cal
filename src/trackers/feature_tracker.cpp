@@ -43,6 +43,7 @@ FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
     params.logger
   ),
   m_px_error(params.px_error),
+  m_down_sample(params.down_sample),
   m_down_sample_height(params.down_sample_height),
   m_down_sample_width(params.down_sample_width)
 {
@@ -171,9 +172,15 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
   /// @todo: Get down-sample parameters from input
   cv::Mat img_down;
   cv::Size down_sample_size;
-  down_sample_size.height = m_down_sample_height;
-  down_sample_size.width = m_down_sample_width;
-  cv::resize(img_in, img_down, down_sample_size);
+  if (m_down_sample) {
+    down_sample_size.height = m_down_sample_height;
+    down_sample_size.width = m_down_sample_width;
+    cv::resize(img_in, img_down, down_sample_size);
+  } else {
+    down_sample_size.height = img_in.rows;
+    down_sample_size.width = img_in.cols;
+    img_down = img_in;
+  }
 
   std::vector<cv::KeyPoint> curr_key_points;
   m_feature_detector->detect(img_down, curr_key_points);

@@ -79,6 +79,7 @@ public:
     double threshold {20.0};                  ///< @brief Threshold
     double px_error{1e-9};                    ///< @brief Pixel error standard deviation
     double min_feat_dist {1.0};               ///< @brief Minimum feature distance to consider
+    bool down_sample {false};                 ///< @brief Flag to perform down-sampling
     double down_sample_height {480.0};        ///< @brief Down-sampled height to use for tracking
     double down_sample_width {640.0};         ///< @brief Down-sampled width to use for tracking
   } Parameters;
@@ -150,6 +151,7 @@ private:
   unsigned int GenerateFeatureID();
 
   double m_px_error;
+  bool m_down_sample;
   double m_down_sample_height;
   double m_down_sample_width;
   double m_knn_ratio{0.7};
