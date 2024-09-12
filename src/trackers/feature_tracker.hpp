@@ -145,7 +145,7 @@ private:
   cv::Mat m_prev_descriptors;
   std::vector<cv::KeyPoint> m_prev_key_points;
 
-  std::map<unsigned int, std::vector<FeaturePoint>> m_feature_track_map;
+  std::map<unsigned int, std::vector<FeaturePoint>> m_feature_points_map;
 
   unsigned int GenerateFeatureID();
 

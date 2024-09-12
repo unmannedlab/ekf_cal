@@ -110,7 +110,7 @@ std::shared_ptr<SimFiducialTrackerMessage> SimFiducialTracker::GenerateMessage(
   Eigen::Vector3d pos_f_in_g_true = m_truth->GetBoardPosition(m_id);
   Eigen::Quaterniond ang_f_to_g_true = m_truth->GetBoardOrientation(m_id);
 
-  std::vector<std::vector<FeaturePoint>> feature_tracks;
+  FeatureTracks feature_tracks;
 
   bool is_board_visible = IsBoardVisible(message_time, sensor_id);
   if (is_board_visible) {

@@ -69,11 +69,14 @@ MsckfUpdater::MsckfUpdater(
 
 bool MsckfUpdater::TriangulateFeature(
   std::shared_ptr<EKF> ekf,
-  std::vector<FeaturePoint> & feature_track,
+  FeatureTrack & feature_track,
   Eigen::Vector3d & pos_f_in_l)
 {
+  pos_f_in_l = feature_track.true_feature_position;
+  return true;
+
   AugState aug_state_0 = ekf->GetAugState(
-    m_id, feature_track[0].frame_id, feature_track[0].frame_time);
+    m_id, feature_track.track[0].frame_id, feature_track.track[0].frame_time);
   CamState cam_state = ekf->m_state.cam_states[m_id];
   Intrinsics intrinsics = ekf->m_state.cam_states[m_id].intrinsics;
 
@@ -89,9 +92,9 @@ bool MsckfUpdater::TriangulateFeature(
   const Eigen::Matrix3d rot_l_to_b0 = rot_b0_to_l.transpose();
   const Eigen::Matrix3d rot_b0_to_c0 = ang_c_to_b.transpose();
 
-  for (unsigned int i = 0; i < feature_track.size(); ++i) {
+  for (unsigned int i = 0; i < feature_track.track.size(); ++i) {
     AugState aug_state_i = ekf->GetAugState(
-      m_id, feature_track[i].frame_id, feature_track[i].frame_time);
+      m_id, feature_track.track[i].frame_id, feature_track.track[i].frame_time);
 
     const Eigen::Vector3d pos_bi_in_l = aug_state_i.pos_b_in_l;
     const Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
@@ -104,9 +107,9 @@ bool MsckfUpdater::TriangulateFeature(
 
     // Get the UV coordinate normal
     Eigen::Vector3d b_i;
-    b_i(0) = (feature_track[i].key_point.pt.x - intrinsics.width / 2) /
+    b_i(0) = (feature_track.track[i].key_point.pt.x - intrinsics.width / 2) /
       (intrinsics.f_x / intrinsics.pixel_size);
-    b_i(1) = (feature_track[i].key_point.pt.y - intrinsics.height / 2) /
+    b_i(1) = (feature_track.track[i].key_point.pt.y - intrinsics.height / 2) /
       (intrinsics.f_y / intrinsics.pixel_size);
     b_i(2) = 1;
 
@@ -212,7 +215,7 @@ void MsckfUpdater::UpdateEKF(
   // Calculate the max possible measurement size
   unsigned int max_meas_size = 0;
   for (unsigned int i = 0; i < feature_tracks.size(); ++i) {
-    max_meas_size += 2 * feature_tracks[i].size();
+    max_meas_size += 2 * feature_tracks[i].track.size();
   }
 
   unsigned int ct_meas = 0;
@@ -227,7 +230,8 @@ void MsckfUpdater::UpdateEKF(
 
   // MSCKF Update
   for (auto & feature_track : feature_tracks) {
-    m_logger->Log(LogLevel::DEBUG, "Feature Track size: " + std::to_string(feature_track.size()));
+    m_logger->Log(
+      LogLevel::DEBUG, "Feature Track size: " + std::to_string(feature_track.track.size()));
 
     /// @todo: Add threshold for total distance/angle before triangulating
 
@@ -242,7 +246,7 @@ void MsckfUpdater::UpdateEKF(
 
     std::stringstream msg;
     msg << std::setprecision(3) << time;
-    msg << "," << std::to_string(feature_track[0].key_point.class_id);
+    msg << "," << std::to_string(feature_track.track[0].key_point.class_id);
     msg << "," << pos_f_in_l[0];
     msg << "," << pos_f_in_l[1];
     msg << "," << pos_f_in_l[2];
@@ -251,12 +255,12 @@ void MsckfUpdater::UpdateEKF(
     unsigned int aug_state_size = ekf->GetAugStateSize();
     unsigned int aug_state_start = ekf->GetAugStateStart();
     CamState cam_state = ekf->m_state.cam_states[m_id];
-    Eigen::VectorXd res_f = Eigen::VectorXd::Zero(2 * feature_track.size());
-    Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feature_track.size(), 3);
-    Eigen::MatrixXd H_a = Eigen::MatrixXd::Zero(2 * feature_track.size(), aug_state_size);
+    Eigen::VectorXd res_f = Eigen::VectorXd::Zero(2 * feature_track.track.size());
+    Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), 3);
+    Eigen::MatrixXd H_a = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), aug_state_size);
 
-    for (unsigned int i = 0; i < feature_track.size(); ++i) {
-      AugState aug_state_i = ekf->GetAugState(m_id, feature_track[i].frame_id, time);
+    for (unsigned int i = 0; i < feature_track.track.size(); ++i) {
+      AugState aug_state_i = ekf->GetAugState(m_id, feature_track.track[i].frame_id, time);
 
       Eigen::Matrix3d rot_ci_to_b = cam_state.ang_c_to_b.toRotationMatrix();
       Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
@@ -274,14 +278,14 @@ void MsckfUpdater::UpdateEKF(
       xz_predicted(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
 
       Eigen::Vector2d xz_measured;
-      xz_measured(0) = (feature_track[i].key_point.pt.x - intrinsics.width / 2) /
+      xz_measured(0) = (feature_track.track[i].key_point.pt.x - intrinsics.width / 2) /
         (intrinsics.f_x / intrinsics.pixel_size);
-      xz_measured(1) = (feature_track[i].key_point.pt.y - intrinsics.height / 2) /
+      xz_measured(1) = (feature_track.track[i].key_point.pt.y - intrinsics.height / 2) /
         (intrinsics.f_y / intrinsics.pixel_size);
       Eigen::Vector2d xz_residual = xz_measured - xz_predicted;
       res_f.segment<2>(2 * i) = xz_residual;
 
-      unsigned int aug_index = ekf->GetAugState(m_id, feature_track[i].frame_id, time).index;
+      unsigned int aug_index = ekf->GetAugState(m_id, feature_track.track[i].frame_id, time).index;
 
       // Projection Jacobian
       Eigen::MatrixXd H_p(2, 3);
@@ -297,9 +301,9 @@ void MsckfUpdater::UpdateEKF(
       // Augmented state Jacobian
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, g_aug_state_size);
       H_t.block<3, 3>(0, 0) = -rot_l_to_ci;
-      H_t.block<3, 3>(0, 3) = rot_ci_to_b.transpose() * rot_bi_to_l.transpose() *
-        SkewSymmetric(pos_f_in_l - pos_bi_in_l) *
-        quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
+      // H_t.block<3, 3>(0, 3) = rot_ci_to_b.transpose() * rot_bi_to_l.transpose() *
+      //   SkewSymmetric(pos_f_in_l - pos_bi_in_l) *
+      //   quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
 
       /// @todo: Enable calibration Jacobian
       // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity(3, 3);
@@ -308,7 +312,17 @@ void MsckfUpdater::UpdateEKF(
 
       H_a.block<2, g_aug_state_size>(2 * i, aug_index - aug_state_start) = H_d * H_p * H_t;
     }
-    ApplyLeftNullspace(H_f, H_a, res_f);
+    /// @todo: Left Nullspace is incorrectly zeroing idealized residuals
+
+    // Eigen::ColPivHouseholderQR<Eigen::MatrixXd> QR(H_f.rows(), H_f.cols());
+    // QR.compute(H_f);
+    // Eigen::MatrixXd Q = QR.householderQ();
+    // Eigen::MatrixXd Q1 = Q.block(0, 0, Q.rows(), 3);
+    // Eigen::MatrixXd Q2 = Q.block(0, 3, Q.rows(), Q.cols() - 3);
+    // H_a = Q2.transpose() * H_a;
+
+    // res_f = Q2.transpose() * res_f;
+    // ApplyLeftNullspace(H_f, H_a, res_f);
 
     /// @todo Chi^2 distance check
 
@@ -331,8 +345,7 @@ void MsckfUpdater::UpdateEKF(
     return;
   }
 
-  Eigen::MatrixXd R = px_error * px_error * max_meas_size * max_meas_size *
-    Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
+  Eigen::MatrixXd R = px_error * px_error * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
   // Apply Kalman update
   Eigen::MatrixXd S = H_x * ekf->m_cov * H_x.transpose() + R;

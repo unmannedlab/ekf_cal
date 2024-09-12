@@ -258,6 +258,12 @@ public:
   ///
   std::vector<cv::Point3d> GetFeatures();
 
+  ///
+  /// @brief Getter function for a specific feature
+  /// @return Feature position
+  ///
+  cv::Point3d GetFeature(unsigned int feature_id);
+
   double m_max_time;  ///< @brief Maximum time for truth engine
 
 protected:
@@ -274,6 +280,7 @@ private:
   std::map<unsigned int, Eigen::Quaterniond> m_board_ang;
   std::map<unsigned int, Intrinsics> m_cam_intrinsics;
   std::vector<cv::Point3d> m_feature_points;
+  std::map<unsigned int, cv::Point3d> m_feature_points_map;
   std::map<unsigned int, Eigen::Vector3d> m_gps_pos;
   Eigen::Vector3d m_lla_reference;
   double m_heading;

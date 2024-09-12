@@ -90,7 +90,7 @@ private:
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
   unsigned int m_feature_count {0};
-  std::map<unsigned int, std::vector<FeaturePoint>> m_feature_track_map;
+  std::map<unsigned int, std::vector<FeaturePoint>> m_feature_points_map;
 };
 
 

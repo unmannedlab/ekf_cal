@@ -154,11 +154,20 @@ void TruthEngine::GenerateFeatures(unsigned int feature_count, double room_size,
     vec.z = rng.UniRand(-room_size / 10, room_size / 10);
     m_feature_points.push_back(vec);
   }
+
+  for (unsigned int i=0; i< m_feature_points.size(); ++i){
+    m_feature_points_map[i] = m_feature_points[i];
+  }
 }
 
 std::vector<cv::Point3d> TruthEngine::GetFeatures()
 {
   return m_feature_points;
+}
+
+cv::Point3d TruthEngine::GetFeature(unsigned int feature_id)
+{
+  return m_feature_points_map[feature_id];
 }
 
 TruthEngine::~TruthEngine() {}

@@ -233,26 +233,28 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat & img_in, cv::Mat 
         m_prev_key_points[m.queryIdx].class_id = GenerateFeatureID();
         auto feature_point = FeaturePoint{
           m_prev_frame_id, m_prev_frame_time, m_prev_key_points[m.queryIdx]};
-        m_feature_track_map[m_prev_key_points[m.queryIdx].class_id].push_back(feature_point);
+        m_feature_points_map[m_prev_key_points[m.queryIdx].class_id].push_back(feature_point);
       }
       curr_key_points[m.trainIdx].class_id = m_prev_key_points[m.queryIdx].class_id;
       auto feature_point = FeaturePoint{
         frame_id, m_ekf->GetCurrentTime(), curr_key_points[m.trainIdx]};
-      m_feature_track_map[curr_key_points[m.trainIdx].class_id].push_back(feature_point);
+      m_feature_points_map[curr_key_points[m.trainIdx].class_id].push_back(feature_point);
     }
 
     // Update MSCKF on features no longer detected
     FeatureTracks feature_tracks;
-    for (auto it = m_feature_track_map.cbegin(); it != m_feature_track_map.cend(); ) {
-      const auto & feature_track = it->second;
-      if ((feature_track.back().frame_id < frame_id) ||
-        (feature_track.size() >= m_max_track_length))
+    for (auto it = m_feature_points_map.cbegin(); it != m_feature_points_map.cend(); ) {
+      const auto & feature_points = it->second;
+      if ((feature_points.back().frame_id < frame_id) ||
+        (feature_points.size() >= m_max_track_length))
       {
         // This feature does not exist in the latest frame
-        if (feature_track.size() >= m_min_track_length) {
+        if (feature_points.size() >= m_min_track_length) {
+          FeatureTrack feature_track;
+          feature_track.track = feature_points;
           feature_tracks.push_back(feature_track);
         }
-        it = m_feature_track_map.erase(it);
+        it = m_feature_points_map.erase(it);
       } else {
         ++it;
       }

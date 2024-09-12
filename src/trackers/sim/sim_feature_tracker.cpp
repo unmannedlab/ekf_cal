@@ -118,26 +118,33 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
 std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
   double message_time, int frame_id, int sensor_id)
 {
-  std::vector<std::vector<FeaturePoint>> feature_tracks;
+  FeatureTracks feature_tracks;
 
   std::vector<cv::KeyPoint> key_points = VisibleKeypoints(message_time, sensor_id);
 
   for (auto & key_point : key_points) {
-    auto feature_track = FeaturePoint{frame_id, message_time, key_point};
-    m_feature_track_map[key_point.class_id].push_back(feature_track);
+    auto feature_points = FeaturePoint{frame_id, message_time, key_point};
+    m_feature_points_map[key_point.class_id].push_back(feature_points);
   }
 
   // Update MSCKF on features no longer detected
-  for (auto feat_it = m_feature_track_map.cbegin(); feat_it != m_feature_track_map.cend(); ) {
-    const auto & feature_track = feat_it->second;
-    if ((feature_track.back().frame_id < frame_id) ||
-      (feature_track.size() >= m_max_track_length))
+  for (auto feat_it = m_feature_points_map.cbegin(); feat_it != m_feature_points_map.cend(); ) {
+    const auto & feature_points = feat_it->second;
+    if ((feature_points.back().frame_id < frame_id) ||
+      (feature_points.size() >= m_max_track_length))
     {
       // This feature does not exist in the latest frame
-      if (feature_track.size() > 1) {
+      if (feature_points.size() > 1) {
+        FeatureTrack feature_track;
+        feature_track.track = feature_points;
+        auto feature_point_cv = m_truth->GetFeature(feature_points[0].key_point.class_id);
+        feature_track.true_feature_position.x() = feature_point_cv.x;
+        feature_track.true_feature_position.y() = feature_point_cv.y;
+        feature_track.true_feature_position.z() = feature_point_cv.z;
+
         feature_tracks.push_back(feature_track);
       }
-      feat_it = m_feature_track_map.erase(feat_it);
+      feat_it = m_feature_points_map.erase(feat_it);
     } else {
       ++feat_it;
     }

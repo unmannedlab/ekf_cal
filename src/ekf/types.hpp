@@ -249,7 +249,19 @@ typedef struct FeaturePoint
   cv::KeyPoint key_point;  ///< @brief Feature track key point
 } FeaturePoint;
 
-typedef std::vector<std::vector<FeaturePoint>> FeatureTracks;
+///
+/// @brief FeatureTrack structure
+///
+typedef struct FeatureTrack
+{
+  std::vector<FeaturePoint> track;        ///< @brief Vector of tracked feature keypoints
+  Eigen::Vector3d true_feature_position;  ///< @brief True feature position (sim only)
+} FeatureTrack;
+
+///
+/// @brief FeatureTracks type
+///
+typedef std::vector<FeatureTrack> FeatureTracks;
 
 ///
 /// @brief BoardDetection structure

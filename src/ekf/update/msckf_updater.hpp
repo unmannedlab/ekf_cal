@@ -60,7 +60,7 @@ public:
   ///
   bool TriangulateFeature(
     std::shared_ptr<EKF> ekf,
-    std::vector<FeaturePoint> & feature_track,
+    FeatureTrack & feature_track,
     Eigen::Vector3d & pos_f_in_l);
 
   ///
