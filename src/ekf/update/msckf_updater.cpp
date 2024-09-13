@@ -54,7 +54,7 @@ MsckfUpdater::MsckfUpdater(
   header << EnumerateHeader("body_update", g_body_state_size);
   header << EnumerateHeader("cam_update", g_cam_state_size);
   header << EnumerateHeader("cam_cov", g_cam_state_size);
-  header << ",FeatureTracks";
+  header << ",FeatureTracks,Condition";
   header << EnumerateHeader("duration", 1);
 
   m_msckf_logger.DefineHeader(header.str());
@@ -370,6 +370,8 @@ void MsckfUpdater::UpdateEKF(
     (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x).transpose() +
     K * R * K.transpose();
 
+  double max_condition = limit_matrix_condition(ekf->m_cov);
+
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
@@ -389,6 +391,7 @@ void MsckfUpdater::UpdateEKF(
   msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));
   msg << VectorToCommaString(cov_diag);
   msg << "," << std::to_string(feature_tracks.size());
+  msg << "," << std::to_string(max_condition);
   msg << "," << t_execution.count();
   m_msckf_logger.RateLimitedLog(msg.str(), time);
 }

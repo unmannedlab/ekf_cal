@@ -388,3 +388,23 @@ TEST(test_MathHelper, matrix2d_from_vectors3d) {
   EXPECT_EQ(out_mat(0, 2), 2);
   EXPECT_EQ(out_mat(0, 3), 3);
 }
+
+TEST(test_MathHelper, matrix_condition) {
+  Eigen::MatrixXd in_mat(4, 4);
+  in_mat <<
+    2, 2, 3, 4,
+    2, 3, 4, 5,
+    3, 4, 5, 6,
+    4, 5, 6, 7;
+
+  double condition = limit_matrix_condition(in_mat);
+
+  EXPECT_NEAR(condition, 1.09109, 1e-3);
+
+  EXPECT_NEAR(in_mat(0, 1), 2.0, 1e-3);
+  EXPECT_NEAR(in_mat(0, 2), 3.0, 1e-3);
+  EXPECT_NEAR(in_mat(1, 2), std::sqrt(15.0), 1e-3);
+  EXPECT_NEAR(in_mat(0, 3), std::sqrt(14.0), 1e-3);
+  EXPECT_NEAR(in_mat(1, 3), std::sqrt(21.0), 1e-3);
+  EXPECT_NEAR(in_mat(2, 3), std::sqrt(35.0), 1e-3);
+}

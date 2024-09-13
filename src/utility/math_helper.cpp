@@ -408,3 +408,16 @@ double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vector
 
   return std::sqrt(square_sum_of_difference) / input_vectors.size();
 }
+
+double limit_matrix_condition(Eigen::MatrixXd & mat)
+{
+  double condition = 0;
+  for (unsigned int i = 0; i < mat.rows() - 1; ++i) {
+    for (unsigned int j = i + 1; j < mat.rows(); ++j) {
+      condition = std::max(condition, mat(i, j) / std::sqrt(mat(i, i)) / std::sqrt(mat(j, j)));
+      mat(i, j) = std::min(mat(i, j), std::sqrt(mat(i, i)) * std::sqrt(mat(j, j)));
+      mat(j, i) = mat(i, j);
+    }
+  }
+  return condition;
+}

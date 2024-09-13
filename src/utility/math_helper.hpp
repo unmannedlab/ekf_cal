@@ -197,4 +197,6 @@ double maximum_distance(const std::vector<Eigen::Vector3d> & eigen_points);
 ///
 double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vectors);
 
+double limit_matrix_condition(Eigen::MatrixXd & mat);
+
 #endif  // UTILITY__MATH_HELPER_HPP_
