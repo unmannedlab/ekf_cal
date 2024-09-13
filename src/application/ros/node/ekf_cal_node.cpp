@@ -62,8 +62,12 @@ EkfCalNode::EkfCalNode()
   this->declare_parameter("augmenting_delta_time", 0.0);
   this->declare_parameter("augmenting_pos_error", 0.0);
   this->declare_parameter("augmenting_ang_error", 0.0);
-  this->declare_parameter(
-    "process_noise", std::vector<double>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+  this->declare_parameter("process_noise.pos", 1.0e-2);
+  this->declare_parameter("process_noise.vel", 1.0e-2);
+  this->declare_parameter("process_noise.acc", 1.0e-2);
+  this->declare_parameter("process_noise.ang_pos", 1.0e-2);
+  this->declare_parameter("process_noise.ang_vel", 1.0e-2);
+  this->declare_parameter("process_noise.ang_acc", 1.0e-2);
   this->declare_parameter("pos_l_in_g", std::vector<double>{0, 0, 0});
   this->declare_parameter("ang_l_to_g", 0.0);
   this->declare_parameter("init_type", 0);
@@ -105,7 +109,7 @@ void EkfCalNode::Initialize()
   ekf_params.augmenting_delta_time = this->get_parameter("augmenting_delta_time").as_double();
   ekf_params.augmenting_pos_error = this->get_parameter("augmenting_pos_error").as_double();
   ekf_params.augmenting_ang_error = this->get_parameter("augmenting_ang_error").as_double();
-  ekf_params.process_noise = StdToEigVec(this->get_parameter("process_noise").as_double_array());
+  ekf_params.process_noise = LoadProcessNoise();
   ekf_params.pos_l_in_g = StdToEigVec(this->get_parameter("pos_l_in_g").as_double_array());
   ekf_params.ang_l_to_g = this->get_parameter("ang_l_to_g").as_double();
   ekf_params.gps_init_type = static_cast<GpsInitType>(this->get_parameter("init_type").as_int());
@@ -608,4 +612,24 @@ void EkfCalNode::PublishState()
   Eigen::VectorXd state_vector = m_ekf->m_state.ToVector();
   msg << VectorToCommaString(state_vector);
   m_state_data_logger.Log(msg.str());
+}
+
+Eigen::VectorXd EkfCalNode::LoadProcessNoise()
+{
+  double pos_noise = this->get_parameter("process_noise.pos").as_double();
+  double vel_noise = this->get_parameter("process_noise.vel").as_double();
+  double acc_noise = this->get_parameter("process_noise.acc").as_double();
+  double ang_pos_noise = this->get_parameter("process_noise.ang_pos").as_double();
+  double ang_vel_noise = this->get_parameter("process_noise.ang_vel").as_double();
+  double ang_acc_noise = this->get_parameter("process_noise.ang_acc").as_double();
+
+  Eigen::VectorXd process_noise(g_body_state_size);
+  process_noise.segment<3>(0) = Eigen::Vector3d::Ones() * pos_noise;
+  process_noise.segment<3>(3) = Eigen::Vector3d::Ones() * vel_noise;
+  process_noise.segment<3>(6) = Eigen::Vector3d::Ones() * acc_noise;
+  process_noise.segment<3>(9) = Eigen::Vector3d::Ones() * ang_pos_noise;
+  process_noise.segment<3>(12) = Eigen::Vector3d::Ones() * ang_vel_noise;
+  process_noise.segment<3>(15) = Eigen::Vector3d::Ones() * ang_acc_noise;
+
+  return process_noise;
 }

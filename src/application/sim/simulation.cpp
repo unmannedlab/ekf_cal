@@ -110,6 +110,26 @@ void LoadTrackerParams(
   params.logger = debug_logger;
 }
 
+Eigen::VectorXd LoadProcessNoise(YAML::Node process_noise_node)
+{
+  double pos_noise = process_noise_node["pos"].as<double>(1.0e-2);
+  double vel_noise = process_noise_node["vel"].as<double>(1.0e-2);
+  double acc_noise = process_noise_node["acc"].as<double>(1.0e-2);
+  double ang_pos_noise = process_noise_node["ang_pos"].as<double>(1.0e-2);
+  double ang_vel_noise = process_noise_node["ang_vel"].as<double>(1.0e-2);
+  double ang_acc_noise = process_noise_node["ang_acc"].as<double>(1.0e-2);
+
+  Eigen::VectorXd process_noise(g_body_state_size);
+  process_noise.segment<3>(0) = Eigen::Vector3d::Ones() * pos_noise;
+  process_noise.segment<3>(3) = Eigen::Vector3d::Ones() * vel_noise;
+  process_noise.segment<3>(6) = Eigen::Vector3d::Ones() * acc_noise;
+  process_noise.segment<3>(9) = Eigen::Vector3d::Ones() * ang_pos_noise;
+  process_noise.segment<3>(12) = Eigen::Vector3d::Ones() * ang_vel_noise;
+  process_noise.segment<3>(15) = Eigen::Vector3d::Ones() * ang_acc_noise;
+
+  return process_noise;
+}
+
 int main(int argc, char * argv[])
 {
   const cv::String keys =
@@ -165,8 +185,7 @@ int main(int argc, char * argv[])
   ekf_params.augmenting_delta_time = ros_params["augmenting_delta_time"].as<double>(1.0);
   ekf_params.augmenting_pos_error = ros_params["augmenting_pos_error"].as<double>(0.1);
   ekf_params.augmenting_ang_error = ros_params["augmenting_ang_error"].as<double>(0.1);
-  ekf_params.process_noise =
-    StdToEigVec(ros_params["process_noise"].as<std::vector<double>>(def_vec));
+  ekf_params.process_noise = LoadProcessNoise(ros_params["process_noise"]);
   ekf_params.pos_b_in_l = StdToEigVec(ros_params["pos_b_in_l"].as<std::vector<double>>(def_vec));
   ekf_params.ang_b_to_l = StdToEigQuat(ros_params["ang_b_to_l"].as<std::vector<double>>(def_quat));
   ekf_params.pos_l_in_g = StdToEigVec(ros_params["pos_l_in_g"].as<std::vector<double>>(def_vec));
@@ -236,7 +255,7 @@ int main(int argc, char * argv[])
   // Local Position Error
   auto pos_b_in_l_err = StdToEigVec(sim_params["pos_b_in_l_err"].as<std::vector<double>>(def_vec));
   auto ang_b_to_l_err = StdToEigVec(sim_params["ang_b_to_l_err"].as<std::vector<double>>(def_vec));
-  ang_b_to_l_err[2] = 0.0;  // X is defined to be zero-error and aligned with the local frame
+  ang_b_to_l_err[2] = 0.0;  // Z rotation defined to be zero-error
   BodyState initial_state;
   initial_state.pos_b_in_l = rng.VecNormRand(ekf_params.pos_b_in_l, pos_b_in_l_err);
   initial_state.ang_b_to_l = rng.QuatNormRand(ekf_params.ang_b_to_l, ang_b_to_l_err);

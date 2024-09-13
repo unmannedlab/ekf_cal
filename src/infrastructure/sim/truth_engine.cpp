@@ -141,7 +141,13 @@ void TruthEngine::GenerateFeatures(unsigned int feature_count, double room_size,
 {
   m_feature_points.push_back(cv::Point3d(room_size, 0, 0));
   m_feature_points.push_back(cv::Point3d(room_size, room_size / 10, 0));
+  m_feature_points.push_back(cv::Point3d(room_size, -room_size / 10, 0));
   m_feature_points.push_back(cv::Point3d(room_size, 0, room_size / 10));
+  m_feature_points.push_back(cv::Point3d(room_size, 0, -room_size / 10));
+  m_feature_points.push_back(cv::Point3d(room_size, room_size / 10, room_size));
+  m_feature_points.push_back(cv::Point3d(room_size, room_size / 10, -room_size));
+  m_feature_points.push_back(cv::Point3d(room_size, -room_size / 10, room_size));
+  m_feature_points.push_back(cv::Point3d(room_size, -room_size / 10, -room_size));
   m_feature_points.push_back(cv::Point3d(-room_size, 0, 0));
   m_feature_points.push_back(cv::Point3d(0, room_size, 0));
   m_feature_points.push_back(cv::Point3d(0, -room_size, 0));
@@ -155,7 +161,7 @@ void TruthEngine::GenerateFeatures(unsigned int feature_count, double room_size,
     m_feature_points.push_back(vec);
   }
 
-  for (unsigned int i=0; i< m_feature_points.size(); ++i){
+  for (unsigned int i = 0; i < m_feature_points.size(); ++i) {
     m_feature_points_map[i] = m_feature_points[i];
   }
 }

@@ -87,6 +87,12 @@ public:
   void LoadGps(std::string gps_name);
 
   ///
+  /// @brief Load process noise
+  /// @return Process noise vector
+  ///
+  Eigen::VectorXd LoadProcessNoise();
+
+  ///
   /// @brief Function for loading IMU parameters
   /// @param imu_name Name of parameter structure
   /// @return IMU parameters

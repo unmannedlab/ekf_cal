@@ -3,14 +3,13 @@
         debug_log_level: 2
         data_logging_on: true
         body_data_rate: 10.0
-        process_noise: [
-            1.0e-3, 1.0e-3, 1.0e-3,
-            1.0e-4, 1.0e-4, 1.0e-4,
-            1.0e-0, 1.0e-0, 1.0e-0,
-            1.0e-3, 1.0e-3, 1.0e-3,
-            1.0e-0, 1.0e-0, 1.0e-0,
-            1.0e-5, 1.0e-5, 1.0e-5,
-        ]
+        process_noise:
+            pos: 1.0e-3
+            vel: 1.0e-4
+            acc: 1.0e-1
+            ang_pos: 1.0e-3
+            ang_vel: 1.0e-1
+            ang_acc: 1.0e-5
         sim_params:
             seed: 0.0
             use_seed: true

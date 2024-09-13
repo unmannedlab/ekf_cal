@@ -13,17 +13,16 @@
                                             #   1: Only the primary camera frames are augmented
                                             #   2: Time-based frame augmentation
                                             #   3: Linear Error-based frame augmentation
-        augmenting_delta_time: 0.5
-        augmenting_pos_error: 0.1
-        augmenting_ang_error: 0.1
-        process_noise: [
-            1.0e-3, 1.0e-3, 1.0e-3,     # Position
-            1.0e-4, 1.0e-4, 1.0e-4,     # Velocity
-            1.0e-5, 1.0e-5, 1.0e-5,     # Acceleration
-            1.0e-3, 1.0e-3, 1.0e-3,     # Angular Position
-            1.0e-4, 1.0e-4, 1.0e-4,     # Angular Velocity
-            1.0e-5, 1.0e-5, 1.0e-5,     # Angular Acceleration
-        ]
+        augmenting_delta_time: 0.           # 
+        augmenting_pos_error: 0.1           # 
+        augmenting_ang_error: 0.1           # 
+        process_noise:
+            pos: 1.0e-3                     # Position
+            vel: 1.0e-4                     # Velocity
+            acc: 1.0e-5                     # Acceleration
+            ang_pos: 1.0e-3                 # Angular Position
+            ang_vel: 1.0e-4                 # Angular Velocity
+            ang_acc: 1.0e-5                 # Angular Acceleration
 
         pos_l_in_g: [0.0, 0.0, 0.0]     # Local frame position in global frame
         ang_l_to_g: 0.0                 # Local frame heading in global frame
