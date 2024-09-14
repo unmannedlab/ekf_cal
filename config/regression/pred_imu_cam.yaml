@@ -31,6 +31,10 @@
         tracker_list:
             - "orb"
 
+        fiducial_list: []
+
+        gps_list: []
+
         imu:
             imu_1:
                 use_for_prediction: true
@@ -78,5 +82,10 @@
                 detector_threshold: 10.0
                 pixel_error: 0.5
                 sim_params:
-                    feature_count: 1000
+                    no_errors: true
+                    feature_count: 1e6
                     room_size: 10.0
+
+        fiducial: {}
+
+        gps: {}

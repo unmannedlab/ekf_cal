@@ -13,9 +13,9 @@
                                             #   1: Only the primary camera frames are augmented
                                             #   2: Time-based frame augmentation
                                             #   3: Linear Error-based frame augmentation
-        augmenting_delta_time: 0.           # 
-        augmenting_pos_error: 0.1           # 
-        augmenting_ang_error: 0.1           # 
+        augmenting_delta_time: 0.           # Maximum time between augments
+        augmenting_pos_error: 0.1           # Maximum position error between augments
+        augmenting_ang_error: 0.1           # Maximum angular error between augments
         process_noise:
             pos: 1.0e-3                     # Position
             vel: 1.0e-4                     # Velocity
@@ -42,8 +42,8 @@
             run_number: 0                   # Start run number (also used to initialize seed)
             stationary_time: 1.0            # Time to be stationary before motion begins
             truth_type: "cyclic"            # TruthType:
-                                            #   "Cyclic"
-                                            #   "Spline"
+                                            #   "cyclic"
+                                            #   "spline"
             # Cyclic Truth Parameters
             pos_frequency: [0.3, 0.5, 0.7]  # Cyclic position frequencies
             ang_frequency: [0.1, 0.2, 0.3]  # Cyclic angular frequencies

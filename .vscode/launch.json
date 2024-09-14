@@ -50,6 +50,16 @@
                 "config/example.yaml"
             ],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Test Animation",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/eval/animate.py",
+            "args": [
+                "config/example.yaml"
+            ],
+            "console": "integratedTerminal"
         }
     ],
 }

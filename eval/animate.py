@@ -30,7 +30,6 @@ python3 eval/animate.py --help
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 import os
 import numpy as np
 from matplotlib import animation
@@ -82,7 +81,7 @@ def generate_animation(config_sets, args):
             gen_frame, body_dfs_dict=body_state_dfs_dict), N, interval=1000 / fps)
         plt.show()
 
-        # ani.save(os.path.join(plot_dir, 'animation.gif'), writer='imagemagick')
+        ani.save(os.path.join(plot_dir, 'animation.gif'), writer='imagemagick')
 
 
 # TODO(jhartzer): Write tests

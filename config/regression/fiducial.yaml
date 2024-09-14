@@ -32,10 +32,12 @@
         camera_list:
             - "cam_1"
 
-        tracker_list:
+        tracker_list: []
 
         fiducial_list:
             - "charuco"
+
+        gps_list: []
 
         imu:
             imu_1:
@@ -107,3 +109,7 @@
                     ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
                     t_vec_error: [1.0e-2, 1.0e-2, 1.0e-2]
                     r_vec_error: [1.0e-2, 1.0e-2, 1.0e-2]
+
+        tracker: {}
+
+        gps: {}

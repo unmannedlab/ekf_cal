@@ -1,0 +1,738 @@
+{
+    "$id": "https://github.com/unmannedlab/ekf_cal/tree/main/.vscode/.vscode/ekf_cal-schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "EKF_CAL Configuration",
+    "description": "An EKF_CAL config file",
+    "type": "object",
+    "properties": {
+        "/EkfCalNode": {
+            "type": "object",
+            "properties": {
+                "ros__parameters": {
+                    "type": "object",
+                    "properties": {
+                        "debug_log_level": {
+                            "type": "number"
+                        },
+                        "data_logging_on": {
+                            "type": "boolean"
+                        },
+                        "body_data_rate": {
+                            "type": "number"
+                        },
+                        "augmenting_type": {
+                            "type": "number"
+                        },
+                        "augmenting_delta_time": {
+                            "type": "number"
+                        },
+                        "augmenting_pos_error": {
+                            "type": "number"
+                        },
+                        "augmenting_ang_error": {
+                            "type": "number"
+                        },
+                        "process_noise": {
+                            "type": "object",
+                            "properties": {
+                                "pos": {
+                                    "type": "number"
+                                },
+                                "vel": {
+                                    "type": "number"
+                                },
+                                "acc": {
+                                    "type": "number"
+                                },
+                                "ang_pos": {
+                                    "type": "number"
+                                },
+                                "ang_vel": {
+                                    "type": "number"
+                                },
+                                "ang_acc": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "pos_l_in_g": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            },
+                            "minItems": 3,
+                            "maxItems": 3
+                        },
+                        "ang_l_to_g": {
+                            "type": "number"
+                        },
+                        "gps_init_type": {
+                            "type": "number"
+                        },
+                        "gps_init_baseline_dist": {
+                            "type": "number"
+                        },
+                        "gps_init_pos_thresh": {
+                            "type": "number"
+                        },
+                        "gps_init_ang_thresh": {
+                            "type": "number"
+                        },
+                        "sim_params": {
+                            "type": "object",
+                            "properties": {
+                                "seed": {
+                                    "type": "number"
+                                },
+                                "use_seed": {
+                                    "type": "boolean"
+                                },
+                                "max_time": {
+                                    "type": "number"
+                                },
+                                "number_of_runs": {
+                                    "type": "number"
+                                },
+                                "run_number": {
+                                    "type": "number"
+                                },
+                                "stationary_time": {
+                                    "type": "number"
+                                },
+                                "truth_type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "cyclic",
+                                        "spline"
+                                    ]
+                                },
+                                "pos_frequency": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "minItems": 3,
+                                    "maxItems": 3
+                                },
+                                "ang_frequency": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "minItems": 3,
+                                    "maxItems": 3
+                                },
+                                "pos_offset": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "minItems": 3,
+                                    "maxItems": 3
+                                },
+                                "ang_offset": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "minItems": 3,
+                                    "maxItems": 3
+                                },
+                                "ang_amplitude": {
+                                    "type": "number"
+                                },
+                                "pos_amplitude": {
+                                    "type": "number"
+                                },
+                                "positions": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "number"
+                                        },
+                                        "minItems": 3,
+                                        "maxItems": 3
+                                    }
+                                },
+                                "angles": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "number"
+                                        },
+                                        "minItems": 3,
+                                        "maxItems": 3
+                                    }
+                                },
+                                "pos_errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    }
+                                },
+                                "ang_errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "minItems": 3,
+                                    "maxItems": 3
+                                },
+                                "pos_l_in_g_err": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "minItems": 3,
+                                    "maxItems": 3
+                                },
+                                "ang_l_to_g_err": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "imu_list": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "camera_list": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "tracker_list": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "fiducial_list": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "gps_list": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "imu": {
+                            "type": "object",
+                            "patternProperties": {
+                                "^.*$": {
+                                    "type": "object",
+                                    "properties": {
+                                        "use_for_prediction": {
+                                            "type": "boolean"
+                                        },
+                                        "is_extrinsic": {
+                                            "type": "boolean"
+                                        },
+                                        "is_intrinsic": {
+                                            "type": "boolean"
+                                        },
+                                        "rate": {
+                                            "type": "number"
+                                        },
+                                        "topic": {
+                                            "type": "string"
+                                        },
+                                        "variance": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 12,
+                                            "maxItems": 12
+                                        },
+                                        "pos_i_in_b": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 3,
+                                            "maxItems": 3
+                                        },
+                                        "ang_i_to_b": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 4,
+                                            "maxItems": 4
+                                        },
+                                        "acc_bias": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 3,
+                                            "maxItems": 3
+                                        },
+                                        "omg_bias": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 3,
+                                            "maxItems": 3
+                                        },
+                                        "pos_stability": {
+                                            "type": "number"
+                                        },
+                                        "ang_stability": {
+                                            "type": "number"
+                                        },
+                                        "acc_bias_stability": {
+                                            "type": "number"
+                                        },
+                                        "omg_bias_stability": {
+                                            "type": "number"
+                                        },
+                                        "sim_params": {
+                                            "type": "object",
+                                            "properties": {
+                                                "no_errors": {
+                                                    "type": "boolean"
+                                                },
+                                                "time_bias_error": {
+                                                    "type": "number"
+                                                },
+                                                "time_error": {
+                                                    "type": "number"
+                                                },
+                                                "pos_error": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                },
+                                                "ang_error": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                },
+                                                "acc_error": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                },
+                                                "omg_error": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                },
+                                                "acc_bias_error": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                },
+                                                "omg_bias_error": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "camera": {
+                            "type": "object",
+                            "patternProperties": {
+                                "^.*$": {
+                                    "type": "object",
+                                    "properties": {
+                                        "rate": {
+                                            "type": "number"
+                                        },
+                                        "topic": {
+                                            "type": "string"
+                                        },
+                                        "pos_c_in_b": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 3,
+                                            "maxItems": 3
+                                        },
+                                        "ang_c_to_b": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 4,
+                                            "maxItems": 4
+                                        },
+                                        "variance": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 6,
+                                            "maxItems": 6
+                                        },
+                                        "tracker": {
+                                            "type": "string"
+                                        },
+                                        "fiducial": {
+                                            "type": "string"
+                                        },
+                                        "pos_stability": {
+                                            "type": "number"
+                                        },
+                                        "ang_stability": {
+                                            "type": "number"
+                                        },
+                                        "intrinsics": {
+                                            "type": "object",
+                                            "properties": {
+                                                "f_x": {
+                                                    "type": "number"
+                                                },
+                                                "f_y": {
+                                                    "type": "number"
+                                                },
+                                                "k_1": {
+                                                    "type": "number"
+                                                },
+                                                "k_2": {
+                                                    "type": "number"
+                                                },
+                                                "p_1": {
+                                                    "type": "number"
+                                                },
+                                                "p_2": {
+                                                    "type": "number"
+                                                },
+                                                "pixel_size": {
+                                                    "type": "number"
+                                                },
+                                                "width": {
+                                                    "type": "number"
+                                                },
+                                                "height": {
+                                                    "type": "number"
+                                                }
+                                            }
+                                        },
+                                        "sim_params": {
+                                            "type": "object",
+                                            "properties": {
+                                                "no_errors": {
+                                                    "type": "boolean"
+                                                },
+                                                "time_bias_error": {
+                                                    "type": "number"
+                                                },
+                                                "time_error": {
+                                                    "type": "number"
+                                                },
+                                                "pos_error": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                },
+                                                "ang_error": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tracker": {
+                            "type": "object",
+                            "patternProperties": {
+                                "^.*$": {
+                                    "type": "object",
+                                    "properties": {
+                                        "feature_detector": {
+                                            "type": "number",
+                                            "enum": [
+                                                0,
+                                                1,
+                                                2,
+                                                3,
+                                                4,
+                                                5
+                                            ]
+                                        },
+                                        "descriptor_extractor": {
+                                            "type": "number",
+                                            "enum": [
+                                                0,
+                                                1
+                                            ]
+                                        },
+                                        "descriptor_matcher": {
+                                            "type": "number",
+                                            "enum": [
+                                                0,
+                                                1
+                                            ]
+                                        },
+                                        "detector_threshold": {
+                                            "type": "number"
+                                        },
+                                        "pixel_error": {
+                                            "type": "number"
+                                        },
+                                        "min_feature_distance": {
+                                            "type": "number"
+                                        },
+                                        "min_track_length": {
+                                            "type": "number",
+                                            "minimum": 2
+                                        },
+                                        "max_track_length": {
+                                            "type": "number",
+                                            "minimum": 2
+                                        },
+                                        "sim_params": {
+                                            "type": "object",
+                                            "properties": {
+                                                "feature_count": {
+                                                    "type": "number",
+                                                    "minimum": 0.0
+                                                },
+                                                "room_size": {
+                                                    "type": "number",
+                                                    "minimum": 1.0
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "fiducial": {
+                            "type": "object",
+                            "patternProperties": {
+                                "^.*$": {
+                                    "properties": {
+                                        "fiducial_type": {
+                                            "type": "number",
+                                            "enum": [
+                                                0,
+                                                1
+                                            ]
+                                        },
+                                        "squares_x": {
+                                            "type": "number"
+                                        },
+                                        "squares_y": {
+                                            "type": "number"
+                                        },
+                                        "square_length": {
+                                            "type": "number"
+                                        },
+                                        "marker_length": {
+                                            "type": "number"
+                                        },
+                                        "id": {
+                                            "type": "number"
+                                        },
+                                        "pos_f_in_l": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 3,
+                                            "maxItems": 3
+                                        },
+                                        "ang_f_to_l": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 4,
+                                            "maxItems": 4
+                                        },
+                                        "variance": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 6,
+                                            "maxItems": 6
+                                        },
+                                        "min_track_length": {
+                                            "type": "number"
+                                        },
+                                        "max_track_length": {
+                                            "type": "number"
+                                        },
+                                        "is_extrinsic": {
+                                            "type": "boolean"
+                                        },
+                                        "data_log_rate": {
+                                            "type": "number"
+                                        },
+                                        "sim_params": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pos_error": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                },
+                                                "ang_error": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                },
+                                                "t_vec_error": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                },
+                                                "r_vec_error": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "gps": {
+                            "type": "object",
+                            "patternProperties": {
+                                "^.*$": {
+                                    "properties": {
+                                        "rate": {
+                                            "type": "number"
+                                        },
+                                        "topic": {
+                                            "type": "string"
+                                        },
+                                        "pos_a_in_b": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 3,
+                                            "maxItems": 3
+                                        },
+                                        "variance": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 3,
+                                            "maxItems": 3
+                                        },
+                                        "data_log_rate": {
+                                            "type": "number"
+                                        },
+                                        "is_extrinsic": {
+                                            "type": "boolean"
+                                        },
+                                        "sim_params": {
+                                            "type": "object",
+                                            "properties": {
+                                                "no_errors": {
+                                                    "type": "boolean"
+                                                },
+                                                "time_bias_error": {
+                                                    "type": "number"
+                                                },
+                                                "time_error": {
+                                                    "type": "number"
+                                                },
+                                                "lla_error": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                },
+                                                "pos_a_in_b_err": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    },
+                                                    "minItems": 3,
+                                                    "maxItems": 3
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": [
+                        "imu_list",
+                        "camera_list",
+                        "tracker_list",
+                        "fiducial_list",
+                        "gps_list",
+                        "imu",
+                        "camera",
+                        "tracker",
+                        "fiducial",
+                        "gps"
+                    ]
+                }
+            },
+            "required": [
+                "ros__parameters"
+            ]
+        }
+    },
+    "required": [
+        "/EkfCalNode"
+    ]
+}

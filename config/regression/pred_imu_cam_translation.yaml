@@ -32,6 +32,10 @@
         tracker_list:
             - "orb"
 
+        fiducial_list: []
+
+        gps_list: []
+
         imu:
             imu_1:
                 use_for_prediction: true
@@ -81,5 +85,10 @@
                 min_feat_dist: 1.0
                 max_track_length: 20
                 sim_params:
-                    feature_count: 1000
-                    room_size: 10.0
+                    no_errors: true
+                    feature_count: 0
+                    room_size: 7.0
+
+        fiducial: {}
+
+        gps: {}

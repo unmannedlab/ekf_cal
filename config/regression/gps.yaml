@@ -38,11 +38,11 @@
         imu_list:
             - "imu_1"
 
-        camera_list:
+        camera_list: []
 
-        tracker_list:
+        tracker_list: []
 
-        fiducial_list:
+        fiducial_list: []
 
         gps_list:
             - "gps_1"
@@ -75,9 +75,11 @@
                     acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
                     omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
 
-        camera:
+        camera: {}
 
-        tracker:
+        tracker: {}
+
+        fiducial: {}
 
         gps:
             gps_1:

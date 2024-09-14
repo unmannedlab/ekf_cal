@@ -1,18 +1,15 @@
 Package Features:
-    - Constrain correleation coefficients between +/- 1
     - Implement filter status output
     - Implement flag for calibration settling
     - Implement flag for calibration shifting
     - Interpolation between stochastic clones
     - First estimate Jacobians
     - Intrinsic calibration filtering
-    - Check covariance matrix condition
 
 Software Work:
     - Auto-generate rviz configuration from yaml
     - CI/CD for unit tests
     - Integration tests
-    - Move feature detection out of tracker callback
     - Add mutex to EKF class and have mutex locked by updaters
     - Switch to reentrant callback group
     - Show track images from simulation
@@ -22,5 +19,4 @@ Software Work:
             - AprilGridTracker
 
 Documentation:
-    - Paper in JOSS: Journal of Open Source Software
     - Simulation diagram

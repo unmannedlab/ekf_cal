@@ -33,6 +33,7 @@
         "dropna",
         "eigen",
         "extrinsics",
+        "fargs",
         "fiducials",
         "fignums",
         "Fullscreen",
@@ -226,5 +227,23 @@
     },
     "python.analysis.extraPaths": [
         "/opt/ros/iron/lib/python3.8/site-packages"
-    ]
+    ],
+    "yaml.schemaStore.enable": false,
+    "yaml.schemas": {
+        "./.vscode/ekf_cal-schema.json": [
+            "/config/**"
+        ]
+    },
+    "[yaml]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4,
+        "editor.autoIndent": "keep",
+        "diffEditor.ignoreTrimWhitespace": false,
+        "editor.quickSuggestions": {
+            "other": true,
+            "comments": false,
+            "strings": true
+        },
+        "editor.formatOnSave": false
+    }
 }
