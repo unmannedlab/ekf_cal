@@ -1,8 +1,7 @@
 Filter Design {#filter}
 ============
 
-- @subpage multi-imu
-
-- @subpage multi-cam
-
+- @subpage imu
+- @subpage gps
+- @subpage camera
 - @subpage fiducial

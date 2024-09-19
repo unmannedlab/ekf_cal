@@ -1,54 +1,11 @@
-Camera Error Models {#cam_model}
+Fiducial Filtering {#fiducial}
 ============
 
-# Feature Tracker
+Work in progress
 
-The Camera error model used for a FeatureTracker is
+## Fiducial Error Model
 
-\f{align}{
-    \begin{bmatrix}
-        {}^C p_{f_x} \\
-        {}^C p_{f_y} \\
-        {}^C p_{f_z}
-    \end{bmatrix} =
-    R({}^C_L q)(p^L_F - p^L_C)
-\f}
-
-\f{align}{
-    \begin{bmatrix}
-        x_n \\
-        y_n
-    \end{bmatrix} =
-    \begin{bmatrix}
-        {}^C p_{f_x} / {}^C p_{f_z} \\
-        {}^C p_{f_y} / {}^C p_{f_z}
-    \end{bmatrix}
-\f}
-
-
-\f{align}{
-    \begin{bmatrix}
-        u \\ v
-    \end{bmatrix} =
-    \begin{bmatrix}
-        f_x\left[x_n \left(1 + k_1 r^2 +k_2 r^4\right) + 2p_1 x_n y_n + p_2 \left(4^2 + 2 x_n^2\right)  \right] + c_x \\
-        f_y\left[y_n \left(1 + k_1 r^2 +k_2 r^4\right) +  p_1 \left(4^2 + 2 y_n^2\right) + 2 p_2 x_n y_n \right] + c_y
-    \end{bmatrix} +
-    \begin{bmatrix}
-        n_u \\ n_v
-    \end{bmatrix}
-\f}
-
-where
-\f{align}{
-    r^2 = x_n^2 + y_n^2
-\f}
-
-and \f$n_u\f$ and \f$n_v\f$ are Gaussian white noise processes
-
-# Fiducial Tracker
-
-The Camera error model used for a FiducialTracker is
+The error model used for a FiducialTracker is
 
 \f{align}{
     {}^C p_f =

@@ -7,9 +7,7 @@ Extended Kalman Filter Calibration and Localization: ekf_cal is a package focuse
 - [Cameras](docs/filters/camera.md)
 - [Fiducials](docs/filters/fiducial.md)
 
-<p align="center">
-  <img src="docs/doxygen/html/images/setup.svg" alt="setup" width="80%"/>
-</p>
+<img src="images/setup.svg" alt="setup" width="70%"/>
 
 ## Documentation
 

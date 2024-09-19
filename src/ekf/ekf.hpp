@@ -148,12 +148,12 @@ public:
   /// @brief Predict state to given time using IMU measurements
   /// @param time Time of measurement
   /// @param acceleration Acceleration measurement in IMU frame
-  /// @param angularRate Angular rate measurement in IMU frame
+  /// @param angular_rate Angular rate measurement in IMU frame
   ///
   void PredictModel(
     double time,
     Eigen::Vector3d acceleration,
-    Eigen::Vector3d angularRate);
+    Eigen::Vector3d angular_rate);
 
   ///
   /// @brief State transition matrix getter method

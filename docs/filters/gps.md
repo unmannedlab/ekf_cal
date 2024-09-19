@@ -1,5 +1,9 @@
-GPS Error Models {#gps_model}
+GPS Filtering {#gps}
 ============
+
+Work in progress
+
+## GPS Error Model
 
 The GPS error model used is
 \f{align}{
