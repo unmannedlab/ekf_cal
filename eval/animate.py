@@ -37,7 +37,9 @@ from input_parser import InputParser
 from utilities import find_and_read_data_frames, generate_mc_lists
 from functools import partial
 
-
+# TODO: Plot keypoints
+# TODO: Plot augmented states
+# TODO: Plot polygon for fiducial board
 def generate_animation(config_sets, args):
     """Top level function to plot simulation results from sets of config files."""
     for config_set in config_sets:
@@ -47,6 +49,7 @@ def generate_animation(config_sets, args):
         else:
             plot_dir = data_dirs[0]
 
+        file_name = os.path.basename(plot_dir)
         if not os.path.isdir(plot_dir):
             os.mkdir(plot_dir)
 
@@ -58,30 +61,49 @@ def generate_animation(config_sets, args):
 
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
+        x_lim = [1e9, -1e9]
+        y_lim = [1e9, -1e9]
+        z_lim = [1e9, -1e9]
+        
+        for key in body_state_dfs_dict:
+            body_dfs = body_state_dfs_dict[key]
+            for body_df in body_dfs:
+                x_lim[0] = min(x_lim[0], np.min(body_df['body_pos_0']))
+                y_lim[0] = min(y_lim[0], np.min(body_df['body_pos_1']))
+                z_lim[0] = min(z_lim[0], np.min(body_df['body_pos_2']))
+                x_lim[1] = max(x_lim[1], np.max(body_df['body_pos_0']))
+                y_lim[1] = max(y_lim[1], np.max(body_df['body_pos_1']))
+                z_lim[1] = max(z_lim[1], np.max(body_df['body_pos_2']))
 
         fps = 30
         reset_time = 5.0
-        N = int(reset_time * fps)
+        tail_time = 1.0
+        frame_count = int(reset_time * fps)
 
         def gen_frame(t, body_dfs_dict):
             ax.cla()
             for key in body_dfs_dict:
                 body_dfs = body_dfs_dict[key]
                 for body_df in body_dfs:
-                    n = int(t * (len(body_df['body_pos_0'])) / N) + 1
-                    alphas = np.linspace(0, 1, n)
+                    ppf = int(len(body_df['body_pos_0']) / frame_count)
+                    max_n = int(tail_time * fps * ppf)
+                    n = int(t * ppf) + 1
 
-                    pos_x = body_df['body_pos_0'][0:n]
-                    pos_y = body_df['body_pos_1'][0:n]
-                    pos_z = body_df['body_pos_2'][0:n]
-                    ax.scatter(pos_x, pos_y, pos_z, alpha=alphas)
+                    pos_x = np.array(body_df['body_pos_0'][max(0,n-max_n):n])
+                    pos_y = np.array(body_df['body_pos_1'][max(0,n-max_n):n])
+                    pos_z = np.array(body_df['body_pos_2'][max(0,n-max_n):n])
+                    ax.plot(pos_x, pos_y, pos_z)
+                    ax.set_xlim(x_lim)
+                    ax.set_ylim(y_lim)
+                    ax.set_zlim(z_lim)
+
             return fig,
 
         ani = animation.FuncAnimation(fig, partial(
-            gen_frame, body_dfs_dict=body_state_dfs_dict), N, interval=1000 / fps)
+            gen_frame, body_dfs_dict=body_state_dfs_dict), frame_count, interval=1000 / fps)
         plt.show()
 
-        ani.save(os.path.join(plot_dir, 'animation.gif'), writer='imagemagick')
+        ani.save(os.path.join(plot_dir, f'{file_name}.gif'), writer='imagemagick')
 
 
 # TODO(jhartzer): Write tests
