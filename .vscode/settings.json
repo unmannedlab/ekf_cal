@@ -245,5 +245,9 @@
             "strings": true
         },
         "editor.formatOnSave": false
+    },
+    "[markdown]": {
+        "editor.wordWrap": "wordWrapColumn",
+        "editor.wordWrapColumn": 100
     }
 }

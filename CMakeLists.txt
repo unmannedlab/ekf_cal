@@ -43,6 +43,7 @@ set(ROS_PKGS
     std_msgs
     tf2_ros
 )
+
 foreach(pkg ${ROS_PKGS})
     find_package(${pkg} REQUIRED)
 endforeach()
@@ -50,6 +51,7 @@ endforeach()
 set(SIM_PKGS
     yaml-cpp
 )
+
 foreach(pkg ${SIM_PKGS})
     find_package(${pkg} REQUIRED)
 endforeach()
@@ -58,7 +60,6 @@ include_directories(PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
-
 
 # SIM Infrastructure
 set(SIM_INF_SRCS
@@ -71,7 +72,6 @@ set(SIM_INF_SRCS
 )
 add_library(SIM_INF ${SIM_INF_SRCS})
 
-
 # ROS Infrastructure
 set(ROS_INF_SRCS
     src/infrastructure/data_logger.cpp
@@ -80,13 +80,11 @@ set(ROS_INF_SRCS
 )
 add_library(ROS_INF ${ROS_INF_SRCS})
 
-
 # ROS Utilities
 set(ROS_UTL_SRCS
     src/utility/ros_helper.cpp
 )
 add_library(ROS_UTL ${ROS_UTL_SRCS})
-
 
 # EKF Utilities
 set(EKF_UTL_SRCS
@@ -96,7 +94,6 @@ set(EKF_UTL_SRCS
     src/utility/type_helper.cpp
 )
 add_library(EKF_UTL ${EKF_UTL_SRCS})
-
 
 # EKF sources
 set(EKF_SRCS
@@ -119,7 +116,6 @@ set(EKF_SRCS
 add_library(EKF_LIB ${EKF_SRCS})
 target_link_libraries(EKF_LIB ROS_INF EKF_UTL)
 
-
 # Simulation Sources
 set(SIM_SRCS
     src/sensors/sim/sim_camera.cpp
@@ -132,7 +128,6 @@ set(SIM_SRCS
 )
 add_library(SIM_LIB ${SIM_SRCS})
 
-
 # ROS Sources
 set(ROS_SRCS
     src/sensors/ros/ros_camera_message.cpp
@@ -144,7 +139,6 @@ set(ROS_SRCS
 )
 add_library(ROS_LIB ${ROS_SRCS})
 target_link_libraries(ROS_LIB EKF_LIB ROS_INF ROS_UTL EKF_UTL)
-
 
 # EKF CAL Node
 add_library(EKF_NODE_LIB src/application/ros/node/ekf_cal_node.cpp)
@@ -159,7 +153,6 @@ include_directories(${YAML_CPP_INCLUDE_DIRS})
 target_include_directories(sim PUBLIC "${PROJECT_BINARY_DIR}")
 target_link_libraries(sim SIM_LIB EKF_LIB SIM_INF EKF_UTL ${YAML_CPP_LIBRARIES})
 
-
 # Add all ROS dependencies
 ament_target_dependencies(ROS_INF rclcpp)
 ament_target_dependencies(EKF_LIB OpenCV)
@@ -171,7 +164,6 @@ ament_target_dependencies(ROS_LIB ${ROS_PKGS})
 ament_target_dependencies(EKF_NODE_LIB ${ROS_PKGS})
 ament_target_dependencies(ekf_cal_node ${ROS_PKGS})
 ament_target_dependencies(sim OpenCV)
-
 
 # gtest
 if(BUILD_TESTING)
@@ -231,7 +223,6 @@ if(BUILD_TESTING)
         target_link_libraries(${nam} EKF_LIB ROS_LIB ROS_INF ROS_UTL EKF_UTL)
     endforeach()
 
-
     ament_add_gtest(ekf_cal_node_test src/application/ros/node/test/ekf_cal_node_test.cpp)
     ament_target_dependencies(ekf_cal_node_test ${ROS_PKGS})
     target_include_directories(ekf_cal_node_test PUBLIC ${CMAKE_SOURCE_DIR}/src/)
@@ -251,4 +242,3 @@ install(DIRECTORY
 )
 
 ament_package()
-

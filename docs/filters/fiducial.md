@@ -1,7 +1,22 @@
 Fiducial Filtering {#fiducial}
 ============
 
-Work in progress
+Fiducial markers can be excellent resources in localization and mapping. When visible, they can provide relative position and orientation measurements. While fiducial markers remain remain visible and stationary, they can provide a quick and moderately robust SLAM solution.
+
+Issues can arise, however, when performing online calibration of IMU and Camera sensors or when there are sufficiently large errors in the position and orientation of the fiducial.
+
+As such, it can be beneficial to simultaneously estimate the pose of the fiducial alongside the localization of the moving body. This is done by introducing the fiducial pose states into the overall filter as
+
+\f{equation}{
+    \boldsymbol{x}_F = 
+    \begin{bmatrix}
+        \pose{F}{L} & 
+        \quat{F}{L}
+    \end{bmatrix}
+\f}
+
+## 
+<!-- TODO: Add example of drift/errors due to fiducial marker pose error-->
 
 ## Fiducial Error Model
 

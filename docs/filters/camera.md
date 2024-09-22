@@ -1,7 +1,9 @@
 Camera Filtering {#camera}
 ============
 
-Work in progress
+<!-- ## Efficiency in Multi-Camera MSCKF
+
+The current state of the art methods for multi-camera  -->
 
 ## Camera Error Models 
 

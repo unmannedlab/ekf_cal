@@ -1,7 +1,13 @@
 GPS Filtering {#gps}
 ============
 
-Work in progress
+When available, GPS can provide a drift-free global position measurement.
+
+Since these measurements are produced in a global frame, it is necessary to have a global to local frame transformation to utilize these measurements in a localization system.
+
+## Local Frame Initialization
+
+## Online Calibration
 
 ## GPS Error Model
 
@@ -32,3 +38,4 @@ where
 - \f$h\f$           is the true altitude, and
 - \f$n_\phi\f$, \f$n_\lambda\f$, and \f$n_h\f$ are Gaussian, white noise processes
 
+<!-- ## TODO: Reference:  -->
