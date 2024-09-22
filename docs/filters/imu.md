@@ -8,15 +8,15 @@ To explain this, first consider the measurement model for an IMU that is not at 
 \f{align}{
 \boldsymbol{h}(\boldsymbol{x}_{b}) = 
 \begin{bmatrix}
-    \mathcal{C}(\prescript{B}{I_i}{q})^T
+    \mathcal{C}(\quat{I_i}{B})^T
     \left(
-    \mathcal{C}(\prescript{G}{B}{q})^T \boldsymbol{a} +
-    \boldsymbol{\alpha} \times \prescript{B}{}{\boldsymbol{p}}_{I_i} +
-    \boldsymbol{\omega} \times \boldsymbol{\omega} \times \prescript{B}{}{\boldsymbol{p}}_{I_i}
+    \mathcal{C}(\quat{B}{G})^T \boldsymbol{a} +
+    \boldsymbol{\alpha} \times \pose{I_i}{B} +
+    \boldsymbol{\omega} \times \boldsymbol{\omega} \times \pose{I_i}{B}
     \right)
     \\
-    \mathcal{C}(\prescript{B}{I_i}{q})^T
-    \mathcal{C}(\prescript{G}{B}{q})^T
+    \mathcal{C}(\quat{I_i}{B})^T
+    \mathcal{C}(\quat{B}{G})^T
     \boldsymbol{\omega}
 \end{bmatrix}
 \f}
@@ -58,11 +58,11 @@ where
 \f{align}{
   \boldsymbol{F} = 
   \begin{bmatrix}
-    \boldsymbol{I}_3 & \Delta t \boldsymbol{I}_3 & 0 & 0 & 0 & 0 \\
-    0 & \boldsymbol{I}_3 & \Delta t \boldsymbol{I}_3 & 0 & 0 & 0 \\
-    0 & 0 & \boldsymbol{I}_3 & 0 & 0 & 0 \\
-    0 & 0 & 0 & \boldsymbol{I}_3 & \Delta t \boldsymbol{I}_3 & 0 \\
-    0 & 0 & 0 & 0 & \boldsymbol{I}_3 & \Delta t \boldsymbol{I}_3 \\
+    \boldsymbol{I}_3 & \Delta t \boldsymbol{I}_3 & 0 & 0 & 0 & 0 & 0 \\
+    0 & \boldsymbol{I}_3 & \Delta t \boldsymbol{I}_3 & 0 & 0 & 0 & 0 \\
+    0 & 0 & \boldsymbol{I}_3 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & \boldsymbol{I}_3 & \Delta t \boldsymbol{I}_3 & 0 & 0 \\
+    0 & 0 & 0 & 0 & \boldsymbol{I}_3 & \Delta t \boldsymbol{I}_3 & 0 \\
     0 & 0 & 0 & 0 & 0 & \boldsymbol{I}_3 & \Delta t \boldsymbol{I}_3
   \end{bmatrix}
 \f}
@@ -74,9 +74,15 @@ The Kalman update step is performed in the typical fashion. The measurement resi
 The typical Kalman update equations are used for the remainder of the update
 
 \f{align}{
-  \boldsymbol{S} = \boldsymbol{H} * \boldsymbol{P}_{k|k-1} * \boldsymbol{H}^T + \boldsymbol{R} \\
-  \boldsymbol{K} = \boldsymbol{P}_{k|k-1} * \boldsymbol{H}^T * \boldsymbol{S}^{-1} \\
-  \boldsymbol{x}_{k|k} = \boldsymbol{K} * \boldsymbol{x}_{k|k} \\
+  \boldsymbol{S} = \boldsymbol{H} * \boldsymbol{P}_{k|k-1} * \boldsymbol{H}^T + \boldsymbol{R}
+\f}
+\f{align}{
+  \boldsymbol{K} = \boldsymbol{P}_{k|k-1} * \boldsymbol{H}^T * \boldsymbol{S}^{-1}
+\f}
+\f{align}{
+  \boldsymbol{x}_{k|k} = \boldsymbol{K} * \boldsymbol{x}_{k|k}
+\f}
+\f{align}{
   \boldsymbol{P}_{k|k} =  (\boldsymbol{I} - \boldsymbol{K} * \boldsymbol{H}) * \boldsymbol{P}_{k|k-1} * (\boldsymbol{I} - \boldsymbol{K} * \boldsymbol{H})^T + \boldsymbol{K} * \boldsymbol{R} * \boldsymbol{K}^T;
 \f}
 
@@ -86,22 +92,22 @@ For simulation purposes, the IMU error model is
 
 \f{align}{
     a_m =
-    \omega \times \omega \times p_a +
-    \alpha \times p_a +
+    \omega \times \omega \times \pose{I}{B} +
+    \alpha \times \pose{I}{B} +
     \mathcal{C}\left(q_i^b\right)
-    \left[a + g\right]
+    \left[a + \boldsymbol{g}\right]
 \f}
 
 where
 
 - \f$a_m\f$            is the measured acceleration,
 - \f$\omega\f$         is the true angular velocity,
-- \f$p_a\f$            is the true position of the accelerometer in the body frame,
+- \f$\pose{I}{B}\f$    is the true position of the IMU in the body frame,
 - \f$\alpha\f$         is the true angular acceleration,
 - \f$\mathcal{C}\f$    is the quaternion to rotation matrix function,
-- \f$q_i^b\f$          is the rotation from the body frame to the IMU frame,
+- \f$\quat{B}{I}\f$    is the rotation from the body frame to the IMU frame,
 - \f$a_b\f$            is the true body acceleration, and
-- \f$g\f$              is the gravity vector.
+- \f$\boldsymbol{g}\f$ is the gravity vector.
 
 
 ## Reference

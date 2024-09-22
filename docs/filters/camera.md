@@ -11,11 +11,11 @@ The error model used for a FeatureTracker is
 
 \f{align}{
     \begin{bmatrix}
-        {}^C p_{f_x} \\
-        {}^C p_{f_y} \\
-        {}^C p_{f_z}
+        \pose{f_x}{C} \\
+        \pose{f_y}{C} \\
+        \pose{f_z}{C}
     \end{bmatrix} =
-    R({}^C_L q)(p^L_F - p^L_C)
+    R(\quat{L}{C})(p^L_F - p^L_C)
 \f}
 
 \f{align}{
@@ -24,8 +24,8 @@ The error model used for a FeatureTracker is
         y_n
     \end{bmatrix} =
     \begin{bmatrix}
-        {}^C p_{f_x} / {}^C p_{f_z} \\
-        {}^C p_{f_y} / {}^C p_{f_z}
+        \pose{f_x}{C} / \pose{f_z}{C} \\
+        \pose{f_y}{C} / \pose{f_z}{C}
     \end{bmatrix}
 \f}
 

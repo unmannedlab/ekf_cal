@@ -1,11 +1,32 @@
-\newcommand{\floor}[1]{\lfloor #1 \rfloor}
-\newcommand{\crossmat}[1]{\left[#1\right]_\times}
-\newcommand{\HatBar}[1]{\hat{\bar{#1}}}
-\newcommand{\HatBold}[1]{\hat{\boldsymbol{#1}}}
-\newcommand{\DotHatBar}[1]{\Dot{\hat{\bar{#1}}}}
+\newcommand{\prescript}[3]{ {}^{#1}_{#2}{#3} }
+\newcommand{\acc}[2]{\prescript{#2}{}{\boldsymbol{a}}_{#1}}
+\newcommand{\accDot}[2]{\prescript{#2}{}{\Dot{\boldsymbol{a}}}_{#1}}
+\newcommand{\accHat}[2]{\prescript{#2}{}{\hat{\boldsymbol{a}}}_{#1}}
+\newcommand{\ang}[2]{\prescript{#2}{#1}{\theta}}
+\newcommand{\angacc}[2]{\prescript{#2}{}{\boldsymbol{\alpha}}_{#1}}
+\newcommand{\angaccDot}[2]{\prescript{#2}{}{\Dot{\boldsymbol{\alpha}}}_{#1}}
+\newcommand{\angHat}[2]{\prescript{#2}{#1}{\hat{\theta}}}
+\newcommand{\angvel}[2]{\prescript{#2}{}{\boldsymbol{\omega}}_{#1}}
+\newcommand{\angvelDot}[2]{\prescript{#2}{}{\Dot{\boldsymbol{\omega}}}_{#1}}
+\newcommand{\crossmat}[1]{\left\lfloor #1 \right\rfloor_{\times} }
 \newcommand{\DotHat}[1]{\Dot{\hat{#1}}}
 \newcommand{\eye}[1]{\mathbf{I}_{#1}}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\HatBold}[1]{\hat{\boldsymbol{#1}}}
+\newcommand{\matPose}[2]{\prescript{#2}{}{\boldsymbol{P}}_{#1}}
+\newcommand{\matPoseHat}[2]{\prescript{#2}{}{\hat{\boldsymbol{P}}}_{#1}}
+\newcommand{\pose}[2]{\prescript{#2}{}{\boldsymbol{p}}_{#1}}
+\newcommand{\poseDot}[2]{\prescript{#2}{}{\Dot{\boldsymbol{p}}}_{#1}}
+\newcommand{\poseHat}[2]{\prescript{#2}{}{\hat{\boldsymbol{p}}}_{#1}}
+\newcommand{\poseTilde}[2]{\prescript{#2}{}{\tilde{\boldsymbol{p}}}_{#1}}
+\newcommand{\quat}[2]{\prescript{#2}{#1}{q}}
+\newcommand{\quatDot}[2]{\prescript{#2}{#1}{\Dot{q}}}
+\newcommand{\quatHat}[2]{\prescript{#2}{#1}{\hat{q}}}
+\newcommand{\quatJac}[1]{\mathcal{J}\left({#1}\right)}
+\newcommand{\quatJacInv}[1]{\mathcal{J}^{-1}\left({#1}\right)}
+\newcommand{\quatRot}[1]{\mathcal{C}\left(#1\right)}
+\newcommand{\quatTilde}[2]{\prescript{#2}{#1}{\tilde{q}}}
+\newcommand{\vel}[2]{\prescript{#2}{}{\boldsymbol{v}}_{#1}}
+\newcommand{\velDot}[2]{\prescript{#2}{}{\Dot{\boldsymbol{v}}}_{#1}}
+\newcommand{\velHat}[2]{\prescript{#2}{}{\hat{\boldsymbol{v}}}_{#1}}
 \newcommand{\zeros}[2]{\mathbf{0}_{#1 \times #2}}
-\newcommand{\quatRot}[1]{\mathcal{C}(#1)}
-\newcommand{\Jac}[1]{\mathcal{J}(#1)}
-\newcommand{\prescript}[3]{{}^{#1}_{#2}{#3}}
