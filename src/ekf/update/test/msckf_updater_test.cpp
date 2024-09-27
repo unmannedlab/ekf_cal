@@ -97,10 +97,10 @@ TEST(test_msckf_updater, update) {
   feature_point_3.frame_id = 3;
   feature_point_3.key_point = point_3;
 
-  std::vector<FeaturePoint> feature_points;
-  feature_points.push_back(feature_point_1);
-  feature_points.push_back(feature_point_2);
-  feature_points.push_back(feature_point_3);
+  FeatureTrack feature_points;
+  feature_points.track.push_back(feature_point_1);
+  feature_points.track.push_back(feature_point_2);
+  feature_points.track.push_back(feature_point_3);
 
   FeatureTracks feature_tracks;
   feature_tracks.push_back(feature_points);
