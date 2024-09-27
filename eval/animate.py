@@ -29,17 +29,22 @@ python3 eval/animate.py --help
 ```
 """
 
-import matplotlib.pyplot as plt
-import os
-import numpy as np
-from matplotlib import animation
-from input_parser import InputParser
-from utilities import find_and_read_data_frames, generate_mc_lists
 from functools import partial
+import os
+
+from input_parser import InputParser
+from matplotlib import animation
+import matplotlib.pyplot as plt
+
+import numpy as np
+
+from utilities import find_and_read_data_frames, generate_mc_lists
 
 # TODO: Plot keypoints
 # TODO: Plot augmented states
 # TODO: Plot polygon for fiducial board
+
+
 def generate_animation(config_sets, args):
     """Top level function to plot simulation results from sets of config files."""
     for config_set in config_sets:
@@ -64,7 +69,7 @@ def generate_animation(config_sets, args):
         x_lim = [1e9, -1e9]
         y_lim = [1e9, -1e9]
         z_lim = [1e9, -1e9]
-        
+
         for key in body_state_dfs_dict:
             body_dfs = body_state_dfs_dict[key]
             for body_df in body_dfs:
@@ -89,9 +94,9 @@ def generate_animation(config_sets, args):
                     max_n = int(tail_time * fps * ppf)
                     n = int(t * ppf) + 1
 
-                    pos_x = np.array(body_df['body_pos_0'][max(0,n-max_n):n])
-                    pos_y = np.array(body_df['body_pos_1'][max(0,n-max_n):n])
-                    pos_z = np.array(body_df['body_pos_2'][max(0,n-max_n):n])
+                    pos_x = np.array(body_df['body_pos_0'][max(0, n-max_n):n])
+                    pos_y = np.array(body_df['body_pos_1'][max(0, n-max_n):n])
+                    pos_z = np.array(body_df['body_pos_2'][max(0, n-max_n):n])
                     ax.plot(pos_x, pos_y, pos_z)
                     ax.set_xlim(x_lim)
                     ax.set_ylim(y_lim)

@@ -19,8 +19,9 @@ from bokeh.layouts import layout
 from bokeh.models import TabPanel
 from bokeh.plotting import figure
 import numpy as np
-from utilities import calculate_alpha, get_colors, plot_update_timing
 from scipy.spatial.transform import Rotation
+
+from utilities import calculate_alpha, get_colors, plot_update_timing
 
 
 class tab_imu:
