@@ -72,8 +72,9 @@ bool MsckfUpdater::TriangulateFeature(
   FeatureTrack & feature_track,
   Eigen::Vector3d & pos_f_in_l)
 {
-  pos_f_in_l = feature_track.true_feature_position;
-  return true;
+  /// @todo: Need to continue debugging the triangulated features
+  // pos_f_in_l = feature_track.true_feature_position;
+  // return true;
 
   AugState aug_state_0 = ekf->GetAugState(
     m_id, feature_track.track[0].frame_id, feature_track.track[0].frame_time);

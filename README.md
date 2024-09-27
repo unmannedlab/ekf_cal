@@ -1,7 +1,7 @@
 # ekf_cal
 [![Documentation](https://github.com/unmannedlab/ekf_cal/actions/workflows/documentation.yaml/badge.svg)](https://github.com/unmannedlab/ekf_cal/actions/workflows/documentation.yaml)
 
-Extended Kalman Filter Calibration and Localization: ekf_cal is a package focused on the simulation and development of a multi-sensor online calibration kalman filter. It combines the architecture of a Multi-State Constraint Kalman Filter (MSCKF) with a multi-IMU calibration filter to provide intrinsic and extrinsic estimates for the following sensors:
+Extended Kalman Filter Calibration and Localization: ekf_cal is a package focused on the simulation and development of a multi-sensor online calibration kalman filter. It combines the architecture of a Multi-State Constraint Kalman Filter (MSCKF) with a multi-sensor calibration filter to provide intrinsic and extrinsic estimates for the following sensors:
 - [IMU](https://unmannedlab.org/ekf_cal/imu.html)
 - [GPS](https://unmannedlab.org/ekf_cal/gps.html)
 - [Cameras](https://unmannedlab.org/ekf_cal/camera.html)
@@ -105,6 +105,20 @@ colcon test --packages-select ekf_cal --pytest-with-coverage \
    --pytest-args --cov-report=term --event-handlers console_direct+
 
 colcon lcov-result --packages-select ekf_cal --filter '*_test.cpp' '*_main.cpp'
+```
+
+The lines of code in the repository can be counted ([cloc](https://github.com/AlDanial/cloc)) using the following command
+
+```
+echo 'Count Lines of Code {#cloc}\n============' > docs/software/cloc.md && \
+cloc src eval --md | tail -n +4 >> docs/software/cloc.md && \
+sed -i 's/--------|--------|--------|--------|--------/| | | | | |/' docs/software/cloc.md
+```
+
+A performance [flamegraph](https://github.com/brendangregg/FlameGraph) can be generated using the following command
+
+```
+cd docs/flamegraph/ && ./run_perf.sh
 ```
 
 ## Documentation

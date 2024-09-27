@@ -137,6 +137,15 @@
                 "kind": "build",
                 "isDefault": false
             }
+        },
+        {
+            "label": "generate-flamegraph",
+            "detail": "Creates flamegraph for software execution",
+            "type": "shell",
+            "command": "./run_perf.sh",
+            "options": {
+                "cwd": "${workspaceFolder}/docs/flamegraph/"
+            }
         }
     ],
 }
