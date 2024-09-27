@@ -1,49 +1,11 @@
-Getting Started {#tutorial}
+Parameter Definitions {#parameters}
 ============
-
-
-# Dependencies
-The ekf_cal package has the following hard dependencies that are required for all compilations:
-- [OpenCV](https://opencv.org/)
-- [Eigen 3](https://eigen.tuxfamily.org/index.php?title=Main_Page)
-
-The following dependencies are for building the ROS node and simulation, respectively
-- [ROS2](https://docs.ros.org/en/rolling/index.html)
-- [yaml-cpp](https://github.com/jbeder/yaml-cpp)
-
-The following soft dependencies useful for development and documentation
-- [Doxygen](https://www.doxygen.nl/index.html)
-- [Google Test](https://google.github.io/googletest/)
-
-These can be installed by running `rosdep` in the base directory of this repo
-```
-rosdep install --from-paths src -y --ignore-src
-```
-
-# Build
-
-Building can be done simply with the following command:
-
-```
-colcon build --symlink-install --packages-select ekf_cal
-```
-
-## Docker
-Alternatively, a Dockerfile is provided, which can be used either inside a VS Code [devcontainer](https://code.visualstudio.com/docs/devcontainers/containers), or a standalone container.
-
-# Input Files
-
-This repository offers two main ways to utilize the Kalman filter framework: a simulation and ROS2 node.
-Both the simulation and ROS node are configurable and runnable using identically formatted YAML
-files. The basic structure of the YAML files is a set of ROS parameters, lists that define the
-sensors to use, and the sensor definitions themselves. The top-level of the YAML is the definition
-of the node name `/EkfCalNode` and a ROS2-specific implementation for `ros__parameters`. Structuring
-the yaml in this way allows the node to utilize these parameters. The `sim_params` section includes
-parameters that are only relevant to the simulation.
 
 ## Main parameters
 
-```YAML
+The basic structure of the YAML files is a set of ROS parameters, lists that define the sensors to use, and the sensor definitions themselves. The top-level of the YAML is the definition of the node name `/EkfCalNode` and a ROS2-specific implementation for `ros__parameters`. Structuring the yaml in this way allows the node to utilize these parameters. The `sim_params` section includes parameters that are only relevant to the simulation. The main simulation and node parameters are as follows
+
+```{.py}
 /EkfCalNode:
     ros__parameters:
         debug_log_level: 2                  # Debug_Log_Level:
@@ -96,7 +58,7 @@ must read from a known list to the declare and read unknown lists. Therefore, th
 must exist, but can be empty. These define the parameter sections for each of their respective
 categories.
 
-```YAML
+```{.py}
 /EkfCalNode:
     ros__parameters:
 
@@ -122,7 +84,7 @@ categories.
 
 The following is an example of an IMU input configuration.
 
-```YAML
+```{.py}
 /EkfCalNode:
     ros__parameters:
 
@@ -165,7 +127,7 @@ The following is an example of an IMU input configuration.
 
 The following is an example of an camera input configuration.
 
-```YAML
+```{.py}
 /EkfCalNode:
     ros__parameters:
 
@@ -207,7 +169,7 @@ The following is an example of an camera input configuration.
 
 The following is an example of a tracker input configuration.
 
-```YAML
+```{.py}
 /EkfCalNode:
     ros__parameters:
 
@@ -242,7 +204,7 @@ The following is an example of a tracker input configuration.
 
 The following is an example of a fiducial input configuration.
 
-```YAML
+```{.py}
 /EkfCalNode:
     ros__parameters:
 
@@ -278,7 +240,7 @@ The following is an example of a fiducial input configuration.
 
 The following is an example of a GPS input configuration.
 
-```YAML
+```{.py}
 /EkfCalNode:
     ros__parameters:
 
@@ -306,88 +268,3 @@ The following is an example of a GPS input configuration.
                     lla_error:  [5.0, 5.0, 5.0]         # LLA measurement error
                     pos_a_in_b_err: [0.0, 0.0, 0.0]     # Antenna position error
 ```
-
-
-
-# Simulation
-
-<!-- TODO: Fix broken links -->
-Simulations can be run using a YAML configuration file that extends the base configuration file
-with additional parameters. See the example [example.yaml](config/example.yaml).
-Multiple simulations can be run in parallel using the [run.py](eval/run.py). An example
-using a single input is given below
-
-```
-python3 eval/run.py config/example.yaml
-```
-
-The results of a run can be plotted using [report.py](eval/report.py)
-```
-python3 eval/plot.py config/example.yaml
-```
-
-To run and plot in sequence, utilize [evaluate.py](eval/evaluate.py)
-```
-python3 eval/evaluate.py config/example.yaml
-```
-
-This will generate and run the requested number of simulation runs for the specified run time and 
-produce plots of the Monte Carlo data. Examples of the resulting plots are shown below:
-
-
-![body_acceleration_error](images/body_acceleration_error.png)
-
-![body_acceleration_error](images/body_position_covariance.png)
-
-![body_acceleration_error](images/imu_2_residuals.png)
-
-![body_acceleration_error](images/imu_2_position.png)
-
-
-# Launch ROS2 Node
-
-For an example of a filter node launch file, see [example.launch.py](launch/example.launch.py)
-
-In particular, note the configuration file [example.yaml](config/example.yaml).
-
-The configuration file specifies which sensor topics should to use and the initialization values.
-Once built, the ROS node can be started by running the following command
-
-```
-ros2 launch example.launch
-```
-
-
-# Documentation
-
-Documentation can be generated using the following command:
-```
-doxygen .doxyfile
-```
-
-A single pdf can be generated of the documentation using the following command
-```
-doxygen .doxyfile && cd docs/doxygen/latex && make
-```
-
-
-# Testing & Static Analysis
-
-Once the package has been built, unit tests and static analysis can be run with the following commands
-```
-colcon test --packages-select ekf_cal --event-handlers console_direct+
-```
-
-A test code coverage report can be generated using the following commands
-``` 
-colcon build --symlink-install --packages-select ekf_cal \
-   --event-handlers console_cohesion+ \
-   --cmake-args -DCMAKE_C_FLAGS='--coverage' -DCMAKE_CXX_FLAGS='--coverage'
-
-colcon test --packages-select ekf_cal --pytest-with-coverage \ 
-   --pytest-args --cov-report=term --event-handlers console_direct+
-
-colcon lcov-result --packages-select ekf_cal --filter '*_test.cpp' '*_main.cpp'
-```
-
-<div id="d43fd4a6-f010-40d4-b2e6-a04e614eb9c9" data-root-id="p1001" style="display: contents;"></div>
