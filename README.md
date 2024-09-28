@@ -73,8 +73,10 @@ To run and plot in sequence, utilize [evaluate.py](eval/evaluate.py)
 python3 eval/evaluate.py config/example.yaml
 ```
 
-This will generate and run the requested number of simulation runs for the specified run time and 
-produce plots of the Monte Carlo data. 
+This will generate and run the requested number of simulation runs for the specified run time and produce plots of the Monte Carlo data. For example, the report generates plots of the body acceleration estimates and the true error in those acceleration estimates.
+
+![acceleration](docs/doxygen/html/images/acceleration.png)
+![acceleration-error](docs/doxygen/html/images/acceleration-error.png)
 
 ### Launch ROS2 Node
 

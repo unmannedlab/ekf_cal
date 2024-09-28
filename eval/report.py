@@ -32,9 +32,10 @@ python3 eval/plot-bokeh.py --help
 import os
 
 from bokeh.embed import components
-from bokeh.models import BoxZoomTool, FullscreenTool, PanTool, ResetTool, \
+from bokeh.models import BoxZoomTool, FullscreenTool, PanTool, Paragraph, ResetTool, \
     SaveTool, Spacer, Tabs, WheelZoomTool
 from bokeh.plotting import curdoc, figure, save
+from bokeh.themes import Theme
 from input_parser import InputParser
 from tab_body import tab_body
 from tab_fiducial import tab_fiducial
@@ -112,6 +113,25 @@ def plot_sim_results(config_sets, args):
                         ]
                         if (fig.legend):
                             fig.legend.click_policy = 'hide'
+        if not args.light:
+            theme = Theme(os.path.join(os.path.dirname(
+                os.path.abspath(__file__)), 'theme-dark.yaml'))
+            template = """
+            {% block preamble %}
+            <style>
+            body {
+                background: #1C1D1F;
+                color: #fff;
+            }
+            </style>
+            {% endblock %}
+            """
+        else:
+            theme = Theme(os.path.join(os.path.dirname(
+                os.path.abspath(__file__)), 'theme-light.yaml'))
+            template = """"""
+
+        curdoc().theme = theme
 
         if (args.embed):
             if not os.path.exists(os.path.join(plot_dir, 'js')):
@@ -121,30 +141,16 @@ def plot_sim_results(config_sets, args):
             for tab in tabs:
                 for row in tab.child.children:
                     for fig in row.children:
-                        if isinstance(fig, Spacer):
+                        if isinstance(fig, Spacer) or isinstance(fig, Paragraph):
                             continue
                         title = fig.title.text.replace(' ', '_')
-                        script, div = components(fig, wrap_script=False)
+                        script, div = components(fig, wrap_script=False, theme=theme)
                         with open(os.path.join(plot_dir, 'js', f'{title}.js'), 'w') as f:
                             f.write(script)
 
                         with open(os.path.join(plot_dir, 'html', f'{title}.html'), 'w') as f:
                             f.write(div)
         else:
-            if not args.light:
-                curdoc().theme = 'dark_minimal'
-
-            template = """
-            {% block preamble %}
-            <style>
-            body {
-                background: #15191c;
-                color: #fff;
-            }
-            </style>
-            {% endblock %}
-            """
-
             save(
                 obj=Tabs(tabs=tabs, sizing_mode='stretch_width'),
                 filename=os.path.join(plot_dir, f'{config_name}-report.html'),

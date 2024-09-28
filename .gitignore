@@ -3,7 +3,9 @@
 */__pycache__/
 
 # Generated Docs
-docs/doxygen/html
+docs/doxygen/html/*
+!docs/doxygen/html/images
+!docs/doxygen/html/includes
 docs/doxygen/latex
 docs/software/cloc.md
 
