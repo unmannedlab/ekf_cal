@@ -216,7 +216,7 @@ void EKF::PredictModel(
   } else {
     m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
       F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose() +
-      m_process_noise * dT;
+      m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0) * dT;
   }
 
   m_current_time = time;

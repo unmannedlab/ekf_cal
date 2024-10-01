@@ -55,8 +55,6 @@ FiducialUpdater::FiducialUpdater(
   header << EnumerateHeader("cam_pos", 3);
   header << EnumerateHeader("cam_ang", 4);
   header << EnumerateHeader("residual", g_fid_measurement_size);
-  header << EnumerateHeader("body_update", g_body_state_size);
-  header << EnumerateHeader("cam_update", g_cam_state_size);
   header << EnumerateHeader("cam_cov", g_cam_state_size);
   header << EnumerateHeader("duration", 1);
 
@@ -241,31 +239,13 @@ void FiducialUpdater::UpdateEKF(
   Eigen::MatrixXd R = position_sigma * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
   // Apply Kalman update
-  Eigen::MatrixXd S = H_x * ekf->m_cov * H_x.transpose() + R;
-  Eigen::MatrixXd K = ekf->m_cov * H_x.transpose() * S.inverse();
-
-  unsigned int imu_states_size = ekf->GetImuStateSize();
-  unsigned int cam_states_size = state_size - g_body_state_size - imu_states_size;
-
-  Eigen::VectorXd update = K * res_x;
-  Eigen::VectorXd cam_state_vec = ekf->m_state.cam_states[m_camera_id].ToVector();
-  Eigen::Vector3d cam_pos = cam_state_vec.segment<3>(0);
-  Eigen::Quaterniond cam_ang = RotVecToQuat(cam_state_vec.segment<3>(3));
-  Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
-  Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_states_size);
-  Eigen::VectorXd cam_update = update.segment(g_body_state_size + imu_states_size, cam_states_size);
-
-  ekf->m_state.body_state += body_update;
-  ekf->m_state.imu_states += imu_update;
-  ekf->m_state.cam_states += cam_update;
-
-  ekf->m_cov =
-    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * ekf->m_cov *
-    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x).transpose() +
-    K * R * K.transpose();
+  KalmanUpdate(ekf, H_x, res_x, R);
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
+
+  Eigen::Vector3d cam_pos = ekf->m_state.cam_states[m_camera_id].pos_c_in_b;
+  Eigen::Quaterniond cam_ang = ekf->m_state.cam_states[m_camera_id].ang_c_to_b;
   Eigen::VectorXd cov_diag = ekf->m_cov.block(
     cam_index, cam_index, g_cam_state_size, g_cam_state_size).diagonal();
 
@@ -276,8 +256,6 @@ void FiducialUpdater::UpdateEKF(
   msg << VectorToCommaString(cam_pos);
   msg << QuaternionToCommaString(cam_ang);
   msg << VectorToCommaString(res_f.segment<g_fid_measurement_size>(0));
-  msg << VectorToCommaString(body_update);
-  msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));
   msg << VectorToCommaString(cov_diag);
   msg << "," << t_execution.count();
   m_fiducial_logger.RateLimitedLog(msg.str(), time);

@@ -51,10 +51,8 @@ MsckfUpdater::MsckfUpdater(
   header << "time";
   header << EnumerateHeader("cam_pos", 3);
   header << EnumerateHeader("cam_ang_pos", 4);
-  header << EnumerateHeader("body_update", g_body_state_size);
-  header << EnumerateHeader("cam_update", g_cam_state_size);
   header << EnumerateHeader("cam_cov", g_cam_state_size);
-  header << ",FeatureTracks,Condition";
+  header << ",FeatureTracks";
   header << EnumerateHeader("duration", 1);
 
   m_msckf_logger.DefineHeader(header.str());
@@ -73,8 +71,8 @@ bool MsckfUpdater::TriangulateFeature(
   Eigen::Vector3d & pos_f_in_l)
 {
   /// @todo: Need to continue debugging the triangulated features
-  // pos_f_in_l = feature_track.true_feature_position;
-  // return true;
+  pos_f_in_l = feature_track.true_feature_position;
+  return true;
 
   AugState aug_state_0 = ekf->GetAugState(
     m_id, feature_track.track[0].frame_id, feature_track.track[0].frame_time);
@@ -348,30 +346,7 @@ void MsckfUpdater::UpdateEKF(
 
   Eigen::MatrixXd R = px_error * px_error * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
-  // Apply Kalman update
-  Eigen::MatrixXd S = H_x * ekf->m_cov * H_x.transpose() + R;
-  Eigen::MatrixXd K = ekf->m_cov * H_x.transpose() * S.inverse();
-
-  unsigned int imu_states_size = ekf->GetImuStateSize();
-  unsigned int cam_states_size = state_size - g_body_state_size - imu_states_size;
-
-  Eigen::VectorXd update = K * res_x;
-  Eigen::VectorXd body_update = update.segment<g_body_state_size>(0);
-  Eigen::VectorXd imu_update = update.segment(g_body_state_size, imu_states_size);
-  Eigen::VectorXd cam_update = update.segment(g_body_state_size + imu_states_size, cam_states_size);
-
-  /// @todo: Needs to be debugged
-  ekf->m_state.body_state += body_update;
-  ekf->m_state.imu_states += imu_update;
-  ekf->m_state.cam_states += cam_update;
-
-  /// @todo: Needs to be debugged
-  ekf->m_cov =
-    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x) * ekf->m_cov *
-    (Eigen::MatrixXd::Identity(state_size, state_size) - K * H_x).transpose() +
-    K * R * K.transpose();
-
-  double max_condition = limit_matrix_condition(ekf->m_cov);
+  KalmanUpdate(ekf, H_x, res_x, R);
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
@@ -380,7 +355,6 @@ void MsckfUpdater::UpdateEKF(
   Eigen::VectorXd cam_state_vec = ekf->m_state.cam_states[m_id].ToVector();
   Eigen::Vector3d cam_pos = cam_state_vec.segment<3>(0);
   Eigen::Quaterniond cam_ang_pos = RotVecToQuat(cam_state_vec.segment<3>(3));
-  Eigen::VectorXd cam_sub_update = update.segment(cam_index, g_cam_state_size);
   Eigen::VectorXd cov_diag = ekf->m_cov.block(
     cam_index, cam_index, g_cam_state_size, g_cam_state_size).diagonal();
 
@@ -388,11 +362,8 @@ void MsckfUpdater::UpdateEKF(
   msg << time;
   msg << VectorToCommaString(cam_pos);
   msg << QuaternionToCommaString(cam_ang_pos);
-  msg << VectorToCommaString(body_update);
-  msg << VectorToCommaString(cam_update.segment(0, g_cam_state_size));
   msg << VectorToCommaString(cov_diag);
   msg << "," << std::to_string(feature_tracks.size());
-  msg << "," << std::to_string(max_condition);
   msg << "," << t_execution.count();
   m_msckf_logger.RateLimitedLog(msg.str(), time);
 }
