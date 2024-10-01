@@ -198,6 +198,7 @@ int main(int argc, char * argv[])
   ekf_params.motion_detection_chi_squared =
     ros_params["motion_detection_chi_squared"].as<double>(0.1);
   ekf_params.imu_noise_scale_factor = ros_params["imu_noise_scale_factor"].as<double>(100.0);
+  ekf_params.use_root_covariance = ros_params["use_root_covariance"].as<bool>(false);
   auto ekf = std::make_shared<EKF>(ekf_params);
 
   // Simulation parameters

@@ -220,8 +220,16 @@ void ImuUpdater::UpdateEKF(
   sub_cov.block(12, 12, imu_size, imu_size) =
     ekf->m_cov.block(imu_start, imu_start, imu_size, imu_size);
 
-  Eigen::MatrixXd S = H * sub_cov * H.transpose() + R;
-  Eigen::MatrixXd K = sub_cov * H.transpose() * S.inverse();
+  // Apply Kalman update
+  Eigen::MatrixXd S, G, K;
+  if (ekf->GetRootCovariance()) {
+    R = R.cwiseSqrt();
+    G = QR_r(sub_cov * H.transpose(), R);
+    K = (G.inverse() * ((G.transpose()).inverse() * H) * sub_cov.transpose() * sub_cov).transpose();
+  } else {
+    S = H * sub_cov * H.transpose() + R;
+    K = sub_cov * H.transpose() * S.inverse();
+  }
 
   Eigen::VectorXd update = K * resid;
   Eigen::VectorXd imu_update = update.segment(12, sub_size - 12);
@@ -234,10 +242,16 @@ void ImuUpdater::UpdateEKF(
 
   ekf->m_state.imu_states += imu_update;
 
-  sub_cov =
-    (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H) * sub_cov *
-    (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H).transpose() +
-    K * R * K.transpose();
+  if (ekf->GetRootCovariance()) {
+    sub_cov = QR_r(
+      sub_cov * (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H).transpose(),
+      R * K.transpose());
+  } else {
+    sub_cov =
+      (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H) * sub_cov *
+      (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H).transpose() +
+      K * R * K.transpose();
+  }
 
   ekf->m_cov.block<12, 12>(6, 6) = sub_cov.block<12, 12>(0, 0);
   ekf->m_cov.block(imu_start, 0, imu_size, 12) = sub_cov.block(12, 0, imu_size, 12);
@@ -353,8 +367,15 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   }
 
   // Apply Kalman update
-  Eigen::MatrixXd S = H * sub_cov * H.transpose() + R;
-  Eigen::MatrixXd K = sub_cov * H.transpose() * S.inverse();
+  Eigen::MatrixXd S, G, K;
+  if (ekf->GetRootCovariance()) {
+    R = R.cwiseSqrt();
+    G = QR_r(sub_cov * H.transpose(), R);
+    K = (G.inverse() * ((G.transpose()).inverse() * H) * sub_cov.transpose() * sub_cov).transpose();
+  } else {
+    S = H * sub_cov * H.transpose() + R;
+    K = sub_cov * H.transpose() * S.inverse();
+  }
 
   Eigen::VectorXd update = K * z;
   ekf->m_state.body_state.acc_b_in_l = Eigen::Vector3d::Zero();
@@ -363,12 +384,17 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   ekf->m_state.body_state.ang_b_to_l =
     ekf->m_state.body_state.ang_b_to_l * RotVecToQuat(update.segment<3>(0));
 
-  sub_cov =
-    (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H) * sub_cov *
-    (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H).transpose() +
-    K * R * K.transpose();
-
-  MinBoundDiagonal(sub_cov, 1e-2, 0, 3);
+  if (ekf->GetRootCovariance()) {
+    sub_cov = QR_r(
+      sub_cov * (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H).transpose(),
+      R * K.transpose());
+  } else {
+    sub_cov =
+      (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H) * sub_cov *
+      (Eigen::MatrixXd::Identity(sub_size, sub_size) - K * H).transpose() +
+      K * R * K.transpose();
+    MinBoundDiagonal(sub_cov, 1e-2, 0, 3);
+  }
 
   ekf->m_cov.block<3, 3>(6, 6) = sub_cov.block<3, 3>(0, 0);
 

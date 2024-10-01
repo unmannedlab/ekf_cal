@@ -304,6 +304,8 @@ public:
   int frame_id;                   ///< @brief Fiducial board ID
   Eigen::Vector3d pos_f_in_l;     ///< @brief Fiducial position in the local frame
   Eigen::Quaterniond ang_f_to_l;  ///< @brief Fiducial position in the local frame
+  double pos_stability {1e-9};    ///< @brief Fiducial position stability
+  double ang_stability {1e-9};    ///< @brief Fiducial orientation stability
   unsigned int size{0};           ///< @brief State size
   int index{-1};                  ///< @brief State index
   unsigned int id{0};             ///< @brief Fiducial ID

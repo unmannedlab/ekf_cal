@@ -114,7 +114,7 @@ class tab_body:
     def plot_body_ang(self):
         """Plot body angular position."""
         fig = figure(width=800, height=300, x_axis_label='Time [s]',
-                     y_axis_label='Angle', title='Body Angle')
+                     y_axis_label='Angle [rad]', title='Body Angle')
         for body_df in self.body_state_dfs:
 
             body_w = body_df['body_ang_pos_0']
@@ -538,7 +538,7 @@ class tab_body:
     def plot_body_ang_cov(self):
         """Plot body covariances for body angles."""
         fig = figure(width=800, height=300, x_axis_label='Time [s]',
-                     y_axis_label='', title='Body Angular Covariance')
+                     y_axis_label='Angle [rad]', title='Body Angular Covariance')
         for body_df in self.body_state_dfs:
             time = body_df['time']
             fig.line(

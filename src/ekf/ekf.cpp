@@ -49,7 +49,8 @@ EKF::EKF(Parameters params)
   m_augmenting_pos_error(params.augmenting_pos_error),
   m_augmenting_ang_error(params.augmenting_ang_error),
   m_motion_detection_chi_squared(params.motion_detection_chi_squared),
-  m_imu_noise_scale_factor(params.imu_noise_scale_factor)
+  m_imu_noise_scale_factor(params.imu_noise_scale_factor),
+  m_use_root_covariance(params.use_root_covariance)
 {
   std::stringstream header;
   header << "time";
@@ -65,17 +66,13 @@ EKF::EKF(Parameters params)
   m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(m_data_logging_on);
   m_data_logger.SetLogRate(params.body_data_rate);
-  SetProcessNoise(params.process_noise);
+  SetBodyProcessNoise(params.process_noise);
 
   if (params.gps_init_type == GpsInitType::CONSTANT) {
     m_is_lla_initialized = true;
   } else {
     m_is_lla_initialized = false;
   }
-
-  /// @todo Is this initialization necessary?
-  // m_cov.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity() * 1.0;
-  // m_cov.block<3, 3>(9, 9) = Eigen::Matrix3d::Identity() * 0.1;
 }
 
 Eigen::MatrixXd EKF::GetStateTransition(double dT)
@@ -143,13 +140,15 @@ void EKF::ProcessModel(double time)
 
   m_state.body_state += process_update;
 
-  /// @todo: Check matrix condition
-  m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-    F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose();
-
-  AddProccessNoise(dT);
-
-  LimitUncertainty();
+  if (m_use_root_covariance) {
+    m_cov.block<g_body_state_size, g_body_state_size>(0, 0) = QR_r(
+      m_cov.block<g_body_state_size, g_body_state_size>(0, 0) * F.transpose(),
+      m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0));
+  } else {
+    m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
+      F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose() +
+      m_process_noise * dT;
+  }
 
   m_current_time = time;
 
@@ -210,13 +209,15 @@ void EKF::PredictModel(
   Eigen::MatrixXd dF = GetStateTransition(dT);
   Eigen::MatrixXd F = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) + dF;
 
-  /// @todo: Check matrix condition
-  m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-    F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose();
-
-  AddProccessNoise(dT);
-
-  LimitUncertainty();
+  if (m_use_root_covariance) {
+    m_cov.block<g_body_state_size, g_body_state_size>(0, 0) = QR_r(
+      m_cov.block<g_body_state_size, g_body_state_size>(0, 0) * F.transpose(),
+      m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0) * std::sqrt(dT));
+  } else {
+    m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
+      F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose() +
+      m_process_noise * dT;
+  }
 
   m_current_time = time;
 
@@ -226,62 +227,6 @@ void EKF::PredictModel(
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
   LogBodyStateIfNeeded(t_execution.count());
-}
-
-/// @todo: Adjust process noise for offsets and biases
-void EKF::AddProccessNoise(double delta_time)
-{
-  m_cov.block<g_body_state_size, g_body_state_size>(0, 0) += m_process_noise * delta_time;
-
-  for (auto const & imu_iter : m_state.imu_states) {
-    unsigned int imu_index = imu_iter.second.index;
-    if (imu_iter.second.GetIsIntrinsic() && imu_iter.second.GetIsExtrinsic()) {
-      Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(12, 12);
-
-      process_noise.block<3, 3>(0, 0) *= delta_time * imu_iter.second.pos_stability;
-      process_noise.block<3, 3>(3, 3) *= delta_time * imu_iter.second.ang_stability;
-      process_noise.block<3, 3>(6, 6) *= delta_time * imu_iter.second.acc_bias_stability;
-      process_noise.block<3, 3>(9, 9) *= delta_time * imu_iter.second.omg_bias_stability;
-
-      m_cov.block<12, 12>(imu_index, imu_index) += process_noise;
-
-    } else if (imu_iter.second.GetIsIntrinsic()) {
-      Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
-
-      process_noise.block<3, 3>(0, 0) *= delta_time * imu_iter.second.acc_bias_stability;
-      process_noise.block<3, 3>(3, 3) *= delta_time * imu_iter.second.omg_bias_stability;
-
-      m_cov.block<6, 6>(imu_index, imu_index) += process_noise;
-
-    } else if (imu_iter.second.GetIsExtrinsic()) {
-      Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
-
-      process_noise.block<3, 3>(0, 0) *= delta_time * imu_iter.second.pos_stability;
-      process_noise.block<3, 3>(3, 3) *= delta_time * imu_iter.second.ang_stability;
-
-      m_cov.block<6, 6>(imu_index, imu_index) += process_noise;
-    }
-  }
-
-  for (auto const & gps_iter : m_state.gps_states) {
-    if (gps_iter.second.GetIsExtrinsic()) {
-      unsigned int gps_index = gps_iter.second.index;
-      Eigen::Matrix3d process_noise =
-        Eigen::Matrix3d::Identity(3, 3) * gps_iter.second.pos_stability;
-
-      m_cov.block<3, 3>(gps_index, gps_index) += process_noise;
-    }
-  }
-
-  for (auto const & cam_iter : m_state.cam_states) {
-    unsigned int cam_index = cam_iter.second.index;
-    Eigen::MatrixXd process_noise = Eigen::MatrixXd::Identity(6, 6);
-
-    process_noise.block<3, 3>(0, 0) *= delta_time * cam_iter.second.pos_stability;
-    process_noise.block<3, 3>(3, 3) *= delta_time * cam_iter.second.ang_stability;
-
-    m_cov.block<6, 6>(cam_index, cam_index) += process_noise;
-  }
 }
 
 /// @todo Get these limits from input file
@@ -668,9 +613,9 @@ void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
   }
 }
 
-void EKF::SetProcessNoise(Eigen::VectorXd process_noise)
+void EKF::SetBodyProcessNoise(Eigen::VectorXd process_noise)
 {
-  m_process_noise = process_noise.asDiagonal();
+  m_body_process_noise = process_noise;
 }
 
 AugState EKF::GetAugState(int camera_id, int frame_id, double time)
@@ -774,21 +719,45 @@ void EKF::RefreshIndices()
   m_state.body_state.index = current_index;
   current_index += g_body_state_size;
 
+  m_process_noise = Eigen::MatrixXd::Zero(m_state_size, m_state_size);
+  m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0) =
+    m_body_process_noise.asDiagonal();
+
   m_imu_state_start = current_index;
   for (auto & imu_iter : m_state.imu_states) {
     imu_iter.second.index = current_index;
-    if (imu_iter.second.GetIsExtrinsic()) {current_index += g_imu_extrinsic_state_size;}
-    if (imu_iter.second.GetIsIntrinsic()) {current_index += g_imu_intrinsic_state_size;}
+    if (imu_iter.second.GetIsExtrinsic()) {
+      m_process_noise.block<3, 3>(current_index + 0, current_index + 0) =
+        Eigen::Matrix3d::Identity() * imu_iter.second.pos_stability;
+      m_process_noise.block<3, 3>(current_index + 3, current_index + 3) =
+        Eigen::Matrix3d::Identity() * imu_iter.second.ang_stability;
+      current_index += g_imu_extrinsic_state_size;
+    }
+    if (imu_iter.second.GetIsIntrinsic()) {
+      m_process_noise.block<3, 3>(current_index + 0, current_index + 0) =
+        Eigen::Matrix3d::Identity() * imu_iter.second.acc_bias_stability;
+      m_process_noise.block<3, 3>(current_index + 3, current_index + 3) =
+        Eigen::Matrix3d::Identity() * imu_iter.second.omg_bias_stability;
+      current_index += g_imu_intrinsic_state_size;
+    }
   }
 
   m_gps_state_start = current_index;
   for (auto & gps_iter : m_state.gps_states) {
     gps_iter.second.index = current_index;
-    if (gps_iter.second.GetIsExtrinsic()) {current_index += g_gps_extrinsic_state_size;}
+    if (gps_iter.second.GetIsExtrinsic()) {
+      m_process_noise.block<3, 3>(current_index, current_index) =
+        Eigen::Matrix3d::Identity() * gps_iter.second.pos_stability;
+      current_index += g_gps_extrinsic_state_size;
+    }
   }
 
   m_cam_state_start = current_index;
   for (auto & cam_iter : m_state.cam_states) {
+    m_process_noise.block<3, 3>(current_index + 0, current_index + 0) =
+      Eigen::Matrix3d::Identity() * cam_iter.second.pos_stability;
+    m_process_noise.block<3, 3>(current_index + 3, current_index + 3) =
+      Eigen::Matrix3d::Identity() * cam_iter.second.ang_stability;
     cam_iter.second.index = current_index;
     current_index += g_cam_state_size;
   }
@@ -796,7 +765,13 @@ void EKF::RefreshIndices()
   m_fid_state_start = current_index;
   for (auto & fid_iter : m_state.fid_states) {
     fid_iter.second.index = current_index;
-    if (fid_iter.second.GetIsExtrinsic()) {current_index += g_fid_extrinsic_state_size;}
+    if (fid_iter.second.GetIsExtrinsic()) {
+      m_process_noise.block<3, 3>(current_index + 0, current_index + 0) =
+        Eigen::Matrix3d::Identity() * fid_iter.second.pos_stability;
+      m_process_noise.block<3, 3>(current_index + 3, current_index + 3) =
+        Eigen::Matrix3d::Identity() * fid_iter.second.ang_stability;
+      current_index += g_fid_extrinsic_state_size;
+    }
   }
 
   m_aug_state_start = current_index;
@@ -806,6 +781,10 @@ void EKF::RefreshIndices()
       m_state.aug_states[aug_id][i].index = current_index;
       current_index += g_aug_state_size;
     }
+  }
+
+  if (m_use_root_covariance) {
+    m_process_noise = m_process_noise.cwiseSqrt();
   }
 }
 
@@ -907,4 +886,9 @@ double EKF::GetMotionDetectionChiSquared()
 double EKF::GetImuNoiseScaleFactor()
 {
   return m_imu_noise_scale_factor;
+}
+
+bool EKF::GetRootCovariance()
+{
+  return m_use_root_covariance;
 }
