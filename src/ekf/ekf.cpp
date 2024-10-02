@@ -731,6 +731,7 @@ void EKF::RefreshIndices()
         Eigen::Matrix3d::Identity() * imu_iter.second.pos_stability;
       m_process_noise.block<3, 3>(current_index + 3, current_index + 3) =
         Eigen::Matrix3d::Identity() * imu_iter.second.ang_stability;
+      imu_iter.second.index_extrinsic = current_index;
       current_index += g_imu_extrinsic_state_size;
     }
     if (imu_iter.second.GetIsIntrinsic()) {
@@ -738,6 +739,7 @@ void EKF::RefreshIndices()
         Eigen::Matrix3d::Identity() * imu_iter.second.acc_bias_stability;
       m_process_noise.block<3, 3>(current_index + 3, current_index + 3) =
         Eigen::Matrix3d::Identity() * imu_iter.second.omg_bias_stability;
+      imu_iter.second.index_intrinsic = current_index;
       current_index += g_imu_intrinsic_state_size;
     }
   }

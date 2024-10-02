@@ -150,6 +150,8 @@ public:
   Eigen::Vector3d omg_bias{0.0, 0.0, 0.0};            ///< @brief Angular rate bias
   unsigned int size{0};                               ///< @brief State size
   int index{-1};                                      ///< @brief State index
+  int index_intrinsic{-1};                            ///< @brief Intrinsic state index
+  int index_extrinsic{-1};                            ///< @brief Extrinsic state index
 
 private:
   void refresh_size();
