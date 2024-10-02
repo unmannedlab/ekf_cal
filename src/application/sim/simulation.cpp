@@ -254,8 +254,10 @@ int main(int argc, char * argv[])
   }
 
   // Local Position Error
-  auto pos_b_in_l_err = StdToEigVec(sim_params["pos_b_in_l_err"].as<std::vector<double>>(def_vec));
-  auto ang_b_to_l_err = StdToEigVec(sim_params["ang_b_to_l_err"].as<std::vector<double>>(def_vec));
+  auto pos_b_in_l_err =
+    StdToEigVec(sim_params["pos_b_in_l_error"].as<std::vector<double>>(def_vec));
+  auto ang_b_to_l_err =
+    StdToEigVec(sim_params["ang_b_to_l_error"].as<std::vector<double>>(def_vec));
   ang_b_to_l_err[2] = 0.0;  // Z rotation defined to be zero-error
   BodyState initial_state;
   initial_state.pos_b_in_l = rng.VecNormRand(ekf_params.pos_b_in_l, pos_b_in_l_err);
@@ -263,8 +265,9 @@ int main(int argc, char * argv[])
   ekf->Initialize(0.0, initial_state);
 
   // Global Position Error
-  auto pos_l_in_g_err = StdToEigVec(sim_params["pos_l_in_g_err"].as<std::vector<double>>(def_vec));
-  auto ang_l_to_g_err = sim_params["ang_l_to_g_err"].as<double>(0.0);
+  auto pos_l_in_g_err =
+    StdToEigVec(sim_params["pos_l_in_g_error"].as<std::vector<double>>(def_vec));
+  auto ang_l_to_g_err = sim_params["ang_l_to_g_error"].as<double>(0.0);
 
   Eigen::Vector3d pos_l_in_g_true;
   pos_l_in_g_true(0) = rng.NormRand(ekf_params.pos_l_in_g(0), wgs84_m_to_deg(pos_l_in_g_err(0)));
@@ -479,10 +482,10 @@ int main(int argc, char * argv[])
     sim_gps_params.gps_params = gps_params;
     sim_gps_params.lla_error = StdToEigVec(sim_node["lla_error"].as<std::vector<double>>(def_vec));
     sim_gps_params.pos_a_in_b_err =
-      StdToEigVec(sim_node["pos_a_in_b_err"].as<std::vector<double>>(def_vec));
+      StdToEigVec(sim_node["pos_a_in_b_error"].as<std::vector<double>>(def_vec));
     sim_gps_params.pos_l_in_g_err =
-      StdToEigVec(sim_node["pos_l_in_g_err"].as<std::vector<double>>(def_vec));
-    sim_gps_params.ang_l_to_g_err = sim_node["ang_l_to_g_err"].as<double>(1e-9);
+      StdToEigVec(sim_node["pos_l_in_g_error"].as<std::vector<double>>(def_vec));
+    sim_gps_params.ang_l_to_g_err = sim_node["ang_l_to_g_error"].as<double>(1e-9);
     sim_gps_params.rng = rng;
 
     // Add sensor to map

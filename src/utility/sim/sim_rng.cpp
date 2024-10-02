@@ -52,6 +52,6 @@ Eigen::Quaterniond SimRNG::QuatNormRand(Eigen::Quaterniond mean, Eigen::Vector3d
   ang_error_rpy(0) = NormRand(0.0, std_dev[0]);
   ang_error_rpy(1) = NormRand(0.0, std_dev[1]);
   ang_error_rpy(2) = NormRand(0.0, std_dev[2]);
-  out_quat = EigVecToQuat(ang_error_rpy) * mean;
+  out_quat = RotVecToQuat(ang_error_rpy) * mean;
   return out_quat;
 }
