@@ -113,6 +113,7 @@ private:
   Eigen::Vector3d m_omg_bias {0.0, 0.0, 0.0};
   bool m_is_extrinsic;
   bool m_is_intrinsic;
+  bool m_initial_motion{false};
 
   DataLogger m_data_logger;
 };

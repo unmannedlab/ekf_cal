@@ -62,7 +62,7 @@ GpsUpdater::GpsUpdater(
 Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
 {
   unsigned int state_size = ekf->GetStateSize();
-  // Eigen::Vector3d pos_a_in_b = ekf->m_state.body_state.pos_b_in_l;
+  // Eigen::Vector3d pos_a_in_b = ekf->m_state.gps_states[m_id].pos_a_in_b;
   // Eigen::Quaterniond ang_b_to_g = ekf->m_state.body_state.ang_b_to_l;
   unsigned int gps_index = ekf->m_state.gps_states[m_id].index;
 
