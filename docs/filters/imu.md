@@ -71,6 +71,8 @@ where
 
 The Kalman update step is performed in the typical fashion. The measurement residual is outlined in equation TODO. The resultant observation matrix is
 
+<!-- @TODO: Add observation matrix here -->
+
 The typical Kalman update equations are used for the remainder of the update
 
 \f{align}{

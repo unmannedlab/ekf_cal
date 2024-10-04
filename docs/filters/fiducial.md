@@ -15,11 +15,56 @@ As such, it can be beneficial to simultaneously estimate the pose of the fiducia
     \end{bmatrix}
 \f}
 
+
+## Fiducial State Update
+
+The Kalman update step is performed in the typical fashion. The predicted measurement is 
+
+\f{align}{
+  \hat{\boldsymbol{z}} = 
+  \begin{bmatrix}
+    \quatHat{B}{C} (\quatHat{L}{B} (\poseHat{F}{L} - \poseHat{B}{L}) - \poseHat{C}{B}) \\
+    \quatHat{B}{C} \quatHat{L}{B} \quatHat{F}{L}
+  \end{bmatrix}
+\f}
+
+The measurement residual is 
+\f{align}{
+  \boldsymbol{y} = \boldsymbol{z} - \hat{\boldsymbol{z}}
+\f}
+
+The resultant observation matrix is
+
+<!-- @TODO: Add observation matrix here -->
+
+\f{align}{
+  \boldsymbol{H} = 
+  \begin{bmatrix}
+    0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0s
+  \end{bmatrix}
+\f}
+
+The typical Kalman update equations are used for the remainder of the update
+
+\f{align}{
+  \boldsymbol{S} = \boldsymbol{H} * \boldsymbol{P}_{k|k-1} * \boldsymbol{H}^T + \boldsymbol{R}
+\f}
+\f{align}{
+  \boldsymbol{K} = \boldsymbol{P}_{k|k-1} * \boldsymbol{H}^T * \boldsymbol{S}^{-1}
+\f}
+\f{align}{
+  \boldsymbol{x}_{k|k} = \boldsymbol{K} * \boldsymbol{x}_{k|k}
+\f}
+\f{align}{
+  \boldsymbol{P}_{k|k} =  (\boldsymbol{I} - \boldsymbol{K} * \boldsymbol{H}) * \boldsymbol{P}_{k|k-1} * (\boldsymbol{I} - \boldsymbol{K} * \boldsymbol{H})^T + \boldsymbol{K} * \boldsymbol{R} * \boldsymbol{K}^T;
+\f}
+
 <!-- TODO: Add example of drift/errors due to fiducial marker pose error-->
 
 ## Fiducial Error Model
 
-The error model used for a fiducial position measurement is
+The simulation error model used for a fiducial position measurement is
 
 \f{align}{
     \pose{f}{C} =
@@ -43,7 +88,7 @@ where
 - \f$ \pose{C}L   \f$ is the position of the camera in the local frame, and
 - \f$ n_p         \f$ is the position Gaussian white noise process.
 
-The error model used for a fiducial angular measurement is
+The simulation error model used for a fiducial angular measurement is
 
 \f{align}{
     \quat{f}{C} =
