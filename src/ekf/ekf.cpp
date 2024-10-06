@@ -50,7 +50,8 @@ EKF::EKF(Parameters params)
   m_augmenting_ang_error(params.augmenting_ang_error),
   m_motion_detection_chi_squared(params.motion_detection_chi_squared),
   m_imu_noise_scale_factor(params.imu_noise_scale_factor),
-  m_use_root_covariance(params.use_root_covariance)
+  m_use_root_covariance(params.use_root_covariance),
+  m_use_first_estimate_jacobian(params.use_first_estimate_jacobian)
 {
   std::stringstream header;
   header << "time";
@@ -147,7 +148,7 @@ void EKF::ProcessModel(double time)
   } else {
     m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
       F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose() +
-      m_process_noise * dT;
+      m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0) * dT;
   }
 
   m_current_time = time;
@@ -890,7 +891,12 @@ double EKF::GetImuNoiseScaleFactor()
   return m_imu_noise_scale_factor;
 }
 
-bool EKF::GetRootCovariance()
+bool EKF::GetUseRootCovariance()
 {
   return m_use_root_covariance;
+}
+
+bool EKF::GetUseFirstEstimateJacobian()
+{
+  return m_use_first_estimate_jacobian;
 }

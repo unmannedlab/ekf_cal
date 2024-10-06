@@ -115,6 +115,8 @@ private:
   bool m_is_intrinsic;
   bool m_initial_motion{false};
 
+  Eigen::MatrixXd m_measurement_jacobian;
+
   DataLogger m_data_logger;
 };
 

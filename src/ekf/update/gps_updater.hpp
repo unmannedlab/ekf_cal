@@ -77,6 +77,7 @@ public:
 private:
   bool m_is_extrinsic {false};
   DataLogger m_data_logger;
+  Eigen::MatrixXd m_measurement_jacobian;
 };
 
 #endif  // EKF__UPDATE__GPS_UPDATER_HPP_

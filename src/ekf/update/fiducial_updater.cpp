@@ -156,7 +156,6 @@ void FiducialUpdater::UpdateEKF(
   Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(max_meas_size, state_size);
 
   Eigen::VectorXd res_f = Eigen::VectorXd::Zero(max_meas_size);
-  Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(max_meas_size, g_fid_extrinsic_state_size);
   Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(max_meas_size, g_cam_state_size + aug_state_size);
 
   for (unsigned int i = 0; i < board_track.size(); ++i) {
@@ -204,6 +203,7 @@ void FiducialUpdater::UpdateEKF(
       rot_bi_to_c * rot_l_to_bi * quaternion_jacobian_inv(aug_state_i.ang_b_to_l) * rot_f_to_l_est;
 
     /// @todo: Enable calibration Jacobian
+    /// @todo: FEJ
     // H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 6) = -rot_bi_to_c;
 
     // H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 9) = rot_bi_to_c *
@@ -212,10 +212,6 @@ void FiducialUpdater::UpdateEKF(
 
     // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 9) = rot_bi_to_c *
     //   quaternion_jacobian_inv(cam_state.ang_c_to_b) * rot_l_to_bi * rot_f_to_l_est;
-
-    // Feature Jacobian
-    H_f.block<3, 3>(meas_row + 0, 0) = rot_c_to_b.transpose() * rot_bi_to_l.transpose();
-    // H_f.block<3, 3>(meas_row + 0, 0) = ;
   }
 
   /// @todo Chi^2 distance check

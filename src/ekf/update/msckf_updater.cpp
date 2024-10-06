@@ -154,6 +154,11 @@ void MsckfUpdater::distortion_jacobian(
   Intrinsics intrinsics,
   Eigen::MatrixXd & H_d)
 {
+  /// @todo: FEJ for distortion
+  // if (ekf->GetUseFirstEstimateJacobian() && m_distortion_jacobian.rows()) {
+  //   return m_distortion_jacobian;
+  // }
+
   // Calculate distorted coordinates for radial
   double r = std::sqrt(xy_norm(0) * xy_norm(0) + xy_norm(1) * xy_norm(1));
   double r_2 = r * r;
@@ -298,6 +303,7 @@ void MsckfUpdater::UpdateEKF(
       H_f.block<2, 3>(2 * i, 0) = H_d * H_p * rot_l_to_ci;
 
       // Augmented state Jacobian
+      /// @todo: FEJ
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, g_aug_state_size);
       H_t.block<3, 3>(0, 0) = -rot_l_to_ci;
       // H_t.block<3, 3>(0, 3) = rot_ci_to_b.transpose() * rot_bi_to_l.transpose() *

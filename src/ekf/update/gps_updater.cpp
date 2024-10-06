@@ -61,21 +61,25 @@ GpsUpdater::GpsUpdater(
 
 Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
 {
+  if (ekf->GetUseFirstEstimateJacobian() && m_measurement_jacobian.rows()) {
+    return m_measurement_jacobian;
+  }
+
   unsigned int state_size = ekf->GetStateSize();
   // Eigen::Vector3d pos_a_in_b = ekf->m_state.gps_states[m_id].pos_a_in_b;
   // Eigen::Quaterniond ang_b_to_g = ekf->m_state.body_state.ang_b_to_l;
   unsigned int gps_index = ekf->m_state.gps_states[m_id].index;
 
-  Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, state_size);
-  // measurement_jacobian.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity(3, 3);
+  m_measurement_jacobian = Eigen::MatrixXd::Zero(3, state_size);
+  // m_measurement_jacobian.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity(3, 3);
   /// @todo: Need to debug this Jacobian
-  // measurement_jacobian.block<3, 3>(0, 9) = -ang_b_to_g.toRotationMatrix() *
+  // m_measurement_jacobian.block<3, 3>(0, 9) = -ang_b_to_g.toRotationMatrix() *
   // SkewSymmetric(pos_a_in_b) * quaternion_jacobian(ang_b_to_g);
   if (m_is_extrinsic) {
-    measurement_jacobian.block<3, 3>(0, gps_index) = Eigen::Matrix3d::Identity(3, 3);
+    m_measurement_jacobian.block<3, 3>(0, gps_index) = Eigen::Matrix3d::Identity(3, 3);
     // ang_b_to_g.toRotationMatrix();
   }
-  return measurement_jacobian;
+  return m_measurement_jacobian;
 }
 
 void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3d gps_lla)

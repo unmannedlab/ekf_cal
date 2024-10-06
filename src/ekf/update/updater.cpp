@@ -32,7 +32,7 @@ void Updater::KalmanUpdate(
 {
   // Calculate Kalman gain
   Eigen::MatrixXd S, G, K;
-  if (ekf->GetRootCovariance()) {
+  if (ekf->GetUseRootCovariance()) {
     measurement_noise = measurement_noise.cwiseSqrt();
     G = QR_r(ekf->m_cov * jacobian.transpose(), measurement_noise);
     K = (G.inverse() * ((G.transpose()).inverse() * jacobian) * ekf->m_cov.transpose() *
@@ -47,7 +47,7 @@ void Updater::KalmanUpdate(
 
   unsigned int rows = ekf->m_cov.rows();
   unsigned int cols = ekf->m_cov.cols();
-  if (ekf->GetRootCovariance()) {
+  if (ekf->GetUseRootCovariance()) {
     ekf->m_cov = QR_r(
       ekf->m_cov * (Eigen::MatrixXd::Identity(rows, cols) -
       K * jacobian).transpose(), measurement_noise * K.transpose());
