@@ -101,21 +101,12 @@ public:
   );
 
 private:
-  Eigen::Vector3d m_body_pos {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_body_vel {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_body_acc {0.0, 0.0, 0.0};
-  Eigen::Quaterniond m_ang_b_to_g {1.0, 0.0, 0.0, 0.0};
-  Eigen::Vector3d m_body_ang_vel {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_body_ang_acc {0.0, 0.0, 0.0};
   Eigen::Vector3d m_pos_i_in_g {0.0, 0.0, 0.0};
   Eigen::Quaterniond m_ang_i_to_b {1.0, 0.0, 0.0, 0.0};
-  Eigen::Vector3d m_acc_bias {0.0, 0.0, 0.0};
-  Eigen::Vector3d m_omg_bias {0.0, 0.0, 0.0};
   bool m_is_extrinsic;
   bool m_is_intrinsic;
   bool m_initial_motion{false};
-
-  Eigen::MatrixXd m_measurement_jacobian;
+  bool m_is_first_estimate{true};
 
   DataLogger m_data_logger;
 };

@@ -15,6 +15,8 @@
 
 #include "utility/sim/sim_rng.hpp"
 
+#include <algorithm>
+
 #include "utility/type_helper.hpp"
 
 std::mt19937_64 SimRNG::m_generator;

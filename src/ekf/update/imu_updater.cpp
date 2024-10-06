@@ -93,39 +93,38 @@ Eigen::VectorXd ImuUpdater::PredictMeasurement(std::shared_ptr<EKF> ekf)
 
 Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
 {
-  if (ekf->GetUseFirstEstimateJacobian() && m_measurement_jacobian.rows()) {
-    return m_measurement_jacobian;
+  if (!ekf->GetUseFirstEstimateJacobian() || m_is_first_estimate) {
+    m_pos_i_in_g = ekf->m_state.imu_states[m_id].pos_i_in_b;
+    m_ang_i_to_b = ekf->m_state.imu_states[m_id].ang_i_to_b;
+    m_is_first_estimate = false;
   }
 
   BodyState body_state = ekf->m_state.body_state;
-  ImuState imu_state = ekf->m_state.imu_states[m_id];
-  Eigen::Vector3d pos_i_in_g = imu_state.pos_i_in_b;
-  Eigen::Quaterniond ang_i_to_b = imu_state.ang_i_to_b;
 
   unsigned int jacobian_size = 12 + ekf->GetImuStateSize();
 
-  m_measurement_jacobian = Eigen::MatrixXd::Zero(6, jacobian_size);
+  Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(6, jacobian_size);
 
   // Body Acceleration
-  m_measurement_jacobian.block<3, 3>(0, 0) = ang_i_to_b.inverse().toRotationMatrix() *
+  measurement_jacobian.block<3, 3>(0, 0) = m_ang_i_to_b.inverse().toRotationMatrix() *
     body_state.ang_b_to_l.inverse().toRotationMatrix();
 
   /// @todo: Body Angular Position
-  // m_measurement_jacobian.block<3, 3>(0, 3) = ;
+  // measurement_jacobian.block<3, 3>(0, 3) = ;
 
   // Body Angular Velocity
-  m_measurement_jacobian.block<3, 3>(0, 6) = ang_i_to_b.inverse().toRotationMatrix() * (
+  measurement_jacobian.block<3, 3>(0, 6) = m_ang_i_to_b.inverse().toRotationMatrix() * (
     SkewSymmetric(body_state.ang_vel_b_in_l) *
-    SkewSymmetric(pos_i_in_g).transpose() +
-    SkewSymmetric(body_state.ang_vel_b_in_l.cross(pos_i_in_g)).transpose()
+    SkewSymmetric(m_pos_i_in_g).transpose() +
+    SkewSymmetric(body_state.ang_vel_b_in_l.cross(m_pos_i_in_g)).transpose()
   );
 
   // Body Angular Acceleration
-  m_measurement_jacobian.block<3, 3>(0, 9) = ang_i_to_b.inverse().toRotationMatrix() *
-    SkewSymmetric(pos_i_in_g);
+  measurement_jacobian.block<3, 3>(0, 9) = m_ang_i_to_b.inverse().toRotationMatrix() *
+    SkewSymmetric(m_pos_i_in_g);
 
   // Body Angular Velocity
-  m_measurement_jacobian.block<3, 3>(3, 6) = ang_i_to_b.inverse().toRotationMatrix() *
+  measurement_jacobian.block<3, 3>(3, 6) = m_ang_i_to_b.inverse().toRotationMatrix() *
     body_state.ang_b_to_l.inverse().toRotationMatrix();
 
   unsigned int imu_ex_start = ekf->m_state.imu_states[m_id].index - ekf->GetImuStateStart() + 12;
@@ -133,37 +132,37 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
 
   if (m_is_extrinsic) {
     // // IMU Positional Offset
-    // m_measurement_jacobian.block<3, 3>(0, imu_ex_start + 0) =
-    //   ang_i_to_b.inverse() * (
+    // measurement_jacobian.block<3, 3>(0, imu_ex_start + 0) =
+    //   m_ang_i_to_b.inverse() * (
     //   SkewSymmetric(body_state.ang_acc_b_in_l) +
     //   SkewSymmetric(body_state.ang_vel_b_in_l) * SkewSymmetric(body_state.ang_vel_b_in_l)
     //   );
 
     // // IMU Angular Offset
-    // m_measurement_jacobian.block<3, 3>(0, imu_ex_start + 3) = SkewSymmetric(
-    //   ang_i_to_b.inverse() * (
-    //     body_state.ang_acc_b_in_l.cross(pos_i_in_g) +
-    //     body_state.ang_vel_b_in_l.cross(body_state.ang_vel_b_in_l.cross(pos_i_in_g)) +
+    // measurement_jacobian.block<3, 3>(0, imu_ex_start + 3) = SkewSymmetric(
+    //   m_ang_i_to_b.inverse() * (
+    //     body_state.ang_acc_b_in_l.cross(m_pos_i_in_g) +
+    //     body_state.ang_vel_b_in_l.cross(body_state.ang_vel_b_in_l.cross(m_pos_i_in_g)) +
     //     body_state.ang_b_to_l.inverse() * (body_state.acc_b_in_l + g_gravity)
     //   )
     // );
 
     // // IMU Angular Offset
-    // m_measurement_jacobian.block<3, 3>(3, imu_ex_start + 3) = -SkewSymmetric(
-    //   ang_i_to_b.inverse() * body_state.ang_b_to_l.inverse() * body_state.ang_vel_b_in_l);
+    // measurement_jacobian.block<3, 3>(3, imu_ex_start + 3) = -SkewSymmetric(
+    //   m_ang_i_to_b.inverse() * body_state.ang_b_to_l.inverse() * body_state.ang_vel_b_in_l);
 
     imu_in_start += 6;
   }
 
   if (m_is_intrinsic) {
     // IMU Accelerometer Bias
-    m_measurement_jacobian.block<3, 3>(0, imu_in_start + 0) = Eigen::MatrixXd::Identity(3, 3);
+    measurement_jacobian.block<3, 3>(0, imu_in_start + 0) = Eigen::MatrixXd::Identity(3, 3);
 
     // IMU Gyroscope Bias
-    m_measurement_jacobian.block<3, 3>(3, imu_in_start + 3) = Eigen::MatrixXd::Identity(3, 3);
+    measurement_jacobian.block<3, 3>(3, imu_in_start + 3) = Eigen::MatrixXd::Identity(3, 3);
   }
 
-  return m_measurement_jacobian;
+  return measurement_jacobian;
 }
 
 void ImuUpdater::UpdateEKF(
@@ -350,6 +349,13 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   }
 
   ekf->ProcessModel(time);
+
+  // Resize Jacobian if state has changed sizes in processing update (state augmentation)
+  if (ekf->GetStateSize() != H.cols()) {
+    Eigen::MatrixXd H_temp = H;
+    H = Eigen::MatrixXd::Zero(meas_size, ekf->GetStateSize());
+    H.block(0, 0, H_temp.rows(), H_temp.cols()) = H_temp;
+  }
 
   // Apply Kalman update
   KalmanUpdate(ekf, H, resid, R);

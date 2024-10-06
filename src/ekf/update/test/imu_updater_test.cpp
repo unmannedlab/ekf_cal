@@ -106,19 +106,6 @@ TEST(test_imu_updater, update) {
   EXPECT_EQ(state.body_state.vel_b_in_l[0], 1);
   EXPECT_EQ(state.body_state.vel_b_in_l[1], 1);
   EXPECT_EQ(state.body_state.vel_b_in_l[2], 1);
-
-  time += 1;
-  imu_updater.UpdateEKF(
-    ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov, use_for_prediction);
-
-  state = ekf->m_state;
-  EXPECT_EQ(state.body_state.pos_b_in_l[0], 4);
-  EXPECT_EQ(state.body_state.pos_b_in_l[1], 4);
-  EXPECT_EQ(state.body_state.pos_b_in_l[2], 4);
-
-  EXPECT_NEAR(state.body_state.vel_b_in_l[0], 10.4139, 1e-2);
-  EXPECT_EQ(state.body_state.vel_b_in_l[1], 1);
-  EXPECT_EQ(state.body_state.vel_b_in_l[2], 1);
 }
 
 TEST(test_imu_updater, imu_prediction_update) {

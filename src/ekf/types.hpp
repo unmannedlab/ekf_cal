@@ -303,7 +303,7 @@ public:
   ///
   void SetIsExtrinsic(bool extrinsic);
 
-  int frame_id;                   ///< @brief Fiducial board ID
+  int frame_id{-1};               ///< @brief Fiducial board ID
   Eigen::Vector3d pos_f_in_l;     ///< @brief Fiducial position in the local frame
   Eigen::Quaterniond ang_f_to_l;  ///< @brief Fiducial position in the local frame
   double pos_stability {1e-9};    ///< @brief Fiducial position stability

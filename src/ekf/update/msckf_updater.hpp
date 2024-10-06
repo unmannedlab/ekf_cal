@@ -99,6 +99,10 @@ private:
   DataLogger m_triangulation_logger;
   double m_min_feat_dist{1.0};
   double m_max_feat_dist{100.0};  /// @todo: Get from input
+  bool m_is_first_estimate{true};
+  Intrinsics m_intrinsics;
+  Eigen::Vector3d m_pos_c_in_b{0.0, 0.0, 0.0};
+  Eigen::Quaterniond m_ang_c_to_b{1.0, 0.0, 0.0, 0.0};
 };
 
 #endif  // EKF__UPDATE__MSCKF_UPDATER_HPP_

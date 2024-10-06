@@ -67,6 +67,11 @@ private:
   DataLogger m_fiducial_logger;
   DataLogger m_board_logger;
   unsigned int m_camera_id;
+  bool m_is_first_estimate{true};
+  Eigen::Vector3d m_pos_f_in_l;
+  Eigen::Quaterniond m_ang_f_to_l;
+  Eigen::Vector3d m_pos_c_in_b;
+  Eigen::Quaterniond m_ang_c_to_b;
 };
 
 #endif  // EKF__UPDATE__FIDUCIAL_UPDATER_HPP_
