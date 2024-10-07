@@ -132,9 +132,9 @@ TEST(test_imu_updater, imu_prediction_update) {
   ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on, 0.0, logger);
 
   Eigen::Vector3d acceleration = g_gravity;
-  Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Identity() * 1e-3;
   Eigen::Vector3d angular_rate = Eigen::Vector3d::Zero();
-  Eigen::Matrix3d angular_rate_cov = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d angular_rate_cov = Eigen::Matrix3d::Identity() * 1e-3;
   bool use_for_prediction {true};
 
   State state = ekf->m_state;
@@ -216,9 +216,9 @@ TEST(test_imu_updater, non_initialized_time) {
   ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on, 0.0, logger);
 
   Eigen::Vector3d acceleration = g_gravity;
-  Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Identity() * 1e-3;
   Eigen::Vector3d angular_rate = Eigen::Vector3d::Zero();
-  Eigen::Matrix3d angular_rate_cov = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d angular_rate_cov = Eigen::Matrix3d::Identity() * 1e-3;
   bool use_for_prediction {true};
 
   State state = ekf->m_state;

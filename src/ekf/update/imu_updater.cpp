@@ -212,9 +212,8 @@ void ImuUpdater::UpdateEKF(
   Eigen::MatrixXd H = GetMeasurementJacobian(ekf);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-  R.block<3, 3>(0, 0) = acceleration_covariance * 3;
-  R.block<3, 3>(3, 3) = angular_rate_covariance * 3;
-  MinBoundDiagonal(R, 1e-3);
+  R.block<3, 3>(0, 0) = acceleration_covariance;
+  R.block<3, 3>(3, 3) = angular_rate_covariance;
 
   Eigen::MatrixXd sub_cov = Eigen::MatrixXd::Zero(sub_size, sub_size);
   sub_cov.block<12, 12>(0, 0) = ekf->m_cov.block<12, 12>(6, 6);
@@ -310,6 +309,7 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   Eigen::Quaterniond ang_b_to_l = ekf->m_state.body_state.ang_b_to_l;
 
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(meas_size, ekf->GetStateSize());
+  H.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity();
   H.block<3, 3>(0, 9) = -SkewSymmetric(ang_i_to_b.inverse() * ang_b_to_l.inverse() * g_gravity);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(meas_size, meas_size);
@@ -335,8 +335,6 @@ bool ImuUpdater::ZeroAccelerationUpdate(
     H.block<3, 3>(0, index_intrinsic + 0) = -Eigen::Matrix3d::Identity();
     H.block<3, 3>(3, index_intrinsic + 3) = -Eigen::Matrix3d::Identity();
   }
-
-  MinBoundDiagonal(R, 1e-2);
 
   Eigen::MatrixXd score_mat = resid.transpose() *
     (H * ekf->m_cov * H.transpose() + ekf->GetImuNoiseScaleFactor() * R).inverse() * resid;
