@@ -7,7 +7,7 @@
                                             #   4: INFO
                                             #   5: DEBUG
         data_logging_on: true               # Flag to enable data logging
-        body_data_rate: 100.0               # EKF body data logging rate
+        body_data_rate: 10.0                # EKF body data logging rate
         augmenting_type: 3                  # Camera state augmentation type
                                             #   0: All camera frames are augmented
                                             #   1: Only the primary camera frames are augmented
@@ -19,9 +19,9 @@
         process_noise:
             pos: 1.0e-3                     # Position
             vel: 1.0e-4                     # Velocity
-            acc: 1.0e-5                     # Acceleration
+            acc: 1.0e-2                     # Acceleration
             ang_pos: 1.0e-3                 # Angular Position
-            ang_vel: 1.0e-4                 # Angular Velocity
+            ang_vel: 1.0e-2                 # Angular Velocity
             ang_acc: 1.0e-5                 # Angular Acceleration
 
         pos_l_in_g: [0.0, 0.0, 0.0]     # Local frame position in global frame
@@ -33,6 +33,7 @@
         gps_init_baseline_dist: 100.0   # Baseline distance threshold to initialize
         gps_init_pos_thresh: 1.0        # Local frame position error threshold
         gps_init_ang_thresh: 0.1        # Local frame heading error threshold
+        use_root_covariance: false      # Flag to utilize the square root form of covariance
 
         sim_params:
             seed: 0.0                       # Seed to provide to random number generator
@@ -105,15 +106,15 @@
                 acc_bias_stability: 1.0e-3          # Accelerometer bias stability
                 omg_bias_stability: 1.0e-3          # Gyroscope bias stability
                 sim_params:
-                    no_errors: false                            # Flag to disable errors in simulation
-                    time_bias_error: 1.0e-3                     # Measurement time bias
-                    time_error: 1.0e-6                          # Measurement time error
-                    pos_error: [0.0, 0.0, 0.0]                  # Error in position estimate
-                    ang_error: [0.0, 0.0, 0.0]                  # Error in orientation estimate
-                    acc_error: [1.0e-3, 1.0e-3, 1.0e-3]         # Accelerometer error
-                    omg_error: [1.0e-2, 1.0e-2, 1.0e-2]         # Gyroscope error
-                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]    # Accelerometer bias error
-                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]    # Gyroscope bias error
+                    no_errors: false                     # Flag to disable errors in simulation
+                    time_bias_error: 1.0e-3              # Measurement time bias
+                    time_error: 1.0e-6                   # Measurement time error
+                    pos_error: [0.0, 0.0, 0.0]           # Error in position estimate
+                    ang_error: [0.0, 0.0, 0.0]           # Error in orientation estimate
+                    acc_error: [1.0e-3, 1.0e-3, 1.0e-3]  # Accelerometer error
+                    omg_error: [1.0e-2, 1.0e-2, 1.0e-2]  # Gyroscope error
+                    acc_bias_error: [0.0, 0.0, 0.0]      # Accelerometer bias error
+                    omg_bias_error: [0.0, 0.0, 0.0]      # Gyroscope bias error
 
         camera:
             cam_1:
@@ -139,7 +140,7 @@
                     pixel_size: 5.0e-6                      # Pixel size
                     width: 640                              # Image width
                     height: 480                             # Image height
-
+                data_log_rate: 10.0
                 sim_params:
                     no_errors: false                        # Flag to disable errors in simulation
                     time_bias_error: 1.0e-3                 # Measurement time bias error
@@ -167,7 +168,9 @@
                 min_feature_distance: 1.0   # Minimum feature distance to consider
                 min_track_length: 2         # Minimum track length
                 max_track_length: 20        # Maximum track length
+                data_log_rate: 10.0
                 sim_params:
+                    no_errors: false        # Flag to disable errors in simulation
                     feature_count: 100      # Total number of trackable features
                     room_size: 10.0         # Maximum distance of features
 
@@ -190,8 +193,9 @@
                 min_track_length: 0                         # Minimum track length
                 max_track_length: 1                         # Maximum track length
                 is_extrinsic: false                         # Flag to calibrate fiducial extrinsics
-                data_log_rate: 20.0                         # Data log rate
+                data_log_rate: 10.0                         # Data log rate
                 sim_params:
+                    no_errors: false                        # Flag to disable errors in simulation
                     pos_error: [1.0e-1, 1.0e-1, 1.0e-1]     # Position error
                     ang_error: [1.0e-1, 1.0e-1, 1.0e-1]     # Orientation error
                     t_vec_error: [1.0e-2, 1.0e-2, 1.0e-2]   # Translation measurement error
@@ -201,7 +205,7 @@
             gps_1:
                 rate: 5.0                               # Sensor Rate
                 topic: "/gps_1"                         # ROS topic
-                pos_a_in_b: [1.0, 0, 0]                 # Antenna position in body frame
+                pos_a_in_b: [0.0, 0, 0]                 # Antenna position in body frame
                 variance: [5.0, 5.0, 5.0]               # Antenna position variance
                 data_log_rate: 5.0                      # Data log rate
                 is_extrinsic: false                     # Flag to calibrate GPS extrinsics
