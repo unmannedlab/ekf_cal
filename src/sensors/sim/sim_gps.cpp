@@ -73,7 +73,7 @@ std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages()
     Eigen::Vector3d antenna_enu = local_to_enu(pos_a_in_l, ang_l_to_g);
 
     sim_gps_msg->gps_lla = enu_to_lla(antenna_enu, pos_l_in_g);
-    sim_gps_msg->pos_covariance = m_lla_error.asDiagonal();
+    sim_gps_msg->pos_covariance = m_lla_error.cwiseProduct(m_lla_error).asDiagonal();
 
     messages.push_back(sim_gps_msg);
   }

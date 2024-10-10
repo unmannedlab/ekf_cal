@@ -104,8 +104,8 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages()
       sim_imu_msg->angular_rate += m_rng.VecNormRand(gyr_bias_true, m_omg_error);
     }
 
-    sim_imu_msg->acceleration_covariance = m_acc_error.asDiagonal();
-    sim_imu_msg->angular_rate_covariance = m_omg_error.asDiagonal();
+    sim_imu_msg->acceleration_covariance = m_acc_error.cwiseProduct(m_acc_error).asDiagonal();
+    sim_imu_msg->angular_rate_covariance = m_omg_error.cwiseProduct(m_omg_error).asDiagonal();
 
     messages.push_back(sim_imu_msg);
   }
