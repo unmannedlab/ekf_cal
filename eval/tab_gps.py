@@ -16,7 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from bokeh.layouts import layout
-from bokeh.models import Paragraph, Spacer, TabPanel
+from bokeh.models import Spacer, TabPanel
 from bokeh.plotting import figure
 import numpy as np
 
@@ -168,27 +168,6 @@ class tab_gps:
                 legend_label='Z')
         return fig
 
-    def print_gps_init_pos_error(self):
-        pos_err_list = []
-        for gps_df in self.gps_dfs:
-            ref_lat = gps_df['ref_lat']
-            ref_lon = gps_df['ref_lon']
-            ref_alt = gps_df['ref_alt']
-            pos_err_list.append(np.sqrt(ref_lat*ref_lat + ref_lon*ref_lon + ref_alt*ref_alt))
-
-        pos_err = np.mean(pos_err_list)
-
-        return Paragraph(text='Position Error: {:.3f} m'.format(pos_err))
-
-    def print_gps_init_hdg_error(self):
-        hdg_err_list = []
-        for gps_df in self.gps_dfs:
-            hdg_err_list.append(gps_df['ref_heading'])
-
-        hdg_err = np.mean(hdg_err_list)
-
-        return Paragraph(text='Heading Error: {:.3f} rad'.format(hdg_err))
-
     def get_tab(self):
 
         layout_plots = [[self.plot_gps_measurements(), self.plot_gps_residuals()]]
@@ -197,8 +176,6 @@ class tab_gps:
             layout_plots.append([self.plot_ant_pos_error(), self.plot_gps_cov()])
 
         layout_plots.append([plot_update_timing(self.gps_dfs), Spacer()])
-        layout_plots.append([self.print_gps_init_pos_error()])
-        layout_plots.append([self.print_gps_init_hdg_error()])
 
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')
         tab = TabPanel(child=tab_layout,

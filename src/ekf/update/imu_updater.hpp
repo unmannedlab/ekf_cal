@@ -107,6 +107,7 @@ private:
   bool m_is_intrinsic;
   bool m_initial_motion{false};
   bool m_is_first_estimate{true};
+  bool m_was_stationary{false};
 
   DataLogger m_data_logger;
 };

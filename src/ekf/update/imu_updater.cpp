@@ -182,11 +182,12 @@ void ImuUpdater::UpdateEKF(
       angular_rate_covariance))
   {
     return;
-  } else if (use_as_predictor) {
+  } else if (use_as_predictor || m_was_stationary) {
     ekf->PredictModel(
       time,
       acceleration,
       angular_rate);
+    m_was_stationary = false;
     return;
   }
 
@@ -372,6 +373,8 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   ekf->m_state.body_state.acc_b_in_l = Eigen::Vector3d::Zero();
   ekf->m_state.body_state.ang_vel_b_in_l = Eigen::Vector3d::Zero();
   ekf->m_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Zero();
+
+  m_was_stationary = true;
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
