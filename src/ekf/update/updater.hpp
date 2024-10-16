@@ -42,8 +42,7 @@ public:
     std::shared_ptr<EKF> ekf,
     const Eigen::MatrixXd & jacobian,
     const Eigen::VectorXd & residual,
-    const Eigen::MatrixXd & measurement_noise
-  );
+    Eigen::MatrixXd & measurement_noise);
 
 protected:
   unsigned int m_id;                      ///< @brief Associated sensor ID

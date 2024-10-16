@@ -62,11 +62,13 @@ public:
   /// @param ekf EKF pointer
   /// @param time Measurement time
   /// @param gps_lla GPS measured lat-lon-alt
+  /// @param pos_covariance GPS measurement covariance
   ///
   void UpdateEKF(
     std::shared_ptr<EKF> ekf,
     double time,
-    Eigen::Vector3d gps_lla);
+    Eigen::Vector3d gps_lla,
+    Eigen::MatrixXd pos_covariance);
 
   ///
   /// @brief Update/marginalize EKF using GPS measurements used to initialize local frame
@@ -77,6 +79,8 @@ public:
 private:
   bool m_is_extrinsic {false};
   DataLogger m_data_logger;
+  bool m_is_first_estimate{true};
+  Eigen::Vector3d m_pos_a_in_b{0.0, 0.0, 0.0};
 };
 
 #endif  // EKF__UPDATE__GPS_UPDATER_HPP_

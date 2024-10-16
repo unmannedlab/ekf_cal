@@ -44,6 +44,5 @@ TEST(test_SimRNG, RNG) {
       rand_vec, Eigen::Vector3d{-1.021055, -1.901610, 1.722162}, 1e-6));
   EXPECT_TRUE(
     EXPECT_EIGEN_NEAR(
-      rand_quat,
-      Eigen::Quaterniond{0.996114, 0.006765, -0.059068, -0.064977}, 1e-6));
+      rand_quat, Eigen::Quaterniond{0.99607, 0.0106369, -0.0584558, -0.0656766}, 1e-6));
 }

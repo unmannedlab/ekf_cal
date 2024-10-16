@@ -17,6 +17,8 @@
 
 #include <memory>
 
+#include "utility/math_helper.hpp"
+
 Updater::Updater(unsigned int sensor_id, std::shared_ptr<DebugLogger> logger)
 : m_id(sensor_id), m_logger(logger) {}
 
@@ -25,17 +27,34 @@ void Updater::KalmanUpdate(
   std::shared_ptr<EKF> ekf,
   const Eigen::MatrixXd & jacobian,
   const Eigen::VectorXd & residual,
-  const Eigen::MatrixXd & measurement_noise
+  Eigen::MatrixXd & measurement_noise
 )
 {
   // Calculate Kalman gain
-  Eigen::MatrixXd S = jacobian * ekf->m_cov * jacobian.transpose() + measurement_noise;
-  Eigen::MatrixXd K = ekf->m_cov * jacobian.transpose() * S.inverse();
-  Eigen::VectorXd update = K * residual;
+  Eigen::MatrixXd S, G, K;
+  if (ekf->GetUseRootCovariance()) {
+    measurement_noise = measurement_noise.cwiseSqrt();
+    G = QR_r(ekf->m_cov * jacobian.transpose(), measurement_noise);
+    K = (G.inverse() * ((G.transpose()).inverse() * jacobian) * ekf->m_cov.transpose() *
+      ekf->m_cov).transpose();
+  } else {
+    S = jacobian * ekf->m_cov * jacobian.transpose() + measurement_noise;
+    K = ekf->m_cov * jacobian.transpose() * S.inverse();
+  }
 
+  Eigen::VectorXd update = K * residual;
   ekf->m_state += update;
-  ekf->m_cov =
-    (Eigen::MatrixXd::Identity(update.size(), update.size()) - K * jacobian) * ekf->m_cov *
-    (Eigen::MatrixXd::Identity(update.size(), update.size()) - K * jacobian).transpose() +
-    K * measurement_noise * K.transpose();
+
+  unsigned int rows = ekf->m_cov.rows();
+  unsigned int cols = ekf->m_cov.cols();
+  if (ekf->GetUseRootCovariance()) {
+    ekf->m_cov = QR_r(
+      ekf->m_cov * (Eigen::MatrixXd::Identity(rows, cols) -
+      K * jacobian).transpose(), measurement_noise * K.transpose());
+  } else {
+    ekf->m_cov =
+      (Eigen::MatrixXd::Identity(rows, cols) - K * jacobian) * ekf->m_cov *
+      (Eigen::MatrixXd::Identity(rows, cols) - K * jacobian).transpose() +
+      K * measurement_noise * K.transpose();
+  }
 }

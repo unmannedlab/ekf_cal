@@ -150,6 +150,8 @@ public:
   Eigen::Vector3d omg_bias{0.0, 0.0, 0.0};            ///< @brief Angular rate bias
   unsigned int size{0};                               ///< @brief State size
   int index{-1};                                      ///< @brief State index
+  int index_intrinsic{-1};                            ///< @brief Intrinsic state index
+  int index_extrinsic{-1};                            ///< @brief Extrinsic state index
 
 private:
   void refresh_size();
@@ -301,9 +303,11 @@ public:
   ///
   void SetIsExtrinsic(bool extrinsic);
 
-  int frame_id;                   ///< @brief Fiducial board ID
+  int frame_id{-1};               ///< @brief Fiducial board ID
   Eigen::Vector3d pos_f_in_l;     ///< @brief Fiducial position in the local frame
   Eigen::Quaterniond ang_f_to_l;  ///< @brief Fiducial position in the local frame
+  double pos_stability {1e-9};    ///< @brief Fiducial position stability
+  double ang_stability {1e-9};    ///< @brief Fiducial orientation stability
   unsigned int size{0};           ///< @brief State size
   int index{-1};                  ///< @brief State index
   unsigned int id{0};             ///< @brief Fiducial ID

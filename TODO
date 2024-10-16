@@ -3,7 +3,6 @@ Package Features:
     - Implement flag for calibration settling
     - Implement flag for calibration shifting
     - Interpolation between stochastic clones
-    - First estimate Jacobians
     - Intrinsic calibration filtering
 
 Software Work:
@@ -20,9 +19,6 @@ Software Work:
     - Compute Cramer Rao Lower Bound
         - https://iaac.technion.ac.il/workshops/2010/KFhandouts/LectKF24.pdf
         - https://www.cs.cmu.edu/~aarti/Class/10704_Spring15/lecs/lec23.pdf
-    - First Estimate Jacobians
-        - Add boolean flag for use_first_estimate_jacobian
-        - Save off initial state to be used in jacobians and state transition matrix
     - Outlier rejection by gating / Mahalanobis distance
     - Play rosbags through as fast as possible given yaml
     - Remove time skew from code

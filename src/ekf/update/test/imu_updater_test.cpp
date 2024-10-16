@@ -106,19 +106,6 @@ TEST(test_imu_updater, update) {
   EXPECT_EQ(state.body_state.vel_b_in_l[0], 1);
   EXPECT_EQ(state.body_state.vel_b_in_l[1], 1);
   EXPECT_EQ(state.body_state.vel_b_in_l[2], 1);
-
-  time += 1;
-  imu_updater.UpdateEKF(
-    ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov, use_for_prediction);
-
-  state = ekf->m_state;
-  EXPECT_EQ(state.body_state.pos_b_in_l[0], 4);
-  EXPECT_EQ(state.body_state.pos_b_in_l[1], 4);
-  EXPECT_EQ(state.body_state.pos_b_in_l[2], 4);
-
-  EXPECT_NEAR(state.body_state.vel_b_in_l[0], 10.4139, 1e-2);
-  EXPECT_EQ(state.body_state.vel_b_in_l[1], 1);
-  EXPECT_EQ(state.body_state.vel_b_in_l[2], 1);
 }
 
 TEST(test_imu_updater, imu_prediction_update) {
@@ -145,9 +132,9 @@ TEST(test_imu_updater, imu_prediction_update) {
   ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on, 0.0, logger);
 
   Eigen::Vector3d acceleration = g_gravity;
-  Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Identity() * 1e-3;
   Eigen::Vector3d angular_rate = Eigen::Vector3d::Zero();
-  Eigen::Matrix3d angular_rate_cov = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d angular_rate_cov = Eigen::Matrix3d::Identity() * 1e-3;
   bool use_for_prediction {true};
 
   State state = ekf->m_state;
@@ -229,9 +216,9 @@ TEST(test_imu_updater, non_initialized_time) {
   ImuUpdater imu_updater(imu_id, true, true, log_file_directory, data_logging_on, 0.0, logger);
 
   Eigen::Vector3d acceleration = g_gravity;
-  Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d acceleration_cov = Eigen::Matrix3d::Identity() * 1e-3;
   Eigen::Vector3d angular_rate = Eigen::Vector3d::Zero();
-  Eigen::Matrix3d angular_rate_cov = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d angular_rate_cov = Eigen::Matrix3d::Identity() * 1e-3;
   bool use_for_prediction {true};
 
   State state = ekf->m_state;

@@ -199,4 +199,6 @@ double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vector
 
 double limit_matrix_condition(Eigen::MatrixXd & mat);
 
+Eigen::MatrixXd QR_r(Eigen::MatrixXd A, Eigen::MatrixXd B);
+
 #endif  // UTILITY__MATH_HELPER_HPP_

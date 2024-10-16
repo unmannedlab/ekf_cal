@@ -102,12 +102,12 @@ TEST(test_EKF, duplicate_sensors) {
   EXPECT_EQ(ekf->GetAugStateStart(), 33);
 }
 
-TEST(test_EKF, SetProcessNoise) {
+TEST(test_EKF, SetBodyProcessNoise) {
   EKF::Parameters ekf_params;
   ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   auto ekf = std::make_shared<EKF>(ekf_params);
   Eigen::VectorXd process_noise = Eigen::VectorXd::Ones(18);
-  ekf->SetProcessNoise(process_noise);
+  ekf->SetBodyProcessNoise(process_noise);
 }
 
 TEST(test_EKF, MatchState) {

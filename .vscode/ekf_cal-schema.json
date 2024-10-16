@@ -180,7 +180,7 @@
                                     "minItems": 3,
                                     "maxItems": 3
                                 },
-                                "pos_l_in_g_err": {
+                                "pos_l_in_g_error": {
                                     "type": "array",
                                     "items": {
                                         "type": "number"
@@ -188,8 +188,24 @@
                                     "minItems": 3,
                                     "maxItems": 3
                                 },
-                                "ang_l_to_g_err": {
+                                "ang_l_to_g_error": {
                                     "type": "number"
+                                },
+                                "pos_b_in_l_error": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "minItems": 3,
+                                    "maxItems": 3
+                                },
+                                "ang_b_to_l_error": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "minItems": 3,
+                                    "maxItems": 3
                                 }
                             }
                         },
@@ -698,7 +714,7 @@
                                                     "minItems": 3,
                                                     "maxItems": 3
                                                 },
-                                                "pos_a_in_b_err": {
+                                                "pos_a_in_b_error": {
                                                     "type": "array",
                                                     "items": {
                                                         "type": "number"

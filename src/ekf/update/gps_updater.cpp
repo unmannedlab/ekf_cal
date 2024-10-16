@@ -61,28 +61,31 @@ GpsUpdater::GpsUpdater(
 
 Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
 {
-  unsigned int state_size = ekf->GetStateSize();
-  // Eigen::Vector3d pos_a_in_b = ekf->m_state.body_state.pos_b_in_l;
-  // Eigen::Quaterniond ang_b_to_g = ekf->m_state.body_state.ang_b_to_l;
-  unsigned int gps_index = ekf->m_state.gps_states[m_id].index;
+  Eigen::Quaterniond ang_b_to_g = ekf->m_state.body_state.ang_b_to_l;
 
-  Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, state_size);
-  // measurement_jacobian.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity(3, 3);
-  /// @todo: Need to debug this Jacobian
-  // measurement_jacobian.block<3, 3>(0, 9) = -ang_b_to_g.toRotationMatrix() *
-  // SkewSymmetric(pos_a_in_b) * quaternion_jacobian(ang_b_to_g);
+  Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, ekf->GetStateSize());
+  measurement_jacobian.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity(3, 3);
+  measurement_jacobian.block<3, 3>(0, 9) = -ang_b_to_g.toRotationMatrix() *
+    SkewSymmetric(m_pos_a_in_b) * quaternion_jacobian(ang_b_to_g);
+
   if (m_is_extrinsic) {
-    measurement_jacobian.block<3, 3>(0, gps_index) = Eigen::Matrix3d::Identity(3, 3);
-    // ang_b_to_g.toRotationMatrix();
+    unsigned int gps_index = ekf->m_state.gps_states[m_id].index;
+    measurement_jacobian.block<3, 3>(0, gps_index) = ang_b_to_g.toRotationMatrix();
   }
   return measurement_jacobian;
 }
 
-void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3d gps_lla)
+void GpsUpdater::UpdateEKF(
+  std::shared_ptr<EKF> ekf, double time, Eigen::Vector3d gps_lla, Eigen::MatrixXd pos_covariance)
 {
   auto t_start = std::chrono::high_resolution_clock::now();
 
   ekf->ProcessModel(time);
+
+  if (!ekf->GetUseFirstEstimateJacobian() || m_is_first_estimate) {
+    m_pos_a_in_b = ekf->m_state.gps_states[m_id].pos_a_in_b;
+    m_is_first_estimate = false;
+  }
 
   Eigen::Vector3d pos_a_in_g = Eigen::Vector3d::Zero();
   Eigen::Vector3d residual = Eigen::Vector3d::Zero();
@@ -101,13 +104,12 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
     pos_a_in_g = enu_to_local(gps_enu, ang_l_to_g);
 
     Eigen::Vector3d pos_b_in_g = ekf->m_state.body_state.pos_b_in_l;
-    // Eigen::Quaterniond ang_b_to_g = ekf->m_state.body_state.ang_b_to_l;
-    Eigen::Vector3d pos_a_in_b = ekf->GetGpsState(m_id).pos_a_in_b;
-    Eigen::Vector3d pos_a_in_g_hat = pos_b_in_g + pos_a_in_b;   // + ang_b_to_g *
+    Eigen::Quaterniond ang_b_to_g = ekf->m_state.body_state.ang_b_to_l;
+
+    Eigen::Vector3d pos_a_in_g_hat = pos_b_in_g + ang_b_to_g * m_pos_a_in_b;
     residual = pos_a_in_g - pos_a_in_g_hat;
     Eigen::MatrixXd jacobian = GetMeasurementJacobian(ekf);
-    Eigen::MatrixXd measurement_noise = Eigen::MatrixXd::Identity(3, 3) * 50.0;
-    KalmanUpdate(ekf, jacobian, residual, measurement_noise);
+    KalmanUpdate(ekf, jacobian, residual, pos_covariance);
 
     m_logger->Log(LogLevel::INFO, "GPS Updater Update");
   }
@@ -122,7 +124,7 @@ void GpsUpdater::UpdateEKF(std::shared_ptr<EKF> ekf, double time, Eigen::Vector3
   msg << VectorToCommaString(reference_lla, 12);
   msg << "," << ang_l_to_g;
   msg << "," << ekf->IsLlaInitialized();
-  msg << VectorToCommaString(ekf->GetGpsState(m_id).pos_a_in_b);
+  msg << VectorToCommaString(ekf->m_state.gps_states[m_id].pos_a_in_b);
   if (m_is_extrinsic) {
     unsigned int gps_index = ekf->m_state.gps_states[m_id].index;
     Eigen::VectorXd cov_diag = ekf->m_cov.block(

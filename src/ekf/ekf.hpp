@@ -62,6 +62,8 @@ public:
     double gps_init_ang_thresh {0.1};       ///< @brief Baseline distance threshold
     double motion_detection_chi_squared {0.01};  ///< @brief Motion detection chi squared threshold
     double imu_noise_scale_factor {100.0};       ///< @brief Motion detection IMU noise scale factor
+    bool use_root_covariance{false};  ///< @brief Flag to use the square-root form of Kalman filter
+    bool use_first_estimate_jacobian{false};  ///< @brief Flag to use first estimate Jacobians
   } Parameters;
 
   ///
@@ -241,7 +243,7 @@ public:
   /// @brief EKF process noise setter
   /// @param process_noise Diagonal terms of process noise
   ///
-  void SetProcessNoise(Eigen::VectorXd process_noise);
+  void SetBodyProcessNoise(Eigen::VectorXd process_noise);
 
   ///
   /// @brief GPS reference position setter
@@ -374,6 +376,18 @@ public:
   ///
   double GetImuNoiseScaleFactor();
 
+  ///
+  /// @brief Getter for use root covariance flag
+  /// @return Use root covariance flag
+  ///
+  bool GetUseRootCovariance();
+
+  ///
+  /// @brief Getter for use first estimate Jacobians
+  /// @return Use first estimate Jacobians
+  ///
+  bool GetUseFirstEstimateJacobian();
+
   /// @brief EKF state
   State m_state;
 
@@ -393,6 +407,7 @@ private:
   bool m_data_logging_on;
   unsigned int m_max_track_length{20};
   Eigen::MatrixXd m_process_noise {Eigen::MatrixXd::Zero(18, 18)};
+  Eigen::VectorXd m_body_process_noise {Eigen::VectorXd::Zero(18)};
   DataLogger m_data_logger;
 
   GpsInitType m_gps_init_type;
@@ -425,6 +440,9 @@ private:
   bool m_is_gravity_initialized{false};
   double m_motion_detection_chi_squared{0.01};
   double m_imu_noise_scale_factor{100.0};
+
+  bool m_use_root_covariance{false};
+  bool m_use_first_estimate_jacobian{false};
 };
 
 #endif  // EKF__EKF_HPP_
