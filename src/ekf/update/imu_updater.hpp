@@ -73,12 +73,11 @@ public:
   /// @param acceleration_covariance Estimated acceleration error
   /// @param angular_rate Measured angular rate
   /// @param angular_rate_covariance Estimated angular rate error
-  /// @param use_as_predictor switch to use IMU as a prediction step
   ///
   void UpdateEKF(
     std::shared_ptr<EKF> ekf,
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d acceleration_covariance,
-    Eigen::Vector3d angular_rate, Eigen::Matrix3d angular_rate_covariance, bool use_as_predictor);
+    Eigen::Vector3d angular_rate, Eigen::Matrix3d angular_rate_covariance);
 
   ///
   /// @brief Check for and perform a zero-acceleration update

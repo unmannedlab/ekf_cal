@@ -543,19 +543,19 @@ class tab_body:
             time = body_df['time']
             fig.line(
                 time,
-                body_df['body_cov_9'],
+                body_df['body_cov_6'],
                 alpha=self.alpha,
                 color=self.colors[0],
                 legend_label='X')
             fig.line(
                 time,
-                body_df['body_cov_10'],
+                body_df['body_cov_7'],
                 alpha=self.alpha,
                 color=self.colors[1],
                 legend_label='Y')
             fig.line(
                 time,
-                body_df['body_cov_11'],
+                body_df['body_cov_8'],
                 alpha=self.alpha,
                 color=self.colors[2],
                 legend_label='Z')
@@ -630,31 +630,20 @@ class tab_body:
             ],
             [
                 self.plot_body_vel(),
-                self.plot_body_ang_vel()
+                Spacer()
             ],
             [
                 self.plot_body_err_vel(),
-                self.plot_body_err_ang_vel()
+                Spacer()
             ],
             [
                 self.plot_body_vel_cov(),
-                self.plot_body_ang_vel_cov()
+                Spacer()
             ],
             [
-                self.plot_body_acc(),
-                self.plot_body_ang_acc()
-            ],
-            [
-                self.plot_body_err_acc(),
-                self.plot_body_err_ang_acc()
-            ],
-            [
-                self.plot_body_acc_cov(),
-                self.plot_body_ang_acc_cov()
-            ],
-            [
-                plot_update_timing(self.body_state_dfs),
-                Spacer()]
+                plot_update_timing(self.body_state_dfs), 
+                Spacer()
+            ]
         ]
 
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')

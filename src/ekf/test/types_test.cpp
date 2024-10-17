@@ -32,10 +32,7 @@ TEST(test_ekf_types, state_plus_equals_state) {
   State left_state;
   left_state.body_state.pos_b_in_l = Eigen::Vector3d::Ones() * 1.0;
   left_state.body_state.vel_b_in_l = Eigen::Vector3d::Ones() * 2.0;
-  left_state.body_state.acc_b_in_l = Eigen::Vector3d::Ones() * 3.0;
   left_state.body_state.ang_b_to_l = quat;
-  left_state.body_state.ang_vel_b_in_l = Eigen::Vector3d::Ones() * 4.0;
-  left_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Ones() * 5.0;
 
   ImuState imu_state;
   imu_state.SetIsExtrinsic(true);
@@ -77,22 +74,11 @@ TEST(test_ekf_types, state_plus_equals_state) {
   EXPECT_EQ(left_state.body_state.vel_b_in_l(1), 4.0);
   EXPECT_EQ(left_state.body_state.vel_b_in_l(2), 4.0);
 
-  EXPECT_EQ(left_state.body_state.acc_b_in_l(0), 6.0);
-  EXPECT_EQ(left_state.body_state.acc_b_in_l(1), 6.0);
-  EXPECT_EQ(left_state.body_state.acc_b_in_l(2), 6.0);
 
   EXPECT_EQ(left_state.body_state.ang_b_to_l.w(), 1.0);
   EXPECT_EQ(left_state.body_state.ang_b_to_l.x(), 0.0);
   EXPECT_EQ(left_state.body_state.ang_b_to_l.y(), 0.0);
   EXPECT_EQ(left_state.body_state.ang_b_to_l.z(), 0.0);
-
-  EXPECT_EQ(left_state.body_state.ang_vel_b_in_l(0), 8.0);
-  EXPECT_EQ(left_state.body_state.ang_vel_b_in_l(1), 8.0);
-  EXPECT_EQ(left_state.body_state.ang_vel_b_in_l(2), 8.0);
-
-  EXPECT_EQ(left_state.body_state.ang_acc_b_in_l(0), 10.0);
-  EXPECT_EQ(left_state.body_state.ang_acc_b_in_l(1), 10.0);
-  EXPECT_EQ(left_state.body_state.ang_acc_b_in_l(2), 10.0);
 
   EXPECT_EQ(left_state.imu_states[1].pos_i_in_b(0), 12.0);
   EXPECT_EQ(left_state.imu_states[1].pos_i_in_b(1), 12.0);
@@ -153,10 +139,7 @@ TEST(test_ekf_types, state_plus_equals_vector) {
   State left_state;
   left_state.body_state.pos_b_in_l = Eigen::Vector3d::Ones() * 1.0;
   left_state.body_state.vel_b_in_l = Eigen::Vector3d::Ones() * 2.0;
-  left_state.body_state.acc_b_in_l = Eigen::Vector3d::Ones() * 3.0;
   left_state.body_state.ang_b_to_l = quat;
-  left_state.body_state.ang_vel_b_in_l = Eigen::Vector3d::Ones() * 4.0;
-  left_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Ones() * 5.0;
 
   ImuState imu_state;
   imu_state.SetIsIntrinsic(true);
@@ -219,22 +202,11 @@ TEST(test_ekf_types, state_plus_equals_vector) {
   EXPECT_EQ(left_state.body_state.vel_b_in_l(1), 4.0);
   EXPECT_EQ(left_state.body_state.vel_b_in_l(2), 4.0);
 
-  EXPECT_EQ(left_state.body_state.acc_b_in_l(0), 6.0);
-  EXPECT_EQ(left_state.body_state.acc_b_in_l(1), 6.0);
-  EXPECT_EQ(left_state.body_state.acc_b_in_l(2), 6.0);
 
   EXPECT_EQ(left_state.body_state.ang_b_to_l.w(), 1.0);
   EXPECT_EQ(left_state.body_state.ang_b_to_l.x(), 0.0);
   EXPECT_EQ(left_state.body_state.ang_b_to_l.y(), 0.0);
   EXPECT_EQ(left_state.body_state.ang_b_to_l.z(), 0.0);
-
-  EXPECT_EQ(left_state.body_state.ang_vel_b_in_l(0), 8.0);
-  EXPECT_EQ(left_state.body_state.ang_vel_b_in_l(1), 8.0);
-  EXPECT_EQ(left_state.body_state.ang_vel_b_in_l(2), 8.0);
-
-  EXPECT_EQ(left_state.body_state.ang_acc_b_in_l(0), 10.0);
-  EXPECT_EQ(left_state.body_state.ang_acc_b_in_l(1), 10.0);
-  EXPECT_EQ(left_state.body_state.ang_acc_b_in_l(2), 10.0);
 
   EXPECT_EQ(left_state.imu_states[1].pos_i_in_b(0), 12.0);
   EXPECT_EQ(left_state.imu_states[1].pos_i_in_b(1), 12.0);
@@ -289,24 +261,18 @@ TEST(test_ekf_types, body_state_plus_equals_state) {
   BodyState left_state;
   left_state.pos_b_in_l = Eigen::Vector3d::Ones();
   left_state.vel_b_in_l = Eigen::Vector3d::Ones() * 2.0;
-  left_state.acc_b_in_l = Eigen::Vector3d::Ones() * 3.0;
   left_state.ang_b_to_l.w() = 0.5;
   left_state.ang_b_to_l.x() = 0.5;
   left_state.ang_b_to_l.y() = 0.5;
   left_state.ang_b_to_l.z() = 0.5;
-  left_state.ang_vel_b_in_l = Eigen::Vector3d::Ones() * 4.0;
-  left_state.ang_acc_b_in_l = Eigen::Vector3d::Ones() * 5.0;
 
   BodyState right_state;
   right_state.pos_b_in_l = Eigen::Vector3d::Ones();
   right_state.vel_b_in_l = Eigen::Vector3d::Ones() * 2.0;
-  right_state.acc_b_in_l = Eigen::Vector3d::Ones() * 3.0;
   right_state.ang_b_to_l.w() = 0.5;
   right_state.ang_b_to_l.x() = 0.5;
   right_state.ang_b_to_l.y() = 0.5;
   right_state.ang_b_to_l.z() = 0.5;
-  right_state.ang_vel_b_in_l = Eigen::Vector3d::Ones() * 4.0;
-  right_state.ang_acc_b_in_l = Eigen::Vector3d::Ones() * 5.0;
 
   left_state += right_state;
 
@@ -318,35 +284,20 @@ TEST(test_ekf_types, body_state_plus_equals_state) {
   EXPECT_EQ(left_state.vel_b_in_l(1), 4);
   EXPECT_EQ(left_state.vel_b_in_l(2), 4);
 
-  EXPECT_EQ(left_state.acc_b_in_l(0), 6);
-  EXPECT_EQ(left_state.acc_b_in_l(1), 6);
-  EXPECT_EQ(left_state.acc_b_in_l(2), 6);
-
   EXPECT_EQ(left_state.ang_b_to_l.w(), -0.5);
   EXPECT_EQ(left_state.ang_b_to_l.x(), 0.5);
   EXPECT_EQ(left_state.ang_b_to_l.y(), 0.5);
   EXPECT_EQ(left_state.ang_b_to_l.z(), 0.5);
-
-  EXPECT_EQ(left_state.ang_vel_b_in_l(0), 8);
-  EXPECT_EQ(left_state.ang_vel_b_in_l(1), 8);
-  EXPECT_EQ(left_state.ang_vel_b_in_l(2), 8);
-
-  EXPECT_EQ(left_state.ang_acc_b_in_l(0), 10);
-  EXPECT_EQ(left_state.ang_acc_b_in_l(1), 10);
-  EXPECT_EQ(left_state.ang_acc_b_in_l(2), 10);
 }
 
 TEST(test_ekf_types, body_state_plus_equals_vector) {
   BodyState left_state;
   left_state.pos_b_in_l = Eigen::Vector3d::Ones();
   left_state.vel_b_in_l = Eigen::Vector3d::Ones() * 2.0;
-  left_state.acc_b_in_l = Eigen::Vector3d::Ones() * 3.0;
   left_state.ang_b_to_l.w() = 0.5;
   left_state.ang_b_to_l.x() = 0.5;
   left_state.ang_b_to_l.y() = 0.5;
   left_state.ang_b_to_l.z() = 0.5;
-  left_state.ang_vel_b_in_l = Eigen::Vector3d::Ones() * 4.0;
-  left_state.ang_acc_b_in_l = Eigen::Vector3d::Ones() * 5.0;
 
   Eigen::VectorXd right_vector(18);
   right_vector(0) = 1.0;
@@ -383,22 +334,11 @@ TEST(test_ekf_types, body_state_plus_equals_vector) {
   EXPECT_EQ(left_state.vel_b_in_l(1), 4);
   EXPECT_EQ(left_state.vel_b_in_l(2), 4);
 
-  EXPECT_EQ(left_state.acc_b_in_l(0), 6);
-  EXPECT_EQ(left_state.acc_b_in_l(1), 6);
-  EXPECT_EQ(left_state.acc_b_in_l(2), 6);
 
   EXPECT_EQ(left_state.ang_b_to_l.w(), 0.5);
   EXPECT_EQ(left_state.ang_b_to_l.x(), 0.5);
   EXPECT_EQ(left_state.ang_b_to_l.y(), 0.5);
   EXPECT_EQ(left_state.ang_b_to_l.z(), 0.5);
-
-  EXPECT_EQ(left_state.ang_vel_b_in_l(0), 8);
-  EXPECT_EQ(left_state.ang_vel_b_in_l(1), 8);
-  EXPECT_EQ(left_state.ang_vel_b_in_l(2), 8);
-
-  EXPECT_EQ(left_state.ang_acc_b_in_l(0), 10);
-  EXPECT_EQ(left_state.ang_acc_b_in_l(1), 10);
-  EXPECT_EQ(left_state.ang_acc_b_in_l(2), 10);
 }
 
 TEST(test_ekf_types, imu_map_plus_equals) {
@@ -511,13 +451,10 @@ TEST(test_ekf_types, body_state_to_vector) {
   BodyState body_state;
   body_state.pos_b_in_l = Eigen::Vector3d::Ones();
   body_state.vel_b_in_l = Eigen::Vector3d::Ones() * 2.0;
-  body_state.acc_b_in_l = Eigen::Vector3d::Ones() * 3.0;
   body_state.ang_b_to_l.w() = 1.0;
   body_state.ang_b_to_l.x() = 0.0;
   body_state.ang_b_to_l.y() = 0.0;
   body_state.ang_b_to_l.z() = 0.0;
-  body_state.ang_vel_b_in_l = Eigen::Vector3d::Ones() * 4.0;
-  body_state.ang_acc_b_in_l = Eigen::Vector3d::Ones() * 5.0;
 
   Eigen::VectorXd state_vector = body_state.ToVector();
 
@@ -697,10 +634,7 @@ TEST(test_ekf_types, state_to_vector) {
   State state;
   state.body_state.pos_b_in_l = Eigen::Vector3d::Ones() * 1.0;
   state.body_state.vel_b_in_l = Eigen::Vector3d::Ones() * 2.0;
-  state.body_state.acc_b_in_l = Eigen::Vector3d::Ones() * 3.0;
   state.body_state.ang_b_to_l = quat;
-  state.body_state.ang_vel_b_in_l = Eigen::Vector3d::Ones() * 4.0;
-  state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Ones() * 5.0;
   state.imu_states[1] = imu_state;
   state.gps_states[2] = gps_state;
   state.cam_states[3] = cam_state;

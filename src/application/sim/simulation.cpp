@@ -114,18 +114,12 @@ Eigen::VectorXd LoadProcessNoise(YAML::Node process_noise_node)
 {
   double pos_noise = process_noise_node["pos"].as<double>(1.0e-2);
   double vel_noise = process_noise_node["vel"].as<double>(1.0e-2);
-  double acc_noise = process_noise_node["acc"].as<double>(1.0e-2);
   double ang_pos_noise = process_noise_node["ang_pos"].as<double>(1.0e-2);
-  double ang_vel_noise = process_noise_node["ang_vel"].as<double>(1.0e-2);
-  double ang_acc_noise = process_noise_node["ang_acc"].as<double>(1.0e-2);
 
   Eigen::VectorXd process_noise(g_body_state_size);
   process_noise.segment<3>(0) = Eigen::Vector3d::Ones() * pos_noise;
   process_noise.segment<3>(3) = Eigen::Vector3d::Ones() * vel_noise;
-  process_noise.segment<3>(6) = Eigen::Vector3d::Ones() * acc_noise;
-  process_noise.segment<3>(9) = Eigen::Vector3d::Ones() * ang_pos_noise;
-  process_noise.segment<3>(12) = Eigen::Vector3d::Ones() * ang_vel_noise;
-  process_noise.segment<3>(15) = Eigen::Vector3d::Ones() * ang_acc_noise;
+  process_noise.segment<3>(6) = Eigen::Vector3d::Ones() * ang_pos_noise;
 
   return process_noise;
 }
@@ -282,7 +276,6 @@ int main(int argc, char * argv[])
   truth_engine->SetLocalHeading(ang_l_to_g_true);
 
   // Load IMUs and generate measurements
-  bool using_any_imu_for_prediction {false};
   debug_logger->Log(LogLevel::INFO, "Loading IMUs");
   for (unsigned int i = 0; i < imus.size(); ++i) {
     YAML::Node imu_node = root["/EkfCalNode"]["ros__parameters"]["imu"][imus[i]];
@@ -301,8 +294,6 @@ int main(int argc, char * argv[])
     imu_params.ang_stability = imu_node["ang_stability"].as<double>(1.0e-9);
     imu_params.acc_bias_stability = imu_node["acc_bias_stability"].as<double>(1.0e-9);
     imu_params.omg_bias_stability = imu_node["omg_bias_stability"].as<double>(1.0e-9);
-    imu_params.use_for_prediction = imu_node["use_for_prediction"].as<bool>(false);
-    using_any_imu_for_prediction = using_any_imu_for_prediction || imu_params.use_for_prediction;
 
     // SimParams
     SimIMU::Parameters sim_imu_params;
@@ -325,11 +316,6 @@ int main(int argc, char * argv[])
     // Calculate sensor measurements
     auto imu_messages = imu->GenerateMessages();
     messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
-  }
-
-  if (using_any_imu_for_prediction && (imus.size() > 1)) {
-    std::cerr << "Configuration Error: Cannot use multiple IMUs and IMU prediction" << std::endl;
-    return -1;
   }
 
   // Load tracker parameters

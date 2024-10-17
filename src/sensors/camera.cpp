@@ -62,7 +62,7 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
 
   if (!camera_message->image.empty()) {
     if (!m_trackers.empty() || !m_fiducials.empty()) {
-      m_ekf->ProcessModel(camera_message->time);
+      m_ekf->PredictModel(camera_message->time);
 
       unsigned int frameID = GenerateFrameID();
 

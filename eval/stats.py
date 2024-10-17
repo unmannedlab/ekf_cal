@@ -119,22 +119,24 @@ def body_err_acc(body_state_dfs, body_truth_dfs):
 
 
 def body_err_ang(body_state_dfs, body_truth_dfs):
-    """Calculate the body state angular velocity error."""
+    """Calculate the body state angular error."""
     RMSE_list = []
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
-        true_ang_vel_0 = body_truth['body_ang_vel_0'].to_list()
-        true_ang_vel_1 = body_truth['body_ang_vel_1'].to_list()
-        true_ang_vel_2 = body_truth['body_ang_vel_2'].to_list()
+        true_ang_pos_0 = body_truth['body_ang_pos_0'].to_list()
+        true_ang_pos_1 = body_truth['body_ang_pos_1'].to_list()
+        true_ang_pos_2 = body_truth['body_ang_pos_2'].to_list()
+        true_ang_pos_3 = body_truth['body_ang_pos_3'].to_list()
 
         est_time = body_state['time'].to_list()
-        est_ang_vel_0 = body_state['body_ang_vel_0'].to_list()
-        est_ang_vel_1 = body_state['body_ang_vel_1'].to_list()
-        est_ang_vel_2 = body_state['body_ang_vel_2'].to_list()
+        est_ang_pos_0 = body_state['body_ang_pos_0'].to_list()
+        est_ang_pos_1 = body_state['body_ang_pos_1'].to_list()
+        est_ang_pos_2 = body_state['body_ang_pos_2'].to_list()
+        est_ang_pos_3 = body_state['body_ang_pos_3'].to_list()
 
-        err_ang_vel_0 = interpolate_error(true_time, true_ang_vel_0, est_time, est_ang_vel_0)
-        err_ang_vel_1 = interpolate_error(true_time, true_ang_vel_1, est_time, est_ang_vel_1)
-        err_ang_vel_2 = interpolate_error(true_time, true_ang_vel_2, est_time, est_ang_vel_2)
+        err_ang_vel_0 = interpolate_error(true_time, true_ang_pos_0, est_time, est_ang_pos_0)
+        err_ang_vel_1 = interpolate_error(true_time, true_ang_pos_1, est_time, est_ang_pos_1)
+        err_ang_vel_2 = interpolate_error(true_time, true_ang_pos_2, est_time, est_ang_pos_2)
         RMSE_list.append(RMSE_from_vectors(err_ang_vel_0, err_ang_vel_1, err_ang_vel_2))
     return RMSE_list
 
@@ -318,10 +320,7 @@ def calc_sim_stats(config_sets, args):
             body_truth_dfs = body_truth_dfs_dict[key]
             stats[f'body_{key}_err_pos'] = body_err_pos(body_state_dfs, body_truth_dfs)
             stats[f'body_{key}_err_vel'] = body_err_vel(body_state_dfs, body_truth_dfs)
-            stats[f'body_{key}_err_acc'] = body_err_acc(body_state_dfs, body_truth_dfs)
             stats[f'body_{key}_err_ang'] = body_err_ang(body_state_dfs, body_truth_dfs)
-            stats[f'body_{key}_err_ang_vel'] = body_err_ang_vel(body_state_dfs, body_truth_dfs)
-            stats[f'body_{key}_err_ang_acc'] = body_err_ang_acc(body_state_dfs, body_truth_dfs)
 
         imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
         body_truth_dfs = body_truth_dfs_dict[0]

@@ -198,7 +198,7 @@ void MsckfUpdater::UpdateEKF(
   FeatureTracks feature_tracks,
   double px_error)
 {
-  ekf->ProcessModel(time);
+  ekf->PredictModel(time);
 
   auto t_start = std::chrono::high_resolution_clock::now();
 

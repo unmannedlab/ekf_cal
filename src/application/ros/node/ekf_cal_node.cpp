@@ -181,7 +181,6 @@ void EkfCalNode::DeclareImuParameters(std::string imu_name)
   std::string imu_prefix = "imu." + imu_name;
   this->declare_parameter(imu_prefix + ".is_extrinsic", false);
   this->declare_parameter(imu_prefix + ".is_intrinsic", false);
-  this->declare_parameter(imu_prefix + ".use_for_prediction", false);
   this->declare_parameter(imu_prefix + ".rate", 1.0);
   this->declare_parameter(imu_prefix + ".topic", "");
   this->declare_parameter(
@@ -202,7 +201,6 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
   std::string imu_prefix = "imu." + imu_name;
   bool is_extrinsic = this->get_parameter(imu_prefix + ".is_extrinsic").as_bool();
   bool is_intrinsic = this->get_parameter(imu_prefix + ".is_intrinsic").as_bool();
-  bool use_for_prediction = this->get_parameter(imu_prefix + ".use_for_prediction").as_bool();
   double rate = this->get_parameter(imu_prefix + ".rate").as_double();
   std::string topic = this->get_parameter(imu_prefix + ".topic").as_string();
   std::vector<double> variance = this->get_parameter(imu_prefix + ".variance").as_double_array();
@@ -223,7 +221,6 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
   imu_params.topic = topic;
   imu_params.is_extrinsic = is_extrinsic;
   imu_params.is_intrinsic = is_intrinsic;
-  imu_params.use_for_prediction = use_for_prediction;
   imu_params.rate = rate;
   imu_params.variance = StdToEigVec(variance);
   imu_params.pos_i_in_b = StdToEigVec(pos_i_in_b);

@@ -27,10 +27,7 @@ BodyState & operator+=(BodyState & l_body_state, BodyState & r_body_state)
 {
   l_body_state.pos_b_in_l += r_body_state.pos_b_in_l;
   l_body_state.vel_b_in_l += r_body_state.vel_b_in_l;
-  l_body_state.acc_b_in_l += r_body_state.acc_b_in_l;
   l_body_state.ang_b_to_l = r_body_state.ang_b_to_l * l_body_state.ang_b_to_l;
-  l_body_state.ang_vel_b_in_l += r_body_state.ang_vel_b_in_l;
-  l_body_state.ang_acc_b_in_l += r_body_state.ang_acc_b_in_l;
 
   return l_body_state;
 }
@@ -39,11 +36,7 @@ BodyState & operator+=(BodyState & l_body_state, Eigen::VectorXd & r_vector)
 {
   l_body_state.pos_b_in_l += r_vector.segment<3>(0);
   l_body_state.vel_b_in_l += r_vector.segment<3>(3);
-  l_body_state.acc_b_in_l += r_vector.segment<3>(6);
-  l_body_state.ang_b_to_l =
-    l_body_state.ang_b_to_l * RotVecToQuat(r_vector.segment<3>(9));
-  l_body_state.ang_vel_b_in_l += r_vector.segment<3>(12);
-  l_body_state.ang_acc_b_in_l += r_vector.segment<3>(15);
+  l_body_state.ang_b_to_l = l_body_state.ang_b_to_l * RotVecToQuat(r_vector.segment<3>(6));
 
   return l_body_state;
 }
@@ -222,10 +215,7 @@ Eigen::VectorXd BodyState::ToVector() const
 
   out_vec.segment<3>(0) = pos_b_in_l;
   out_vec.segment<3>(3) = vel_b_in_l;
-  out_vec.segment<3>(6) = acc_b_in_l;
-  out_vec.segment<3>(9) = QuatToRotVec(ang_b_to_l);
-  out_vec.segment<3>(12) = ang_vel_b_in_l;
-  out_vec.segment<3>(15) = ang_acc_b_in_l;
+  out_vec.segment<3>(6) = QuatToRotVec(ang_b_to_l);
 
   return out_vec;
 }
@@ -290,10 +280,7 @@ void BodyState::SetState(Eigen::VectorXd state)
 {
   pos_b_in_l = state.segment<3>(0);
   vel_b_in_l = state.segment<3>(3);
-  acc_b_in_l = state.segment<3>(6);
   ang_b_to_l = RotVecToQuat(state.segment<3>(9));
-  ang_vel_b_in_l = state.segment<3>(12);
-  ang_acc_b_in_l = state.segment<3>(15);
 }
 
 

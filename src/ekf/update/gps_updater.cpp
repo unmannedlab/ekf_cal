@@ -80,7 +80,7 @@ void GpsUpdater::UpdateEKF(
 {
   auto t_start = std::chrono::high_resolution_clock::now();
 
-  ekf->ProcessModel(time);
+  ekf->PredictModel(time);
 
   if (!ekf->GetUseFirstEstimateJacobian() || m_is_first_estimate) {
     m_pos_a_in_b = ekf->m_state.gps_states[m_id].pos_a_in_b;

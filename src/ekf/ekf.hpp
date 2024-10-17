@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "ekf/constants.hpp"
+#include "ekf/imu_filter.hpp"
 #include "ekf/types.hpp"
 #include "infrastructure/data_logger.hpp"
 #include "infrastructure/debug_logger.hpp"
@@ -141,21 +142,10 @@ public:
   void LogBodyStateIfNeeded(int execution_count);
 
   ///
-  /// @brief Process state linearly to given time
-  /// @param time Time for prediction
-  ///
-  void ProcessModel(double time);
-
-  ///
   /// @brief Predict state to given time using IMU measurements
   /// @param time Time of measurement
-  /// @param acceleration Acceleration measurement in IMU frame
-  /// @param angular_rate Angular rate measurement in IMU frame
   ///
-  void PredictModel(
-    double time,
-    Eigen::Vector3d acceleration,
-    Eigen::Vector3d angular_rate);
+  void PredictModel(double time);
 
   ///
   /// @brief State transition matrix getter method
@@ -227,17 +217,6 @@ public:
   /// @param max_track_length maximum track length
   ///
   void SetMaxTrackLength(unsigned int max_track_length);
-
-  ///
-  /// @brief Function to add process noise to covariance
-  /// @param delta_time delta time over which to add process noise
-  ///
-  void AddProccessNoise(double delta_time);
-
-  ///
-  /// @brief Apply reasonable limits to uncertainties
-  ///
-  void LimitUncertainty();
 
   ///
   /// @brief EKF process noise setter
@@ -390,6 +369,9 @@ public:
 
   /// @brief EKF state
   State m_state;
+
+  /// @brief IMU filter state
+  ImuFilter m_imu_filter;
 
   /// @brief EKF covariance
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-2;

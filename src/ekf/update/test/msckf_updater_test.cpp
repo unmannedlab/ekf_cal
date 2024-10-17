@@ -105,11 +105,11 @@ TEST(test_msckf_updater, update) {
   FeatureTracks feature_tracks;
   feature_tracks.push_back(feature_points);
 
-  ekf->ProcessModel(0.1);
+  ekf->PredictModel(0.1);
   ekf->AugmentStateIfNeeded(cam_id, feature_point_1.frame_id);
-  ekf->ProcessModel(0.2);
+  ekf->PredictModel(0.2);
   ekf->AugmentStateIfNeeded(cam_id, feature_point_2.frame_id);
-  ekf->ProcessModel(0.3);
+  ekf->PredictModel(0.3);
   ekf->AugmentStateIfNeeded(cam_id, feature_point_3.frame_id);
 
   msckf_updater.UpdateEKF(ekf, time, feature_tracks, 1e-3);

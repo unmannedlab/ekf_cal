@@ -57,10 +57,7 @@ EKF::EKF(Parameters params)
   header << "time";
   header << EnumerateHeader("body_pos", 3);
   header << EnumerateHeader("body_vel", 3);
-  header << EnumerateHeader("body_acc", 3);
   header << EnumerateHeader("body_ang_pos", 4);
-  header << EnumerateHeader("body_ang_vel", 3);
-  header << EnumerateHeader("body_ang_acc", 3);
   header << EnumerateHeader("body_cov", g_body_state_size);
   header << EnumerateHeader("duration", 1);
 
@@ -81,9 +78,6 @@ Eigen::MatrixXd EKF::GetStateTransition(double dT)
   Eigen::MatrixXd state_transition =
     Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size);
   state_transition.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * dT;
-  state_transition.block<3, 3>(3, 6) = Eigen::MatrixXd::Identity(3, 3) * dT;
-  state_transition.block<3, 3>(9, 12) = Eigen::MatrixXd::Identity(3, 3) * dT;
-  state_transition.block<3, 3>(12, 15) = Eigen::MatrixXd::Identity(3, 3) * dT;
   return state_transition;
 }
 
@@ -95,77 +89,15 @@ void EKF::LogBodyStateIfNeeded(int execution_count)
     msg << m_current_time;
     msg << VectorToCommaString(m_state.body_state.pos_b_in_l);
     msg << VectorToCommaString(m_state.body_state.vel_b_in_l);
-    msg << VectorToCommaString(m_state.body_state.acc_b_in_l);
     msg << QuaternionToCommaString(m_state.body_state.ang_b_to_l);
-    msg << VectorToCommaString(m_state.body_state.ang_vel_b_in_l);
-    msg << VectorToCommaString(m_state.body_state.ang_acc_b_in_l);
     msg << VectorToCommaString(body_cov);
     msg << "," << execution_count;
     m_data_logger.RateLimitedLog(msg.str(), m_current_time);
   }
 }
 
-void EKF::ProcessModel(double time)
-{
-  m_debug_logger->Log(LogLevel::DEBUG, "ProcessModel at t=" + std::to_string(time));
-
-  // Don't predict if time is not initialized
-  if (!m_time_initialized) {
-    m_current_time = time;
-    m_time_initialized = true;
-    m_debug_logger->Log(
-      LogLevel::INFO,
-      "ProcessModel initialized time at t=" + std::to_string(time));
-    return;
-  }
-
-  if (time < m_current_time) {
-    m_debug_logger->Log(
-      LogLevel::INFO, "Requested prediction to time in the past. Current t=" +
-      std::to_string(m_current_time) + ", Requested t=" +
-      std::to_string(time));
-    return;
-  } else if (time == m_current_time) {
-    m_debug_logger->Log(LogLevel::DEBUG, "Requested prediction to current time.");
-    return;
-  }
-
-  auto t_start = std::chrono::high_resolution_clock::now();
-
-  double dT = time - m_current_time;
-
-  Eigen::MatrixXd dF = GetStateTransition(dT);
-  Eigen::MatrixXd F = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) + dF;
-
-  Eigen::VectorXd process_update = dF * m_state.body_state.ToVector();
-
-  m_state.body_state += process_update;
-
-  if (m_use_root_covariance) {
-    m_cov.block<g_body_state_size, g_body_state_size>(0, 0) = QR_r(
-      m_cov.block<g_body_state_size, g_body_state_size>(0, 0) * F.transpose(),
-      m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0));
-  } else {
-    m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-      F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose() +
-      m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0) * dT;
-  }
-
-  m_current_time = time;
-
-  AugmentStateIfNeeded();
-
-  auto t_end = std::chrono::high_resolution_clock::now();
-  auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
-
-  LogBodyStateIfNeeded(t_execution.count());
-}
-
 /// @todo: Use RK4 or other higher-order prediction step
-void EKF::PredictModel(
-  double time,
-  Eigen::Vector3d acceleration,
-  Eigen::Vector3d angular_rate)
+void EKF::PredictModel(double time)
 {
   m_debug_logger->Log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(time));
 
@@ -192,20 +124,16 @@ void EKF::PredictModel(
   double dT = time - m_current_time;
 
   Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
+  Eigen::Vector3d acc_in_b = m_imu_filter.GetAcc();
+  Eigen::Vector3d ang_vel_in_b = m_imu_filter.GetAngVel();
 
-  Eigen::Vector3d acceleration_local = (ang_b_to_l * acceleration) - g_gravity;
-  Eigen::Vector3d angular_rate_local = ang_b_to_l * angular_rate;
+  Eigen::Vector3d acceleration_local = (ang_b_to_l * acc_in_b) - g_gravity;
 
-  Eigen::Vector3d rot_vec(angular_rate[0] * dT, angular_rate[1] * dT,
-    angular_rate[2] * dT);
+  Eigen::Vector3d rot_vec(ang_vel_in_b[0] * dT, ang_vel_in_b[1] * dT, ang_vel_in_b[2] * dT);
 
-  m_state.body_state.pos_b_in_l +=
-    dT * m_state.body_state.vel_b_in_l + dT * dT / 2 * acceleration_local;
   m_state.body_state.vel_b_in_l += dT * acceleration_local;
-  m_state.body_state.acc_b_in_l = acceleration_local;
+  m_state.body_state.pos_b_in_l += dT * m_state.body_state.vel_b_in_l;
   m_state.body_state.ang_b_to_l = m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec);
-  m_state.body_state.ang_vel_b_in_l = angular_rate_local;
-  m_state.body_state.ang_acc_b_in_l.setZero();
 
   Eigen::MatrixXd dF = GetStateTransition(dT);
   Eigen::MatrixXd F = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) + dF;
@@ -228,50 +156,6 @@ void EKF::PredictModel(
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
   LogBodyStateIfNeeded(t_execution.count());
-}
-
-/// @todo Get these limits from input file
-void EKF::LimitUncertainty()
-{
-  // Create lower bound to uncertainty
-  MinBoundDiagonal(m_cov, 1e-9);
-
-  // Create upper bound to uncertainty
-  MaxBoundDiagonal(m_cov, 1e-0, 0, 3);
-  MaxBoundDiagonal(m_cov, 1e-1, 3, 3);
-  MaxBoundDiagonal(m_cov, 1e-1, 6, 3);
-  MaxBoundDiagonal(m_cov, 1e-1, 9, 3);
-  MaxBoundDiagonal(m_cov, 1e-1, 12, 3);
-  MaxBoundDiagonal(m_cov, 1e-1, 15, 3);
-
-  for (auto imu_state : m_state.imu_states) {
-    unsigned int imu_index = imu_state.second.index;
-    if (imu_state.second.GetIsExtrinsic() && imu_state.second.GetIsIntrinsic()) {
-      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 0, 3);
-      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 3, 3);
-      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 6, 3);
-      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 9, 3);
-    } else if (imu_state.second.GetIsExtrinsic()) {
-      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 0, 3);
-      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 3, 3);
-    } else if (imu_state.second.GetIsIntrinsic()) {
-      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 0, 3);
-      MaxBoundDiagonal(m_cov, 1e-1, imu_index + 3, 3);
-    }
-  }
-
-  for (auto gps_state : m_state.gps_states) {
-    if (gps_state.second.GetIsExtrinsic()) {
-      unsigned int gps_index = gps_state.second.index;
-      MaxBoundDiagonal(m_cov, 1e-1, gps_index + 0, 3);
-    }
-  }
-
-  for (auto cam_state : m_state.cam_states) {
-    unsigned int cam_index = cam_state.second.index;
-    MaxBoundDiagonal(m_cov, 1e-1, cam_index + 0, 3);
-    MaxBoundDiagonal(m_cov, 1e-1, cam_index + 3, 3);
-  }
 }
 
 unsigned int EKF::GetStateSize()
@@ -517,18 +401,19 @@ void EKF::AugmentStateIfNeeded()
     } else if ((m_current_time - m_state.aug_states[0].back().time) > m_min_aug_period) {
       AugState last_aug = m_state.aug_states[0].back();
       double delta_time = m_current_time - last_aug.time;
+      Eigen::Vector3d acc_in_b = m_imu_filter.GetAcc();
+      Eigen::Vector3d ang_vel_in_b = m_imu_filter.GetAngVel();
+      Eigen::Vector3d ang_acc_in_b = m_imu_filter.GetAngAcc();
+
       Eigen::Vector3d delta_pos = m_state.body_state.pos_b_in_l -
         delta_time * m_state.body_state.vel_b_in_l -
-        0.5 * delta_time * delta_time * m_state.body_state.acc_b_in_l -
+        0.5 * delta_time * delta_time * acc_in_b -
         last_aug.pos_b_in_l;
 
       Eigen::Vector3d rot_vec(
-        m_state.body_state.ang_vel_b_in_l[0] * delta_time +
-        m_state.body_state.ang_acc_b_in_l[0] * 0.5 * delta_time * delta_time,
-        m_state.body_state.ang_vel_b_in_l[1] * delta_time +
-        m_state.body_state.ang_acc_b_in_l[1] * 0.5 * delta_time * delta_time,
-        m_state.body_state.ang_vel_b_in_l[2] * delta_time +
-        m_state.body_state.ang_acc_b_in_l[2] * 0.5 * delta_time * delta_time);
+        ang_vel_in_b[0] * delta_time + ang_acc_in_b[0] * 0.5 * delta_time * delta_time,
+        ang_vel_in_b[1] * delta_time + ang_acc_in_b[1] * 0.5 * delta_time * delta_time,
+        ang_vel_in_b[2] * delta_time + ang_acc_in_b[2] * 0.5 * delta_time * delta_time);
 
       Eigen::Quaterniond delta_ang =
         m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec).inverse() *

@@ -34,7 +34,6 @@ IMU::IMU(IMU::Parameters params)
 {
   m_is_extrinsic = params.is_extrinsic;
   m_is_intrinsic = params.is_intrinsic;
-  m_use_for_prediction = params.use_for_prediction;
   m_rate = params.rate;
 
   ImuState imu_state;
@@ -71,7 +70,6 @@ void IMU::Callback(std::shared_ptr<ImuMessage> imu_message)
     imu_message->acceleration,
     imu_message->acceleration_covariance,
     imu_message->angular_rate,
-    imu_message->angular_rate_covariance,
-    m_use_for_prediction);
+    imu_message->angular_rate_covariance);
   m_logger->Log(LogLevel::DEBUG, "IMU \"" + m_name + "\" callback complete");
 }
