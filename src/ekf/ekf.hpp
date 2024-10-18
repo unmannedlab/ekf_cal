@@ -52,7 +52,7 @@ public:
     double augmenting_delta_time{1.0};                          ///< @brief Augmenting time
     double augmenting_pos_error{0.1};                           ///< @brief Augmenting pos error
     double augmenting_ang_error{0.1};                           ///< @brief Augmenting ang error
-    Eigen::VectorXd process_noise {Eigen::VectorXd::Ones(18)};  ///< @brief Process noise
+    Eigen::VectorXd process_noise {g_body_state_size};          ///< @brief Process noise
     Eigen::Vector3d pos_b_in_l{Eigen::Vector3d::Zero()};        ///< @brief Body local position
     Eigen::Quaterniond ang_b_to_l {1, 0, 0, 0};                 ///< @brief Body local orientation
     Eigen::Vector3d pos_l_in_g {Eigen::Vector3d::Zero()};       ///< @brief Local frame position
@@ -388,8 +388,8 @@ private:
   std::shared_ptr<DebugLogger> m_debug_logger;
   bool m_data_logging_on;
   unsigned int m_max_track_length{20};
-  Eigen::MatrixXd m_process_noise {Eigen::MatrixXd::Zero(18, 18)};
-  Eigen::VectorXd m_body_process_noise {Eigen::VectorXd::Zero(18)};
+  Eigen::MatrixXd m_process_noise {Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size)};
+  Eigen::VectorXd m_body_process_noise {Eigen::VectorXd::Zero(g_body_state_size)};
   DataLogger m_data_logger;
 
   GpsInitType m_gps_init_type;

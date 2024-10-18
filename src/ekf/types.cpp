@@ -280,7 +280,7 @@ void BodyState::SetState(Eigen::VectorXd state)
 {
   pos_b_in_l = state.segment<3>(0);
   vel_b_in_l = state.segment<3>(3);
-  ang_b_to_l = RotVecToQuat(state.segment<3>(9));
+  ang_b_to_l = RotVecToQuat(state.segment<3>(6));
 }
 
 

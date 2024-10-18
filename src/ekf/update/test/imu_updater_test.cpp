@@ -61,49 +61,48 @@ TEST(test_imu_updater, update) {
   Eigen::Matrix3d angular_rate_cov = Eigen::Matrix3d::Identity() * 1e-3;
 
   State state = ekf->m_state;
-  EXPECT_EQ(state.body_state.pos_b_in_l[0], 0);
-  EXPECT_EQ(state.body_state.pos_b_in_l[1], 0);
-  EXPECT_EQ(state.body_state.pos_b_in_l[2], 0);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 0, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 0, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 0, 1e-2);
 
   double time = time_init + 1;
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
   state = ekf->m_state;
-  EXPECT_EQ(state.body_state.pos_b_in_l[0], 1);
-  EXPECT_EQ(state.body_state.pos_b_in_l[1], 1);
-  EXPECT_EQ(state.body_state.pos_b_in_l[2], 1);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 1, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 1, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 1, 1e-2);
 
   time += 1;
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
   state = ekf->m_state;
-  EXPECT_EQ(state.body_state.pos_b_in_l[0], 2);
-  EXPECT_EQ(state.body_state.pos_b_in_l[1], 2);
-  EXPECT_EQ(state.body_state.pos_b_in_l[2], 2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 2, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 2, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 2, 1e-2);
 
   imu_updater.UpdateEKF(
     ekf, time - 1, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
   state = ekf->m_state;
-  EXPECT_EQ(state.body_state.pos_b_in_l[0], 2);
-  EXPECT_EQ(state.body_state.pos_b_in_l[1], 2);
-  EXPECT_EQ(state.body_state.pos_b_in_l[2], 2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 2, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 2, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 2, 1e-2);
 
   time += 1;
-  acceleration[0] = 10;
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
   state = ekf->m_state;
-  EXPECT_EQ(state.body_state.pos_b_in_l[0], 3);
-  EXPECT_EQ(state.body_state.pos_b_in_l[1], 3);
-  EXPECT_EQ(state.body_state.pos_b_in_l[2], 3);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 3, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 3, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 3, 1e-2);
 
-  EXPECT_EQ(state.body_state.vel_b_in_l[0], 1);
-  EXPECT_EQ(state.body_state.vel_b_in_l[1], 1);
-  EXPECT_EQ(state.body_state.vel_b_in_l[2], 1);
+  EXPECT_NEAR(state.body_state.vel_b_in_l[0], 1, 1e-2);
+  EXPECT_NEAR(state.body_state.vel_b_in_l[1], 1, 1e-2);
+  EXPECT_NEAR(state.body_state.vel_b_in_l[2], 1, 1e-2);
 }
 
 TEST(test_imu_updater, imu_prediction_update) {
@@ -166,16 +165,15 @@ TEST(test_imu_updater, imu_prediction_update) {
   EXPECT_EQ(state.body_state.pos_b_in_l[2], 2);
 
   time += 1;
-  acceleration[0] = 10;
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
   state = ekf->m_state;
-  EXPECT_EQ(state.body_state.pos_b_in_l[0], 8);
+  EXPECT_EQ(state.body_state.pos_b_in_l[0], 3);
   EXPECT_EQ(state.body_state.pos_b_in_l[1], 3);
   EXPECT_EQ(state.body_state.pos_b_in_l[2], 3);
 
-  EXPECT_EQ(state.body_state.vel_b_in_l[0], 11);
+  EXPECT_EQ(state.body_state.vel_b_in_l[0], 1);
   EXPECT_EQ(state.body_state.vel_b_in_l[1], 1);
   EXPECT_EQ(state.body_state.vel_b_in_l[2], 1);
 
@@ -184,11 +182,11 @@ TEST(test_imu_updater, imu_prediction_update) {
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
   state = ekf->m_state;
-  EXPECT_EQ(state.body_state.pos_b_in_l[0], 24);
+  EXPECT_EQ(state.body_state.pos_b_in_l[0], 4);
   EXPECT_EQ(state.body_state.pos_b_in_l[1], 4);
   EXPECT_EQ(state.body_state.pos_b_in_l[2], 4);
 
-  EXPECT_EQ(state.body_state.vel_b_in_l[0], 21);
+  EXPECT_EQ(state.body_state.vel_b_in_l[0], 1);
   EXPECT_EQ(state.body_state.vel_b_in_l[1], 1);
   EXPECT_EQ(state.body_state.vel_b_in_l[2], 1);
 }

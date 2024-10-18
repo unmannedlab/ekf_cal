@@ -615,18 +615,12 @@ Eigen::VectorXd EkfCalNode::LoadProcessNoise()
 {
   double pos_noise = this->get_parameter("process_noise.pos").as_double();
   double vel_noise = this->get_parameter("process_noise.vel").as_double();
-  double acc_noise = this->get_parameter("process_noise.acc").as_double();
   double ang_pos_noise = this->get_parameter("process_noise.ang_pos").as_double();
-  double ang_vel_noise = this->get_parameter("process_noise.ang_vel").as_double();
-  double ang_acc_noise = this->get_parameter("process_noise.ang_acc").as_double();
 
   Eigen::VectorXd process_noise(g_body_state_size);
   process_noise.segment<3>(0) = Eigen::Vector3d::Ones() * pos_noise;
   process_noise.segment<3>(3) = Eigen::Vector3d::Ones() * vel_noise;
-  process_noise.segment<3>(6) = Eigen::Vector3d::Ones() * acc_noise;
-  process_noise.segment<3>(9) = Eigen::Vector3d::Ones() * ang_pos_noise;
-  process_noise.segment<3>(12) = Eigen::Vector3d::Ones() * ang_vel_noise;
-  process_noise.segment<3>(15) = Eigen::Vector3d::Ones() * ang_acc_noise;
+  process_noise.segment<3>(6) = Eigen::Vector3d::Ones() * ang_pos_noise;
 
   return process_noise;
 }

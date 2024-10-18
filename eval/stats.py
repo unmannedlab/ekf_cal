@@ -120,19 +120,20 @@ def body_err_acc(body_state_dfs, body_truth_dfs):
 
 def body_err_ang(body_state_dfs, body_truth_dfs):
     """Calculate the body state angular error."""
+    # TODO: Calculate quaternion error
     RMSE_list = []
     for body_state, body_truth in zip(body_state_dfs, body_truth_dfs):
         true_time = body_truth['time'].to_list()
         true_ang_pos_0 = body_truth['body_ang_pos_0'].to_list()
         true_ang_pos_1 = body_truth['body_ang_pos_1'].to_list()
         true_ang_pos_2 = body_truth['body_ang_pos_2'].to_list()
-        true_ang_pos_3 = body_truth['body_ang_pos_3'].to_list()
+        # true_ang_pos_3 = body_truth['body_ang_pos_3'].to_list()
 
         est_time = body_state['time'].to_list()
         est_ang_pos_0 = body_state['body_ang_pos_0'].to_list()
         est_ang_pos_1 = body_state['body_ang_pos_1'].to_list()
         est_ang_pos_2 = body_state['body_ang_pos_2'].to_list()
-        est_ang_pos_3 = body_state['body_ang_pos_3'].to_list()
+        # est_ang_pos_3 = body_state['body_ang_pos_3'].to_list()
 
         err_ang_vel_0 = interpolate_error(true_time, true_ang_pos_0, est_time, est_ang_pos_0)
         err_ang_vel_1 = interpolate_error(true_time, true_ang_pos_1, est_time, est_ang_pos_1)

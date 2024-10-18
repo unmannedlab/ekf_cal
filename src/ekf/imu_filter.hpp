@@ -41,7 +41,7 @@ public:
   ///
   /// @brief IMU filter class constructor
   ///
-  explicit ImuFilter();
+  ImuFilter();
 
   ///
   /// @brief Get EKF state as a vector
@@ -88,7 +88,7 @@ public:
 
 private:
   Eigen::MatrixXd m_cov;                          ///< @brief IMU state covariance
-  Eigen::Vector3d m_acc_in_b{0.0, 0.0, 0.0};      ///< @brief Body acceleration
+  Eigen::Vector3d m_acc_in_b{g_gravity};          ///< @brief Body acceleration
   Eigen::Vector3d m_ang_vel_in_b{0.0, 0.0, 0.0};  ///< @brief Body angular rate
   Eigen::Vector3d m_ang_acc_in_b{0.0, 0.0, 0.0};  ///< @brief Body angular acceleration
 };

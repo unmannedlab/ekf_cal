@@ -641,7 +641,7 @@ class tab_body:
                 Spacer()
             ],
             [
-                plot_update_timing(self.body_state_dfs), 
+                plot_update_timing(self.body_state_dfs),
                 Spacer()
             ]
         ]
