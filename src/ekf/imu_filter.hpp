@@ -21,40 +21,32 @@
 #include "ekf/constants.hpp"
 
 ///
-/// @class EKF
-/// @brief Calibration EKF class
-/// @todo Implement check for correlation coefficients to be between +/- 1
-/// @todo Add gravity initialization/check
-/// @todo Create generic function to update(r,H,R)
+/// @class ImuFilter
+/// @brief Class for filtering streams of IMU measurements into a single virtual IMU
 ///
 class ImuFilter
 {
 public:
-  // ///
-  // /// @brief IMU filter class parameters
-  // ///
-  // typedef struct Parameters
-  // {
-
-  // } Parameters;
-
   ///
   /// @brief IMU filter class constructor
   ///
   ImuFilter();
 
   ///
-  /// @brief Get EKF state as a vector
-  /// @return EKF state as a vector
+  /// @brief Set the number of IMUs being filter
+  /// @param imu_count Current IMU count
   ///
-  Eigen::VectorXd ToVector() const;
+  void SetImuCount(unsigned int imu_count);
 
   ///
-  /// @brief Function to set state using vector
-  /// @param state vector for setting body state
+  /// @brief Predict acceleration measurement
+  /// @param pos_i_in_b IMU position in the body frame
+  /// @param ang_i_to_b IMU orientation to the body frame
+  /// @param acc_bias Accelerometer bias
+  /// @param omg_bias Angular rate bias
+  /// @param ang_b_to_l Body orientation to the local frame
+  /// @return Predicted acceleration measurement
   ///
-  // void SetState(Eigen::VectorXd state);
-
   Eigen::VectorXd PredictMeasurement(
     Eigen::Vector3d pos_i_in_b,
     Eigen::Quaterniond ang_i_to_b,
@@ -63,13 +55,31 @@ public:
     Eigen::Quaterniond ang_b_to_l
   );
 
+  ///
+  /// @brief Calculate measurement jacobian
+  /// @param pos_i_in_b IMU position in the body frame
+  /// @param ang_i_to_b IMU orientation to the body frame
+  /// @param ang_b_to_l Body orientation to the local frame
+  /// @return Measurement jacobian
+  ///
   Eigen::MatrixXd GetMeasurementJacobian(
     Eigen::Vector3d pos_i_in_b,
     Eigen::Quaterniond ang_i_to_b,
     Eigen::Quaterniond ang_b_to_l
   );
 
-
+  ///
+  /// @brief IMU state updater
+  /// @param acceleration Acceleration measurement
+  /// @param angular_rate Angular rate measurement
+  /// @param acceleration_covariance Acceleration covariance
+  /// @param angular_rate_covariance Angular rate covariance
+  /// @param pos_i_in_b IMU position in the body frame
+  /// @param ang_i_to_b IMU orientation to the body frame
+  /// @param acc_bias Accelerometer bias
+  /// @param omg_bias Angular rate bias
+  /// @param ang_b_to_l Body orientation to the local frame
+  ///
   void Update(
     Eigen::Vector3d acceleration,
     Eigen::Vector3d angular_rate,
@@ -82,15 +92,30 @@ public:
     Eigen::Quaterniond ang_b_to_l
   );
 
+  ///
+  /// @brief Filtered acceleration getter
+  /// @return Filtered acceleration
+  ///
   Eigen::Vector3d GetAcc();
+
+  ///
+  /// @brief Filtered angular rate getter
+  /// @return Filtered angular rate
+  ///
   Eigen::Vector3d GetAngVel();
+
+  ///
+  /// @brief Filtered angular acceleration getter
+  /// @return Filtered angular acceleration
+  ///
   Eigen::Vector3d GetAngAcc();
 
 private:
-  Eigen::MatrixXd m_cov;                          ///< @brief IMU state covariance
-  Eigen::Vector3d m_acc_in_b{g_gravity};          ///< @brief Body acceleration
-  Eigen::Vector3d m_ang_vel_in_b{0.0, 0.0, 0.0};  ///< @brief Body angular rate
-  Eigen::Vector3d m_ang_acc_in_b{0.0, 0.0, 0.0};  ///< @brief Body angular acceleration
+  unsigned int m_imu_count{0};                       ///< @brief Number of IMUs in filter
+  Eigen::MatrixXd m_cov;                             ///< @brief IMU state covariance
+  Eigen::Vector3d m_acc_in_b{g_gravity};             ///< @brief Body acceleration
+  Eigen::Vector3d m_ang_vel_in_b{0.0, 0.0, 0.0};     ///< @brief Body angular rate
+  Eigen::Vector3d m_ang_acc_in_b{0.0, 0.0, 0.0};     ///< @brief Body angular acceleration
 };
 
 #endif  // EKF__IMU_FILTER_HPP_

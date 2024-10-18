@@ -88,46 +88,59 @@ void ImuFilter::Update(
   Eigen::Quaterniond ang_b_to_l
 )
 {
-  Eigen::VectorXd z(acceleration.size() + angular_rate.size());
-  z.segment<3>(0) = acceleration;
-  z.segment<3>(3) = angular_rate;
+  if (m_imu_count == 1) {
+    m_acc_in_b = ang_i_to_b * acceleration;
+    m_ang_vel_in_b = ang_i_to_b * angular_rate;
+    m_ang_acc_in_b = Eigen::Vector3d::Zero();
+  } else {
+    Eigen::VectorXd z(acceleration.size() + angular_rate.size());
+    z.segment<3>(0) = acceleration;
+    z.segment<3>(3) = angular_rate;
 
-  Eigen::VectorXd z_pred =
-    PredictMeasurement(pos_i_in_b, ang_i_to_b, acc_bias, omg_bias, ang_b_to_l);
-  Eigen::VectorXd resid = z - z_pred;
+    Eigen::VectorXd z_pred =
+      PredictMeasurement(pos_i_in_b, ang_i_to_b, acc_bias, omg_bias, ang_b_to_l);
+    Eigen::VectorXd resid = z - z_pred;
 
-  Eigen::MatrixXd H = GetMeasurementJacobian(pos_i_in_b, ang_i_to_b, ang_b_to_l);
+    Eigen::MatrixXd H = GetMeasurementJacobian(pos_i_in_b, ang_i_to_b, ang_b_to_l);
 
-  Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-  R.block<3, 3>(0, 0) = acceleration_covariance;
-  R.block<3, 3>(3, 3) = angular_rate_covariance;
+    Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
+    R.block<3, 3>(0, 0) = acceleration_covariance;
+    R.block<3, 3>(3, 3) = angular_rate_covariance;
 
-  // Apply Kalman update
-  Eigen::MatrixXd S, G, K;
-  R = R.cwiseSqrt();
-  G = QR_r(m_cov * H.transpose(), R);
-  K = (G.inverse() * ((G.transpose()).inverse() * H) * m_cov.transpose() * m_cov).transpose();
+    // Apply Kalman update
+    Eigen::MatrixXd S, G, K;
+    R = R.cwiseSqrt();
+    G = QR_r(m_cov * H.transpose(), R);
+    K = (G.inverse() * ((G.transpose()).inverse() * H) * m_cov.transpose() * m_cov).transpose();
 
-  Eigen::VectorXd update = K * resid;
+    Eigen::VectorXd update = K * resid;
 
-  m_acc_in_b += update.segment<3>(0);
-  m_ang_vel_in_b += update.segment<3>(3);
-  m_ang_acc_in_b += update.segment<3>(6);
+    m_acc_in_b += update.segment<3>(0);
+    m_ang_vel_in_b += update.segment<3>(3);
+    m_ang_acc_in_b += update.segment<3>(6);
 
-  m_cov = QR_r(
-    m_cov * (Eigen::MatrixXd::Identity(g_imu_state_size, g_imu_state_size) - K * H).transpose(),
-    R * K.transpose());
+    m_cov = QR_r(
+      m_cov * (Eigen::MatrixXd::Identity(g_imu_state_size, g_imu_state_size) - K * H).transpose(),
+      R * K.transpose());
+  }
 }
 
 Eigen::Vector3d ImuFilter::GetAcc()
 {
   return m_acc_in_b;
 }
+
 Eigen::Vector3d ImuFilter::GetAngVel()
 {
   return m_ang_vel_in_b;
 }
+
 Eigen::Vector3d ImuFilter::GetAngAcc()
 {
   return m_ang_acc_in_b;
+}
+
+void ImuFilter::SetImuCount(unsigned int imu_count)
+{
+  m_imu_count = imu_count;
 }
