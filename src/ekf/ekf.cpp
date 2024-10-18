@@ -63,7 +63,7 @@ EKF::EKF(Parameters params)
 
   m_data_logger.DefineHeader(header.str());
   m_data_logger.SetLogging(m_data_logging_on);
-  m_data_logger.SetLogRate(params.body_data_rate);
+  m_data_logger.SetLogRate(params.data_log_rate);
   SetBodyProcessNoise(params.process_noise);
 
   if (params.gps_init_type == GpsInitType::CONSTANT) {
@@ -247,6 +247,7 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
   }
 
   RefreshIndices();
+  m_imu_filter.SetImuCount(m_state.imu_states.size());
 
   std::stringstream log_msg;
   log_msg << "Register IMU: " << imu_id << ", stateSize: " << m_state_size;

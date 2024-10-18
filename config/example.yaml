@@ -7,7 +7,7 @@
                                             #   4: INFO
                                             #   5: DEBUG
         data_logging_on: true               # Flag to enable data logging
-        body_data_rate: 10.0                # EKF body data logging rate
+        data_log_rate: 10.0                # EKF body data logging rate
         augmenting_type: 3                  # Camera state augmentation type
                                             #   0: All camera frames are augmented
                                             #   1: Only the primary camera frames are augmented
@@ -86,7 +86,6 @@
 
         imu:
             imu_1:
-                use_for_prediction: true            # Flag to use IMU for filter prediction
                 is_extrinsic: false                 # Flag to calibrate IMU extrinsics
                 is_intrinsic: false                 # Flag to calibrate IMU intrinsics
                 rate: 400.0                         # Measurement update rate

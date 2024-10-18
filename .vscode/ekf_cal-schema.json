@@ -17,9 +17,6 @@
                         "data_logging_on": {
                             "type": "boolean"
                         },
-                        "body_data_rate": {
-                            "type": "number"
-                        },
                         "augmenting_type": {
                             "type": "number"
                         },
@@ -245,9 +242,6 @@
                                 "^.*$": {
                                     "type": "object",
                                     "properties": {
-                                        "use_for_prediction": {
-                                            "type": "boolean"
-                                        },
                                         "is_extrinsic": {
                                             "type": "boolean"
                                         },

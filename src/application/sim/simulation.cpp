@@ -168,9 +168,9 @@ int main(int argc, char * argv[])
 
   // EKF parameters
   bool data_logging_on = ros_params["data_logging_on"].as<bool>(true);
-  double body_data_rate = ros_params["body_data_rate"].as<double>(1.0);
+  double data_log_rate = ros_params["data_log_rate"].as<double>(1.0);
   ekf_params.debug_logger = debug_logger;
-  ekf_params.body_data_rate = body_data_rate;
+  ekf_params.data_log_rate = data_log_rate;
   ekf_params.data_logging_on = data_logging_on;
   ekf_params.log_directory = out_dir;
   ekf_params.augmenting_type =
@@ -489,7 +489,7 @@ int main(int argc, char * argv[])
 
   // Log truth data
   if (data_logging_on) {
-    truth_engine->WriteTruthData(body_data_rate, out_dir);
+    truth_engine->WriteTruthData(data_log_rate, out_dir);
   }
 
   // Sort Measurements

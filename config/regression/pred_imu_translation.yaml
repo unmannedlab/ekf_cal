@@ -3,7 +3,7 @@
     ros__parameters:
         debug_log_level: 2
         data_logging_on: true
-        body_data_rate: 10.0
+        data_log_rate: 10.0
         process_noise:
             pos: 1.0e-3
             vel: 1.0e-4
@@ -36,7 +36,6 @@
 
         imu:
             imu_1:
-                use_for_prediction: true
                 is_extrinsic: false
                 is_intrinsic: false
                 rate: 400.0

@@ -179,7 +179,7 @@ cv::Point3d TruthEngine::GetFeature(unsigned int feature_id)
 TruthEngine::~TruthEngine() {}
 
 void TruthEngine::WriteTruthData(
-  double body_data_rate,
+  double data_log_rate,
   std::string output_directory)
 {
   DataLogger truth_logger(output_directory, "body_truth.csv");
@@ -217,11 +217,11 @@ void TruthEngine::WriteTruthData(
 
   truth_logger.DefineHeader(header.str());
 
-  unsigned int num_measurements = static_cast<int>(std::floor((m_max_time + 1.0) * body_data_rate));
+  unsigned int num_measurements = static_cast<int>(std::floor((m_max_time + 1.0) * data_log_rate));
   for (unsigned int i = 0; i < num_measurements; ++i) {
     sensor_count = 0;
     std::stringstream msg;
-    double time = static_cast<double>(i) / body_data_rate;
+    double time = static_cast<double>(i) / data_log_rate;
     msg << time;
     msg << VectorToCommaString(GetBodyPosition(time));
     msg << VectorToCommaString(GetBodyVelocity(time));

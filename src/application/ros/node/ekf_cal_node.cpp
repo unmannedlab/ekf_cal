@@ -57,7 +57,7 @@ EkfCalNode::EkfCalNode()
   // Declare EKF Parameters
   this->declare_parameter("debug_log_level", 0);
   this->declare_parameter("data_logging_on", false);
-  this->declare_parameter("body_data_rate", 0.0);
+  this->declare_parameter("data_log_rate", 0.0);
   this->declare_parameter("augmenting_type", 0);
   this->declare_parameter("augmenting_delta_time", 0.0);
   this->declare_parameter("augmenting_pos_error", 0.0);
@@ -101,8 +101,7 @@ void EkfCalNode::Initialize()
   m_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
   EKF::Parameters ekf_params;
   ekf_params.debug_logger = m_logger;
-  ekf_params.body_data_rate =
-    ekf_params.data_logging_on = data_logging_on;
+  ekf_params.data_log_rate = ekf_params.data_logging_on = data_logging_on;
   ekf_params.log_directory = "~/log/";
   ekf_params.augmenting_type =
     static_cast<AugmentationType>(this->get_parameter("augmenting_type").as_int());

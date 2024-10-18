@@ -104,6 +104,10 @@ void ImuUpdater::UpdateEKF(
   // Write outputs
   std::stringstream msg;
 
+  Eigen::VectorXd resid = Eigen::VectorXd::Zero(6);
+  resid.segment<3>(0) = acceleration - ekf->m_imu_filter.GetAcc();
+  resid.segment<3>(3) = angular_rate - ekf->m_imu_filter.GetAngVel();
+
   msg << time;
   msg << ",0," << ekf->GetMotionDetectionChiSquared();
   msg << VectorToCommaString(ekf->m_state.imu_states[m_id].pos_i_in_b);
@@ -119,7 +123,7 @@ void ImuUpdater::UpdateEKF(
   }
   msg << VectorToCommaString(acceleration);
   msg << VectorToCommaString(angular_rate);
-  msg << VectorToCommaString(Eigen::VectorXd::Zero(6));
+  msg << VectorToCommaString(resid);
   msg << "," << t_execution.count();
   m_data_logger.RateLimitedLog(msg.str(), time);
 

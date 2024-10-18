@@ -15,7 +15,7 @@ The basic structure of the YAML files is a set of ROS parameters, lists that def
                                             #   4: INFO
                                             #   5: DEBUG
         data_logging_on: true               # Flag to enable data logging
-        body_data_rate: 10.0                # EKF body data logging rate
+        data_log_rate: 10.0                 # EKF body data logging rate
         sim_params:
             seed: 0.0                       # Seed to provide to random number generator
             use_seed: true                  # Flag to use seed (required for deterministic runs)
@@ -92,7 +92,6 @@ The following is an example of an IMU input configuration.
 
         imu:
             imu_1:
-                use_for_prediction: false           # Flag to use IMU for filter prediction
                 is_extrinsic: false                 # Flag to calibrate IMU extrinsics
                 is_intrinsic: false                 # Flag to calibrate IMU intrinsics
                 rate: 400.0                         # Measurement update rate

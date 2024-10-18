@@ -45,7 +45,7 @@ public:
   typedef struct Parameters
   {
     std::shared_ptr<DebugLogger> debug_logger;                  ///< @brief Debug logger
-    double body_data_rate{1.0};                                 ///< @brief Body data log rate
+    double data_log_rate{1.0};                                 ///< @brief Body data log rate
     bool data_logging_on{false};                                ///< @brief Data logging flag
     std::string log_directory{""};                              ///< @brief Data log directory
     AugmentationType augmenting_type{AugmentationType::ALL};    ///< @brief Augmenting type
