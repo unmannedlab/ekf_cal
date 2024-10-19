@@ -1,0 +1,89 @@
+name: All Tests
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test-document:
+    runs-on: ubuntu-latest
+    container:
+      image: osrf/ros:iron-desktop-full
+
+    steps:
+      - name: Create colcon workspace
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install -y python3-colcon-common-extensions python3-colcon-lcov-result python3-rosdep git lcov cloc doxygen nodejs
+          mkdir -p ~/ekf_cal_ws/src
+
+      - uses: actions/checkout@v4
+        with:
+          path: 'ekf_cal_ws/src/ekf_cal'
+
+      - name: Build in ekf_cal_ws
+        shell: bash
+        working-directory: ./ekf_cal_ws
+        run: |
+          rosdep update
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          rosdep install --from-paths src --ignore-src --rosdistro=$ROS_DISTRO -y
+          colcon build --symlink-install --packages-select ekf_cal --event-handlers console_cohesion+ --cmake-args -DCMAKE_C_FLAGS='--coverage' -DCMAKE_CXX_FLAGS='--coverage'
+          echo "Compile complete."
+
+      - name: Run tests
+        shell: bash
+        working-directory: ./ekf_cal_ws
+        run: |
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          colcon test --packages-select ekf_cal --pytest-with-coverage --pytest-args --cov-report=term --event-handlers console_direct+
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "./ekf_cal_ws/build/ekf_cal/test_results/ekf_cal/*.xml"
+          output: ./ekf_cal_ws/src/ekf_cal/docs/doxygen/html/test-summary.md
+        if: always()
+
+      - name: Count Lines of Code
+        working-directory: ./ekf_cal_ws/src/ekf_cal
+        shell: bash
+        run: |
+          echo 'Count Lines of Code {#cloc}\n============' > docs/software/cloc.md
+          cloc src eval --md | tail -n +4 >> docs/software/cloc.md
+          sed -i 's/--------|--------|--------|--------|--------/| | | | | |/' docs/software/cloc.md
+
+      - name: Run Doxygen
+        working-directory: ./ekf_cal_ws/src/ekf_cal
+        shell: bash
+        run: |
+          doxygen .doxyfile
+
+      - name: Generate lcov report
+        shell: bash
+        working-directory: ./ekf_cal_ws
+        run: |
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          colcon lcov-result --packages-select ekf_cal --filter '*_test.cpp' '*_main.cpp' --lcov-config-file src/ekf_cal/.lcovrc
+          cp -r lcov/ ./src/ekf_cal/docs/doxygen/html/
+
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./ekf_cal_ws/src/ekf_cal/docs/doxygen/html
+
+  deploy-documentation:
+    needs: build-test-document
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
