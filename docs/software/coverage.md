@@ -9,6 +9,6 @@
   p {height:100%;}
 </style>
 
-<embed type="text/html" src="../../../../../lcov/index.html" width="95%" height="100%">
+<embed type="text/html" src="lcov/index.html" width="95%" height="100%">
 
 \endhtmlonly
