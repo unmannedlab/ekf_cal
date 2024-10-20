@@ -7,8 +7,6 @@ Package Features:
 
 Software Work:
     - Auto-generate rviz configuration from yaml
-    - CI/CD for unit tests
-    - Integration tests
     - Add mutex to EKF class and have mutex locked by updaters
     - Switch to reentrant callback group
     - Show track images from simulation

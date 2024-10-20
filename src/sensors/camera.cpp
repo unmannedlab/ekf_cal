@@ -46,6 +46,7 @@ Camera::Camera(Camera::Parameters cam_params)
   cam_state.pos_stability = cam_params.pos_stability;
   cam_state.ang_stability = cam_params.ang_stability;
   cam_state.intrinsics = cam_params.intrinsics;
+  cam_state.SetIsExtrinsic(cam_params.is_extrinsic);
   MinBoundVector(cam_params.variance, 1e-6);
 
   Eigen::MatrixXd cov = cam_params.variance.asDiagonal();

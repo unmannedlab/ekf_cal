@@ -404,6 +404,7 @@ int main(int argc, char * argv[])
     cam_params.variance = StdToEigVec(cam_node["variance"].as<std::vector<double>>(def_vec));
     cam_params.pos_c_in_b = StdToEigVec(cam_node["pos_c_in_b"].as<std::vector<double>>(def_vec));
     cam_params.ang_c_to_b = StdToEigQuat(cam_node["ang_c_to_b"].as<std::vector<double>>(def_quat));
+    cam_params.is_extrinsic = cam_node["is_extrinsic"].as<bool>(false);
     cam_params.pos_stability = cam_node["pos_stability"].as<double>(1.0e-9);
     cam_params.ang_stability = cam_node["ang_stability"].as<double>(1.0e-9);
     cam_params.tracker = cam_node["tracker"].as<std::string>("");

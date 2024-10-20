@@ -47,6 +47,7 @@ TEST(test_ekf_types, state_plus_equals_state) {
   gps_state.pos_a_in_b = Eigen::Vector3d::Ones() * 9.0;
 
   CamState cam_state;
+  cam_state.SetIsExtrinsic(true);
   cam_state.pos_c_in_b = Eigen::Vector3d::Ones() * 10.0;
   cam_state.ang_c_to_b = quat;
 
@@ -154,6 +155,7 @@ TEST(test_ekf_types, state_plus_equals_vector) {
   gps_state.pos_a_in_b = Eigen::Vector3d::Ones() * 6.0;
 
   CamState cam_state;
+  cam_state.SetIsExtrinsic(true);
   cam_state.pos_c_in_b = Eigen::Vector3d::Ones() * 7.0;
   cam_state.ang_c_to_b = quat;
 
@@ -378,6 +380,7 @@ TEST(test_ekf_types, cam_map_plus_equals) {
   quat.z() = 0.0;
 
   CamState cam_state;
+  cam_state.SetIsExtrinsic(true);
   cam_state.pos_c_in_b = Eigen::Vector3d::Ones() * 1.0;
   cam_state.ang_c_to_b = quat;
 
@@ -463,6 +466,7 @@ TEST(test_ekf_types, body_state_to_vector) {
 
 TEST(test_ekf_types, cam_state_to_vector) {
   CamState cam_state;
+  cam_state.SetIsExtrinsic(true);
   Eigen::Quaterniond quat;
   quat.w() = 1.0;
   quat.x() = 0.0;
@@ -601,6 +605,7 @@ TEST(test_ekf_types, state_to_vector) {
   gps_state.pos_a_in_b = Eigen::Vector3d::Ones() * 6.0;
 
   CamState cam_state;
+  cam_state.SetIsExtrinsic(true);
   cam_state.pos_c_in_b = Eigen::Vector3d::Ones() * 7.0;
   cam_state.ang_c_to_b = quat;
 
@@ -693,6 +698,7 @@ TEST(test_ekf_types, state_get_state_size) {
   EXPECT_EQ(state.GetStateSize(), 21);
 
   CamState cam_state;
+  cam_state.SetIsExtrinsic(true);
   state.cam_states[2] = cam_state;
 
   EXPECT_EQ(state.GetStateSize(), 27);

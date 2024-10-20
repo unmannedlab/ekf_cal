@@ -24,7 +24,7 @@ static constexpr unsigned int g_imu_state_size {9};
 static constexpr unsigned int g_imu_extrinsic_state_size {6};
 static constexpr unsigned int g_imu_intrinsic_state_size {6};
 static constexpr unsigned int g_gps_extrinsic_state_size {3};
-static constexpr unsigned int g_cam_state_size {6};
+static constexpr unsigned int g_cam_extrinsic_state_size {6};
 static constexpr unsigned int g_aug_state_size {6};
 static constexpr unsigned int g_fid_measurement_size {6};
 static constexpr unsigned int g_fid_extrinsic_state_size {6};

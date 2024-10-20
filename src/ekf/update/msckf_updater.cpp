@@ -51,7 +51,7 @@ MsckfUpdater::MsckfUpdater(
   header << "time";
   header << EnumerateHeader("cam_pos", 3);
   header << EnumerateHeader("cam_ang_pos", 4);
-  header << EnumerateHeader("cam_cov", g_cam_state_size);
+  header << EnumerateHeader("cam_cov", g_cam_extrinsic_state_size);
   header << ",FeatureTracks";
   header << EnumerateHeader("duration", 1);
 
@@ -306,10 +306,12 @@ void MsckfUpdater::UpdateEKF(
       //   SkewSymmetric(pos_f_in_l - pos_bi_in_l) *
       //   quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
 
-      /// @todo: Enable calibration Jacobian
-      // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity(3, 3);
-      // H_t.block<3, 3>(0, 9) =
-      //   rot_b_to_ci * SkewSymmetric(rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l));
+      if (m_is_extrinsic) {
+        /// @todo: Debug calibration Jacobian
+        // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity(3, 3);
+        // H_t.block<3, 3>(0, 9) =
+        //   rot_b_to_ci * SkewSymmetric(rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l));
+      }
 
       H_a.block<2, g_aug_state_size>(2 * i, aug_index - aug_state_start) = H_d * H_p * H_t;
     }
@@ -321,8 +323,8 @@ void MsckfUpdater::UpdateEKF(
     // Eigen::MatrixXd Q1 = Q.block(0, 0, Q.rows(), 3);
     // Eigen::MatrixXd Q2 = Q.block(0, 3, Q.rows(), Q.cols() - 3);
     // H_a = Q2.transpose() * H_a;
-
     // res_f = Q2.transpose() * res_f;
+
     // ApplyLeftNullspace(H_f, H_a, res_f);
 
     /// @todo Chi^2 distance check
@@ -355,7 +357,7 @@ void MsckfUpdater::UpdateEKF(
 
   // Write outputs
   Eigen::VectorXd cov_diag = ekf->m_cov.block(
-    cam_index, cam_index, g_cam_state_size, g_cam_state_size).diagonal();
+    cam_index, cam_index, g_cam_extrinsic_state_size, g_cam_extrinsic_state_size).diagonal();
 
   std::stringstream msg;
   msg << time;

@@ -298,10 +298,12 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
     GetImuStateSize() + GetGpsStateSize() + GetCamStateSize();
 
   m_state.cam_states[cam_id] = cam_state;
-  m_cov = InsertInMatrix(
-    covariance.block(0, 0, cam_state.size, cam_state.size), m_cov, cam_state_end, cam_state_end);
-  m_state_size += g_cam_state_size;
-  m_cam_state_size += g_cam_state_size;
+  if (cam_state.GetIsExtrinsic()) {
+    m_cov = InsertInMatrix(
+      covariance.block(0, 0, cam_state.size, cam_state.size), m_cov, cam_state_end, cam_state_end);
+    m_state_size += g_cam_extrinsic_state_size;
+    m_cam_state_size += g_cam_extrinsic_state_size;
+  }
 
   RefreshIndices();
 
@@ -643,12 +645,14 @@ void EKF::RefreshIndices()
 
   m_cam_state_start = current_index;
   for (auto & cam_iter : m_state.cam_states) {
-    m_process_noise.block<3, 3>(current_index + 0, current_index + 0) =
-      Eigen::Matrix3d::Identity() * cam_iter.second.pos_stability;
-    m_process_noise.block<3, 3>(current_index + 3, current_index + 3) =
-      Eigen::Matrix3d::Identity() * cam_iter.second.ang_stability;
     cam_iter.second.index = current_index;
-    current_index += g_cam_state_size;
+    if (cam_iter.second.GetIsExtrinsic()) {
+      m_process_noise.block<3, 3>(current_index + 0, current_index + 0) =
+        Eigen::Matrix3d::Identity() * cam_iter.second.pos_stability;
+      m_process_noise.block<3, 3>(current_index + 3, current_index + 3) =
+        Eigen::Matrix3d::Identity() * cam_iter.second.ang_stability;
+      current_index += g_cam_extrinsic_state_size;
+    }
   }
 
   m_fid_state_start = current_index;

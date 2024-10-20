@@ -95,6 +95,7 @@ public:
   void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian);
 
 private:
+  bool m_is_extrinsic;
   DataLogger m_msckf_logger;
   DataLogger m_triangulation_logger;
   double m_min_feat_dist{1.0};

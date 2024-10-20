@@ -55,7 +55,7 @@ FiducialUpdater::FiducialUpdater(
   header << EnumerateHeader("cam_pos", 3);
   header << EnumerateHeader("cam_ang", 4);
   header << EnumerateHeader("residual", g_fid_measurement_size);
-  header << EnumerateHeader("cam_cov", g_cam_state_size);
+  header << EnumerateHeader("cam_cov", g_cam_extrinsic_state_size);
   header << EnumerateHeader("duration", 1);
 
   m_fiducial_logger.DefineHeader(header.str());
@@ -131,13 +131,17 @@ void FiducialUpdater::UpdateEKF(
   unsigned int max_meas_size = g_fid_measurement_size * board_track.size();
   unsigned int state_size = ekf->GetStateSize();
   unsigned int cam_index = ekf->m_state.cam_states[m_camera_id].index;
+  unsigned int cam_size{0};
+  if (ekf->m_state.cam_states[m_camera_id].GetIsExtrinsic()) {
+    cam_size += g_cam_extrinsic_state_size;
+  }
   unsigned int aug_state_size = ekf->GetAugStateSize();
 
   Eigen::VectorXd res_x = Eigen::VectorXd::Zero(max_meas_size);
   Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(max_meas_size, state_size);
 
   Eigen::VectorXd res_f = Eigen::VectorXd::Zero(max_meas_size);
-  Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(max_meas_size, g_cam_state_size + aug_state_size);
+  Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(max_meas_size, cam_size + aug_state_size);
 
   for (unsigned int i = 0; i < board_track.size(); ++i) {
     AugState aug_state_i = ekf->GetAugState(m_camera_id, board_track[i].frame_id, time);
@@ -222,7 +226,7 @@ void FiducialUpdater::UpdateEKF(
   Eigen::Vector3d cam_pos = ekf->m_state.cam_states[m_camera_id].pos_c_in_b;
   Eigen::Quaterniond cam_ang = ekf->m_state.cam_states[m_camera_id].ang_c_to_b;
   Eigen::VectorXd cov_diag = ekf->m_cov.block(
-    cam_index, cam_index, g_cam_state_size, g_cam_state_size).diagonal();
+    cam_index, cam_index, g_cam_extrinsic_state_size, g_cam_extrinsic_state_size).diagonal();
 
   // Write outputs
   std::stringstream msg;

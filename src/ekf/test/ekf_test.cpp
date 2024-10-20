@@ -37,6 +37,7 @@ TEST(test_EKF, get_counts) {
   ekf->RegisterIMU(0, imu_state, imu_covariance);
 
   CamState cam_state;
+  cam_state.SetIsExtrinsic(true);
   Eigen::MatrixXd cam_covariance(6, 6);
   ekf->RegisterCamera(1, cam_state, cam_covariance);
   ekf->AugmentStateIfNeeded(1, 0);
@@ -72,7 +73,8 @@ TEST(test_EKF, duplicate_sensors) {
   ekf->RegisterGPS(1, gps_state, gps_cov);
 
   CamState cam_state;
-  Eigen::MatrixXd cam_covariance(g_cam_state_size, g_cam_state_size);
+  cam_state.SetIsExtrinsic(true);
+  Eigen::MatrixXd cam_covariance(g_cam_extrinsic_state_size, g_cam_extrinsic_state_size);
   ekf->RegisterCamera(2, cam_state, cam_covariance);
   ekf->RegisterCamera(2, cam_state, cam_covariance);
 
