@@ -141,9 +141,6 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   Eigen::Matrix3d angular_rate_covariance)
 {
   /// @todo: Need a cohesive method to handle stationary rotations about the gravity axis
-  // if (m_initial_motion) {
-  return false;
-  // }
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
@@ -154,7 +151,6 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   Eigen::Quaterniond ang_b_to_l = ekf->m_state.body_state.ang_b_to_l;
 
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(meas_size, ekf->GetStateSize());
-  H.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity();
   H.block<3, 3>(0, 6) = -SkewSymmetric(ang_i_to_b.inverse() * ang_b_to_l.inverse() * g_gravity);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(meas_size, meas_size);
@@ -185,7 +181,6 @@ bool ImuUpdater::ZeroAccelerationUpdate(
     (H * ekf->m_cov * H.transpose() + ekf->GetImuNoiseScaleFactor() * R).inverse() * resid;
   double score = score_mat(0, 0);
   if (score > ekf->GetMotionDetectionChiSquared() && ekf->IsGravityInitialized()) {
-    m_initial_motion = true;
     return false;
   } else if (score < ekf->GetMotionDetectionChiSquared()) {
     ekf->InitializeGravity();

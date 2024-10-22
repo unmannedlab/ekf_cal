@@ -104,7 +104,6 @@ private:
   Eigen::Quaterniond m_ang_i_to_b {1.0, 0.0, 0.0, 0.0};
   bool m_is_extrinsic;
   bool m_is_intrinsic;
-  bool m_initial_motion{false};
   bool m_is_first_estimate{true};
   bool m_was_stationary{false};
 
