@@ -81,11 +81,6 @@ void FiducialUpdater::UpdateEKF(
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
-  std::vector<double> pos_weights;
-  std::vector<double> ang_weights;
-  std::vector<Eigen::Vector3d> pos_f_in_l_vec;
-  std::vector<Eigen::Quaterniond> ang_f_to_l_vec;
-
   if (!ekf->GetUseFirstEstimateJacobian() || m_is_first_estimate) {
     m_pos_c_in_b = ekf->m_state.cam_states[m_camera_id].pos_c_in_b;
     m_ang_c_to_b = ekf->m_state.cam_states[m_camera_id].ang_c_to_b;
@@ -106,13 +101,9 @@ void FiducialUpdater::UpdateEKF(
     CvVectorToEigen(board_detection.t_vec_f_in_c, pos_f_in_c);
     Eigen::Vector3d pos_f_in_l =
       rot_bi_to_l * ((rot_c_to_b * pos_f_in_c) + m_pos_c_in_b) + pos_bi_in_g;
-    pos_f_in_l_vec.push_back(pos_f_in_l);
 
     Eigen::Quaterniond ang_f_to_c = RodriguesToQuat(board_detection.r_vec_f_to_c);
     Eigen::Quaterniond ang_f_to_l = aug_state_i.ang_b_to_l * m_ang_c_to_b * ang_f_to_c;
-    ang_f_to_l_vec.push_back(ang_f_to_l);
-    pos_weights.push_back(1.0);
-    ang_weights.push_back(1.0);
 
     std::stringstream data_msg;
     data_msg << std::setprecision(3) << time;
@@ -145,7 +136,6 @@ void FiducialUpdater::UpdateEKF(
 
   for (unsigned int i = 0; i < board_track.size(); ++i) {
     AugState aug_state_i = ekf->GetAugState(m_camera_id, board_track[i].frame_id, time);
-    unsigned int aug_index = aug_state_i.index;
 
     Eigen::Matrix3d rot_c_to_b = m_ang_c_to_b.toRotationMatrix();
     Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
@@ -175,16 +165,15 @@ void FiducialUpdater::UpdateEKF(
     res_f.segment<3>(meas_row + 0) = pos_residual;
     res_f.segment<3>(meas_row + 3) = QuatToRotVec(ang_residual);
 
-    unsigned int H_c_aug_start = aug_index - cam_index;
-
+    unsigned int H_c_aug_start = aug_state_i.index - cam_index;
     H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 0) = -rot_bi_to_c * rot_l_to_bi;
 
     H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 3) = rot_bi_to_c *
       rot_l_to_bi * SkewSymmetric(m_pos_f_in_l - pos_bi_in_g) *
       quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
 
-    // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) =
-    //   rot_bi_to_c * rot_l_to_bi * quaternion_jacobian(aug_state_i.ang_b_to_l).transpose() * rot_f_to_l;
+    // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) = rot_bi_to_c * rot_l_to_bi *
+    //   quaternion_jacobian(aug_state_i.ang_b_to_l).transpose() * rot_f_to_l;
 
     /// @todo: Enable calibration Jacobian
     // H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 6) = -rot_bi_to_c;
@@ -213,9 +202,9 @@ void FiducialUpdater::UpdateEKF(
     return;
   }
 
-  /// @todo: This doesn't account for angular errors. Apply transform to R?
-  double position_sigma = 3 * pos_error * ang_error;  // / std::sqrt(board_track.size());
-  Eigen::MatrixXd R = position_sigma * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
+  Eigen::MatrixXd R(res_x.rows(), res_x.rows());
+  R.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3) * pos_error * pos_error;
+  R.block<3, 3>(3, 3) = Eigen::MatrixXd::Identity(3, 3) * ang_error * ang_error;
 
   // Apply Kalman update
   KalmanUpdate(ekf, H_x, res_x, R);

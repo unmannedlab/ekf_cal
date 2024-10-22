@@ -76,7 +76,7 @@ EKF::EKF(Parameters params)
 Eigen::MatrixXd EKF::GetStateTransition(double dT)
 {
   Eigen::MatrixXd state_transition =
-    Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size);
+    Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size);
   state_transition.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * dT;
   return state_transition;
 }
@@ -121,33 +121,33 @@ void EKF::PredictModel(double time)
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
-  double dT = time - m_current_time;
+  if (m_is_gravity_initialized) {
+    double dT = time - m_current_time;
 
-  Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
-  Eigen::Vector3d acc_in_b = m_imu_filter.GetAcc();
-  Eigen::Vector3d ang_vel_in_b = m_imu_filter.GetAngVel();
+    Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
+    Eigen::Vector3d acc_in_b = m_imu_filter.GetAcc();
+    Eigen::Vector3d ang_vel_in_b = m_imu_filter.GetAngVel();
 
-  Eigen::Vector3d acceleration_local = (ang_b_to_l * acc_in_b) - g_gravity;
+    Eigen::Vector3d acceleration_local = (ang_b_to_l * acc_in_b) - g_gravity;
 
-  Eigen::Vector3d rot_vec(ang_vel_in_b[0] * dT, ang_vel_in_b[1] * dT, ang_vel_in_b[2] * dT);
+    Eigen::Vector3d rot_vec(ang_vel_in_b[0] * dT, ang_vel_in_b[1] * dT, ang_vel_in_b[2] * dT);
 
-  m_state.body_state.vel_b_in_l += dT * acceleration_local;
-  m_state.body_state.pos_b_in_l += dT * m_state.body_state.vel_b_in_l;
-  m_state.body_state.ang_b_to_l = m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec);
+    m_state.body_state.vel_b_in_l += dT * acceleration_local;
+    m_state.body_state.pos_b_in_l += dT * m_state.body_state.vel_b_in_l;
+    m_state.body_state.ang_b_to_l = m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec);
 
-  Eigen::MatrixXd dF = GetStateTransition(dT);
-  Eigen::MatrixXd F = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) + dF;
+    Eigen::MatrixXd F = GetStateTransition(dT);
 
-  if (m_use_root_covariance) {
-    m_cov.block<g_body_state_size, g_body_state_size>(0, 0) = QR_r(
-      m_cov.block<g_body_state_size, g_body_state_size>(0, 0) * F.transpose(),
-      m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0) * std::sqrt(dT));
-  } else {
-    m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-      F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose() +
-      m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0) * dT;
+    if (m_use_root_covariance) {
+      m_cov.block<g_body_state_size, g_body_state_size>(0, 0) = QR_r(
+        m_cov.block<g_body_state_size, g_body_state_size>(0, 0) * F.transpose(),
+        m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0) * std::sqrt(dT));
+    } else {
+      m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
+        F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose() +
+        m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0) * dT;
+    }
   }
-
   m_current_time = time;
 
   AugmentStateIfNeeded();

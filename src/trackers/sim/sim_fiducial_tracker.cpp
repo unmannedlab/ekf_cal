@@ -130,6 +130,7 @@ std::shared_ptr<SimFiducialTrackerMessage> SimFiducialTracker::GenerateMessage(
 
     BoardDetection board_detection;
     board_detection.frame_id = frame_id;
+    board_detection.frame_time = message_time;
     if (!m_no_errors) {
       board_detection.t_vec_f_in_c[0] = m_rng.NormRand(pos_f_in_c_true[0], m_t_vec_error[0]);
       board_detection.t_vec_f_in_c[1] = m_rng.NormRand(pos_f_in_c_true[1], m_t_vec_error[1]);
