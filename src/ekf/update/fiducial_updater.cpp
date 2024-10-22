@@ -181,20 +181,20 @@ void FiducialUpdater::UpdateEKF(
 
     H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 3) = rot_bi_to_c *
       rot_l_to_bi * SkewSymmetric(m_pos_f_in_l - pos_bi_in_g) *
-      quaternion_jacobian_inv(aug_state_i.ang_b_to_l);
+      quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
 
-    H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) =
-      rot_bi_to_c * rot_l_to_bi * quaternion_jacobian_inv(aug_state_i.ang_b_to_l) * rot_f_to_l;
+    // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) =
+    //   rot_bi_to_c * rot_l_to_bi * quaternion_jacobian(aug_state_i.ang_b_to_l).transpose() * rot_f_to_l;
 
     /// @todo: Enable calibration Jacobian
     // H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 6) = -rot_bi_to_c;
 
     // H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 9) = rot_bi_to_c *
     //   SkewSymmetric(rot_l_to_bi * (m_pos_f_in_l - pos_bi_in_g) - m_pos_c_in_b) *
-    //   quaternion_jacobian_inv(m_ang_c_to_b);
+    //   quaternion_jacobian(m_ang_c_to_b).transpose();
 
     // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 9) = rot_bi_to_c *
-    //   quaternion_jacobian_inv(m_ang_c_to_b) * rot_l_to_bi * rot_f_to_l;
+    //   quaternion_jacobian(m_ang_c_to_b).transpose() * rot_l_to_bi * rot_f_to_l;
   }
 
   /// @todo Chi^2 distance check

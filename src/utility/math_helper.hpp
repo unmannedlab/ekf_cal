@@ -147,13 +147,6 @@ Eigen::Vector3d average_vectors(std::vector<Eigen::Vector3d> vectors, std::vecto
 Eigen::MatrixXd quaternion_jacobian(Eigen::Quaterniond quat);
 
 ///
-/// @brief Calculate inverse jacobian of quaternion with respect to a rotation measurement
-/// @param quat Input quaternion
-/// @return Inverse Jacobian matrix
-///
-Eigen::MatrixXd quaternion_jacobian_inv(Eigen::Quaterniond quat);
-
-///
 /// @brief Create a horizontal 2xN matrix from a list of vectors
 /// @param input_vectors List of vectors
 /// @return 2xN Matrix
