@@ -1,5 +1,5 @@
 # ekf_cal
-[![All Tests](https://github.com/JHartzer/ekf_cal/actions/workflows/all-tests.yaml/badge.svg)](https://github.com/JHartzer/ekf_cal/actions/workflows/all-tests.yaml)
+[![All Tests](https://github.com/UnmannedLab/ekf_cal/actions/workflows/all-tests.yaml/badge.svg)](https://github.com/UnmannedLab/ekf_cal/actions/workflows/all-tests.yaml)
 
 Extended Kalman Filter Calibration and Localization: ekf_cal is a package focused on the simulation and development of a multi-sensor online calibration kalman filter. It combines the architecture of a Multi-State Constraint Kalman Filter (MSCKF) with a multi-sensor calibration filter to provide intrinsic and extrinsic estimates for the following sensors:
 - [IMU](https://unmannedlab.org/ekf_cal/imu.html)
@@ -7,7 +7,7 @@ Extended Kalman Filter Calibration and Localization: ekf_cal is a package focuse
 - [Cameras](https://unmannedlab.org/ekf_cal/camera.html)
 - [Fiducials](https://unmannedlab.org/ekf_cal/fiducial.html)
 
-The full project documentation can be found here: [https://www.unmannedlab.org/ekf_cal/](https://www.unmannedlab.org/ekf_cal/)
+The full [project documentation](https://www.unmannedlab.org/ekf_cal/) is available online.
 
 <img src="docs/doxygen/html/images/setup.svg" alt="setup" width="80%"/>
 

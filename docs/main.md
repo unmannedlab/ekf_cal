@@ -1,11 +1,20 @@
 # ekf_cal
-[![Documentation](https://github.com/unmannedlab/ekf_cal/actions/workflows/documentation.yaml/badge.svg)](https://github.com/unmannedlab/ekf_cal/actions/workflows/documentation.yaml)
+
+\htmlonly
+<a href="https://github.com/UnmannedLab/ekf_cal/actions/workflows/all-tests.yaml">
+  <svg width="120" height="20" viewBox="0 0 120 20">
+    <image width="120" height="20" xlink:href="https://github.com/UnmannedLab/ekf_cal/actions/workflows/all-tests.yaml/badge.svg"/>
+  </svg>
+</a>
+\endhtmlonly
 
 Extended Kalman Filter Calibration and Localization: ekf_cal is a package focused on the simulation and development of a multi-sensor online calibration kalman filter. It combines the architecture of a Multi-State Constraint Kalman Filter (MSCKF) with a multi-sensor calibration filter to provide intrinsic and extrinsic estimates for the following sensors:
 - [IMU](docs/filters/imu.md)
 - [GPS](docs/filters/gps.md)
 - [Cameras](docs/filters/camera.md)
 - [Fiducials](docs/filters/fiducial.md)
+
+The full [project documentation](https://www.unmannedlab.org/ekf_cal/) is available online.
 
 <img src="images/setup.svg" alt="setup" width="80%"/>
 
@@ -30,7 +39,6 @@ The ekf_cal package has the following hard dependencies that are required for al
 The following dependencies are for building the ROS node and simulation, respectively
 - [ROS2](https://docs.ros.org/en/rolling/index.html)
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp)
-
 The following soft dependencies useful for development and documentation
 - [Doxygen](https://www.doxygen.nl/index.html)
 - [Google Test](https://google.github.io/googletest/)
