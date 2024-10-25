@@ -358,6 +358,9 @@ void MsckfUpdater::UpdateEKF(
   // Write outputs
   Eigen::VectorXd cov_diag = ekf->m_cov.block(
     cam_index, cam_index, g_cam_extrinsic_state_size, g_cam_extrinsic_state_size).diagonal();
+  if (ekf->GetUseRootCovariance()) {
+    cov_diag = cov_diag.cwiseProduct(cov_diag);
+  }
 
   std::stringstream msg;
   msg << time;

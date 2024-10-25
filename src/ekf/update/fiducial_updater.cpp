@@ -216,6 +216,9 @@ void FiducialUpdater::UpdateEKF(
   Eigen::Quaterniond cam_ang = ekf->m_state.cam_states[m_camera_id].ang_c_to_b;
   Eigen::VectorXd cov_diag = ekf->m_cov.block(
     cam_index, cam_index, g_cam_extrinsic_state_size, g_cam_extrinsic_state_size).diagonal();
+  if (ekf->GetUseRootCovariance()) {
+    cov_diag = cov_diag.cwiseProduct(cov_diag);
+  }
 
   // Write outputs
   std::stringstream msg;

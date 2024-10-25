@@ -71,6 +71,10 @@ EKF::EKF(Parameters params)
   } else {
     m_is_lla_initialized = false;
   }
+
+  if (m_use_root_covariance) {
+    m_cov = m_cov.cwiseSqrt();
+  }
 }
 
 Eigen::MatrixXd EKF::GetStateTransition(double dT)
@@ -86,6 +90,9 @@ void EKF::LogBodyStateIfNeeded(int execution_count)
   if (m_data_logging_on) {
     std::stringstream msg;
     Eigen::VectorXd body_cov = m_cov.block<g_body_state_size, g_body_state_size>(0, 0).diagonal();
+    if (m_use_root_covariance) {
+      body_cov = body_cov.cwiseProduct(body_cov);
+    }
     msg << m_current_time;
     msg << VectorToCommaString(m_state.body_state.pos_b_in_l);
     msg << VectorToCommaString(m_state.body_state.vel_b_in_l);

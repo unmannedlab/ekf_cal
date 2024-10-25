@@ -130,6 +130,9 @@ void GpsUpdater::UpdateEKF(
     Eigen::VectorXd cov_diag = ekf->m_cov.block(
       gps_index, gps_index, g_gps_extrinsic_state_size,
       g_gps_extrinsic_state_size).diagonal();
+    if (ekf->GetUseRootCovariance()) {
+      cov_diag = cov_diag.cwiseProduct(cov_diag);
+    }
     msg << VectorToCommaString(cov_diag);
   }
   msg << VectorToCommaString(residual);

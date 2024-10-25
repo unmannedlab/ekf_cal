@@ -414,7 +414,6 @@ Eigen::MatrixXd QR_r(Eigen::MatrixXd A, Eigen::MatrixXd B)
   vert_cat << A, B;
   Eigen::HouseholderQR<Eigen::MatrixXd> QR(vert_cat);
   Eigen::MatrixXd R = QR.matrixQR().block(0, 0, A.cols(), A.cols()).triangularView<Eigen::Upper>();
-  R = R.diagonal().cwiseSign().asDiagonal() * R;
 
   return R;
 }
