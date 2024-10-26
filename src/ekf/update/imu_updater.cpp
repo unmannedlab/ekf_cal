@@ -81,7 +81,10 @@ void ImuUpdater::UpdateEKF(
       angular_rate,
       angular_rate_covariance))
   {
+    ekf->SetZeroAcceleration(true);
     return;
+  } else {
+    ekf->SetZeroAcceleration(false);
   }
 
   auto t_start = std::chrono::high_resolution_clock::now();
@@ -188,16 +191,8 @@ bool ImuUpdater::ZeroAccelerationUpdate(
     H.block<3, 3>(3, index_intrinsic + 3) = -Eigen::Matrix3d::Identity();
   }
 
-  // if (resid.norm() > 1.0) {
-  //   resid /= resid.norm();
-  // }
-
   Eigen::MatrixXd score_mat = resid.transpose() *
     (H * ekf->m_cov * H.transpose() + ekf->GetImuNoiseScaleFactor() * R).inverse() * resid;
-
-  // std::cout << resid << std::endl << std::endl;
-  // std::cout << H << std::endl << std::endl;
-  // std::cout << ekf->m_cov << std::endl << std::endl;
 
   double score = std::abs(score_mat(0, 0));
   if (score > ekf->GetMotionDetectionChiSquared() && ekf->IsGravityInitialized()) {
@@ -218,18 +213,6 @@ bool ImuUpdater::ZeroAccelerationUpdate(
 
   // Apply Kalman update
   KalmanUpdate(ekf, H, resid, R);
-
-  // for (unsigned int i = 6; i < 9; ++i) {
-  //   if (ekf->m_cov(i, i) > std::sqrt(M_PI / 8)) {
-  //     // Limit angular uncertainty
-  //     double scale_factor = std::sqrt(M_PI / 8) / ekf->m_cov(i, i);
-  //     ekf->m_cov.row(i) *= scale_factor;
-  //     ekf->m_cov.col(i) *= scale_factor;
-  //     ekf->m_cov(i, i) *= 1 / scale_factor;
-  //   }
-  // }
-
-  // std::cout << ekf->m_cov << std::endl << std::endl;
 
   /// Prevent unintentional rotation about the vertical axis
   Eigen::Vector3d x_axis_body_pre = ang_b_to_l.inverse() * Eigen::Vector3d::UnitX();

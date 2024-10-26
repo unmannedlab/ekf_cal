@@ -62,7 +62,7 @@ public:
     double gps_init_baseline_dist {100.0};  ///< @brief Minimum pos projection error
     double gps_init_pos_thresh {0.1};       ///< @brief Minimum ang projection error
     double gps_init_ang_thresh {0.1};       ///< @brief Baseline distance threshold
-    double motion_detection_chi_squared {0.01};  ///< @brief Motion detection chi squared threshold
+    double motion_detection_chi_squared {1.0};   ///< @brief Motion detection chi squared threshold
     double imu_noise_scale_factor {100.0};       ///< @brief Motion detection IMU noise scale factor
     bool use_root_covariance{false};  ///< @brief Flag to use the square-root form of Kalman filter
     bool use_first_estimate_jacobian{false};  ///< @brief Flag to use first estimate Jacobians
@@ -227,10 +227,16 @@ public:
 
   ///
   /// @brief GPS reference position setter
-  /// @param reference_lla
-  /// @param ang_l_to_g
+  /// @param reference_lla GPS reference LLA
+  /// @param ang_l_to_g GPS reference header
   ///
   void SetGpsReference(Eigen::VectorXd reference_lla, double ang_l_to_g);
+
+  ///
+  /// @brief Zero acceleration flag setter
+  /// @param is_zero_acceleration Body has zero acceleration flag
+  ///
+  void SetZeroAcceleration(bool is_zero_acceleration);
 
   ///
   /// @brief Getter for the LLA reference position
@@ -421,11 +427,12 @@ private:
   unsigned int m_fid_state_start{0};
 
   bool m_is_gravity_initialized{false};
-  double m_motion_detection_chi_squared{0.01};
+  double m_motion_detection_chi_squared{1.0};
   double m_imu_noise_scale_factor{100.0};
 
   bool m_use_root_covariance{false};
   bool m_use_first_estimate_jacobian{false};
+  bool m_is_zero_acceleration{true};
 };
 
 #endif  // EKF__EKF_HPP_

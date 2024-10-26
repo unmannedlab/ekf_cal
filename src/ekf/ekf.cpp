@@ -135,7 +135,12 @@ void EKF::PredictModel(double time)
     Eigen::Vector3d acc_in_b = m_imu_filter.GetAcc();
     Eigen::Vector3d ang_vel_in_b = m_imu_filter.GetAngVel();
 
-    Eigen::Vector3d acceleration_local = (ang_b_to_l * acc_in_b) - g_gravity;
+    Eigen::Vector3d acceleration_local;
+    if (m_is_zero_acceleration) {
+      acceleration_local = Eigen::Vector3d::Zero();
+    } else {
+      acceleration_local = (ang_b_to_l * acc_in_b) - g_gravity;
+    }
 
     Eigen::Vector3d rot_vec(ang_vel_in_b[0] * dT, ang_vel_in_b[1] * dT, ang_vel_in_b[2] * dT);
 
@@ -579,6 +584,11 @@ void EKF::SetGpsReference(Eigen::VectorXd pos_l_in_g, double ang_l_to_g)
   m_pos_l_in_g = pos_l_in_g;
   m_ang_l_to_g = ang_l_to_g;
   m_is_lla_initialized = true;
+}
+
+void EKF::SetZeroAcceleration(bool is_zero_acceleration)
+{
+  m_is_zero_acceleration = is_zero_acceleration;
 }
 
 Eigen::VectorXd EKF::GetReferenceLLA()
