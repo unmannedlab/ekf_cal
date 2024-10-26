@@ -316,16 +316,7 @@ void MsckfUpdater::UpdateEKF(
       H_a.block<2, g_aug_state_size>(2 * i, aug_index - aug_state_start) = H_d * H_p * H_t;
     }
     /// @todo: Left Nullspace is incorrectly zeroing idealized residuals
-
-    // Eigen::ColPivHouseholderQR<Eigen::MatrixXd> QR(H_f.rows(), H_f.cols());
-    // QR.compute(H_f);
-    // Eigen::MatrixXd Q = QR.householderQ();
-    // Eigen::MatrixXd Q1 = Q.block(0, 0, Q.rows(), 3);
-    // Eigen::MatrixXd Q2 = Q.block(0, 3, Q.rows(), Q.cols() - 3);
-    // H_a = Q2.transpose() * H_a;
-    // res_f = Q2.transpose() * res_f;
-
-    // ApplyLeftNullspace(H_f, H_a, res_f);
+    ApplyLeftNullspace(H_f, H_a, res_f);
 
     /// @todo Chi^2 distance check
 
@@ -343,7 +334,7 @@ void MsckfUpdater::UpdateEKF(
   CompressMeasurements(H_x, res_x);
 
   // Jacobian is ill-formed if either rows or columns post-compression are size 1
-  if (res_x.size() == 1) {
+  if (res_x.size() <= 1) {
     m_logger->Log(LogLevel::INFO, "Compressed MSCKF Jacobian is ill-formed");
     return;
   }

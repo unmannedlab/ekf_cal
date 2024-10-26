@@ -45,14 +45,15 @@ public:
   typedef struct Parameters
   {
     std::shared_ptr<DebugLogger> debug_logger;                  ///< @brief Debug logger
-    double data_log_rate{1.0};                                 ///< @brief Body data log rate
+    double data_log_rate{1.0};                                  ///< @brief Body data log rate
     bool data_logging_on{false};                                ///< @brief Data logging flag
     std::string log_directory{""};                              ///< @brief Data log directory
     AugmentationType augmenting_type{AugmentationType::ALL};    ///< @brief Augmenting type
     double augmenting_delta_time{1.0};                          ///< @brief Augmenting time
     double augmenting_pos_error{0.1};                           ///< @brief Augmenting pos error
     double augmenting_ang_error{0.1};                           ///< @brief Augmenting ang error
-    Eigen::VectorXd process_noise {g_body_state_size};          ///< @brief Process noise
+    /// @brief Process noise
+    Eigen::VectorXd process_noise{Eigen::VectorXd::Ones(g_body_state_size)};
     Eigen::Vector3d pos_b_in_l{Eigen::Vector3d::Zero()};        ///< @brief Body local position
     Eigen::Quaterniond ang_b_to_l {1, 0, 0, 0};                 ///< @brief Body local orientation
     Eigen::Vector3d pos_l_in_g {Eigen::Vector3d::Zero()};       ///< @brief Local frame position
