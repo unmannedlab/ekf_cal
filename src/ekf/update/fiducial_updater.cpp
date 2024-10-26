@@ -204,7 +204,7 @@ void FiducialUpdater::UpdateEKF(
     return;
   }
 
-  Eigen::MatrixXd R(res_x.rows(), res_x.rows());
+  Eigen::MatrixXd R = Eigen::MatrixXd::Zero(res_x.rows(), res_x.rows());
   R.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3) * pos_error * pos_error;
   R.block<3, 3>(3, 3) = Eigen::MatrixXd::Identity(3, 3) * ang_error * ang_error;
 
