@@ -39,12 +39,14 @@
 FiducialUpdater::FiducialUpdater(
   int fiducial_id,
   int camera_id,
+  bool is_cam_extrinsic,
   std::string log_file_directory,
   bool data_logging_on,
   double data_log_rate,
   std::shared_ptr<DebugLogger> logger
 )
 : Updater(fiducial_id, logger),
+  m_is_cam_extrinsic(is_cam_extrinsic),
   m_fiducial_logger(log_file_directory, "fiducial_" + std::to_string(fiducial_id) + ".csv"),
   m_board_logger(log_file_directory, "board_" + std::to_string(fiducial_id) + ".csv"),
   m_camera_id(camera_id)
@@ -55,7 +57,7 @@ FiducialUpdater::FiducialUpdater(
   header << EnumerateHeader("cam_pos", 3);
   header << EnumerateHeader("cam_ang", 4);
   header << EnumerateHeader("residual", g_fid_measurement_size);
-  header << EnumerateHeader("cam_cov", g_cam_extrinsic_state_size);
+  if (m_is_cam_extrinsic) {header << EnumerateHeader("cam_cov", g_cam_extrinsic_state_size);}
   header << EnumerateHeader("duration", 1);
 
   m_fiducial_logger.DefineHeader(header.str());
@@ -172,8 +174,8 @@ void FiducialUpdater::UpdateEKF(
       rot_l_to_bi * SkewSymmetric(m_pos_f_in_l - pos_bi_in_g) *
       quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
 
-    // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) = rot_bi_to_c * rot_l_to_bi *
-    //   quaternion_jacobian(aug_state_i.ang_b_to_l).transpose() * rot_f_to_l;
+    H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) = rot_bi_to_c * rot_l_to_bi *
+      quaternion_jacobian(aug_state_i.ang_b_to_l).transpose() * rot_f_to_l;
 
     /// @todo: Enable calibration Jacobian
     // H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 6) = -rot_bi_to_c;
@@ -227,7 +229,7 @@ void FiducialUpdater::UpdateEKF(
   msg << VectorToCommaString(cam_pos);
   msg << QuaternionToCommaString(cam_ang);
   msg << VectorToCommaString(res_f.segment<g_fid_measurement_size>(0));
-  msg << VectorToCommaString(cov_diag);
+  if (m_is_cam_extrinsic) {msg << VectorToCommaString(cov_diag);}
   msg << "," << t_execution.count();
   m_fiducial_logger.RateLimitedLog(msg.str(), time);
 }

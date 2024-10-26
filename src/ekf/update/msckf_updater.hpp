@@ -36,6 +36,7 @@ public:
   ///
   /// @brief MSCKF EKF Updater constructor
   /// @param cam_id Camera sensor ID
+  /// @param is_cam_extrinsic Camera extrinsic calibration flag
   /// @param log_file_directory Directory to save log files
   /// @param data_logging_on Flag to enable data logging
   /// @param data_log_rate Maximum average rate to log data
@@ -44,6 +45,7 @@ public:
   ///
   explicit MsckfUpdater(
     int cam_id,
+    bool is_cam_extrinsic,
     std::string log_file_directory,
     bool data_logging_on,
     double data_log_rate,
@@ -95,7 +97,7 @@ public:
   void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian);
 
 private:
-  bool m_is_extrinsic;
+  bool m_is_cam_extrinsic;
   DataLogger m_msckf_logger;
   DataLogger m_triangulation_logger;
   double m_min_feat_dist{1.0};

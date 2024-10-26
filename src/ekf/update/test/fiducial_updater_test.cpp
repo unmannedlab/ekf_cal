@@ -25,6 +25,7 @@ TEST(test_imu_updater, constructor) {
   Eigen::Quaterniond fiducial_ang{1.0, 0.0, 0.0, 0.0};
   std::string log_file_directory("");
   bool data_logging_on{true};
+  bool is_cam_extrinsic{false};
   double data_log_rate{1.0};
   auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   EKF::Parameters ekf_params;
@@ -33,6 +34,7 @@ TEST(test_imu_updater, constructor) {
   FiducialUpdater fiducial_updater(
     fid_id,
     cam_id,
+    is_cam_extrinsic,
     log_file_directory,
     data_logging_on,
     data_log_rate,
@@ -41,6 +43,7 @@ TEST(test_imu_updater, constructor) {
   auto ekf = std::make_shared<EKF>(ekf_params);
 
   CamState cam_state;
+  cam_state.SetIsExtrinsic(is_cam_extrinsic);
   Eigen::MatrixXd covariance = Eigen::MatrixXd::Identity(6, 6) * 1e-3;
   ekf->RegisterCamera(cam_id, cam_state, covariance);
 

@@ -275,14 +275,13 @@ class tab_msckf:
         return fig
 
     def get_tab(self):
-        layout_plots = [
-            [self.plot_camera_pos(), self.plot_camera_ang()],
-            [self.plot_cam_pos_cov(), self.plot_cam_ang_cov()],
-            [plot_update_timing(self.mskcf_dfs), self.plot_triangulation_error()]
-        ]
+        layout_plots = [[plot_update_timing(self.mskcf_dfs), self.plot_triangulation_error()]]
+
+        if ('cam_cov_0' in self.mskcf_dfs[0].keys()):
+            layout_plots.append([self.plot_camera_pos(), self.plot_camera_ang()])
+            layout_plots.append([self.plot_cam_pos_cov(), self.plot_cam_ang_cov()])
 
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')
-        tab = TabPanel(child=tab_layout,
-                       title=f"MSCKF {self.mskcf_dfs[0].attrs['id']}")
+        tab = TabPanel(child=tab_layout, title=f"MSCKF {self.mskcf_dfs[0].attrs['id']}")
 
         return tab

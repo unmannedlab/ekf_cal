@@ -433,6 +433,7 @@ int main(int argc, char * argv[])
       auto trk_params = tracker_map[cam_params.tracker];
       trk_params.tracker_params.camera_id = cam->GetId();
       trk_params.tracker_params.intrinsics = cam_params.intrinsics;
+      trk_params.tracker_params.is_cam_extrinsic = cam_params.is_extrinsic;
       auto trk = std::make_shared<SimFeatureTracker>(trk_params, truth_engine);
       cam->AddTracker(trk);
     }
@@ -440,6 +441,7 @@ int main(int argc, char * argv[])
       auto fid_params = fiducial_map[cam_params.fiducial];
       fid_params.fiducial_params.camera_id = cam->GetId();
       fid_params.fiducial_params.intrinsics = cam_params.intrinsics;
+      fid_params.fiducial_params.is_cam_extrinsic = cam_params.is_extrinsic;
       auto fid = std::make_shared<SimFiducialTracker>(fid_params, truth_engine);
       cam->AddFiducial(fid);
     }

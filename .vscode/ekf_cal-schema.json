@@ -259,7 +259,7 @@
                                             "items": {
                                                 "type": "number"
                                             },
-                                            "minItems": 12,
+                                            "minItems": 6,
                                             "maxItems": 12
                                         },
                                         "pos_i_in_b": {
@@ -399,6 +399,9 @@
                                             },
                                             "minItems": 4,
                                             "maxItems": 4
+                                        },
+                                        "is_extrinsic": {
+                                            "type": "boolean"
                                         },
                                         "variance": {
                                             "type": "array",

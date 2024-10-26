@@ -37,6 +37,7 @@
 
 MsckfUpdater::MsckfUpdater(
   int cam_id,
+  bool is_extrinsic,
   std::string log_file_directory,
   bool data_logging_on,
   double data_log_rate,
@@ -44,6 +45,7 @@ MsckfUpdater::MsckfUpdater(
   std::shared_ptr<DebugLogger> logger
 )
 : Updater(cam_id, logger),
+  m_is_cam_extrinsic(is_extrinsic),
   m_msckf_logger(log_file_directory, "msckf_" + std::to_string(cam_id) + ".csv"),
   m_triangulation_logger(log_file_directory, "triangulation_" + std::to_string(cam_id) + ".csv")
 {
@@ -51,7 +53,7 @@ MsckfUpdater::MsckfUpdater(
   header << "time";
   header << EnumerateHeader("cam_pos", 3);
   header << EnumerateHeader("cam_ang_pos", 4);
-  header << EnumerateHeader("cam_cov", g_cam_extrinsic_state_size);
+  if (m_is_cam_extrinsic) {header << EnumerateHeader("cam_cov", g_cam_extrinsic_state_size);}
   header << ",FeatureTracks";
   header << EnumerateHeader("duration", 1);
 
@@ -306,7 +308,7 @@ void MsckfUpdater::UpdateEKF(
       //   SkewSymmetric(pos_f_in_l - pos_bi_in_l) *
       //   quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
 
-      if (m_is_extrinsic) {
+      if (m_is_cam_extrinsic) {
         /// @todo: Debug calibration Jacobian
         // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity(3, 3);
         // H_t.block<3, 3>(0, 9) =
@@ -357,7 +359,7 @@ void MsckfUpdater::UpdateEKF(
   msg << time;
   msg << VectorToCommaString(ekf->m_state.cam_states[m_id].pos_c_in_b);
   msg << QuaternionToCommaString(ekf->m_state.cam_states[m_id].ang_c_to_b);
-  msg << VectorToCommaString(cov_diag);
+  if (m_is_cam_extrinsic) {msg << VectorToCommaString(cov_diag);}
   msg << "," << std::to_string(feature_tracks.size());
   msg << "," << t_execution.count();
   m_msckf_logger.RateLimitedLog(msg.str(), time);
