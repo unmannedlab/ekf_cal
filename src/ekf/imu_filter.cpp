@@ -89,8 +89,8 @@ void ImuFilter::Update(
 )
 {
   if (m_imu_count == 1) {
-    m_acc_in_b = ang_i_to_b * acceleration;
-    m_ang_vel_in_b = ang_i_to_b * angular_rate;
+    m_acc_in_b = ang_i_to_b * (acceleration - acc_bias);
+    m_ang_vel_in_b = ang_i_to_b * (angular_rate - omg_bias);
     m_ang_acc_in_b = Eigen::Vector3d::Zero();
   } else {
     Eigen::VectorXd z(acceleration.size() + angular_rate.size());
@@ -116,6 +116,47 @@ void ImuFilter::Update(
     Eigen::VectorXd update = K * resid;
 
     m_acc_in_b += update.segment<3>(0);
+    m_ang_vel_in_b += update.segment<3>(3);
+    m_ang_acc_in_b += update.segment<3>(6);
+
+    m_cov = QR_r(
+      m_cov * (Eigen::MatrixXd::Identity(g_imu_state_size, g_imu_state_size) - K * H).transpose(),
+      R * K.transpose());
+  }
+}
+
+void ImuFilter::AngularUpdate(
+  Eigen::Vector3d angular_rate,
+  Eigen::Matrix3d angular_rate_covariance,
+  Eigen::Quaterniond ang_i_to_b,
+  Eigen::Vector3d omg_bias
+)
+{
+  if (m_imu_count == 1) {
+    m_ang_vel_in_b = ang_i_to_b * (angular_rate - omg_bias);
+    m_ang_acc_in_b = Eigen::Vector3d::Zero();
+  } else {
+    Eigen::VectorXd z(3);
+    z.segment<3>(0) = angular_rate;
+
+    Eigen::VectorXd z_pred =
+      ang_i_to_b.inverse() * m_ang_vel_in_b + omg_bias;
+    Eigen::VectorXd resid = z - z_pred;
+
+    Eigen::MatrixXd H = Eigen::MatrixXd::Zero(3, 9);
+    H.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3);
+
+    Eigen::MatrixXd R = Eigen::MatrixXd::Zero(3, 3);
+    R.block<3, 3>(0, 0) = angular_rate_covariance;
+
+    // Apply Kalman update
+    Eigen::MatrixXd S, G, K;
+    R = R.cwiseSqrt();
+    G = QR_r(m_cov * H.transpose(), R);
+    K = (G.inverse() * ((G.transpose()).inverse() * H) * m_cov.transpose() * m_cov).transpose();
+
+    Eigen::VectorXd update = K * resid;
+
     m_ang_vel_in_b += update.segment<3>(3);
     m_ang_acc_in_b += update.segment<3>(6);
 

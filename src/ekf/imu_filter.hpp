@@ -93,6 +93,20 @@ public:
   );
 
   ///
+  /// @brief IMU state angular rate updater
+  /// @param angular_rate Angular rate measurement
+  /// @param angular_rate_covariance Angular rate covariance
+  /// @param ang_i_to_b IMU orientation to the body frame
+  /// @param omg_bias Angular rate bias
+  ///
+  void AngularUpdate(
+    Eigen::Vector3d angular_rate,
+    Eigen::Matrix3d angular_rate_covariance,
+    Eigen::Quaterniond ang_i_to_b,
+    Eigen::Vector3d omg_bias
+  );
+
+  ///
   /// @brief Filtered acceleration getter
   /// @return Filtered acceleration
   ///

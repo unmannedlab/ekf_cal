@@ -146,16 +146,11 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   Eigen::Vector3d angular_rate,
   Eigen::Matrix3d angular_rate_covariance)
 {
-  /// @todo: Need a cohesive method to handle stationary rotations about the gravity axis
   auto t_start = std::chrono::high_resolution_clock::now();
 
   if (m_initial_motion_detected) {
     return false;
   }
-
-  // if (m_is_first_estimate){
-  /// @todo: Rotate body to acceleration vector on first measurement
-  // }
 
   unsigned int index_extrinsic = ekf->m_state.imu_states[imu_id].index_extrinsic;
   unsigned int index_intrinsic = ekf->m_state.imu_states[imu_id].index_intrinsic;
@@ -202,6 +197,12 @@ bool ImuUpdater::ZeroAccelerationUpdate(
     ekf->InitializeGravity();
   }
 
+  ekf->m_imu_filter.AngularUpdate(
+    angular_rate,
+    angular_rate_covariance,
+    ekf->m_state.imu_states[m_id].ang_i_to_b,
+    ekf->m_state.imu_states[m_id].omg_bias);
+
   ekf->PredictModel(time);
 
   // Resize Jacobian if state has changed sizes in processing update (state augmentation)
@@ -212,19 +213,21 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   }
 
   // Apply Kalman update
+  Eigen::Quaterniond ang_b_to_l_pre = ekf->m_state.body_state.ang_b_to_l;
   KalmanUpdate(ekf, H, resid, R);
 
   /// Prevent unintentional rotation about the vertical axis
-  Eigen::Vector3d x_axis_body_pre = ang_b_to_l.inverse() * Eigen::Vector3d::UnitX();
-  Eigen::Vector3d x_axis_body = ekf->m_state.body_state.ang_b_to_l.inverse() *
-    Eigen::Vector3d::UnitX();
-  Eigen::Vector3d plane_normal = g_gravity.cross(x_axis_body_pre) / g_gravity.norm();
-  double angle = M_PI / 2 -
-    std::acos(x_axis_body.dot(plane_normal) / x_axis_body.norm() / plane_normal.norm());
-  Eigen::Vector3d rotation_axis = x_axis_body.cross(plane_normal);
-  auto correction = Eigen::Quaterniond(Eigen::AngleAxisd(angle, rotation_axis));
-
-  ekf->m_state.body_state.ang_b_to_l = ekf->m_state.body_state.ang_b_to_l * correction;
+  if (m_correct_heading_rotation) {
+    Eigen::Vector3d x_axis_body_pre = ang_b_to_l_pre.inverse() * Eigen::Vector3d::UnitX();
+    Eigen::Vector3d x_axis_body = ekf->m_state.body_state.ang_b_to_l.inverse() *
+      Eigen::Vector3d::UnitX();
+    Eigen::Vector3d plane_normal = g_gravity.cross(x_axis_body_pre) / g_gravity.norm();
+    double angle = M_PI / 2 -
+      std::acos(x_axis_body.dot(plane_normal) / x_axis_body.norm() / plane_normal.norm());
+    Eigen::Vector3d rotation_axis = x_axis_body.cross(plane_normal);
+    auto correction = Eigen::Quaterniond(Eigen::AngleAxisd(angle, rotation_axis));
+    ekf->m_state.body_state.ang_b_to_l = ekf->m_state.body_state.ang_b_to_l * correction;
+  }
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
