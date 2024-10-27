@@ -549,12 +549,14 @@ class tab_imu:
                 t_imu,
                 is_stationary,
                 alpha=self.alpha,
-                color=self.colors[0])
+                color=self.colors[0],
+                legend_label='Is Stationary')
             fig.line(
                 t_imu,
                 score,
                 alpha=self.alpha,
-                color=self.colors[1])
+                color=self.colors[1],
+                legend_label='Chi^2 Score')
         fig.y_range = Range1d(0, 1)
         return fig
 

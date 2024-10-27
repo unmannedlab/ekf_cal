@@ -45,10 +45,9 @@ GpsUpdater::GpsUpdater(
   m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
 {
   std::stringstream header;
-  header << "time,lat,lon,alt,x,y,z"
-         << ",ref_lat,ref_lon,ref_alt,ref_heading,is_initialized";
-  header << EnumerateHeader("antenna", g_gps_extrinsic_state_size);
+  header << "time,lat,lon,alt,x,y,z,ref_lat,ref_lon,ref_alt,ref_heading,is_initialized";
   if (m_is_extrinsic) {
+    header << EnumerateHeader("ant_pos", g_gps_extrinsic_state_size);
     header << EnumerateHeader("gps_cov", g_gps_extrinsic_state_size);
   }
   header << EnumerateHeader("residual", g_gps_extrinsic_state_size);
@@ -87,7 +86,7 @@ void GpsUpdater::UpdateEKF(
     m_is_first_estimate = false;
   }
 
-  Eigen::Vector3d pos_a_in_g = Eigen::Vector3d::Zero();
+  Eigen::Vector3d pos_a_in_l = Eigen::Vector3d::Zero();
   Eigen::Vector3d residual = Eigen::Vector3d::Zero();
   Eigen::Vector3d reference_lla = Eigen::Vector3d::Zero();
   double ang_l_to_g = ekf->GetReferenceAngle();
@@ -101,13 +100,13 @@ void GpsUpdater::UpdateEKF(
   } else {
     reference_lla = ekf->GetReferenceLLA();
     Eigen::Vector3d gps_enu = lla_to_enu(gps_lla, reference_lla);
-    pos_a_in_g = enu_to_local(gps_enu, ang_l_to_g);
+    pos_a_in_l = enu_to_local(gps_enu, ang_l_to_g);
 
     Eigen::Vector3d pos_b_in_g = ekf->m_state.body_state.pos_b_in_l;
-    Eigen::Quaterniond ang_b_to_g = ekf->m_state.body_state.ang_b_to_l;
+    Eigen::Quaterniond ang_b_to_l = ekf->m_state.body_state.ang_b_to_l;
 
-    Eigen::Vector3d pos_a_in_g_hat = pos_b_in_g + ang_b_to_g * m_pos_a_in_b;
-    residual = pos_a_in_g - pos_a_in_g_hat;
+    Eigen::Vector3d pos_a_in_l_hat = pos_b_in_g + ang_b_to_l * m_pos_a_in_b;
+    residual = pos_a_in_l - pos_a_in_l_hat;
     Eigen::MatrixXd jacobian = GetMeasurementJacobian(ekf);
     KalmanUpdate(ekf, jacobian, residual, pos_covariance);
 
@@ -120,12 +119,12 @@ void GpsUpdater::UpdateEKF(
   std::stringstream msg;
   msg << time;
   msg << VectorToCommaString(gps_lla, 12);
-  msg << VectorToCommaString(pos_a_in_g);
+  msg << VectorToCommaString(pos_a_in_l);
   msg << VectorToCommaString(reference_lla, 12);
   msg << "," << ang_l_to_g;
   msg << "," << ekf->IsLlaInitialized();
-  msg << VectorToCommaString(ekf->m_state.gps_states[m_id].pos_a_in_b);
   if (m_is_extrinsic) {
+    msg << VectorToCommaString(ekf->m_state.gps_states[m_id].pos_a_in_b);
     unsigned int gps_index = ekf->m_state.gps_states[m_id].index;
     Eigen::VectorXd cov_diag = ekf->m_cov.block(
       gps_index, gps_index, g_gps_extrinsic_state_size,
