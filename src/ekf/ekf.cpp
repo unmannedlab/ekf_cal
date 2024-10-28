@@ -364,8 +364,10 @@ Eigen::MatrixXd EKF::AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int inde
     in_cov.block(0, index, index, in_cols - index);
 
   // Bottom Left
-  out_cov.block(index + g_aug_state_size, 0, in_rows - index, index) =
-    in_cov.block(index, 0, in_rows - index, index);
+  if (!m_use_root_covariance) {
+    out_cov.block(index + g_aug_state_size, 0, in_rows - index, index) =
+      in_cov.block(index, 0, in_rows - index, index);
+  }
 
   // Bottom Right
   out_cov.block(
@@ -373,8 +375,10 @@ Eigen::MatrixXd EKF::AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int inde
     in_cov.block(index, index, in_rows - index, in_cols - index);
 
   // Copy Rows
-  out_cov.block(index + 0, 0, 3, out_cols) = out_cov.block(0, 0, 3, out_cols);
-  out_cov.block(index + 3, 0, 3, out_cols) = out_cov.block(6, 0, 3, out_cols);
+  if (!m_use_root_covariance) {
+    out_cov.block(index + 0, 0, 3, out_cols) = out_cov.block(0, 0, 3, out_cols);
+    out_cov.block(index + 3, 0, 3, out_cols) = out_cov.block(6, 0, 3, out_cols);
+  }
 
   // Copy Columns
   out_cov.block(0, index + 0, out_rows, 3) = out_cov.block(0, 0, out_rows, 3);
@@ -385,9 +389,9 @@ Eigen::MatrixXd EKF::AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int inde
   out_cov.block(index + 3, index + 3, 3, 3) = out_cov.block(6, 6, 3, 3);
 
   // Copy cross-covariances
-  out_cov.block(index + 0, 0, 3, 3) = out_cov.block(0, 0, 3, 3);
+  if (!m_use_root_covariance) {out_cov.block(index + 0, 0, 3, 3) = out_cov.block(0, 0, 3, 3);}
+  if (!m_use_root_covariance) {out_cov.block(index + 3, 6, 3, 3) = out_cov.block(6, 6, 3, 3);}
   out_cov.block(0, index + 0, 3, 3) = out_cov.block(0, 0, 3, 3);
-  out_cov.block(index + 3, 6, 3, 3) = out_cov.block(6, 6, 3, 3);
   out_cov.block(6, index + 3, 3, 3) = out_cov.block(6, 6, 3, 3);
 
   return out_cov;

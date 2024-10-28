@@ -197,6 +197,7 @@ int main(int argc, char * argv[])
   auto ekf = std::make_shared<EKF>(ekf_params);
 
   // Simulation parameters
+  /// @todo: Add overriding no_errors option
   YAML::Node sim_params = ros_params["sim_params"];
   double rng_seed = sim_params["seed"].as<double>(0.0);
   bool use_seed = sim_params["use_seed"].as<bool>(false);
@@ -434,6 +435,7 @@ int main(int argc, char * argv[])
       trk_params.tracker_params.camera_id = cam->GetId();
       trk_params.tracker_params.intrinsics = cam_params.intrinsics;
       trk_params.tracker_params.is_cam_extrinsic = cam_params.is_extrinsic;
+      trk_params.no_errors = trk_params.no_errors | sim_cam_params.no_errors;
       auto trk = std::make_shared<SimFeatureTracker>(trk_params, truth_engine);
       cam->AddTracker(trk);
     }
@@ -442,6 +444,7 @@ int main(int argc, char * argv[])
       fid_params.fiducial_params.camera_id = cam->GetId();
       fid_params.fiducial_params.intrinsics = cam_params.intrinsics;
       fid_params.fiducial_params.is_cam_extrinsic = cam_params.is_extrinsic;
+      fid_params.no_errors = fid_params.no_errors | sim_cam_params.no_errors;
       auto fid = std::make_shared<SimFiducialTracker>(fid_params, truth_engine);
       cam->AddFiducial(fid);
     }

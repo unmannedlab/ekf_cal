@@ -136,6 +136,35 @@ void ImuUpdater::UpdateEKF(
   ekf->LogBodyStateIfNeeded(t_execution.count());
 }
 
+Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(
+  std::shared_ptr<EKF> ekf,
+  unsigned int imu_id)
+{
+  unsigned int meas_size = m_is_intrinsic ? 6 : 3;
+  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(meas_size, ekf->GetStateSize());
+
+
+  Eigen::Quaterniond ang_i_to_b = ekf->m_state.imu_states[imu_id].ang_i_to_b;
+  Eigen::Quaterniond ang_b_to_l = ekf->m_state.body_state.ang_b_to_l;
+
+  H.block<3, 3>(0, 6) = -SkewSymmetric(ang_i_to_b.inverse() * ang_b_to_l.inverse() * g_gravity) *
+    quaternion_jacobian(ang_b_to_l).transpose();
+
+  if (m_is_extrinsic) {
+    unsigned int index_extrinsic = ekf->m_state.imu_states[imu_id].index_extrinsic;
+    H.block<3, 3>(0, index_extrinsic) = -SkewSymmetric(
+      ang_i_to_b.inverse() * ang_b_to_l.inverse() * g_gravity
+    );
+  }
+
+  if (m_is_intrinsic) {
+    unsigned int index_intrinsic = ekf->m_state.imu_states[imu_id].index_intrinsic;
+    H.block<3, 3>(0, index_intrinsic + 0) = -Eigen::Matrix3d::Identity();
+    H.block<3, 3>(3, index_intrinsic + 3) = -Eigen::Matrix3d::Identity();
+  }
+
+  return H;
+}
 
 bool ImuUpdater::ZeroAccelerationUpdate(
   std::shared_ptr<EKF> ekf,
@@ -152,18 +181,17 @@ bool ImuUpdater::ZeroAccelerationUpdate(
     return false;
   }
 
-  unsigned int index_extrinsic = ekf->m_state.imu_states[imu_id].index_extrinsic;
-  unsigned int index_intrinsic = ekf->m_state.imu_states[imu_id].index_intrinsic;
   unsigned int meas_size = m_is_intrinsic ? 6 : 3;
   Eigen::Quaterniond ang_i_to_b = ekf->m_state.imu_states[imu_id].ang_i_to_b;
   Eigen::Quaterniond ang_b_to_l = ekf->m_state.body_state.ang_b_to_l;
 
-  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(meas_size, ekf->GetStateSize());
-  H.block<3, 3>(0, 6) = -SkewSymmetric(ang_i_to_b.inverse() * ang_b_to_l.inverse() * g_gravity) *
-    quaternion_jacobian(ang_b_to_l).transpose();
+  Eigen::MatrixXd H = GetMeasurementJacobian(ekf, imu_id);
 
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(meas_size, meas_size);
   R.block<3, 3>(0, 0) = acceleration_covariance;
+  if (m_is_intrinsic) {
+    R.block<3, 3>(3, 3) = angular_rate_covariance;
+  }
 
   Eigen::Vector3d bias_a = ekf->m_state.imu_states[imu_id].acc_bias;
   Eigen::Vector3d bias_g = ekf->m_state.imu_states[imu_id].omg_bias;
@@ -172,18 +200,8 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   resid.segment<3>(0) = -(acceleration - bias_a -
     ang_i_to_b.inverse() *
     ang_b_to_l.inverse() * g_gravity);
-
-  if (m_is_extrinsic) {
-    H.block<3, 3>(0, index_extrinsic) = -SkewSymmetric(
-      ang_i_to_b.inverse() * ang_b_to_l.inverse() * g_gravity
-    );
-  }
-
   if (m_is_intrinsic) {
     resid.segment<3>(3) = -(angular_rate - bias_g);
-    R.block<3, 3>(3, 3) = angular_rate_covariance;
-    H.block<3, 3>(0, index_intrinsic + 0) = -Eigen::Matrix3d::Identity();
-    H.block<3, 3>(3, index_intrinsic + 3) = -Eigen::Matrix3d::Identity();
   }
 
   Eigen::MatrixXd score_mat = resid.transpose() *
@@ -205,12 +223,8 @@ bool ImuUpdater::ZeroAccelerationUpdate(
 
   ekf->PredictModel(time);
 
-  // Resize Jacobian if state has changed sizes in processing update (state augmentation)
-  if (ekf->GetStateSize() != H.cols()) {
-    Eigen::MatrixXd H_temp = H;
-    H = Eigen::MatrixXd::Zero(meas_size, ekf->GetStateSize());
-    H.block(0, 0, H_temp.rows(), H_temp.cols()) = H_temp;
-  }
+  // Update Jacobian
+  H = GetMeasurementJacobian(ekf, imu_id);
 
   // Apply Kalman update
   Eigen::Quaterniond ang_b_to_l_pre = ekf->m_state.body_state.ang_b_to_l;
@@ -243,11 +257,13 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   msg << VectorToCommaString(ekf->m_state.imu_states[m_id].omg_bias);
 
   if (m_is_extrinsic) {
+    unsigned int index_extrinsic = ekf->m_state.imu_states[imu_id].index_extrinsic;
     Eigen::VectorXd ex_diag = ekf->m_cov.block(index_extrinsic, index_extrinsic, 6, 6).diagonal();
     msg << VectorToCommaString(ex_diag.cwiseProduct(ex_diag));
   }
 
   if (m_is_intrinsic) {
+    unsigned int index_intrinsic = ekf->m_state.imu_states[imu_id].index_intrinsic;
     Eigen::VectorXd in_diag = ekf->m_cov.block(index_intrinsic, index_intrinsic, 6, 6).diagonal();
     msg << VectorToCommaString(in_diag.cwiseProduct(in_diag));
   }

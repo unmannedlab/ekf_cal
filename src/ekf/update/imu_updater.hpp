@@ -61,9 +61,13 @@ public:
   ///
   /// @brief Measurement Jacobian method
   /// @param ekf EKF pointer
+  /// @param imu_id ID of relevant IMU
   /// @return Measurement Jacobian matrix
   ///
-  Eigen::MatrixXd GetMeasurementJacobian(std::shared_ptr<EKF> ekf);
+  Eigen::MatrixXd GetMeasurementJacobian(
+    std::shared_ptr<EKF> ekf,
+    unsigned int imu_id
+  );
 
   ///
   /// @brief EKF update method for IMU measurements
