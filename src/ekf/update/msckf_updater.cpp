@@ -246,21 +246,17 @@ void MsckfUpdater::UpdateEKF(
       continue;
     }
 
-    /// @todo Additional non-linear optimization
-
     std::stringstream msg;
     msg << std::setprecision(3) << time;
     msg << "," << std::to_string(feature_track.track[0].key_point.class_id);
-    msg << "," << pos_f_in_l[0];
-    msg << "," << pos_f_in_l[1];
-    msg << "," << pos_f_in_l[2];
+    msg << "," << VectorToCommaString(pos_f_in_l);
     m_triangulation_logger.RateLimitedLog(msg.str(), time);
 
     unsigned int aug_state_size = ekf->GetAugStateSize();
     unsigned int aug_state_start = ekf->GetAugStateStart();
     Eigen::VectorXd res_f = Eigen::VectorXd::Zero(2 * feature_track.track.size());
     Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), 3);
-    Eigen::MatrixXd H_a = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), aug_state_size);
+    Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), aug_state_size);
 
     for (unsigned int i = 0; i < feature_track.track.size(); ++i) {
       AugState aug_state_i = ekf->GetAugState(m_id, feature_track.track[i].frame_id, time);
@@ -301,12 +297,11 @@ void MsckfUpdater::UpdateEKF(
       H_f.block<2, 3>(2 * i, 0) = H_d * H_p * rot_l_to_ci;
 
       // Augmented state Jacobian
-      /// @todo: FEJ
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, g_aug_state_size);
       H_t.block<3, 3>(0, 0) = -rot_l_to_ci;
-      // H_t.block<3, 3>(0, 3) = rot_ci_to_b.transpose() * rot_bi_to_l.transpose() *
-      //   SkewSymmetric(pos_f_in_l - pos_bi_in_l) *
-      //   quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
+      H_t.block<3, 3>(0, 3) = rot_b_to_ci *
+        rot_bi_to_l.transpose() * SkewSymmetric(pos_f_in_l - pos_bi_in_l) *
+        quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
 
       if (m_is_cam_extrinsic) {
         /// @todo: Debug calibration Jacobian
@@ -315,7 +310,7 @@ void MsckfUpdater::UpdateEKF(
         //   rot_b_to_ci * SkewSymmetric(rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l));
       }
 
-      H_a.block<2, g_aug_state_size>(2 * i, aug_index - aug_state_start) = H_d * H_p * H_t;
+      H_c.block<2, g_aug_state_size>(2 * i, aug_index - aug_state_start) = H_d * H_p * H_t;
     }
     /// @todo: Left Nullspace is incorrectly zeroing idealized residuals
     ApplyLeftNullspace(H_f, H_a, res_f);
@@ -323,10 +318,10 @@ void MsckfUpdater::UpdateEKF(
     /// @todo Chi^2 distance check
 
     // Append Jacobian and residual
-    H_x.block(ct_meas, aug_state_start, H_a.rows(), H_a.cols()) = H_a;
+    H_x.block(ct_meas, aug_state_start, H_c.rows(), H_c.cols()) = H_c;
     res_x.block(ct_meas, 0, res_f.rows(), 1) = res_f;
 
-    ct_meas += H_a.rows();
+    ct_meas += H_c.rows();
   }
 
   if (ct_meas == 0) {
@@ -341,6 +336,7 @@ void MsckfUpdater::UpdateEKF(
     return;
   }
 
+  px_error = std::max(px_error, 0.5);
   Eigen::MatrixXd R = px_error * px_error * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
   KalmanUpdate(ekf, H_x, res_x, R);

@@ -110,7 +110,7 @@ private:
   bool m_is_intrinsic;
   bool m_is_first_estimate{true};
   bool m_initial_motion_detected{false};
-  bool m_correct_heading_rotation{false};
+  bool m_correct_heading_rotation{true};
 
   DataLogger m_data_logger;
 };
