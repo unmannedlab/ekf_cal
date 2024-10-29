@@ -123,7 +123,7 @@ void FiducialUpdater::UpdateEKF(
 
   unsigned int max_meas_size = g_fid_measurement_size * board_track.size();
   unsigned int state_size = ekf->GetStateSize();
-  unsigned int cam_index = ekf->m_state.cam_states[m_camera_id].index;
+  unsigned int aug_state_start = ekf->GetAugStateStart();
   unsigned int cam_size{0};
   if (ekf->m_state.cam_states[m_camera_id].GetIsExtrinsic()) {
     cam_size += g_cam_extrinsic_state_size;
@@ -167,7 +167,7 @@ void FiducialUpdater::UpdateEKF(
     res_f.segment<3>(meas_row + 0) = pos_residual;
     res_f.segment<3>(meas_row + 3) = QuatToRotVec(ang_residual);
 
-    unsigned int H_c_aug_start = aug_state_i.index - cam_index;
+    unsigned int H_c_aug_start = aug_state_i.index - aug_state_start;
     H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 0) = -rot_bi_to_c * rot_l_to_bi;
 
     H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 3) = rot_bi_to_c *
@@ -191,7 +191,7 @@ void FiducialUpdater::UpdateEKF(
   /// @todo Chi^2 distance check
 
   // Append our Jacobian and residual
-  H_x.block(0, cam_index, H_c.rows(), H_c.cols()) = H_c;
+  H_x.block(0, aug_state_start, H_c.rows(), H_c.cols()) = H_c;
   res_x.block(0, 0, res_f.rows(), 1) = res_f;
 
   if (board_track.size() > 1) {
@@ -216,6 +216,7 @@ void FiducialUpdater::UpdateEKF(
 
   Eigen::Vector3d cam_pos = ekf->m_state.cam_states[m_camera_id].pos_c_in_b;
   Eigen::Quaterniond cam_ang = ekf->m_state.cam_states[m_camera_id].ang_c_to_b;
+  unsigned int cam_index = ekf->m_state.cam_states[m_camera_id].index;
   Eigen::VectorXd cov_diag = ekf->m_cov.block(
     cam_index, cam_index, g_cam_extrinsic_state_size, g_cam_extrinsic_state_size).diagonal();
   if (ekf->GetUseRootCovariance()) {
