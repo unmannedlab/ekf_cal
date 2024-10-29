@@ -95,27 +95,23 @@ void FiducialUpdater::UpdateEKF(
   for (auto board_detection : board_track) {
     AugState aug_state_i = ekf->GetAugState(m_camera_id, board_detection.frame_id, time);
 
-    const Eigen::Vector3d pos_bi_in_g = aug_state_i.pos_b_in_l;
+    const Eigen::Vector3d pos_bi_in_l = aug_state_i.pos_b_in_l;
     const Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
     const Eigen::Matrix3d rot_c_to_b = m_ang_c_to_b.toRotationMatrix();
 
     Eigen::Vector3d pos_f_in_c;
     CvVectorToEigen(board_detection.t_vec_f_in_c, pos_f_in_c);
     Eigen::Vector3d pos_f_in_l =
-      rot_bi_to_l * ((rot_c_to_b * pos_f_in_c) + m_pos_c_in_b) + pos_bi_in_g;
+      rot_bi_to_l * ((rot_c_to_b * pos_f_in_c) + m_pos_c_in_b) + pos_bi_in_l;
 
     Eigen::Quaterniond ang_f_to_c = RodriguesToQuat(board_detection.r_vec_f_to_c);
     Eigen::Quaterniond ang_f_to_l = aug_state_i.ang_b_to_l * m_ang_c_to_b * ang_f_to_c;
 
     std::stringstream data_msg;
     data_msg << std::setprecision(3) << time;
-    data_msg << ",0," << pos_f_in_l[0];
-    data_msg << "," << pos_f_in_l[1];
-    data_msg << "," << pos_f_in_l[2];
-    data_msg << "," << ang_f_to_l.w();
-    data_msg << "," << ang_f_to_l.x();
-    data_msg << "," << ang_f_to_l.y();
-    data_msg << "," << ang_f_to_l.z();
+    data_msg << ",0";
+    data_msg << VectorToCommaString(pos_f_in_l);
+    data_msg << QuaternionToCommaString(ang_f_to_l);
     m_board_logger.RateLimitedLog(data_msg.str(), time);
   }
 
@@ -143,17 +139,18 @@ void FiducialUpdater::UpdateEKF(
     Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
     Eigen::Matrix3d rot_bi_to_c = rot_c_to_b.transpose();
     Eigen::Matrix3d rot_l_to_bi = rot_bi_to_l.transpose();
-    Eigen::Matrix3d rot_l_to_ci = rot_bi_to_c * rot_bi_to_l.transpose();
+    Eigen::Matrix3d rot_l_to_ci = rot_bi_to_c * rot_l_to_bi;
+    Eigen::Matrix3d rot_l_to_c = rot_bi_to_c * rot_l_to_bi;
     Eigen::Quaterniond ang_l_to_ci(rot_l_to_ci);
 
-    Eigen::Vector3d pos_bi_in_g = aug_state_i.pos_b_in_l;
+    Eigen::Vector3d pos_bi_in_l = aug_state_i.pos_b_in_l;
 
     Eigen::Vector3d pos_predicted, pos_measured, pos_residual;
     Eigen::Quaterniond ang_predicted, ang_measured, ang_residual;
 
     // Project the current feature into the current frame of reference
-    Eigen::Vector3d pos_f_in_bi = rot_bi_to_l.transpose() * (m_pos_f_in_l - pos_bi_in_g);
-    pos_predicted = rot_c_to_b.transpose() * (pos_f_in_bi - m_pos_c_in_b);
+    Eigen::Vector3d pos_f_in_bi = rot_l_to_bi * (m_pos_f_in_l - pos_bi_in_l);
+    pos_predicted = rot_bi_to_c * (pos_f_in_bi - m_pos_c_in_b);
     ang_predicted = ang_l_to_ci * m_ang_f_to_l;
 
     CvVectorToEigen(board_track[i].t_vec_f_in_c, pos_measured);
@@ -168,20 +165,20 @@ void FiducialUpdater::UpdateEKF(
     res_f.segment<3>(meas_row + 3) = QuatToRotVec(ang_residual);
 
     unsigned int H_c_aug_start = aug_state_i.index - aug_state_start;
-    H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 0) = -rot_bi_to_c * rot_l_to_bi;
+    H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 0) = -rot_l_to_c;
 
-    H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 3) = rot_bi_to_c *
-      rot_l_to_bi * SkewSymmetric(m_pos_f_in_l - pos_bi_in_g) *
+    H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 3) = rot_l_to_c *
+      SkewSymmetric(m_pos_f_in_l - pos_bi_in_l) *
       quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
 
-    H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) = rot_bi_to_c * rot_l_to_bi *
+    H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 3) = rot_l_to_c *
       quaternion_jacobian(aug_state_i.ang_b_to_l).transpose() * rot_f_to_l;
 
     /// @todo: Enable calibration Jacobian
     // H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 6) = -rot_bi_to_c;
 
     // H_c.block<3, 3>(meas_row + 0, H_c_aug_start + 9) = rot_bi_to_c *
-    //   SkewSymmetric(rot_l_to_bi * (m_pos_f_in_l - pos_bi_in_g) - m_pos_c_in_b) *
+    //   SkewSymmetric(rot_l_to_bi * (m_pos_f_in_l - pos_bi_in_l) - m_pos_c_in_b) *
     //   quaternion_jacobian(m_ang_c_to_b).transpose();
 
     // H_c.block<3, 3>(meas_row + 3, H_c_aug_start + 9) = rot_bi_to_c *
