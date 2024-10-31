@@ -56,11 +56,13 @@ public:
   ///
   /// @brief Triangulate feature seen from multiple camera frames
   /// @param ekf EKF pointer
+  /// @param time Time of update
   /// @param feature_track Single feature track
   /// @param pos_f_in_l Output estimate of feature position in camera frame given observations
   /// @return If triangulation was successful
   ///
   bool TriangulateFeature(
+    double time,
     std::shared_ptr<EKF> ekf,
     FeatureTrack & feature_track,
     Eigen::Vector3d & pos_f_in_l);

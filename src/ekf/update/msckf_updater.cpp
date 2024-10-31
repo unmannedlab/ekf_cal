@@ -68,13 +68,13 @@ MsckfUpdater::MsckfUpdater(
 }
 
 bool MsckfUpdater::TriangulateFeature(
+  double time,
   std::shared_ptr<EKF> ekf,
   FeatureTrack & feature_track,
   Eigen::Vector3d & pos_f_in_l)
 {
   /// @todo: Need to continue debugging the triangulated features
   pos_f_in_l = feature_track.true_feature_position;
-  return true;
 
   AugState aug_state_0 = ekf->GetAugState(
     m_id, feature_track.track[0].frame_id, feature_track.track[0].frame_time);
@@ -124,15 +124,22 @@ bool MsckfUpdater::TriangulateFeature(
   // Solve linear triangulation for 3D cartesian estimate of feature pos
   Eigen::Vector3d pos_f_in_c0 = A.colPivHouseholderQr().solve(b);
 
+  Eigen::Vector3d pos_f_in_l_tri;
   if (pos_f_in_c0.z() < m_min_feat_dist || m_max_feat_dist < pos_f_in_c0.z()) {
     std::stringstream err_msg;
     err_msg << "MSCKF triangulated point out of bounds. r = " << pos_f_in_l.norm();
     m_logger->Log(LogLevel::INFO, err_msg.str());
-    pos_f_in_l = Eigen::Vector3d::Zero();
-    return false;
+    pos_f_in_l_tri = Eigen::Vector3d::Zero();
+    // return false;
   }
 
-  pos_f_in_l = rot_b0_to_l * (m_ang_c_to_b * pos_f_in_c0 + m_pos_c_in_b) + pos_b0_in_l;
+  pos_f_in_l_tri = rot_b0_to_l * (m_ang_c_to_b * pos_f_in_c0 + m_pos_c_in_b) + pos_b0_in_l;
+
+  std::stringstream msg;
+  msg << std::setprecision(3) << time;
+  msg << "," << std::to_string(feature_track.track[0].key_point.class_id);
+  msg << VectorToCommaString(pos_f_in_l_tri);
+  m_triangulation_logger.RateLimitedLog(msg.str(), time);
 
   return true;
 }
@@ -241,16 +248,10 @@ void MsckfUpdater::UpdateEKF(
 
     // Get triangulated estimate of feature pos
     Eigen::Vector3d pos_f_in_l;
-    bool triangulation_successful = TriangulateFeature(ekf, feature_track, pos_f_in_l);
+    bool triangulation_successful = TriangulateFeature(time, ekf, feature_track, pos_f_in_l);
     if (!triangulation_successful) {
       continue;
     }
-
-    std::stringstream msg;
-    msg << std::setprecision(3) << time;
-    msg << "," << std::to_string(feature_track.track[0].key_point.class_id);
-    msg << "," << VectorToCommaString(pos_f_in_l);
-    m_triangulation_logger.RateLimitedLog(msg.str(), time);
 
     unsigned int aug_state_size = ekf->GetAugStateSize();
     unsigned int aug_state_start = ekf->GetAugStateStart();
@@ -271,16 +272,17 @@ void MsckfUpdater::UpdateEKF(
       // Project the current feature into the current frame of reference
       Eigen::Vector3d pos_f_in_bi = rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l);
       Eigen::Vector3d pos_f_in_ci = rot_ci_to_b.transpose() * (pos_f_in_bi - m_pos_c_in_b);
-      Eigen::Vector2d xz_predicted;
-      xz_predicted(0) = pos_f_in_ci(0) / pos_f_in_ci(2);
-      xz_predicted(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
+      Eigen::Vector2d xy_predicted;
+      xy_predicted(0) = pos_f_in_ci(0) / pos_f_in_ci(2);
+      xy_predicted(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
 
-      Eigen::Vector2d xz_measured;
-      xz_measured(0) = (feature_track.track[i].key_point.pt.x - m_intrinsics.width / 2) /
+      Eigen::Vector2d xy_measured;
+      xy_measured(0) = (feature_track.track[i].key_point.pt.x - m_intrinsics.width / 2) /
         (m_intrinsics.f_x / m_intrinsics.pixel_size);
-      xz_measured(1) = (feature_track.track[i].key_point.pt.y - m_intrinsics.height / 2) /
+      xy_measured(1) = (feature_track.track[i].key_point.pt.y - m_intrinsics.height / 2) /
         (m_intrinsics.f_y / m_intrinsics.pixel_size);
-      Eigen::Vector2d xz_residual = xz_measured - xz_predicted;
+      Eigen::Vector2d xz_residual = xy_measured - xy_predicted;
+      // std::cout << xz_residual(0) << " " << xz_residual(1) << std::endl;
       res_f.segment<2>(2 * i) = xz_residual;
 
       unsigned int aug_index = ekf->GetAugState(m_id, feature_track.track[i].frame_id, time).index;
@@ -291,10 +293,10 @@ void MsckfUpdater::UpdateEKF(
 
       // Distortion Jacobian
       Eigen::MatrixXd H_d(2, 2);
-      distortion_jacobian(xz_measured, m_intrinsics, H_d);
+      distortion_jacobian(xy_measured, m_intrinsics, H_d);
 
       // Entire feature Jacobian
-      H_f.block<2, 3>(2 * i, 0) = H_d * H_p * rot_l_to_ci;
+      // H_f.block<2, 3>(2 * i, 0) = H_d * H_p * rot_l_to_ci;
 
       // Augmented state Jacobian
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, g_aug_state_size);
@@ -307,13 +309,13 @@ void MsckfUpdater::UpdateEKF(
         /// @todo: Debug calibration Jacobian
         // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity(3, 3);
         // H_t.block<3, 3>(0, 9) =
-        //   rot_b_to_ci * SkewSymmetric(rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l));
+        //   rot_b_to_c * SkewSymmetric(rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l));
       }
 
       H_c.block<2, g_aug_state_size>(2 * i, aug_index - aug_state_start) = H_d * H_p * H_t;
     }
     /// @todo: Left Nullspace is incorrectly zeroing idealized residuals
-    ApplyLeftNullspace(H_f, H_a, res_f);
+    // ApplyLeftNullspace2(H_f, H_c, res_f);
 
     /// @todo Chi^2 distance check
 
