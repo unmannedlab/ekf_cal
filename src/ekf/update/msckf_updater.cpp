@@ -17,6 +17,7 @@
 
 #include <eigen3/Eigen/Eigen>
 
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <iomanip>
@@ -112,8 +113,7 @@ bool MsckfUpdater::TriangulateFeature(
     b_i(2) = 1;
 
     // Rotate and normalize
-    b_i = rot_ci_to_c0 * b_i;
-    b_i = b_i / b_i.norm();
+    b_i = (rot_ci_to_c0 * b_i / b_i.norm()).eval();
 
     Eigen::Matrix3d b_i_skew = SkewSymmetric(b_i);
     Eigen::Matrix3d A_i = b_i_skew.transpose() * b_i_skew;
@@ -130,18 +130,17 @@ bool MsckfUpdater::TriangulateFeature(
     err_msg << "MSCKF triangulated point out of bounds. r = " << pos_f_in_l.norm();
     m_logger->Log(LogLevel::INFO, err_msg.str());
     pos_f_in_l_tri = Eigen::Vector3d::Zero();
-    // return false;
+    return true;
+  } else {
+    pos_f_in_l_tri = rot_b0_to_l * (m_ang_c_to_b * pos_f_in_c0 + m_pos_c_in_b) + pos_b0_in_l;
+
+    std::stringstream msg;
+    msg << std::setprecision(3) << time;
+    msg << "," << std::to_string(feature_track.track[0].key_point.class_id);
+    msg << VectorToCommaString(pos_f_in_l_tri);
+    m_triangulation_logger.RateLimitedLog(msg.str(), time);
+    return true;
   }
-
-  pos_f_in_l_tri = rot_b0_to_l * (m_ang_c_to_b * pos_f_in_c0 + m_pos_c_in_b) + pos_b0_in_l;
-
-  std::stringstream msg;
-  msg << std::setprecision(3) << time;
-  msg << "," << std::to_string(feature_track.track[0].key_point.class_id);
-  msg << VectorToCommaString(pos_f_in_l_tri);
-  m_triangulation_logger.RateLimitedLog(msg.str(), time);
-
-  return true;
 }
 
 void MsckfUpdater::projection_jacobian(const Eigen::Vector3d & pos, Eigen::MatrixXd & jacobian)
@@ -282,7 +281,6 @@ void MsckfUpdater::UpdateEKF(
       xy_measured(1) = (feature_track.track[i].key_point.pt.y - m_intrinsics.height / 2) /
         (m_intrinsics.f_y / m_intrinsics.pixel_size);
       Eigen::Vector2d xz_residual = xy_measured - xy_predicted;
-      // std::cout << xz_residual(0) << " " << xz_residual(1) << std::endl;
       res_f.segment<2>(2 * i) = xz_residual;
 
       unsigned int aug_index = ekf->GetAugState(m_id, feature_track.track[i].frame_id, time).index;
@@ -301,8 +299,8 @@ void MsckfUpdater::UpdateEKF(
       // Augmented state Jacobian
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, g_aug_state_size);
       H_t.block<3, 3>(0, 0) = -rot_l_to_ci;
-      H_t.block<3, 3>(0, 3) = rot_l_to_ci * SkewSymmetric(pos_f_in_l - pos_bi_in_l) *
-        quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
+      // H_t.block<3, 3>(0, 3) = rot_l_to_ci * SkewSymmetric(pos_f_in_l - pos_bi_in_l) *
+      //   quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
 
       if (m_is_cam_extrinsic) {
         /// @todo: FEJ
@@ -314,8 +312,8 @@ void MsckfUpdater::UpdateEKF(
 
       H_c.block<2, g_aug_state_size>(2 * i, aug_index - aug_state_start) = H_d * H_p * H_t;
     }
-    /// @todo: Left Nullspace is incorrectly zeroing idealized residuals
-    // ApplyLeftNullspace2(H_f, H_c, res_f);
+
+    ApplyLeftNullspace(H_f, H_c, res_f);
 
     /// @todo Chi^2 distance check
 

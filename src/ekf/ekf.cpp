@@ -154,10 +154,16 @@ void EKF::PredictModel(double time)
       m_cov.block<g_body_state_size, g_body_state_size>(0, 0) = QR_r(
         m_cov.block<g_body_state_size, g_body_state_size>(0, 0) * F.transpose(),
         m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0) * std::sqrt(dT));
+      /// @todo: Need to solve non-base propagation for root form
     } else {
       m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
         F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose() +
         m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0) * dT;
+      unsigned int alt_size = m_state_size - g_body_state_size;
+      m_cov.block(0, g_body_state_size, g_body_state_size, alt_size) =
+        F * m_cov.block(0, g_body_state_size, g_body_state_size, alt_size);
+      m_cov.block(g_body_state_size, 0, alt_size, g_body_state_size) =
+        m_cov.block(g_body_state_size, 0, alt_size, g_body_state_size) * F.transpose();
     }
   }
   m_current_time = time;
