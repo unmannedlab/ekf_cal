@@ -149,17 +149,20 @@ void EKF::PredictModel(double time)
     m_state.body_state.ang_b_to_l = m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec);
 
     Eigen::MatrixXd F = GetStateTransition(dT);
+    unsigned int alt_size = m_state_size - g_body_state_size;
 
     if (m_use_root_covariance) {
-      m_cov.block<g_body_state_size, g_body_state_size>(0, 0) = QR_r(
-        m_cov.block<g_body_state_size, g_body_state_size>(0, 0) * F.transpose(),
-        m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0) * std::sqrt(dT));
-      /// @todo: Need to solve non-base propagation for root form
-    } else {
       m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-        F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose() +
-        m_process_noise.block<g_body_state_size, g_body_state_size>(0, 0) * dT;
-      unsigned int alt_size = m_state_size - g_body_state_size;
+        m_cov.block<g_body_state_size, g_body_state_size>(0, 0) * F.transpose();
+
+      m_cov.block(0, g_body_state_size, g_body_state_size, alt_size) =
+        F * m_cov.block(0, g_body_state_size, g_body_state_size, alt_size);
+
+      m_cov = QR_r(m_cov, m_process_noise * std::sqrt(dT));
+    } else {
+      m_cov.diagonal() += m_process_noise.diagonal() * dT;
+      m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
+        F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose();
       m_cov.block(0, g_body_state_size, g_body_state_size, alt_size) =
         F * m_cov.block(0, g_body_state_size, g_body_state_size, alt_size);
       m_cov.block(g_body_state_size, 0, alt_size, g_body_state_size) =

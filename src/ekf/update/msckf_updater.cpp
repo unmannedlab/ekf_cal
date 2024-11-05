@@ -299,8 +299,8 @@ void MsckfUpdater::UpdateEKF(
       // Augmented state Jacobian
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, g_aug_state_size);
       H_t.block<3, 3>(0, 0) = -rot_l_to_ci;
-      // H_t.block<3, 3>(0, 3) = rot_l_to_ci * SkewSymmetric(pos_f_in_l - pos_bi_in_l) *
-      //   quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
+      H_t.block<3, 3>(0, 3) = rot_l_to_ci * SkewSymmetric(pos_f_in_l - pos_bi_in_l) *
+        quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
 
       if (m_is_cam_extrinsic) {
         /// @todo: FEJ
