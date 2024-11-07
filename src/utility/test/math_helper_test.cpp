@@ -35,21 +35,6 @@ TEST(test_MathHelper, SkewSymmetric) {
   EXPECT_EQ(outMat(2, 2), 0.0);
 }
 
-TEST(test_MathHelper, MinBoundDiagonal)
-{
-  Eigen::MatrixXd mat2 = Eigen::MatrixXd::Ones(2, 2);
-  MinBoundDiagonal(mat2, 1);
-  EXPECT_EQ(mat2, Eigen::MatrixXd::Ones(2, 2));
-
-  Eigen::MatrixXd mat3 = Eigen::MatrixXd::Zero(3, 3);
-  MinBoundDiagonal(mat3, 1);
-  EXPECT_EQ(mat3, Eigen::MatrixXd::Identity(3, 3));
-
-  Eigen::MatrixXd mat4 = Eigen::MatrixXd::Zero(4, 4);
-  MinBoundDiagonal(mat4, 1);
-  EXPECT_EQ(mat4, Eigen::MatrixXd::Identity(4, 4));
-}
-
 TEST(test_MathHelper, MinBoundVector)
 {
   Eigen::VectorXd vec2 = Eigen::VectorXd::Ones(2);
@@ -63,15 +48,6 @@ TEST(test_MathHelper, MinBoundVector)
   Eigen::VectorXd vec4 = Eigen::VectorXd::Zero(4);
   MinBoundVector(vec4, 1);
   EXPECT_EQ(vec4, Eigen::VectorXd::Ones(4));
-}
-
-TEST(test_MathHelper, MaxBoundDiagonal)
-{
-  Eigen::MatrixXd eye = Eigen::Matrix3d::Identity();
-  Eigen::MatrixXd bounded_mat = Eigen::Matrix3d::Identity() * 2;
-  MaxBoundDiagonal(bounded_mat, 1.0);
-
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(bounded_mat, eye, 1e-6));
 }
 
 TEST(test_MathHelper, RemoveFromMatrix)
@@ -178,76 +154,6 @@ TEST(test_MathHelper, CompressMeasurements) {
   EXPECT_NEAR(residual2(0), 2.0, 1e-6);
 }
 
-TEST(test_MathHelper, average_quaternions) {
-  std::vector<Eigen::Quaterniond> quaternions_1;
-  quaternions_1.push_back(Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0));
-  quaternions_1.push_back(Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0));
-  quaternions_1.push_back(Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0));
-  quaternions_1.push_back(Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0));
-  quaternions_1.push_back(Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0));
-
-  std::vector<double> weights_1;
-  weights_1.push_back(1.0);
-  weights_1.push_back(1.0);
-  weights_1.push_back(1.0);
-  weights_1.push_back(1.0);
-  weights_1.push_back(1.0);
-
-  Eigen::Quaterniond average_quaternion_1 = average_quaternions(quaternions_1, weights_1);
-  EXPECT_EQ(average_quaternion_1.w(), 1.0);
-  EXPECT_EQ(average_quaternion_1.x(), 0.0);
-  EXPECT_EQ(average_quaternion_1.y(), 0.0);
-  EXPECT_EQ(average_quaternion_1.z(), 0.0);
-
-  std::vector<Eigen::Quaterniond> quaternions_2;
-  quaternions_2.push_back(Eigen::Quaterniond(0.9990482, 0.0436194, 0, 0));
-  quaternions_2.push_back(Eigen::Quaterniond(0.9990482, -0.0436194, 0, 0));
-  quaternions_2.push_back(Eigen::Quaterniond(0.9990482, 0, 0.0436194, 0));
-  quaternions_2.push_back(Eigen::Quaterniond(0.9990482, 0, -0.0436194, 0));
-  quaternions_2.push_back(Eigen::Quaterniond(0.9990482, 0, 0, 0.0436194));
-  quaternions_2.push_back(Eigen::Quaterniond(0.9990482, 0, 0, -0.0436194));
-
-  std::vector<double> weights_2;
-  weights_2.push_back(1.0);
-  weights_2.push_back(1.0);
-  weights_2.push_back(1.0);
-  weights_2.push_back(1.0);
-  weights_2.push_back(1.0);
-  weights_2.push_back(1.0);
-
-  Eigen::Quaterniond average_quaternion_2 = average_quaternions(quaternions_2, weights_2);
-  EXPECT_EQ(average_quaternion_2.w(), 1.0);
-  EXPECT_EQ(average_quaternion_2.x(), 0.0);
-  EXPECT_EQ(average_quaternion_2.y(), 0.0);
-  EXPECT_EQ(average_quaternion_2.z(), 0.0);
-
-  std::vector<Eigen::Quaterniond> quaternions_3;
-  quaternions_3.push_back(Eigen::Quaterniond(-0.9914449, 0.1305262, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(-0.9238795, 0.3826834, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(-0.7372773, 0.6755902, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(-0.6755902, 0.7372773, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(-0.6755902, -0.7372773, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(-0.7372773, -0.6755902, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(-0.9238795, -0.3826834, 0.0, 0.0));
-  quaternions_3.push_back(Eigen::Quaterniond(-0.9914449, -0.1305262, 0.0, 0.0));
-
-  std::vector<double> weights_3;
-  weights_3.push_back(1.0);
-  weights_3.push_back(1.0);
-  weights_3.push_back(1.0);
-  weights_3.push_back(1.0);
-  weights_3.push_back(1.0);
-  weights_3.push_back(1.0);
-  weights_3.push_back(1.0);
-  weights_3.push_back(1.0);
-
-  Eigen::Quaterniond average_quaternion_3 = average_quaternions(quaternions_3, weights_3);
-  EXPECT_EQ(average_quaternion_3.w(), 1.0);
-  EXPECT_EQ(average_quaternion_3.x(), 0.0);
-  EXPECT_EQ(average_quaternion_3.y(), 0.0);
-  EXPECT_EQ(average_quaternion_3.z(), 0.0);
-}
-
 TEST(test_MathHelper, average_vectors) {
   std::vector<Eigen::Vector3d> vectors_1;
   vectors_1.push_back(Eigen::Vector3d(9.0, 0.0, 0.0));
@@ -339,18 +245,6 @@ TEST(test_MathHelper, maximum_distance) {
   EXPECT_EQ(max_dist, 4.0);
 }
 
-TEST(test_MathHelper, average_doubles) {
-  std::vector<double> doubles_vector;
-  doubles_vector.push_back(1.0);
-  doubles_vector.push_back(2.0);
-  doubles_vector.push_back(3.0);
-  doubles_vector.push_back(4.0);
-  doubles_vector.push_back(5.0);
-
-  EXPECT_EQ(average_doubles(doubles_vector), 3.0);
-}
-
-
 TEST(test_MathHelper, InsertInMatrix) {
   Eigen::MatrixXd in_mat(2, 2);
   in_mat << 1, 2, 3, 4;
@@ -386,24 +280,4 @@ TEST(test_MathHelper, matrix2d_from_vectors3d) {
   EXPECT_EQ(out_mat(0, 1), 1);
   EXPECT_EQ(out_mat(0, 2), 2);
   EXPECT_EQ(out_mat(0, 3), 3);
-}
-
-TEST(test_MathHelper, matrix_condition) {
-  Eigen::MatrixXd in_mat(4, 4);
-  in_mat <<
-    2, 2, 3, 4,
-    2, 3, 4, 5,
-    3, 4, 5, 6,
-    4, 5, 6, 7;
-
-  double condition = limit_matrix_condition(in_mat);
-
-  EXPECT_NEAR(condition, 1.09109, 1e-3);
-
-  EXPECT_NEAR(in_mat(0, 1), 2.0, 1e-3);
-  EXPECT_NEAR(in_mat(0, 2), 3.0, 1e-3);
-  EXPECT_NEAR(in_mat(1, 2), std::sqrt(15.0), 1e-3);
-  EXPECT_NEAR(in_mat(0, 3), std::sqrt(14.0), 1e-3);
-  EXPECT_NEAR(in_mat(1, 3), std::sqrt(21.0), 1e-3);
-  EXPECT_NEAR(in_mat(2, 3), std::sqrt(35.0), 1e-3);
 }

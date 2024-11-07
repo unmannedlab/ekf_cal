@@ -28,52 +28,11 @@
 Eigen::Matrix3d SkewSymmetric(Eigen::Vector3d in_vec);
 
 ///
-/// @brief Bound matrix diagonal by a minimum value
-/// @param mat Input matrix to be bound
-///
-void MinBoundDiagonal(Eigen::MatrixXd & mat, double min_bound);
-
-///
-/// @brief Bound matrix diagonal by a minimum value
-/// @param mat Input matrix to be bound
-/// @param min_bound Bounding value
-/// @param start Starting index
-/// @param size Length of diagonal to bound
-///
-void MinBoundDiagonal(
-  Eigen::MatrixXd & mat,
-  double min_bound,
-  unsigned int start,
-  unsigned int size
-);
-
-///
 /// @brief Bound vector by a minimum value
 /// @param in_vec Input vector to be bound
 /// @param min_bound Bounding value
 ///
 void MinBoundVector(Eigen::VectorXd & in_vec, double min_bound);
-
-///
-/// @brief Bound matrix diagonal by a minimum value
-/// @param mat Input matrix to be bound
-/// @param max_bound Maximum bound
-///
-void MaxBoundDiagonal(Eigen::MatrixXd & mat, double max_bound);
-
-///
-/// @brief Bound matrix diagonal by a maximum value
-/// @param mat Input matrix to be bound
-/// @param max_bound Bounding value
-/// @param start Starting index
-/// @param size Length of diagonal to bound
-///
-void MaxBoundDiagonal(
-  Eigen::MatrixXd & mat,
-  double max_bound,
-  unsigned int start,
-  unsigned int size
-);
 
 ///
 /// @brief Insert a diagonal matrix block into another matrix
@@ -111,18 +70,6 @@ void ApplyLeftNullspace(Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::Vec
 /// @param residual Measurement residual
 ///
 void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual);
-
-double average_doubles(const std::vector<double> & values);
-
-///
-/// @brief Find average of multiple quaternions
-/// @param quaternions Vector of quaternions to average
-/// @param weights Vector of weights
-/// @return Average quaternion
-///
-Eigen::Quaterniond average_quaternions(
-  std::vector<Eigen::Quaterniond> quaternions,
-  std::vector<double> weights);
 
 ///
 /// @brief Find average of multiple vectors
@@ -190,8 +137,12 @@ double maximum_distance(const std::vector<Eigen::Vector3d> & eigen_points);
 ///
 double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vectors);
 
-double limit_matrix_condition(Eigen::MatrixXd & mat);
-
+///
+/// @brief Vertically concatenate two matrices and get R of QR decomposition
+/// @param A Top matrix
+/// @param B Bottom matrix
+/// @return R matrix from QR decomposition
+///
 Eigen::MatrixXd QR_r(Eigen::MatrixXd A, Eigen::MatrixXd B);
 
 #endif  // UTILITY__MATH_HELPER_HPP_
