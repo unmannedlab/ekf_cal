@@ -294,7 +294,7 @@ void MsckfUpdater::UpdateEKF(
       distortion_jacobian(xy_measured, m_intrinsics, H_d);
 
       // Entire feature Jacobian
-      // H_f.block<2, 3>(2 * i, 0) = H_d * H_p * rot_l_to_ci;
+      H_f.block<2, 3>(2 * i, 0) = H_d * H_p * rot_l_to_ci;
 
       // Augmented state Jacobian
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, g_aug_state_size);

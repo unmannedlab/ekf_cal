@@ -141,27 +141,14 @@ Eigen::MatrixXd RemoveFromMatrix(
 
 void ApplyLeftNullspace(Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::VectorXd & res)
 {
-  unsigned int m = H_f.rows();
-  unsigned int n = H_f.cols();
-
-  // Apply the left nullspace of H_f to the jacobians and the residual
-  Eigen::JacobiRotation<double> givens;
-  for (unsigned int j = 0; j < n; ++j) {
-    for (unsigned int i = m - 1; i > j; --i) {
-      // Givens matrix G
-      givens.makeGivens(H_f(i - 1, j), H_f(i, j));
-
-      // Apply nullspace
-      (H_f.block(i - 1, j, 2, n - j)).applyOnTheLeft(0, 1, givens.adjoint());
-      (H_x.block(i - 1, 0, 2, H_x.cols())).applyOnTheLeft(0, 1, givens.adjoint());
-      (res.segment<2>(i - 1)).applyOnTheLeft(0, 1, givens.adjoint());
-    }
-  }
-
-  H_x = H_x.block(n, 0, H_x.rows() - n, H_x.cols()).eval();
-  res = res.block(n, 0, res.rows() - n, res.cols()).eval();
+  Eigen::HouseholderQR<Eigen::MatrixXd> QR(H_f);
+  Eigen::MatrixXd Q = QR.householderQ();
+  Eigen::MatrixXd Q_null = Q.block(H_f.cols(), 0, H_f.rows() - H_f.cols(), H_f.rows());
+  H_x = Q_null * H_x;
+  res = Q_null * res;
 }
 
+/// @todo Rewrite as a column-space projection using QR decomposition
 void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual)
 {
   unsigned int m = jacobian.rows();
