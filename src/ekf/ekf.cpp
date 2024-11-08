@@ -113,16 +113,14 @@ void EKF::PredictModel(double time)
     m_current_time = time;
     m_time_initialized = true;
     m_debug_logger->Log(
-      LogLevel::INFO,
-      "EKF::Predict initialized time at t=" + std::to_string(time));
+      LogLevel::INFO, "EKF::Predict initialized time at t=" + std::to_string(time));
     return;
   }
 
   if (time < m_current_time) {
     m_debug_logger->Log(
       LogLevel::INFO, "Requested prediction to time in the past. Current t=" +
-      std::to_string(m_current_time) + ", Requested t=" +
-      std::to_string(time));
+      std::to_string(m_current_time) + ", Requested t=" + std::to_string(time));
     return;
   }
 

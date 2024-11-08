@@ -157,7 +157,7 @@ void TruthEngine::GenerateFeatures(unsigned int feature_count, double room_size,
     cv::Point3d vec;
     vec.x = rng.UniRand(-room_size, room_size);
     vec.y = rng.UniRand(-room_size, room_size);
-    vec.z = rng.UniRand(-room_size / 10, room_size / 10);
+    vec.z = rng.UniRand(-room_size, room_size);
     m_feature_points.push_back(vec);
   }
 

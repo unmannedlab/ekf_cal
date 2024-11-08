@@ -134,7 +134,7 @@ std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
       (feature_points.size() >= m_max_track_length))
     {
       // This feature does not exist in the latest frame
-      if (feature_points.size() > 1) {
+      if (feature_points.size() >= m_min_track_length) {
         FeatureTrack feature_track;
         feature_track.track = feature_points;
         auto feature_point_cv = m_truth->GetFeature(feature_points[0].key_point.class_id);

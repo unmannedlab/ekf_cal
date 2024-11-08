@@ -75,7 +75,9 @@ bool MsckfUpdater::TriangulateFeature(
   Eigen::Vector3d & pos_f_in_l)
 {
   /// @todo: Need to continue debugging the triangulated features
-  pos_f_in_l = feature_track.true_feature_position;
+  if (m_use_true_triangulation) {
+    pos_f_in_l = feature_track.true_feature_position;
+  }
 
   AugState aug_state_0 = ekf->GetAugState(
     m_id, feature_track.track[0].frame_id, feature_track.track[0].frame_time);
@@ -127,10 +129,16 @@ bool MsckfUpdater::TriangulateFeature(
   Eigen::Vector3d pos_f_in_l_tri;
   if (pos_f_in_c0.z() < m_min_feat_dist || m_max_feat_dist < pos_f_in_c0.z()) {
     std::stringstream err_msg;
-    err_msg << "MSCKF triangulated point out of bounds. r = " << pos_f_in_l.norm();
+    err_msg << "MSCKF triangulated point out of bounds. r = " << pos_f_in_c0.z();
     m_logger->Log(LogLevel::INFO, err_msg.str());
     pos_f_in_l_tri = Eigen::Vector3d::Zero();
-    return true;
+    /// @todo: Add input flag
+    if (m_use_true_triangulation) {
+      return true;
+    } else {
+      pos_f_in_l = pos_f_in_l_tri;
+      return false;
+    }
   } else {
     pos_f_in_l_tri = rot_b0_to_l * (m_ang_c_to_b * pos_f_in_c0 + m_pos_c_in_b) + pos_b0_in_l;
 
@@ -139,6 +147,9 @@ bool MsckfUpdater::TriangulateFeature(
     msg << "," << std::to_string(feature_track.track[0].key_point.class_id);
     msg << VectorToCommaString(pos_f_in_l_tri);
     m_triangulation_logger.RateLimitedLog(msg.str(), time);
+    if (!m_use_true_triangulation) {
+      pos_f_in_l = pos_f_in_l_tri;
+    }
     return true;
   }
 }

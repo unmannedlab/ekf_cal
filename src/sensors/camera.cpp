@@ -57,9 +57,8 @@ Camera::Camera(Camera::Parameters cam_params)
 void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
 {
   m_logger->Log(
-    LogLevel::DEBUG, "Camera " + std::to_string(
-      camera_message->sensor_id) + " callback called at time = " +
-    std::to_string(camera_message->time));
+    LogLevel::DEBUG, "Camera " + std::to_string(camera_message->sensor_id) +
+    " callback called at time = " + std::to_string(camera_message->time));
 
   if (!camera_message->image.empty()) {
     if (!m_trackers.empty() || !m_fiducials.empty()) {
@@ -86,8 +85,7 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
   } else {
     m_logger->Log(LogLevel::INFO, "Camera received empty image");
   }
-  m_logger->Log(
-    LogLevel::DEBUG, "Camera " + std::to_string(m_id) + " callback complete");
+  m_logger->Log(LogLevel::DEBUG, "Camera " + std::to_string(m_id) + " callback complete");
 }
 
 /// @todo apply similar function to sensor/tracker IDs

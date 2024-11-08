@@ -320,7 +320,7 @@ int main(int argc, char * argv[])
   }
 
   // Load tracker parameters
-  unsigned int max_track_length {0U};
+  unsigned int max_track_length {0};
   debug_logger->Log(LogLevel::INFO, "Loading Trackers");
   std::map<std::string, SimFeatureTracker::Parameters> tracker_map;
   for (unsigned int i = 0; i < trackers.size(); ++i) {

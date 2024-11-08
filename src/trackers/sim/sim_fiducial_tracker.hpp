@@ -95,8 +95,8 @@ private:
   bool m_no_errors {false};
   BoardTrack m_board_track;
 
-  unsigned int m_min_track_length {0U};
-  unsigned int m_max_track_length {1U};
+  unsigned int m_min_track_length {0};
+  unsigned int m_max_track_length {1};
 };
 
 
