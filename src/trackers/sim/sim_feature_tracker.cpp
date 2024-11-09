@@ -45,13 +45,13 @@ SimFeatureTracker::SimFeatureTracker(
   m_truth = truthEngine;
 }
 
-std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int sensor_id)
+std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 {
   Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(time);
   Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(time);
-  Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(sensor_id);
-  Eigen::Quaterniond ang_c_to_b = m_truth->GetCameraAngularPosition(sensor_id);
-  Intrinsics intrinsics = m_truth->GetCameraIntrinsics(sensor_id);
+  Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(m_camera_id);
+  Eigen::Quaterniond ang_c_to_b = m_truth->GetCameraAngularPosition(m_camera_id);
+  Intrinsics intrinsics = m_truth->GetCameraIntrinsics(m_camera_id);
   Eigen::Matrix3d rot_c_to_g = (ang_b_to_g * ang_c_to_b).toRotationMatrix();
   Eigen::Matrix3d rot_g_to_c = rot_c_to_g.transpose();
 
@@ -116,11 +116,11 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
 }
 
 std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
-  double message_time, int frame_id, int sensor_id)
+  double message_time, int frame_id)
 {
   FeatureTracks feature_tracks;
 
-  std::vector<cv::KeyPoint> key_points = VisibleKeypoints(message_time, sensor_id);
+  std::vector<cv::KeyPoint> key_points = VisibleKeypoints(message_time);
 
   for (auto & key_point : key_points) {
     auto feature_points = FeaturePoint{frame_id, message_time, key_point};
@@ -154,7 +154,7 @@ std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
   tracker_message->feature_tracks = feature_tracks;
   tracker_message->time = message_time;
   tracker_message->tracker_id = m_id;
-  tracker_message->sensor_id = sensor_id;
+  tracker_message->sensor_id = m_camera_id;
   tracker_message->sensor_type = SensorType::Tracker;
   return tracker_message;
 }

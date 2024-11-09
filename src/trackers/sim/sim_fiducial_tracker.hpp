@@ -65,18 +65,16 @@ public:
   /// @brief Generate simulated tracker messages
   /// @param message_time Message time
   /// @param frame_id Camera frame ID
-  /// @param sensor_id Camera sensor ID
   /// @return Generated fiducial tracker message
   ///
   std::shared_ptr<SimFiducialTrackerMessage> GenerateMessage(
-    double message_time, int frame_id, int sensor_id);
+    double message_time, int frame_id);
 
   ///
   /// @brief Return currently visible keypoints
   /// @param time Current time
-  /// @param sensor_id Camera sensor ID
   ///
-  bool IsBoardVisible(double time, int sensor_id);
+  bool IsBoardVisible(double time);
 
   ///
   /// @brief Callback for feature tracker

@@ -49,13 +49,13 @@ SimFiducialTracker::SimFiducialTracker(
   truth_engine->SetBoardOrientation(m_id, ang_f_to_g_true);
 }
 
-bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
+bool SimFiducialTracker::IsBoardVisible(double time)
 {
   Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(time);
   Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(time);
-  Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(sensor_id);
-  Eigen::Quaterniond ang_c_to_b = m_truth->GetCameraAngularPosition(sensor_id);
-  Intrinsics intrinsics = m_truth->GetCameraIntrinsics(sensor_id);
+  Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(m_camera_id);
+  Eigen::Quaterniond ang_c_to_b = m_truth->GetCameraAngularPosition(m_camera_id);
+  Intrinsics intrinsics = m_truth->GetCameraIntrinsics(m_camera_id);
   Eigen::Matrix3d rot_g_to_c = (ang_b_to_g * ang_c_to_b).toRotationMatrix().transpose();
   cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);
   EigenMatrixToCv(rot_g_to_c, ang_g_to_c_cv);
@@ -104,7 +104,7 @@ bool SimFiducialTracker::IsBoardVisible(double time, int sensor_id)
 }
 
 std::shared_ptr<SimFiducialTrackerMessage> SimFiducialTracker::GenerateMessage(
-  double message_time, int frame_id, int sensor_id)
+  double message_time, int frame_id)
 {
   std::vector<std::shared_ptr<SimFiducialTrackerMessage>> fiducial_tracker_messages;
   Eigen::Vector3d pos_f_in_g_true = m_truth->GetBoardPosition(m_id);
@@ -112,12 +112,12 @@ std::shared_ptr<SimFiducialTrackerMessage> SimFiducialTracker::GenerateMessage(
 
   FeatureTracks feature_tracks;
 
-  bool is_board_visible = IsBoardVisible(message_time, sensor_id);
+  bool is_board_visible = IsBoardVisible(message_time);
   if (is_board_visible) {
     Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(message_time);
     Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(message_time);
-    Eigen::Vector3d pos_c_in_b_true = m_truth->GetCameraPosition(sensor_id);
-    Eigen::Quaterniond ang_c_to_b_true = m_truth->GetCameraAngularPosition(sensor_id);
+    Eigen::Vector3d pos_c_in_b_true = m_truth->GetCameraPosition(m_camera_id);
+    Eigen::Quaterniond ang_c_to_b_true = m_truth->GetCameraAngularPosition(m_camera_id);
 
     Eigen::Matrix3d rot_g_to_b = ang_b_to_g.toRotationMatrix().transpose();
     Eigen::Matrix3d rot_b_to_c = ang_c_to_b_true.toRotationMatrix().transpose();
@@ -157,7 +157,7 @@ std::shared_ptr<SimFiducialTrackerMessage> SimFiducialTracker::GenerateMessage(
   auto tracker_message = std::make_shared<SimFiducialTrackerMessage>();
   tracker_message->time = message_time;
   tracker_message->tracker_id = m_id;
-  tracker_message->sensor_id = sensor_id;
+  tracker_message->sensor_id = m_camera_id;
   tracker_message->sensor_type = SensorType::Tracker;
   tracker_message->pos_error = m_t_vec_error;
   tracker_message->ang_error = m_r_vec_error;

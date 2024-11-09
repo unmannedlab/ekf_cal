@@ -502,6 +502,7 @@ int main(int argc, char * argv[])
   sort(messages.begin(), messages.end(), MessageCompare);
 
   // Run measurements through sensors and EKF
+  /// @todo: Add high-level execution timing vs. simulation time.
   debug_logger->Log(LogLevel::INFO, "Begin Simulation");
   for (auto message : messages) {
     auto it = sensor_map.find(message->sensor_id);
