@@ -47,29 +47,29 @@ SimFeatureTracker::SimFeatureTracker(
 
 std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 {
-  Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(time);
-  Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(time);
+  Eigen::Vector3d pos_b_in_l = m_truth->GetBodyPosition(time);
+  Eigen::Quaterniond ang_b_to_l = m_truth->GetBodyAngularPosition(time);
   Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(m_camera_id);
   Eigen::Quaterniond ang_c_to_b = m_truth->GetCameraAngularPosition(m_camera_id);
   Intrinsics intrinsics = m_truth->GetCameraIntrinsics(m_camera_id);
-  Eigen::Matrix3d rot_c_to_g = (ang_b_to_g * ang_c_to_b).toRotationMatrix();
-  Eigen::Matrix3d rot_g_to_c = rot_c_to_g.transpose();
+  Eigen::Matrix3d rot_c_to_l = (ang_b_to_l * ang_c_to_b).toRotationMatrix();
+  Eigen::Matrix3d rot_l_to_c = rot_c_to_l.transpose();
 
   // Create OpenCV rotation matrix
-  cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);
-  EigenMatrixToCv(rot_g_to_c, ang_g_to_c_cv);
+  cv::Mat ang_l_to_c_cv(3, 3, cv::DataType<double>::type);
+  EigenMatrixToCv(rot_l_to_c, ang_l_to_c_cv);
 
   // Creating Rodrigues rotation matrix
   cv::Mat r_vec(3, 1, cv::DataType<double>::type);
-  cv::Rodrigues(ang_g_to_c_cv, r_vec);
+  cv::Rodrigues(ang_l_to_c_cv, r_vec);
 
-  Eigen::Vector3d pos_g_in_c = rot_g_to_c * (-(pos_b_in_g + ang_b_to_g * pos_c_in_b));
-  Eigen::Vector3d pos_c_in_g = pos_b_in_g + ang_b_to_g * pos_c_in_b;
+  Eigen::Vector3d pos_l_in_c = rot_l_to_c * (-(pos_b_in_l + ang_b_to_l * pos_c_in_b));
+  Eigen::Vector3d pos_c_in_l = pos_b_in_l + ang_b_to_l * pos_c_in_b;
 
   cv::Mat t_vec(3, 1, cv::DataType<double>::type);
-  t_vec.at<double>(0) = pos_g_in_c[0];
-  t_vec.at<double>(1) = pos_g_in_c[1];
-  t_vec.at<double>(2) = pos_g_in_c[2];
+  t_vec.at<double>(0) = pos_l_in_c[0];
+  t_vec.at<double>(1) = pos_l_in_c[1];
+  t_vec.at<double>(2) = pos_l_in_c[2];
 
   // Create intrinsic matrices
   cv::Mat camera_matrix = intrinsics.ToCameraMatrix();
@@ -83,13 +83,13 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time)
 
   // Convert to feature points
   std::vector<cv::KeyPoint> projected_features;
-  Eigen::Vector3d cam_plane_vec = rot_c_to_g * Eigen::Vector3d(0, 0, 1);
+  Eigen::Vector3d cam_plane_vec = rot_c_to_l * Eigen::Vector3d(0, 0, 1);
   for (unsigned int i = 0; i < projected_points.size(); ++i) {
     cv::Point3d point_cv = feature_points[i];
     Eigen::Vector3d point_eig(
-      point_cv.x - pos_c_in_g[0],
-      point_cv.y - pos_c_in_g[1],
-      point_cv.z - pos_c_in_g[2]);
+      point_cv.x - pos_c_in_l[0],
+      point_cv.y - pos_c_in_l[1],
+      point_cv.z - pos_c_in_l[2]);
 
     // Check that point is in front of camera plane and within sensor limits
     if (
