@@ -73,7 +73,15 @@ public:
   /// @brief Return currently visible keypoints
   /// @param time Current time
   ///
-  std::vector<cv::KeyPoint> VisibleKeypoints(double time);
+  std::vector<cv::KeyPoint> GetVisibleKeypoints(double time);
+
+  std::vector<cv::KeyPoint> FilterInvisiblePoints(
+    std::vector<cv::Point3d> feature_points,
+    std::vector<cv::Point2d> projected_points,
+    Eigen::Matrix3d rot_c_to_l,
+    Eigen::Vector3d pos_c_in_l,
+    Intrinsics intrinsics
+  );
 
   ///
   /// @brief Callback for feature tracker

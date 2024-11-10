@@ -4,18 +4,18 @@
         data_logging_on: true
         data_log_rate: 10.0
         process_noise:
-            pos: 1.0e-2
-            vel: 1.0e-4
-            ang_pos: 1.0e-3
+            pos: 1.0e-0
+            vel: 1.0e-1
+            ang_pos: 1.0e-0
         sim_params:
             seed: 0.0
             use_seed: true
-            max_time: 20.0
+            max_time: 50.0
             stationary_time: 0.1
             truth_type: "cyclic"
             pos_frequency: [0.3, 0.5, 0.7]
             ang_frequency: [0.2, 0.3, 0.4]
-            # ang_amplitude: 0.1
+            ang_amplitude: 0.3
             number_of_runs: 2
             pos_b_in_l_error: [0.5, 0.5, 0.5]
             ang_b_to_l_error: [0.3, 0.3, 0.3]
@@ -83,9 +83,9 @@
                 descriptor_matcher: 0
                 detector_threshold: 10.0
                 pixel_error: 0.5
-                max_track_length: 20
+                max_track_length: 10
                 sim_params:
-                    feature_count: 1000000
+                    feature_count: 500
                     room_size: 5.0
 
         fiducial: {}

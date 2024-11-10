@@ -161,6 +161,42 @@ void TruthEngine::GenerateGridFeatures()
   }
 }
 
+std::vector<cv::Point3d> TruthEngine::GenerateVisibleFeatures(
+  double time,
+  int camera_id,
+  unsigned int new_feature_count,
+  SimRNG rng
+)
+{
+  Eigen::Vector3d pos_b_in_l = GetBodyPosition(time);
+  Eigen::Quaterniond ang_b_to_l = GetBodyAngularPosition(time);
+  Eigen::Vector3d pos_c_in_b = GetCameraPosition(camera_id);
+  Eigen::Quaterniond ang_c_to_b = GetCameraAngularPosition(camera_id);
+  Eigen::Quaterniond ang_c_to_l = ang_b_to_l * ang_c_to_b;
+  Eigen::Vector3d pos_c_in_l = pos_b_in_l + ang_b_to_l * pos_c_in_b;
+  Intrinsics intrinsics = GetCameraIntrinsics(camera_id);
+
+  for (unsigned int i = 0; i < new_feature_count; ++i) {
+    auto c_x = static_cast<unsigned int>(rng.UniRand(0, intrinsics.width));
+    auto c_y = static_cast<unsigned int>(rng.UniRand(0, intrinsics.height));
+    double depth = rng.UniRand(0, m_room_size);
+
+    Eigen::Vector3d pos_f_in_c{
+      depth * (c_x - intrinsics.width / 2) / (intrinsics.f_x / intrinsics.pixel_size),
+      depth * (c_y - intrinsics.height / 2) / (intrinsics.f_y / intrinsics.pixel_size),
+      depth};
+
+    Eigen::Vector3d pos_f_in_l_eig = ang_c_to_l * pos_f_in_c + pos_c_in_l;
+
+    cv::Point3d pos_f_in_l{pos_f_in_l_eig(0), pos_f_in_l_eig(1), pos_f_in_l_eig(2)};
+
+    m_feature_points.push_back(pos_f_in_l);
+    m_feature_points_map[m_feature_points_map.size()] = pos_f_in_l;
+  }
+
+  return m_feature_points;
+}
+
 std::vector<cv::Point3d> TruthEngine::GetFeatures()
 {
   return m_feature_points;

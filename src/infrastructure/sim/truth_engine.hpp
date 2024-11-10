@@ -246,11 +246,15 @@ public:
 
   ///
   /// @brief Feature generation function
-  /// @param feature_count Number of features to generate
-  /// @param room_size Size of room to distribute features in
-  /// @param rng Random number generator to use in generation
   ///
   void GenerateGridFeatures();
+
+  std::vector<cv::Point3d> GenerateVisibleFeatures(
+    double time,
+    int camera_id,
+    unsigned int new_feature_count,
+    SimRNG rng
+  );
 
   ///
   /// @brief Getter function for features
@@ -285,7 +289,7 @@ private:
   Eigen::Vector3d m_lla_reference;
   double m_heading;
   double m_room_size{4};
-  int m_grid_size{100};
+  int m_grid_size{15};
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTH_ENGINE_HPP_

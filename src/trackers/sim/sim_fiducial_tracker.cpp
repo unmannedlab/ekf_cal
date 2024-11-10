@@ -55,7 +55,6 @@ bool SimFiducialTracker::IsBoardVisible(double time)
   Eigen::Quaterniond ang_b_to_l = m_truth->GetBodyAngularPosition(time);
   Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(m_camera_id);
   Eigen::Quaterniond ang_c_to_b = m_truth->GetCameraAngularPosition(m_camera_id);
-  Intrinsics intrinsics = m_truth->GetCameraIntrinsics(m_camera_id);
   Eigen::Matrix3d rot_l_to_c = (ang_b_to_l * ang_c_to_b).toRotationMatrix().transpose();
   cv::Mat ang_l_to_c_cv(3, 3, cv::DataType<double>::type);
   EigenMatrixToCv(rot_l_to_c, ang_l_to_c_cv);
@@ -72,6 +71,7 @@ bool SimFiducialTracker::IsBoardVisible(double time)
   t_vec.at<double>(2) = pos_l_in_c[2];
 
   // Create intrinsic matrices
+  Intrinsics intrinsics = m_truth->GetCameraIntrinsics(m_camera_id);
   cv::Mat camera_matrix = intrinsics.ToCameraMatrix();
   cv::Mat distortion = intrinsics.ToDistortionVector();
 
