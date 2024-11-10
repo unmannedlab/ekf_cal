@@ -198,8 +198,8 @@
     "terminal.integrated.gpuAcceleration": "off",
     "cmake.debugConfig": {
         "args": [
-            "${workspaceFolder}/config/example.yaml",
-            "${workspaceFolder}/config/example/"
+            "${workspaceFolder}/config/msckf.yaml",
+            "${workspaceFolder}/config/msckf/"
         ]
     },
     "todo.embedded.exclude": [
