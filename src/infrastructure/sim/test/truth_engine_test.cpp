@@ -88,7 +88,6 @@ TEST(test_TruthEngine, InheritedFunctions) {
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(board_ang, board_ang_out, 1e-6));
 
   SimRNG rng;
-  truth_engine_cyclic.GenerateFeatures(1e3, 10, rng);
   std::vector<cv::Point3d> features = truth_engine_cyclic.GetFeatures();
 }
 
@@ -405,7 +404,6 @@ TEST(test_TruthEngineCyclic, WriteTruthData) {
   truth_engine_cyclic.SetGpsPosition(4, gps_pos);
 
   SimRNG rng;
-  truth_engine_cyclic.GenerateFeatures(1e3, 10, rng);
   std::vector<cv::Point3d> features = truth_engine_cyclic.GetFeatures();
 
   truth_engine_cyclic.WriteTruthData(10.0, "");

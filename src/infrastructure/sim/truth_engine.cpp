@@ -27,7 +27,10 @@
 #include "utility/string_helper.hpp"
 
 TruthEngine::TruthEngine(double max_time, std::shared_ptr<DebugLogger> logger)
-: m_max_time(max_time), m_logger(logger) {}
+: m_max_time(max_time), m_logger(logger)
+{
+  GenerateGridFeatures();
+}
 
 Eigen::Vector3d TruthEngine::GetImuPosition(unsigned int sensor_id)
 {
@@ -137,28 +140,20 @@ Eigen::Quaterniond TruthEngine::GetBoardOrientation(unsigned int board_id)
   return m_board_ang[board_id];
 }
 
-void TruthEngine::GenerateFeatures(unsigned int feature_count, double room_size, SimRNG rng)
+void TruthEngine::GenerateGridFeatures()
 {
-  m_feature_points.push_back(cv::Point3d(room_size, 0, 0));
-  m_feature_points.push_back(cv::Point3d(room_size, room_size / 10, 0));
-  m_feature_points.push_back(cv::Point3d(room_size, -room_size / 10, 0));
-  m_feature_points.push_back(cv::Point3d(room_size, 0, room_size / 10));
-  m_feature_points.push_back(cv::Point3d(room_size, 0, -room_size / 10));
-  m_feature_points.push_back(cv::Point3d(room_size, room_size / 10, room_size));
-  m_feature_points.push_back(cv::Point3d(room_size, room_size / 10, -room_size));
-  m_feature_points.push_back(cv::Point3d(room_size, -room_size / 10, room_size));
-  m_feature_points.push_back(cv::Point3d(room_size, -room_size / 10, -room_size));
-  m_feature_points.push_back(cv::Point3d(-room_size, 0, 0));
-  m_feature_points.push_back(cv::Point3d(0, room_size, 0));
-  m_feature_points.push_back(cv::Point3d(0, -room_size, 0));
-  m_feature_points.push_back(cv::Point3d(0, 0, room_size));
-  m_feature_points.push_back(cv::Point3d(0, 0, -room_size));
-  for (unsigned int i = 0; i < feature_count; ++i) {
-    cv::Point3d vec;
-    vec.x = rng.UniRand(-room_size, room_size);
-    vec.y = rng.UniRand(-room_size, room_size);
-    vec.z = rng.UniRand(-room_size, room_size);
-    m_feature_points.push_back(vec);
+  for (int i = 0; i < m_grid_size; ++i) {
+    for (int j = 0; j < m_grid_size; ++j) {
+      double grid_size_double = static_cast<double>(m_grid_size);
+      double grid_x = (static_cast<double>(i) / grid_size_double * m_room_size) - (m_room_size / 2);
+      double grid_y = (static_cast<double>(j) / grid_size_double * m_room_size) - (m_room_size / 2);
+      m_feature_points.push_back(cv::Point3d(m_room_size / 2.0, grid_x, grid_y));
+      m_feature_points.push_back(cv::Point3d(-m_room_size / 2.0, grid_x, grid_y));
+      m_feature_points.push_back(cv::Point3d(grid_x, m_room_size / 2.0, grid_y));
+      m_feature_points.push_back(cv::Point3d(grid_x, -m_room_size / 2.0, grid_y));
+      m_feature_points.push_back(cv::Point3d(grid_x, grid_y, m_room_size / 2.0));
+      m_feature_points.push_back(cv::Point3d(grid_x, grid_y, -m_room_size / 2.0));
+    }
   }
 
   for (unsigned int i = 0; i < m_feature_points.size(); ++i) {

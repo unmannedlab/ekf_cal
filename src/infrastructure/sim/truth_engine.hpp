@@ -250,7 +250,7 @@ public:
   /// @param room_size Size of room to distribute features in
   /// @param rng Random number generator to use in generation
   ///
-  void GenerateFeatures(unsigned int feature_count, double room_size, SimRNG rng);
+  void GenerateGridFeatures();
 
   ///
   /// @brief Getter function for features
@@ -284,6 +284,8 @@ private:
   std::map<unsigned int, Eigen::Vector3d> m_gps_pos;
   Eigen::Vector3d m_lla_reference;
   double m_heading;
+  double m_room_size{4};
+  int m_grid_size{100};
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTH_ENGINE_HPP_

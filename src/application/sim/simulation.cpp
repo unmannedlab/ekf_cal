@@ -347,8 +347,6 @@ int main(int argc, char * argv[])
     sim_tracker_params.tracker_params = track_params;
 
     tracker_map[track_params.name] = sim_tracker_params;
-    truth_engine->GenerateFeatures(
-      sim_tracker_params.feature_count, sim_tracker_params.room_size, rng);
   }
 
   // Load board detectors

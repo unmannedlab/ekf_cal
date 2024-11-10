@@ -61,15 +61,16 @@ public:
   ///
   cv::Mat ToDistortionVector();
 
-  double f_x {1.0};            ///< @brief X focal length [px]
-  double f_y {1.0};            ///< @brief Y focal length [px]
+  /// @todo Develop better defaults
+  double f_x {2000.0};         ///< @brief X focal length [px]
+  double f_y {2000.0};         ///< @brief Y focal length [px]
   double k_1 {0.0};            ///< @brief Radial coefficient 1
   double k_2 {0.0};            ///< @brief Radial coefficient 2
   double p_1 {0.0};            ///< @brief Tangential coefficient 1
   double p_2 {0.0};            ///< @brief Tangential coefficient 1
   double width {640};          ///< @brief Image width
   double height {480};         ///< @brief Image height
-  double pixel_size {5.0e-6};  ///< @brief Pixel size [mm]
+  double pixel_size {5.0e-3};  ///< @brief Pixel size [mm]
 };
 
 ///
