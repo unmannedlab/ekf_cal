@@ -68,8 +68,8 @@ public:
   double k_2 {0.0};            ///< @brief Radial coefficient 2
   double p_1 {0.0};            ///< @brief Tangential coefficient 1
   double p_2 {0.0};            ///< @brief Tangential coefficient 1
-  double width {640};          ///< @brief Image width
-  double height {480};         ///< @brief Image height
+  double width {1920};         ///< @brief Image width [px]
+  double height {1080};        ///< @brief Image height [px]
   double pixel_size {5.0e-3};  ///< @brief Pixel size [mm]
 };
 
