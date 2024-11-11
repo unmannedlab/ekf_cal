@@ -66,6 +66,7 @@ TEST(test_SimIMU, Constructor) {
   auto truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
   SimGPS sim_gps(sim_gps_params, truth_engine);
   truth_engine->SetGpsPosition(sim_gps.GetId(), Eigen::Vector3d{0, 0, 0});
+  truth_engine->SetLocalPosition(Eigen::Vector3d{0, 0, 0});
 
   SimRNG rng;
   rng.SetSeed(0.0);
