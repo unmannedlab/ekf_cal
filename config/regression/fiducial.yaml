@@ -72,15 +72,6 @@
                 fiducial: "charuco"
                 pos_stability: 1.0e-9
                 ang_stability: 1.0e-9
-                intrinsics:
-                    F: 0.01
-                    c_x: 320.0
-                    c_y: 240.0
-                    k_1: 0.0
-                    k_2: 0.0
-                    p_1: 0.0
-                    p_2: 0.0
-                    pixel_size: 5.0e-6
                 sim_params:
                     time_bias_error: 1.0e-9
                     time_error: 1.0e-9

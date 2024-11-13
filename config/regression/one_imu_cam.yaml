@@ -66,10 +66,6 @@
                 variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 tracker: "orb"
                 is_extrinsic: false
-                intrinsics:
-                    f_x:        0.01
-                    f_y:        0.01
-                    pixel_size: 5.0e-6
                 sim_params:
                     time_bias_error: 0.0
                     time_error: 0.0
