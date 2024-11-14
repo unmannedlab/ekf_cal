@@ -17,6 +17,9 @@
                         "data_logging_on": {
                             "type": "boolean"
                         },
+                        "data_log_rate": {
+                            "type": "number"
+                        },
                         "augmenting_type": {
                             "type": "number"
                         },
@@ -38,16 +41,7 @@
                                 "vel": {
                                     "type": "number"
                                 },
-                                "acc": {
-                                    "type": "number"
-                                },
                                 "ang_pos": {
-                                    "type": "number"
-                                },
-                                "ang_vel": {
-                                    "type": "number"
-                                },
-                                "ang_acc": {
                                     "type": "number"
                                 }
                             }
@@ -74,6 +68,9 @@
                         },
                         "gps_init_ang_thresh": {
                             "type": "number"
+                        },
+                        "use_root_covariance": {
+                            "type": "boolean"
                         },
                         "sim_params": {
                             "type": "object",
