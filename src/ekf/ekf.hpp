@@ -274,7 +274,7 @@ public:
   /// @param time Frame time
   /// @return Augmented state
   ///
-  AugState GetAugState(int camera_id, int frame_id, double time);
+  AugState GetAugState(unsigned int camera_id, int frame_id, double time);
 
   ///
   /// @brief Get augmented state size
@@ -398,6 +398,7 @@ private:
   Eigen::MatrixXd m_process_noise {Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size)};
   Eigen::VectorXd m_body_process_noise {Eigen::VectorXd::Zero(g_body_state_size)};
   DataLogger m_data_logger;
+  DataLogger m_augmentation_logger;
 
   GpsInitType m_gps_init_type;
   double m_gps_init_pos_thresh;
@@ -415,7 +416,7 @@ private:
   double m_augmenting_delta_time;
   double m_augmenting_pos_error;
   double m_augmenting_ang_error;
-  double m_primary_camera_id;
+  unsigned int m_primary_camera_id{0};
   double m_max_frame_period {0.0};
   double m_max_track_duration {0.0};
   double m_min_aug_period {1.0};

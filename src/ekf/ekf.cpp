@@ -38,6 +38,7 @@ EKF::EKF(Parameters params)
 : m_debug_logger(params.debug_logger),
   m_data_logging_on(params.data_logging_on),
   m_data_logger(params.log_directory, "body_state.csv"),
+  m_augmentation_logger(params.log_directory, "aug_state.csv"),
   m_gps_init_type(params.gps_init_type),
   m_gps_init_pos_thresh(params.gps_init_pos_thresh),
   m_gps_init_ang_thresh(params.gps_init_ang_thresh),
@@ -53,17 +54,25 @@ EKF::EKF(Parameters params)
   m_use_root_covariance(params.use_root_covariance),
   m_use_first_estimate_jacobian(params.use_first_estimate_jacobian)
 {
-  std::stringstream header;
-  header << "time";
-  header << EnumerateHeader("body_pos", 3);
-  header << EnumerateHeader("body_vel", 3);
-  header << EnumerateHeader("body_ang_pos", 4);
-  header << EnumerateHeader("body_cov", g_body_state_size);
-  header << EnumerateHeader("duration", 1);
+  std::stringstream body_header;
+  body_header << "time";
+  body_header << EnumerateHeader("body_pos", 3);
+  body_header << EnumerateHeader("body_vel", 3);
+  body_header << EnumerateHeader("body_ang_pos", 4);
+  body_header << EnumerateHeader("body_cov", g_body_state_size);
+  body_header << EnumerateHeader("duration", 1);
 
-  m_data_logger.DefineHeader(header.str());
+  m_data_logger.DefineHeader(body_header.str());
   m_data_logger.SetLogging(m_data_logging_on);
   m_data_logger.SetLogRate(params.data_log_rate);
+
+  std::stringstream aug_header;
+  aug_header << "time";
+  aug_header << EnumerateHeader("body_pos", 3);
+  aug_header << EnumerateHeader("body_ang_pos", 4);
+  m_augmentation_logger.DefineHeader(aug_header.str());
+  m_augmentation_logger.SetLogging(m_data_logging_on);
+
   SetBodyProcessNoise(params.process_noise);
 
   if (params.gps_init_type == GpsInitType::CONSTANT) {
@@ -316,6 +325,10 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
   unsigned int cam_state_end = g_body_state_size +
     GetImuStateSize() + GetGpsStateSize() + GetCamStateSize();
 
+  if (!m_primary_camera_id) {
+    m_primary_camera_id = cam_id;
+  }
+
   m_state.cam_states[cam_id] = cam_state;
   if (cam_state.GetIsExtrinsic()) {
     m_cov = InsertInMatrix(
@@ -486,6 +499,12 @@ void EKF::AugmentStateIfNeeded()
     RefreshIndices();
 
     m_cov = AugmentCovariance(m_cov, m_state.aug_states[0].back().index);
+
+    std::stringstream aug_msg;
+    aug_msg << m_current_time;
+    aug_msg << VectorToCommaString(m_state.body_state.pos_b_in_l);
+    aug_msg << QuaternionToCommaString(m_state.body_state.ang_b_to_l);
+    m_augmentation_logger.Log(aug_msg.str());
   }
 }
 
@@ -522,6 +541,12 @@ void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
     RefreshIndices();
 
     m_cov = AugmentCovariance(m_cov, m_state.aug_states[camera_id].back().index);
+
+    std::stringstream aug_msg;
+    aug_msg << m_current_time;
+    aug_msg << VectorToCommaString(m_state.body_state.pos_b_in_l);
+    aug_msg << QuaternionToCommaString(m_state.body_state.ang_b_to_l);
+    m_augmentation_logger.Log(aug_msg.str());
   }
 }
 
@@ -530,11 +555,13 @@ void EKF::SetBodyProcessNoise(Eigen::VectorXd process_noise)
   m_body_process_noise = process_noise;
 }
 
-AugState EKF::GetAugState(int camera_id, int frame_id, double time)
+AugState EKF::GetAugState(unsigned int camera_id, int frame_id, double time)
 {
   AugState aug_state;
 
-  if (m_augmenting_type == AugmentationType::ALL) {
+  if (m_augmenting_type == AugmentationType::ALL ||
+    (m_augmenting_type == AugmentationType::PRIMARY && camera_id == m_primary_camera_id ))
+  {
     for (unsigned int i = 0; i < m_state.aug_states[camera_id].size(); ++i) {
       if (m_state.aug_states[camera_id][i].frame_id == frame_id) {
         aug_state = m_state.aug_states[camera_id][i];

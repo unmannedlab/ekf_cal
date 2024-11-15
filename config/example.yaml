@@ -13,7 +13,7 @@
                                               #   1: Only the primary camera frames are augmented
                                               #   2: Time-based frame augmentation
                                               #   3: Linear Error-based frame augmentation
-        augmenting_delta_time: 0.             # Maximum time between augments
+        augmenting_delta_time: 0.0            # Maximum time between augments
         augmenting_pos_error: 0.1             # Maximum position error between augments
         augmenting_ang_error: 0.1             # Maximum angular error between augments
         process_noise:
