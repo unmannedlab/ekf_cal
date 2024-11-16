@@ -143,8 +143,8 @@ std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
   std::vector<cv::KeyPoint> key_points = GetVisibleKeypoints(message_time);
 
   for (auto & key_point : key_points) {
-    auto feature_points = FeaturePoint{frame_id, message_time, key_point};
-    m_feature_points_map[key_point.class_id].push_back(feature_points);
+    auto feature_point = FeaturePoint{frame_id, message_time, key_point};
+    m_feature_points_map[key_point.class_id].push_back(feature_point);
   }
 
   // Update MSCKF on features no longer detected

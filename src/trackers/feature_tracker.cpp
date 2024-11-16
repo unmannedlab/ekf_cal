@@ -51,6 +51,7 @@ FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
   m_feature_detector = InitFeatureDetector(params.detector, params.threshold);
   m_descriptor_extractor = InitDescriptorExtractor(params.descriptor, params.threshold);
   m_descriptor_matcher = InitDescriptorMatcher(params.matcher);
+  m_prev_frame_time = m_ekf->GetCurrentTime();
 }
 
 /// @todo Check what parameters are used by open_vins
