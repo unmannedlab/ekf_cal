@@ -270,7 +270,8 @@ void MsckfUpdater::UpdateEKF(
     Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), aug_state_size);
 
     for (unsigned int i = 0; i < feature_track.track.size(); ++i) {
-      AugState aug_state_i = ekf->GetAugState(m_id, feature_track.track[i].frame_id, time);
+      AugState aug_state_i = ekf->GetAugState(
+        m_id, feature_track.track[i].frame_id, feature_track.track[i].frame_time);
 
       Eigen::Matrix3d rot_ci_to_b = m_ang_c_to_b.toRotationMatrix();
       Eigen::Matrix3d rot_bi_to_l = aug_state_i.ang_b_to_l.toRotationMatrix();
@@ -293,8 +294,6 @@ void MsckfUpdater::UpdateEKF(
         (m_intrinsics.f_y / m_intrinsics.pixel_size);
       Eigen::Vector2d xz_residual = xy_measured - xy_predicted;
       res_f.segment<2>(2 * i) = xz_residual;
-
-      unsigned int aug_index = ekf->GetAugState(m_id, feature_track.track[i].frame_id, time).index;
 
       // Projection Jacobian
       Eigen::MatrixXd H_p(2, 3);
@@ -321,7 +320,18 @@ void MsckfUpdater::UpdateEKF(
         //   rot_b_to_c * SkewSymmetric(rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l));
       }
 
-      H_c.block<2, g_aug_state_size>(2 * i, aug_index - aug_state_start) = H_d * H_p * H_t;
+      if (aug_state_i.alpha) {
+        unsigned int aug_index_0 = aug_state_i.index;
+        unsigned int aug_index_1 = aug_state_i.index + g_aug_state_size;
+        H_c.block<2, g_aug_state_size>(2 * i, aug_index_0 - aug_state_start) =
+          H_d * H_p * H_t * (1 - aug_state_i.alpha);
+        H_c.block<2, g_aug_state_size>(2 * i, aug_index_1 - aug_state_start) =
+          H_d * H_p * H_t * aug_state_i.alpha;
+      } else {
+        unsigned int aug_index = aug_state_i.index;
+        H_c.block<2, g_aug_state_size>(2 * i, aug_index - aug_state_start) = H_d * H_p * H_t;
+        std::cout << H_d * H_p * H_t << std::endl << std::endl;
+      }
     }
 
     ApplyLeftNullspace(H_f, H_c, res_f);
