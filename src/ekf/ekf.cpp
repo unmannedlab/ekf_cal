@@ -68,8 +68,8 @@ EKF::EKF(Parameters params)
 
   std::stringstream aug_header;
   aug_header << "time";
-  aug_header << EnumerateHeader("body_pos", 3);
-  aug_header << EnumerateHeader("body_ang_pos", 4);
+  aug_header << EnumerateHeader("aug_pos", 3);
+  aug_header << EnumerateHeader("aug_ang", 4);
   m_augmentation_logger.DefineHeader(aug_header.str());
   m_augmentation_logger.SetLogging(m_data_logging_on);
 
@@ -601,6 +601,7 @@ AugState EKF::GetAugState(unsigned int camera_id, int frame_id, double time)
 
     Eigen::Vector3d pos_delta = aug_state_1.pos_b_in_l - aug_state_0.pos_b_in_l;
 
+    /// @todo: Use higher order interpolation between states?
     aug_state.pos_b_in_l = aug_state_0.pos_b_in_l + alpha * pos_delta;
     aug_state.ang_b_to_l = aug_state_0.ang_b_to_l.slerp(alpha, aug_state_1.ang_b_to_l);
     aug_state.time = time;

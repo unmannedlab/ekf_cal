@@ -62,11 +62,13 @@ def plot_sim_results(config_sets, args):
 
         tabs = []
         body_state_dfs_dict = find_and_read_data_frames(data_dirs, 'body_state')
+        aug_state_dfs_dict = find_and_read_data_frames(data_dirs, 'aug_state')
         body_truth_dfs_dict = find_and_read_data_frames(data_dirs, 'body_truth')
         for key in body_state_dfs_dict:
             body_state_dfs = body_state_dfs_dict[key]
+            aug_state_dfs = aug_state_dfs_dict[key]
             body_truth_dfs = body_truth_dfs_dict[key]
-            tabs.append(tab_body(body_state_dfs, body_truth_dfs, args).get_tab())
+            tabs.append(tab_body(body_state_dfs, aug_state_dfs, body_truth_dfs, args).get_tab())
 
         imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
         for key in sorted(imu_dfs_dict.keys()):
