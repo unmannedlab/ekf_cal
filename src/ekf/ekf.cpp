@@ -319,7 +319,7 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
   }
 
   m_max_frame_period = std::max(m_max_frame_period, 1 / cam_state.rate);
-  m_max_track_duration = m_max_frame_period * m_max_track_length;
+  m_max_track_duration = m_max_frame_period * (m_max_track_length + 1);
   m_min_aug_period = std::min(m_min_aug_period, 1 / cam_state.rate);
 
   unsigned int cam_state_end = g_body_state_size +
@@ -468,7 +468,7 @@ void EKF::AugmentStateIfNeeded()
   for (int i = m_state.aug_states[0].size() - 1; i >= 0; --i) {
     // Check if any states are too old
     if (
-      ((m_current_time - m_state.aug_states[0][i].time) > m_max_track_duration) &&
+      ((m_current_time - m_state.aug_states[0][i + 1].time) > m_max_track_duration) &&
       (static_cast<unsigned int>(i) < m_state.aug_states[0].size()))
     {
       m_state_size -= g_aug_state_size;

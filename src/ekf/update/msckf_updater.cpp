@@ -263,11 +263,9 @@ void MsckfUpdater::UpdateEKF(
       continue;
     }
 
-    unsigned int aug_state_size = ekf->GetAugStateSize();
-    unsigned int aug_state_start = ekf->GetAugStateStart();
     Eigen::VectorXd res_f = Eigen::VectorXd::Zero(2 * feature_track.track.size());
     Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), 3);
-    Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), aug_state_size);
+    Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), state_size);
 
     for (unsigned int i = 0; i < feature_track.track.size(); ++i) {
       AugState aug_state_i = ekf->GetAugState(
@@ -321,15 +319,20 @@ void MsckfUpdater::UpdateEKF(
       }
 
       if (aug_state_i.alpha) {
-        unsigned int aug_index_0 = aug_state_i.index;
-        unsigned int aug_index_1 = aug_state_i.index + g_aug_state_size;
-        H_c.block<2, g_aug_state_size>(2 * i, aug_index_0 - aug_state_start) =
-          H_d * H_p * H_t * (1 - aug_state_i.alpha);
-        H_c.block<2, g_aug_state_size>(2 * i, aug_index_1 - aug_state_start) =
-          H_d * H_p * H_t * aug_state_i.alpha;
+        Eigen::MatrixXd H_aug_0 = H_d * H_p * H_t * (1 - aug_state_i.alpha);
+        Eigen::MatrixXd H_aug_1 = H_d * H_p * H_t * aug_state_i.alpha;
+
+        H_c.block<2, g_aug_state_size>(2 * i, aug_state_i.index) = H_aug_0;
+
+        if (aug_state_i.index + 2 * g_aug_state_size > state_size) {
+          H_c.block<2, 3>(2 * i, 0) = H_aug_1.block<2, 3>(0, 0);
+          H_c.block<2, 3>(2 * i, 6) = H_aug_1.block<2, 3>(0, 3);
+        } else {
+          H_c.block<2, g_aug_state_size>(2 * i, aug_state_i.index + g_aug_state_size) = H_aug_1;
+        }
       } else {
         unsigned int aug_index = aug_state_i.index;
-        H_c.block<2, g_aug_state_size>(2 * i, aug_index - aug_state_start) = H_d * H_p * H_t;
+        H_c.block<2, g_aug_state_size>(2 * i, aug_index) = H_d * H_p * H_t;
         std::cout << H_d * H_p * H_t << std::endl << std::endl;
       }
     }
@@ -339,7 +342,7 @@ void MsckfUpdater::UpdateEKF(
     /// @todo Chi^2 distance check
 
     // Append Jacobian and residual
-    H_x.block(ct_meas, aug_state_start, H_c.rows(), H_c.cols()) = H_c;
+    H_x.block(ct_meas, 0, H_c.rows(), H_c.cols()) = H_c;
     res_x.block(ct_meas, 0, res_f.rows(), 1) = res_f;
 
     ct_meas += H_c.rows();
