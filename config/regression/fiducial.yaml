@@ -8,8 +8,7 @@
             vel: 1.0e-1
             ang_pos: 1.0e-1
         sim_params:
-            seed: 0.0
-            use_seed: true
+            seed: 1.0
             max_time: 60.0
             no_errors: false
             number_of_runs: 10

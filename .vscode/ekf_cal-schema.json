@@ -78,9 +78,6 @@
                                 "seed": {
                                     "type": "number"
                                 },
-                                "use_seed": {
-                                    "type": "boolean"
-                                },
                                 "max_time": {
                                     "type": "number"
                                 },
@@ -309,9 +306,6 @@
                                                 "no_errors": {
                                                     "type": "boolean"
                                                 },
-                                                "time_bias_error": {
-                                                    "type": "number"
-                                                },
                                                 "time_error": {
                                                     "type": "number"
                                                 },
@@ -457,9 +451,6 @@
                                             "properties": {
                                                 "no_errors": {
                                                     "type": "boolean"
-                                                },
-                                                "time_bias_error": {
-                                                    "type": "number"
                                                 },
                                                 "time_error": {
                                                     "type": "number"
@@ -693,9 +684,6 @@
                                             "properties": {
                                                 "no_errors": {
                                                     "type": "boolean"
-                                                },
-                                                "time_bias_error": {
-                                                    "type": "number"
                                                 },
                                                 "time_error": {
                                                     "type": "number"

@@ -33,8 +33,7 @@
         use_root_covariance: true             # Flag to utilize the square root form of covariance
 
         sim_params:
-            seed: 0.0                         # Seed to provide to random number generator
-            use_seed: true                    # Flag to use seed (required for deterministic runs)
+            seed: 1.0                         # Seed to provide to random number generator
             max_time: 10.0                    # Maximum simulation time
             number_of_runs: 10                # Number of runs for Multi-Threaded Simulation
             run_number: 0                     # Start run number (also used to initialize seed)

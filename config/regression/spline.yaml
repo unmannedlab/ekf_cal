@@ -11,8 +11,7 @@
             ang_vel: 1.0e-1
             ang_acc: 1.0e-5
         sim_params:
-            seed: 0.0
-            use_seed: true
+            seed: 1.0
             max_time: 60.0
             number_of_runs: 10
             run_number: 0

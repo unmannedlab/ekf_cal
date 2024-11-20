@@ -333,7 +333,6 @@ void MsckfUpdater::UpdateEKF(
       } else {
         unsigned int aug_index = aug_state_i.index;
         H_c.block<2, g_aug_state_size>(2 * i, aug_index) = H_d * H_p * H_t;
-        std::cout << H_d * H_p * H_t << std::endl << std::endl;
       }
     }
 

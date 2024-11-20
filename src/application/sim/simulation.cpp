@@ -88,7 +88,6 @@ void LoadSimSensorParams(
   YAML::Node node)
 {
   params.no_errors = node["no_errors"].as<bool>(false);
-  params.time_bias_error = node["time_bias_error"].as<double>(0.0);
   params.time_error = node["time_error"].as<double>(0.0);
 }
 
@@ -200,11 +199,10 @@ int main(int argc, char * argv[])
   /// @todo: Add overriding no_errors option
   YAML::Node sim_params = ros_params["sim_params"];
   double rng_seed = sim_params["seed"].as<double>(0.0);
-  bool use_seed = sim_params["use_seed"].as<bool>(false);
   double max_time = sim_params["max_time"].as<double>(10.0);
 
   SimRNG rng;
-  if (use_seed) {
+  if (rng_seed > 0) {
     rng.SetSeed(rng_seed);
   }
 
