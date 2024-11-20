@@ -440,14 +440,11 @@ void EKF::AugmentStateIfNeeded()
     } else if ((m_current_time - m_state.aug_states[0].back().time) > m_min_aug_period) {
       AugState last_aug = m_state.aug_states[0].back();
       double delta_time = m_current_time - last_aug.time;
-      Eigen::Vector3d acc_in_b = m_imu_filter.GetAcc();
       Eigen::Vector3d ang_vel_in_b = m_imu_filter.GetAngVel();
       Eigen::Vector3d ang_acc_in_b = m_imu_filter.GetAngAcc();
 
       Eigen::Vector3d delta_pos = m_state.body_state.pos_b_in_l -
-        delta_time * m_state.body_state.vel_b_in_l -
-        0.5 * delta_time * delta_time * acc_in_b -
-        last_aug.pos_b_in_l;
+        delta_time * m_state.body_state.vel_b_in_l;
 
       Eigen::Vector3d rot_vec(
         ang_vel_in_b[0] * delta_time + ang_acc_in_b[0] * 0.5 * delta_time * delta_time,
@@ -465,7 +462,7 @@ void EKF::AugmentStateIfNeeded()
   }
 
   // Prune old states
-  for (int i = m_state.aug_states[0].size() - 1; i >= 0; --i) {
+  for (int i = m_state.aug_states[0].size() - 2; i >= 0; --i) {
     // Check if any states are too old
     if (
       ((m_current_time - m_state.aug_states[0][i + 1].time) > m_max_track_duration) &&
@@ -483,7 +480,7 @@ void EKF::AugmentStateIfNeeded()
     }
   }
 
-  if (augmented_state_needed) {
+  if (augmented_state_needed && m_frame_received_since_last_aug) {
     m_augmenting_prev_time = m_current_time;
 
     AugState aug_state;
@@ -505,11 +502,13 @@ void EKF::AugmentStateIfNeeded()
     aug_msg << VectorToCommaString(m_state.body_state.pos_b_in_l);
     aug_msg << QuaternionToCommaString(m_state.body_state.ang_b_to_l);
     m_augmentation_logger.Log(aug_msg.str());
+    m_frame_received_since_last_aug = false;
   }
 }
 
 void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
 {
+  m_frame_received_since_last_aug = true;
   if (m_augmenting_type == AugmentationType::ALL ||
     (m_augmenting_type == AugmentationType::PRIMARY && camera_id == m_primary_camera_id))
   {
@@ -578,7 +577,7 @@ AugState EKF::GetAugState(unsigned int camera_id, int frame_id, double time)
     double alpha;
     AugState aug_state_0, aug_state_1;
 
-    if (time <= m_state.aug_states[aug_key].back().time) {
+    if (time < m_state.aug_states[aug_key].back().time) {
       for (unsigned int i = 0; i < m_state.aug_states[aug_key].size() - 1; ++i) {
         if (m_state.aug_states[aug_key][i].time <= time &&
           time <= m_state.aug_states[aug_key][i + 1].time)

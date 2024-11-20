@@ -434,6 +434,7 @@ private:
   bool m_use_root_covariance{false};
   bool m_use_first_estimate_jacobian{false};
   bool m_is_zero_acceleration{true};
+  bool m_frame_received_since_last_aug {true};
 };
 
 #endif  // EKF__EKF_HPP_
