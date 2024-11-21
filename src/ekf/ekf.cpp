@@ -444,7 +444,8 @@ void EKF::AugmentStateIfNeeded()
       Eigen::Vector3d ang_acc_in_b = m_imu_filter.GetAngAcc();
 
       Eigen::Vector3d delta_pos = m_state.body_state.pos_b_in_l -
-        delta_time * m_state.body_state.vel_b_in_l;
+        delta_time * m_state.body_state.vel_b_in_l -
+        last_aug.pos_b_in_l;
 
       Eigen::Vector3d rot_vec(
         ang_vel_in_b[0] * delta_time + ang_acc_in_b[0] * 0.5 * delta_time * delta_time,
