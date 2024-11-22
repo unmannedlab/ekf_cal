@@ -41,8 +41,6 @@ public:
   typedef struct Parameters : public Sensor::Parameters
   {
     Eigen::Vector3d pos_a_in_b {0, 0, 0};           ///< @brief GPS antenna position offset vector
-    Eigen::Vector3d pos_l_in_g {0, 0, 0};           ///< @brief Local LLA position in global
-    double ang_l_to_g {0.0};                        ///< @brief Local angle to global
     Eigen::Vector3d variance {{1, 1, 1}};           ///< @brief Initial state variance
     bool is_extrinsic {false};                      ///< @brief Online extrinsic calibration flag
     double pos_stability {1e-9};                    ///< @brief Position stability
