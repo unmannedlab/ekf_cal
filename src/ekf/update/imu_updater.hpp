@@ -61,9 +61,13 @@ public:
   ///
   /// @brief Measurement Jacobian method
   /// @param ekf EKF pointer
+  /// @param imu_id ID of relevant IMU
   /// @return Measurement Jacobian matrix
   ///
-  Eigen::MatrixXd GetMeasurementJacobian(std::shared_ptr<EKF> ekf);
+  Eigen::MatrixXd GetMeasurementJacobian(
+    std::shared_ptr<EKF> ekf,
+    unsigned int imu_id
+  );
 
   ///
   /// @brief EKF update method for IMU measurements
@@ -73,12 +77,11 @@ public:
   /// @param acceleration_covariance Estimated acceleration error
   /// @param angular_rate Measured angular rate
   /// @param angular_rate_covariance Estimated angular rate error
-  /// @param use_as_predictor switch to use IMU as a prediction step
   ///
   void UpdateEKF(
     std::shared_ptr<EKF> ekf,
     double time, Eigen::Vector3d acceleration, Eigen::Matrix3d acceleration_covariance,
-    Eigen::Vector3d angular_rate, Eigen::Matrix3d angular_rate_covariance, bool use_as_predictor);
+    Eigen::Vector3d angular_rate, Eigen::Matrix3d angular_rate_covariance);
 
   ///
   /// @brief Check for and perform a zero-acceleration update
@@ -105,9 +108,9 @@ private:
   Eigen::Quaterniond m_ang_i_to_b {1.0, 0.0, 0.0, 0.0};
   bool m_is_extrinsic;
   bool m_is_intrinsic;
-  bool m_initial_motion{false};
   bool m_is_first_estimate{true};
-  bool m_was_stationary{false};
+  bool m_initial_motion_detected{false};
+  bool m_correct_heading_rotation{true};
 
   DataLogger m_data_logger;
 };

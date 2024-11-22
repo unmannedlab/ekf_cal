@@ -57,7 +57,7 @@ EkfCalNode::EkfCalNode()
   // Declare EKF Parameters
   this->declare_parameter("debug_log_level", 0);
   this->declare_parameter("data_logging_on", false);
-  this->declare_parameter("body_data_rate", 0.0);
+  this->declare_parameter("data_log_rate", 0.0);
   this->declare_parameter("augmenting_type", 0);
   this->declare_parameter("augmenting_delta_time", 0.0);
   this->declare_parameter("augmenting_pos_error", 0.0);
@@ -74,7 +74,7 @@ EkfCalNode::EkfCalNode()
   this->declare_parameter("init_pos_thresh", 1.0);
   this->declare_parameter("init_ang_thresh", 1.0);
   this->declare_parameter("init_baseline_dist", 1.0);
-  this->declare_parameter("motion_detection_chi_squared", 0.1);
+  this->declare_parameter("motion_detection_chi_squared", 1.0);
   this->declare_parameter("imu_noise_scale_factor", 100.0);
 
   // Declare Sensor Lists
@@ -101,8 +101,7 @@ void EkfCalNode::Initialize()
   m_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
   EKF::Parameters ekf_params;
   ekf_params.debug_logger = m_logger;
-  ekf_params.body_data_rate =
-    ekf_params.data_logging_on = data_logging_on;
+  ekf_params.data_log_rate = ekf_params.data_logging_on = data_logging_on;
   ekf_params.log_directory = "~/log/";
   ekf_params.augmenting_type =
     static_cast<AugmentationType>(this->get_parameter("augmenting_type").as_int());
@@ -181,7 +180,6 @@ void EkfCalNode::DeclareImuParameters(std::string imu_name)
   std::string imu_prefix = "imu." + imu_name;
   this->declare_parameter(imu_prefix + ".is_extrinsic", false);
   this->declare_parameter(imu_prefix + ".is_intrinsic", false);
-  this->declare_parameter(imu_prefix + ".use_for_prediction", false);
   this->declare_parameter(imu_prefix + ".rate", 1.0);
   this->declare_parameter(imu_prefix + ".topic", "");
   this->declare_parameter(
@@ -202,7 +200,6 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
   std::string imu_prefix = "imu." + imu_name;
   bool is_extrinsic = this->get_parameter(imu_prefix + ".is_extrinsic").as_bool();
   bool is_intrinsic = this->get_parameter(imu_prefix + ".is_intrinsic").as_bool();
-  bool use_for_prediction = this->get_parameter(imu_prefix + ".use_for_prediction").as_bool();
   double rate = this->get_parameter(imu_prefix + ".rate").as_double();
   std::string topic = this->get_parameter(imu_prefix + ".topic").as_string();
   std::vector<double> variance = this->get_parameter(imu_prefix + ".variance").as_double_array();
@@ -223,7 +220,6 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
   imu_params.topic = topic;
   imu_params.is_extrinsic = is_extrinsic;
   imu_params.is_intrinsic = is_intrinsic;
-  imu_params.use_for_prediction = use_for_prediction;
   imu_params.rate = rate;
   imu_params.variance = StdToEigVec(variance);
   imu_params.pos_i_in_b = StdToEigVec(pos_i_in_b);
@@ -618,18 +614,12 @@ Eigen::VectorXd EkfCalNode::LoadProcessNoise()
 {
   double pos_noise = this->get_parameter("process_noise.pos").as_double();
   double vel_noise = this->get_parameter("process_noise.vel").as_double();
-  double acc_noise = this->get_parameter("process_noise.acc").as_double();
   double ang_pos_noise = this->get_parameter("process_noise.ang_pos").as_double();
-  double ang_vel_noise = this->get_parameter("process_noise.ang_vel").as_double();
-  double ang_acc_noise = this->get_parameter("process_noise.ang_acc").as_double();
 
   Eigen::VectorXd process_noise(g_body_state_size);
   process_noise.segment<3>(0) = Eigen::Vector3d::Ones() * pos_noise;
   process_noise.segment<3>(3) = Eigen::Vector3d::Ones() * vel_noise;
-  process_noise.segment<3>(6) = Eigen::Vector3d::Ones() * acc_noise;
-  process_noise.segment<3>(9) = Eigen::Vector3d::Ones() * ang_pos_noise;
-  process_noise.segment<3>(12) = Eigen::Vector3d::Ones() * ang_vel_noise;
-  process_noise.segment<3>(15) = Eigen::Vector3d::Ones() * ang_acc_noise;
+  process_noise.segment<3>(6) = Eigen::Vector3d::Ones() * ang_pos_noise;
 
   return process_noise;
 }

@@ -49,7 +49,7 @@ Eigen::Vector3d TruthEngineCyclic::GetBodyPosition(double time)
 {
   double relative_time = time - m_stationary_time;
   if (relative_time < 0.0) {
-    return Eigen::Vector3d::Zero(3);
+    return m_pos_offset;
   } else {
     Eigen::Vector3d position;
     position[0] = m_pos_amplitude / 2.0 *

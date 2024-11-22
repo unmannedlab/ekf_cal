@@ -71,7 +71,6 @@ In summary, this package
 | `omg_bias`           | Gyroscope bias vector |
 | `pos_i_in_b`         | IMU Position offset vector in body frame |
 | `pos_stability`      | Extrinsic position stability |
-| `use_for_prediction` | Flag to use measurements for prediction |
 | `variance`           | Initial state variance |
 
 ### Cameras

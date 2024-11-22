@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "ekf/constants.hpp"
+#include "ekf/imu_filter.hpp"
 #include "ekf/types.hpp"
 #include "infrastructure/data_logger.hpp"
 #include "infrastructure/debug_logger.hpp"
@@ -44,14 +45,15 @@ public:
   typedef struct Parameters
   {
     std::shared_ptr<DebugLogger> debug_logger;                  ///< @brief Debug logger
-    double body_data_rate{1.0};                                 ///< @brief Body data log rate
+    double data_log_rate{1.0};                                  ///< @brief Body data log rate
     bool data_logging_on{false};                                ///< @brief Data logging flag
     std::string log_directory{""};                              ///< @brief Data log directory
     AugmentationType augmenting_type{AugmentationType::ALL};    ///< @brief Augmenting type
     double augmenting_delta_time{1.0};                          ///< @brief Augmenting time
     double augmenting_pos_error{0.1};                           ///< @brief Augmenting pos error
     double augmenting_ang_error{0.1};                           ///< @brief Augmenting ang error
-    Eigen::VectorXd process_noise {Eigen::VectorXd::Ones(18)};  ///< @brief Process noise
+    /// @brief Process noise
+    Eigen::VectorXd process_noise{Eigen::VectorXd::Ones(g_body_state_size)};
     Eigen::Vector3d pos_b_in_l{Eigen::Vector3d::Zero()};        ///< @brief Body local position
     Eigen::Quaterniond ang_b_to_l {1, 0, 0, 0};                 ///< @brief Body local orientation
     Eigen::Vector3d pos_l_in_g {Eigen::Vector3d::Zero()};       ///< @brief Local frame position
@@ -60,7 +62,7 @@ public:
     double gps_init_baseline_dist {100.0};  ///< @brief Minimum pos projection error
     double gps_init_pos_thresh {0.1};       ///< @brief Minimum ang projection error
     double gps_init_ang_thresh {0.1};       ///< @brief Baseline distance threshold
-    double motion_detection_chi_squared {0.01};  ///< @brief Motion detection chi squared threshold
+    double motion_detection_chi_squared {1.0};   ///< @brief Motion detection chi squared threshold
     double imu_noise_scale_factor {100.0};       ///< @brief Motion detection IMU noise scale factor
     bool use_root_covariance{false};  ///< @brief Flag to use the square-root form of Kalman filter
     bool use_first_estimate_jacobian{false};  ///< @brief Flag to use first estimate Jacobians
@@ -141,21 +143,10 @@ public:
   void LogBodyStateIfNeeded(int execution_count);
 
   ///
-  /// @brief Process state linearly to given time
-  /// @param time Time for prediction
-  ///
-  void ProcessModel(double time);
-
-  ///
   /// @brief Predict state to given time using IMU measurements
   /// @param time Time of measurement
-  /// @param acceleration Acceleration measurement in IMU frame
-  /// @param angular_rate Angular rate measurement in IMU frame
   ///
-  void PredictModel(
-    double time,
-    Eigen::Vector3d acceleration,
-    Eigen::Vector3d angular_rate);
+  void PredictModel(double time);
 
   ///
   /// @brief State transition matrix getter method
@@ -229,17 +220,6 @@ public:
   void SetMaxTrackLength(unsigned int max_track_length);
 
   ///
-  /// @brief Function to add process noise to covariance
-  /// @param delta_time delta time over which to add process noise
-  ///
-  void AddProccessNoise(double delta_time);
-
-  ///
-  /// @brief Apply reasonable limits to uncertainties
-  ///
-  void LimitUncertainty();
-
-  ///
   /// @brief EKF process noise setter
   /// @param process_noise Diagonal terms of process noise
   ///
@@ -247,10 +227,16 @@ public:
 
   ///
   /// @brief GPS reference position setter
-  /// @param reference_lla
-  /// @param ang_l_to_g
+  /// @param reference_lla GPS reference LLA
+  /// @param ang_l_to_g GPS reference header
   ///
   void SetGpsReference(Eigen::VectorXd reference_lla, double ang_l_to_g);
+
+  ///
+  /// @brief Zero acceleration flag setter
+  /// @param is_zero_acceleration Body has zero acceleration flag
+  ///
+  void SetZeroAcceleration(bool is_zero_acceleration);
 
   ///
   /// @brief Getter for the LLA reference position
@@ -288,7 +274,7 @@ public:
   /// @param time Frame time
   /// @return Augmented state
   ///
-  AugState GetAugState(int camera_id, int frame_id, double time);
+  AugState GetAugState(unsigned int camera_id, int frame_id, double time);
 
   ///
   /// @brief Get augmented state size
@@ -391,6 +377,9 @@ public:
   /// @brief EKF state
   State m_state;
 
+  /// @brief IMU filter state
+  ImuFilter m_imu_filter;
+
   /// @brief EKF covariance
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-2;
 
@@ -406,9 +395,10 @@ private:
   std::shared_ptr<DebugLogger> m_debug_logger;
   bool m_data_logging_on;
   unsigned int m_max_track_length{20};
-  Eigen::MatrixXd m_process_noise {Eigen::MatrixXd::Zero(18, 18)};
-  Eigen::VectorXd m_body_process_noise {Eigen::VectorXd::Zero(18)};
+  Eigen::MatrixXd m_process_noise {Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size)};
+  Eigen::VectorXd m_body_process_noise {Eigen::VectorXd::Zero(g_body_state_size)};
   DataLogger m_data_logger;
+  DataLogger m_augmentation_logger;
 
   GpsInitType m_gps_init_type;
   double m_gps_init_pos_thresh;
@@ -426,7 +416,7 @@ private:
   double m_augmenting_delta_time;
   double m_augmenting_pos_error;
   double m_augmenting_ang_error;
-  double m_primary_camera_id;
+  unsigned int m_primary_camera_id{0};
   double m_max_frame_period {0.0};
   double m_max_track_duration {0.0};
   double m_min_aug_period {1.0};
@@ -438,11 +428,13 @@ private:
   unsigned int m_fid_state_start{0};
 
   bool m_is_gravity_initialized{false};
-  double m_motion_detection_chi_squared{0.01};
+  double m_motion_detection_chi_squared{1.0};
   double m_imu_noise_scale_factor{100.0};
 
   bool m_use_root_covariance{false};
   bool m_use_first_estimate_jacobian{false};
+  bool m_is_zero_acceleration{true};
+  bool m_frame_received_since_last_aug {true};
 };
 
 #endif  // EKF__EKF_HPP_

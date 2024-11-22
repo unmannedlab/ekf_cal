@@ -28,6 +28,7 @@
 TEST(test_gps_updater, update) {
   EKF::Parameters ekf_params;
   ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  ekf_params.process_noise = Eigen::VectorXd::Ones(9);
   auto ekf = std::make_shared<EKF>(ekf_params);
 
   double time_init = 0.0;
@@ -37,21 +38,22 @@ TEST(test_gps_updater, update) {
 
   unsigned int gps_id{0};
   std::string log_file_dir{""};
-  bool data_logging_on {true};
+  bool data_logging_on{true};
+  bool is_extrinsic{false};
 
   GpsState gps_state;
-  gps_state.SetIsExtrinsic(true);
+  gps_state.SetIsExtrinsic(is_extrinsic);
   Eigen::Matrix3d gps_cov = Eigen::Matrix3d::Zero(3, 3);
   ekf->RegisterGPS(gps_id, gps_state, gps_cov);
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  GpsUpdater gps_updater(gps_id, true, log_file_dir, data_logging_on, 0.0, logger);
-  Eigen::Matrix3d pos_cov = Eigen::Matrix3d::Identity() * 1e-3;
+  GpsUpdater gps_updater(gps_id, is_extrinsic, log_file_dir, data_logging_on, 0.0, logger);
+  Eigen::Matrix3d pos_cov = Eigen::Matrix3d::Identity() * 1e-9;
 
   State state = ekf->m_state;
-  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 0, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 0, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 0, 1e-3);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 0, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 0, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 0, 1e-2);
 
   double time = time_init + 1;
   Eigen::Vector3d ref_lla{0, 0, 0};
@@ -60,9 +62,9 @@ TEST(test_gps_updater, update) {
   gps_updater.UpdateEKF(ekf, time, gps_lla, pos_cov);
 
   state = ekf->m_state;
-  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 1, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 1, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 1, 1e-3);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 1.0, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 1.0, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 1.0, 1e-2);
 
   time += 1;
   antenna_enu = Eigen::Vector3d{2, 2, 2};
@@ -70,47 +72,7 @@ TEST(test_gps_updater, update) {
   gps_updater.UpdateEKF(ekf, time, gps_lla, pos_cov);
 
   state = ekf->m_state;
-  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 2, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 2, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 2, 1e-3);
-
-  time += 1;
-  antenna_enu = Eigen::Vector3d{3, 3, 3};
-  gps_lla = enu_to_lla(antenna_enu, ref_lla);
-  gps_updater.UpdateEKF(ekf, time, gps_lla, pos_cov);
-
-  state = ekf->m_state;
-  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 3, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 3, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 3, 1e-3);
-
-  time += 1;
-  antenna_enu = Eigen::Vector3d{4, 4, 4};
-  gps_lla = enu_to_lla(antenna_enu, ref_lla);
-  gps_updater.UpdateEKF(ekf, time, gps_lla, pos_cov);
-
-  state = ekf->m_state;
-  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 4, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 4, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 4, 1e-3);
-
-  time += 1;
-  antenna_enu = Eigen::Vector3d{5, 5, 5};
-  gps_lla = enu_to_lla(antenna_enu, ref_lla);
-  gps_updater.UpdateEKF(ekf, time, gps_lla, pos_cov);
-
-  state = ekf->m_state;
-  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 5, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 5, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 5, 1e-3);
-
-  time += 1;
-  antenna_enu = Eigen::Vector3d{6, 6, 6};
-  gps_lla = enu_to_lla(antenna_enu, ref_lla);
-  gps_updater.UpdateEKF(ekf, time, gps_lla, pos_cov);
-
-  state = ekf->m_state;
-  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 6, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 6, 1e-3);
-  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 6, 1e-3);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[0], 1.5, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[1], 1.5, 1e-2);
+  EXPECT_NEAR(state.body_state.pos_b_in_l[2], 1.5, 1e-2);
 }

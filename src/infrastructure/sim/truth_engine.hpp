@@ -239,18 +239,22 @@ public:
 
   ///
   /// @brief Write truth data to CSV files
-  /// @param body_data_rate Body data rate
+  /// @param data_log_rate Body data rate
   /// @param output_directory Output directory
   ///
-  void WriteTruthData(double body_data_rate, std::string output_directory);
+  void WriteTruthData(double data_log_rate, std::string output_directory);
 
   ///
   /// @brief Feature generation function
-  /// @param feature_count Number of features to generate
-  /// @param room_size Size of room to distribute features in
-  /// @param rng Random number generator to use in generation
   ///
-  void GenerateFeatures(unsigned int feature_count, double room_size, SimRNG rng);
+  void GenerateGridFeatures();
+
+  std::vector<cv::Point3d> GenerateVisibleFeatures(
+    double time,
+    int camera_id,
+    unsigned int new_feature_count,
+    SimRNG rng
+  );
 
   ///
   /// @brief Getter function for features
@@ -282,8 +286,10 @@ private:
   std::vector<cv::Point3d> m_feature_points;
   std::map<unsigned int, cv::Point3d> m_feature_points_map;
   std::map<unsigned int, Eigen::Vector3d> m_gps_pos;
-  Eigen::Vector3d m_lla_reference;
+  Eigen::Vector3d m_lla_reference{0, 0, 0};
   double m_heading;
+  double m_room_size{4};
+  int m_grid_size{15};
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTH_ENGINE_HPP_

@@ -27,7 +27,10 @@
 #include "utility/string_helper.hpp"
 
 TruthEngine::TruthEngine(double max_time, std::shared_ptr<DebugLogger> logger)
-: m_max_time(max_time), m_logger(logger) {}
+: m_max_time(max_time), m_logger(logger)
+{
+  GenerateGridFeatures();
+}
 
 Eigen::Vector3d TruthEngine::GetImuPosition(unsigned int sensor_id)
 {
@@ -137,33 +140,61 @@ Eigen::Quaterniond TruthEngine::GetBoardOrientation(unsigned int board_id)
   return m_board_ang[board_id];
 }
 
-void TruthEngine::GenerateFeatures(unsigned int feature_count, double room_size, SimRNG rng)
+void TruthEngine::GenerateGridFeatures()
 {
-  m_feature_points.push_back(cv::Point3d(room_size, 0, 0));
-  m_feature_points.push_back(cv::Point3d(room_size, room_size / 10, 0));
-  m_feature_points.push_back(cv::Point3d(room_size, -room_size / 10, 0));
-  m_feature_points.push_back(cv::Point3d(room_size, 0, room_size / 10));
-  m_feature_points.push_back(cv::Point3d(room_size, 0, -room_size / 10));
-  m_feature_points.push_back(cv::Point3d(room_size, room_size / 10, room_size));
-  m_feature_points.push_back(cv::Point3d(room_size, room_size / 10, -room_size));
-  m_feature_points.push_back(cv::Point3d(room_size, -room_size / 10, room_size));
-  m_feature_points.push_back(cv::Point3d(room_size, -room_size / 10, -room_size));
-  m_feature_points.push_back(cv::Point3d(-room_size, 0, 0));
-  m_feature_points.push_back(cv::Point3d(0, room_size, 0));
-  m_feature_points.push_back(cv::Point3d(0, -room_size, 0));
-  m_feature_points.push_back(cv::Point3d(0, 0, room_size));
-  m_feature_points.push_back(cv::Point3d(0, 0, -room_size));
-  for (unsigned int i = 0; i < feature_count; ++i) {
-    cv::Point3d vec;
-    vec.x = rng.UniRand(-room_size, room_size);
-    vec.y = rng.UniRand(-room_size, room_size);
-    vec.z = rng.UniRand(-room_size / 10, room_size / 10);
-    m_feature_points.push_back(vec);
+  for (int i = 0; i < m_grid_size; ++i) {
+    for (int j = 0; j < m_grid_size; ++j) {
+      double grid_size_double = static_cast<double>(m_grid_size);
+      double grid_x = (static_cast<double>(i) / grid_size_double * m_room_size) - (m_room_size / 2);
+      double grid_y = (static_cast<double>(j) / grid_size_double * m_room_size) - (m_room_size / 2);
+      m_feature_points.push_back(cv::Point3d(m_room_size / 2.0, grid_x, grid_y));
+      m_feature_points.push_back(cv::Point3d(-m_room_size / 2.0, grid_x, grid_y));
+      m_feature_points.push_back(cv::Point3d(grid_x, m_room_size / 2.0, grid_y));
+      m_feature_points.push_back(cv::Point3d(grid_x, -m_room_size / 2.0, grid_y));
+      m_feature_points.push_back(cv::Point3d(grid_x, grid_y, m_room_size / 2.0));
+      m_feature_points.push_back(cv::Point3d(grid_x, grid_y, -m_room_size / 2.0));
+    }
   }
 
   for (unsigned int i = 0; i < m_feature_points.size(); ++i) {
     m_feature_points_map[i] = m_feature_points[i];
   }
+}
+
+std::vector<cv::Point3d> TruthEngine::GenerateVisibleFeatures(
+  double time,
+  int camera_id,
+  unsigned int new_feature_count,
+  SimRNG rng
+)
+{
+  Eigen::Vector3d pos_b_in_l = GetBodyPosition(time);
+  Eigen::Quaterniond ang_b_to_l = GetBodyAngularPosition(time);
+  Eigen::Vector3d pos_c_in_b = GetCameraPosition(camera_id);
+  Eigen::Quaterniond ang_c_to_b = GetCameraAngularPosition(camera_id);
+  Eigen::Quaterniond ang_c_to_l = ang_b_to_l * ang_c_to_b;
+  Eigen::Vector3d pos_c_in_l = pos_b_in_l + ang_b_to_l * pos_c_in_b;
+  Intrinsics intrinsics = GetCameraIntrinsics(camera_id);
+
+  for (unsigned int i = 0; i < new_feature_count; ++i) {
+    auto c_x = static_cast<unsigned int>(rng.UniRand(0, intrinsics.width));
+    auto c_y = static_cast<unsigned int>(rng.UniRand(0, intrinsics.height));
+    double depth = rng.UniRand(0, m_room_size);
+
+    Eigen::Vector3d pos_f_in_c{
+      depth * (c_x - intrinsics.width / 2) / (intrinsics.f_x / intrinsics.pixel_size),
+      depth * (c_y - intrinsics.height / 2) / (intrinsics.f_y / intrinsics.pixel_size),
+      depth};
+
+    Eigen::Vector3d pos_f_in_l_eig = ang_c_to_l * pos_f_in_c + pos_c_in_l;
+
+    cv::Point3d pos_f_in_l{pos_f_in_l_eig(0), pos_f_in_l_eig(1), pos_f_in_l_eig(2)};
+
+    m_feature_points.push_back(pos_f_in_l);
+    m_feature_points_map[m_feature_points_map.size()] = pos_f_in_l;
+  }
+
+  return m_feature_points;
 }
 
 std::vector<cv::Point3d> TruthEngine::GetFeatures()
@@ -179,7 +210,7 @@ cv::Point3d TruthEngine::GetFeature(unsigned int feature_id)
 TruthEngine::~TruthEngine() {}
 
 void TruthEngine::WriteTruthData(
-  double body_data_rate,
+  double data_log_rate,
   std::string output_directory)
 {
   DataLogger truth_logger(output_directory, "body_truth.csv");
@@ -217,11 +248,11 @@ void TruthEngine::WriteTruthData(
 
   truth_logger.DefineHeader(header.str());
 
-  unsigned int num_measurements = static_cast<int>(std::floor((m_max_time + 1.0) * body_data_rate));
+  unsigned int num_measurements = static_cast<int>(std::floor((m_max_time + 1.0) * data_log_rate));
   for (unsigned int i = 0; i < num_measurements; ++i) {
     sensor_count = 0;
     std::stringstream msg;
-    double time = static_cast<double>(i) / body_data_rate;
+    double time = static_cast<double>(i) / data_log_rate;
     msg << time;
     msg << VectorToCommaString(GetBodyPosition(time));
     msg << VectorToCommaString(GetBodyVelocity(time));

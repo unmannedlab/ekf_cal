@@ -25,10 +25,8 @@ SimSensor::SimSensor(Parameters params)
 {
   if (m_no_errors) {
     m_time_error = 0.0;
-    m_time_bias_error = 0.0;
   } else {
     m_time_error = params.time_error;
-    m_time_bias_error = params.time_bias_error;
   }
 }
 
@@ -49,6 +47,6 @@ double SimSensor::ApplyTimeError(double true_time)
   if (m_no_errors) {
     return true_time;
   } else {
-    return true_time + m_rng.NormRand(m_time_bias_error, m_time_error);
+    return m_rng.NormRand(true_time, m_time_error);
   }
 }

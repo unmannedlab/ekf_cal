@@ -2,7 +2,7 @@
     ros__parameters:
         debug_log_level: 2
         data_logging_on: true
-        body_data_rate: 10.0
+        data_log_rate: 10.0
         process_noise:
             pos: 1.0e-3
             vel: 1.0e-4
@@ -11,8 +11,7 @@
             ang_vel: 1.0e-1
             ang_acc: 1.0e-5
         sim_params:
-            seed: 0.0
-            use_seed: true
+            seed: 1.0
             max_time: 60.0
             truth_type: "cyclic"
             pos_frequency: [0.0, 0.0, 0.0]
@@ -36,7 +35,6 @@
 
         imu:
             imu_1:
-                use_for_prediction: false
                 is_extrinsic: false
                 is_intrinsic: false
                 rate: 400.0
@@ -58,7 +56,6 @@
                     omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
 
             imu_2:
-                use_for_prediction: false
                 is_extrinsic: true
                 is_intrinsic: false
                 rate: 100.0

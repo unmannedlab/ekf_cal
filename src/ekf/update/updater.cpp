@@ -35,8 +35,7 @@ void Updater::KalmanUpdate(
   if (ekf->GetUseRootCovariance()) {
     measurement_noise = measurement_noise.cwiseSqrt();
     G = QR_r(ekf->m_cov * jacobian.transpose(), measurement_noise);
-    K = (G.inverse() * ((G.transpose()).inverse() * jacobian) * ekf->m_cov.transpose() *
-      ekf->m_cov).transpose();
+    K = ekf->m_cov.transpose() * ekf->m_cov * jacobian.transpose() * (G.transpose() * G).inverse();
   } else {
     S = jacobian * ekf->m_cov * jacobian.transpose() + measurement_noise;
     K = ekf->m_cov * jacobian.transpose() * S.inverse();

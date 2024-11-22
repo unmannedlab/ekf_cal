@@ -63,6 +63,7 @@ public:
     Eigen::Quaterniond ang_f_to_l;                  ///< @brief Fiducial orientation
     bool is_extrinsic{false};                       ///< @brief Perform extrinsic calibration
     Eigen::VectorXd variance {{1, 1, 1, 1, 1, 1}};  ///< @brief Fiducial marker variance
+    bool is_cam_extrinsic{false};  ///< @brief Flag for extrinsic camera calibration
   } Parameters;
 
   ///

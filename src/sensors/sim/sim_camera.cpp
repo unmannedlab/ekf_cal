@@ -82,13 +82,13 @@ std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages()
 
     // Tracker Messages
     for (auto const & trk_iter : m_trackers) {
-      auto trk_msg = m_trackers[trk_iter.first]->GenerateMessage(measurement_time, frame_id, m_id);
+      auto trk_msg = m_trackers[trk_iter.first]->GenerateMessage(measurement_time, frame_id);
       cam_msg->feature_track_messages.push_back(trk_msg);
     }
 
     // Fiducial Messages
     for (auto const & fid_iter : m_fiducials) {
-      auto fid_msg = m_fiducials[fid_iter.first]->GenerateMessage(measurement_time, frame_id, m_id);
+      auto fid_msg = m_fiducials[fid_iter.first]->GenerateMessage(measurement_time, frame_id);
       cam_msg->fiducial_track_messages.push_back(fid_msg);
     }
 
@@ -109,7 +109,7 @@ void SimCamera::AddFiducial(std::shared_ptr<SimFiducialTracker> fiducial)
 
 void SimCamera::Callback(std::shared_ptr<SimCameraMessage> sim_camera_message)
 {
-  m_ekf->ProcessModel(sim_camera_message->time);
+  m_ekf->PredictModel(sim_camera_message->time);
   m_ekf->AugmentStateIfNeeded(m_id, sim_camera_message->frame_id);
 
   for (auto feature_track_message : sim_camera_message->feature_track_messages) {

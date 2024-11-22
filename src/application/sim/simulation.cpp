@@ -88,7 +88,6 @@ void LoadSimSensorParams(
   YAML::Node node)
 {
   params.no_errors = node["no_errors"].as<bool>(false);
-  params.time_bias_error = node["time_bias_error"].as<double>(0.0);
   params.time_error = node["time_error"].as<double>(0.0);
 }
 
@@ -114,18 +113,12 @@ Eigen::VectorXd LoadProcessNoise(YAML::Node process_noise_node)
 {
   double pos_noise = process_noise_node["pos"].as<double>(1.0e-2);
   double vel_noise = process_noise_node["vel"].as<double>(1.0e-2);
-  double acc_noise = process_noise_node["acc"].as<double>(1.0e-2);
   double ang_pos_noise = process_noise_node["ang_pos"].as<double>(1.0e-2);
-  double ang_vel_noise = process_noise_node["ang_vel"].as<double>(1.0e-2);
-  double ang_acc_noise = process_noise_node["ang_acc"].as<double>(1.0e-2);
 
   Eigen::VectorXd process_noise(g_body_state_size);
   process_noise.segment<3>(0) = Eigen::Vector3d::Ones() * pos_noise;
   process_noise.segment<3>(3) = Eigen::Vector3d::Ones() * vel_noise;
-  process_noise.segment<3>(6) = Eigen::Vector3d::Ones() * acc_noise;
-  process_noise.segment<3>(9) = Eigen::Vector3d::Ones() * ang_pos_noise;
-  process_noise.segment<3>(12) = Eigen::Vector3d::Ones() * ang_vel_noise;
-  process_noise.segment<3>(15) = Eigen::Vector3d::Ones() * ang_acc_noise;
+  process_noise.segment<3>(6) = Eigen::Vector3d::Ones() * ang_pos_noise;
 
   return process_noise;
 }
@@ -174,9 +167,9 @@ int main(int argc, char * argv[])
 
   // EKF parameters
   bool data_logging_on = ros_params["data_logging_on"].as<bool>(true);
-  double body_data_rate = ros_params["body_data_rate"].as<double>(1.0);
+  double data_log_rate = ros_params["data_log_rate"].as<double>(1.0);
   ekf_params.debug_logger = debug_logger;
-  ekf_params.body_data_rate = body_data_rate;
+  ekf_params.data_log_rate = data_log_rate;
   ekf_params.data_logging_on = data_logging_on;
   ekf_params.log_directory = out_dir;
   ekf_params.augmenting_type =
@@ -195,21 +188,21 @@ int main(int argc, char * argv[])
   ekf_params.gps_init_pos_thresh = ros_params["gps_init_pos_thresh"].as<double>(1.0);
   ekf_params.gps_init_ang_thresh = ros_params["gps_init_ang_thresh"].as<double>(1.0);
   ekf_params.motion_detection_chi_squared =
-    ros_params["motion_detection_chi_squared"].as<double>(0.1);
+    ros_params["motion_detection_chi_squared"].as<double>(1.0);
   ekf_params.imu_noise_scale_factor = ros_params["imu_noise_scale_factor"].as<double>(100.0);
-  ekf_params.use_root_covariance = ros_params["use_root_covariance"].as<bool>(false);
+  ekf_params.use_root_covariance = ros_params["use_root_covariance"].as<bool>(true);
   ekf_params.use_first_estimate_jacobian =
     ros_params["use_first_estimate_jacobian"].as<bool>(false);
   auto ekf = std::make_shared<EKF>(ekf_params);
 
   // Simulation parameters
+  /// @todo: Add overriding no_errors option
   YAML::Node sim_params = ros_params["sim_params"];
   double rng_seed = sim_params["seed"].as<double>(0.0);
-  bool use_seed = sim_params["use_seed"].as<bool>(false);
   double max_time = sim_params["max_time"].as<double>(10.0);
 
   SimRNG rng;
-  if (use_seed) {
+  if (rng_seed > 0) {
     rng.SetSeed(rng_seed);
   }
 
@@ -282,7 +275,6 @@ int main(int argc, char * argv[])
   truth_engine->SetLocalHeading(ang_l_to_g_true);
 
   // Load IMUs and generate measurements
-  bool using_any_imu_for_prediction {false};
   debug_logger->Log(LogLevel::INFO, "Loading IMUs");
   for (unsigned int i = 0; i < imus.size(); ++i) {
     YAML::Node imu_node = root["/EkfCalNode"]["ros__parameters"]["imu"][imus[i]];
@@ -301,8 +293,6 @@ int main(int argc, char * argv[])
     imu_params.ang_stability = imu_node["ang_stability"].as<double>(1.0e-9);
     imu_params.acc_bias_stability = imu_node["acc_bias_stability"].as<double>(1.0e-9);
     imu_params.omg_bias_stability = imu_node["omg_bias_stability"].as<double>(1.0e-9);
-    imu_params.use_for_prediction = imu_node["use_for_prediction"].as<bool>(false);
-    using_any_imu_for_prediction = using_any_imu_for_prediction || imu_params.use_for_prediction;
 
     // SimParams
     SimIMU::Parameters sim_imu_params;
@@ -327,13 +317,8 @@ int main(int argc, char * argv[])
     messages.insert(messages.end(), imu_messages.begin(), imu_messages.end());
   }
 
-  if (using_any_imu_for_prediction && (imus.size() > 1)) {
-    std::cerr << "Configuration Error: Cannot use multiple IMUs and IMU prediction" << std::endl;
-    return -1;
-  }
-
   // Load tracker parameters
-  unsigned int max_track_length {0U};
+  unsigned int max_track_length {0};
   debug_logger->Log(LogLevel::INFO, "Loading Trackers");
   std::map<std::string, SimFeatureTracker::Parameters> tracker_map;
   for (unsigned int i = 0; i < trackers.size(); ++i) {
@@ -360,8 +345,6 @@ int main(int argc, char * argv[])
     sim_tracker_params.tracker_params = track_params;
 
     tracker_map[track_params.name] = sim_tracker_params;
-    truth_engine->GenerateFeatures(
-      sim_tracker_params.feature_count, sim_tracker_params.room_size, rng);
   }
 
   // Load board detectors
@@ -418,6 +401,7 @@ int main(int argc, char * argv[])
     cam_params.variance = StdToEigVec(cam_node["variance"].as<std::vector<double>>(def_vec));
     cam_params.pos_c_in_b = StdToEigVec(cam_node["pos_c_in_b"].as<std::vector<double>>(def_vec));
     cam_params.ang_c_to_b = StdToEigQuat(cam_node["ang_c_to_b"].as<std::vector<double>>(def_quat));
+    cam_params.is_extrinsic = cam_node["is_extrinsic"].as<bool>(false);
     cam_params.pos_stability = cam_node["pos_stability"].as<double>(1.0e-9);
     cam_params.ang_stability = cam_node["ang_stability"].as<double>(1.0e-9);
     cam_params.tracker = cam_node["tracker"].as<std::string>("");
@@ -446,6 +430,8 @@ int main(int argc, char * argv[])
       auto trk_params = tracker_map[cam_params.tracker];
       trk_params.tracker_params.camera_id = cam->GetId();
       trk_params.tracker_params.intrinsics = cam_params.intrinsics;
+      trk_params.tracker_params.is_cam_extrinsic = cam_params.is_extrinsic;
+      trk_params.no_errors = trk_params.no_errors | sim_cam_params.no_errors;
       auto trk = std::make_shared<SimFeatureTracker>(trk_params, truth_engine);
       cam->AddTracker(trk);
     }
@@ -453,6 +439,8 @@ int main(int argc, char * argv[])
       auto fid_params = fiducial_map[cam_params.fiducial];
       fid_params.fiducial_params.camera_id = cam->GetId();
       fid_params.fiducial_params.intrinsics = cam_params.intrinsics;
+      fid_params.fiducial_params.is_cam_extrinsic = cam_params.is_extrinsic;
+      fid_params.no_errors = fid_params.no_errors | sim_cam_params.no_errors;
       auto fid = std::make_shared<SimFiducialTracker>(fid_params, truth_engine);
       cam->AddFiducial(fid);
     }
@@ -503,13 +491,14 @@ int main(int argc, char * argv[])
 
   // Log truth data
   if (data_logging_on) {
-    truth_engine->WriteTruthData(body_data_rate, out_dir);
+    truth_engine->WriteTruthData(data_log_rate, out_dir);
   }
 
   // Sort Measurements
   sort(messages.begin(), messages.end(), MessageCompare);
 
   // Run measurements through sensors and EKF
+  /// @todo: Add high-level execution timing vs. simulation time.
   debug_logger->Log(LogLevel::INFO, "Begin Simulation");
   for (auto message : messages) {
     auto it = sensor_map.find(message->sensor_id);

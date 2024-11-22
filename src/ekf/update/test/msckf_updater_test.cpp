@@ -24,7 +24,7 @@
 
 TEST(test_msckf_updater, projection_jacobian) {
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto msckf_updater = MsckfUpdater(1, "", false, 0.0, 1.0, logger);
+  auto msckf_updater = MsckfUpdater(1, false, "", false, 0.0, 1.0, logger);
 
   Eigen::Vector3d position{2, 3, 4};
   Eigen::MatrixXd jacobian(2, 3);
@@ -50,7 +50,7 @@ TEST(test_msckf_updater, distortion_jacobian) {
   intrinsics.p_1 = 0.0;
   intrinsics.p_2 = 0.0;
 
-  auto msckf_updater = MsckfUpdater(1, "", false, 0.0, 1.0, logger);
+  auto msckf_updater = MsckfUpdater(1, false, "", false, 0.0, 1.0, logger);
 
   Eigen::MatrixXd jacobian;
 
@@ -78,7 +78,7 @@ TEST(test_msckf_updater, update) {
   ekf->RegisterCamera(cam_id, cam_state, cam_cov);
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto msckf_updater = MsckfUpdater(1, "", false, 0.0, 1.0, logger);
+  auto msckf_updater = MsckfUpdater(1, false, "", false, 0.0, 1.0, logger);
 
   double time {0.3};
   cv::KeyPoint point_1, point_2, point_3;
@@ -105,11 +105,11 @@ TEST(test_msckf_updater, update) {
   FeatureTracks feature_tracks;
   feature_tracks.push_back(feature_points);
 
-  ekf->ProcessModel(0.1);
+  ekf->PredictModel(0.1);
   ekf->AugmentStateIfNeeded(cam_id, feature_point_1.frame_id);
-  ekf->ProcessModel(0.2);
+  ekf->PredictModel(0.2);
   ekf->AugmentStateIfNeeded(cam_id, feature_point_2.frame_id);
-  ekf->ProcessModel(0.3);
+  ekf->PredictModel(0.3);
   ekf->AugmentStateIfNeeded(cam_id, feature_point_3.frame_id);
 
   msckf_updater.UpdateEKF(ekf, time, feature_tracks, 1e-3);

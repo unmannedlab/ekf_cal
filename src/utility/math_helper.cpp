@@ -38,49 +38,11 @@ Eigen::Matrix3d SkewSymmetric(Eigen::Vector3d in_vec)
   return out_mat;
 }
 
-void MinBoundDiagonal(Eigen::MatrixXd & mat, double min_bound)
-{
-  MinBoundDiagonal(mat, min_bound, 0, std::min(mat.rows(), mat.cols()));
-}
-
-void MinBoundDiagonal(
-  Eigen::MatrixXd & mat,
-  double min_bound,
-  unsigned int start,
-  unsigned int size
-)
-{
-  for (unsigned int i = start; i < start + size; ++i) {
-    if (mat(i, i) < min_bound) {
-      mat(i, i) = min_bound;
-    }
-  }
-}
-
 void MinBoundVector(Eigen::VectorXd & in_vec, double min_bound)
 {
   for (unsigned int i = 0; i < in_vec.size(); ++i) {
     if (in_vec(i) < min_bound) {
       in_vec(i) = min_bound;
-    }
-  }
-}
-
-void MaxBoundDiagonal(Eigen::MatrixXd & mat, double max_bound)
-{
-  MaxBoundDiagonal(mat, max_bound, 0, std::min(mat.rows(), mat.cols()));
-}
-
-void MaxBoundDiagonal(
-  Eigen::MatrixXd & mat,
-  double max_bound,
-  unsigned int start,
-  unsigned int size
-)
-{
-  for (unsigned int i = start; i < start + size; ++i) {
-    if (mat(i, i) > max_bound) {
-      mat(i, i) = max_bound;
     }
   }
 }
@@ -141,25 +103,11 @@ Eigen::MatrixXd RemoveFromMatrix(
 
 void ApplyLeftNullspace(Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::VectorXd & res)
 {
-  unsigned int m = H_f.rows();
-  unsigned int n = H_f.cols();
-
-  // Apply the left nullspace of H_f to the jacobians and the residual
-  Eigen::JacobiRotation<double> givens;
-  for (unsigned int j = 0; j < n; ++j) {
-    for (unsigned int i = m - 1; i > j; --i) {
-      // Givens matrix G
-      givens.makeGivens(H_f(i - 1, j), H_f(i, j));
-
-      // Apply nullspace
-      (H_f.block(i - 1, j, 2, n - j)).applyOnTheLeft(0, 1, givens.adjoint());
-      (H_x.block(i - 1, 0, 2, H_x.cols())).applyOnTheLeft(0, 1, givens.adjoint());
-      (res.segment<2>(i - 1)).applyOnTheLeft(0, 1, givens.adjoint());
-    }
-  }
-
-  H_x = H_x.block(n, 0, H_x.rows() - n, H_x.cols()).eval();
-  res = res.block(n, 0, res.rows() - n, res.cols()).eval();
+  Eigen::HouseholderQR<Eigen::MatrixXd> QR(H_f);
+  Eigen::MatrixXd Q = QR.householderQ();
+  Eigen::MatrixXd Q_null = Q.block(H_f.cols(), 0, H_f.rows() - H_f.cols(), H_f.rows());
+  H_x = Q_null * H_x;
+  res = Q_null * res;
 }
 
 void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual)
@@ -187,57 +135,6 @@ void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual
     // Construct the smaller jacobian and residual after measurement compression
     jacobian.conservativeResize(r, jacobian.cols());
     residual.conservativeResize(r);
-  }
-}
-
-
-Eigen::Quaterniond average_quaternions(
-  std::vector<Eigen::Quaterniond> quaternions,
-  std::vector<double> weights)
-{
-  Eigen::Quaterniond average_quaternion{1.0, 0.0, 0.0, 0.0};
-  Eigen::MatrixXd accum_matrix(4, quaternions.size());
-
-  for (unsigned int i = 0; i < quaternions.size(); ++i) {
-    if (quaternions[i].w() < 0) {
-      weights[i] *= -1;
-    }
-    accum_matrix(0, i) = weights[i] * quaternions[i].w();
-    accum_matrix(1, i) = weights[i] * quaternions[i].x();
-    accum_matrix(2, i) = weights[i] * quaternions[i].y();
-    accum_matrix(3, i) = weights[i] * quaternions[i].z();
-  }
-
-  Eigen::Matrix4d A_matrix = accum_matrix * accum_matrix.transpose();
-
-  Eigen::SelfAdjointEigenSolver<Eigen::Matrix4d> eigen_solver(A_matrix);
-
-  if (eigen_solver.info() == Eigen::Success) {
-    Eigen::Vector4d eigen_values = eigen_solver.eigenvalues();
-    Eigen::Matrix4d eigen_vectors = eigen_solver.eigenvectors();
-    unsigned int max_eigen_index;
-    eigen_values.maxCoeff(&max_eigen_index);
-
-    average_quaternion.w() = eigen_vectors(0, max_eigen_index);
-    average_quaternion.x() = eigen_vectors(1, max_eigen_index);
-    average_quaternion.y() = eigen_vectors(2, max_eigen_index);
-    average_quaternion.z() = eigen_vectors(3, max_eigen_index);
-    average_quaternion.normalize();
-  }
-
-  return average_quaternion;
-}
-
-double average_doubles(const std::vector<double> & values)
-{
-  if (values.size()) {
-    double sum {0.0};
-    for (auto & val : values) {
-      sum += val;
-    }
-    return sum / values.size();
-  } else {
-    return 0.0;
   }
 }
 
@@ -273,21 +170,6 @@ Eigen::MatrixXd quaternion_jacobian(Eigen::Quaterniond quat)
   double coeff_two = (vec_norm - std::sin(vec_norm)) / std::pow(vec_norm, 3);
   Eigen::Matrix3d jacobian =
     Eigen::Matrix3d::Identity(3, 3) -
-    coeff_one * skew_mat +
-    coeff_two * skew_mat * skew_mat;
-  return jacobian;
-}
-
-Eigen::MatrixXd quaternion_jacobian_inv(Eigen::Quaterniond quat)
-{
-  Eigen::Vector3d rot_vec = QuatToRotVec(quat);
-  Eigen::Matrix3d skew_mat = SkewSymmetric(rot_vec);
-  double vec_norm = std::max(rot_vec.norm(), 1e-9);
-  double coeff_one = 0.5;
-  double coeff_two =
-    std::pow(vec_norm, -2) - (1 + std::cos(vec_norm)) / (2 * vec_norm * std::sin(vec_norm));
-  Eigen::Matrix3d jacobian =
-    Eigen::Matrix3d::Identity(3, 3) +
     coeff_one * skew_mat +
     coeff_two * skew_mat * skew_mat;
   return jacobian;
@@ -409,19 +291,6 @@ double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vector
   return std::sqrt(square_sum_of_difference) / input_vectors.size();
 }
 
-double limit_matrix_condition(Eigen::MatrixXd & mat)
-{
-  double condition = 0;
-  for (unsigned int i = 0; i < mat.rows() - 1; ++i) {
-    for (unsigned int j = i + 1; j < mat.rows(); ++j) {
-      condition = std::max(condition, mat(i, j) / std::sqrt(mat(i, i)) / std::sqrt(mat(j, j)));
-      mat(i, j) = std::min(mat(i, j), std::sqrt(mat(i, i)) * std::sqrt(mat(j, j)));
-      mat(j, i) = mat(i, j);
-    }
-  }
-  return condition;
-}
-
 Eigen::MatrixXd QR_r(Eigen::MatrixXd A, Eigen::MatrixXd B)
 {
   Eigen::MatrixXd vert_cat(A.rows() + B.rows(), A.cols());
@@ -429,7 +298,6 @@ Eigen::MatrixXd QR_r(Eigen::MatrixXd A, Eigen::MatrixXd B)
   vert_cat << A, B;
   Eigen::HouseholderQR<Eigen::MatrixXd> QR(vert_cat);
   Eigen::MatrixXd R = QR.matrixQR().block(0, 0, A.cols(), A.cols()).triangularView<Eigen::Upper>();
-  R = R.diagonal().cwiseSign().asDiagonal() * R;
 
   return R;
 }

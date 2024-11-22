@@ -50,7 +50,6 @@ TEST(test_SimCamera, feature_track) {
 
   SimRNG rng;
   rng.SetSeed(1.0);
-  truth_engine->GenerateFeatures(1000, 10, rng);
 
   Intrinsics intrinsics;
   intrinsics.f_x = 0.01;
@@ -122,7 +121,6 @@ TEST(test_SimCamera, fiducial_track) {
 
   SimRNG rng;
   rng.SetSeed(1.0);
-  truth_engine->GenerateFeatures(1000, 10, rng);
 
   Intrinsics intrinsics;
   intrinsics.f_x = 0.01;

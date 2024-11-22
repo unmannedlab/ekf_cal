@@ -36,6 +36,7 @@ public:
   ///
   /// @brief MSCKF EKF Updater constructor
   /// @param cam_id Camera sensor ID
+  /// @param is_cam_extrinsic Camera extrinsic calibration flag
   /// @param log_file_directory Directory to save log files
   /// @param data_logging_on Flag to enable data logging
   /// @param data_log_rate Maximum average rate to log data
@@ -44,6 +45,7 @@ public:
   ///
   explicit MsckfUpdater(
     int cam_id,
+    bool is_cam_extrinsic,
     std::string log_file_directory,
     bool data_logging_on,
     double data_log_rate,
@@ -54,11 +56,13 @@ public:
   ///
   /// @brief Triangulate feature seen from multiple camera frames
   /// @param ekf EKF pointer
+  /// @param time Time of update
   /// @param feature_track Single feature track
   /// @param pos_f_in_l Output estimate of feature position in camera frame given observations
   /// @return If triangulation was successful
   ///
   bool TriangulateFeature(
+    double time,
     std::shared_ptr<EKF> ekf,
     FeatureTrack & feature_track,
     Eigen::Vector3d & pos_f_in_l);
@@ -95,11 +99,13 @@ public:
   void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian);
 
 private:
+  bool m_is_cam_extrinsic;
   DataLogger m_msckf_logger;
   DataLogger m_triangulation_logger;
   double m_min_feat_dist{1.0};
   double m_max_feat_dist{100.0};  /// @todo: Get from input
   bool m_is_first_estimate{true};
+  bool m_use_true_triangulation{true};
   Intrinsics m_intrinsics;
   Eigen::Vector3d m_pos_c_in_b{0.0, 0.0, 0.0};
   Eigen::Quaterniond m_ang_c_to_b{1.0, 0.0, 0.0, 0.0};

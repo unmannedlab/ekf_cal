@@ -40,8 +40,8 @@ public:
     std::string output_directory {""};    ///< @brief Feature Tracker data logging directory
     bool data_logging_on {false};         ///< @brief Feature Tracker data logging flag
     Intrinsics intrinsics;                ///< @brief Camera intrinsic parameters
-    unsigned int min_track_length{2U};    ///< @brief Minimum track length to consider
-    unsigned int max_track_length{20U};   ///< @brief Maximum track length before forced output
+    unsigned int min_track_length{2};     ///< @brief Minimum track length to consider
+    unsigned int max_track_length{20};    ///< @brief Maximum track length before forced output
     double data_log_rate {0.0};           ///< @brief Data logging rate
     std::shared_ptr<DebugLogger> logger;  ///< @brief Debug logger
     std::shared_ptr<EKF> ekf;             ///< @brief EKF to update
@@ -62,8 +62,8 @@ public:
 protected:
   unsigned int m_id;                      ///< @brief Tracker ID
   int m_camera_id;                        ///< @brief Associated camera ID of tracker
-  unsigned int m_min_track_length;        ///< @brief Minimum track length to consider
-  unsigned int m_max_track_length;        ///< @brief Maximum track length before forced output
+  unsigned int m_min_track_length{2};     ///< @brief Minimum track length to consider
+  unsigned int m_max_track_length{20};    ///< @brief Maximum track length before forced output
   std::shared_ptr<EKF> m_ekf;             ///< @brief EKF
   std::shared_ptr<DebugLogger> m_logger;  ///< @brief Debug logger
 

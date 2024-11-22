@@ -36,6 +36,7 @@ FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
 : Tracker(params),
   m_msckf_updater(
     params.camera_id,
+    params.is_cam_extrinsic,
     params.output_directory,
     params.data_logging_on,
     params.data_log_rate,
@@ -50,6 +51,7 @@ FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
   m_feature_detector = InitFeatureDetector(params.detector, params.threshold);
   m_descriptor_extractor = InitDescriptorExtractor(params.descriptor, params.threshold);
   m_descriptor_matcher = InitDescriptorMatcher(params.matcher);
+  m_prev_frame_time = m_ekf->GetCurrentTime();
 }
 
 /// @todo Check what parameters are used by open_vins

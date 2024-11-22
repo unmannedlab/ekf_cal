@@ -45,6 +45,7 @@ public:
   ///
   typedef struct Parameters : public Sensor::Parameters
   {
+    bool is_extrinsic{false};                           ///< @brief Flag for extrinsic calibration
     Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Camera initial position offset
     Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera initial angular offset
     double pos_stability {1e-9};                        ///< @brief Position stability

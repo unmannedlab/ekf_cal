@@ -383,27 +383,15 @@ class tab_fiducial:
         return fig
 
     def get_tab(self):
-        layout_plots = [
-            [
-                self.plot_camera_pos(),
-                self.plot_camera_ang()
-            ],
-            [
-                self.plot_cam_pos_cov(),
-                self.plot_cam_ang_cov()
-            ],
-            [
-                self.plot_fiducial_error_pos(),
-                self.plot_fiducial_error_ang()
-            ],
-            [
-                plot_update_timing(self.fiducial_dfs),
-                Spacer()
-            ]
-        ]
+        layout_plots = [[self.plot_fiducial_error_pos(), self.plot_fiducial_error_ang()]]
+
+        if ('cam_cov_0' in self.fiducial_dfs[0].keys()):
+            layout_plots.append([self.plot_camera_pos(), self.plot_camera_ang()])
+            layout_plots.append([self.plot_cam_pos_cov(), self.plot_cam_ang_cov()])
+
+        layout_plots.append([plot_update_timing(self.fiducial_dfs), Spacer()])
 
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')
-        tab = TabPanel(child=tab_layout,
-                       title=f"Fiducial {self.fiducial_dfs[0].attrs['id']}")
+        tab = TabPanel(child=tab_layout, title=f"Fiducial {self.fiducial_dfs[0].attrs['id']}")
 
         return tab

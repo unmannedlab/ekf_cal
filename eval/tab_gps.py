@@ -107,9 +107,9 @@ class tab_gps:
             true_p2 = body_truth[f"gps_pos_{gps_df.attrs['id']}_2"]
 
             t_gps = gps_df['time']
-            est_p0 = gps_df['antenna_0']
-            est_p1 = gps_df['antenna_1']
-            est_p2 = gps_df['antenna_2']
+            est_p0 = gps_df['ant_pos_0']
+            est_p1 = gps_df['ant_pos_1']
+            est_p2 = gps_df['ant_pos_2']
 
             err_pos_0 = np.array(interpolate_error(true_t, true_p0, t_gps, est_p0))*1e3
             err_pos_1 = np.array(interpolate_error(true_t, true_p1, t_gps, est_p1))*1e3

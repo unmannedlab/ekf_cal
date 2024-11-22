@@ -78,23 +78,23 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages()
     sim_imu_msg->sensor_id = m_id;
     sim_imu_msg->sensor_type = SensorType::IMU;
 
-    Eigen::Vector3d body_acc_g = m_truth->GetBodyAcceleration(measurement_time);
-    Eigen::Quaterniond body_b_to_g = m_truth->GetBodyAngularPosition(measurement_time);
-    Eigen::Vector3d body_ang_vel_g = m_truth->GetBodyAngularRate(measurement_time);
-    Eigen::Vector3d body_ang_acc_g = m_truth->GetBodyAngularAcceleration(measurement_time);
+    Eigen::Vector3d body_acc_l = m_truth->GetBodyAcceleration(measurement_time);
+    Eigen::Quaterniond body_b_to_l = m_truth->GetBodyAngularPosition(measurement_time);
+    Eigen::Vector3d body_ang_vel_l = m_truth->GetBodyAngularRate(measurement_time);
+    Eigen::Vector3d body_ang_acc_l = m_truth->GetBodyAngularAcceleration(measurement_time);
     Eigen::Vector3d pos_i_in_b_true = m_truth->GetImuPosition(m_id);
     Eigen::Quaterniond ang_i_to_b_true = m_truth->GetImuAngularPosition(m_id);
     Eigen::Vector3d acc_bias_true = m_truth->GetImuAccelerometerBias(m_id);
     Eigen::Vector3d gyr_bias_true = m_truth->GetImuGyroscopeBias(m_id);
 
     // Transform acceleration to IMU location
-    Eigen::Vector3d imu_acc_b = body_b_to_g.inverse() * (body_acc_g + g_gravity) +
-      body_ang_acc_g.cross(pos_i_in_b_true) +
-      body_ang_vel_g.cross((body_ang_vel_g.cross(pos_i_in_b_true)));
+    Eigen::Vector3d imu_acc_b = body_b_to_l.inverse() * (body_acc_l + g_gravity) +
+      body_ang_acc_l.cross(pos_i_in_b_true) +
+      body_ang_vel_l.cross((body_ang_vel_l.cross(pos_i_in_b_true)));
 
     // Rotate measurements in place
     Eigen::Vector3d imu_acc_i = ang_i_to_b_true.inverse() * imu_acc_b;
-    Eigen::Vector3d imu_omg_i = ang_i_to_b_true.inverse() * body_ang_vel_g;
+    Eigen::Vector3d imu_omg_i = ang_i_to_b_true.inverse() * body_ang_vel_l;
 
     sim_imu_msg->acceleration = imu_acc_i;
     sim_imu_msg->angular_rate = imu_omg_i;

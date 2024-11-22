@@ -16,7 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from bokeh.layouts import layout
-from bokeh.models import TabPanel
+from bokeh.models import Range1d, TabPanel
 from bokeh.plotting import figure
 import numpy as np
 from scipy.spatial.transform import Rotation
@@ -549,12 +549,15 @@ class tab_imu:
                 t_imu,
                 is_stationary,
                 alpha=self.alpha,
-                color=self.colors[0])
+                color=self.colors[0],
+                legend_label='Is Stationary')
             fig.line(
                 t_imu,
                 score,
                 alpha=self.alpha,
-                color=self.colors[1])
+                color=self.colors[1],
+                legend_label='Chi^2 Score')
+        fig.y_range = Range1d(0, 1)
         return fig
 
     def get_tab(self):

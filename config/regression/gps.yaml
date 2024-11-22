@@ -2,18 +2,14 @@
     ros__parameters:
         debug_log_level: 2
         data_logging_on: true
-        body_data_rate: 2.0
+        data_log_rate: 10.0
         process_noise:
             pos: 1.0e-3
-            vel: 1.0e-4
-            acc: 1.0e-1
-            ang_pos: 1.0e-3
-            ang_vel: 1.0e-1
-            ang_acc: 1.0e-5
+            vel: 5.0e-1
+            ang_pos: 1.0e-1
         sim_params:
-            seed: 0.0
-            use_seed: true
-            max_time: 600.0
+            seed: 1.0
+            max_time: 6.0
             number_of_runs: 10
             run_number: 0
             stationary_time: 1.0
@@ -26,9 +22,9 @@
                 - [40.0, 40.0, 40.0]
             angles:
                 - [0.0, 0.0, 0.0]
-                - [0.1, 0.0, 0.0]
-                - [0.0, 0.1, 0.0]
-                - [0.0, 0.0, 0.1]
+                - [0.5, 0.0, 0.0]
+                - [0.0, 0.5, 0.0]
+                - [0.0, 0.0, 0.5]
                 - [0.0, 0.0, 0.0]
             pos_l_in_g: [0.0, 0.0, 0.0]
             ang_l_to_g: 0.0
@@ -51,10 +47,9 @@
 
         imu:
             imu_1:
-                use_for_prediction: true
                 is_extrinsic: false
                 is_intrinsic: false
-                rate: 400.0
+                rate: 40.0
                 topic: "/imu_1"
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 pos_i_in_b: [0.0, 0.0, 0.0]
@@ -67,15 +62,14 @@
                 omg_bias_stability: 1.0e-3
                 data_log_rate: 10.0
                 sim_params:
-                    no_errors: false
                     time_bias_error: 1.0e-9
                     time_error: 1.0e-6
                     pos_error: [0.0, 0.0, 0.0]
                     ang_error: [0.0, 0.0, 0.0]
                     acc_error: [1.0e-2, 1.0e-2, 1.0e-2]
                     omg_error: [1.0e-2, 1.0e-2, 1.0e-2]
-                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
-                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    acc_bias_error: [0.0, 0.0, 0.0]
+                    omg_bias_error: [0.0, 0.0, 0.0]
 
         camera: {}
 

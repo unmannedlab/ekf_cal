@@ -2,17 +2,13 @@
     ros__parameters:
         debug_log_level: 2
         data_logging_on: true
-        body_data_rate: 10.0
+        data_log_rate: 10.0
         process_noise:
-            pos: 1.0e-3
-            vel: 1.0e-4
-            acc: 1.0e-1
-            ang_pos: 1.0e-3
-            ang_vel: 1.0e-1
-            ang_acc: 1.0e-5
+            pos: 1.0e-1
+            vel: 1.0e-1
+            ang_pos: 1.0e-1
         sim_params:
-            seed: 0.0
-            use_seed: true
+            seed: 1.0
             max_time: 60.0
             no_errors: false
             number_of_runs: 10
@@ -24,7 +20,7 @@
             pos_offset: [0.0, 0.0, 0.0]
             ang_offset: [0.0, 0.0, 0.0]
             ang_amplitude: 0.1
-            pos_amplitude: 1.0
+            pos_amplitude: 0.5
 
         imu_list:
             - "imu_1"
@@ -41,7 +37,6 @@
 
         imu:
             imu_1:
-                use_for_prediction: true
                 is_extrinsic: false
                 is_intrinsic: false
                 rate: 400.0
@@ -63,8 +58,8 @@
                     ang_error: [0.0, 0.0, 0.0]
                     acc_error: [1.0e-2, 1.0e-2, 1.0e-2]
                     omg_error: [1.0e-2, 1.0e-2, 1.0e-2]
-                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
-                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    acc_bias_error: [0.0, 0.0, 0.0]
+                    omg_bias_error: [0.0, 0.0, 0.0]
 
         camera:
             cam_1:
@@ -76,15 +71,6 @@
                 fiducial: "charuco"
                 pos_stability: 1.0e-9
                 ang_stability: 1.0e-9
-                intrinsics:
-                    F: 0.01
-                    c_x: 320.0
-                    c_y: 240.0
-                    k_1: 0.0
-                    k_2: 0.0
-                    p_1: 0.0
-                    p_2: 0.0
-                    pixel_size: 5.0e-6
                 sim_params:
                     time_bias_error: 1.0e-9
                     time_error: 1.0e-9
@@ -104,9 +90,10 @@
                 min_track_length: 0
                 max_track_length: 1
                 data_log_rate: 10.0
+                is_extrinsic: false
                 sim_params:
-                    pos_error: [1.0e-1, 1.0e-1, 1.0e-1]
-                    ang_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    pos_error: [0.0, 0.0, 0.0]
+                    ang_error: [0.0, 0.0, 0.0]
                     t_vec_error: [1.0e-2, 1.0e-2, 1.0e-2]
                     r_vec_error: [1.0e-2, 1.0e-2, 1.0e-2]
 

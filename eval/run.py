@@ -106,15 +106,14 @@ def generate_mc_from_yaml(
                 if (not os.path.isdir(runs_dir)):
                     os.mkdir(runs_dir)
 
-                use_seed = sim_yaml['use_seed']
                 seed = sim_yaml['seed']
-                if (use_seed):
+                if (seed):
                     random.seed(seed)
 
                 n_digits = math.ceil(math.log10(num_runs))
                 for i in range(num_runs):
                     sub_yaml = top_yaml
-                    if (use_seed):
+                    if (seed):
                         new_seed = random.randint(0, 1e9)
                         sub_yaml['/EkfCalNode']['ros__parameters']['sim_params']['seed'] = new_seed
                     sub_yaml['/EkfCalNode']['ros__parameters']['sim_params']['number_of_runs'] = 1

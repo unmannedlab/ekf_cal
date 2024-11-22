@@ -1,39 +1,24 @@
 Package Features:
     - Implement filter status output
-    - Implement flag for calibration settling
-    - Implement flag for calibration shifting
-    - Interpolation between stochastic clones
     - Intrinsic calibration filtering
 
 Software Work:
-    - Auto-generate rviz configuration from yaml
-    - CI/CD for unit tests
-    - Integration tests
-    - Add mutex to EKF class and have mutex locked by updaters
-    - Switch to reentrant callback group
     - Show track images from simulation
     - Add data drops to input file
     - Add extrinsic step disturbance
     - Add IMU bias instability
         - Plot Allan Variance
-    - Compute Cramer Rao Lower Bound
-        - https://iaac.technion.ac.il/workshops/2010/KFhandouts/LectKF24.pdf
-        - https://www.cs.cmu.edu/~aarti/Class/10704_Spring15/lecs/lec23.pdf
     - Outlier rejection by gating / Mahalanobis distance
     - Play rosbags through as fast as possible given yaml
-    - Remove time skew from code
-    - Update time bias to be per-sensor
     - RANSAC Features
-    - Calculate CR Lower Bound
 
     Additional Trackers:
-        - FiducialTracker
-            - AprilGridTracker
+        - AprilGridTracker
 
 Documentation:
     - Simulation diagram
     - Add gif to main readme
-    - Create Simulated Camera video feed
+    - Create Simulated Camera video feed 
         - Circles for points, radius based on distance
         - Polygon for Board edges
         - https://docs.opencv.org/4.6.0/d3/d96/tutorial_basic_geometric_drawing.html
@@ -43,8 +28,6 @@ Documentation:
     - Add page for initialization
     - Add page for augmenting states
     - Add Jacobians to documentation
-    - Add Setup SVG to main ReadMe
-    - Add page for code coverage
     - Add page for Multi-IMU Filter
 
 Data:

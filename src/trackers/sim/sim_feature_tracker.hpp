@@ -64,18 +64,24 @@ public:
   /// @brief Generate simulated tracker messages
   /// @param message_time Message times
   /// @param frame_id Camera frame ID
-  /// @param sensor_id Camera sensor ID
   /// @return Generated feature tracker message
   ///
   std::shared_ptr<SimFeatureTrackerMessage> GenerateMessage(
-    double message_time, int frame_id, int sensor_id);
+    double message_time, int frame_id);
 
   ///
   /// @brief Return currently visible keypoints
   /// @param time Current time
-  /// @param sensor_id Camera sensor ID
   ///
-  std::vector<cv::KeyPoint> VisibleKeypoints(double time, int sensor_id);
+  std::vector<cv::KeyPoint> GetVisibleKeypoints(double time);
+
+  std::vector<cv::KeyPoint> FilterInvisiblePoints(
+    std::vector<cv::Point3d> feature_points,
+    std::vector<cv::Point2d> projected_points,
+    Eigen::Matrix3d rot_c_to_l,
+    Eigen::Vector3d pos_c_in_l,
+    Intrinsics intrinsics
+  );
 
   ///
   /// @brief Callback for feature tracker

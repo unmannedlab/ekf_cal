@@ -23,7 +23,11 @@
 #include "sensors/camera.hpp"
 
 TEST(test_feature_tracker, initialization) {
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+
   FeatureTracker::Parameters params;
+  params.ekf = std::make_shared<EKF>(ekf_params);
   params.camera_id = 1;
 
   params.detector = Detector::BRISK;
@@ -57,10 +61,9 @@ TEST(test_feature_tracker, initialization) {
 
 TEST(test_feature_tracker, track) {
   EKF::Parameters ekf_params;
-  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::INFO, "");
   auto ekf = std::make_shared<EKF>(ekf_params);
   BodyState body_state_init;
-  body_state_init.vel_b_in_l[1] = -0.1;
   ekf->Initialize(0.0, body_state_init);
 
   IMU::Parameters imu_params;
@@ -107,6 +110,6 @@ TEST(test_feature_tracker, track) {
   cv::imwrite("../../src/ekf_cal/src/trackers/test/images/feature_track.png", cam.m_out_img);
 
   EXPECT_NEAR(ekf->m_state.body_state.pos_b_in_l[0], 0.0, 1e-1);
-  EXPECT_NEAR(ekf->m_state.body_state.pos_b_in_l[1], -0.1, 1e-1);
+  EXPECT_NEAR(ekf->m_state.body_state.pos_b_in_l[1], 0.1, 1e-1);
   EXPECT_NEAR(ekf->m_state.body_state.pos_b_in_l[2], 0.0, 1e-1);
 }

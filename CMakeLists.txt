@@ -99,6 +99,7 @@ add_library(EKF_UTL ${EKF_UTL_SRCS})
 set(EKF_SRCS
     src/ekf/ekf.cpp
     src/ekf/types.cpp
+    src/ekf/imu_filter.cpp
     src/ekf/update/fiducial_updater.cpp
     src/ekf/update/gps_updater.cpp
     src/ekf/update/imu_updater.cpp

@@ -61,14 +61,15 @@ public:
   ///
   cv::Mat ToDistortionVector();
 
-  double f_x {1.0};            ///< @brief X focal length [px]
-  double f_y {1.0};            ///< @brief Y focal length [px]
+  /// @todo Develop better defaults
+  double f_x {0.01};           ///< @brief X focal length [px]
+  double f_y {0.01};           ///< @brief Y focal length [px]
   double k_1 {0.0};            ///< @brief Radial coefficient 1
   double k_2 {0.0};            ///< @brief Radial coefficient 2
   double p_1 {0.0};            ///< @brief Tangential coefficient 1
   double p_2 {0.0};            ///< @brief Tangential coefficient 1
-  double width {640};          ///< @brief Image width
-  double height {480};         ///< @brief Image height
+  double width {1920};         ///< @brief Image width [px]
+  double height {1080};        ///< @brief Image height [px]
   double pixel_size {5.0e-6};  ///< @brief Pixel size [mm]
 };
 
@@ -97,10 +98,7 @@ public:
 
   Eigen::Vector3d pos_b_in_l{0.0, 0.0, 0.0};          ///< @brief Body position
   Eigen::Vector3d vel_b_in_l{0.0, 0.0, 0.0};          ///< @brief Body velocity
-  Eigen::Vector3d acc_b_in_l{0.0, 0.0, 0.0};          ///< @brief Body acceleration
   Eigen::Quaterniond ang_b_to_l{1.0, 0.0, 0.0, 0.0};  ///< @brief Body orientation
-  Eigen::Vector3d ang_vel_b_in_l{0.0, 0.0, 0.0};      ///< @brief Body angular rate
-  Eigen::Vector3d ang_acc_b_in_l{0.0, 0.0, 0.0};      ///< @brief Body angular acceleration
   unsigned int size{g_body_state_size};               ///< @brief State size
   int index{-1};                                      ///< @brief State index
 };
@@ -231,14 +229,29 @@ public:
   ///
   Eigen::VectorXd ToVector() const;
 
+  ///
+  /// @brief is_extrinsic getter function
+  /// @return is_extrinsic
+  ///
+  bool GetIsExtrinsic() const;
+  ///
+  /// @brief is_extrinsic setter function
+  /// @param extrinsic value to use for setting
+  ///
+  void SetIsExtrinsic(bool extrinsic);
+
   double pos_stability {1e-9};                        ///< @brief Extrinsic position stability
   double ang_stability {1e-9};                        ///< @brief Extrinsic orientation stability
   Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Camera state position
   Eigen::Quaterniond ang_c_to_b{1.0, 0.0, 0.0, 0.0};  ///< @brief Camera state orientation
   Intrinsics intrinsics;                              ///< @brief Camera Intrinsics
   double rate{1.0};                                   ///< @brief Frame rate
-  unsigned int size{g_cam_state_size};                ///< @brief State size
+  unsigned int size{0};                               ///< @brief State size
   int index{-1};                                      ///< @brief State index
+
+private:
+  void refresh_size();
+  bool is_extrinsic{false};
 };
 
 ///
@@ -257,6 +270,7 @@ typedef struct FeaturePoint
 typedef struct FeatureTrack
 {
   std::vector<FeaturePoint> track;        ///< @brief Vector of tracked feature keypoints
+  /// @todo: Remove true feature position once MSCKF complete
   Eigen::Vector3d true_feature_position;  ///< @brief True feature position (sim only)
 } FeatureTrack;
 

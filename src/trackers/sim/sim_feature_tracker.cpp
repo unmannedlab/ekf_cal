@@ -45,33 +45,33 @@ SimFeatureTracker::SimFeatureTracker(
   m_truth = truthEngine;
 }
 
-std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int sensor_id)
+std::vector<cv::KeyPoint> SimFeatureTracker::GetVisibleKeypoints(double time)
 {
-  Eigen::Vector3d pos_b_in_g = m_truth->GetBodyPosition(time);
-  Eigen::Quaterniond ang_b_to_g = m_truth->GetBodyAngularPosition(time);
-  Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(sensor_id);
-  Eigen::Quaterniond ang_c_to_b = m_truth->GetCameraAngularPosition(sensor_id);
-  Intrinsics intrinsics = m_truth->GetCameraIntrinsics(sensor_id);
-  Eigen::Matrix3d rot_c_to_g = (ang_b_to_g * ang_c_to_b).toRotationMatrix();
-  Eigen::Matrix3d rot_g_to_c = rot_c_to_g.transpose();
+  Eigen::Vector3d pos_b_in_l = m_truth->GetBodyPosition(time);
+  Eigen::Quaterniond ang_b_to_l = m_truth->GetBodyAngularPosition(time);
+  Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(m_camera_id);
+  Eigen::Quaterniond ang_c_to_b = m_truth->GetCameraAngularPosition(m_camera_id);
+  Eigen::Matrix3d rot_c_to_l = (ang_b_to_l * ang_c_to_b).toRotationMatrix();
+  Eigen::Matrix3d rot_l_to_c = rot_c_to_l.transpose();
 
   // Create OpenCV rotation matrix
-  cv::Mat ang_g_to_c_cv(3, 3, cv::DataType<double>::type);
-  EigenMatrixToCv(rot_g_to_c, ang_g_to_c_cv);
+  cv::Mat ang_l_to_c_cv(3, 3, cv::DataType<double>::type);
+  EigenMatrixToCv(rot_l_to_c, ang_l_to_c_cv);
 
   // Creating Rodrigues rotation matrix
   cv::Mat r_vec(3, 1, cv::DataType<double>::type);
-  cv::Rodrigues(ang_g_to_c_cv, r_vec);
+  cv::Rodrigues(ang_l_to_c_cv, r_vec);
 
-  Eigen::Vector3d pos_g_in_c = rot_g_to_c * (-(pos_b_in_g + ang_b_to_g * pos_c_in_b));
-  Eigen::Vector3d pos_c_in_g = pos_b_in_g + ang_b_to_g * pos_c_in_b;
+  Eigen::Vector3d pos_l_in_c = rot_l_to_c * (-(pos_b_in_l + ang_b_to_l * pos_c_in_b));
+  Eigen::Vector3d pos_c_in_l = pos_b_in_l + ang_b_to_l * pos_c_in_b;
 
   cv::Mat t_vec(3, 1, cv::DataType<double>::type);
-  t_vec.at<double>(0) = pos_g_in_c[0];
-  t_vec.at<double>(1) = pos_g_in_c[1];
-  t_vec.at<double>(2) = pos_g_in_c[2];
+  t_vec.at<double>(0) = pos_l_in_c[0];
+  t_vec.at<double>(1) = pos_l_in_c[1];
+  t_vec.at<double>(2) = pos_l_in_c[2];
 
   // Create intrinsic matrices
+  Intrinsics intrinsics = m_truth->GetCameraIntrinsics(m_camera_id);
   cv::Mat camera_matrix = intrinsics.ToCameraMatrix();
   cv::Mat distortion = intrinsics.ToDistortionVector();
 
@@ -80,16 +80,37 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
 
   std::vector<cv::Point3d> feature_points = m_truth->GetFeatures();
   cv::projectPoints(feature_points, r_vec, t_vec, camera_matrix, distortion, projected_points);
+  std::vector<cv::KeyPoint> projected_features =
+    FilterInvisiblePoints(feature_points, projected_points, rot_c_to_l, pos_c_in_l, intrinsics);
 
+  if (m_feature_count > projected_features.size()) {
+    unsigned int new_feature_count = m_feature_count - projected_features.size();
+    feature_points = m_truth->GenerateVisibleFeatures(time, m_camera_id, new_feature_count, m_rng);
+    cv::projectPoints(feature_points, r_vec, t_vec, camera_matrix, distortion, projected_points);
+    projected_features =
+      FilterInvisiblePoints(feature_points, projected_points, rot_c_to_l, pos_c_in_l, intrinsics);
+  }
+
+  return projected_features;
+}
+
+std::vector<cv::KeyPoint> SimFeatureTracker::FilterInvisiblePoints(
+  std::vector<cv::Point3d> feature_points,
+  std::vector<cv::Point2d> projected_points,
+  Eigen::Matrix3d rot_c_to_l,
+  Eigen::Vector3d pos_c_in_l,
+  Intrinsics intrinsics
+)
+{
   // Convert to feature points
+  Eigen::Vector3d cam_plane_vec = rot_c_to_l * Eigen::Vector3d(0, 0, 1);
   std::vector<cv::KeyPoint> projected_features;
-  Eigen::Vector3d cam_plane_vec = rot_c_to_g * Eigen::Vector3d(0, 0, 1);
   for (unsigned int i = 0; i < projected_points.size(); ++i) {
     cv::Point3d point_cv = feature_points[i];
     Eigen::Vector3d point_eig(
-      point_cv.x - pos_c_in_g[0],
-      point_cv.y - pos_c_in_g[1],
-      point_cv.z - pos_c_in_g[2]);
+      point_cv.x - pos_c_in_l[0],
+      point_cv.y - pos_c_in_l[1],
+      point_cv.z - pos_c_in_l[2]);
 
     // Check that point is in front of camera plane and within sensor limits
     if (
@@ -105,26 +126,25 @@ std::vector<cv::KeyPoint> SimFeatureTracker::VisibleKeypoints(double time, int s
         feat.pt.x = projected_points[i].x;
         feat.pt.y = projected_points[i].y;
       } else {
-        feat.pt.x = round(m_rng.NormRand(projected_points[i].x, m_px_error));
-        feat.pt.y = round(m_rng.NormRand(projected_points[i].y, m_px_error));
+        feat.pt.x = round(projected_points[i].x);
+        feat.pt.y = round(projected_points[i].y);
       }
       projected_features.push_back(feat);
     }
   }
-
   return projected_features;
 }
 
 std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
-  double message_time, int frame_id, int sensor_id)
+  double message_time, int frame_id)
 {
   FeatureTracks feature_tracks;
 
-  std::vector<cv::KeyPoint> key_points = VisibleKeypoints(message_time, sensor_id);
+  std::vector<cv::KeyPoint> key_points = GetVisibleKeypoints(message_time);
 
   for (auto & key_point : key_points) {
-    auto feature_points = FeaturePoint{frame_id, message_time, key_point};
-    m_feature_points_map[key_point.class_id].push_back(feature_points);
+    auto feature_point = FeaturePoint{frame_id, message_time, key_point};
+    m_feature_points_map[key_point.class_id].push_back(feature_point);
   }
 
   // Update MSCKF on features no longer detected
@@ -134,7 +154,7 @@ std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
       (feature_points.size() >= m_max_track_length))
     {
       // This feature does not exist in the latest frame
-      if (feature_points.size() > 1) {
+      if (feature_points.size() >= m_min_track_length) {
         FeatureTrack feature_track;
         feature_track.track = feature_points;
         auto feature_point_cv = m_truth->GetFeature(feature_points[0].key_point.class_id);
@@ -154,7 +174,7 @@ std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
   tracker_message->feature_tracks = feature_tracks;
   tracker_message->time = message_time;
   tracker_message->tracker_id = m_id;
-  tracker_message->sensor_id = sensor_id;
+  tracker_message->sensor_id = m_camera_id;
   tracker_message->sensor_type = SensorType::Tracker;
   return tracker_message;
 }

@@ -46,6 +46,7 @@ Camera::Camera(Camera::Parameters cam_params)
   cam_state.pos_stability = cam_params.pos_stability;
   cam_state.ang_stability = cam_params.ang_stability;
   cam_state.intrinsics = cam_params.intrinsics;
+  cam_state.SetIsExtrinsic(cam_params.is_extrinsic);
   MinBoundVector(cam_params.variance, 1e-6);
 
   Eigen::MatrixXd cov = cam_params.variance.asDiagonal();
@@ -56,13 +57,12 @@ Camera::Camera(Camera::Parameters cam_params)
 void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
 {
   m_logger->Log(
-    LogLevel::DEBUG, "Camera " + std::to_string(
-      camera_message->sensor_id) + " callback called at time = " +
-    std::to_string(camera_message->time));
+    LogLevel::DEBUG, "Camera " + std::to_string(camera_message->sensor_id) +
+    " callback called at time = " + std::to_string(camera_message->time));
 
   if (!camera_message->image.empty()) {
     if (!m_trackers.empty() || !m_fiducials.empty()) {
-      m_ekf->ProcessModel(camera_message->time);
+      m_ekf->PredictModel(camera_message->time);
 
       unsigned int frameID = GenerateFrameID();
 
@@ -85,8 +85,7 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
   } else {
     m_logger->Log(LogLevel::INFO, "Camera received empty image");
   }
-  m_logger->Log(
-    LogLevel::DEBUG, "Camera " + std::to_string(m_id) + " callback complete");
+  m_logger->Log(LogLevel::DEBUG, "Camera " + std::to_string(m_id) + " callback complete");
 }
 
 /// @todo apply similar function to sensor/tracker IDs

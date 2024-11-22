@@ -27,8 +27,9 @@ from utilities import calculate_alpha, calculate_rotation_errors, get_colors, in
 
 class tab_body:
 
-    def __init__(self, body_state_dfs, body_truth_dfs, args):
+    def __init__(self, body_state_dfs, aug_state_dfs, body_truth_dfs, args):
         self.body_state_dfs = body_state_dfs
+        self.aug_state_dfs = aug_state_dfs
         self.body_truth_dfs = body_truth_dfs
         self.alpha = calculate_alpha(len(self.body_state_dfs))
         self.colors = get_colors(args)
@@ -543,19 +544,19 @@ class tab_body:
             time = body_df['time']
             fig.line(
                 time,
-                body_df['body_cov_9'],
+                body_df['body_cov_6'],
                 alpha=self.alpha,
                 color=self.colors[0],
                 legend_label='X')
             fig.line(
                 time,
-                body_df['body_cov_10'],
+                body_df['body_cov_7'],
                 alpha=self.alpha,
                 color=self.colors[1],
                 legend_label='Y')
             fig.line(
                 time,
-                body_df['body_cov_11'],
+                body_df['body_cov_8'],
                 alpha=self.alpha,
                 color=self.colors[2],
                 legend_label='Z')
@@ -614,6 +615,86 @@ class tab_body:
                 legend_label='Z')
         return fig
 
+    def plot_aug_pos(self):
+        """Plot augmented state position."""
+        fig = figure(width=800, height=300, x_axis_label='Time [s]',
+                     y_axis_label='Augmented Position [m]',
+                     title='Augmented State Position')
+        for aug_df in self.aug_state_dfs:
+            time = aug_df['time']
+            fig.scatter(
+                time,
+                aug_df['aug_pos_0'],
+                alpha=self.alpha,
+                color=self.colors[0],
+                legend_label='X',
+                size=1)
+            fig.scatter(
+                time,
+                aug_df['aug_pos_1'],
+                alpha=self.alpha,
+                color=self.colors[1],
+                legend_label='Y',
+                size=1)
+            fig.scatter(
+                time,
+                aug_df['aug_pos_2'],
+                alpha=self.alpha,
+                color=self.colors[2],
+                legend_label='Z',
+                size=1)
+
+        return fig
+
+    def plot_aug_ang(self):
+        """Plot augmented state orientation."""
+        fig = figure(width=800, height=300, x_axis_label='Time [s]',
+                     y_axis_label='Augmented Orientation [rad]',
+                     title='Augmented State Orientation')
+
+        for aug_df in self.aug_state_dfs:
+            aug_w = aug_df['aug_ang_0']
+            aug_x = aug_df['aug_ang_1']
+            aug_y = aug_df['aug_ang_2']
+            aug_z = aug_df['aug_ang_3']
+
+            aug_a = []
+            aug_b = []
+            aug_g = []
+
+            # TODO(jhartzer): Use common euler function
+            for (w, x, y, z) in zip(aug_w, aug_x, aug_y, aug_z):
+                aug_rot = Rotation.from_quat([w, x, y, z], scalar_first=True)
+                aug_eul = aug_rot.as_euler('XYZ')
+                aug_a.append(aug_eul[0])
+                aug_b.append(aug_eul[1])
+                aug_g.append(aug_eul[2])
+
+            time = aug_df['time']
+            fig.scatter(
+                time,
+                aug_a,
+                alpha=self.alpha,
+                color=self.colors[0],
+                legend_label='X',
+                size=1)
+            fig.scatter(
+                time,
+                aug_b,
+                alpha=self.alpha,
+                color=self.colors[1],
+                legend_label='Y',
+                size=1)
+            fig.scatter(
+                time,
+                aug_g,
+                alpha=self.alpha,
+                color=self.colors[2],
+                legend_label='Z',
+                size=1)
+
+        return fig
+
     def get_tab(self):
         layout_plots = [
             [
@@ -630,31 +711,20 @@ class tab_body:
             ],
             [
                 self.plot_body_vel(),
-                self.plot_body_ang_vel()
+                self.plot_aug_pos()
             ],
             [
                 self.plot_body_err_vel(),
-                self.plot_body_err_ang_vel()
+                self.plot_aug_ang()
             ],
             [
                 self.plot_body_vel_cov(),
-                self.plot_body_ang_vel_cov()
-            ],
-            [
-                self.plot_body_acc(),
-                self.plot_body_ang_acc()
-            ],
-            [
-                self.plot_body_err_acc(),
-                self.plot_body_err_ang_acc()
-            ],
-            [
-                self.plot_body_acc_cov(),
-                self.plot_body_ang_acc_cov()
+                Spacer()
             ],
             [
                 plot_update_timing(self.body_state_dfs),
-                Spacer()]
+                Spacer()
+            ]
         ]
 
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')

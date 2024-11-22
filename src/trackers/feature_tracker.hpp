@@ -82,6 +82,7 @@ public:
     bool down_sample {false};                 ///< @brief Flag to perform down-sampling
     double down_sample_height {480.0};        ///< @brief Down-sampled height to use for tracking
     double down_sample_width {640.0};         ///< @brief Down-sampled width to use for tracking
+    bool is_cam_extrinsic{false};             ///< @brief Flag for extrinsic camera calibration
   } Parameters;
 
   ///

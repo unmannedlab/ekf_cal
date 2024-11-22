@@ -18,7 +18,7 @@
 import collections
 
 from bokeh.layouts import layout
-from bokeh.models import Band, TabPanel
+from bokeh.models import Band, Spacer, TabPanel
 from bokeh.plotting import ColumnDataSource, figure
 
 import numpy as np
@@ -274,15 +274,35 @@ class tab_msckf:
 
         return fig
 
+    def plot_track_count(self):
+        """Plot number of tracks."""
+        fig = figure(
+            width=800,
+            height=300,
+            x_axis_label='Time [s]',
+            y_axis_label='Number of Tracks',
+            title='Track Counts')
+        for mskcf_df in self.mskcf_dfs:
+            t_cam = mskcf_df['time']
+            track_count = mskcf_df['FeatureTracks']
+            fig.line(
+                t_cam,
+                track_count,
+                alpha=self.alpha,
+                color=self.colors[0],
+                legend_label='Track Count')
+        return fig
+
     def get_tab(self):
-        layout_plots = [
-            [self.plot_camera_pos(), self.plot_camera_ang()],
-            [self.plot_cam_pos_cov(), self.plot_cam_ang_cov()],
-            [plot_update_timing(self.mskcf_dfs), self.plot_triangulation_error()]
-        ]
+        layout_plots = [[plot_update_timing(self.mskcf_dfs), self.plot_triangulation_error()]]
+
+        if ('cam_cov_0' in self.mskcf_dfs[0].keys()):
+            layout_plots.append([self.plot_camera_pos(), self.plot_camera_ang()])
+            layout_plots.append([self.plot_cam_pos_cov(), self.plot_cam_ang_cov()])
+
+        layout_plots.append([self.plot_track_count(), Spacer()])
 
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')
-        tab = TabPanel(child=tab_layout,
-                       title=f"MSCKF {self.mskcf_dfs[0].attrs['id']}")
+        tab = TabPanel(child=tab_layout, title=f"MSCKF {self.mskcf_dfs[0].attrs['id']}")
 
         return tab

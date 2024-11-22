@@ -17,7 +17,7 @@
                         "data_logging_on": {
                             "type": "boolean"
                         },
-                        "body_data_rate": {
+                        "data_log_rate": {
                             "type": "number"
                         },
                         "augmenting_type": {
@@ -41,16 +41,7 @@
                                 "vel": {
                                     "type": "number"
                                 },
-                                "acc": {
-                                    "type": "number"
-                                },
                                 "ang_pos": {
-                                    "type": "number"
-                                },
-                                "ang_vel": {
-                                    "type": "number"
-                                },
-                                "ang_acc": {
                                     "type": "number"
                                 }
                             }
@@ -78,14 +69,14 @@
                         "gps_init_ang_thresh": {
                             "type": "number"
                         },
+                        "use_root_covariance": {
+                            "type": "boolean"
+                        },
                         "sim_params": {
                             "type": "object",
                             "properties": {
                                 "seed": {
                                     "type": "number"
-                                },
-                                "use_seed": {
-                                    "type": "boolean"
                                 },
                                 "max_time": {
                                     "type": "number"
@@ -245,9 +236,6 @@
                                 "^.*$": {
                                     "type": "object",
                                     "properties": {
-                                        "use_for_prediction": {
-                                            "type": "boolean"
-                                        },
                                         "is_extrinsic": {
                                             "type": "boolean"
                                         },
@@ -265,7 +253,7 @@
                                             "items": {
                                                 "type": "number"
                                             },
-                                            "minItems": 12,
+                                            "minItems": 6,
                                             "maxItems": 12
                                         },
                                         "pos_i_in_b": {
@@ -317,9 +305,6 @@
                                             "properties": {
                                                 "no_errors": {
                                                     "type": "boolean"
-                                                },
-                                                "time_bias_error": {
-                                                    "type": "number"
                                                 },
                                                 "time_error": {
                                                     "type": "number"
@@ -406,6 +391,9 @@
                                             "minItems": 4,
                                             "maxItems": 4
                                         },
+                                        "is_extrinsic": {
+                                            "type": "boolean"
+                                        },
                                         "variance": {
                                             "type": "array",
                                             "items": {
@@ -463,9 +451,6 @@
                                             "properties": {
                                                 "no_errors": {
                                                     "type": "boolean"
-                                                },
-                                                "time_bias_error": {
-                                                    "type": "number"
                                                 },
                                                 "time_error": {
                                                     "type": "number"
@@ -699,9 +684,6 @@
                                             "properties": {
                                                 "no_errors": {
                                                     "type": "boolean"
-                                                },
-                                                "time_bias_error": {
-                                                    "type": "number"
                                                 },
                                                 "time_error": {
                                                     "type": "number"
