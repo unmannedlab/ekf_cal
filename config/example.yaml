@@ -20,6 +20,8 @@
             vel: 1.0e-1                       # Velocity process noise
             ang_pos: 1.0e-0                   # Angular Position process noise
 
+        pos_b_in_l: [0.0, 0.0, 0.0]           # Body position in the local frame
+        ang_b_to_l: [0.0, 0.0, 0.0]           # Body orientation in the local frame
         pos_l_in_g: [0.0, 0.0, 0.0]           # Local frame position in global frame
         ang_l_to_g: 0.0                       # Local frame heading in global frame
         gps_init_type: 0                      # GPS Initialization Type
@@ -29,7 +31,9 @@
         gps_init_baseline_dist: 100.0         # Baseline distance threshold to initialize
         gps_init_pos_thresh: 1.0              # Local frame position error threshold
         gps_init_ang_thresh: 0.1              # Local frame heading error threshold
+        motion_detection_chi_squared: 1.0     # Chi-Squared value for motion detection
         use_root_covariance: true             # Flag to utilize the square root form of covariance
+        use_first_estimate_jacobian: true     # Flag to utilize the first estimate Jacobian
 
         sim_params:
             seed: 1.0                         # Seed to provide to random number generator
