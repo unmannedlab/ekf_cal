@@ -47,7 +47,6 @@ TEST_F(EkfCalNode_test, hello_world)
   EkfCalNode node;
 
   node.set_parameter(rclcpp::Parameter("debug_log_level", 1));
-  node.set_parameter(rclcpp::Parameter("data_logging_on", true));
   node.set_parameter(rclcpp::Parameter("imu_list", std::vector<std::string>{"imu_1"}));
   node.set_parameter(rclcpp::Parameter("camera_list", std::vector<std::string>{"cam_2"}));
   node.set_parameter(rclcpp::Parameter("tracker_list", std::vector<std::string>{"tracker_3"}));

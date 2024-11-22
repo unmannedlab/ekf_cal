@@ -14,9 +14,6 @@
                         "debug_log_level": {
                             "type": "number"
                         },
-                        "data_logging_on": {
-                            "type": "boolean"
-                        },
                         "data_log_rate": {
                             "type": "number"
                         },

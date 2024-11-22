@@ -26,7 +26,7 @@ TEST(data_logger, data_logger_constructor_1) {
   data_logger.SetOutputDirectory("/temp/");
   data_logger.SetOutputFileName("data.csv");
   data_logger.DefineHeader("col1,col2");
-  data_logger.SetLogging(true);
+  data_logger.EnableLogging();
   data_logger.Log("a1,b1");
 }
 
@@ -35,7 +35,7 @@ TEST(data_logger, data_logger_constructor_2) {
 
   data_logger.Log("a1,b1");
   data_logger.DefineHeader("col1,col2");
-  data_logger.SetLogging(true);
+  data_logger.EnableLogging();
   data_logger.Log("a1,b1");
 }
 
@@ -44,6 +44,6 @@ TEST(data_logger, data_logger_constructor_3) {
 
   data_logger.Log("a1,b1");
   data_logger.DefineHeader("col1,col2");
-  data_logger.SetLogging(true);
+  data_logger.EnableLogging();
   data_logger.Log("a1,b1");
 }

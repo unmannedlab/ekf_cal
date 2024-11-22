@@ -45,8 +45,7 @@ public:
   typedef struct Parameters
   {
     std::shared_ptr<DebugLogger> debug_logger;                  ///< @brief Debug logger
-    double data_log_rate{1.0};                                  ///< @brief Body data log rate
-    bool data_logging_on{false};                                ///< @brief Data logging flag
+    double data_log_rate{0.0};                                  ///< @brief Body data log rate
     std::string log_directory{""};                              ///< @brief Data log directory
     AugmentationType augmenting_type{AugmentationType::ALL};    ///< @brief Augmenting type
     double augmenting_delta_time{1.0};                          ///< @brief Augmenting time
@@ -393,7 +392,7 @@ private:
   double m_current_time {0};
   bool m_time_initialized {false};
   std::shared_ptr<DebugLogger> m_debug_logger;
-  bool m_data_logging_on;
+  double m_data_log_rate{0.0};
   unsigned int m_max_track_length{20};
   Eigen::MatrixXd m_process_noise {Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size)};
   Eigen::VectorXd m_body_process_noise {Eigen::VectorXd::Zero(g_body_state_size)};

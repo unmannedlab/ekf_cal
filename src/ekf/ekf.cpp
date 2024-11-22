@@ -36,8 +36,8 @@
 
 EKF::EKF(Parameters params)
 : m_debug_logger(params.debug_logger),
-  m_data_logging_on(params.data_logging_on),
   m_data_logger(params.log_directory, "body_state.csv"),
+  m_data_log_rate(params.data_log_rate),
   m_augmentation_logger(params.log_directory, "aug_state.csv"),
   m_gps_init_type(params.gps_init_type),
   m_gps_init_pos_thresh(params.gps_init_pos_thresh),
@@ -63,7 +63,7 @@ EKF::EKF(Parameters params)
   body_header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(body_header.str());
-  m_data_logger.SetLogging(m_data_logging_on);
+  if (m_data_log_rate) {m_data_logger.EnableLogging();}
   m_data_logger.SetLogRate(params.data_log_rate);
 
   std::stringstream aug_header;
@@ -71,7 +71,7 @@ EKF::EKF(Parameters params)
   aug_header << EnumerateHeader("aug_pos", 3);
   aug_header << EnumerateHeader("aug_ang", 4);
   m_augmentation_logger.DefineHeader(aug_header.str());
-  m_augmentation_logger.SetLogging(m_data_logging_on);
+  if (m_data_log_rate) {m_augmentation_logger.EnableLogging();}
 
   SetBodyProcessNoise(params.process_noise);
 
@@ -96,7 +96,7 @@ Eigen::MatrixXd EKF::GetStateTransition(double dT)
 
 void EKF::LogBodyStateIfNeeded(int execution_count)
 {
-  if (m_data_logging_on) {
+  if (m_data_log_rate) {
     std::stringstream msg;
     Eigen::VectorXd body_cov = m_cov.block<g_body_state_size, g_body_state_size>(0, 0).diagonal();
     if (m_use_root_covariance) {

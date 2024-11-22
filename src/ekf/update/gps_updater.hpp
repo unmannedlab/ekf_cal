@@ -37,7 +37,6 @@ public:
   /// @param gps_id GPS Sensor ID
   /// @param log_file_directory Logging file directory
   /// @param is_extrinsic Is GPS extrinsic calibrating
-  /// @param data_logging_on Logging flag
   /// @param data_log_rate Maximum data logging rate
   /// @param logger Debug logger pointer
   ///
@@ -45,7 +44,6 @@ public:
     unsigned int gps_id,
     bool is_extrinsic,
     std::string log_file_directory,
-    bool data_logging_on,
     double data_log_rate,
     std::shared_ptr<DebugLogger> logger
   );

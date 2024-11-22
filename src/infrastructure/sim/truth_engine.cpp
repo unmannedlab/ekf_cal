@@ -214,7 +214,7 @@ void TruthEngine::WriteTruthData(
   std::string output_directory)
 {
   DataLogger truth_logger(output_directory, "body_truth.csv");
-  truth_logger.SetLogging(true);
+  truth_logger.EnableLogging();
 
   std::stringstream header;
   header << "time";
@@ -285,7 +285,7 @@ void TruthEngine::WriteTruthData(
   }
 
   DataLogger board_logger(output_directory, "board_truth.csv");
-  board_logger.SetLogging(true);
+  board_logger.EnableLogging();
   board_logger.DefineHeader("board,pos_x,pos_y,pos_z,quat_w,quat_x,quat_y,quat_z");
 
   for (auto const & board : m_board_pos) {
@@ -297,7 +297,7 @@ void TruthEngine::WriteTruthData(
   }
 
   DataLogger feature_logger(output_directory, "feature_points.csv");
-  feature_logger.SetLogging(true);
+  feature_logger.EnableLogging();
   feature_logger.DefineHeader("Feature,x,y,z");
 
   for (unsigned int i = 0; i < m_feature_points.size(); ++i) {

@@ -38,7 +38,6 @@ public:
   /// @param cam_id Camera sensor ID
   /// @param is_cam_extrinsic Camera extrinsic calibration flag
   /// @param log_file_directory Directory to save log files
-  /// @param data_logging_on Flag to enable data logging
   /// @param data_log_rate Maximum average rate to log data
   /// @param min_feat_dist Closest feature distance to consider
   /// @param logger Debug logger pointer
@@ -47,7 +46,6 @@ public:
     int cam_id,
     bool is_cam_extrinsic,
     std::string log_file_directory,
-    bool data_logging_on,
     double data_log_rate,
     double min_feat_dist,
     std::shared_ptr<DebugLogger> logger

@@ -36,7 +36,6 @@ GpsUpdater::GpsUpdater(
   unsigned int gps_id,
   bool is_extrinsic,
   std::string log_file_directory,
-  bool data_logging_on,
   double data_log_rate,
   std::shared_ptr<DebugLogger> logger
 )
@@ -54,7 +53,7 @@ GpsUpdater::GpsUpdater(
   header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(header.str());
-  m_data_logger.SetLogging(data_logging_on);
+  if (data_log_rate) {m_data_logger.EnableLogging();}
   m_data_logger.SetLogRate(data_log_rate);
 }
 
