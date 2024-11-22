@@ -8,13 +8,9 @@ Software Work:
     - Add extrinsic step disturbance
     - Add IMU bias instability
         - Plot Allan Variance
-    - Compute Cramer Rao Lower Bound
-        - https://iaac.technion.ac.il/workshops/2010/KFhandouts/LectKF24.pdf
-        - https://www.cs.cmu.edu/~aarti/Class/10704_Spring15/lecs/lec23.pdf
     - Outlier rejection by gating / Mahalanobis distance
     - Play rosbags through as fast as possible given yaml
     - RANSAC Features
-    - Calculate CR Lower Bound
 
     Additional Trackers:
         - AprilGridTracker
@@ -22,7 +18,7 @@ Software Work:
 Documentation:
     - Simulation diagram
     - Add gif to main readme
-    - Create Simulated Camera video feed
+    - Create Simulated Camera video feed 
         - Circles for points, radius based on distance
         - Polygon for Board edges
         - https://docs.opencv.org/4.6.0/d3/d96/tutorial_basic_geometric_drawing.html

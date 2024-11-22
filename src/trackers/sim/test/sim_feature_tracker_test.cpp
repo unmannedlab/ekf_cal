@@ -21,6 +21,10 @@
 #include "trackers/sim/sim_feature_tracker.hpp"
 
 TEST(test_feature_tracker, constructor) {
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+
   FeatureTracker::Parameters params;
+  params.ekf = std::make_shared<EKF>(ekf_params);
   FeatureTracker feature_tracker(params);
 }

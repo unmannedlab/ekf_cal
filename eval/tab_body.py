@@ -615,8 +615,6 @@ class tab_body:
                 legend_label='Z')
         return fig
 
-
-
     def plot_aug_pos(self):
         """Plot augmented state position."""
         fig = figure(width=800, height=300, x_axis_label='Time [s]',
@@ -696,7 +694,6 @@ class tab_body:
                 size=1)
 
         return fig
-
 
     def get_tab(self):
         layout_plots = [

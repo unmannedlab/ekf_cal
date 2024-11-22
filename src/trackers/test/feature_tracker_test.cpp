@@ -23,7 +23,11 @@
 #include "sensors/camera.hpp"
 
 TEST(test_feature_tracker, initialization) {
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+
   FeatureTracker::Parameters params;
+  params.ekf = std::make_shared<EKF>(ekf_params);
   params.camera_id = 1;
 
   params.detector = Detector::BRISK;

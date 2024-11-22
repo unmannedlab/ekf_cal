@@ -115,5 +115,4 @@ TEST(test_SimIMU, Constructor) {
   EXPECT_NEAR(enu_4[0], 3.058, 1e-3);
   EXPECT_NEAR(enu_4[1], 0.735, 1e-3);
   EXPECT_NEAR(enu_4[2], 0.027, 1e-3);
-
 }
