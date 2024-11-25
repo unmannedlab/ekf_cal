@@ -55,15 +55,17 @@
             ang_b_to_l_error: [0.3, 0.3, 0.3] # Initial body angular error
 
             # Spline Truth Parameters:
-            positions:                        # A list of translational vectors
-                - [0.0, 0.0, 0.0]
-                - [0.1, 0.1, 0.1]
-                - [-0.1, -0.1, -0.1]
-                - [0.0, 0.0, 0.0]
-            angles:                           # A list of rotational vectors
-                - [0.00, 0.00, 0.00]
-                - [0.01, 0.01, 0.01]
-                - [0.00, 0.00, 0.00]
+            positions: [                      # A list of translational vectors
+                0.0, 0.0, 0.0,
+                0.1, 0.1, 0.1,
+                -0.1, -0.1, -0.1,
+                0.0, 0.0, 0.0
+            ]
+            angles: [                         # A list of rotational vectors
+                0.00, 0.00, 0.00,
+                0.01, 0.01, 0.01,
+                0.00, 0.00, 0.00
+            ]
             pos_errors: [1.0, 1.0, 1.0]       # Error in achieving translational vectors
             ang_errors: [0.1, 0.1, 0.1]       # Error in achieving rotational vectors
 
@@ -138,8 +140,8 @@
                     p_1: 0.0                        # Tangential coefficient 1
                     p_2: 0.0                        # Tangential coefficient 1
                     pixel_size: 5.0e-6              # Pixel size
-                    width: 1920                     # Image width
-                    height: 1080                    # Image height
+                    width: 1920.0                   # Image width
+                    height: 1080.0                  # Image height
                 is_extrinsic: false                 # Flag to calibrate camera extrinsics
                 sim_params:
                     no_errors: false                # Flag to disable errors in simulation
@@ -205,7 +207,7 @@
             gps_1:
                 rate: 5.0                            # Sensor Rate
                 topic: "/gps_1"                      # ROS topic
-                pos_a_in_b: [0.0, 0, 0]              # Antenna position in body frame
+                pos_a_in_b: [0.0, 0.0, 0.0]          # Antenna position in body frame
                 variance: [5.0, 5.0, 5.0]            # Antenna position variance
                 data_log_rate: 5.0                   # Data log rate
                 is_extrinsic: false                  # Flag to calibrate GPS extrinsics

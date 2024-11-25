@@ -44,8 +44,8 @@ public:
   /// @param rng Random number generator
   ///
   TruthEngineSpline(
-    std::vector<std::vector<double>> positions,
-    std::vector<std::vector<double>> angles,
+    std::vector<double> positions,
+    std::vector<double> angles,
     std::vector<double> position_errors,
     std::vector<double> angle_errors,
     double stationary_time,

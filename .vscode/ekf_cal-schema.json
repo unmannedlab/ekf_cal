@@ -135,23 +135,13 @@
                                 "positions": {
                                     "type": "array",
                                     "items": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "number"
-                                        },
-                                        "minItems": 3,
-                                        "maxItems": 3
+                                        "type": "number"
                                     }
                                 },
                                 "angles": {
                                     "type": "array",
                                     "items": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "number"
-                                        },
-                                        "minItems": 3,
-                                        "maxItems": 3
+                                        "type": "number"
                                     }
                                 },
                                 "pos_errors": {

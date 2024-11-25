@@ -152,7 +152,6 @@ int main(int argc, char * argv[])
   // Define default values
   std::vector<double> def_vec{0.0, 0.0, 0.0};
   std::vector<double> def_quat{1.0, 0.0, 0.0, 0.0};
-  std::vector<std::vector<double>> def_mat{{0.0, 0.0, 0.0}};
 
   // Logging parameters
   EKF::Parameters ekf_params;
@@ -228,8 +227,8 @@ int main(int argc, char * argv[])
     );
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
   } else if (truth_type == "spline") {
-    auto positions = sim_params["positions"].as<std::vector<std::vector<double>>>(def_mat);
-    auto angles = sim_params["angles"].as<std::vector<std::vector<double>>>(def_mat);
+    auto positions = sim_params["positions"].as<std::vector<double>>(def_vec);
+    auto angles = sim_params["angles"].as<std::vector<double>>(def_vec);
     auto pos_errs = sim_params["pos_errors"].as<std::vector<double>>(def_vec);
     auto ang_errs = sim_params["ang_errors"].as<std::vector<double>>(def_vec);
     auto truth_engine_spline = std::make_shared<TruthEngineSpline>(
