@@ -69,6 +69,18 @@ public:
   void LoadSensors();
 
   ///
+  /// @brief Load sensor common parameters
+  /// @param params Parameter struct
+  /// @param prefix Sensor parameter prefix
+  /// @param name Sensor name
+  ///
+  void LoadSensorParameters(
+    Sensor::Parameters & params,
+    std::string prefix,
+    std::string name
+  );
+
+  ///
   /// @brief Load IMU sensor
   /// @param imu_name Name of IMU to find and load from YAML
   ///
@@ -117,6 +129,12 @@ public:
   /// @brief Declare parameters for all sensors
   ///
   void DeclareSensors();
+
+  ///
+  /// @brief Declare generic sensor parameters
+  /// @param sensor_name Sensor name
+  ///
+  void DeclareSensorParameters(std::string sensor_name);
 
   ///
   /// @brief Declare IMU parameters
@@ -243,12 +261,14 @@ private:
   rclcpp::TimerBase::SharedPtr m_state_pub_timer;
 
   std::shared_ptr<EKF> m_ekf;
-  std::shared_ptr<DebugLogger> m_logger;
+  std::shared_ptr<DebugLogger> m_debug_logger;
   DataLogger m_state_data_logger;
 
   std::map<unsigned int, std::shared_ptr<RosIMU>> m_map_imu{};
   std::map<unsigned int, std::shared_ptr<RosCamera>> m_map_camera{};
   std::map<unsigned int, std::shared_ptr<RosGPS>> m_map_gps{};
+
+  std::string m_output_directory{"~/log/"};
 };
 
 #endif  // APPLICATION__ROS__NODE__EKF_CAL_NODE_HPP_

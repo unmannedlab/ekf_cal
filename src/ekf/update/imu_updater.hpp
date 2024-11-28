@@ -37,7 +37,6 @@ public:
   /// @param is_extrinsic switch if this is the base sensor
   /// @param is_intrinsic switch if imu intrinsics should be calibrated
   /// @param log_file_directory Logging file directory
-  /// @param data_logging_on Logging flag
   /// @param data_log_rate Maximum average rate to log data
   /// @param logger Debug logger pointer
   ///
@@ -46,7 +45,6 @@ public:
     bool is_extrinsic,
     bool is_intrinsic,
     std::string log_file_directory,
-    bool data_logging_on,
     double data_log_rate,
     std::shared_ptr<DebugLogger> logger
   );

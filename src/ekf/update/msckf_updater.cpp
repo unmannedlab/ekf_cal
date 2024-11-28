@@ -40,7 +40,6 @@ MsckfUpdater::MsckfUpdater(
   int cam_id,
   bool is_extrinsic,
   std::string log_file_directory,
-  bool data_logging_on,
   double data_log_rate,
   double min_feat_dist,
   std::shared_ptr<DebugLogger> logger
@@ -59,10 +58,10 @@ MsckfUpdater::MsckfUpdater(
   header << EnumerateHeader("duration", 1);
 
   m_msckf_logger.DefineHeader(header.str());
-  m_msckf_logger.SetLogging(data_logging_on);
+  if (data_log_rate) {m_msckf_logger.EnableLogging();}
 
   m_triangulation_logger.DefineHeader("time,feature,x,y,z");
-  m_triangulation_logger.SetLogging(data_logging_on);
+  if (data_log_rate) {m_triangulation_logger.EnableLogging();}
   m_triangulation_logger.SetLogRate(data_log_rate);
 
   m_min_feat_dist = min_feat_dist;

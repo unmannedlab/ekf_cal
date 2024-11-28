@@ -68,7 +68,6 @@ void LoadSensorParams(
   YAML::Node node,
   std::string name,
   std::string out_dir,
-  bool data_logging_on,
   std::shared_ptr<EKF> ekf,
   std::shared_ptr<DebugLogger> debug_logger
 )
@@ -78,7 +77,6 @@ void LoadSensorParams(
   params.data_log_rate = node["data_log_rate"].as<double>(0.0);
   params.name = name;
   params.output_directory = out_dir;
-  params.data_logging_on = data_logging_on;
   params.ekf = ekf;
   params.logger = debug_logger;
 }
@@ -96,7 +94,6 @@ void LoadTrackerParams(
   YAML::Node node,
   std::string name,
   std::string out_dir,
-  bool data_logging_on,
   std::shared_ptr<EKF> ekf,
   std::shared_ptr<DebugLogger> debug_logger
 )
@@ -104,7 +101,6 @@ void LoadTrackerParams(
   params.data_log_rate = node["data_log_rate"].as<double>(0.0);
   params.name = name;
   params.output_directory = out_dir;
-  params.data_logging_on = data_logging_on;
   params.ekf = ekf;
   params.logger = debug_logger;
 }
@@ -156,7 +152,6 @@ int main(int argc, char * argv[])
   // Define default values
   std::vector<double> def_vec{0.0, 0.0, 0.0};
   std::vector<double> def_quat{1.0, 0.0, 0.0, 0.0};
-  std::vector<std::vector<double>> def_mat{{0.0, 0.0, 0.0}};
 
   // Logging parameters
   EKF::Parameters ekf_params;
@@ -166,11 +161,9 @@ int main(int argc, char * argv[])
   debug_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
 
   // EKF parameters
-  bool data_logging_on = ros_params["data_logging_on"].as<bool>(true);
-  double data_log_rate = ros_params["data_log_rate"].as<double>(1.0);
+  double data_log_rate = ros_params["data_log_rate"].as<double>(0.0);
   ekf_params.debug_logger = debug_logger;
   ekf_params.data_log_rate = data_log_rate;
-  ekf_params.data_logging_on = data_logging_on;
   ekf_params.log_directory = out_dir;
   ekf_params.augmenting_type =
     static_cast<AugmentationType>(ros_params["augmenting_type"].as<unsigned int>(0));
@@ -234,8 +227,8 @@ int main(int argc, char * argv[])
     );
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
   } else if (truth_type == "spline") {
-    auto positions = sim_params["positions"].as<std::vector<std::vector<double>>>(def_mat);
-    auto angles = sim_params["angles"].as<std::vector<std::vector<double>>>(def_mat);
+    auto positions = sim_params["positions"].as<std::vector<double>>(def_vec);
+    auto angles = sim_params["angles"].as<std::vector<double>>(def_vec);
     auto pos_errs = sim_params["pos_errors"].as<std::vector<double>>(def_vec);
     auto ang_errs = sim_params["ang_errors"].as<std::vector<double>>(def_vec);
     auto truth_engine_spline = std::make_shared<TruthEngineSpline>(
@@ -281,7 +274,7 @@ int main(int argc, char * argv[])
     YAML::Node sim_node = imu_node["sim_params"];
 
     IMU::Parameters imu_params;
-    LoadSensorParams(imu_params, imu_node, imus[i], out_dir, data_logging_on, ekf, debug_logger);
+    LoadSensorParams(imu_params, imu_node, imus[i], out_dir, ekf, debug_logger);
     imu_params.is_extrinsic = imu_node["is_extrinsic"].as<bool>(false);
     imu_params.is_intrinsic = imu_node["is_intrinsic"].as<bool>(false);
     imu_params.variance = StdToEigVec(imu_node["variance"].as<std::vector<double>>(def_vec));
@@ -327,7 +320,7 @@ int main(int argc, char * argv[])
 
     FeatureTracker::Parameters track_params;
     LoadTrackerParams(
-      track_params, trk_node, trackers[i], out_dir, data_logging_on, ekf, debug_logger);
+      track_params, trk_node, trackers[i], out_dir, ekf, debug_logger);
     track_params.px_error = trk_node["pixel_error"].as<double>(1.0);
     track_params.min_track_length = trk_node["min_track_length"].as<unsigned int>(2U);
     track_params.max_track_length = trk_node["max_track_length"].as<unsigned int>(20U);
@@ -356,7 +349,7 @@ int main(int argc, char * argv[])
 
     FiducialTracker::Parameters fiducial_params;
     LoadTrackerParams(
-      fiducial_params, fid_node, fiducials[i], out_dir, data_logging_on, ekf, debug_logger);
+      fiducial_params, fid_node, fiducials[i], out_dir, ekf, debug_logger);
     fiducial_params.pos_f_in_l =
       StdToEigVec(fid_node["pos_f_in_l"].as<std::vector<double>>(def_vec));
     fiducial_params.ang_f_to_l =
@@ -397,7 +390,7 @@ int main(int argc, char * argv[])
     YAML::Node sim_node = cam_node["sim_params"];
 
     Camera::Parameters cam_params;
-    LoadSensorParams(cam_params, cam_node, cameras[i], out_dir, data_logging_on, ekf, debug_logger);
+    LoadSensorParams(cam_params, cam_node, cameras[i], out_dir, ekf, debug_logger);
     cam_params.variance = StdToEigVec(cam_node["variance"].as<std::vector<double>>(def_vec));
     cam_params.pos_c_in_b = StdToEigVec(cam_node["pos_c_in_b"].as<std::vector<double>>(def_vec));
     cam_params.ang_c_to_b = StdToEigQuat(cam_node["ang_c_to_b"].as<std::vector<double>>(def_quat));
@@ -460,11 +453,9 @@ int main(int argc, char * argv[])
 
     GPS::Parameters gps_params;
     LoadSensorParams(
-      gps_params, gps_node, gps_list[i], out_dir, data_logging_on, ekf, debug_logger);
+      gps_params, gps_node, gps_list[i], out_dir, ekf, debug_logger);
     gps_params.variance = StdToEigVec(gps_node["variance"].as<std::vector<double>>(def_vec));
     gps_params.pos_a_in_b = StdToEigVec(gps_node["pos_a_in_b"].as<std::vector<double>>(def_vec));
-    gps_params.pos_l_in_g = StdToEigVec(gps_node["pos_l_in_g"].as<std::vector<double>>(def_vec));
-    gps_params.ang_l_to_g = gps_node["ang_l_to_g"].as<double>(0.0);
     gps_params.pos_stability = gps_node["pos_stability"].as<double>(0.0);
     gps_params.is_extrinsic = gps_node["is_extrinsic"].as<bool>(false);
 
@@ -490,9 +481,7 @@ int main(int argc, char * argv[])
   }
 
   // Log truth data
-  if (data_logging_on) {
-    truth_engine->WriteTruthData(data_log_rate, out_dir);
-  }
+  if (data_log_rate) {truth_engine->WriteTruthData(data_log_rate, out_dir);}
 
   // Sort Measurements
   sort(messages.begin(), messages.end(), MessageCompare);

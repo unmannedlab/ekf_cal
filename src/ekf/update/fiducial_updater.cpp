@@ -41,7 +41,6 @@ FiducialUpdater::FiducialUpdater(
   int camera_id,
   bool is_cam_extrinsic,
   std::string log_file_directory,
-  bool data_logging_on,
   double data_log_rate,
   std::shared_ptr<DebugLogger> logger
 )
@@ -61,10 +60,10 @@ FiducialUpdater::FiducialUpdater(
   header << EnumerateHeader("duration", 1);
 
   m_fiducial_logger.DefineHeader(header.str());
-  m_fiducial_logger.SetLogging(data_logging_on);
+  if (data_log_rate) {m_fiducial_logger.EnableLogging();}
 
   m_board_logger.DefineHeader("time,board,pos_x,pos_y,pos_z,quat_w,quat_x,quat_y,quat_z");
-  m_board_logger.SetLogging(data_logging_on);
+  if (data_log_rate) {m_board_logger.EnableLogging();}
   m_board_logger.SetLogRate(data_log_rate);
 }
 

@@ -142,14 +142,13 @@ TEST(test_TruthEngineCyclic, Constructor) {
 TEST(test_TruthEngineSpline, Constructor) {
   double stationary_time {0.0};
   double max_time {1.0};
-  std::vector<std::vector<double>> positions;
-  std::vector<std::vector<double>> angles;
+  std::vector<double> positions;
+  std::vector<double> angles;
 
-  positions.push_back(std::vector<double>{0, 0, 0});
-  positions.push_back(std::vector<double>{0, 0, 0});
-
-  angles.push_back(std::vector<double>{0.0, 0.0, 0.0});
-  angles.push_back(std::vector<double>{0.0, 0.0, 0.0});
+  for (unsigned int i = 0; i < 6; ++i) {
+    positions.push_back(0.0);
+    angles.push_back(0.0);
+  }
 
   auto pos_errs = std::vector<double>{0.0, 0.0, 0.0};
   auto ang_errs = std::vector<double>{0.0, 0.0, 0.0};
@@ -165,18 +164,18 @@ TEST(test_TruthEngineSpline, Constructor) {
 TEST(test_TruthEngineSpline, Constant_Velocity) {
   double stationary_time {0.0};
   double max_time {3.0};
-  std::vector<std::vector<double>> positions;
-  std::vector<std::vector<double>> angles;
+  std::vector<double> positions;
+  std::vector<double> angles;
 
-  positions.push_back(std::vector<double>{0, 0, 0});
-  positions.push_back(std::vector<double>{1, 1, 1});
-  positions.push_back(std::vector<double>{2, 2, 2});
-  positions.push_back(std::vector<double>{3, 3, 3});
+  positions.push_back(0.0); positions.push_back(0.0); positions.push_back(0.0);
+  positions.push_back(1.0); positions.push_back(1.0); positions.push_back(1.0);
+  positions.push_back(2.0); positions.push_back(2.0); positions.push_back(2.0);
+  positions.push_back(3.0); positions.push_back(3.0); positions.push_back(3.0);
 
-  angles.push_back(std::vector<double>{0.0, 0.0, 0.0});
-  angles.push_back(std::vector<double>{0.1, 0.1, 0.1});
-  angles.push_back(std::vector<double>{0.2, 0.2, 0.2});
-  angles.push_back(std::vector<double>{0.3, 0.3, 0.3});
+  angles.push_back(0.0); angles.push_back(0.0); angles.push_back(0.0);
+  angles.push_back(0.1); angles.push_back(0.1); angles.push_back(0.1);
+  angles.push_back(0.2); angles.push_back(0.2); angles.push_back(0.2);
+  angles.push_back(0.3); angles.push_back(0.3); angles.push_back(0.3);
 
   auto pos_errs = std::vector<double>{0.0, 0.0, 0.0};
   auto ang_errs = std::vector<double>{0.0, 0.0, 0.0};
@@ -196,10 +195,10 @@ TEST(test_TruthEngineSpline, Constant_Velocity) {
   Eigen::Vector3d pos_4 = truth_engine_spline.GetBodyPosition(4.0);
 
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_n, Eigen::Vector3d{0, 0, 0}, 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_0, StdToEigVec(positions[0]), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_1, StdToEigVec(positions[1]), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_2, StdToEigVec(positions[2]), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_3, StdToEigVec(positions[3]), 1e-6));
+  EXPECT_NEAR(pos_0[0], positions[0], 1e-6);
+  EXPECT_NEAR(pos_1[0], positions[3], 1e-6);
+  EXPECT_NEAR(pos_2[0], positions[6], 1e-6);
+  EXPECT_NEAR(pos_3[0], positions[9], 1e-6);
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_4, Eigen::Vector3d{0, 0, 0}, 1e-6));
 
   Eigen::Vector3d vel_n = truth_engine_spline.GetBodyVelocity(-1.0);
@@ -238,10 +237,10 @@ TEST(test_TruthEngineSpline, Constant_Velocity) {
   Eigen::Quaterniond ang_4 = truth_engine_spline.GetBodyAngularPosition(4.0);
 
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(ang_n, EigVecToQuat(Eigen::Vector3d{0, 0, 0}), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(ang_0, EigVecToQuat(StdToEigVec(angles[0])), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(ang_1, EigVecToQuat(StdToEigVec(angles[1])), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(ang_2, EigVecToQuat(StdToEigVec(angles[2])), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(ang_3, EigVecToQuat(StdToEigVec(angles[3])), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(ang_0, EigVecToQuat(Eigen::Vector3d{0.0, 0.0, 0.0}), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(ang_1, EigVecToQuat(Eigen::Vector3d{0.1, 0.1, 0.1}), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(ang_2, EigVecToQuat(Eigen::Vector3d{0.2, 0.2, 0.2}), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(ang_3, EigVecToQuat(Eigen::Vector3d{0.3, 0.3, 0.3}), 1e-6));
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(ang_4, EigVecToQuat(Eigen::Vector3d{0, 0, 0}), 1e-6));
 
   Eigen::Vector3d ang_vel_n = truth_engine_spline.GetBodyAngularRate(-1.0);
@@ -276,23 +275,22 @@ TEST(test_TruthEngineSpline, Constant_Velocity) {
 TEST(test_TruthEngineSpline, Oscillating) {
   double stationary_time {0.0};
   double max_time {5.0};
-  std::vector<std::vector<double>> positions;
-  std::vector<std::vector<double>> angles;
+  std::vector<double> positions;
+  std::vector<double> angles;
 
-  positions.push_back(std::vector<double>{0, 0, 0});
-  positions.push_back(std::vector<double>{1, 1, 1});
-  positions.push_back(std::vector<double>{0, 0, 0});
-  positions.push_back(std::vector<double>{1, 1, 1});
-  positions.push_back(std::vector<double>{0, 0, 0});
-  positions.push_back(std::vector<double>{1, 1, 1});
+  positions.push_back(0.0); positions.push_back(0.0); positions.push_back(0.0);
+  positions.push_back(1.0); positions.push_back(1.0); positions.push_back(1.0);
+  positions.push_back(0.0); positions.push_back(0.0); positions.push_back(0.0);
+  positions.push_back(1.0); positions.push_back(1.0); positions.push_back(1.0);
+  positions.push_back(0.0); positions.push_back(0.0); positions.push_back(0.0);
+  positions.push_back(1.0); positions.push_back(1.0); positions.push_back(1.0);
 
-
-  angles.push_back(std::vector<double>{0.0, 0.0, 0.0});
-  angles.push_back(std::vector<double>{0.1, 0.1, 0.1});
-  angles.push_back(std::vector<double>{0.0, 0.0, 0.0});
-  angles.push_back(std::vector<double>{0.1, 0.1, 0.1});
-  angles.push_back(std::vector<double>{0.0, 0.0, 0.0});
-  angles.push_back(std::vector<double>{0.1, 0.1, 0.1});
+  angles.push_back(0.0); angles.push_back(0.0); angles.push_back(0.0);
+  angles.push_back(0.1); angles.push_back(0.1); angles.push_back(0.1);
+  angles.push_back(0.0); angles.push_back(0.0); angles.push_back(0.0);
+  angles.push_back(0.1); angles.push_back(0.1); angles.push_back(0.1);
+  angles.push_back(0.0); angles.push_back(0.0); angles.push_back(0.0);
+  angles.push_back(0.1); angles.push_back(0.1); angles.push_back(0.1);
 
   auto pos_errs = std::vector<double>{0.0, 0.0, 0.0};
   auto ang_errs = std::vector<double>{0.0, 0.0, 0.0};
@@ -314,12 +312,12 @@ TEST(test_TruthEngineSpline, Oscillating) {
   Eigen::Vector3d pos_6 = truth_engine_spline.GetBodyPosition(6.0);
 
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_n, Eigen::Vector3d{0, 0, 0}, 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_0, StdToEigVec(positions[0]), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_1, StdToEigVec(positions[1]), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_2, StdToEigVec(positions[2]), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_3, StdToEigVec(positions[3]), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_4, StdToEigVec(positions[4]), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_5, StdToEigVec(positions[5]), 1e-6));
+  EXPECT_NEAR(pos_0[0], positions[0], 1e-6);
+  EXPECT_NEAR(pos_1[0], positions[3], 1e-6);
+  EXPECT_NEAR(pos_2[0], positions[6], 1e-6);
+  EXPECT_NEAR(pos_3[0], positions[9], 1e-6);
+  EXPECT_NEAR(pos_4[0], positions[12], 1e-6);
+  EXPECT_NEAR(pos_5[0], positions[15], 1e-6);
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(pos_6, Eigen::Vector3d{0, 0, 0}, 1e-6));
 
   Eigen::Vector3d vel_n = truth_engine_spline.GetBodyVelocity(-1.0);

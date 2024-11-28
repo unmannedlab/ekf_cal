@@ -60,9 +60,9 @@ void DataLogger::RateLimitedLog(std::string message, double time)
   }
 }
 
-void DataLogger::SetLogging(bool value)
+void DataLogger::EnableLogging()
 {
-  m_logging_on = value;
+  m_logging_on = true;
 }
 
 

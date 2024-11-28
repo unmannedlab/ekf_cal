@@ -14,9 +14,6 @@
                         "debug_log_level": {
                             "type": "number"
                         },
-                        "data_logging_on": {
-                            "type": "boolean"
-                        },
                         "data_log_rate": {
                             "type": "number"
                         },
@@ -138,23 +135,13 @@
                                 "positions": {
                                     "type": "array",
                                     "items": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "number"
-                                        },
-                                        "minItems": 3,
-                                        "maxItems": 3
+                                        "type": "number"
                                     }
                                 },
                                 "angles": {
                                     "type": "array",
                                     "items": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "number"
-                                        },
-                                        "minItems": 3,
-                                        "maxItems": 3
+                                        "type": "number"
                                     }
                                 },
                                 "pos_errors": {

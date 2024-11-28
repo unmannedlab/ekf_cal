@@ -39,7 +39,6 @@ public:
     std::string name {""};                ///< @brief Name
     std::string topic {""};               ///< @brief Topic
     double rate{1.0};                     ///< @brief Update rate
-    bool data_logging_on {false};         ///< @brief Data logging flag
     double data_log_rate {0.0};           ///< @brief Data logging rate
     std::string output_directory {""};    ///< @brief Data logging directory
     std::shared_ptr<DebugLogger> logger;  ///< @brief Debug logger

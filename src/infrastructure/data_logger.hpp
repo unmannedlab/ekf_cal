@@ -62,10 +62,9 @@ public:
   void DefineHeader(std::string header);
 
   ///
-  /// @brief Function to switch the logger on/off
-  /// @param value Logger on/off value
+  /// @brief Function to enable logging
   ///
-  void SetLogging(bool value);
+  void EnableLogging();
 
   ///
   /// @brief Output directory setter

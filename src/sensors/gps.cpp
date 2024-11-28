@@ -33,7 +33,6 @@ GPS::GPS(GPS::Parameters params)
     m_id,
     params.is_extrinsic,
     params.output_directory,
-    params.data_logging_on,
     params.data_log_rate,
     params.logger)
 {
