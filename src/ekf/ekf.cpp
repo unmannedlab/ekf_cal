@@ -139,17 +139,17 @@ void EKF::PredictModel(double time)
     double dT = time - m_current_time;
 
     Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
-    Eigen::Vector3d acc_in_b = m_imu_filter.GetAcc();
-    Eigen::Vector3d ang_vel_in_b = m_imu_filter.GetAngVel();
+    Eigen::Vector3d acc_b_in_l = m_state.body_state.acc_b_in_l;
+    Eigen::Vector3d ang_vel_b_in_l = m_state.body_state.ang_vel_b_in_l;
 
     Eigen::Vector3d acceleration_local;
     if (m_is_zero_acceleration) {
       acceleration_local = Eigen::Vector3d::Zero();
     } else {
-      acceleration_local = (ang_b_to_l * acc_in_b) - g_gravity;
+      acceleration_local = acc_b_in_l - g_gravity;
     }
 
-    Eigen::Vector3d rot_vec(ang_vel_in_b[0] * dT, ang_vel_in_b[1] * dT, ang_vel_in_b[2] * dT);
+    Eigen::Vector3d rot_vec(ang_vel_b_in_l[0] * dT, ang_vel_b_in_l[1] * dT, ang_vel_b_in_l[2] * dT);
 
     m_state.body_state.vel_b_in_l += dT * acceleration_local;
     m_state.body_state.pos_b_in_l += dT * m_state.body_state.vel_b_in_l;
@@ -275,7 +275,6 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
   }
 
   RefreshIndices();
-  m_imu_filter.SetImuCount(m_state.imu_states.size());
 
   std::stringstream log_msg;
   log_msg << "Register IMU: " << imu_id << ", stateSize: " << m_state_size;
@@ -440,17 +439,17 @@ void EKF::AugmentStateIfNeeded()
     } else if ((m_current_time - m_state.aug_states[0].back().time) > m_min_aug_period) {
       AugState last_aug = m_state.aug_states[0].back();
       double delta_time = m_current_time - last_aug.time;
-      Eigen::Vector3d ang_vel_in_b = m_imu_filter.GetAngVel();
-      Eigen::Vector3d ang_acc_in_b = m_imu_filter.GetAngAcc();
+      Eigen::Vector3d ang_vel_b_in_l = m_state.body_state.ang_vel_b_in_l;
+      Eigen::Vector3d ang_acc_b_in_l = m_state.body_state.ang_acc_b_in_l;
 
       Eigen::Vector3d delta_pos = m_state.body_state.pos_b_in_l -
         delta_time * m_state.body_state.vel_b_in_l -
         last_aug.pos_b_in_l;
 
       Eigen::Vector3d rot_vec(
-        ang_vel_in_b[0] * delta_time + ang_acc_in_b[0] * 0.5 * delta_time * delta_time,
-        ang_vel_in_b[1] * delta_time + ang_acc_in_b[1] * 0.5 * delta_time * delta_time,
-        ang_vel_in_b[2] * delta_time + ang_acc_in_b[2] * 0.5 * delta_time * delta_time);
+        ang_vel_b_in_l[0] * delta_time + ang_acc_b_in_l[0] * 0.5 * delta_time * delta_time,
+        ang_vel_b_in_l[1] * delta_time + ang_acc_b_in_l[1] * 0.5 * delta_time * delta_time,
+        ang_vel_b_in_l[2] * delta_time + ang_acc_b_in_l[2] * 0.5 * delta_time * delta_time);
 
       Eigen::Quaterniond delta_ang =
         m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec).inverse() *
@@ -552,6 +551,7 @@ void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
 
 void EKF::SetBodyProcessNoise(Eigen::VectorXd process_noise)
 {
+  std::cout << process_noise << std::endl;
   m_body_process_noise = process_noise;
 }
 

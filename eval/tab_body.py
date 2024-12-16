@@ -711,11 +711,11 @@ class tab_body:
             ],
             [
                 self.plot_body_vel(),
-                self.plot_aug_pos()
+                self.plot_aug_pos() if self.aug_state_dfs else Spacer()
             ],
             [
                 self.plot_body_err_vel(),
-                self.plot_aug_ang()
+                self.plot_aug_ang() if self.aug_state_dfs else Spacer()
             ],
             [
                 self.plot_body_vel_cov(),

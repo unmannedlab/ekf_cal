@@ -108,12 +108,18 @@ Eigen::VectorXd LoadProcessNoise(YAML::Node process_noise_node)
 {
   double pos_noise = process_noise_node["pos"].as<double>(1.0e-2);
   double vel_noise = process_noise_node["vel"].as<double>(1.0e-2);
+  double acc_noise = process_noise_node["acc"].as<double>(1.0e-2);
   double ang_pos_noise = process_noise_node["ang_pos"].as<double>(1.0e-2);
+  double ang_vel_noise = process_noise_node["ang_vel"].as<double>(1.0e-2);
+  double ang_acc_noise = process_noise_node["ang_acc"].as<double>(1.0e-2);
 
   Eigen::VectorXd process_noise(g_body_state_size);
   process_noise.segment<3>(0) = Eigen::Vector3d::Ones() * pos_noise;
   process_noise.segment<3>(3) = Eigen::Vector3d::Ones() * vel_noise;
-  process_noise.segment<3>(6) = Eigen::Vector3d::Ones() * ang_pos_noise;
+  process_noise.segment<3>(6) = Eigen::Vector3d::Ones() * acc_noise;
+  process_noise.segment<3>(9) = Eigen::Vector3d::Ones() * ang_pos_noise;
+  process_noise.segment<3>(12) = Eigen::Vector3d::Ones() * ang_vel_noise;
+  process_noise.segment<3>(15) = Eigen::Vector3d::Ones() * ang_acc_noise;
 
   return process_noise;
 }

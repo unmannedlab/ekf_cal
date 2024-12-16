@@ -24,7 +24,6 @@
 #include <vector>
 
 #include "ekf/constants.hpp"
-#include "ekf/imu_filter.hpp"
 #include "ekf/types.hpp"
 #include "infrastructure/data_logger.hpp"
 #include "infrastructure/debug_logger.hpp"
@@ -376,9 +375,6 @@ public:
   /// @brief EKF state
   State m_state;
 
-  /// @brief IMU filter state
-  ImuFilter m_imu_filter;
-
   /// @brief EKF covariance
   Eigen::MatrixXd m_cov = Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size) * 1e-2;
 
@@ -430,7 +426,7 @@ private:
   double m_motion_detection_chi_squared{1.0};
   double m_imu_noise_scale_factor{100.0};
 
-  bool m_use_root_covariance{false};
+  bool m_use_root_covariance{true};
   bool m_use_first_estimate_jacobian{false};
   bool m_is_zero_acceleration{true};
   bool m_frame_received_since_last_aug {true};
