@@ -46,10 +46,10 @@ TEST(test_EKF, get_counts) {
   EXPECT_EQ(ekf->GetImuCount(), 1);
   EXPECT_EQ(ekf->GetCamCount(), 1);
 
-  EXPECT_EQ(ekf->m_state.imu_states[0].index, 9);
-  EXPECT_EQ(ekf->m_state.cam_states[1].index, 15);
-  EXPECT_EQ(ekf->GetAugState(1, 0, 0).index, 21);
-  EXPECT_EQ(ekf->GetAugState(1, 1, 0).index, 27);
+  EXPECT_EQ(ekf->m_state.imu_states[0].index, 18);
+  EXPECT_EQ(ekf->m_state.cam_states[1].index, 24);
+  EXPECT_EQ(ekf->GetAugState(1, 0, 0).index, 30);
+  EXPECT_EQ(ekf->GetAugState(1, 1, 0).index, 36);
 }
 
 TEST(test_EKF, duplicate_sensors) {
@@ -92,17 +92,17 @@ TEST(test_EKF, duplicate_sensors) {
   EXPECT_EQ(ekf->GetGpsCount(), 1);
   EXPECT_EQ(ekf->GetCamCount(), 1);
 
-  EXPECT_EQ(ekf->m_state.imu_states[0].index, 9);
-  EXPECT_EQ(ekf->m_state.gps_states[1].index, 15);
-  EXPECT_EQ(ekf->m_state.cam_states[2].index, 18);
-  EXPECT_EQ(ekf->GetAugState(2, 0, 0).index, 30);
-  EXPECT_EQ(ekf->GetAugState(2, 1, 0).index, 36);
+  EXPECT_EQ(ekf->m_state.imu_states[0].index, 18);
+  EXPECT_EQ(ekf->m_state.gps_states[1].index, 24);
+  EXPECT_EQ(ekf->m_state.cam_states[2].index, 27);
+  EXPECT_EQ(ekf->GetAugState(2, 0, 0).index, 39);
+  EXPECT_EQ(ekf->GetAugState(2, 1, 0).index, 45);
 
-  EXPECT_EQ(ekf->GetImuStateStart(), 9);
-  EXPECT_EQ(ekf->GetGpsStateStart(), 15);
-  EXPECT_EQ(ekf->GetCamStateStart(), 18);
-  EXPECT_EQ(ekf->GetFidStateStart(), 24);
-  EXPECT_EQ(ekf->GetAugStateStart(), 30);
+  EXPECT_EQ(ekf->GetImuStateStart(), 18);
+  EXPECT_EQ(ekf->GetGpsStateStart(), 24);
+  EXPECT_EQ(ekf->GetCamStateStart(), 27);
+  EXPECT_EQ(ekf->GetFidStateStart(), 33);
+  EXPECT_EQ(ekf->GetAugStateStart(), 39);
 }
 
 TEST(test_EKF, SetBodyProcessNoise) {
