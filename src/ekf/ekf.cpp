@@ -140,7 +140,7 @@ void EKF::PredictModel(double time)
 
     Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
     Eigen::Vector3d acc_b_in_l = m_state.body_state.acc_b_in_l;
-    Eigen::Vector3d ang_vel_b_in_l = m_state.body_state.ang_vel_b_in_l;
+    Eigen::Vector3d ang_vel_in_b = m_state.body_state.ang_vel_b_in_l;
 
     Eigen::Vector3d acceleration_local;
     if (m_is_zero_acceleration) {
@@ -149,11 +149,11 @@ void EKF::PredictModel(double time)
       acceleration_local = acc_b_in_l - g_gravity;
     }
 
-    Eigen::Vector3d rot_vec(ang_vel_b_in_l[0] * dT, ang_vel_b_in_l[1] * dT, ang_vel_b_in_l[2] * dT);
+    Eigen::Vector3d rot_vec(ang_vel_in_b[0] * dT, ang_vel_in_b[1] * dT, ang_vel_in_b[2] * dT);
 
     m_state.body_state.vel_b_in_l += dT * acceleration_local;
     m_state.body_state.pos_b_in_l += dT * m_state.body_state.vel_b_in_l;
-    m_state.body_state.ang_b_to_l = m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec);
+    m_state.body_state.ang_b_to_l = RotVecToQuat(rot_vec) * m_state.body_state.ang_b_to_l;
 
     Eigen::MatrixXd F = GetStateTransition(dT);
     unsigned int alt_size = m_state_size - g_body_state_size;
@@ -551,7 +551,6 @@ void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
 
 void EKF::SetBodyProcessNoise(Eigen::VectorXd process_noise)
 {
-  std::cout << process_noise << std::endl;
   m_body_process_noise = process_noise;
 }
 
