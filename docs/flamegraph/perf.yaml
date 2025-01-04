@@ -128,6 +128,7 @@
                 tracker: "orb"                              # Tracker to use
                 pos_stability: 1.0e-9                       # Position stability
                 ang_stability: 1.0e-9                       # Orientation stability
+                data_log_rate: 20.0                         # Data log rate
                 intrinsics:
                     f_x: 0.01                               # X focal length [m]
                     f_y: 0.01                               # Y focal length [m]
@@ -187,7 +188,6 @@
                 ]
                 min_track_length: 0                         # Minimum track length
                 max_track_length: 1                         # Maximum track length
-                data_log_rate: 20.0                         # Data log rate
                 sim_params:
                     pos_error: [1.0e-1, 1.0e-1, 1.0e-1]     # Position error
                     ang_error: [1.0e-1, 1.0e-1, 1.0e-1]     # Orientation error

@@ -287,6 +287,9 @@
                                         "omg_bias_stability": {
                                             "type": "number"
                                         },
+                                        "data_log_rate": {
+                                            "type": "number"
+                                        },
                                         "sim_params": {
                                             "type": "object",
                                             "properties": {
@@ -399,6 +402,9 @@
                                             "type": "number"
                                         },
                                         "ang_stability": {
+                                            "type": "number"
+                                        },
+                                        "data_log_rate": {
                                             "type": "number"
                                         },
                                         "intrinsics": {
@@ -588,9 +594,6 @@
                                         },
                                         "is_extrinsic": {
                                             "type": "boolean"
-                                        },
-                                        "data_log_rate": {
-                                            "type": "number"
                                         },
                                         "sim_params": {
                                             "type": "object",

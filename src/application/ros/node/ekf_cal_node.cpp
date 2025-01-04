@@ -339,7 +339,6 @@ void EkfCalNode::DeclareTrackerParameters(std::string tracker_name)
   declare_parameter(tracker_prefix + ".min_feature_distance", 1.0);
   declare_parameter(tracker_prefix + ".min_track_length", 2);
   declare_parameter(tracker_prefix + ".max_track_length", 20);
-  declare_parameter(tracker_prefix + ".data_log_rate", 0.0);
 }
 
 FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_name)
@@ -389,7 +388,6 @@ void EkfCalNode::DeclareFiducialParameters(std::string fid_name)
   declare_parameter(fiducial_prefix + ".min_track_length", 2);
   declare_parameter(fiducial_prefix + ".max_track_length", 20);
   declare_parameter(fiducial_prefix + ".is_extrinsic", false);
-  declare_parameter(fiducial_prefix + ".data_log_rate", 0.0);
 }
 
 FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(std::string fiducial_name)
@@ -408,7 +406,6 @@ FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(std::string fiduci
   auto min_track_length = get_parameter(fiducial_prefix + ".min_track_length").as_int();
   auto max_track_length = get_parameter(fiducial_prefix + ".max_track_length").as_int();
   auto is_extrinsic = get_parameter(fiducial_prefix + ".is_extrinsic").as_bool();
-  auto data_log_rate = get_parameter(fiducial_prefix + ".data_log_rate").as_double();
 
   FiducialTracker::Parameters fiducial_params;
   fiducial_params.detector_type = static_cast<FiducialType>(fiducial_type);
@@ -422,7 +419,6 @@ FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(std::string fiduci
   fiducial_params.variance = StdToEigVec(variance);
   fiducial_params.min_track_length = min_track_length;
   fiducial_params.max_track_length = max_track_length;
-  fiducial_params.data_log_rate = data_log_rate;
   fiducial_params.is_extrinsic = is_extrinsic;
   fiducial_params.ekf = m_ekf;
   fiducial_params.logger = m_debug_logger;
@@ -491,12 +487,14 @@ void EkfCalNode::LoadCamera(std::string camera_name)
   if (!camera_params.tracker.empty()) {
     FeatureTracker::Parameters trk_params = GetTrackerParameters(camera_params.tracker);
     trk_params.camera_id = camera_ptr->GetId();
+    trk_params.data_log_rate = camera_params.data_log_rate;
     std::shared_ptr<FeatureTracker> trk_ptr = std::make_shared<FeatureTracker>(trk_params);
     camera_ptr->AddTracker(trk_ptr);
   }
   if (!camera_params.fiducial.empty()) {
     FiducialTracker::Parameters fid_params = GetFiducialParameters(camera_params.fiducial);
     fid_params.camera_id = camera_ptr->GetId();
+    fid_params.data_log_rate = camera_params.data_log_rate;
     std::shared_ptr<FiducialTracker> fid_ptr = std::make_shared<FiducialTracker>(fid_params);
     camera_ptr->AddFiducial(fid_ptr);
   }

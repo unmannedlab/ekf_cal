@@ -98,7 +98,6 @@ void LoadTrackerParams(
   std::shared_ptr<DebugLogger> debug_logger
 )
 {
-  params.data_log_rate = node["data_log_rate"].as<double>(0.0);
   params.name = name;
   params.output_directory = out_dir;
   params.ekf = ekf;
@@ -424,6 +423,7 @@ int main(int argc, char * argv[])
       trk_params.tracker_params.camera_id = cam->GetId();
       trk_params.tracker_params.intrinsics = cam_params.intrinsics;
       trk_params.tracker_params.is_cam_extrinsic = cam_params.is_extrinsic;
+      trk_params.tracker_params.data_log_rate = cam_params.data_log_rate;
       trk_params.no_errors = trk_params.no_errors | sim_cam_params.no_errors;
       auto trk = std::make_shared<SimFeatureTracker>(trk_params, truth_engine);
       cam->AddTracker(trk);
@@ -433,6 +433,7 @@ int main(int argc, char * argv[])
       fid_params.fiducial_params.camera_id = cam->GetId();
       fid_params.fiducial_params.intrinsics = cam_params.intrinsics;
       fid_params.fiducial_params.is_cam_extrinsic = cam_params.is_extrinsic;
+      fid_params.fiducial_params.data_log_rate = cam_params.data_log_rate;
       fid_params.no_errors = fid_params.no_errors | sim_cam_params.no_errors;
       auto fid = std::make_shared<SimFiducialTracker>(fid_params, truth_engine);
       cam->AddFiducial(fid);

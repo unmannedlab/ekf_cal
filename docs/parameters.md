@@ -134,6 +134,7 @@ The following is an example of an IMU input configuration.
                 ang_stability: 1.0e-2                    # Orientation stability
                 acc_bias_stability: 1.0e-3               # Accelerometer bias stability
                 omg_bias_stability: 1.0e-3               # Gyroscope bias stability
+                data_log_rate: 10.0                      # Data logging rate
                 sim_params:
                     no_errors: false                     # Flag to disable errors in simulation
                     time_bias_error: 1.0e-3              # Measurement time bias
@@ -170,6 +171,7 @@ The following is an example of an camera input configuration.
                 fiducial: "charuco"                 # Fiducial to use
                 pos_stability: 1.0e-9               # Position stability
                 ang_stability: 1.0e-9               # Orientation stability
+                data_log_rate: 10.0                 # Data logging rate
                 intrinsics:
                     f_x: 0.01                       # X focal length [m]
                     f_y: 0.01                       # Y focal length [m]
@@ -218,7 +220,6 @@ The following is an example of a tracker input configuration.
                 min_feature_distance: 1.0   # Minimum feature distance to consider
                 min_track_length: 2         # Minimum track length
                 max_track_length: 20        # Maximum track length
-                data_log_rate: 10.0         # Tracker data logging rate
                 sim_params:
                     no_errors: false        # Flag to disable errors in simulation
                     feature_count: 500      # Total number of trackable features
@@ -254,7 +255,6 @@ The following is an example of a fiducial input configuration.
                 min_track_length: 0                         # Minimum track length
                 max_track_length: 1                         # Maximum track length
                 is_extrinsic: false                         # Flag to calibrate fiducial extrinsics
-                data_log_rate: 10.0                         # Fiducial data logging rate
                 sim_params:
                     no_errors: false                        # Flag to disable errors in simulation
                     pos_error: [0.0, 0.0, 0.0]              # Position error
