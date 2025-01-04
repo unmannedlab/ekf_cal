@@ -104,7 +104,6 @@ TEST_F(EkfCalNode_test, hello_world)
   node.set_parameter(rclcpp::Parameter("fiducial.fiducial_5.min_track_length", 0));
   node.set_parameter(rclcpp::Parameter("fiducial.fiducial_5.max_track_length", 1));
   node.set_parameter(rclcpp::Parameter("fiducial.fiducial_5.is_extrinsic", false));
-  node.set_parameter(rclcpp::Parameter("fiducial.fiducial_5.data_log_rate", 20.0));
   node.set_parameter(
     rclcpp::Parameter("fiducial.fiducial_5.pos_f_in_l", std::vector<double>{0.0, 0.0, 0.0}));
   node.set_parameter(

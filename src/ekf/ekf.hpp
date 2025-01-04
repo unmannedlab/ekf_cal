@@ -387,13 +387,13 @@ private:
   unsigned int m_fid_state_size{0};
   double m_current_time {0};
   bool m_time_initialized {false};
-  std::shared_ptr<DebugLogger> m_debug_logger;
-  double m_data_log_rate{0.0};
   unsigned int m_max_track_length{20};
   Eigen::MatrixXd m_process_noise {Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size)};
   Eigen::VectorXd m_body_process_noise {Eigen::VectorXd::Zero(g_body_state_size)};
+  std::shared_ptr<DebugLogger> m_debug_logger;
   DataLogger m_data_logger;
   DataLogger m_augmentation_logger;
+  double m_data_log_rate{0.0};
 
   GpsInitType m_gps_init_type;
   double m_gps_init_pos_thresh;

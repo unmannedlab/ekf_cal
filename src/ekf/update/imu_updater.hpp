@@ -126,7 +126,7 @@ private:
   bool m_is_extrinsic;
   bool m_is_intrinsic;
   bool m_initial_motion_detected{false};
-  bool m_correct_heading_rotation{true};
+  // bool m_correct_heading_rotation{true};
 
   DataLogger m_data_logger;
 };
