@@ -37,8 +37,8 @@
 EKF::EKF(Parameters params)
 : m_debug_logger(params.debug_logger),
   m_data_logger(params.log_directory, "body_state.csv"),
-  m_data_log_rate(params.data_log_rate),
   m_augmentation_logger(params.log_directory, "aug_state.csv"),
+  m_data_log_rate(params.data_log_rate),
   m_gps_init_type(params.gps_init_type),
   m_gps_init_pos_thresh(params.gps_init_pos_thresh),
   m_gps_init_ang_thresh(params.gps_init_ang_thresh),
@@ -406,6 +406,7 @@ Eigen::MatrixXd EKF::AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int inde
   // Copy diagonal variances
   out_cov.block(index + 0, index + 0, 3, 3) = out_cov.block(0, 0, 3, 3);
   out_cov.block(index + 3, index + 3, 3, 3) = out_cov.block(6, 6, 3, 3);
+  out_cov.block(index + 0, index + 3, 3, 3) = out_cov.block(0, 6, 3, 3);
 
   // Copy cross-covariances
   if (!m_use_root_covariance) {out_cov.block(index + 0, 0, 3, 3) = out_cov.block(0, 0, 3, 3);}
@@ -447,9 +448,9 @@ void EKF::AugmentStateIfNeeded()
         last_aug.pos_b_in_l;
 
       Eigen::Vector3d rot_vec(
-        ang_vel_b_in_l[0] * delta_time + ang_acc_b_in_l[0] * 0.5 * delta_time * delta_time,
-        ang_vel_b_in_l[1] * delta_time + ang_acc_b_in_l[1] * 0.5 * delta_time * delta_time,
-        ang_vel_b_in_l[2] * delta_time + ang_acc_b_in_l[2] * 0.5 * delta_time * delta_time);
+        ang_vel_b_in_l[0] * delta_time,
+        ang_vel_b_in_l[1] * delta_time,
+        ang_vel_b_in_l[2] * delta_time);
 
       Eigen::Quaterniond delta_ang =
         m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec).inverse() *
