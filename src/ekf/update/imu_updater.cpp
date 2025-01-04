@@ -306,7 +306,9 @@ Eigen::VectorXd ImuUpdater::PredictMeasurement(std::shared_ptr<EKF> ekf)
     ekf->m_state.body_state.acc_b_in_l +
     ekf->m_state.body_state.ang_acc_b_in_l.cross(pos_i_in_b) +
     ekf->m_state.body_state.ang_vel_b_in_l.cross(
-    (ekf->m_state.body_state.ang_vel_b_in_l.cross(pos_i_in_b)));
+    (ekf->m_state.body_state.ang_vel_b_in_l.cross(pos_i_in_b))) +
+    2 * ekf->m_state.body_state.ang_vel_b_in_l.cross(
+    ekf->m_state.body_state.vel_b_in_l);
 
   Eigen::Vector3d imu_omg_b = ang_b_to_l.inverse() * ekf->m_state.body_state.ang_vel_b_in_l;
 
