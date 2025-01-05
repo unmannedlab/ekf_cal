@@ -27,10 +27,10 @@
                 0.0, 0.0, 0.5,
                 0.0, 0.0, 0.0
             ]
-            pos_l_in_g: [0.0, 0.0, 0.0]
-            ang_l_to_g: 0.0
-            pos_l_in_g_error: [1.0e-9, 1.0e-9, 1.0e-9]
-            ang_l_to_g_error: 1.0e-9
+            pos_e_in_g: [0.0, 0.0, 0.0]
+            ang_l_to_e: 0.0
+            pos_e_in_g_error: [1.0e-9, 1.0e-9, 1.0e-9]
+            ang_l_to_e_error: 1.0e-9
             pos_b_in_l_error: [0.0, 0.0, 0.0]
             ang_b_to_l_error: [0.5, 0.5, 0.5]
 

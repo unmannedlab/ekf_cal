@@ -91,7 +91,6 @@ void LoadSimSensorParams(
 
 void LoadTrackerParams(
   Tracker::Parameters & params,
-  YAML::Node node,
   std::string name,
   std::string out_dir,
   std::shared_ptr<EKF> ekf,
@@ -178,8 +177,8 @@ int main(int argc, char * argv[])
   ekf_params.process_noise = LoadProcessNoise(ros_params["process_noise"]);
   ekf_params.pos_b_in_l = StdToEigVec(ros_params["pos_b_in_l"].as<std::vector<double>>(def_vec));
   ekf_params.ang_b_to_l = StdToEigQuat(ros_params["ang_b_to_l"].as<std::vector<double>>(def_quat));
-  ekf_params.pos_l_in_g = StdToEigVec(ros_params["pos_l_in_g"].as<std::vector<double>>(def_vec));
-  ekf_params.ang_l_to_g = ros_params["ang_l_to_g"].as<double>(0.0);
+  ekf_params.pos_e_in_g = StdToEigVec(ros_params["pos_e_in_g"].as<std::vector<double>>(def_vec));
+  ekf_params.ang_l_to_e = ros_params["ang_l_to_e"].as<double>(0.0);
   ekf_params.gps_init_type =
     static_cast<GpsInitType>(ros_params["gps_init_type"].as<unsigned int>(0));
   ekf_params.gps_init_baseline_dist = ros_params["gps_init_baseline_dist"].as<double>(1.0);
@@ -260,17 +259,17 @@ int main(int argc, char * argv[])
   ekf->Initialize(0.0, initial_state);
 
   // Global Position Error
-  auto pos_l_in_g_err =
-    StdToEigVec(sim_params["pos_l_in_g_error"].as<std::vector<double>>(def_vec));
-  auto ang_l_to_g_err = sim_params["ang_l_to_g_error"].as<double>(0.0);
+  auto pos_e_in_g_err =
+    StdToEigVec(sim_params["pos_e_in_g_error"].as<std::vector<double>>(def_vec));
+  auto ang_l_to_e_err = sim_params["ang_l_to_e_error"].as<double>(0.0);
 
-  Eigen::Vector3d pos_l_in_g_true;
-  pos_l_in_g_true(0) = rng.NormRand(ekf_params.pos_l_in_g(0), wgs84_m_to_deg(pos_l_in_g_err(0)));
-  pos_l_in_g_true(1) = rng.NormRand(ekf_params.pos_l_in_g(1), wgs84_m_to_deg(pos_l_in_g_err(1)));
-  pos_l_in_g_true(2) = rng.NormRand(ekf_params.pos_l_in_g(2), pos_l_in_g_err(2));
-  double ang_l_to_g_true = rng.NormRand(ekf_params.ang_l_to_g, ang_l_to_g_err);
-  truth_engine->SetLocalPosition(pos_l_in_g_true);
-  truth_engine->SetLocalHeading(ang_l_to_g_true);
+  Eigen::Vector3d pos_e_in_g_true;
+  pos_e_in_g_true(0) = rng.NormRand(ekf_params.pos_e_in_g(0), wgs84_m_to_deg(pos_e_in_g_err(0)));
+  pos_e_in_g_true(1) = rng.NormRand(ekf_params.pos_e_in_g(1), wgs84_m_to_deg(pos_e_in_g_err(1)));
+  pos_e_in_g_true(2) = rng.NormRand(ekf_params.pos_e_in_g(2), pos_e_in_g_err(2));
+  double ang_l_to_e_true = rng.NormRand(ekf_params.ang_l_to_e, ang_l_to_e_err);
+  truth_engine->SetLocalPosition(pos_e_in_g_true);
+  truth_engine->SetLocalHeading(ang_l_to_e_true);
 
   // Load IMUs and generate measurements
   debug_logger->Log(LogLevel::INFO, "Loading IMUs");
@@ -325,7 +324,7 @@ int main(int argc, char * argv[])
 
     FeatureTracker::Parameters track_params;
     LoadTrackerParams(
-      track_params, trk_node, trackers[i], out_dir, ekf, debug_logger);
+      track_params, trackers[i], out_dir, ekf, debug_logger);
     track_params.px_error = trk_node["pixel_error"].as<double>(1.0);
     track_params.min_track_length = trk_node["min_track_length"].as<unsigned int>(2U);
     track_params.max_track_length = trk_node["max_track_length"].as<unsigned int>(20U);
@@ -354,7 +353,7 @@ int main(int argc, char * argv[])
 
     FiducialTracker::Parameters fiducial_params;
     LoadTrackerParams(
-      fiducial_params, fid_node, fiducials[i], out_dir, ekf, debug_logger);
+      fiducial_params, fiducials[i], out_dir, ekf, debug_logger);
     fiducial_params.pos_f_in_l =
       StdToEigVec(fid_node["pos_f_in_l"].as<std::vector<double>>(def_vec));
     fiducial_params.ang_f_to_l =
@@ -473,9 +472,9 @@ int main(int argc, char * argv[])
     sim_gps_params.lla_error = StdToEigVec(sim_node["lla_error"].as<std::vector<double>>(def_vec));
     sim_gps_params.pos_a_in_b_err =
       StdToEigVec(sim_node["pos_a_in_b_error"].as<std::vector<double>>(def_vec));
-    sim_gps_params.pos_l_in_g_err =
-      StdToEigVec(sim_node["pos_l_in_g_error"].as<std::vector<double>>(def_vec));
-    sim_gps_params.ang_l_to_g_err = sim_node["ang_l_to_g_error"].as<double>(1e-9);
+    sim_gps_params.pos_e_in_g_err =
+      StdToEigVec(sim_node["pos_e_in_g_error"].as<std::vector<double>>(def_vec));
+    sim_gps_params.ang_l_to_e_err = sim_node["ang_l_to_e_error"].as<double>(1e-9);
     sim_gps_params.rng = rng;
 
     // Add sensor to map

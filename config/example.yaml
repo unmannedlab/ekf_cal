@@ -22,8 +22,8 @@
 
         pos_b_in_l: [0.0, 0.0, 0.0]           # Body position in the local frame
         ang_b_to_l: [0.0, 0.0, 0.0]           # Body orientation in the local frame
-        pos_l_in_g: [0.0, 0.0, 0.0]           # Local frame position in global frame
-        ang_l_to_g: 0.0                       # Local frame heading in global frame
+        pos_e_in_g: [0.0, 0.0, 0.0]           # Local frame position in global frame
+        ang_l_to_e: 0.0                       # Local frame heading in global frame
         gps_init_type: 0                      # GPS Initialization Type
                                               #   0: CONSTANT
                                               #   1: BASELINE_DIST
@@ -69,8 +69,8 @@
             pos_errors: [1.0, 1.0, 1.0]       # Error in achieving translational vectors
             ang_errors: [0.1, 0.1, 0.1]       # Error in achieving rotational vectors
 
-            pos_l_in_g_error: [1.0, 1.0, 1.0] # Local frame position error
-            ang_l_to_g_error: 0.1             # Local frame heading error
+            pos_e_in_g_error: [1.0, 1.0, 1.0] # Local frame position error
+            ang_l_to_e_error: 0.1             # Local frame heading error
 
         imu_list:       # List of imu. Can be empty but list must exist
             - "imu_1"

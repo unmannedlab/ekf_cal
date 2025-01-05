@@ -54,8 +54,8 @@ public:
     Eigen::VectorXd process_noise{Eigen::VectorXd::Ones(g_body_state_size)};
     Eigen::Vector3d pos_b_in_l{Eigen::Vector3d::Zero()};        ///< @brief Body local position
     Eigen::Quaterniond ang_b_to_l {1, 0, 0, 0};                 ///< @brief Body local orientation
-    Eigen::Vector3d pos_l_in_g {Eigen::Vector3d::Zero()};       ///< @brief Local frame position
-    double ang_l_to_g{0.0};                                     ///< @brief Local frame heading
+    Eigen::Vector3d pos_e_in_g {Eigen::Vector3d::Zero()};       ///< @brief Local frame position
+    double ang_l_to_e{0.0};                                     ///< @brief Local frame heading
     GpsInitType gps_init_type {GpsInitType::CONSTANT};          ///< @brief GPS initialization type
     double gps_init_baseline_dist {100.0};  ///< @brief Minimum pos projection error
     double gps_init_pos_thresh {0.1};       ///< @brief Minimum ang projection error
@@ -225,10 +225,10 @@ public:
 
   ///
   /// @brief GPS reference position setter
-  /// @param reference_lla GPS reference LLA
-  /// @param ang_l_to_g GPS reference header
+  /// @param pos_e_in_g GPS reference LLA
+  /// @param ang_l_to_e GPS reference header
   ///
-  void SetGpsReference(Eigen::VectorXd reference_lla, double ang_l_to_g);
+  void SetGpsReference(Eigen::VectorXd pos_e_in_g, double ang_l_to_e);
 
   ///
   /// @brief Zero acceleration flag setter
@@ -400,8 +400,8 @@ private:
   double m_gps_init_ang_thresh;
   double m_gps_init_baseline_dist;
   bool m_is_lla_initialized;
-  Eigen::Vector3d m_pos_l_in_g;
-  double m_ang_l_to_g;
+  Eigen::Vector3d m_pos_e_in_g;
+  double m_ang_l_to_e;
   std::vector<double> m_gps_time_vec;
   std::vector<Eigen::Vector3d> m_gps_ecef_vec;
   std::vector<Eigen::Vector3d> m_gps_xyz_vec;

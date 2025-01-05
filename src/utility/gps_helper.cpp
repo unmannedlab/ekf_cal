@@ -176,21 +176,21 @@ Eigen::Vector3d enu_to_lla(const Eigen::Vector3d & enu_in, const Eigen::Vector3d
   return lla;
 }
 
-Eigen::Vector3d local_to_enu(const Eigen::Vector3d & local_in, const double ang_l_to_g)
+Eigen::Vector3d local_to_enu(const Eigen::Vector3d & local_in, const double ang_l_to_e)
 {
   Eigen::Vector3d enu;
-  enu(0) = std::cos(ang_l_to_g) * local_in(0) + std::sin(ang_l_to_g) * local_in(1);
-  enu(1) = -std::sin(ang_l_to_g) * local_in(0) + std::cos(ang_l_to_g) * local_in(1);
+  enu(0) = std::cos(ang_l_to_e) * local_in(0) + std::sin(ang_l_to_e) * local_in(1);
+  enu(1) = -std::sin(ang_l_to_e) * local_in(0) + std::cos(ang_l_to_e) * local_in(1);
   enu(2) = local_in(2);
 
   return enu;
 }
 
-Eigen::Vector3d enu_to_local(const Eigen::Vector3d & enu_in, const double ang_l_to_g)
+Eigen::Vector3d enu_to_local(const Eigen::Vector3d & enu_in, const double ang_l_to_e)
 {
   Eigen::Vector3d local;
-  local(0) = std::cos(ang_l_to_g) * enu_in(0) - std::sin(ang_l_to_g) * enu_in(1);
-  local(1) = std::sin(ang_l_to_g) * enu_in(0) + std::cos(ang_l_to_g) * enu_in(1);
+  local(0) = std::cos(ang_l_to_e) * enu_in(0) - std::sin(ang_l_to_e) * enu_in(1);
+  local(1) = std::sin(ang_l_to_e) * enu_in(0) + std::cos(ang_l_to_e) * enu_in(1);
   local(2) = enu_in(2);
 
   return local;

@@ -142,10 +142,10 @@ TEST(test_EKF, SetGpsReference) {
   ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   auto ekf = std::make_shared<EKF>(ekf_params);
 
-  Eigen::Vector3d reference_lla {0, 0, 0};
-  double ang_l_to_g {0};
+  Eigen::Vector3d pos_e_in_g {0, 0, 0};
+  double ang_l_to_e {0};
 
-  ekf->SetGpsReference(reference_lla, ang_l_to_g);
+  ekf->SetGpsReference(pos_e_in_g, ang_l_to_e);
   EXPECT_TRUE(ekf->IsLlaInitialized());
 }
 

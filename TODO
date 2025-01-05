@@ -10,7 +10,8 @@ Simulation:
     - Add data drops to input file
     - Add extrinsic step disturbance
     - Add IMU bias instability
-    - Create Simulated Camera video feed 
+    - Use named variance terms
+    - Create Simulated Camera video feed
         - Circles for points, radius based on distance
         - Polygon for Board edges
         - https://docs.opencv.org/4.6.0/d3/d96/tutorial_basic_geometric_drawing.html
@@ -25,9 +26,6 @@ Documentation:
     - Add page for augmenting states
     - Add Jacobians to documentation
     - Add page for Multi-IMU Filter
-
-Data:
-    - Add ROS bag data to either github release or IEEE dataport
 
 Test:
     - Test Aprilgrid detection
