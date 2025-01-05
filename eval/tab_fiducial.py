@@ -22,7 +22,8 @@ from bokeh.models import Band, Spacer, TabPanel
 from bokeh.plotting import ColumnDataSource, figure
 import numpy as np
 from scipy.spatial.transform import Rotation
-from utilities import calculate_alpha, get_colors, plot_update_timing
+from utilities import calculate_alpha, get_colors, interpolate_error, interpolate_quat_error, \
+    plot_update_timing
 
 
 class tab_fiducial:
@@ -87,6 +88,93 @@ class tab_fiducial:
                 mskcf_df['cam_ang_2'],
                 alpha=self.alpha,
                 color=self.colors[2])
+        return fig
+
+    def plot_cam_pos_err(self):
+        """Plot camera extrinsic position errors."""
+        fig = figure(
+            width=400,
+            height=300,
+            x_axis_label='Time [s]',
+            y_axis_label='Position Error [mm]',
+            title='Camera Extrinsic Position Error')
+        for msckf_df, body_truth in zip(self.msckf_dfs, self.body_truth_dfs):
+            true_t = body_truth['time']
+            true_p0 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_0"]
+            true_p1 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_1"]
+            true_p2 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_2"]
+
+            t_gps = msckf_df['time']
+            est_p0 = msckf_df['cam_pos_0']
+            est_p1 = msckf_df['cam_pos_1']
+            est_p2 = msckf_df['cam_pos_2']
+
+            err_pos_0 = np.array(interpolate_error(true_t, true_p0, t_gps, est_p0))
+            err_pos_1 = np.array(interpolate_error(true_t, true_p1, t_gps, est_p1))
+            err_pos_2 = np.array(interpolate_error(true_t, true_p2, t_gps, est_p2))
+
+            fig.line(
+                t_gps,
+                err_pos_0,
+                alpha=self.alpha,
+                color=self.colors[0],
+                legend_label='X')
+            fig.line(
+                t_gps,
+                err_pos_1,
+                alpha=self.alpha,
+                color=self.colors[1],
+                legend_label='Y')
+            fig.line(
+                t_gps,
+                err_pos_2,
+                alpha=self.alpha,
+                color=self.colors[2],
+                legend_label='Z')
+        return fig
+
+    def plot_cam_ang_err(self):
+        """Plot the camera extrinsic angular error."""
+        fig = figure(
+            width=800,
+            height=300,
+            x_axis_label='Time [s]',
+            y_axis_label='Angle Error [m]',
+            title='Camera Extrinsic Angle Error')
+        for msckf_df, body_truth in zip(self.msckf_dfs, self.body_truth_dfs):
+            est_t = msckf_df['time']
+            est_w = msckf_df['cam_ang_pos_0']
+            est_x = msckf_df['cam_ang_pos_1']
+            est_y = msckf_df['cam_ang_pos_2']
+            est_z = msckf_df['cam_ang_pos_3']
+            true_t = body_truth['time']
+            true_w = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_0"]
+            true_x = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_1"]
+            true_y = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_2"]
+            true_z = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_3"]
+
+            eul_err_x, eul_err_y, eul_err_z = interpolate_quat_error(
+                true_t, true_w, true_x, true_y, true_z,
+                est_t, est_w, est_x, est_y, est_z)
+
+            fig.line(
+                est_t,
+                eul_err_x,
+                alpha=self.alpha,
+                color=self.colors[0],
+                legend_label='x')
+            fig.line(
+                est_t,
+                eul_err_y,
+                alpha=self.alpha,
+                color=self.colors[1],
+                legend_label='y')
+            fig.line(
+                est_t,
+                eul_err_z,
+                alpha=self.alpha,
+                color=self.colors[2],
+                legend_label='z')
         return fig
 
     def plot_cam_pos_cov(self):
@@ -387,6 +475,7 @@ class tab_fiducial:
 
         if ('cam_cov_0' in self.fiducial_dfs[0].keys()):
             layout_plots.append([self.plot_camera_pos(), self.plot_camera_ang()])
+            layout_plots.append([self.plot_cam_pos_err(), self.plot_cam_ang_err()])
             layout_plots.append([self.plot_cam_pos_cov(), self.plot_cam_ang_cov()])
 
         layout_plots.append([plot_update_timing(self.fiducial_dfs), Spacer()])

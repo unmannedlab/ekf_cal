@@ -42,10 +42,50 @@ def calculate_alpha(line_count: int):
 
 
 def interpolate_error(true_t, true_x, estimate_t, estimate_x):
-    """Calculate an interpolated vector error using truth and estimate points."""
+    """Calculate an interpolated error using truth and estimate points."""
     interp_x = np.interp(estimate_t, true_t, true_x)
     errors = [estimate - interp for estimate, interp in zip(estimate_x, interp_x)]
     return errors
+
+
+def interpolate_quat_error(
+        true_t,
+        true_w,
+        true_x,
+        true_y,
+        true_z,
+        estimate_t,
+        estimate_w,
+        estimate_x,
+        estimate_y,
+        estimate_z):
+    """Calculate an interpolated quaternion error using truth and estimates."""
+    interp_w = np.interp(estimate_t, true_t, true_w)
+    interp_x = np.interp(estimate_t, true_t, true_x)
+    interp_y = np.interp(estimate_t, true_t, true_y)
+    interp_z = np.interp(estimate_t, true_t, true_z)
+
+    err_x = []
+    err_y = []
+    err_z = []
+    for i in range(len(interp_w)):
+        iw = interp_w[i]
+        ix = interp_x[i]
+        iy = interp_y[i]
+        iz = interp_z[i]
+        ew = estimate_w[i]
+        ex = estimate_x[i]
+        ey = estimate_y[i]
+        ez = estimate_z[i]
+        qi = Rotation.from_quat([iw, ix, iy, iz], scalar_first=True)
+        qe = Rotation.from_quat([ew, ex, ey, ez], scalar_first=True)
+        q_err = qi * qe.inv()
+        error_euler = q_err.as_euler('XYZ')
+        err_x.append(error_euler[0])
+        err_y.append(error_euler[1])
+        err_z.append(error_euler[2])
+
+    return err_x, err_y, err_z
 
 
 def lists_to_rot(w_list, x_list, y_list, z_list):

@@ -33,17 +33,7 @@ import os
 
 from input_parser import InputParser
 import numpy as np
-from scipy.spatial.transform import Rotation
 from utilities import find_and_read_data_frames, generate_mc_lists, interpolate_error
-
-
-def lists_to_rot(w_list, x_list, y_list, z_list):
-    """Convert lists of quaternion elements to a list of scipy rotations."""
-    r_list = []
-    for w, x, y, z in zip(w_list, x_list, y_list, z_list):
-        r = Rotation.from_quat([w, x, y, z], scalar_first=True)
-        r_list.append(r)
-    return r_list
 
 
 def RMSE_from_vectors(x_list, y_list, z_list):

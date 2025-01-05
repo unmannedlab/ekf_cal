@@ -19,15 +19,15 @@ from bokeh.layouts import layout
 from bokeh.models import Range1d, TabPanel
 from bokeh.plotting import figure
 import numpy as np
-from scipy.spatial.transform import Rotation
 
-from utilities import calculate_alpha, get_colors, plot_update_timing
+from utilities import calculate_alpha, get_colors, interpolate_quat_error, plot_update_timing
 
 
 class tab_imu:
 
-    def __init__(self, imu_dfs, args):
+    def __init__(self, imu_dfs, body_truth_dfs, args):
         self.imu_dfs = imu_dfs
+        self.body_truth_dfs = body_truth_dfs
 
         self.alpha = calculate_alpha(len(self.imu_dfs))
         self.colors = get_colors(args)
@@ -230,39 +230,39 @@ class tab_imu:
             x_axis_label='Time [s]',
             y_axis_label='Angle Error [m]',
             title='Extrinsic Angle Error')
-        for i in range(len(self.imu_dfs)):
-            time = self.imu_dfs[i]['time']
-            quat_err_w = self.imu_dfs[i]['imu_ang_pos_0']
-            quat_err_x = self.imu_dfs[i]['imu_ang_pos_1']
-            quat_err_y = self.imu_dfs[i]['imu_ang_pos_2']
-            quat_err_z = self.imu_dfs[i]['imu_ang_pos_3']
+        for imu_df, body_truth in zip(self.imu_dfs, self.body_truth_dfs):
+            est_t = imu_df['time']
+            est_w = imu_df['imu_ang_pos_0']
+            est_x = imu_df['imu_ang_pos_1']
+            est_y = imu_df['imu_ang_pos_2']
+            est_z = imu_df['imu_ang_pos_3']
+            true_t = body_truth['time']
+            true_w = body_truth[f"imu_ang_pos_{imu_df.attrs['id']}_0"]
+            true_x = body_truth[f"imu_ang_pos_{imu_df.attrs['id']}_1"]
+            true_y = body_truth[f"imu_ang_pos_{imu_df.attrs['id']}_2"]
+            true_z = body_truth[f"imu_ang_pos_{imu_df.attrs['id']}_3"]
             eul_err_x = []
             eul_err_y = []
             eul_err_z = []
 
-            # TODO(jhartzer): Use common euler function
-            for (ew, ex, ey, ez) in zip(quat_err_w, quat_err_x, quat_err_y, quat_err_z):
-                # TODO(jhartzer): Compare to truth value
-                error_q = Rotation.from_quat([ew, ex, ey, ez], scalar_first=True)
-                error_eul = error_q.as_euler('XYZ')
-                eul_err_x.append(error_eul[0])
-                eul_err_y.append(error_eul[1])
-                eul_err_z.append(error_eul[2])
+            eul_err_x, eul_err_y, eul_err_z = interpolate_quat_error(
+                true_t, true_w, true_x, true_y, true_z,
+                est_t, est_w, est_x, est_y, est_z)
 
             fig.line(
-                time,
+                est_t,
                 eul_err_x,
                 alpha=self.alpha,
                 color=self.colors[0],
                 legend_label='x')
             fig.line(
-                time,
+                est_t,
                 eul_err_y,
                 alpha=self.alpha,
                 color=self.colors[1],
                 legend_label='y')
             fig.line(
-                time,
+                est_t,
                 eul_err_z,
                 alpha=self.alpha,
                 color=self.colors[2],

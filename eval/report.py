@@ -73,7 +73,8 @@ def plot_sim_results(config_sets, args):
         imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
         for key in sorted(imu_dfs_dict.keys()):
             imu_dfs = imu_dfs_dict[key]
-            tabs.append(tab_imu(imu_dfs, args).get_tab())
+            body_truth_dfs = body_truth_dfs_dict[0]
+            tabs.append(tab_imu(imu_dfs, body_truth_dfs, args).get_tab())
 
         mskcf_dfs_dict = find_and_read_data_frames(data_dirs, 'msckf')
         tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
@@ -82,7 +83,8 @@ def plot_sim_results(config_sets, args):
             mskcf_dfs = mskcf_dfs_dict[key]
             tri_dfs = tri_dfs_dict[key]
             feat_dfs = feat_dfs_dict[0]
-            tabs.append(tab_msckf(mskcf_dfs, tri_dfs, feat_dfs, args).get_tab())
+            body_truth_dfs = body_truth_dfs_dict[0]
+            tabs.append(tab_msckf(mskcf_dfs, tri_dfs, feat_dfs, body_truth_dfs, args).get_tab())
 
         fiducial_dfs_dict = find_and_read_data_frames(data_dirs, 'fiducial')
         board_dfs_dict = find_and_read_data_frames(data_dirs, 'board')
