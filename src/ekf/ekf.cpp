@@ -58,7 +58,10 @@ EKF::EKF(Parameters params)
   body_header << "time";
   body_header << EnumerateHeader("body_pos", 3);
   body_header << EnumerateHeader("body_vel", 3);
+  body_header << EnumerateHeader("body_acc", 3);
   body_header << EnumerateHeader("body_ang_pos", 4);
+  body_header << EnumerateHeader("body_ang_vel", 3);
+  body_header << EnumerateHeader("body_ang_acc", 3);
   body_header << EnumerateHeader("body_cov", g_body_state_size);
   body_header << EnumerateHeader("duration", 1);
 
@@ -105,7 +108,10 @@ void EKF::LogBodyStateIfNeeded(int execution_count)
     msg << m_current_time;
     msg << VectorToCommaString(m_state.body_state.pos_b_in_l);
     msg << VectorToCommaString(m_state.body_state.vel_b_in_l);
+    msg << VectorToCommaString(m_state.body_state.acc_b_in_l);
     msg << QuaternionToCommaString(m_state.body_state.ang_b_to_l);
+    msg << VectorToCommaString(m_state.body_state.ang_vel_b_in_l);
+    msg << VectorToCommaString(m_state.body_state.ang_acc_b_in_l);
     msg << VectorToCommaString(body_cov);
     msg << "," << execution_count;
     m_data_logger.RateLimitedLog(msg.str(), m_current_time);
@@ -377,7 +383,7 @@ Eigen::MatrixXd EKF::AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int inde
 
   if (m_use_root_covariance) {
     // Left
-  out_cov.block(0, 0, index, index) = in_cov.block(0, 0, index, index);
+    out_cov.block(0, 0, index, index) = in_cov.block(0, 0, index, index);
 
     // Middle
     out_cov.block<3, 3>(0, index) = in_cov.block<3, 3>(0, 0);
@@ -391,17 +397,17 @@ Eigen::MatrixXd EKF::AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int inde
     out_cov.block(0, 0, index, index) = in_cov.block(0, 0, index, index);
 
     // Top-Right
-  out_cov.block(0, index + g_aug_state_size, index, in_cols - index) =
-    in_cov.block(0, index, index, in_cols - index);
+    out_cov.block(0, index + g_aug_state_size, index, in_cols - index) =
+      in_cov.block(0, index, index, in_cols - index);
 
     // Bottom-Left
     out_cov.block(index + g_aug_state_size, 0, in_rows - index, index) =
       in_cov.block(index, 0, in_rows - index, index);
 
     // Bottom-Right
-  out_cov.block(
-    index + g_aug_state_size, index + g_aug_state_size, in_rows - index, in_cols - index) =
-    in_cov.block(index, index, in_rows - index, in_cols - index);
+    out_cov.block(
+      index + g_aug_state_size, index + g_aug_state_size, in_rows - index, in_cols - index) =
+      in_cov.block(index, index, in_rows - index, in_cols - index);
 
     // Top Middle
     out_cov.block(0, index + 0, index, 3) = in_cov.block(0, 0, index, 3);

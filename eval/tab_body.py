@@ -711,21 +711,34 @@ class tab_body:
             ],
             [
                 self.plot_body_vel(),
-                self.plot_aug_pos() if self.aug_state_dfs else Spacer()
+                self.plot_body_ang_vel()
             ],
             [
                 self.plot_body_err_vel(),
-                self.plot_aug_ang() if self.aug_state_dfs else Spacer()
+                self.plot_body_err_ang_vel()
             ],
             [
                 self.plot_body_vel_cov(),
-                Spacer()
+                self.plot_body_ang_vel_cov()
             ],
             [
-                plot_update_timing(self.body_state_dfs),
-                Spacer()
+                self.plot_body_acc(),
+                self.plot_body_ang_acc()
+            ],
+            [
+                self.plot_body_err_acc(),
+                self.plot_body_err_ang_acc()
+            ],
+            [
+                self.plot_body_acc_cov(),
+                self.plot_body_ang_acc_cov()
             ]
         ]
+
+        if self.aug_state_dfs:
+            layout_plots.append([self.plot_aug_pos(), self.plot_aug_ang()])
+
+        layout_plots.append([plot_update_timing(self.body_state_dfs), Spacer()])
 
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')
         tab = TabPanel(child=tab_layout, title='Body')
