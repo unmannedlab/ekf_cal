@@ -154,16 +154,17 @@ TEST(test_EKF, AugmentCovariance) {
   ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   auto ekf = std::make_shared<EKF>(ekf_params);
 
-  Eigen::VectorXd in_vec(9);
-  in_vec << 1, 2, 3, 4, 5, 6, 7, 8, 9;
+  Eigen::VectorXd in_vec(12);
+  in_vec << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12;
   Eigen::MatrixXd in_cov = in_vec.asDiagonal();
 
-  Eigen::MatrixXd out_cov = ekf->AugmentCovariance(in_cov, 9);
+  Eigen::MatrixXd out_cov = ekf->AugmentCovariance(in_cov, 12);
 
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<9, 9>(0, 0), in_cov, 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(9, 9), in_cov.block<3, 3>(0, 0), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(12, 12), in_cov.block<3, 3>(6, 6), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<12, 12>(0, 0), in_cov, 1e-6));
 
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(0, 9), in_cov.block<3, 3>(0, 0), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(6, 12), in_cov.block<3, 3>(6, 6), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(12, 12), in_cov.block<3, 3>(0, 0), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(15, 15), in_cov.block<3, 3>(9, 9), 1e-6));
+
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(0, 12), in_cov.block<3, 3>(0, 0), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(9, 15), in_cov.block<3, 3>(9, 9), 1e-6));
 }

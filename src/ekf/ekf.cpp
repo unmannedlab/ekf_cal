@@ -375,44 +375,48 @@ Eigen::MatrixXd EKF::AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int inde
 
   Eigen::MatrixXd out_cov = Eigen::MatrixXd::Zero(out_rows, out_cols);
 
-  // Top Left
+  if (m_use_root_covariance) {
+    // Left
   out_cov.block(0, 0, index, index) = in_cov.block(0, 0, index, index);
 
-  // Top Right
+    // Middle
+    out_cov.block<3, 3>(0, index) = in_cov.block<3, 3>(0, 0);
+    out_cov.block<12, 3>(0, index + 3) = in_cov.block<12, 3>(0, 9);
+
+    // Right
+    out_cov.block(0, index + g_aug_state_size, in_rows, in_cols - index) =
+      in_cov.block(0, index, in_rows, in_cols - index);
+  } else {
+    // Top-Left
+    out_cov.block(0, 0, index, index) = in_cov.block(0, 0, index, index);
+
+    // Top-Right
   out_cov.block(0, index + g_aug_state_size, index, in_cols - index) =
     in_cov.block(0, index, index, in_cols - index);
 
-  // Bottom Left
-  if (!m_use_root_covariance) {
+    // Bottom-Left
     out_cov.block(index + g_aug_state_size, 0, in_rows - index, index) =
       in_cov.block(index, 0, in_rows - index, index);
-  }
 
-  // Bottom Right
+    // Bottom-Right
   out_cov.block(
     index + g_aug_state_size, index + g_aug_state_size, in_rows - index, in_cols - index) =
     in_cov.block(index, index, in_rows - index, in_cols - index);
 
-  // Copy Rows
-  if (!m_use_root_covariance) {
+    // Top Middle
+    out_cov.block(0, index + 0, index, 3) = in_cov.block(0, 0, index, 3);
+    out_cov.block(0, index + 3, index, 3) = in_cov.block(0, 9, index, 3);
+
+    // Bottom Middle
+    out_cov.block(index + g_aug_state_size, index + 0, in_rows - index, 3) =
+      in_cov.block(index, 0, in_rows - index, 3);
+    out_cov.block(index + g_aug_state_size, index + 3, in_rows - index, 3) =
+      in_cov.block(index, 9, in_rows - index, 3);
+
+    // Middle rows
     out_cov.block(index + 0, 0, 3, out_cols) = out_cov.block(0, 0, 3, out_cols);
-    out_cov.block(index + 3, 0, 3, out_cols) = out_cov.block(6, 0, 3, out_cols);
+    out_cov.block(index + 3, 0, 3, out_cols) = out_cov.block(9, 0, 3, out_cols);
   }
-
-  // Copy Columns
-  out_cov.block(0, index + 0, out_rows, 3) = out_cov.block(0, 0, out_rows, 3);
-  out_cov.block(0, index + 3, out_rows, 3) = out_cov.block(0, 6, out_rows, 3);
-
-  // Copy diagonal variances
-  out_cov.block(index + 0, index + 0, 3, 3) = out_cov.block(0, 0, 3, 3);
-  out_cov.block(index + 3, index + 3, 3, 3) = out_cov.block(6, 6, 3, 3);
-  out_cov.block(index + 0, index + 3, 3, 3) = out_cov.block(0, 6, 3, 3);
-
-  // Copy cross-covariances
-  if (!m_use_root_covariance) {out_cov.block(index + 0, 0, 3, 3) = out_cov.block(0, 0, 3, 3);}
-  if (!m_use_root_covariance) {out_cov.block(index + 3, 6, 3, 3) = out_cov.block(6, 6, 3, 3);}
-  out_cov.block(0, index + 0, 3, 3) = out_cov.block(0, 0, 3, 3);
-  out_cov.block(6, index + 3, 3, 3) = out_cov.block(6, 6, 3, 3);
 
   return out_cov;
 }
