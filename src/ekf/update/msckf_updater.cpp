@@ -326,7 +326,7 @@ void MsckfUpdater::UpdateEKF(
         if (aug_state_i.index + 2 * g_aug_state_size > state_size) {
           // If measurement is after last augmented state, correlate with the current body state
           H_c.block<2, 3>(2 * i, 0) = H_aug_1.block<2, 3>(0, 0);
-          H_c.block<2, 3>(2 * i, 6) = H_aug_1.block<2, 3>(0, 3);
+          H_c.block<2, 3>(2 * i, 9) = H_aug_1.block<2, 3>(0, 3);
         } else {
           H_c.block<2, g_aug_state_size>(2 * i, aug_state_i.index + g_aug_state_size) = H_aug_1;
         }
