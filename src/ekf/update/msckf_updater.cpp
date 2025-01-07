@@ -310,11 +310,10 @@ void MsckfUpdater::UpdateEKF(
         quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
 
       if (m_is_cam_extrinsic) {
-        /// @todo: FEJ
-        /// @todo: Debug calibration Jacobian
-        // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity(3, 3);
-        // H_t.block<3, 3>(0, 9) =
-        //   rot_b_to_c * SkewSymmetric(rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l));
+        H_c.block<2, 3>(2 * i, cam_index + 0) = -H_d * H_p * rot_b_to_ci;
+        H_c.block<2, 3>(2 * i, cam_index + 3) = H_d * H_p * rot_b_to_ci *
+          SkewSymmetric(rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l) - m_pos_c_in_b) *
+          quaternion_jacobian(m_ang_c_to_b).transpose();
       }
 
       if (aug_state_i.alpha) {
