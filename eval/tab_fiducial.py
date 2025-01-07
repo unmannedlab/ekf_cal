@@ -109,9 +109,9 @@ class tab_fiducial:
             est_p1 = msckf_df['cam_pos_1']
             est_p2 = msckf_df['cam_pos_2']
 
-            err_pos_0 = np.array(interpolate_error(true_t, true_p0, t_gps, est_p0))
-            err_pos_1 = np.array(interpolate_error(true_t, true_p1, t_gps, est_p1))
-            err_pos_2 = np.array(interpolate_error(true_t, true_p2, t_gps, est_p2))
+            err_pos_0 = np.array(interpolate_error(true_t, true_p0, t_gps, est_p0)) * 1e3
+            err_pos_1 = np.array(interpolate_error(true_t, true_p1, t_gps, est_p1)) * 1e3
+            err_pos_2 = np.array(interpolate_error(true_t, true_p2, t_gps, est_p2)) * 1e3
 
             fig.line(
                 t_gps,
