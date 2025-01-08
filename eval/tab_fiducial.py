@@ -139,7 +139,7 @@ class tab_fiducial:
             width=800,
             height=300,
             x_axis_label='Time [s]',
-            y_axis_label='Angle Error [m]',
+            y_axis_label='Angle Error [mrad]',
             title='Camera Extrinsic Angle Error')
         for msckf_df, body_truth in zip(self.msckf_dfs, self.body_truth_dfs):
             est_t = msckf_df['time']

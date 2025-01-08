@@ -228,7 +228,7 @@ class tab_imu:
             width=800,
             height=300,
             x_axis_label='Time [s]',
-            y_axis_label='Angle Error [m]',
+            y_axis_label='Angle Error [mrad]',
             title='Extrinsic Angle Error')
         for imu_df, body_truth in zip(self.imu_dfs, self.body_truth_dfs):
             est_t = imu_df['time']

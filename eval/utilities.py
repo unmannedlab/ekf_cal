@@ -81,9 +81,9 @@ def interpolate_quat_error(
         qe = Rotation.from_quat([ew, ex, ey, ez], scalar_first=True)
         q_err = qi * qe.inv()
         error_euler = q_err.as_euler('XYZ')
-        err_x.append(error_euler[0])
-        err_y.append(error_euler[1])
-        err_z.append(error_euler[2])
+        err_x.append(error_euler[0] * 1e3)
+        err_y.append(error_euler[1] * 1e3)
+        err_z.append(error_euler[2] * 1e3)
 
     return err_x, err_y, err_z
 
