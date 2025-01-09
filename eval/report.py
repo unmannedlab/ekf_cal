@@ -93,7 +93,8 @@ def plot_sim_results(config_sets, args):
             fiducial_dfs = fiducial_dfs_dict[key]
             tri_dfs = board_dfs_dict[key]
             board_dfs = board_truth_dfs_dict[0]
-            tabs.append(tab_fiducial(fiducial_dfs, tri_dfs, board_dfs, args).get_tab())
+            tabs.append(
+                tab_fiducial(fiducial_dfs, tri_dfs, board_dfs, body_truth_dfs, args).get_tab())
 
         gps_dfs_dict = find_and_read_data_frames(data_dirs, 'gps')
         for key in sorted(gps_dfs_dict.keys()):

@@ -28,10 +28,11 @@ from utilities import calculate_alpha, get_colors, interpolate_error, interpolat
 
 class tab_fiducial:
 
-    def __init__(self, fiducial_dfs, board_dfs, board_truth_dfs, args):
+    def __init__(self, fiducial_dfs, board_dfs, board_truth_dfs, body_truth_dfs, args):
         self.fiducial_dfs = fiducial_dfs
         self.board_dfs = board_dfs
         self.board_truth_dfs = board_truth_dfs
+        self.body_truth_dfs = body_truth_dfs
 
         self.alpha = calculate_alpha(len(self.fiducial_dfs))
         self.colors = get_colors(args)
@@ -75,17 +76,17 @@ class tab_fiducial:
             t_cam = mskcf_df['time']
             fig.line(
                 t_cam,
-                mskcf_df['cam_ang_0'],
+                mskcf_df['cam_ang_pos_0'],
                 alpha=self.alpha,
                 color=self.colors[0])
             fig.line(
                 t_cam,
-                mskcf_df['cam_ang_1'],
+                mskcf_df['cam_ang_pos_1'],
                 alpha=self.alpha,
                 color=self.colors[1])
             fig.line(
                 t_cam,
-                mskcf_df['cam_ang_2'],
+                mskcf_df['cam_ang_pos_2'],
                 alpha=self.alpha,
                 color=self.colors[2])
         return fig
@@ -98,16 +99,16 @@ class tab_fiducial:
             x_axis_label='Time [s]',
             y_axis_label='Position Error [mm]',
             title='Camera Extrinsic Position Error')
-        for msckf_df, body_truth in zip(self.msckf_dfs, self.body_truth_dfs):
+        for fiducial_df, body_truth in zip(self.fiducial_dfs, self.body_truth_dfs):
             true_t = body_truth['time']
-            true_p0 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_0"]
-            true_p1 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_1"]
-            true_p2 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_2"]
+            true_p0 = body_truth[f"cam_pos_{fiducial_df.attrs['id']}_0"]
+            true_p1 = body_truth[f"cam_pos_{fiducial_df.attrs['id']}_1"]
+            true_p2 = body_truth[f"cam_pos_{fiducial_df.attrs['id']}_2"]
 
-            t_gps = msckf_df['time']
-            est_p0 = msckf_df['cam_pos_0']
-            est_p1 = msckf_df['cam_pos_1']
-            est_p2 = msckf_df['cam_pos_2']
+            t_gps = fiducial_df['time']
+            est_p0 = fiducial_df['cam_pos_0']
+            est_p1 = fiducial_df['cam_pos_1']
+            est_p2 = fiducial_df['cam_pos_2']
 
             err_pos_0 = np.array(interpolate_error(true_t, true_p0, t_gps, est_p0)) * 1e3
             err_pos_1 = np.array(interpolate_error(true_t, true_p1, t_gps, est_p1)) * 1e3
@@ -141,17 +142,17 @@ class tab_fiducial:
             x_axis_label='Time [s]',
             y_axis_label='Angle Error [mrad]',
             title='Camera Extrinsic Angle Error')
-        for msckf_df, body_truth in zip(self.msckf_dfs, self.body_truth_dfs):
-            est_t = msckf_df['time']
-            est_w = msckf_df['cam_ang_pos_0']
-            est_x = msckf_df['cam_ang_pos_1']
-            est_y = msckf_df['cam_ang_pos_2']
-            est_z = msckf_df['cam_ang_pos_3']
+        for fiducial_df, body_truth in zip(self.fiducial_dfs, self.body_truth_dfs):
+            est_t = fiducial_df['time']
+            est_w = fiducial_df['cam_ang_pos_0']
+            est_x = fiducial_df['cam_ang_pos_1']
+            est_y = fiducial_df['cam_ang_pos_2']
+            est_z = fiducial_df['cam_ang_pos_3']
             true_t = body_truth['time']
-            true_w = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_0"]
-            true_x = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_1"]
-            true_y = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_2"]
-            true_z = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_3"]
+            true_w = body_truth[f"cam_ang_pos_{fiducial_df.attrs['id']}_0"]
+            true_x = body_truth[f"cam_ang_pos_{fiducial_df.attrs['id']}_1"]
+            true_y = body_truth[f"cam_ang_pos_{fiducial_df.attrs['id']}_2"]
+            true_z = body_truth[f"cam_ang_pos_{fiducial_df.attrs['id']}_3"]
 
             eul_err_x, eul_err_y, eul_err_z = interpolate_quat_error(
                 true_t, true_w, true_x, true_y, true_z,
