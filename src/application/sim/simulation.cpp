@@ -170,7 +170,7 @@ int main(int argc, char * argv[])
   ekf_params.data_log_rate = data_log_rate;
   ekf_params.log_directory = out_dir;
   ekf_params.augmenting_type =
-    static_cast<AugmentationType>(ros_params["augmenting_type"].as<unsigned int>(0));
+    static_cast<AugmentationType>(ros_params["augmenting_type"].as<unsigned int>(1));
   ekf_params.augmenting_delta_time = ros_params["augmenting_delta_time"].as<double>(1.0);
   ekf_params.augmenting_pos_error = ros_params["augmenting_pos_error"].as<double>(0.1);
   ekf_params.augmenting_ang_error = ros_params["augmenting_ang_error"].as<double>(0.1);
@@ -190,6 +190,9 @@ int main(int argc, char * argv[])
   ekf_params.use_root_covariance = ros_params["use_root_covariance"].as<bool>(true);
   ekf_params.use_first_estimate_jacobian =
     ros_params["use_first_estimate_jacobian"].as<bool>(false);
+  if (trackers.size() == 0) {
+    ekf_params.augmenting_type = AugmentationType::NONE;
+  }
   auto ekf = std::make_shared<EKF>(ekf_params);
 
   // Simulation parameters
@@ -364,8 +367,6 @@ int main(int argc, char * argv[])
     fiducial_params.square_length = fid_node["square_length"].as<double>(0.0);
     fiducial_params.marker_length = fid_node["marker_length"].as<double>(0.0);
     fiducial_params.id = fid_node["id"].as<unsigned int>(0U);
-    fiducial_params.min_track_length = fid_node["min_track_length"].as<unsigned int>(2U);
-    fiducial_params.max_track_length = fid_node["max_track_length"].as<unsigned int>(20U);
     fiducial_params.is_extrinsic = fid_node["is_extrinsic"].as<bool>(false);
     fiducial_params.ekf = ekf;
     max_track_length = std::max(max_track_length, fiducial_params.max_track_length);

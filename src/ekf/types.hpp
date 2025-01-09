@@ -35,6 +35,7 @@ enum class SensorType
 
 enum class AugmentationType
 {
+  NONE,     // No camera frames are augmented (fiducial detection only)
   ALL,      // All camera frames are augmented
   PRIMARY,  // Only the primary camera frames are augmented
   TIME,     // Time-based frame augmentation
@@ -287,13 +288,13 @@ typedef std::vector<FeatureTrack> FeatureTracks;
 ///
 typedef struct BoardDetection
 {
-  int frame_id{-1};         ///< @brief Image frame ID
-  double frame_time{-1.0};  ///< @brief Feature frame time
-  cv::Vec3d t_vec_f_in_c;   ///< @brief Rotation vector of the board
-  cv::Vec3d r_vec_f_to_c;   ///< @brief Translation vector of the board
+  int frame_id{-1};                ///< @brief Image frame ID
+  double frame_time{-1.0};         ///< @brief Feature frame time
+  Eigen::Vector3d pos_f_in_c;      ///< @brief Rotation vector of the board
+  Eigen::Quaterniond ang_f_to_c;   ///< @brief Translation vector of the board
+  Eigen::Vector3d pos_error{1e-9, 1e-9, 1e-9};  ///< @brief Position detection error
+  Eigen::Vector3d ang_error{1e-9, 1e-9, 1e-9};  ///< @brief Orientation detection error
 } BoardDetection;
-
-typedef std::vector<BoardDetection> BoardTrack;
 
 ///
 /// @brief Fiducial state structure

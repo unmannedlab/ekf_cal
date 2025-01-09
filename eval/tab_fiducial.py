@@ -252,100 +252,30 @@ class tab_fiducial:
             y_axis_label='Position [m]',
             title='Fiducial Position in Camera Frame')
 
-        err_px = collections.defaultdict(list)
-        err_py = collections.defaultdict(list)
-        err_pz = collections.defaultdict(list)
-
-        for fiducial_df, true_df in zip(self.fiducial_dfs, self.board_truth_dfs):
+        for fiducial_df in self.fiducial_dfs:
             time = fiducial_df['time']
-            board = fiducial_df['board']
             board_px = fiducial_df['board_pos_0']
             board_py = fiducial_df['board_pos_1']
             board_pz = fiducial_df['board_pos_2']
 
-            true_px = true_df['pos_x']
-            true_py = true_df['pos_y']
-            true_pz = true_df['pos_z']
-
-            for (t, b, px, py, pz) in zip(time, board, board_px, board_py, board_pz):
-                err_px[t].append(px - true_px[int(b)])
-                err_py[t].append(py - true_py[int(b)])
-                err_pz[t].append(pz - true_pz[int(b)])
-        times = []
-        mean_px = []
-        mean_py = []
-        mean_pz = []
-        std_px = []
-        std_py = []
-        std_pz = []
-
-        for time in err_px:
-            times.append(time)
-            mean_px.append(np.mean(err_px[time]))
-            mean_py.append(np.mean(err_py[time]))
-            mean_pz.append(np.mean(err_pz[time]))
-            std_px.append(np.std(err_px[time]))
-            std_py.append(np.std(err_py[time]))
-            std_pz.append(np.std(err_pz[time]))
-
-        times = np.array(times)
-        mean_px = np.array(mean_px)
-        mean_py = np.array(mean_py)
-        mean_pz = np.array(mean_pz)
-        std_px = np.array(std_px)
-        std_py = np.array(std_py)
-        std_pz = np.array(std_pz)
-
-        t_indices = times.argsort()
-        times = times[t_indices]
-        mean_px = mean_px[t_indices]
-        mean_py = mean_py[t_indices]
-        mean_pz = mean_pz[t_indices]
-        std_px = std_px[t_indices]
-        std_py = std_py[t_indices]
-        std_pz = std_pz[t_indices]
-
-        fig.line(times, mean_px, color=self.colors[0])
-        fig.line(times, mean_py, color=self.colors[1])
-        fig.line(times, mean_pz, color=self.colors[2])
-
-        cds_x = ColumnDataSource({'base': times,
-                                  'lower': mean_px - std_px,
-                                  'upper': mean_px + std_px})
-        cds_y = ColumnDataSource({'base': times,
-                                  'lower': mean_py - std_py,
-                                  'upper': mean_py + std_py})
-        cds_z = ColumnDataSource({'base': times,
-                                  'lower': mean_pz - std_pz,
-                                  'upper': mean_pz + std_pz})
-
-        fig.add_layout(
-            Band(
-                base='base',
-                lower='lower',
-                upper='upper',
-                fill_alpha=0.3,
-                source=cds_x,
-                fill_color=self.colors[0],
-                line_color=self.colors[0]))
-        fig.add_layout(
-            Band(
-                base='base',
-                lower='lower',
-                upper='upper',
-                fill_alpha=0.3,
-                source=cds_y,
-                fill_color=self.colors[1],
-                line_color=self.colors[1]))
-        fig.add_layout(
-            Band(
-                base='base',
-                lower='lower',
-                upper='upper',
-                fill_alpha=0.3,
-                source=cds_z,
-                fill_color=self.colors[2],
-                line_color=self.colors[2]))
+            fig.line(
+                time,
+                board_px,
+                alpha=self.alpha,
+                color=self.colors[0],
+                legend_label='X')
+            fig.line(
+                time,
+                board_py,
+                alpha=self.alpha,
+                color=self.colors[1],
+                legend_label='Y')
+            fig.line(
+                time,
+                board_pz,
+                alpha=self.alpha,
+                color=self.colors[2],
+                legend_label='Z')
 
         return fig
 
@@ -358,116 +288,44 @@ class tab_fiducial:
             y_axis_label='Angular',
             title='Fiducial Angle in Camera Frame')
 
-        err_x = collections.defaultdict(list)
-        err_y = collections.defaultdict(list)
-        err_z = collections.defaultdict(list)
-
-        for fiducial_df, true_df in zip(self.fiducial_dfs, self.board_truth_dfs):
+        for fiducial_df in self.fiducial_dfs:
             time = fiducial_df['time']
-            board = fiducial_df['board']
             board_qw = fiducial_df['board_ang_0']
             board_qx = fiducial_df['board_ang_1']
             board_qy = fiducial_df['board_ang_2']
             board_qz = fiducial_df['board_ang_3']
 
-            true_qw = true_df['quat_w']
-            true_qx = true_df['quat_x']
-            true_qy = true_df['quat_y']
-            true_qz = true_df['quat_z']
+            board_a = []
+            board_b = []
+            board_g = []
 
             # TODO(jhartzer): Use common euler function
-            for (t, b, qw, qx, qy, qz) in zip(time, board, board_qw, board_qx, board_qy, board_qz):
-                board_q = Rotation.from_quat([qw, qx, qy, qz], scalar_first=True)
-                true_q = Rotation.from_quat([
-                    true_qw[int(b)],
-                    true_qx[int(b)],
-                    true_qy[int(b)],
-                    true_qz[int(b)]], scalar_first=True)
-                error_q = board_q.inv() * true_q
-                error_eul = error_q.as_euler('XYZ')
-                err_x[t].append(error_eul[0])
-                err_y[t].append(error_eul[1])
-                err_z[t].append(error_eul[2])
+            for (w, x, y, z) in zip(board_qw, board_qx, board_qy, board_qz):
+                board_rot = Rotation.from_quat([w, x, y, z], scalar_first=True)
+                board_eul = board_rot.as_euler('XYZ')
+                board_a.append(board_eul[0])
+                board_b.append(board_eul[1])
+                board_g.append(board_eul[2])
 
-        times = []
-        mean_x = []
-        mean_y = []
-        mean_z = []
-        std_x = []
-        std_y = []
-        std_z = []
-
-        for time in err_x:
-            times.append(time)
-            mean_x.append(np.mean(err_x[time]))
-            mean_y.append(np.mean(err_y[time]))
-            mean_z.append(np.mean(err_z[time]))
-            std_x.append(np.std(err_x[time]))
-            std_y.append(np.std(err_y[time]))
-            std_z.append(np.std(err_z[time]))
-
-        times = np.array(times)
-        mean_x = np.array(mean_x)
-        mean_y = np.array(mean_y)
-        mean_z = np.array(mean_z)
-        std_x = np.array(std_x)
-        std_y = np.array(std_y)
-        std_z = np.array(std_z)
-
-        t_indices = times.argsort()
-        times = times[t_indices]
-        mean_x = mean_x[t_indices]
-        mean_y = mean_y[t_indices]
-        mean_z = mean_z[t_indices]
-        std_x = std_x[t_indices]
-        std_y = std_y[t_indices]
-        std_z = std_z[t_indices]
-
-        fig.line(times, mean_x, color=self.colors[0])
-        fig.line(times, mean_y, color=self.colors[1])
-        fig.line(times, mean_z, color=self.colors[2])
-
-        cds_x = ColumnDataSource(
-            {'base': times,
-             'lower': mean_x - std_x,
-             'upper': mean_x + std_x})
-        cds_y = ColumnDataSource(
-            {'base': times,
-             'lower': mean_y - std_y,
-             'upper': mean_y + std_y})
-        cds_z = ColumnDataSource(
-            {'base': times,
-             'lower': mean_z - std_z,
-             'upper': mean_z + std_z})
-
-        fig.add_layout(
-            Band(
-                base='base',
-                lower='lower',
-                upper='upper',
-                fill_alpha=0.3,
-                source=cds_x,
-                fill_color=self.colors[0],
-                line_color=self.colors[0]))
-        fig.add_layout(
-            Band(
-                base='base',
-                lower='lower',
-                upper='upper',
-                fill_alpha=0.3,
-                source=cds_y,
-                fill_color=self.colors[1],
-                line_color=self.colors[1]))
-        fig.add_layout(
-            Band(
-                base='base',
-                lower='lower',
-                upper='upper',
-                fill_alpha=0.3,
-                source=cds_z,
-                fill_color=self.colors[2],
-                line_color=self.colors[2]))
-
+            time = fiducial_df['time']
+            fig.line(
+                time,
+                board_a,
+                alpha=self.alpha,
+                color=self.colors[0],
+                legend_label='X')
+            fig.line(
+                time,
+                board_b,
+                alpha=self.alpha,
+                color=self.colors[1],
+                legend_label='Y')
+            fig.line(
+                time,
+                board_g,
+                alpha=self.alpha,
+                color=self.colors[2],
+                legend_label='Z')
         return fig
 
     def get_tab(self):

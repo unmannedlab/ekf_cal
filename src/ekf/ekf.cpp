@@ -63,6 +63,7 @@ EKF::EKF(Parameters params)
   body_header << EnumerateHeader("body_ang_vel", 3);
   body_header << EnumerateHeader("body_ang_acc", 3);
   body_header << EnumerateHeader("body_cov", g_body_state_size);
+  body_header << ",state_size";
   body_header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(body_header.str());
@@ -113,6 +114,7 @@ void EKF::LogBodyStateIfNeeded(int execution_count)
     msg << VectorToCommaString(m_state.body_state.ang_vel_b_in_l);
     msg << VectorToCommaString(m_state.body_state.ang_acc_b_in_l);
     msg << VectorToCommaString(body_cov);
+    msg << "," << m_state_size;
     msg << "," << execution_count;
     m_data_logger.RateLimitedLog(msg.str(), m_current_time);
   }
@@ -430,6 +432,7 @@ Eigen::MatrixXd EKF::AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int inde
 void EKF::AugmentStateIfNeeded()
 {
   if (
+    m_augmenting_type == AugmentationType::NONE ||
     m_augmenting_type == AugmentationType::ALL ||
     m_augmenting_type == AugmentationType::PRIMARY)
   {

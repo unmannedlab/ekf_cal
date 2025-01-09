@@ -64,8 +64,7 @@ FiducialUpdater::FiducialUpdater(
 }
 
 void FiducialUpdater::UpdateEKF(
-  std::shared_ptr<EKF> ekf, double time,
-  BoardTrack board_track, double pos_error, double ang_error)
+  std::shared_ptr<EKF> ekf, double time, BoardDetection board_detection)
 {
   m_logger->Log(
     LogLevel::DEBUG, "Called Fiducial Update for camera ID: " + std::to_string(m_camera_id));
@@ -89,13 +88,11 @@ void FiducialUpdater::UpdateEKF(
 
   Eigen::Matrix3d rot_f_to_l = m_ang_f_to_l.toRotationMatrix();
 
-  unsigned int max_meas_size = g_fid_measurement_size * board_track.size();
   unsigned int state_size = ekf->GetStateSize();
   unsigned int cam_index = ekf->m_state.cam_states[m_camera_id].index;
 
-  Eigen::VectorXd res = Eigen::VectorXd::Zero(max_meas_size);
-  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(max_meas_size, state_size);
-
+  Eigen::VectorXd res = Eigen::VectorXd::Zero(g_fid_measurement_size);
+  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(g_fid_measurement_size, state_size);
 
   Eigen::Matrix3d rot_bi_to_c = rot_c_to_b.transpose();
   Eigen::Matrix3d rot_l_to_bi = rot_bi_to_l.transpose();
@@ -111,8 +108,8 @@ void FiducialUpdater::UpdateEKF(
   pos_predicted = rot_bi_to_c * (pos_f_in_bi - m_pos_c_in_b);
   ang_predicted = ang_l_to_ci * m_ang_f_to_l;
 
-  CvVectorToEigen(board_track[0].t_vec_f_in_c, pos_measured);
-  ang_measured = RodriguesToQuat(board_track[0].r_vec_f_to_c);
+  pos_measured = board_detection.pos_f_in_c;
+  ang_measured = board_detection.ang_f_to_c;
 
   // Residuals for this frame
   pos_residual = pos_measured - pos_predicted;
@@ -143,15 +140,9 @@ void FiducialUpdater::UpdateEKF(
 
   /// @todo Chi^2 distance check
 
-  // Jacobian is ill-formed if either rows or columns post-compression are size 1
-  if (res.size() == 1) {
-    m_logger->Log(LogLevel::INFO, "Compressed MSCKF Jacobian is ill-formed");
-    return;
-  }
-
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(res.rows(), res.rows());
-  R.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3) * pos_error * pos_error;
-  R.block<3, 3>(3, 3) = Eigen::MatrixXd::Identity(3, 3) * ang_error * ang_error;
+  R.block<3, 3>(0, 0) = board_detection.pos_error.asDiagonal();
+  R.block<3, 3>(3, 3) = board_detection.ang_error.asDiagonal();
 
   // Apply Kalman update
   KalmanUpdate(ekf, H, res, R);
