@@ -66,7 +66,6 @@ public:
 private:
   bool m_is_cam_extrinsic;
   DataLogger m_fiducial_logger;
-  DataLogger m_board_logger;
   unsigned int m_camera_id;
   bool m_is_first_estimate{true};
   Eigen::Vector3d m_pos_f_in_l;

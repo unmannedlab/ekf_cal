@@ -28,9 +28,8 @@ from utilities import calculate_alpha, get_colors, interpolate_error, interpolat
 
 class tab_fiducial:
 
-    def __init__(self, fiducial_dfs, board_dfs, board_truth_dfs, body_truth_dfs, args):
+    def __init__(self, fiducial_dfs, board_truth_dfs, body_truth_dfs, args):
         self.fiducial_dfs = fiducial_dfs
-        self.board_dfs = board_dfs
         self.board_truth_dfs = board_truth_dfs
         self.body_truth_dfs = body_truth_dfs
 
@@ -45,21 +44,21 @@ class tab_fiducial:
             x_axis_label='Time [s]',
             y_axis_label='Position [m]',
             title='Camera Position')
-        for mskcf_df in self.fiducial_dfs:
-            t_cam = mskcf_df['time']
+        for fiducial_df in self.fiducial_dfs:
+            t_cam = fiducial_df['time']
             fig.line(
                 t_cam,
-                mskcf_df['cam_pos_0'],
+                fiducial_df['cam_pos_0'],
                 alpha=self.alpha,
                 color=self.colors[0])
             fig.line(
                 t_cam,
-                mskcf_df['cam_pos_1'],
+                fiducial_df['cam_pos_1'],
                 alpha=self.alpha,
                 color=self.colors[1])
             fig.line(
                 t_cam,
-                mskcf_df['cam_pos_2'],
+                fiducial_df['cam_pos_2'],
                 alpha=self.alpha,
                 color=self.colors[2])
         return fig
@@ -72,21 +71,21 @@ class tab_fiducial:
             x_axis_label='Time [s]',
             y_axis_label='Orientation',
             title='Camera Orientation')
-        for mskcf_df in self.fiducial_dfs:
-            t_cam = mskcf_df['time']
+        for fiducial_df in self.fiducial_dfs:
+            t_cam = fiducial_df['time']
             fig.line(
                 t_cam,
-                mskcf_df['cam_ang_pos_0'],
+                fiducial_df['cam_ang_pos_0'],
                 alpha=self.alpha,
                 color=self.colors[0])
             fig.line(
                 t_cam,
-                mskcf_df['cam_ang_pos_1'],
+                fiducial_df['cam_ang_pos_1'],
                 alpha=self.alpha,
                 color=self.colors[1])
             fig.line(
                 t_cam,
-                mskcf_df['cam_ang_pos_2'],
+                fiducial_df['cam_ang_pos_2'],
                 alpha=self.alpha,
                 color=self.colors[2])
         return fig
@@ -186,11 +185,11 @@ class tab_fiducial:
             x_axis_label='Time [s]',
             y_axis_label='Position Covariance [m]',
             title='Camera Position Covariance')
-        for mskcf_df in self.fiducial_dfs:
-            t_cam = mskcf_df['time']
-            cam_cov_0 = mskcf_df['cam_cov_0']
-            cam_cov_1 = mskcf_df['cam_cov_1']
-            cam_cov_2 = mskcf_df['cam_cov_2']
+        for fiducial_df in self.fiducial_dfs:
+            t_cam = fiducial_df['time']
+            cam_cov_0 = fiducial_df['cam_cov_0']
+            cam_cov_1 = fiducial_df['cam_cov_1']
+            cam_cov_2 = fiducial_df['cam_cov_2']
             fig.line(
                 t_cam,
                 cam_cov_0,
@@ -219,11 +218,11 @@ class tab_fiducial:
             x_axis_label='Time [s]',
             y_axis_label='Angle Covariance [m]',
             title='Camera Angle Covariance')
-        for mskcf_df in self.fiducial_dfs:
-            t_cam = mskcf_df['time']
-            cam_cov_3 = mskcf_df['cam_cov_3']
-            cam_cov_4 = mskcf_df['cam_cov_4']
-            cam_cov_5 = mskcf_df['cam_cov_5']
+        for fiducial_df in self.fiducial_dfs:
+            t_cam = fiducial_df['time']
+            cam_cov_3 = fiducial_df['cam_cov_3']
+            cam_cov_4 = fiducial_df['cam_cov_4']
+            cam_cov_5 = fiducial_df['cam_cov_5']
             fig.line(
                 t_cam,
                 cam_cov_3,
@@ -245,28 +244,28 @@ class tab_fiducial:
         return fig
 
     def plot_fiducial_error_pos(self):
-        """Plot fiducial position error."""
+        """Plot fiducial position in Camera Frame."""
         fig = figure(
             width=800,
             height=300,
             x_axis_label='Time [s]',
-            y_axis_label='Position Error [m]',
-            title='Fiducial Position Error')
+            y_axis_label='Position [m]',
+            title='Fiducial Position in Camera Frame')
 
         err_px = collections.defaultdict(list)
         err_py = collections.defaultdict(list)
         err_pz = collections.defaultdict(list)
 
-        for tri_df, board_df in zip(self.board_dfs, self.board_truth_dfs):
-            time = tri_df['time']
-            board = tri_df['board']
-            board_px = tri_df['pos_x']
-            board_py = tri_df['pos_y']
-            board_pz = tri_df['pos_z']
+        for fiducial_df, true_df in zip(self.fiducial_dfs, self.board_truth_dfs):
+            time = fiducial_df['time']
+            board = fiducial_df['board']
+            board_px = fiducial_df['board_pos_0']
+            board_py = fiducial_df['board_pos_1']
+            board_pz = fiducial_df['board_pos_2']
 
-            true_px = board_df['pos_x']
-            true_py = board_df['pos_y']
-            true_pz = board_df['pos_z']
+            true_px = true_df['pos_x']
+            true_py = true_df['pos_y']
+            true_pz = true_df['pos_z']
 
             for (t, b, px, py, pz) in zip(time, board, board_px, board_py, board_pz):
                 err_px[t].append(px - true_px[int(b)])
@@ -351,30 +350,30 @@ class tab_fiducial:
         return fig
 
     def plot_fiducial_error_ang(self):
-        """Plot fiducial angular error."""
+        """Plot fiducial angle in camera frame."""
         fig = figure(
             width=800,
             height=300,
             x_axis_label='Time [s]',
-            y_axis_label='Angular Error',
-            title='Fiducial Angular Error')
+            y_axis_label='Angular',
+            title='Fiducial Angle in Camera Frame')
 
         err_x = collections.defaultdict(list)
         err_y = collections.defaultdict(list)
         err_z = collections.defaultdict(list)
 
-        for tri_df, board_df in zip(self.board_dfs, self.board_truth_dfs):
-            time = tri_df['time']
-            board = tri_df['board']
-            board_qw = tri_df['quat_w']
-            board_qx = tri_df['quat_x']
-            board_qy = tri_df['quat_y']
-            board_qz = tri_df['quat_z']
+        for fiducial_df, true_df in zip(self.fiducial_dfs, self.board_truth_dfs):
+            time = fiducial_df['time']
+            board = fiducial_df['board']
+            board_qw = fiducial_df['board_ang_0']
+            board_qx = fiducial_df['board_ang_1']
+            board_qy = fiducial_df['board_ang_2']
+            board_qz = fiducial_df['board_ang_3']
 
-            true_qw = board_df['quat_w']
-            true_qx = board_df['quat_x']
-            true_qy = board_df['quat_y']
-            true_qz = board_df['quat_z']
+            true_qw = true_df['quat_w']
+            true_qx = true_df['quat_x']
+            true_qy = true_df['quat_y']
+            true_qz = true_df['quat_z']
 
             # TODO(jhartzer): Use common euler function
             for (t, b, qw, qx, qy, qz) in zip(time, board, board_qw, board_qx, board_qy, board_qz):
