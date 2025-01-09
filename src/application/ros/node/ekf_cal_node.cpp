@@ -74,7 +74,7 @@ EkfCalNode::EkfCalNode()
   declare_parameter("gps_init_ang_thresh", 1.0);
   declare_parameter("motion_detection_chi_squared", 1.0);
   declare_parameter("imu_noise_scale_factor", 100.0);
-  declare_parameter("use_root_covariance", false);
+  declare_parameter("use_root_covariance", true);
   declare_parameter("use_first_estimate_jacobian", false);
 
   // Declare Sensor Lists
