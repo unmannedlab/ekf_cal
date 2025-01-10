@@ -15,11 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import collections
-
 from bokeh.layouts import layout
-from bokeh.models import Band, Spacer, TabPanel
-from bokeh.plotting import ColumnDataSource, figure
+from bokeh.models import Spacer, TabPanel
+from bokeh.plotting import figure
 import numpy as np
 from scipy.spatial.transform import Rotation
 from utilities import calculate_alpha, get_colors, interpolate_error, interpolate_quat_error, \
@@ -50,17 +48,20 @@ class tab_fiducial:
                 t_cam,
                 fiducial_df['cam_pos_0'],
                 alpha=self.alpha,
-                color=self.colors[0])
+                color=self.colors[0],
+                legend_label='X')
             fig.line(
                 t_cam,
                 fiducial_df['cam_pos_1'],
                 alpha=self.alpha,
-                color=self.colors[1])
+                color=self.colors[1],
+                legend_label='Y')
             fig.line(
                 t_cam,
                 fiducial_df['cam_pos_2'],
                 alpha=self.alpha,
-                color=self.colors[2])
+                color=self.colors[2],
+                legend_label='Z')
         return fig
 
     def plot_camera_ang(self):
@@ -77,17 +78,20 @@ class tab_fiducial:
                 t_cam,
                 fiducial_df['cam_ang_pos_0'],
                 alpha=self.alpha,
-                color=self.colors[0])
+                color=self.colors[0],
+                legend_label='X')
             fig.line(
                 t_cam,
                 fiducial_df['cam_ang_pos_1'],
                 alpha=self.alpha,
-                color=self.colors[1])
+                color=self.colors[1],
+                legend_label='Y')
             fig.line(
                 t_cam,
                 fiducial_df['cam_ang_pos_2'],
                 alpha=self.alpha,
-                color=self.colors[2])
+                color=self.colors[2],
+                legend_label='Z')
         return fig
 
     def plot_cam_pos_err(self):
@@ -162,19 +166,19 @@ class tab_fiducial:
                 eul_err_x,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 est_t,
                 eul_err_y,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 est_t,
                 eul_err_z,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_cam_pos_cov(self):

@@ -170,19 +170,19 @@ class tab_msckf:
                 eul_err_x,
                 alpha=self.alpha,
                 color=self.colors[0],
-                legend_label='x')
+                legend_label='X')
             fig.line(
                 est_t,
                 eul_err_y,
                 alpha=self.alpha,
                 color=self.colors[1],
-                legend_label='y')
+                legend_label='Y')
             fig.line(
                 est_t,
                 eul_err_z,
                 alpha=self.alpha,
                 color=self.colors[2],
-                legend_label='z')
+                legend_label='Z')
         return fig
 
     def plot_cam_pos_cov(self):

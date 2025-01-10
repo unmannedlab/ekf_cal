@@ -145,9 +145,9 @@ class tab_gps:
             title='GPS Antenna Position Covariance')
         for gps_df in self.gps_dfs:
             t_gps = gps_df['time']
-            gps_int_cov_3 = np.array(gps_df['gps_cov_0'])*1e3
-            gps_int_cov_4 = np.array(gps_df['gps_cov_1'])*1e3
-            gps_int_cov_5 = np.array(gps_df['gps_cov_2'])*1e3
+            gps_int_cov_3 = np.array(gps_df['gps_cov_0']) * 1e3
+            gps_int_cov_4 = np.array(gps_df['gps_cov_1']) * 1e3
+            gps_int_cov_5 = np.array(gps_df['gps_cov_2']) * 1e3
             fig.line(
                 t_gps,
                 gps_int_cov_3,
