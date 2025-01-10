@@ -149,7 +149,6 @@ protected:
   FiducialType m_detector_type;        ///< @brief Detector type
 
 private:
-  BoardTrack m_board_track;
   Eigen::Vector3d m_pos_error;
   Eigen::Vector3d m_ang_error;
 };

@@ -91,7 +91,6 @@ private:
   Eigen::Vector3d m_r_vec_error;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
-  BoardTrack m_board_track;
 
   unsigned int m_min_track_length {0};
   unsigned int m_max_track_length {1};

@@ -56,17 +56,12 @@ public:
   /// @param ekf EKF pointer
   /// @param time Time of update
   /// @param board_track Board track to be used for state update
-  /// @param pos_error Standard deviation of the position error
-  /// @param ang_error Standard deviation of the angle error
   ///
-  void UpdateEKF(
-    std::shared_ptr<EKF> ekf,
-    double time, BoardTrack board_track, double pos_error, double ang_error);
+  void UpdateEKF(std::shared_ptr<EKF> ekf, double time, BoardDetection board_detection);
 
 private:
   bool m_is_cam_extrinsic;
   DataLogger m_fiducial_logger;
-  DataLogger m_board_logger;
   unsigned int m_camera_id;
   bool m_is_first_estimate{true};
   Eigen::Vector3d m_pos_f_in_l;

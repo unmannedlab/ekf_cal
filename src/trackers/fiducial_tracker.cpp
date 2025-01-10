@@ -141,7 +141,6 @@ void FiducialTracker::Track(
 
   std::vector<std::vector<cv::Point2f>> marker_corners;
   cv::aruco::detectMarkers(img_in, m_dict, marker_corners, marker_ids, params);
-  bool detection_made {false};
 
   // if at least one marker detected
   if (marker_ids.size() > 0) {
@@ -165,35 +164,18 @@ void FiducialTracker::Track(
       if (valid) {
         cv::drawFrameAxes(img_out, camera_matrix, distortion, r_vec, t_vec, 0.1f);
       }
+
+      Eigen::Vector3d pos_f_in_c = CvVectorToEigen(t_vec);
+      Eigen::Quaterniond ang_f_to_c = RodriguesToQuat(r_vec);
+
       BoardDetection board_detection;
       board_detection.frame_id = frame_id;
-      board_detection.t_vec_f_in_c = t_vec;
-      board_detection.r_vec_f_to_c = r_vec;
-      m_board_track.push_back(board_detection);
-      detection_made = true;
-    }
-  }
+      board_detection.pos_f_in_c = pos_f_in_c;
+      board_detection.ang_f_to_c = ang_f_to_c;
+      board_detection.pos_error = m_pos_error;
+      board_detection.ang_error = m_ang_error;
 
-  bool update_ekf {false};
-  if (detection_made) {
-    if (m_board_track.size() >= m_max_track_length) {
-      update_ekf = true;
+      m_fiducial_updater.UpdateEKF(m_ekf, time, board_detection);
     }
-  } else {
-    if (m_board_track.size() < m_min_track_length) {
-      m_board_track.clear();
-    } else {
-      update_ekf = true;
-    }
-  }
-
-  if (update_ekf) {
-    m_fiducial_updater.UpdateEKF(
-      m_ekf,
-      time,
-      m_board_track,
-      m_pos_error.norm(),
-      m_ang_error.norm());
-    m_board_track.clear();
   }
 }

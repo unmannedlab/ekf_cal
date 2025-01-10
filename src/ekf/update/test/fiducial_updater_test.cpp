@@ -45,14 +45,12 @@ TEST(test_imu_updater, constructor) {
   Eigen::MatrixXd covariance = Eigen::MatrixXd::Identity(6, 6) * 1e-3;
   ekf->RegisterCamera(cam_id, cam_state, covariance);
 
-  BoardTrack board_track;
   BoardDetection board_detection;
   board_detection.frame_id = 0;
-  board_detection.t_vec_f_in_c = cv::Vec3d{5, 0, 0};
-  board_detection.r_vec_f_to_c = cv::Vec3d{0, 0, 0};
-  board_track.push_back(board_detection);
+  board_detection.pos_f_in_c = Eigen::Vector3d{5, 0, 0};
+  board_detection.ang_f_to_c = Eigen::Quaterniond{1, 0, 0, 0};
+  board_detection.pos_error = Eigen::Vector3d{0.1, 0.1, 0.1};
+  board_detection.ang_error = Eigen::Vector3d{0.1, 0.1, 0.1};
 
-  ekf->AugmentStateIfNeeded(cam_id, board_detection.frame_id);
-
-  fiducial_updater.UpdateEKF(ekf, 0.0, board_track, 1e-2, 1e-2);
+  fiducial_updater.UpdateEKF(ekf, 0.0, board_detection);
 }

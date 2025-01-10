@@ -226,6 +226,7 @@ bool ImuUpdater::ZeroAccelerationUpdate(
     ekf->InitializeGravity();
   }
 
+  /// @todo Test stationary rotation
   // AngularUpdate(ekf, angular_rate, angular_rate_covariance);
 
   ekf->PredictModel(time);
@@ -236,6 +237,9 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   // Apply Kalman update
   // Eigen::Quaterniond ang_b_to_l_pre = ekf->m_state.body_state.ang_b_to_l;
   KalmanUpdate(ekf, H, resid, R);
+
+  ekf->m_state.body_state.acc_b_in_l = Eigen::Vector3d::Zero();
+  ekf->m_state.body_state.acc_b_in_l = g_gravity;
 
   // Prevent unintentional rotation about the vertical axis
   // if (m_correct_heading_rotation) {

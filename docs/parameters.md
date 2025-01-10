@@ -17,10 +17,11 @@ The basic structure of the YAML files is a set of ROS parameters, lists that def
         data_logging_on: true                 # Flag to enable data logging
         data_log_rate: 10.0                   # EKF body data logging rate
         augmenting_type: 0                    # Camera state augmentation type
-                                              #   0: All camera frames are augmented
-                                              #   1: Only the primary camera frames are augmented
-                                              #   2: Time-based frame augmentation
-                                              #   3: Linear Error-based frame augmentation
+                                              #   0: No camera frames are augmented
+                                              #   1: All camera frames are augmented
+                                              #   2: Only the primary camera frames are augmented
+                                              #   3: Time-based frame augmentation
+                                              #   4: Linear Error-based frame augmentation
         augmenting_delta_time: 0.             # Maximum time between augments
         augmenting_pos_error: 0.1             # Maximum position error between augments
         augmenting_ang_error: 0.1             # Maximum angular error between augments

@@ -29,10 +29,9 @@ class SimFiducialTrackerMessage : public SensorMessage
 {
 public:
   SimFiducialTrackerMessage() {}
-  unsigned int tracker_id {0};  ///< @brief Associated Tracker ID
-  BoardTrack board_track;       ///< @brief Board track
-  Eigen::Vector3d pos_error {1e-9, 1e-9, 1e-9};  ///< @brief Position detection error
-  Eigen::Vector3d ang_error {1e-9, 1e-9, 1e-9};  ///< @brief Angular detection error
+  unsigned int tracker_id {0};     ///< @brief Associated Tracker ID
+  BoardDetection board_detection;  ///< @brief Board detection
+  bool is_board_visible {false};   ///< @brief Is board visible
 };
 
 #endif  // TRACKERS__SIM__SIM_FIDUCIAL_TRACKER_MESSAGE_HPP_

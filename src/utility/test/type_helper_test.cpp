@@ -160,8 +160,7 @@ TEST(test_TypeHelper, RodriguesToQuat) {
 
 TEST(test_TypeHelper, CvVectorToEigen) {
   cv::Vec3d vector_cv(1, 2, 3);
-  Eigen::Vector3d vector_eigen;
-  CvVectorToEigen(vector_cv, vector_eigen);
+  Eigen::Vector3d vector_eigen = CvVectorToEigen(vector_cv);
   EXPECT_EQ(vector_eigen(0), vector_cv(0));
   EXPECT_EQ(vector_eigen(1), vector_cv(1));
   EXPECT_EQ(vector_eigen(2), vector_cv(2));

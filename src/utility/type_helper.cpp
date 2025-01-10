@@ -113,11 +113,9 @@ Eigen::Quaterniond RodriguesToQuat(cv::Vec3d rodrigues_vector)
   return quat;
 }
 
-void CvVectorToEigen(cv::Vec3d & vector_cv, Eigen::Vector3d & vector_eigen)
+Eigen::Vector3d CvVectorToEigen(cv::Vec3d & vector_cv)
 {
-  for (unsigned int i = 0; i < 3; ++i) {
-    vector_eigen(i) = vector_cv[i];
-  }
+  return Eigen::Vector3d{vector_cv[0], vector_cv[1], vector_cv[2]};
 }
 
 std::vector<Eigen::Vector3d> operator-(
