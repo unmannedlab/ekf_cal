@@ -81,9 +81,9 @@ void FiducialUpdater::UpdateEKF(
     m_is_first_estimate = false;
   }
 
-  const Eigen::Vector3d pos_bi_in_l = ekf->m_state.body_state.pos_b_in_l;
+  const Eigen::Vector3d pos_b_in_l = ekf->m_state.body_state.pos_b_in_l;
   const Eigen::Quaterniond ang_b_to_l = ekf->m_state.body_state.ang_b_to_l;
-  const Eigen::Matrix3d rot_bi_to_l = ang_b_to_l.toRotationMatrix();
+  const Eigen::Matrix3d rot_b_to_l = ang_b_to_l.toRotationMatrix();
   const Eigen::Matrix3d rot_c_to_b = m_ang_c_to_b.toRotationMatrix();
 
   Eigen::Matrix3d rot_f_to_l = m_ang_f_to_l.toRotationMatrix();
@@ -94,19 +94,18 @@ void FiducialUpdater::UpdateEKF(
   Eigen::VectorXd res = Eigen::VectorXd::Zero(g_fid_measurement_size);
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(g_fid_measurement_size, state_size);
 
-  Eigen::Matrix3d rot_bi_to_c = rot_c_to_b.transpose();
-  Eigen::Matrix3d rot_l_to_bi = rot_bi_to_l.transpose();
-  Eigen::Matrix3d rot_l_to_ci = rot_bi_to_c * rot_l_to_bi;
-  Eigen::Matrix3d rot_l_to_c = rot_bi_to_c * rot_l_to_bi;
-  Eigen::Quaterniond ang_l_to_ci(rot_l_to_ci);
+  Eigen::Matrix3d rot_b_to_c = rot_c_to_b.transpose();
+  Eigen::Matrix3d rot_l_to_b = rot_b_to_l.transpose();
+  Eigen::Matrix3d rot_l_to_c = rot_b_to_c * rot_l_to_b;
+  Eigen::Quaterniond ang_l_to_c(rot_l_to_c);
 
   Eigen::Vector3d pos_predicted, pos_measured, pos_residual;
   Eigen::Quaterniond ang_predicted, ang_measured, ang_residual;
 
   // Project the current feature into the current frame of reference
-  Eigen::Vector3d pos_f_in_bi = rot_l_to_bi * (m_pos_f_in_l - pos_bi_in_l);
-  pos_predicted = rot_bi_to_c * (pos_f_in_bi - m_pos_c_in_b);
-  ang_predicted = ang_l_to_ci * m_ang_f_to_l;
+  Eigen::Vector3d pos_f_in_b = rot_l_to_b * (m_pos_f_in_l - pos_b_in_l);
+  pos_predicted = rot_b_to_c * (pos_f_in_b - m_pos_c_in_b);
+  ang_predicted = ang_l_to_c * m_ang_f_to_l;
 
   pos_measured = board_detection.pos_f_in_c;
   ang_measured = board_detection.ang_f_to_c;
@@ -120,23 +119,26 @@ void FiducialUpdater::UpdateEKF(
 
   H.block<3, 3>(0, 0) = -rot_l_to_c;
 
-  H.block<3, 3>(0, 9) = rot_l_to_c *
-    SkewSymmetric(m_pos_f_in_l - pos_bi_in_l) *
+  H.block<3, 3>(0, 9) = -rot_l_to_c *
+    SkewSymmetric(m_pos_f_in_l - pos_b_in_l) *
     quaternion_jacobian(ang_b_to_l).transpose();
 
-  H.block<3, 3>(3, 9) = rot_l_to_c *
-    quaternion_jacobian(ang_b_to_l).transpose() * rot_f_to_l;
+  H.block<3, 3>(3, 9) = rot_l_to_c * rot_f_to_l *
+    quaternion_jacobian(ang_b_to_l).transpose();
 
+  /// @todo Test camera calibration jacobians
   if (ekf->m_state.cam_states[m_camera_id].GetIsExtrinsic()) {
-    H.block<3, 3>(0, cam_index + 0) = -rot_bi_to_c;
+    H.block<3, 3>(0, cam_index + 0) = -rot_b_to_c;
 
-    H.block<3, 3>(0, cam_index + 3) = rot_bi_to_c *
-      SkewSymmetric(rot_l_to_bi * (m_pos_f_in_l - pos_bi_in_l) - m_pos_c_in_b) *
+    H.block<3, 3>(0, cam_index + 3) = rot_b_to_c *
+      SkewSymmetric(rot_l_to_b * (m_pos_f_in_l - pos_b_in_l) - m_pos_c_in_b) *
       quaternion_jacobian(m_ang_c_to_b).transpose();
 
-    H.block<3, 3>(3, cam_index + 3) = rot_bi_to_c *
-      quaternion_jacobian(m_ang_c_to_b).transpose() * rot_l_to_bi * rot_f_to_l;
+    H.block<3, 3>(3, cam_index + 3) = rot_b_to_c *
+      quaternion_jacobian(m_ang_c_to_b).transpose() * rot_l_to_b * rot_f_to_l;
   }
+
+  /// @todo Fiducial calibration jacobians
 
   /// @todo Chi^2 distance check
 

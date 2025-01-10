@@ -99,7 +99,7 @@ public:
 
   Eigen::Vector3d pos_b_in_l{0.0, 0.0, 0.0};          ///< @brief Body position
   Eigen::Vector3d vel_b_in_l{0.0, 0.0, 0.0};          ///< @brief Body velocity
-  Eigen::Vector3d acc_b_in_l{0.0, 0.0, 0.0};          ///< @brief Body acceleration
+  Eigen::Vector3d acc_b_in_l{g_gravity};              ///< @brief Body acceleration
   Eigen::Quaterniond ang_b_to_l{1.0, 0.0, 0.0, 0.0};  ///< @brief Body orientation
   Eigen::Vector3d ang_vel_b_in_l{0.0, 0.0, 0.0};      ///< @brief Body angular velocity
   Eigen::Vector3d ang_acc_b_in_l{0.0, 0.0, 0.0};      ///< @brief Body angular acceleration

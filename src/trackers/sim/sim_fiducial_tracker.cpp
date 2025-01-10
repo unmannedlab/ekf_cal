@@ -51,6 +51,7 @@ SimFiducialTracker::SimFiducialTracker(
 
 bool SimFiducialTracker::IsBoardVisible(double time)
 {
+  return true;
   Eigen::Vector3d pos_b_in_l = m_truth->GetBodyPosition(time);
   Eigen::Quaterniond ang_b_to_l = m_truth->GetBodyAngularPosition(time);
   Eigen::Vector3d pos_c_in_b = m_truth->GetCameraPosition(m_camera_id);
