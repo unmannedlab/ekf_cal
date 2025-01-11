@@ -256,7 +256,7 @@ void TruthEngine::WriteTruthData(
     msg << time;
     msg << VectorToCommaString(GetBodyPosition(time));
     msg << VectorToCommaString(GetBodyVelocity(time));
-    msg << VectorToCommaString(GetBodyAcceleration(time));
+    msg << VectorToCommaString(GetBodyAcceleration(time) + g_gravity);
     msg << QuaternionToCommaString(GetBodyAngularPosition(time));
     msg << VectorToCommaString(GetBodyAngularRate(time));
     msg << VectorToCommaString(GetBodyAngularAcceleration(time));

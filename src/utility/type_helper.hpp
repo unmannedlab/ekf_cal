@@ -90,9 +90,9 @@ Eigen::Quaterniond RodriguesToQuat(cv::Vec3d rodrigues_vector);
 ///
 /// @brief Convert CV vector to Eigen vector
 /// @param vector_cv Input CV vector
-/// @param vector_eigen Output Eigen vector
+/// @return Output Eigen vector
 ///
-void CvVectorToEigen(cv::Vec3d & vector_cv, Eigen::Vector3d & vector_eigen);
+Eigen::Vector3d CvVectorToEigen(cv::Vec3d & vector_cv);
 
 ///
 /// @brief Telegraph subtract vector from list of vectors

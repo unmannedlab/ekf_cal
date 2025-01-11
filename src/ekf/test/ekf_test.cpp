@@ -46,10 +46,10 @@ TEST(test_EKF, get_counts) {
   EXPECT_EQ(ekf->GetImuCount(), 1);
   EXPECT_EQ(ekf->GetCamCount(), 1);
 
-  EXPECT_EQ(ekf->m_state.imu_states[0].index, 9);
-  EXPECT_EQ(ekf->m_state.cam_states[1].index, 15);
-  EXPECT_EQ(ekf->GetAugState(1, 0, 0).index, 21);
-  EXPECT_EQ(ekf->GetAugState(1, 1, 0).index, 27);
+  EXPECT_EQ(ekf->m_state.imu_states[0].index, 18);
+  EXPECT_EQ(ekf->m_state.cam_states[1].index, 24);
+  EXPECT_EQ(ekf->GetAugState(1, 0, 0).index, 30);
+  EXPECT_EQ(ekf->GetAugState(1, 1, 0).index, 36);
 }
 
 TEST(test_EKF, duplicate_sensors) {
@@ -92,17 +92,17 @@ TEST(test_EKF, duplicate_sensors) {
   EXPECT_EQ(ekf->GetGpsCount(), 1);
   EXPECT_EQ(ekf->GetCamCount(), 1);
 
-  EXPECT_EQ(ekf->m_state.imu_states[0].index, 9);
-  EXPECT_EQ(ekf->m_state.gps_states[1].index, 15);
-  EXPECT_EQ(ekf->m_state.cam_states[2].index, 18);
-  EXPECT_EQ(ekf->GetAugState(2, 0, 0).index, 30);
-  EXPECT_EQ(ekf->GetAugState(2, 1, 0).index, 36);
+  EXPECT_EQ(ekf->m_state.imu_states[0].index, 18);
+  EXPECT_EQ(ekf->m_state.gps_states[1].index, 24);
+  EXPECT_EQ(ekf->m_state.cam_states[2].index, 27);
+  EXPECT_EQ(ekf->GetAugState(2, 0, 0).index, 39);
+  EXPECT_EQ(ekf->GetAugState(2, 1, 0).index, 45);
 
-  EXPECT_EQ(ekf->GetImuStateStart(), 9);
-  EXPECT_EQ(ekf->GetGpsStateStart(), 15);
-  EXPECT_EQ(ekf->GetCamStateStart(), 18);
-  EXPECT_EQ(ekf->GetFidStateStart(), 24);
-  EXPECT_EQ(ekf->GetAugStateStart(), 30);
+  EXPECT_EQ(ekf->GetImuStateStart(), 18);
+  EXPECT_EQ(ekf->GetGpsStateStart(), 24);
+  EXPECT_EQ(ekf->GetCamStateStart(), 27);
+  EXPECT_EQ(ekf->GetFidStateStart(), 33);
+  EXPECT_EQ(ekf->GetAugStateStart(), 39);
 }
 
 TEST(test_EKF, SetBodyProcessNoise) {
@@ -142,10 +142,10 @@ TEST(test_EKF, SetGpsReference) {
   ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   auto ekf = std::make_shared<EKF>(ekf_params);
 
-  Eigen::Vector3d reference_lla {0, 0, 0};
-  double ang_l_to_g {0};
+  Eigen::Vector3d pos_e_in_g {0, 0, 0};
+  double ang_l_to_e {0};
 
-  ekf->SetGpsReference(reference_lla, ang_l_to_g);
+  ekf->SetGpsReference(pos_e_in_g, ang_l_to_e);
   EXPECT_TRUE(ekf->IsLlaInitialized());
 }
 
@@ -154,16 +154,17 @@ TEST(test_EKF, AugmentCovariance) {
   ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   auto ekf = std::make_shared<EKF>(ekf_params);
 
-  Eigen::VectorXd in_vec(9);
-  in_vec << 1, 2, 3, 4, 5, 6, 7, 8, 9;
+  Eigen::VectorXd in_vec(12);
+  in_vec << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12;
   Eigen::MatrixXd in_cov = in_vec.asDiagonal();
 
-  Eigen::MatrixXd out_cov = ekf->AugmentCovariance(in_cov, 9);
+  Eigen::MatrixXd out_cov = ekf->AugmentCovariance(in_cov, 12);
 
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<9, 9>(0, 0), in_cov, 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(9, 9), in_cov.block<3, 3>(0, 0), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(12, 12), in_cov.block<3, 3>(6, 6), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<12, 12>(0, 0), in_cov, 1e-6));
 
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(0, 9), in_cov.block<3, 3>(0, 0), 1e-6));
-  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(6, 12), in_cov.block<3, 3>(6, 6), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(12, 12), in_cov.block<3, 3>(0, 0), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(15, 15), in_cov.block<3, 3>(9, 9), 1e-6));
+
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(0, 12), in_cov.block<3, 3>(0, 0), 1e-6));
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(out_cov.block<3, 3>(9, 15), in_cov.block<3, 3>(9, 9), 1e-6));
 }

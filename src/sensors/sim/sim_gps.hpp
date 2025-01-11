@@ -45,9 +45,9 @@ public:
   {
     Eigen::Vector3d lla_error {1e-9, 1e-9, 1e-9};       ///< @brief LLA errors
     Eigen::Vector3d pos_a_in_b_err {1e-9, 1e-9, 1e-9};  ///< @brief Position error of GPS antenna
-    Eigen::Vector3d pos_l_in_g_err {1e-9, 1e-9, 1e-9};  ///< @brief Error in local frame position
-    double ang_l_to_g_err {1e-9};                       ///< @brief Error in local to global angle
-    double ang_l_to_g {0.0};                            ///< @brief Local orientation in global
+    Eigen::Vector3d pos_e_in_g_err {1e-9, 1e-9, 1e-9};  ///< @brief Error in local frame position
+    double ang_l_to_e_err {1e-9};                       ///< @brief Error in local to global angle
+    double ang_l_to_e {0.0};                            ///< @brief Local orientation in global
     GPS::Parameters gps_params;                         ///< @brief GPS sensor parameters
   } Parameters;
 

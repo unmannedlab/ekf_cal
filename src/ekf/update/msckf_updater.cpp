@@ -310,11 +310,10 @@ void MsckfUpdater::UpdateEKF(
         quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
 
       if (m_is_cam_extrinsic) {
-        /// @todo: FEJ
-        /// @todo: Debug calibration Jacobian
-        // H_t.block<3, 3>(0, 6) = Eigen::Matrix3d::Identity(3, 3);
-        // H_t.block<3, 3>(0, 9) =
-        //   rot_b_to_c * SkewSymmetric(rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l));
+        H_c.block<2, 3>(2 * i, cam_index + 0) = -H_d * H_p * rot_b_to_ci;
+        H_c.block<2, 3>(2 * i, cam_index + 3) = H_d * H_p * rot_b_to_ci *
+          SkewSymmetric(rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l) - m_pos_c_in_b) *
+          quaternion_jacobian(m_ang_c_to_b).transpose();
       }
 
       if (aug_state_i.alpha) {
@@ -324,8 +323,9 @@ void MsckfUpdater::UpdateEKF(
         H_c.block<2, g_aug_state_size>(2 * i, aug_state_i.index) = H_aug_0;
 
         if (aug_state_i.index + 2 * g_aug_state_size > state_size) {
+          // If measurement is after last augmented state, correlate with the current body state
           H_c.block<2, 3>(2 * i, 0) = H_aug_1.block<2, 3>(0, 0);
-          H_c.block<2, 3>(2 * i, 6) = H_aug_1.block<2, 3>(0, 3);
+          H_c.block<2, 3>(2 * i, 9) = H_aug_1.block<2, 3>(0, 3);
         } else {
           H_c.block<2, g_aug_state_size>(2 * i, aug_state_i.index + g_aug_state_size) = H_aug_1;
         }
@@ -367,17 +367,18 @@ void MsckfUpdater::UpdateEKF(
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
   // Write outputs
-  Eigen::VectorXd cov_diag = ekf->m_cov.block(
-    cam_index, cam_index, g_cam_extrinsic_state_size, g_cam_extrinsic_state_size).diagonal();
-  if (ekf->GetUseRootCovariance()) {
-    cov_diag = cov_diag.cwiseProduct(cov_diag);
-  }
-
   std::stringstream msg;
   msg << time;
   msg << VectorToCommaString(ekf->m_state.cam_states[m_id].pos_c_in_b);
   msg << QuaternionToCommaString(ekf->m_state.cam_states[m_id].ang_c_to_b);
-  if (m_is_cam_extrinsic) {msg << VectorToCommaString(cov_diag);}
+  if (m_is_cam_extrinsic) {
+    Eigen::VectorXd cov_diag = ekf->m_cov.block(
+      cam_index, cam_index, g_cam_extrinsic_state_size, g_cam_extrinsic_state_size).diagonal();
+    if (ekf->GetUseRootCovariance()) {
+      cov_diag = cov_diag.cwiseProduct(cov_diag);
+    }
+    msg << VectorToCommaString(cov_diag);
+  }
   msg << "," << std::to_string(feature_tracks.size());
   msg << "," << t_execution.count();
   m_msckf_logger.RateLimitedLog(msg.str(), time);

@@ -17,7 +17,7 @@
 
 
 from bokeh.layouts import layout
-from bokeh.models import Spacer, TabPanel
+from bokeh.models import TabPanel
 from bokeh.plotting import figure
 import numpy as np
 from scipy.spatial.transform import Rotation
@@ -695,6 +695,21 @@ class tab_body:
 
         return fig
 
+    def plot_state_size(self):
+        """Plot total state size."""
+        fig = figure(width=800, height=300, x_axis_label='Time [s]',
+                     y_axis_label='State Size',
+                     title='State Size')
+        for body_df in self.body_state_dfs:
+
+            fig.line(
+                body_df['time'],
+                body_df['state_size'],
+                alpha=self.alpha,
+                color=self.colors[0])
+
+        return fig
+
     def get_tab(self):
         layout_plots = [
             [
@@ -711,21 +726,34 @@ class tab_body:
             ],
             [
                 self.plot_body_vel(),
-                self.plot_aug_pos()
+                self.plot_body_ang_vel()
             ],
             [
                 self.plot_body_err_vel(),
-                self.plot_aug_ang()
+                self.plot_body_err_ang_vel()
             ],
             [
                 self.plot_body_vel_cov(),
-                Spacer()
+                self.plot_body_ang_vel_cov()
             ],
             [
-                plot_update_timing(self.body_state_dfs),
-                Spacer()
+                self.plot_body_acc(),
+                self.plot_body_ang_acc()
+            ],
+            [
+                self.plot_body_err_acc(),
+                self.plot_body_err_ang_acc()
+            ],
+            [
+                self.plot_body_acc_cov(),
+                self.plot_body_ang_acc_cov()
             ]
         ]
+
+        if self.aug_state_dfs:
+            layout_plots.append([self.plot_aug_pos(), self.plot_aug_ang()])
+
+        layout_plots.append([plot_update_timing(self.body_state_dfs), self.plot_state_size()])
 
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')
         tab = TabPanel(child=tab_layout, title='Body')

@@ -38,8 +38,8 @@ TEST(test_SimIMU, Constructor) {
 
   SimGPS::Parameters sim_gps_params;
   sim_gps_params.lla_error = Eigen::Vector3d{5.0, 5.0, 5.0};
-  sim_gps_params.pos_l_in_g_err = Eigen::Vector3d{0.0, 0.0, 0.0};
-  sim_gps_params.ang_l_to_g_err = 0.0;
+  sim_gps_params.pos_e_in_g_err = Eigen::Vector3d{0.0, 0.0, 0.0};
+  sim_gps_params.ang_l_to_e_err = 0.0;
   sim_gps_params.gps_params = gps_params;
 
   Eigen::Vector3d pos_frequency{1, 2, 3};

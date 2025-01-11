@@ -28,7 +28,6 @@
 TEST(test_gps_updater, update) {
   EKF::Parameters ekf_params;
   ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  ekf_params.process_noise = Eigen::VectorXd::Ones(9);
   auto ekf = std::make_shared<EKF>(ekf_params);
 
   double time_init = 0.0;

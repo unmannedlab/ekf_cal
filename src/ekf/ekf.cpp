@@ -37,14 +37,14 @@
 EKF::EKF(Parameters params)
 : m_debug_logger(params.debug_logger),
   m_data_logger(params.log_directory, "body_state.csv"),
-  m_data_log_rate(params.data_log_rate),
   m_augmentation_logger(params.log_directory, "aug_state.csv"),
+  m_data_log_rate(params.data_log_rate),
   m_gps_init_type(params.gps_init_type),
   m_gps_init_pos_thresh(params.gps_init_pos_thresh),
   m_gps_init_ang_thresh(params.gps_init_ang_thresh),
   m_gps_init_baseline_dist(params.gps_init_baseline_dist),
-  m_pos_l_in_g(params.pos_l_in_g),
-  m_ang_l_to_g(params.ang_l_to_g),
+  m_pos_e_in_g(params.pos_e_in_g),
+  m_ang_l_to_e(params.ang_l_to_e),
   m_augmenting_type(params.augmenting_type),
   m_augmenting_delta_time(params.augmenting_delta_time),
   m_augmenting_pos_error(params.augmenting_pos_error),
@@ -58,8 +58,12 @@ EKF::EKF(Parameters params)
   body_header << "time";
   body_header << EnumerateHeader("body_pos", 3);
   body_header << EnumerateHeader("body_vel", 3);
+  body_header << EnumerateHeader("body_acc", 3);
   body_header << EnumerateHeader("body_ang_pos", 4);
+  body_header << EnumerateHeader("body_ang_vel", 3);
+  body_header << EnumerateHeader("body_ang_acc", 3);
   body_header << EnumerateHeader("body_cov", g_body_state_size);
+  body_header << ",state_size";
   body_header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(body_header.str());
@@ -105,8 +109,12 @@ void EKF::LogBodyStateIfNeeded(int execution_count)
     msg << m_current_time;
     msg << VectorToCommaString(m_state.body_state.pos_b_in_l);
     msg << VectorToCommaString(m_state.body_state.vel_b_in_l);
+    msg << VectorToCommaString(m_state.body_state.acc_b_in_l);
     msg << QuaternionToCommaString(m_state.body_state.ang_b_to_l);
+    msg << VectorToCommaString(m_state.body_state.ang_vel_b_in_l);
+    msg << VectorToCommaString(m_state.body_state.ang_acc_b_in_l);
     msg << VectorToCommaString(body_cov);
+    msg << "," << m_state_size;
     msg << "," << execution_count;
     m_data_logger.RateLimitedLog(msg.str(), m_current_time);
   }
@@ -139,21 +147,21 @@ void EKF::PredictModel(double time)
     double dT = time - m_current_time;
 
     Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
-    Eigen::Vector3d acc_in_b = m_imu_filter.GetAcc();
-    Eigen::Vector3d ang_vel_in_b = m_imu_filter.GetAngVel();
+    Eigen::Vector3d acc_b_in_l = m_state.body_state.acc_b_in_l;
+    Eigen::Vector3d ang_vel_in_b = m_state.body_state.ang_vel_b_in_l;
 
     Eigen::Vector3d acceleration_local;
     if (m_is_zero_acceleration) {
       acceleration_local = Eigen::Vector3d::Zero();
     } else {
-      acceleration_local = (ang_b_to_l * acc_in_b) - g_gravity;
+      acceleration_local = acc_b_in_l - g_gravity;
     }
 
     Eigen::Vector3d rot_vec(ang_vel_in_b[0] * dT, ang_vel_in_b[1] * dT, ang_vel_in_b[2] * dT);
 
     m_state.body_state.vel_b_in_l += dT * acceleration_local;
     m_state.body_state.pos_b_in_l += dT * m_state.body_state.vel_b_in_l;
-    m_state.body_state.ang_b_to_l = m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec);
+    m_state.body_state.ang_b_to_l = RotVecToQuat(rot_vec) * m_state.body_state.ang_b_to_l;
 
     Eigen::MatrixXd F = GetStateTransition(dT);
     unsigned int alt_size = m_state_size - g_body_state_size;
@@ -275,7 +283,6 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
   }
 
   RefreshIndices();
-  m_imu_filter.SetImuCount(m_state.imu_states.size());
 
   std::stringstream log_msg;
   log_msg << "Register IMU: " << imu_id << ", stateSize: " << m_state_size;
@@ -376,43 +383,48 @@ Eigen::MatrixXd EKF::AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int inde
 
   Eigen::MatrixXd out_cov = Eigen::MatrixXd::Zero(out_rows, out_cols);
 
-  // Top Left
-  out_cov.block(0, 0, index, index) = in_cov.block(0, 0, index, index);
+  if (m_use_root_covariance) {
+    // Left
+    out_cov.block(0, 0, index, index) = in_cov.block(0, 0, index, index);
 
-  // Top Right
-  out_cov.block(0, index + g_aug_state_size, index, in_cols - index) =
-    in_cov.block(0, index, index, in_cols - index);
+    // Middle
+    out_cov.block<3, 3>(0, index) = in_cov.block<3, 3>(0, 0);
+    out_cov.block<12, 3>(0, index + 3) = in_cov.block<12, 3>(0, 9);
 
-  // Bottom Left
-  if (!m_use_root_covariance) {
+    // Right
+    out_cov.block(0, index + g_aug_state_size, in_rows, in_cols - index) =
+      in_cov.block(0, index, in_rows, in_cols - index);
+  } else {
+    // Top-Left
+    out_cov.block(0, 0, index, index) = in_cov.block(0, 0, index, index);
+
+    // Top-Right
+    out_cov.block(0, index + g_aug_state_size, index, in_cols - index) =
+      in_cov.block(0, index, index, in_cols - index);
+
+    // Bottom-Left
     out_cov.block(index + g_aug_state_size, 0, in_rows - index, index) =
       in_cov.block(index, 0, in_rows - index, index);
-  }
 
-  // Bottom Right
-  out_cov.block(
-    index + g_aug_state_size, index + g_aug_state_size, in_rows - index, in_cols - index) =
-    in_cov.block(index, index, in_rows - index, in_cols - index);
+    // Bottom-Right
+    out_cov.block(
+      index + g_aug_state_size, index + g_aug_state_size, in_rows - index, in_cols - index) =
+      in_cov.block(index, index, in_rows - index, in_cols - index);
 
-  // Copy Rows
-  if (!m_use_root_covariance) {
+    // Top Middle
+    out_cov.block(0, index + 0, index, 3) = in_cov.block(0, 0, index, 3);
+    out_cov.block(0, index + 3, index, 3) = in_cov.block(0, 9, index, 3);
+
+    // Bottom Middle
+    out_cov.block(index + g_aug_state_size, index + 0, in_rows - index, 3) =
+      in_cov.block(index, 0, in_rows - index, 3);
+    out_cov.block(index + g_aug_state_size, index + 3, in_rows - index, 3) =
+      in_cov.block(index, 9, in_rows - index, 3);
+
+    // Middle rows
     out_cov.block(index + 0, 0, 3, out_cols) = out_cov.block(0, 0, 3, out_cols);
-    out_cov.block(index + 3, 0, 3, out_cols) = out_cov.block(6, 0, 3, out_cols);
+    out_cov.block(index + 3, 0, 3, out_cols) = out_cov.block(9, 0, 3, out_cols);
   }
-
-  // Copy Columns
-  out_cov.block(0, index + 0, out_rows, 3) = out_cov.block(0, 0, out_rows, 3);
-  out_cov.block(0, index + 3, out_rows, 3) = out_cov.block(0, 6, out_rows, 3);
-
-  // Copy diagonal variances
-  out_cov.block(index + 0, index + 0, 3, 3) = out_cov.block(0, 0, 3, 3);
-  out_cov.block(index + 3, index + 3, 3, 3) = out_cov.block(6, 6, 3, 3);
-
-  // Copy cross-covariances
-  if (!m_use_root_covariance) {out_cov.block(index + 0, 0, 3, 3) = out_cov.block(0, 0, 3, 3);}
-  if (!m_use_root_covariance) {out_cov.block(index + 3, 6, 3, 3) = out_cov.block(6, 6, 3, 3);}
-  out_cov.block(0, index + 0, 3, 3) = out_cov.block(0, 0, 3, 3);
-  out_cov.block(6, index + 3, 3, 3) = out_cov.block(6, 6, 3, 3);
 
   return out_cov;
 }
@@ -420,6 +432,7 @@ Eigen::MatrixXd EKF::AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int inde
 void EKF::AugmentStateIfNeeded()
 {
   if (
+    m_augmenting_type == AugmentationType::NONE ||
     m_augmenting_type == AugmentationType::ALL ||
     m_augmenting_type == AugmentationType::PRIMARY)
   {
@@ -440,17 +453,17 @@ void EKF::AugmentStateIfNeeded()
     } else if ((m_current_time - m_state.aug_states[0].back().time) > m_min_aug_period) {
       AugState last_aug = m_state.aug_states[0].back();
       double delta_time = m_current_time - last_aug.time;
-      Eigen::Vector3d ang_vel_in_b = m_imu_filter.GetAngVel();
-      Eigen::Vector3d ang_acc_in_b = m_imu_filter.GetAngAcc();
+      Eigen::Vector3d ang_vel_b_in_l = m_state.body_state.ang_vel_b_in_l;
+      Eigen::Vector3d ang_acc_b_in_l = m_state.body_state.ang_acc_b_in_l;
 
       Eigen::Vector3d delta_pos = m_state.body_state.pos_b_in_l -
         delta_time * m_state.body_state.vel_b_in_l -
         last_aug.pos_b_in_l;
 
       Eigen::Vector3d rot_vec(
-        ang_vel_in_b[0] * delta_time + ang_acc_in_b[0] * 0.5 * delta_time * delta_time,
-        ang_vel_in_b[1] * delta_time + ang_acc_in_b[1] * 0.5 * delta_time * delta_time,
-        ang_vel_in_b[2] * delta_time + ang_acc_in_b[2] * 0.5 * delta_time * delta_time);
+        ang_vel_b_in_l[0] * delta_time,
+        ang_vel_b_in_l[1] * delta_time,
+        ang_vel_b_in_l[2] * delta_time);
 
       Eigen::Quaterniond delta_ang =
         m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec).inverse() *
@@ -618,10 +631,10 @@ void EKF::SetMaxTrackLength(unsigned int max_track_length)
   m_max_track_duration = m_max_frame_period * m_max_track_length;
 }
 
-void EKF::SetGpsReference(Eigen::VectorXd pos_l_in_g, double ang_l_to_g)
+void EKF::SetGpsReference(Eigen::VectorXd pos_e_in_g, double ang_l_to_e)
 {
-  m_pos_l_in_g = pos_l_in_g;
-  m_ang_l_to_g = ang_l_to_g;
+  m_pos_e_in_g = pos_e_in_g;
+  m_ang_l_to_e = ang_l_to_e;
   m_is_lla_initialized = true;
 }
 
@@ -635,12 +648,12 @@ Eigen::VectorXd EKF::GetReferenceLLA()
   if (!m_is_lla_initialized) {
     m_debug_logger->Log(LogLevel::WARN, "LLA is being accessed before initialization!");
   }
-  return m_pos_l_in_g;
+  return m_pos_e_in_g;
 }
 
 double EKF::GetReferenceAngle()
 {
-  return m_ang_l_to_g;
+  return m_ang_l_to_e;
 }
 
 bool EKF::IsLlaInitialized()
@@ -775,11 +788,11 @@ void EKF::AttemptGpsInitialization(
       (ang_stddev < std::tan(m_gps_init_ang_thresh))))
     {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
-      Eigen::Vector3d reference_lla = enu_to_lla(-delta_ref_enu, init_ref_lla);
-      double ang_l_to_g = affine_angle(transformation);
+      Eigen::Vector3d pos_e_in_g = enu_to_lla(-delta_ref_enu, init_ref_lla);
+      double ang_l_to_e = affine_angle(transformation);
 
       m_debug_logger->Log(LogLevel::INFO, "GPS Updater Initialized");
-      SetGpsReference(reference_lla, ang_l_to_g);
+      SetGpsReference(pos_e_in_g, ang_l_to_e);
     }
   }
 }

@@ -61,9 +61,10 @@ TEST(test_feature_tracker, initialization) {
 
 TEST(test_feature_tracker, track) {
   EKF::Parameters ekf_params;
-  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::INFO, "");
+  ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   auto ekf = std::make_shared<EKF>(ekf_params);
   BodyState body_state_init;
+  body_state_init.vel_b_in_l[1] = 0.1;
   ekf->Initialize(0.0, body_state_init);
 
   IMU::Parameters imu_params;

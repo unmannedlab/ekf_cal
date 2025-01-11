@@ -43,7 +43,7 @@
                                 }
                             }
                         },
-                        "pos_l_in_g": {
+                        "pos_e_in_g": {
                             "type": "array",
                             "items": {
                                 "type": "number"
@@ -51,7 +51,7 @@
                             "minItems": 3,
                             "maxItems": 3
                         },
-                        "ang_l_to_g": {
+                        "ang_l_to_e": {
                             "type": "number"
                         },
                         "gps_init_type": {
@@ -158,7 +158,7 @@
                                     "minItems": 3,
                                     "maxItems": 3
                                 },
-                                "pos_l_in_g_error": {
+                                "pos_e_in_g_error": {
                                     "type": "array",
                                     "items": {
                                         "type": "number"
@@ -166,7 +166,7 @@
                                     "minItems": 3,
                                     "maxItems": 3
                                 },
-                                "ang_l_to_g_error": {
+                                "ang_l_to_e_error": {
                                     "type": "number"
                                 },
                                 "pos_b_in_l_error": {

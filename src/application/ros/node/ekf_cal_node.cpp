@@ -66,15 +66,15 @@ EkfCalNode::EkfCalNode()
   declare_parameter("process_noise.ang_pos", 1.0e-2);
   declare_parameter("pos_b_in_l", std::vector<double>{0, 0, 0});
   declare_parameter("ang_b_to_l", std::vector<double>{0, 0, 0, 0});
-  declare_parameter("pos_l_in_g", std::vector<double>{0, 0, 0});
-  declare_parameter("ang_l_to_g", 0.0);
+  declare_parameter("pos_e_in_g", std::vector<double>{0, 0, 0});
+  declare_parameter("ang_l_to_e", 0.0);
   declare_parameter("gps_init_type", 0);
   declare_parameter("gps_init_baseline_dist", 1.0);
   declare_parameter("gps_init_pos_thresh", 1.0);
   declare_parameter("gps_init_ang_thresh", 1.0);
   declare_parameter("motion_detection_chi_squared", 1.0);
   declare_parameter("imu_noise_scale_factor", 100.0);
-  declare_parameter("use_root_covariance", false);
+  declare_parameter("use_root_covariance", true);
   declare_parameter("use_first_estimate_jacobian", false);
 
   // Declare Sensor Lists
@@ -112,8 +112,8 @@ void EkfCalNode::Initialize()
   ekf_params.process_noise = LoadProcessNoise();
   ekf_params.pos_b_in_l = StdToEigVec(get_parameter("pos_b_in_l").as_double_array());
   ekf_params.ang_b_to_l = StdToEigQuat(get_parameter("ang_b_to_l").as_double_array());
-  ekf_params.pos_l_in_g = StdToEigVec(get_parameter("pos_l_in_g").as_double_array());
-  ekf_params.ang_l_to_g = get_parameter("ang_l_to_g").as_double();
+  ekf_params.pos_e_in_g = StdToEigVec(get_parameter("pos_e_in_g").as_double_array());
+  ekf_params.ang_l_to_e = get_parameter("ang_l_to_e").as_double();
   ekf_params.gps_init_type = static_cast<GpsInitType>(get_parameter("gps_init_type").as_int());
   ekf_params.gps_init_baseline_dist = get_parameter("gps_init_baseline_dist").as_double();
   ekf_params.gps_init_pos_thresh = get_parameter("gps_init_pos_thresh").as_double();
