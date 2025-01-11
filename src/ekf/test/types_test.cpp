@@ -492,9 +492,9 @@ TEST(test_ekf_types, body_state_to_vector) {
   EXPECT_EQ(state_vector(4), 2.0);
   EXPECT_EQ(state_vector(5), 2.0);
 
-  EXPECT_EQ(state_vector(6), 0.0);
-  EXPECT_EQ(state_vector(7), 0.0);
-  EXPECT_EQ(state_vector(8), 0.0);
+  EXPECT_EQ(state_vector(6), g_gravity(0));
+  EXPECT_EQ(state_vector(7), g_gravity(1));
+  EXPECT_EQ(state_vector(8), g_gravity(2));
 }
 
 TEST(test_ekf_types, cam_state_to_vector) {

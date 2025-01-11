@@ -367,17 +367,18 @@ void MsckfUpdater::UpdateEKF(
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
   // Write outputs
-  Eigen::VectorXd cov_diag = ekf->m_cov.block(
-    cam_index, cam_index, g_cam_extrinsic_state_size, g_cam_extrinsic_state_size).diagonal();
-  if (ekf->GetUseRootCovariance()) {
-    cov_diag = cov_diag.cwiseProduct(cov_diag);
-  }
-
   std::stringstream msg;
   msg << time;
   msg << VectorToCommaString(ekf->m_state.cam_states[m_id].pos_c_in_b);
   msg << QuaternionToCommaString(ekf->m_state.cam_states[m_id].ang_c_to_b);
-  if (m_is_cam_extrinsic) {msg << VectorToCommaString(cov_diag);}
+  if (m_is_cam_extrinsic) {
+    Eigen::VectorXd cov_diag = ekf->m_cov.block(
+      cam_index, cam_index, g_cam_extrinsic_state_size, g_cam_extrinsic_state_size).diagonal();
+    if (ekf->GetUseRootCovariance()) {
+      cov_diag = cov_diag.cwiseProduct(cov_diag);
+    }
+    msg << VectorToCommaString(cov_diag);
+  }
   msg << "," << std::to_string(feature_tracks.size());
   msg << "," << t_execution.count();
   m_msckf_logger.RateLimitedLog(msg.str(), time);

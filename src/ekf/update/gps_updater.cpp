@@ -126,8 +126,7 @@ void GpsUpdater::UpdateEKF(
     msg << VectorToCommaString(ekf->m_state.gps_states[m_id].pos_a_in_b);
     unsigned int gps_index = ekf->m_state.gps_states[m_id].index;
     Eigen::VectorXd cov_diag = ekf->m_cov.block(
-      gps_index, gps_index, g_gps_extrinsic_state_size,
-      g_gps_extrinsic_state_size).diagonal();
+      gps_index, gps_index, g_gps_extrinsic_state_size, g_gps_extrinsic_state_size).diagonal();
     if (ekf->GetUseRootCovariance()) {
       cov_diag = cov_diag.cwiseProduct(cov_diag);
     }

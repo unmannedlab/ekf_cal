@@ -152,24 +152,23 @@ void FiducialUpdater::UpdateEKF(
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
-  Eigen::Vector3d cam_pos = ekf->m_state.cam_states[m_camera_id].pos_c_in_b;
-  Eigen::Quaterniond cam_ang = ekf->m_state.cam_states[m_camera_id].ang_c_to_b;
-  Eigen::VectorXd cov_diag = ekf->m_cov.block(
-    cam_index, cam_index, g_cam_extrinsic_state_size, g_cam_extrinsic_state_size).diagonal();
-  if (ekf->GetUseRootCovariance()) {
-    cov_diag = cov_diag.cwiseProduct(cov_diag);
-  }
-
   // Write outputs
   std::stringstream msg;
   msg << time;
   msg << "," << m_id;
   msg << VectorToCommaString(pos_measured);
   msg << QuaternionToCommaString(ang_measured);
-  msg << VectorToCommaString(cam_pos);
-  msg << QuaternionToCommaString(cam_ang);
+  msg << VectorToCommaString(ekf->m_state.cam_states[m_camera_id].pos_c_in_b);
+  msg << QuaternionToCommaString(ekf->m_state.cam_states[m_camera_id].ang_c_to_b);
   msg << VectorToCommaString(res);
-  if (m_is_cam_extrinsic) {msg << VectorToCommaString(cov_diag);}
+  if (m_is_cam_extrinsic) {
+    Eigen::VectorXd cov_diag = ekf->m_cov.block(
+      cam_index, cam_index, g_cam_extrinsic_state_size, g_cam_extrinsic_state_size).diagonal();
+    if (ekf->GetUseRootCovariance()) {
+      cov_diag = cov_diag.cwiseProduct(cov_diag);
+    }
+    msg << VectorToCommaString(cov_diag);
+  }
   msg << "," << t_execution.count();
   m_fiducial_logger.RateLimitedLog(msg.str(), time);
 }
