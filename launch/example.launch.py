@@ -30,7 +30,7 @@ def generate_launch_description():
     config_file = os.path.join(this_dir, 'config', 'example.yaml')
     log_directory_arg = DeclareLaunchArgument(
         'log_directory',
-        default_value=os.path.join(this_dir, 'config', 'example', os.sep)
+        default_value=os.path.join(this_dir, 'config', 'example', '')
     )
 
     start_ekf_cal_node_cmd = Node(
