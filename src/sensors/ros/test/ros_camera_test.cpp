@@ -51,7 +51,7 @@ TEST(test_ros_camera, ros_camera_callback) {
   auto ekf = std::make_shared<EKF>(ekf_params);
   auto image_message = std::make_shared<sensor_msgs::msg::Image>();
   image_message->encoding = "bgr8";
-  cv::Mat img = cv::Mat::zeros(cv::Size(640, 480), CV_8UC3);
+  cv::Mat img = cv::Mat::zeros(cv::Size(640, 480), CV_8UC1);
   cv_bridge::CvImage cv_image_bridge;
 
   auto ros_camera_message = std::make_shared<RosCameraMessage>(image_message);

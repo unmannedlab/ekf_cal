@@ -67,7 +67,7 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
       unsigned int frameID = GenerateFrameID();
 
       m_ekf->AugmentStateIfNeeded(m_id, frameID);
-      cv::cvtColor(camera_message->image, m_out_img, cv::COLOR_BayerGR2RGB);
+      cv::cvtColor(camera_message->image, m_out_img, cv::COLOR_GRAY2RGB);
 
       if (!m_trackers.empty()) {
         for (auto const & track_iter : m_trackers) {

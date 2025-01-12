@@ -80,7 +80,7 @@ public:
   ///
   void Callback(std::shared_ptr<CameraMessage> camera_message);
 
-  cv::Mat m_out_img;           ///< @brief Published output test image
+  cv::Mat m_out_img{0, 0, CV_8UC1};  ///< @brief Published output test image
 
 protected:
   unsigned int GenerateFrameID();

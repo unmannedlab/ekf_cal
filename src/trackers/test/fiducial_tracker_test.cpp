@@ -55,16 +55,10 @@ TEST(test_fiducial_tracker, charuco_track) {
   cam.AddFiducial(fid_tracker);
 
   auto board = fid_tracker->m_board.staticCast<cv::aruco::CharucoBoard>();
-  cv::Mat board_grey, board_rgb;
-  board->draw(cv::Size(600, 800), board_grey, 10, 1);
+  cv::Mat board_img;
+  board->draw(cv::Size(600, 800), board_img, 10, 1);
 
-  std::vector<cv::Mat> channels;
-  channels.push_back(board_grey);
-  channels.push_back(board_grey);
-  channels.push_back(board_grey);
-  cv::merge(channels, board_rgb);
-
-  auto cam_msg = std::make_shared<CameraMessage>(board_rgb);
+  auto cam_msg = std::make_shared<CameraMessage>(board_img);
   cam.Callback(cam_msg);
 
   cv::imwrite("../../src/ekf_cal/src/trackers/test/images/charuco_track.png", cam.m_out_img);
@@ -101,17 +95,11 @@ TEST(test_fiducial_tracker, aruco_track) {
 
   cam.AddFiducial(fid_tracker);
 
-  cv::Mat board_grey, board_rgb;
+  cv::Mat board_img;
   auto board = fid_tracker->m_board.staticCast<cv::aruco::GridBoard>();
-  board->draw(cv::Size(600, 800), board_grey, 10, 1);
+  board->draw(cv::Size(600, 800), board_img, 10, 1);
 
-  std::vector<cv::Mat> channels;
-  channels.push_back(board_grey);
-  channels.push_back(board_grey);
-  channels.push_back(board_grey);
-  cv::merge(channels, board_rgb);
-
-  auto cam_msg = std::make_shared<CameraMessage>(board_rgb);
+  auto cam_msg = std::make_shared<CameraMessage>(board_img);
   cam.Callback(cam_msg);
 
   cv::imwrite("../../src/ekf_cal/src/trackers/test/images/aruco_track.png", cam.m_out_img);
