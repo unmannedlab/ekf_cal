@@ -197,7 +197,6 @@ void EkfCalNode::LoadSensors()
   }
 
   // Create publishers
-  m_img_publisher = create_publisher<sensor_msgs::msg::Image>("~/OutImg", 10);
   m_body_state_pub = create_publisher<std_msgs::msg::Float64MultiArray>("~/BodyState", 10);
   m_imu_state_pub = create_publisher<std_msgs::msg::Float64MultiArray>("~/ImuState", 10);
 }
@@ -496,6 +495,7 @@ void EkfCalNode::LoadCamera(std::string camera_name)
     std::shared_ptr<FeatureTracker> trk_ptr = std::make_shared<FeatureTracker>(trk_params);
     camera_ptr->AddTracker(trk_ptr);
   }
+
   if (!camera_params.fiducial.empty()) {
     FiducialTracker::Parameters fid_params = GetFiducialParameters(camera_params.fiducial);
     fid_params.camera_id = camera_ptr->GetId();
@@ -506,6 +506,10 @@ void EkfCalNode::LoadCamera(std::string camera_name)
 
   // Create new RosCamera and bind callback to ID
   RegisterCamera(camera_ptr, camera_params.topic);
+
+  // Create image re-publisher
+  m_map_image_publishers[camera_ptr->GetId()] =
+    create_publisher<sensor_msgs::msg::Image>("~/" + camera_name, 10);
 }
 
 void EkfCalNode::RegisterCamera(std::shared_ptr<RosCamera> camera_ptr, std::string topic)
@@ -566,7 +570,7 @@ void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, un
     auto ros_camera_message = std::make_shared<RosCameraMessage>(msg);
     ros_camera_message->sensor_id = id;
     ros_cam_iter->second->Callback(ros_camera_message);
-    m_img_publisher->publish(*ros_cam_iter->second->GetRosImage().get());
+    m_map_image_publishers[id]->publish(*ros_cam_iter->second->GetRosImage().get());
   } else {
     m_debug_logger->Log(LogLevel::WARN, "Camera ID Not Found: " + std::to_string(id));
   }

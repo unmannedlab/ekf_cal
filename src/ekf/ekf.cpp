@@ -146,7 +146,6 @@ void EKF::PredictModel(double time)
   if (m_is_gravity_initialized) {
     double dT = time - m_current_time;
 
-    Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
     Eigen::Vector3d acc_b_in_l = m_state.body_state.acc_b_in_l;
     Eigen::Vector3d ang_vel_in_b = m_state.body_state.ang_vel_b_in_l;
 
@@ -454,7 +453,6 @@ void EKF::AugmentStateIfNeeded()
       AugState last_aug = m_state.aug_states[0].back();
       double delta_time = m_current_time - last_aug.time;
       Eigen::Vector3d ang_vel_b_in_l = m_state.body_state.ang_vel_b_in_l;
-      Eigen::Vector3d ang_acc_b_in_l = m_state.body_state.ang_acc_b_in_l;
 
       Eigen::Vector3d delta_pos = m_state.body_state.pos_b_in_l -
         delta_time * m_state.body_state.vel_b_in_l -

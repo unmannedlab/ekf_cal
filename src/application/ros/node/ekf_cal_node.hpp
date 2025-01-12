@@ -255,7 +255,6 @@ private:
   std::vector<std::string> m_fiducial_list {};
   std::vector<std::string> m_gps_list {};
 
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_img_publisher;
   rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_body_state_pub;
   rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr m_imu_state_pub;
   rclcpp::TimerBase::SharedPtr m_state_pub_timer;
@@ -267,6 +266,8 @@ private:
   std::map<unsigned int, std::shared_ptr<RosIMU>> m_map_imu{};
   std::map<unsigned int, std::shared_ptr<RosCamera>> m_map_camera{};
   std::map<unsigned int, std::shared_ptr<RosGPS>> m_map_gps{};
+  std::map<unsigned int,
+    std::shared_ptr<rclcpp::Publisher<sensor_msgs::msg::Image>>> m_map_image_publishers{};
 
   std::string m_log_directory{"~/log/"};
 };
