@@ -67,17 +67,22 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
       unsigned int frameID = GenerateFrameID();
 
       m_ekf->AugmentStateIfNeeded(m_id, frameID);
+      cv::cvtColor(camera_message->image, m_out_img, cv::COLOR_BayerGR2RGB);
 
-      for (auto const & track_iter : m_trackers) {
-        m_trackers[track_iter.first]->Track(
-          camera_message->time, frameID, camera_message->image, m_out_img);
-        /// @todo Undistort points post track?
-        // cv::undistortPoints();
+      if (!m_trackers.empty()) {
+        for (auto const & track_iter : m_trackers) {
+          m_trackers[track_iter.first]->Track(
+            camera_message->time, frameID, camera_message->image, m_out_img);
+          /// @todo Undistort points post track?
+          // cv::undistortPoints();
+        }
       }
 
-      for (auto const & fiducial_iter : m_fiducials) {
-        m_fiducials[fiducial_iter.first]->Track(
-          camera_message->time, frameID, camera_message->image, m_out_img);
+      if (!m_fiducials.empty()) {
+        for (auto const & fiducial_iter : m_fiducials) {
+          m_fiducials[fiducial_iter.first]->Track(
+            camera_message->time, frameID, camera_message->image, m_out_img);
+        }
       }
     } else {
       m_logger->Log(LogLevel::WARN, "Camera has no trackers ");
