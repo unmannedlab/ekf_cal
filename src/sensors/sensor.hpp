@@ -40,7 +40,7 @@ public:
     std::string topic {""};               ///< @brief Topic
     double rate{1.0};                     ///< @brief Update rate
     double data_log_rate {0.0};           ///< @brief Data logging rate
-    std::string output_directory {""};    ///< @brief Data logging directory
+    std::string log_directory {""};       ///< @brief Data logging directory
     std::shared_ptr<DebugLogger> logger;  ///< @brief Debug logger
     std::shared_ptr<EKF> ekf;             ///< @brief EKF to update
   } Parameters;

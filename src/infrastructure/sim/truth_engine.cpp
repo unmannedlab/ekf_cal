@@ -211,9 +211,9 @@ TruthEngine::~TruthEngine() {}
 
 void TruthEngine::WriteTruthData(
   double data_log_rate,
-  std::string output_directory)
+  std::string log_directory)
 {
-  DataLogger truth_logger(output_directory, "body_truth.csv");
+  DataLogger truth_logger(log_directory, "body_truth.csv");
   truth_logger.EnableLogging();
 
   std::stringstream header;
@@ -284,7 +284,7 @@ void TruthEngine::WriteTruthData(
     truth_logger.Log(msg.str());
   }
 
-  DataLogger board_logger(output_directory, "board_truth.csv");
+  DataLogger board_logger(log_directory, "board_truth.csv");
   board_logger.EnableLogging();
   board_logger.DefineHeader("board,pos_x,pos_y,pos_z,quat_w,quat_x,quat_y,quat_z");
 
@@ -296,7 +296,7 @@ void TruthEngine::WriteTruthData(
     board_logger.Log(msg.str());
   }
 
-  DataLogger feature_logger(output_directory, "feature_points.csv");
+  DataLogger feature_logger(log_directory, "feature_points.csv");
   feature_logger.EnableLogging();
   feature_logger.DefineHeader("Feature,x,y,z");
 

@@ -39,16 +39,16 @@ public:
   ///
   /// @brief DebugLogger Constructor
   /// @param log_level Logging Level
-  /// @param output_directory Output directory
+  /// @param log_directory Output directory
   ///
-  DebugLogger(LogLevel log_level, std::string output_directory);
+  DebugLogger(LogLevel log_level, std::string log_directory);
 
   ///
   /// @brief DebugLogger Constructor
   /// @param log_level Logging Level
-  /// @param output_directory Output directory
+  /// @param log_directory Output directory
   ///
-  DebugLogger(unsigned int log_level, std::string output_directory);
+  DebugLogger(unsigned int log_level, std::string log_directory);
 
   ///
   /// @brief Log message
@@ -71,7 +71,7 @@ public:
 
 private:
   LogLevel m_log_level;
-  std::string m_output_directory;
+  std::string m_log_directory;
   std::string m_log_level_names[5] = {"FATAL", "ERROR", "WARN ", "INFO ", "DEBUG"};
 };
 

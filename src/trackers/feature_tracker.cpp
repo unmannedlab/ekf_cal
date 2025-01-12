@@ -37,7 +37,7 @@ FeatureTracker::FeatureTracker(FeatureTracker::Parameters params)
   m_msckf_updater(
     params.camera_id,
     params.is_cam_extrinsic,
-    params.output_directory,
+    params.log_directory,
     params.data_log_rate,
     params.min_feat_dist,
     params.logger

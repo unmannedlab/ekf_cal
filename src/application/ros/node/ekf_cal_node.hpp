@@ -268,7 +268,7 @@ private:
   std::map<unsigned int, std::shared_ptr<RosCamera>> m_map_camera{};
   std::map<unsigned int, std::shared_ptr<RosGPS>> m_map_gps{};
 
-  std::string m_output_directory{"~/log/"};
+  std::string m_log_directory{"~/log/"};
 };
 
 #endif  // APPLICATION__ROS__NODE__EKF_CAL_NODE_HPP_

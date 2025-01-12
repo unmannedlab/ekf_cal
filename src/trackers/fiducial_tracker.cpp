@@ -29,7 +29,7 @@ FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
     params.id,
     params.camera_id,
     params.is_cam_extrinsic,
-    params.output_directory,
+    params.log_directory,
     params.data_log_rate,
     params.logger
   ),

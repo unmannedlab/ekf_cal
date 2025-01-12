@@ -55,6 +55,7 @@ EkfCalNode::EkfCalNode()
 : Node("EkfCalNode")
 {
   // Declare EKF Parameters
+  declare_parameter("log_directory", "~/log/");
   declare_parameter("debug_log_level", 0);
   declare_parameter("data_log_rate", 0.0);
   declare_parameter("augmenting_type", 0);
@@ -93,17 +94,19 @@ void EkfCalNode::Initialize()
   // Set logging
   auto debug_log_level = static_cast<unsigned int>(get_parameter("debug_log_level").as_int());
   double data_log_rate = get_parameter("data_log_rate").as_double();
+  m_log_directory = get_parameter("log_directory").as_string();
 
-  m_debug_logger = std::make_shared<DebugLogger>(debug_log_level, "");
+  m_debug_logger = std::make_shared<DebugLogger>(debug_log_level, m_log_directory);
   if (data_log_rate) {m_state_data_logger.EnableLogging();}
-  m_state_data_logger.SetOutputDirectory(m_output_directory);
+  m_state_data_logger.SetOutputDirectory(m_log_directory);
   m_state_data_logger.SetOutputFileName("state_vector.csv");
   m_state_data_logger.DefineHeader("");
   m_debug_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
+  m_debug_logger->Log(LogLevel::INFO, "Log Directory: " + m_log_directory);
   EKF::Parameters ekf_params;
   ekf_params.debug_logger = m_debug_logger;
   ekf_params.data_log_rate = data_log_rate;
-  ekf_params.log_directory = m_output_directory;
+  ekf_params.log_directory = m_log_directory;
   ekf_params.augmenting_type =
     static_cast<AugmentationType>(get_parameter("augmenting_type").as_int());
   ekf_params.augmenting_delta_time = get_parameter("augmenting_delta_time").as_double();
@@ -171,7 +174,7 @@ void EkfCalNode::LoadSensorParameters(
   params.rate = get_parameter(prefix + ".rate").as_double();
   params.data_log_rate = get_parameter(prefix + ".data_log_rate").as_double();
   params.name = name;
-  params.output_directory = m_output_directory;
+  params.log_directory = m_log_directory;
   params.ekf = m_ekf;
   params.logger = m_debug_logger;
 }
@@ -369,6 +372,7 @@ FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_
   tracker_params.max_track_length = max_track_length;
   tracker_params.ekf = m_ekf;
   tracker_params.logger = m_debug_logger;
+  tracker_params.log_directory = m_log_directory;
   return tracker_params;
 }
 
@@ -422,6 +426,7 @@ FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(std::string fiduci
   fiducial_params.is_extrinsic = is_extrinsic;
   fiducial_params.ekf = m_ekf;
   fiducial_params.logger = m_debug_logger;
+  fiducial_params.log_directory = m_log_directory;
   return fiducial_params;
 }
 
@@ -581,6 +586,7 @@ void EkfCalNode::GpsCallback(const sensor_msgs::msg::NavSatFix::SharedPtr msg, u
 
 void EkfCalNode::PublishState()
 {
+  /// @todo Copy states before converting to vectors due to race conditions.
   // Body State
   Eigen::VectorXd body_state_vector = m_ekf->m_state.body_state.ToVector();
   auto body_state_vec_msg = std_msgs::msg::Float64MultiArray();
@@ -590,19 +596,19 @@ void EkfCalNode::PublishState()
   }
   m_body_state_pub->publish(body_state_vec_msg);
 
-  // IMU States
-  Eigen::VectorXd imu_state_vector = m_ekf->GetImuState(1).ToVector();
-  auto imu_state_vec_msg = std_msgs::msg::Float64MultiArray();
+  // // IMU States
+  // Eigen::VectorXd imu_state_vector = m_ekf->GetImuState(1).ToVector();
+  // auto imu_state_vec_msg = std_msgs::msg::Float64MultiArray();
 
-  for (auto & element : imu_state_vector) {
-    imu_state_vec_msg.data.push_back(element);
-  }
-  m_imu_state_pub->publish(imu_state_vec_msg);
+  // for (auto & element : imu_state_vector) {
+  //   imu_state_vec_msg.data.push_back(element);
+  // }
+  // m_imu_state_pub->publish(imu_state_vec_msg);
 
-  std::stringstream msg;
-  Eigen::VectorXd state_vector = m_ekf->m_state.ToVector();
-  msg << VectorToCommaString(state_vector);
-  m_state_data_logger.Log(msg.str());
+  // std::stringstream msg;
+  // Eigen::VectorXd state_vector = m_ekf->m_state.ToVector();
+  // msg << VectorToCommaString(state_vector);
+  // m_state_data_logger.Log(msg.str());
 }
 
 Eigen::VectorXd EkfCalNode::LoadProcessNoise()

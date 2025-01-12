@@ -37,7 +37,7 @@ public:
   {
     std::string name {""};                ///< @brief Feature Tracker name
     int camera_id{-1};                    ///< @brief Associated sensor ID
-    std::string output_directory {""};    ///< @brief Feature Tracker data logging directory
+    std::string log_directory {""};       ///< @brief Feature Tracker data logging directory
     Intrinsics intrinsics;                ///< @brief Camera intrinsic parameters
     unsigned int min_track_length{2};     ///< @brief Minimum track length to consider
     unsigned int max_track_length{20};    ///< @brief Maximum track length before forced output
