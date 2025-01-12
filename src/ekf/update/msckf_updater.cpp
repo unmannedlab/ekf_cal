@@ -68,7 +68,7 @@ MsckfUpdater::MsckfUpdater(
 }
 
 bool MsckfUpdater::TriangulateFeature(
-  double time,
+  double local_time,
   std::shared_ptr<EKF> ekf,
   FeatureTrack & feature_track,
   Eigen::Vector3d & pos_f_in_l)
@@ -142,10 +142,10 @@ bool MsckfUpdater::TriangulateFeature(
     pos_f_in_l_tri = rot_b0_to_l * (m_ang_c_to_b * pos_f_in_c0 + m_pos_c_in_b) + pos_b0_in_l;
 
     std::stringstream msg;
-    msg << std::setprecision(3) << time;
+    msg << std::setprecision(3) << local_time;
     msg << "," << std::to_string(feature_track.track[0].key_point.class_id);
     msg << VectorToCommaString(pos_f_in_l_tri);
-    m_triangulation_logger.RateLimitedLog(msg.str(), time);
+    m_triangulation_logger.RateLimitedLog(msg.str(), local_time);
     if (!m_use_true_triangulation) {
       pos_f_in_l = pos_f_in_l_tri;
     }
@@ -216,7 +216,8 @@ void MsckfUpdater::UpdateEKF(
   FeatureTracks feature_tracks,
   double px_error)
 {
-  ekf->PredictModel(time);
+  double local_time = ekf->CalculateLocalTime(time);
+  ekf->PredictModel(local_time);
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
@@ -257,7 +258,7 @@ void MsckfUpdater::UpdateEKF(
 
     // Get triangulated estimate of feature pos
     Eigen::Vector3d pos_f_in_l;
-    bool triangulation_successful = TriangulateFeature(time, ekf, feature_track, pos_f_in_l);
+    bool triangulation_successful = TriangulateFeature(local_time, ekf, feature_track, pos_f_in_l);
     if (!triangulation_successful) {
       continue;
     }
@@ -368,7 +369,7 @@ void MsckfUpdater::UpdateEKF(
 
   // Write outputs
   std::stringstream msg;
-  msg << time;
+  msg << local_time;
   msg << VectorToCommaString(ekf->m_state.cam_states[m_id].pos_c_in_b);
   msg << QuaternionToCommaString(ekf->m_state.cam_states[m_id].ang_c_to_b);
   if (m_is_cam_extrinsic) {
@@ -381,5 +382,5 @@ void MsckfUpdater::UpdateEKF(
   }
   msg << "," << std::to_string(feature_tracks.size());
   msg << "," << t_execution.count();
-  m_msckf_logger.RateLimitedLog(msg.str(), time);
+  m_msckf_logger.RateLimitedLog(msg.str(), local_time);
 }

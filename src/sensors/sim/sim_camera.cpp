@@ -109,7 +109,8 @@ void SimCamera::AddFiducial(std::shared_ptr<SimFiducialTracker> fiducial)
 
 void SimCamera::Callback(std::shared_ptr<SimCameraMessage> sim_camera_message)
 {
-  m_ekf->PredictModel(sim_camera_message->time);
+  double local_time = m_ekf->CalculateLocalTime(sim_camera_message->time);
+  m_ekf->PredictModel(local_time);
   m_ekf->AugmentStateIfNeeded(m_id, sim_camera_message->frame_id);
 
   for (auto feature_track_message : sim_camera_message->feature_track_messages) {

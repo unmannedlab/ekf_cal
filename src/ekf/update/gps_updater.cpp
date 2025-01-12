@@ -77,8 +77,8 @@ void GpsUpdater::UpdateEKF(
   std::shared_ptr<EKF> ekf, double time, Eigen::Vector3d gps_lla, Eigen::MatrixXd pos_covariance)
 {
   auto t_start = std::chrono::high_resolution_clock::now();
-
-  ekf->PredictModel(time);
+  double local_time = ekf->CalculateLocalTime(time);
+  ekf->PredictModel(local_time);
 
   if (!ekf->GetUseFirstEstimateJacobian() || m_is_first_estimate) {
     m_pos_a_in_b = ekf->m_state.gps_states[m_id].pos_a_in_b;
@@ -91,7 +91,7 @@ void GpsUpdater::UpdateEKF(
   double ang_l_to_e = ekf->GetReferenceAngle();
   if (!ekf->IsLlaInitialized()) {
     m_logger->Log(LogLevel::INFO, "GPS Updater Attempt Initialization");
-    ekf->AttemptGpsInitialization(time, gps_lla);
+    ekf->AttemptGpsInitialization(local_time, gps_lla);
     if (ekf->IsLlaInitialized()) {
       // Perform single update with compressed measurements
       MultiUpdateEKF(ekf);
@@ -116,7 +116,7 @@ void GpsUpdater::UpdateEKF(
 
   // Write outputs
   std::stringstream msg;
-  msg << time;
+  msg << local_time;
   msg << VectorToCommaString(gps_lla, 12);
   msg << VectorToCommaString(pos_a_in_l);
   msg << VectorToCommaString(pos_e_in_g, 12);

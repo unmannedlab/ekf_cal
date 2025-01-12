@@ -128,14 +128,18 @@ void EkfCalNode::Initialize()
     get_parameter("use_first_estimate_jacobian").as_bool();
   ekf_params.imu_noise_scale_factor = get_parameter("imu_noise_scale_factor").as_double();
 
-  m_ekf = std::make_shared<EKF>(ekf_params);
-
   // Load lists of sensors
   m_imu_list = get_parameter("imu_list").as_string_array();
   m_camera_list = get_parameter("camera_list").as_string_array();
   m_tracker_list = get_parameter("tracker_list").as_string_array();
   m_fiducial_list = get_parameter("fiducial_list").as_string_array();
   m_gps_list = get_parameter("gps_list").as_string_array();
+
+  if (m_tracker_list.size() == 0) {
+    ekf_params.augmenting_type = AugmentationType::NONE;
+  }
+
+  m_ekf = std::make_shared<EKF>(ekf_params);
 }
 
 void EkfCalNode::DeclareSensors()

@@ -121,30 +121,21 @@ void EKF::LogBodyStateIfNeeded(int execution_count)
 }
 
 /// @todo: Use RK4 or other higher-order prediction step
-void EKF::PredictModel(double time)
+void EKF::PredictModel(double local_time)
 {
-  m_debug_logger->Log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(time));
+  m_debug_logger->Log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(local_time));
 
-  // Don't predict if time is not initialized
-  if (!m_time_initialized) {
-    m_current_time = time;
-    m_time_initialized = true;
-    m_debug_logger->Log(
-      LogLevel::INFO, "EKF::Predict initialized time at t=" + std::to_string(time));
-    return;
-  }
-
-  if (time < m_current_time) {
+  if (local_time < m_current_time) {
     m_debug_logger->Log(
       LogLevel::INFO, "Requested prediction to time in the past. Current t=" +
-      std::to_string(m_current_time) + ", Requested t=" + std::to_string(time));
+      std::to_string(m_current_time) + ", Requested t=" + std::to_string(local_time));
     return;
   }
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
   if (m_is_gravity_initialized) {
-    double dT = time - m_current_time;
+    double dT = local_time - m_current_time;
 
     Eigen::Vector3d acc_b_in_l = m_state.body_state.acc_b_in_l;
     Eigen::Vector3d ang_vel_in_b = m_state.body_state.ang_vel_b_in_l;
@@ -183,7 +174,7 @@ void EKF::PredictModel(double time)
         m_cov.block(g_body_state_size, 0, alt_size, g_body_state_size) * F.transpose();
     }
   }
-  m_current_time = time;
+  m_current_time = local_time;
 
   AugmentStateIfNeeded();
 
@@ -856,4 +847,18 @@ bool EKF::GetUseRootCovariance()
 bool EKF::GetUseFirstEstimateJacobian()
 {
   return m_use_first_estimate_jacobian;
+}
+
+double EKF::CalculateLocalTime(double time)
+{
+  if (!m_time_initialized) {
+    m_reference_time = time;
+    m_time_initialized = true;
+    m_current_time = 0;
+    m_debug_logger->Log(
+      LogLevel::INFO, "EKF initialized time at t = " + std::to_string(time));
+    return m_current_time;
+  } else {
+    return time - m_reference_time;
+  }
 }

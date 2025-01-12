@@ -84,7 +84,7 @@ public:
   ///
   /// @brief Check for and perform a zero-acceleration update
   /// @param ekf EKF pointer
-  /// @param time Measurement time
+  /// @param local_time Measurement in local EKF time
   /// @param acceleration Measured acceleration
   /// @param acceleration_covariance Estimated acceleration error
   /// @param angular_rate Measured angular rate
@@ -92,7 +92,7 @@ public:
   ///
   bool ZeroAccelerationUpdate(
     std::shared_ptr<EKF> ekf,
-    double time,
+    double local_time,
     Eigen::Vector3d acceleration,
     Eigen::Matrix3d acceleration_covariance,
     Eigen::Vector3d angular_rate,

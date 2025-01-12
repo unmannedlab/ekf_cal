@@ -142,9 +142,9 @@ public:
 
   ///
   /// @brief Predict state to given time using IMU measurements
-  /// @param time Time of measurement
+  /// @param local_time Measurement in EKF time
   ///
-  void PredictModel(double time);
+  void PredictModel(double local_time);
 
   ///
   /// @brief State transition matrix getter method
@@ -372,6 +372,12 @@ public:
   ///
   bool GetUseFirstEstimateJacobian();
 
+  ///
+  /// @brief Calculate UTF time to local EKF time
+  /// @return EKF time
+  ///
+  double CalculateLocalTime(double time);
+
   /// @brief EKF state
   State m_state;
 
@@ -386,6 +392,7 @@ private:
   unsigned int m_aug_state_size{0};
   unsigned int m_fid_state_size{0};
   double m_current_time {0};
+  double m_reference_time {0};
   bool m_time_initialized {false};
   unsigned int m_max_track_length{20};
   Eigen::MatrixXd m_process_noise {Eigen::MatrixXd::Zero(g_body_state_size, g_body_state_size)};
