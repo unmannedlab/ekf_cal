@@ -20,11 +20,7 @@
 
 void RosGPS::Callback(std::shared_ptr<RosGpsMessage> ros_gps_message)
 {
-  auto gps_message = std::make_shared<GpsMessage>();
-  gps_message->time = ros_gps_message->time;
-  gps_message->sensor_id = ros_gps_message->sensor_id;
-  gps_message->sensor_type = ros_gps_message->sensor_type;
-  GPS::Callback(gps_message);
+  GPS::Callback(ros_gps_message);
 
   m_logger->Log(LogLevel::DEBUG, "Image publish ROS");
 }
