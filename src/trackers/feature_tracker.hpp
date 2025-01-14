@@ -117,18 +117,42 @@ public:
   /// @brief Perform ratio test on a set of matches
   /// @param matches List of matches to perform test over
   ///
-  void ratio_test(std::vector<std::vector<cv::DMatch>> & matches);
+  void RatioTest(std::vector<std::vector<cv::DMatch>> & matches);
 
   ///
   /// @brief Perform symmetry test given forward and backward matches
-  /// @param matches1 Forward matches
-  /// @param matches2 Backward matches
-  /// @param good_matches Passing matches
+  /// @param matches_forward Forward matches
+  /// @param matches_backward Backward matches
+  /// @param matches_out Passing matches
   ///
-  void symmetry_test(
-    std::vector<std::vector<cv::DMatch>> & matches1,
-    std::vector<std::vector<cv::DMatch>> & matches2,
-    std::vector<cv::DMatch> & good_matches);
+  void SymmetryTest(
+    std::vector<std::vector<cv::DMatch>> & matches_forward,
+    std::vector<std::vector<cv::DMatch>> & matches_backward,
+    std::vector<cv::DMatch> & matches_out);
+
+  ///
+  /// @brief Perform RANSAC filtering test given matches and key points
+  /// @param matches_in Current matches
+  /// @param curr_key_points Current detected key points
+  /// @param matches_out Passing matches
+  ///
+  void RANSAC(
+    std::vector<cv::DMatch> & matches_in,
+    std::vector<cv::KeyPoint> & curr_key_points,
+    std::vector<cv::DMatch> & matches_out
+  );
+
+  ///
+  /// @brief Perform distance test given matches and key points
+  /// @param matches_in Current matches
+  /// @param curr_key_points Current detected key points
+  /// @param matches_out Passing matches
+  ///
+  void DistanceTest(
+    std::vector<cv::DMatch> & matches_in,
+    std::vector<cv::KeyPoint> & curr_key_points,
+    std::vector<cv::DMatch> & matches_out
+  );
 
 protected:
   MsckfUpdater m_msckf_updater;  ///< @brief MSCKF updater object

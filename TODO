@@ -4,6 +4,7 @@ Package Features:
     - Play rosbags through as fast as possible given yaml
     - Implement AprilGridTracker
     - Multiple Single-IMU filters to a multi-sensor filter
+    - Use emplace_back where appropriate
 
 Simulation:
     - Show track images from simulation

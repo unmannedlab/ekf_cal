@@ -580,7 +580,9 @@ AugState EKF::GetAugState(unsigned int camera_id, int frame_id, double time)
     double alpha;
     AugState aug_state_0, aug_state_1;
 
-    if (time < m_state.aug_states[aug_key].back().time) {
+    if (time < m_state.aug_states[aug_key][0].time) {
+      aug_state_0 = m_state.aug_states[aug_key][0];
+    } else if (time < m_state.aug_states[aug_key].back().time) {
       for (unsigned int i = 0; i < m_state.aug_states[aug_key].size() - 1; ++i) {
         if (m_state.aug_states[aug_key][i].time <= time &&
           time <= m_state.aug_states[aug_key][i + 1].time)
