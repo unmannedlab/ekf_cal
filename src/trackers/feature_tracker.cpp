@@ -227,12 +227,12 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat img_in, cv::Mat im
     for (const auto & m : matches_final) {
       if (m_prev_key_points[m.queryIdx].class_id == -1) {
         m_prev_key_points[m.queryIdx].class_id = GenerateFeatureID();
-        m_feature_points_map[m_prev_key_points[m.queryIdx].class_id].emplace_back(
-          m_prev_frame_id, m_prev_frame_time, m_prev_key_points[m.queryIdx]);
+        FeaturePoint feat_point {m_prev_frame_id, m_prev_frame_time, m_prev_key_points[m.queryIdx]};
+        m_feature_points_map[m_prev_key_points[m.queryIdx].class_id].push_back(feat_point);
       }
       curr_key_points[m.trainIdx].class_id = m_prev_key_points[m.queryIdx].class_id;
-      m_feature_points_map[curr_key_points[m.trainIdx].class_id].emplace_back(
-        frame_id, m_ekf->GetCurrentTime(), curr_key_points[m.trainIdx]);
+      FeaturePoint feat_point {frame_id, m_ekf->GetCurrentTime(), curr_key_points[m.trainIdx]};
+      m_feature_points_map[curr_key_points[m.trainIdx].class_id].push_back(feat_point);
     }
 
     // Update MSCKF on features no longer detected
@@ -298,7 +298,8 @@ void FeatureTracker::SymmetryTest(
       if (match_f[0].queryIdx == match_b[0].trainIdx &&
         match_b[0].queryIdx == match_f[0].trainIdx)
       {
-        matches_out.emplace_back(match_f[0].queryIdx, match_f[0].trainIdx, match_f[0].distance);
+        cv::DMatch match {match_f[0].queryIdx, match_f[0].trainIdx, match_f[0].distance};
+        matches_out.emplace_back(match);
         break;
       }
     }
@@ -357,7 +358,6 @@ void FeatureTracker::DistanceTest(
   double dist_mean = dist_sum / matches_in.size();
 
   for (unsigned int i = 0; i < matches_in.size(); i++) {
-
     cv::Point2f point_prev = m_prev_key_points[matches_in.at(i).queryIdx].pt;
     cv::Point2f point_curr = curr_key_points[matches_in.at(i).trainIdx].pt;
     double dist = std::sqrt(
