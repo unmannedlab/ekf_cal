@@ -33,6 +33,7 @@
 #include "infrastructure/debug_logger.hpp"
 #include "infrastructure/ekf_cal_version.hpp"
 #include "infrastructure/sim/truth_engine_cyclic.hpp"
+#include "infrastructure/sim/truth_engine_smoother.hpp"
 #include "infrastructure/sim/truth_engine_spline.hpp"
 #include "infrastructure/sim/truth_engine.hpp"
 #include "sensors/camera.hpp"
@@ -211,14 +212,10 @@ int main(int argc, char * argv[])
   double stationary_time = std::max(sim_params["stationary_time"].as<double>(0.1), 0.1);
   std::shared_ptr<TruthEngine> truth_engine;
   if (truth_type == "cyclic") {
-    Eigen::Vector3d pos_frequency =
-      StdToEigVec(sim_params["pos_frequency"].as<std::vector<double>>(def_vec));
-    Eigen::Vector3d ang_frequency =
-      StdToEigVec(sim_params["ang_frequency"].as<std::vector<double>>(def_vec));
-    Eigen::Vector3d pos_offset =
-      StdToEigVec(sim_params["pos_offset"].as<std::vector<double>>(def_vec));
-    Eigen::Vector3d ang_offset =
-      StdToEigVec(sim_params["ang_offset"].as<std::vector<double>>(def_vec));
+    auto pos_frequency = StdToEigVec(sim_params["pos_frequency"].as<std::vector<double>>(def_vec));
+    auto ang_frequency = StdToEigVec(sim_params["ang_frequency"].as<std::vector<double>>(def_vec));
+    auto pos_offset = StdToEigVec(sim_params["pos_offset"].as<std::vector<double>>(def_vec));
+    auto ang_offset = StdToEigVec(sim_params["ang_offset"].as<std::vector<double>>(def_vec));
     double pos_amplitude = sim_params["pos_amplitude"].as<double>(1.0);
     double ang_amplitude = sim_params["ang_amplitude"].as<double>(0.1);
     auto truth_engine_cyclic = std::make_shared<TruthEngineCyclic>(
@@ -233,6 +230,16 @@ int main(int argc, char * argv[])
       debug_logger
     );
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_cyclic);
+  } else if (truth_type == "smoother") {
+    auto times = sim_params["times"].as<std::vector<double>>(def_vec);
+    auto positions = sim_params["positions"].as<std::vector<double>>(def_vec);
+    auto angles = sim_params["angles"].as<std::vector<double>>(def_vec);
+    auto pos_errs = sim_params["pos_errors"].as<std::vector<double>>(def_vec);
+    auto ang_errs = sim_params["ang_errors"].as<std::vector<double>>(def_vec);
+    auto truth_engine_spline = std::make_shared<TruthEngineSmoother>(
+      times, positions, angles, pos_errs, ang_errs,
+      stationary_time, max_time, 1000.0, debug_logger, rng);
+    truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_spline);
   } else if (truth_type == "spline") {
     auto positions = sim_params["positions"].as<std::vector<double>>(def_vec);
     auto angles = sim_params["angles"].as<std::vector<double>>(def_vec);
