@@ -75,7 +75,7 @@ cv::Ptr<cv::FeatureDetector> FeatureTracker::InitFeatureDetector(
       break;
     case Detector::ORB:
       feature_detector =
-        cv::ORB::create(200, 1.2f, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
+        cv::ORB::create(1000, 1.2f, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
       break;
     case Detector::SIFT:
       feature_detector = cv::SIFT::create();
