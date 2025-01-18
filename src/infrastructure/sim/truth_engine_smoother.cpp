@@ -215,14 +215,8 @@ TruthEngineSmoother::TruthEngineSmoother(
     m_time.push_back(static_cast<double>(i) / m_rate);
   }
 
-  auto positions_interpolated = InterpolateVectors(m_time, times, position_vectors);
-  auto angles_interpolated = InterpolateVectors(m_time, times, angle_vectors);
-
-  // double peak_acceleration = MaxAcceleration(m_time, positions_interpolated);
-  // auto width = static_cast<unsigned int>(std::ceil(peak_acceleration / m_max_acceleration));
-
-  m_pos = SlidingWindowFilter(positions_interpolated, 1000);
-  m_ang = SlidingWindowFilter(angles_interpolated, 1000);
+  m_pos = InterpolateVectors(m_time, times, position_vectors);
+  m_ang = InterpolateVectors(m_time, times, angle_vectors);
 
   m_vel = Derivative(m_time, m_pos);
   m_acc = Derivative(m_time, m_vel);

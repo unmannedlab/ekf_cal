@@ -112,7 +112,6 @@ private:
   std::vector<Eigen::Vector3d> m_ang;
   std::vector<Eigen::Vector3d> m_ang_vel;
   std::vector<Eigen::Vector3d> m_ang_acc;
-
 };
 
 #endif  // INFRASTRUCTURE__SIM__TRUTH_ENGINE_SMOOTHER_HPP_
