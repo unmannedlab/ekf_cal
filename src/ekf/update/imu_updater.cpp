@@ -94,27 +94,21 @@ void ImuUpdater::UpdateEKF(
   Eigen::Vector3d acc_bias = ekf->m_state.imu_states[m_id].acc_bias;
   Eigen::Vector3d omg_bias = ekf->m_state.imu_states[m_id].omg_bias;
 
-  if (ekf->m_state.imu_states.size() == 1) {
-    ekf->m_state.body_state.acc_b_in_l = ang_b_to_l * ang_i_to_b * (acceleration - acc_bias);
-    ekf->m_state.body_state.ang_vel_b_in_l = ang_b_to_l * ang_i_to_b * (angular_rate - omg_bias);
-    ekf->m_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Zero();
-  } else {
-    Eigen::VectorXd z(acceleration.size() + angular_rate.size());
-    z.segment<3>(0) = acceleration;
-    z.segment<3>(3) = angular_rate;
+  Eigen::VectorXd z(acceleration.size() + angular_rate.size());
+  z.segment<3>(0) = acceleration;
+  z.segment<3>(3) = angular_rate;
 
-    Eigen::VectorXd z_pred = PredictMeasurement(ekf);
-    Eigen::VectorXd resid = z - z_pred;
+  Eigen::VectorXd z_pred = PredictMeasurement(ekf);
+  Eigen::VectorXd resid = z - z_pred;
 
-    Eigen::MatrixXd H = GetMeasurementJacobian(ekf);
+  Eigen::MatrixXd H = GetMeasurementJacobian(ekf);
 
-    Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-    R.block<3, 3>(0, 0) = acceleration_covariance;
-    R.block<3, 3>(3, 3) = angular_rate_covariance;
+  Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
+  R.block<3, 3>(0, 0) = acceleration_covariance;
+  R.block<3, 3>(3, 3) = angular_rate_covariance;
 
-    // Apply Kalman update
-    KalmanUpdate(ekf, H, resid, R);
-  }
+  // Apply Kalman update
+  KalmanUpdate(ekf, H, resid, R);
 
   ekf->PredictModel(local_time);
 
@@ -123,10 +117,6 @@ void ImuUpdater::UpdateEKF(
 
   // Write outputs
   std::stringstream msg;
-
-  Eigen::VectorXd resid = Eigen::VectorXd::Zero(6);
-  resid.segment<3>(0) = acceleration - ekf->m_state.body_state.acc_b_in_l;
-  resid.segment<3>(3) = angular_rate - ekf->m_state.body_state.ang_vel_b_in_l;
 
   msg << local_time;
   msg << ",0," << ekf->GetMotionDetectionChiSquared();

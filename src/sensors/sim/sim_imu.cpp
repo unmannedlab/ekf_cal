@@ -54,8 +54,8 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truth_eng
   } else {
     pos_i_in_b_true = m_rng.VecNormRand(params.imu_params.pos_i_in_b, params.pos_error);
     ang_i_to_b_true = m_rng.QuatNormRand(params.imu_params.ang_i_to_b, params.ang_error);
-    acc_bias_true = m_rng.VecNormRand(params.imu_params.acc_bias, params.acc_error);
-    omg_bias_true = m_rng.VecNormRand(params.imu_params.omg_bias, params.omg_error);
+    acc_bias_true = m_rng.VecNormRand(params.imu_params.acc_bias, params.acc_bias_error);
+    omg_bias_true = m_rng.VecNormRand(params.imu_params.omg_bias, params.omg_bias_error);
   }
 
   m_truth->SetImuPosition(m_id, pos_i_in_b_true);
