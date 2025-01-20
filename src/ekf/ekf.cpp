@@ -454,9 +454,9 @@ void EKF::AugmentStateIfNeeded()
         ang_vel_b_in_l[1] * delta_time,
         ang_vel_b_in_l[2] * delta_time);
 
-      Eigen::Quaterniond delta_ang =
+      Eigen::Vector3d delta_ang = QuatToRotVec(
         m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec).inverse() *
-        last_aug.ang_b_to_l.inverse();
+        last_aug.ang_b_to_l.inverse());
 
       if (delta_pos.norm() > m_augmenting_pos_error || delta_ang.norm() > m_augmenting_ang_error) {
         augmented_state_needed = true;
