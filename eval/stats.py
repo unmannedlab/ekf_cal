@@ -108,7 +108,7 @@ def body_err_acc(body_state_dfs, body_truth_dfs):
     return RMSE_list
 
 
-def body_err_ang(body_state_dfs, body_truth_dfs):
+def body_err_ang_pos(body_state_dfs, body_truth_dfs):
     """Calculate the body state angular error."""
     # TODO: Calculate quaternion error
     RMSE_list = []
@@ -172,6 +172,14 @@ def body_err_ang_acc(body_state_dfs, body_truth_dfs):
         err_ang_acc_2 = interpolate_error(true_time, true_ang_acc_2, est_time, est_ang_acc_2)
         RMSE_list.append(RMSE_from_vectors(err_ang_acc_0, err_ang_acc_1, err_ang_acc_2))
     return RMSE_list
+
+
+def body_states(body_state_dfs):
+    """Calculate the body state position error."""
+    state_sizes = []
+    for body_state in body_state_dfs:
+        state_sizes.append(np.mean(body_state['state_size'].to_list()))
+    return state_sizes
 
 
 def sensor_err_pos(sensor_dfs, body_truth_dfs_dict, prefix):
@@ -311,7 +319,11 @@ def calc_sim_stats(config_sets, args):
             body_truth_dfs = body_truth_dfs_dict[key]
             stats[f'body_{key}_err_pos'] = body_err_pos(body_state_dfs, body_truth_dfs)
             stats[f'body_{key}_err_vel'] = body_err_vel(body_state_dfs, body_truth_dfs)
-            stats[f'body_{key}_err_ang'] = body_err_ang(body_state_dfs, body_truth_dfs)
+            stats[f'body_{key}_err_acc'] = body_err_acc(body_state_dfs, body_truth_dfs)
+            stats[f'body_{key}_err_ang_pos'] = body_err_ang_pos(body_state_dfs, body_truth_dfs)
+            stats[f'body_{key}_err_ang_vel'] = body_err_ang_vel(body_state_dfs, body_truth_dfs)
+            stats[f'body_{key}_err_ang_acc'] = body_err_ang_acc(body_state_dfs, body_truth_dfs)
+            stats[f'body_{key}_states'] = body_states(body_state_dfs)
 
         imu_dfs_dict = find_and_read_data_frames(data_dirs, 'imu')
         body_truth_dfs = body_truth_dfs_dict[0]
