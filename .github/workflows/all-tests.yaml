@@ -70,7 +70,7 @@ jobs:
           cp -r lcov/ ./src/ekf_cal/docs/doxygen/html/
 
       - name: Upload Artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./ekf_cal_ws/src/ekf_cal/docs/doxygen/html
 
