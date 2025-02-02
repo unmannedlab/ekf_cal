@@ -43,6 +43,7 @@
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
                 acc_bias: [0.0, 0.0, 0.0]
                 omg_bias: [0.0, 0.0, 0.0]
+                data_log_rate: 10.0
                 sim_params:
                     data_log_rate: 10.0
                     time_bias_error: 0.0
@@ -64,6 +65,7 @@
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
                 acc_bias: [0.0, 0.0, 0.0]
                 omg_bias: [0.0, 0.0, 0.0]
+                data_log_rate: 10.0
                 sim_params:
                     data_log_rate: 10.0
                     time_bias_error: 0.0
