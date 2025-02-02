@@ -53,7 +53,7 @@ public:
   typedef struct Parameters : public Tracker::Parameters
   {
     FiducialType detector_type;                     ///< @brief Detector type
-    unsigned int predefined_dict{10};               ///< @brief Predefined dictionary
+    unsigned int predefined_dict{0};                ///< @brief Predefined dictionary
     unsigned int squares_x {1};                     ///< @brief Number of squares in the x direction
     unsigned int squares_y {1};                     ///< @brief Number of squares in the y direction
     double square_length {1.0};                     ///< @brief Checkerboard square length
@@ -79,7 +79,7 @@ public:
   /// @param img_in Input frame
   /// @param img_out Output frame with drawn track lines
   ///
-  void Track(double time, int frame_id, cv::Mat & img_in, cv::Mat & img_out);
+  void Track(double time, int frame_id, cv::Mat img_in, cv::Mat img_out);
 
   ///
   /// @brief Function to interpolate corners of charuco boards
@@ -95,12 +95,12 @@ public:
   int InterpolateCorners(
     std::vector<std::vector<cv::Point2f>> & marker_corners,
     std::vector<int> & marker_ids,
-    cv::Mat & image,
+    cv::Mat image,
     cv::Ptr<cv::aruco::Board> & board,
     std::vector<cv::Point2f> & corners,
     std::vector<int> & ids,
-    cv::Mat & camera_matrix,
-    cv::Mat & dist_coefficients
+    cv::Mat camera_matrix,
+    cv::Mat dist_coefficients
   );
 
   ///
@@ -112,7 +112,7 @@ public:
   /// @param corner_color Colors for drawing
   ///
   void DrawDetectedCorners(
-    cv::Mat & image,
+    cv::Mat image,
     std::vector<std::vector<cv::Point2f>> & marker_corners,
     std::vector<cv::Point2f> & corners,
     std::vector<int> & ids,

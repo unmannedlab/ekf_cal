@@ -29,18 +29,18 @@ public:
 
   ///
   /// @brief DataLogger constructor
-  /// @param output_directory Output directory for creating data log file
+  /// @param log_directory Output directory for creating data log file
   /// @param file_name Name of data log file
   ///
-  DataLogger(std::string output_directory, std::string file_name);
+  DataLogger(std::string log_directory, std::string file_name);
 
   ///
   /// @brief DataLogger constructor
-  /// @param output_directory Output directory for creating data log file
+  /// @param log_directory Output directory for creating data log file
   /// @param file_name Name of data log file
   /// @param logging_rate Logging rate
   ///
-  DataLogger(std::string output_directory, std::string file_name, double logging_rate);
+  DataLogger(std::string log_directory, std::string file_name, double logging_rate);
 
   ///
   /// @brief Log message
@@ -68,9 +68,9 @@ public:
 
   ///
   /// @brief Output directory setter
-  /// @param output_directory Output directory string
+  /// @param log_directory Output directory string
   ///
-  void SetOutputDirectory(std::string output_directory);
+  void SetOutputDirectory(std::string log_directory);
 
   ///
   /// @brief Output file name setter
@@ -89,7 +89,7 @@ private:
   std::string m_log_header{""};
   std::ofstream m_log_file;
   bool m_logging_on {false};
-  std::string m_output_directory {""};
+  std::string m_log_directory {""};
   std::string m_file_name {"default.log"};
   double m_rate{0.0};
   double m_time_init{0};

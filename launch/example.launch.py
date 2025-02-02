@@ -18,6 +18,8 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
 
 from launch_ros.actions import Node
 
@@ -25,17 +27,23 @@ from launch_ros.actions import Node
 def generate_launch_description():
     """Generate launch description for ekf_cal example config."""
     this_dir = get_package_share_directory('ekf_cal')
+    config_file = os.path.join(this_dir, 'config', 'example.yaml')
+    log_directory_arg = DeclareLaunchArgument(
+        'log_directory',
+        default_value=os.path.join(this_dir, 'config', 'example', '')
+    )
 
     start_ekf_cal_node_cmd = Node(
         package='ekf_cal',
         executable='ekf_cal_node',
         output='screen',
-        parameters=[os.path.join(this_dir, 'config', 'example.yaml')],
-        # arguments=['--ros-args', '--log-level', 'debug'] # For ROS debugging
+        parameters=[
+            config_file,
+            {'log_directory': LaunchConfiguration('log_directory')}]
     )
 
     # Create the launch description and populate
-    ld = LaunchDescription()
+    ld = LaunchDescription([log_directory_arg])
     ld.add_action(start_ekf_cal_node_cmd)
 
     return ld

@@ -64,14 +64,14 @@ Eigen::Quaterniond EigVecToQuat(Eigen::Vector3d euler_angles);
 /// @param matrix_eigen Input Eigen matrix
 /// @param matrix_cv Output CV matrix
 ///
-void EigenMatrixToCv(Eigen::Matrix3d & matrix_eigen, cv::Mat & matrix_cv);
+void EigenMatrixToCv(Eigen::Matrix3d & matrix_eigen, cv::Mat matrix_cv);
 
 ///
 /// @brief Convert CV matrix to Eigen matrix
 /// @param matrix_cv Input CV matrix
 /// @param matrix_eigen Output Eigen matrix
 ///
-void CvMatrixToEigen(cv::Mat & matrix_cv, Eigen::Matrix3d & matrix_eigen);
+void CvMatrixToEigen(cv::Mat matrix_cv, Eigen::Matrix3d & matrix_eigen);
 
 ///
 /// @brief Convert quaternion to Rodrigues rotation vector

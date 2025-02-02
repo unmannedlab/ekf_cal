@@ -240,9 +240,9 @@ public:
   ///
   /// @brief Write truth data to CSV files
   /// @param data_log_rate Body data rate
-  /// @param output_directory Output directory
+  /// @param log_directory Output directory
   ///
-  void WriteTruthData(double data_log_rate, std::string output_directory);
+  void WriteTruthData(double data_log_rate, std::string log_directory);
 
   ///
   /// @brief Feature generation function

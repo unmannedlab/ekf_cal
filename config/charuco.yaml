@@ -2,15 +2,16 @@
     ros__parameters:
         debug_log_level: 2
         data_log_rate: 1.0
+        augmenting_type: 1
         process_noise:
-            pos: 1.0e-0
+            ang_pos: 1.0
+            pos: 1.0
             vel: 2.0
-            ang_pos: 1.0e-0
         sim_params:
             seed: 1.0
-            max_time: 100.0
+            max_time: 60.0
             stationary_time: 0.1
-            truth_type: "cyclic"
+            truth_type: cyclic
             pos_frequency: [0.31, 0.52, 0.73]
             ang_frequency: [0.21, 0.32, 0.43]
             ang_amplitude: 1.5
@@ -20,24 +21,25 @@
             run_number: 0
 
         imu_list:
-            - "imu_1"
+            - microstrain
 
         camera_list:
-            - "cam_1"
+            - cam_074
 
         tracker_list:
-            - "orb"
+            - orb
 
-        fiducial_list: []
+        # fiducial_list:
+        #     - charuco
 
-        gps_list: []
+        # gps_list: []
 
         imu:
-            imu_1:
+            microstrain:
                 is_extrinsic: false
                 is_intrinsic: false
                 rate: 1000.0
-                topic: "/imu_1"
+                topic:  /microstrain/imu/data
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 pos_i_in_b: [0.0, 0.0, 0.0]
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
@@ -55,23 +57,17 @@
                     omg_bias_error: [0.0, 0.0, 0.0]
 
         camera:
-            cam_1:
+            cam_074:
                 rate: 20.0
                 data_log_rate: 1.0
-                topic:  "/cam_1"
+                topic:  /cam_074/pylon_ros2_camera_node/image_raw
                 pos_c_in_b: [0.0, 0.5, 0.0]
                 ang_c_to_b: [-0.5, 0.5, -0.5, 0.5]
-                variance: [
-                    0.01,
-                    0.01,
-                    0.01,
-                    0.01,
-                    0.01,
-                    0.01
-                ]
-                tracker: "orb"
+                variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                tracker: orb
+                # fiducial: charuco
                 is_extrinsic: true
-                pos_stability: 1.0e-4
+                pos_stability: 1.0e-2
                 ang_stability: 1.0e-6
                 sim_params:
                     time_bias_error: 0.0
@@ -84,13 +80,30 @@
                 feature_detector: 4
                 descriptor_extractor: 0
                 descriptor_matcher: 0
-                detector_threshold: 10.0
+                detector_threshold: 20.0
                 pixel_error: 0.5
                 max_track_length: 10
                 sim_params:
                     feature_count: 100
                     room_size: 5.0
 
-        fiducial: {}
+        fiducial:
+            charuco:
+                fiducial_type: 1
+                id: 0
+                is_extrinsic: false
+                marker_length: 0.045
+                square_length: 0.06
+                squares_x: 11
+                squares_y: 8
+                variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+                pos_f_in_l: [5.0, 0.0, 0.0]
+                ang_f_to_l: [1.0, 0.0, 0.0, 0.0]
+                sim_params:
+                    ang_error: [0.0, 0.0, 0.0]
+                    no_errors: false
+                    pos_error: [0.0, 0.0, 0.0]
+                    r_vec_error: [0.01, 0.01, 0.01]
+                    t_vec_error: [0.01, 0.01, 0.01]
 
-        gps: {}
+        # gps: {}

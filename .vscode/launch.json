@@ -20,9 +20,10 @@
             ]
         },
         {
-            "name": "ROS: Attach",
-            "type": "node",
-            "request": "attach"
+            "name": "ROS2: Launch",
+            "type": "ros",
+            "request": "launch",
+            "target": "${workspaceFolder}/launch/charuco.launch.py"
         },
         {
             "name": "Python: Current File",

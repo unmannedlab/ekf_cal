@@ -69,7 +69,8 @@ void FiducialUpdater::UpdateEKF(
   m_logger->Log(
     LogLevel::DEBUG, "Called Fiducial Update for camera ID: " + std::to_string(m_camera_id));
 
-  ekf->PredictModel(time);
+  double local_time = ekf->CalculateLocalTime(time);
+  ekf->PredictModel(local_time);
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
@@ -154,7 +155,7 @@ void FiducialUpdater::UpdateEKF(
 
   // Write outputs
   std::stringstream msg;
-  msg << time;
+  msg << local_time;
   msg << "," << m_id;
   msg << VectorToCommaString(pos_measured);
   msg << QuaternionToCommaString(ang_measured);
@@ -170,5 +171,5 @@ void FiducialUpdater::UpdateEKF(
     msg << VectorToCommaString(cov_diag);
   }
   msg << "," << t_execution.count();
-  m_fiducial_logger.RateLimitedLog(msg.str(), time);
+  m_fiducial_logger.RateLimitedLog(msg.str(), local_time);
 }

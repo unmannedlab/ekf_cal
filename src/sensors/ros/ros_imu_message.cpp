@@ -30,4 +30,5 @@ RosImuMessage::RosImuMessage(const sensor_msgs::msg::Imu::SharedPtr msg)
   angular_rate = RosToEigen(msg->angular_velocity);
   acceleration_covariance = RosToEigen(msg->linear_acceleration_covariance);
   angular_rate_covariance = RosToEigen(msg->angular_velocity_covariance);
+  sensor_type = SensorType::IMU;
 }

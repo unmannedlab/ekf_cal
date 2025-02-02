@@ -66,6 +66,7 @@ set(SIM_INF_SRCS
     src/infrastructure/debug_logger.cpp
     src/infrastructure/sim/sim_debug_logger.cpp
     src/infrastructure/sim/truth_engine_cyclic.cpp
+    src/infrastructure/sim/truth_engine_smoother.cpp
     src/infrastructure/sim/truth_engine_spline.cpp
     src/infrastructure/sim/truth_engine.cpp
 )
@@ -177,7 +178,9 @@ if(BUILD_TESTING)
         src/ekf/update/test/msckf_updater_test.cpp
         src/ekf/update/test/updater_test.cpp
         src/infrastructure/sim/test/sim_debug_logger_test.cpp
-        src/infrastructure/sim/test/truth_engine_test.cpp
+        src/infrastructure/sim/test/truth_engine_cyclic_test.cpp
+        src/infrastructure/sim/test/truth_engine_smoother_test.cpp
+        src/infrastructure/sim/test/truth_engine_spline_test.cpp
         src/infrastructure/test/data_logger_test.cpp
         src/infrastructure/test/debug_logger_test.cpp
         src/sensors/ros/test/ros_camera_test.cpp

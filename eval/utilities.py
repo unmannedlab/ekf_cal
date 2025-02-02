@@ -129,8 +129,8 @@ def plot_update_timing(data_frames, rate=None):
                  y_axis_label='Count', title=f'{df_prefix} {df_id} Update Time')
     durations = np.array([])
     for df in data_frames:
-        durations = np.append(durations, df['duration_0'])
-    hist, edges = np.histogram(durations / 1e3)
+        durations = np.append(durations, df['duration_0'] / 1e3)
+    hist, edges = np.histogram(durations)
     fig.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], legend_label='Duration [us]')
     if rate:
         pass

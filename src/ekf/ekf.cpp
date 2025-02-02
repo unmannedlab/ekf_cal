@@ -121,32 +121,22 @@ void EKF::LogBodyStateIfNeeded(int execution_count)
 }
 
 /// @todo: Use RK4 or other higher-order prediction step
-void EKF::PredictModel(double time)
+void EKF::PredictModel(double local_time)
 {
-  m_debug_logger->Log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(time));
+  m_debug_logger->Log(LogLevel::DEBUG, "EKF::Predict at t=" + std::to_string(local_time));
 
-  // Don't predict if time is not initialized
-  if (!m_time_initialized) {
-    m_current_time = time;
-    m_time_initialized = true;
-    m_debug_logger->Log(
-      LogLevel::INFO, "EKF::Predict initialized time at t=" + std::to_string(time));
-    return;
-  }
-
-  if (time < m_current_time) {
+  if (local_time < m_current_time) {
     m_debug_logger->Log(
       LogLevel::INFO, "Requested prediction to time in the past. Current t=" +
-      std::to_string(m_current_time) + ", Requested t=" + std::to_string(time));
+      std::to_string(m_current_time) + ", Requested t=" + std::to_string(local_time));
     return;
   }
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
   if (m_is_gravity_initialized) {
-    double dT = time - m_current_time;
+    double dT = local_time - m_current_time;
 
-    Eigen::Quaterniond ang_b_to_l = m_state.body_state.ang_b_to_l;
     Eigen::Vector3d acc_b_in_l = m_state.body_state.acc_b_in_l;
     Eigen::Vector3d ang_vel_in_b = m_state.body_state.ang_vel_b_in_l;
 
@@ -184,7 +174,7 @@ void EKF::PredictModel(double time)
         m_cov.block(g_body_state_size, 0, alt_size, g_body_state_size) * F.transpose();
     }
   }
-  m_current_time = time;
+  m_current_time = local_time;
 
   AugmentStateIfNeeded();
 
@@ -454,7 +444,6 @@ void EKF::AugmentStateIfNeeded()
       AugState last_aug = m_state.aug_states[0].back();
       double delta_time = m_current_time - last_aug.time;
       Eigen::Vector3d ang_vel_b_in_l = m_state.body_state.ang_vel_b_in_l;
-      Eigen::Vector3d ang_acc_b_in_l = m_state.body_state.ang_acc_b_in_l;
 
       Eigen::Vector3d delta_pos = m_state.body_state.pos_b_in_l -
         delta_time * m_state.body_state.vel_b_in_l -
@@ -465,9 +454,9 @@ void EKF::AugmentStateIfNeeded()
         ang_vel_b_in_l[1] * delta_time,
         ang_vel_b_in_l[2] * delta_time);
 
-      Eigen::Quaterniond delta_ang =
+      Eigen::Vector3d delta_ang = QuatToRotVec(
         m_state.body_state.ang_b_to_l * RotVecToQuat(rot_vec).inverse() *
-        last_aug.ang_b_to_l.inverse();
+        last_aug.ang_b_to_l.inverse());
 
       if (delta_pos.norm() > m_augmenting_pos_error || delta_ang.norm() > m_augmenting_ang_error) {
         augmented_state_needed = true;
@@ -588,10 +577,12 @@ AugState EKF::GetAugState(unsigned int camera_id, int frame_id, double time)
       aug_key = 0;
     }
 
-    double alpha;
+    double alpha{0.0};
     AugState aug_state_0, aug_state_1;
 
-    if (time < m_state.aug_states[aug_key].back().time) {
+    if (time < m_state.aug_states[aug_key][0].time) {
+      aug_state_0 = m_state.aug_states[aug_key][0];
+    } else if (time < m_state.aug_states[aug_key].back().time) {
       for (unsigned int i = 0; i < m_state.aug_states[aug_key].size() - 1; ++i) {
         if (m_state.aug_states[aug_key][i].time <= time &&
           time <= m_state.aug_states[aug_key][i + 1].time)
@@ -858,4 +849,18 @@ bool EKF::GetUseRootCovariance()
 bool EKF::GetUseFirstEstimateJacobian()
 {
   return m_use_first_estimate_jacobian;
+}
+
+double EKF::CalculateLocalTime(double time)
+{
+  if (!m_time_initialized) {
+    m_reference_time = time;
+    m_time_initialized = true;
+    m_current_time = 0;
+    m_debug_logger->Log(
+      LogLevel::INFO, "EKF initialized time at t = " + std::to_string(time));
+    return m_current_time;
+  } else {
+    return time - m_reference_time;
+  }
 }

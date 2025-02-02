@@ -30,7 +30,7 @@ TEST(test_sensor, Constructor) {
 }
 
 TEST(test_sensor, MessageCompare) {
-  cv::Mat cam_img = cv::Mat::zeros(cv::Size(640, 480), CV_8UC3);
+  cv::Mat cam_img = cv::Mat::zeros(cv::Size(640, 480), CV_8UC1);
   auto camera_message = std::make_shared<CameraMessage>(cam_img);
   camera_message->time = 0.0;
 

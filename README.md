@@ -15,7 +15,7 @@ The full [project documentation](https://www.unmannedlab.org/ekf_cal/) is availa
 
 ### Clone the Repository
 
-This guide assumes you have the `ekf_cal` repository in a colcon workspace.
+This guide assumes you have the [ekf_cal](https://github.com/unmannedlab/ekf_cal/) repository in a colcon workspace.
 ```
 mkdir ekf_cal_ws/
 mkdir ekf_cal_ws/src/
@@ -100,12 +100,12 @@ colcon test --packages-select ekf_cal --event-handlers console_direct+
 ```
 
 A test code coverage report can be generated using the following commands
-``` 
+```
 colcon build --symlink-install --packages-select ekf_cal \
    --event-handlers console_cohesion+ \
    --cmake-args -DCMAKE_C_FLAGS='--coverage' -DCMAKE_CXX_FLAGS='--coverage'
 
-colcon test --packages-select ekf_cal --pytest-with-coverage \ 
+colcon test --packages-select ekf_cal --pytest-with-coverage \
    --pytest-args --cov-report=term --event-handlers console_direct+
 
 colcon lcov-result --packages-select ekf_cal --filter '*_test.cpp' '*_main.cpp'

@@ -55,6 +55,7 @@ EkfCalNode::EkfCalNode()
 : Node("EkfCalNode")
 {
   // Declare EKF Parameters
+  declare_parameter("log_directory", "~/log/");
   declare_parameter("debug_log_level", 0);
   declare_parameter("data_log_rate", 0.0);
   declare_parameter("augmenting_type", 0);
@@ -93,17 +94,19 @@ void EkfCalNode::Initialize()
   // Set logging
   auto debug_log_level = static_cast<unsigned int>(get_parameter("debug_log_level").as_int());
   double data_log_rate = get_parameter("data_log_rate").as_double();
+  m_log_directory = get_parameter("log_directory").as_string();
 
-  m_debug_logger = std::make_shared<DebugLogger>(debug_log_level, "");
+  m_debug_logger = std::make_shared<DebugLogger>(debug_log_level, m_log_directory);
   if (data_log_rate) {m_state_data_logger.EnableLogging();}
-  m_state_data_logger.SetOutputDirectory(m_output_directory);
+  m_state_data_logger.SetOutputDirectory(m_log_directory);
   m_state_data_logger.SetOutputFileName("state_vector.csv");
   m_state_data_logger.DefineHeader("");
   m_debug_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
+  m_debug_logger->Log(LogLevel::INFO, "Log Directory: " + m_log_directory);
   EKF::Parameters ekf_params;
   ekf_params.debug_logger = m_debug_logger;
   ekf_params.data_log_rate = data_log_rate;
-  ekf_params.log_directory = m_output_directory;
+  ekf_params.log_directory = m_log_directory;
   ekf_params.augmenting_type =
     static_cast<AugmentationType>(get_parameter("augmenting_type").as_int());
   ekf_params.augmenting_delta_time = get_parameter("augmenting_delta_time").as_double();
@@ -125,14 +128,18 @@ void EkfCalNode::Initialize()
     get_parameter("use_first_estimate_jacobian").as_bool();
   ekf_params.imu_noise_scale_factor = get_parameter("imu_noise_scale_factor").as_double();
 
-  m_ekf = std::make_shared<EKF>(ekf_params);
-
   // Load lists of sensors
   m_imu_list = get_parameter("imu_list").as_string_array();
   m_camera_list = get_parameter("camera_list").as_string_array();
   m_tracker_list = get_parameter("tracker_list").as_string_array();
   m_fiducial_list = get_parameter("fiducial_list").as_string_array();
   m_gps_list = get_parameter("gps_list").as_string_array();
+
+  if (m_tracker_list.size() == 0) {
+    ekf_params.augmenting_type = AugmentationType::NONE;
+  }
+
+  m_ekf = std::make_shared<EKF>(ekf_params);
 }
 
 void EkfCalNode::DeclareSensors()
@@ -171,7 +178,7 @@ void EkfCalNode::LoadSensorParameters(
   params.rate = get_parameter(prefix + ".rate").as_double();
   params.data_log_rate = get_parameter(prefix + ".data_log_rate").as_double();
   params.name = name;
-  params.output_directory = m_output_directory;
+  params.log_directory = m_log_directory;
   params.ekf = m_ekf;
   params.logger = m_debug_logger;
 }
@@ -194,7 +201,6 @@ void EkfCalNode::LoadSensors()
   }
 
   // Create publishers
-  m_img_publisher = create_publisher<sensor_msgs::msg::Image>("~/OutImg", 10);
   m_body_state_pub = create_publisher<std_msgs::msg::Float64MultiArray>("~/BodyState", 10);
   m_imu_state_pub = create_publisher<std_msgs::msg::Float64MultiArray>("~/ImuState", 10);
 }
@@ -369,6 +375,7 @@ FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_
   tracker_params.max_track_length = max_track_length;
   tracker_params.ekf = m_ekf;
   tracker_params.logger = m_debug_logger;
+  tracker_params.log_directory = m_log_directory;
   return tracker_params;
 }
 
@@ -422,6 +429,7 @@ FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(std::string fiduci
   fiducial_params.is_extrinsic = is_extrinsic;
   fiducial_params.ekf = m_ekf;
   fiducial_params.logger = m_debug_logger;
+  fiducial_params.log_directory = m_log_directory;
   return fiducial_params;
 }
 
@@ -491,6 +499,7 @@ void EkfCalNode::LoadCamera(std::string camera_name)
     std::shared_ptr<FeatureTracker> trk_ptr = std::make_shared<FeatureTracker>(trk_params);
     camera_ptr->AddTracker(trk_ptr);
   }
+
   if (!camera_params.fiducial.empty()) {
     FiducialTracker::Parameters fid_params = GetFiducialParameters(camera_params.fiducial);
     fid_params.camera_id = camera_ptr->GetId();
@@ -501,6 +510,10 @@ void EkfCalNode::LoadCamera(std::string camera_name)
 
   // Create new RosCamera and bind callback to ID
   RegisterCamera(camera_ptr, camera_params.topic);
+
+  // Create image re-publisher
+  m_map_image_publishers[camera_ptr->GetId()] =
+    create_publisher<sensor_msgs::msg::Image>("~/" + camera_name, 10);
 }
 
 void EkfCalNode::RegisterCamera(std::shared_ptr<RosCamera> camera_ptr, std::string topic)
@@ -561,7 +574,7 @@ void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, un
     auto ros_camera_message = std::make_shared<RosCameraMessage>(msg);
     ros_camera_message->sensor_id = id;
     ros_cam_iter->second->Callback(ros_camera_message);
-    m_img_publisher->publish(*ros_cam_iter->second->GetRosImage().get());
+    m_map_image_publishers[id]->publish(*ros_cam_iter->second->GetRosImage().get());
   } else {
     m_debug_logger->Log(LogLevel::WARN, "Camera ID Not Found: " + std::to_string(id));
   }
@@ -581,6 +594,7 @@ void EkfCalNode::GpsCallback(const sensor_msgs::msg::NavSatFix::SharedPtr msg, u
 
 void EkfCalNode::PublishState()
 {
+  /// @todo Copy states before converting to vectors due to race conditions.
   // Body State
   Eigen::VectorXd body_state_vector = m_ekf->m_state.body_state.ToVector();
   auto body_state_vec_msg = std_msgs::msg::Float64MultiArray();
@@ -590,19 +604,19 @@ void EkfCalNode::PublishState()
   }
   m_body_state_pub->publish(body_state_vec_msg);
 
-  // IMU States
-  Eigen::VectorXd imu_state_vector = m_ekf->GetImuState(1).ToVector();
-  auto imu_state_vec_msg = std_msgs::msg::Float64MultiArray();
+  // // IMU States
+  // Eigen::VectorXd imu_state_vector = m_ekf->GetImuState(1).ToVector();
+  // auto imu_state_vec_msg = std_msgs::msg::Float64MultiArray();
 
-  for (auto & element : imu_state_vector) {
-    imu_state_vec_msg.data.push_back(element);
-  }
-  m_imu_state_pub->publish(imu_state_vec_msg);
+  // for (auto & element : imu_state_vector) {
+  //   imu_state_vec_msg.data.push_back(element);
+  // }
+  // m_imu_state_pub->publish(imu_state_vec_msg);
 
-  std::stringstream msg;
-  Eigen::VectorXd state_vector = m_ekf->m_state.ToVector();
-  msg << VectorToCommaString(state_vector);
-  m_state_data_logger.Log(msg.str());
+  // std::stringstream msg;
+  // Eigen::VectorXd state_vector = m_ekf->m_state.ToVector();
+  // msg << VectorToCommaString(state_vector);
+  // m_state_data_logger.Log(msg.str());
 }
 
 Eigen::VectorXd EkfCalNode::LoadProcessNoise()

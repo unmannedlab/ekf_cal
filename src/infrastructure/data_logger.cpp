@@ -18,15 +18,15 @@
 #include <fstream>
 
 
-DataLogger::DataLogger(std::string output_directory, std::string file_name)
+DataLogger::DataLogger(std::string log_directory, std::string file_name)
 {
-  m_output_directory = output_directory;
+  m_log_directory = log_directory;
   m_file_name = file_name;
 }
 
-DataLogger::DataLogger(std::string output_directory, std::string file_name, double logging_rate)
+DataLogger::DataLogger(std::string log_directory, std::string file_name, double logging_rate)
 {
-  m_output_directory = output_directory;
+  m_log_directory = log_directory;
   m_file_name = file_name;
   m_rate = logging_rate;
 }
@@ -35,7 +35,7 @@ void DataLogger::Log(std::string message)
 {
   if (m_logging_on) {
     if (!m_initialized) {
-      m_log_file.open(m_output_directory + m_file_name);
+      m_log_file.open(m_log_directory + m_file_name);
       m_log_file << m_log_header << std::endl;
       m_initialized = true;
     }
@@ -66,9 +66,9 @@ void DataLogger::EnableLogging()
 }
 
 
-void DataLogger::SetOutputDirectory(std::string output_directory)
+void DataLogger::SetOutputDirectory(std::string log_directory)
 {
-  m_output_directory = output_directory;
+  m_log_directory = log_directory;
 }
 
 

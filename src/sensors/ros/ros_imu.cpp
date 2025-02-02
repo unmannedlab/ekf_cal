@@ -20,11 +20,7 @@
 
 void RosIMU::Callback(std::shared_ptr<RosImuMessage> ros_imu_message)
 {
-  auto imu_message = std::make_shared<ImuMessage>();
-  imu_message->time = ros_imu_message->time;
-  imu_message->sensor_id = ros_imu_message->sensor_id;
-  imu_message->sensor_type = ros_imu_message->sensor_type;
-  IMU::Callback(imu_message);
+  IMU::Callback(ros_imu_message);
 
   m_logger->Log(LogLevel::DEBUG, "Image publish ROS");
 }
