@@ -248,6 +248,15 @@ def imu_err_bias(imu_dfs, body_truth_dfs_dict, bias_type):
     return RMSE_list
 
 
+def imu_duration(imu_dfs):
+    """Calculate the imu bias error."""
+    mean_list = []
+    for imu_state in imu_dfs:
+        durations = np.array(imu_state['duration_0'].to_list())
+        mean_list.append(np.mean(durations))
+    return mean_list
+
+
 def gps_err_pos(gps_dfs, body_truth_dfs):
     RMSE_list = []
     for gps_state, body_truth in zip(gps_dfs, body_truth_dfs):
@@ -333,6 +342,7 @@ def calc_sim_stats(config_sets, args):
             stats[f'imu_{key}_err_ang'] = sensor_err_ang(imu_dfs, body_truth_dfs, 'imu')
             stats[f'imu_{key}_err_acc_bias'] = imu_err_bias(imu_dfs, body_truth_dfs, 'acc')
             stats[f'imu_{key}_err_gyr_bias'] = imu_err_bias(imu_dfs, body_truth_dfs, 'gyr')
+            stats[f'imu_{key}_duration'] = imu_duration(imu_dfs)
 
         mskcf_dfs_dict = find_and_read_data_frames(data_dirs, 'msckf')
         for key in sorted(mskcf_dfs_dict.keys()):
