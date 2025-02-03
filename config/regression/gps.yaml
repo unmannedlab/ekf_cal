@@ -90,7 +90,7 @@
                 init_ang_thresh: 0.1
                 init_baseline_dist: 100.0
                 pos_stability: 1.0e-9
-                is_extrinsic: true
+                is_extrinsic: false
                 sim_params:
                     no_errors: false
                     time_bias_error: 1.0e-9
