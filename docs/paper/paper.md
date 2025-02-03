@@ -74,7 +74,7 @@ In summary, this package
 | `variance`           | Initial state variance |
 
 ### Cameras
-`ekf_cal` supports the use of multiple cameras, which can simultaneously use MSCKF-based feature tracking and/or fiducial marker tracking for state updates. The package is designed to support the use of any OpenCV feature tracker, descriptor, or matcher for MSKCF-based visual inertial odometry. For fiducial measurements, the package supports the use of Aruco or Charuco grid boards. The key camera parameters supported are
+`ekf_cal` supports the use of multiple cameras, which can simultaneously use MSCKF-based feature tracking and/or fiducial marker tracking for state updates. The package is designed to support the use of any OpenCV feature tracker, descriptor, or matcher for MSCKF-based visual inertial odometry. For fiducial measurements, the package supports the use of Aruco or Charuco grid boards. The key camera parameters supported are
 
 | Camera Parameter | Description |
 | --- | --- |
