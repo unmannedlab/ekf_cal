@@ -230,8 +230,9 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   // Eigen::Quaterniond ang_b_to_l_pre = ekf->m_state.body_state.ang_b_to_l;
   KalmanUpdate(ekf, H, resid, R);
 
-  ekf->m_state.body_state.acc_b_in_l = Eigen::Vector3d::Zero();
   ekf->m_state.body_state.acc_b_in_l = g_gravity;
+  ekf->m_state.body_state.ang_vel_b_in_l = Eigen::Vector3d::Zero();
+  ekf->m_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Zero();
 
   // Prevent unintentional rotation about the vertical axis
   // if (m_correct_heading_rotation) {
@@ -341,6 +342,12 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
   // Body Angular Velocity
   measurement_jacobian.block<3, 3>(3, 12) = ang_i_to_b.inverse().toRotationMatrix() *
     ang_b_to_l.inverse().toRotationMatrix();
+
+  if (m_is_intrinsic) {
+    unsigned int index_intrinsic = ekf->m_state.imu_states[m_id].index_intrinsic;
+    measurement_jacobian.block<3, 3>(0, index_intrinsic + 0) = Eigen::Matrix3d::Identity();
+    measurement_jacobian.block<3, 3>(3, index_intrinsic + 3) = -Eigen::Matrix3d::Identity();
+  }
 
   return measurement_jacobian;
 }
