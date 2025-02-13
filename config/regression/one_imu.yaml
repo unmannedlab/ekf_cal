@@ -16,7 +16,6 @@
             pos_frequency: [0.3, 0.5, 0.7]
             ang_frequency: [0.2, 0.3, 0.4]
             pos_offset: [0.0, 0.0, 0.0]
-            no_errors: false
             number_of_runs: 10
             run_number: 0
 
@@ -40,18 +39,10 @@
                 variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 pos_i_in_b: [0.0, 0.0, 0.0]
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
-                acc_bias: [0.0, 0.0, 0.0]
-                omg_bias: [0.0, 0.0, 0.0]
                 sim_params:
                     data_log_rate: 10.0
-                    time_bias_error: 0.0
-                    time_error: 1.0e-6
-                    pos_error: [0.0, 0.0, 0.0]
-                    ang_error: [0.0, 0.0, 0.0]
                     acc_error: [1.0e-2, 1.0e-2, 1.0e-2]
                     omg_error: [1.0e-2, 1.0e-2, 1.0e-2]
-                    acc_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
-                    omg_bias_error: [1.0e-1, 1.0e-1, 1.0e-1]
 
         camera: {}
 
