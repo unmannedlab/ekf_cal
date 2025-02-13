@@ -47,25 +47,13 @@ class tab_msckf:
             y_axis_label='Position [m]',
             title='Camera Position')
         for msckf_df in self.msckf_dfs:
-            t_cam = msckf_df['time']
-            fig.line(
-                t_cam,
-                msckf_df['cam_pos_0'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                t_cam,
-                msckf_df['cam_pos_1'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                t_cam,
-                msckf_df['cam_pos_2'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            time = msckf_df['time']
+            pos_x = msckf_df['cam_pos_0']
+            pos_y = msckf_df['cam_pos_1']
+            pos_z = msckf_df['cam_pos_2']
+            fig.line(time, pos_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, pos_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, pos_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_cam_ang(self):
@@ -77,25 +65,13 @@ class tab_msckf:
             y_axis_label='Orientation',
             title='Camera Orientation')
         for msckf_df in self.msckf_dfs:
-            t_cam = msckf_df['time']
-            fig.line(
-                t_cam,
-                msckf_df['cam_ang_pos_0'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                t_cam,
-                msckf_df['cam_ang_pos_1'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                t_cam,
-                msckf_df['cam_ang_pos_2'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            time = msckf_df['time']
+            ang_x = msckf_df['cam_ang_pos_0']
+            ang_y = msckf_df['cam_ang_pos_1']
+            ang_z = msckf_df['cam_ang_pos_2']
+            fig.line(time, ang_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, ang_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, ang_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_cam_pos_err(self):
@@ -112,33 +88,18 @@ class tab_msckf:
             true_p1 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_1"]
             true_p2 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_2"]
 
-            t_gps = msckf_df['time']
+            time = msckf_df['time']
             est_p0 = msckf_df['cam_pos_0']
             est_p1 = msckf_df['cam_pos_1']
             est_p2 = msckf_df['cam_pos_2']
 
-            err_pos_0 = np.array(interpolate_error(true_t, true_p0, t_gps, est_p0)) * 1e3
-            err_pos_1 = np.array(interpolate_error(true_t, true_p1, t_gps, est_p1)) * 1e3
-            err_pos_2 = np.array(interpolate_error(true_t, true_p2, t_gps, est_p2)) * 1e3
+            err_pos_0 = np.array(interpolate_error(true_t, true_p0, time, est_p0)) * 1e3
+            err_pos_1 = np.array(interpolate_error(true_t, true_p1, time, est_p1)) * 1e3
+            err_pos_2 = np.array(interpolate_error(true_t, true_p2, time, est_p2)) * 1e3
 
-            fig.line(
-                t_gps,
-                err_pos_0,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                t_gps,
-                err_pos_1,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                t_gps,
-                err_pos_2,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            fig.line(time, err_pos_0, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, err_pos_1, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, err_pos_2, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_cam_ang_err(self):
@@ -150,7 +111,7 @@ class tab_msckf:
             y_axis_label='Angle Error [mrad]',
             title='Camera Extrinsic Angle Error')
         for msckf_df, body_truth in zip(self.msckf_dfs, self.body_truth_dfs):
-            est_t = msckf_df['time']
+            time = msckf_df['time']
             est_w = msckf_df['cam_ang_pos_0']
             est_x = msckf_df['cam_ang_pos_1']
             est_y = msckf_df['cam_ang_pos_2']
@@ -162,27 +123,11 @@ class tab_msckf:
             true_z = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_3"]
 
             eul_err_x, eul_err_y, eul_err_z = interpolate_quat_error(
-                true_t, true_w, true_x, true_y, true_z,
-                est_t, est_w, est_x, est_y, est_z)
+                true_t, true_w, true_x, true_y, true_z, time, est_w, est_x, est_y, est_z)
 
-            fig.line(
-                est_t,
-                eul_err_x,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                est_t,
-                eul_err_y,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                est_t,
-                eul_err_z,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            fig.line(time, eul_err_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, eul_err_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, eul_err_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_cam_pos_cov(self):
@@ -194,28 +139,13 @@ class tab_msckf:
             y_axis_label='Position Covariance [m]',
             title='Position Covariance')
         for msckf_df in self.msckf_dfs:
-            t_cam = msckf_df['time']
+            time = msckf_df['time']
             cam_cov_0 = msckf_df['cam_cov_0']
             cam_cov_1 = msckf_df['cam_cov_1']
             cam_cov_2 = msckf_df['cam_cov_2']
-            fig.line(
-                t_cam,
-                cam_cov_0,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                t_cam,
-                cam_cov_1,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                t_cam,
-                cam_cov_2,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            fig.line(time, cam_cov_0, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, cam_cov_1, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, cam_cov_2, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_cam_ang_cov(self):
@@ -227,28 +157,13 @@ class tab_msckf:
             y_axis_label='Angle Covariance [m]',
             title='Angle Covariance')
         for msckf_df in self.msckf_dfs:
-            t_cam = msckf_df['time']
+            time = msckf_df['time']
             cam_cov_3 = msckf_df['cam_cov_3']
             cam_cov_4 = msckf_df['cam_cov_4']
             cam_cov_5 = msckf_df['cam_cov_5']
-            fig.line(
-                t_cam,
-                cam_cov_3,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                t_cam,
-                cam_cov_4,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                t_cam,
-                cam_cov_5,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            fig.line(time, cam_cov_3, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, cam_cov_4, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, cam_cov_5, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_triangulation_error(self):
@@ -313,21 +228,9 @@ class tab_msckf:
         std_y = std_y[t_indices]
         std_z = std_z[t_indices]
 
-        fig.line(
-            times,
-            mean_x,
-            color=self.colors[0],
-            legend_label='X')
-        fig.line(
-            times,
-            mean_y,
-            color=self.colors[1],
-            legend_label='Y')
-        fig.line(
-            times,
-            mean_z,
-            color=self.colors[2],
-            legend_label='Z')
+        fig.line(times, mean_x, color=self.colors[0], legend_label='X')
+        fig.line(times, mean_y, color=self.colors[1], legend_label='Y')
+        fig.line(times, mean_z, color=self.colors[2], legend_label='Z')
 
         cds_x = ColumnDataSource({'base': times, 'lower': mean_x - std_x, 'upper': mean_x + std_x})
         cds_y = ColumnDataSource({'base': times, 'lower': mean_y - std_y, 'upper': mean_y + std_y})
@@ -383,14 +286,14 @@ class tab_msckf:
         return fig
 
     def get_tab(self):
-        layout_plots = [[plot_update_timing(self.msckf_dfs), self.plot_triangulation_error()]]
+        layout_plots = [[self.plot_track_count(), self.plot_triangulation_error()]]
 
         if ('cam_cov_0' in self.msckf_dfs[0].keys()):
             layout_plots.append([self.plot_cam_pos(), self.plot_cam_ang()])
             layout_plots.append([self.plot_cam_pos_err(), self.plot_cam_ang_err()])
             layout_plots.append([self.plot_cam_pos_cov(), self.plot_cam_ang_cov()])
 
-        layout_plots.append([self.plot_track_count(), Spacer()])
+        layout_plots.append([plot_update_timing(self.msckf_dfs), Spacer()])
 
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')
         tab = TabPanel(child=tab_layout, title=f"MSCKF {self.msckf_dfs[0].attrs['id']}")

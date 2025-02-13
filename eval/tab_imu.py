@@ -43,24 +43,12 @@ class tab_imu:
             title='Acceleration Measurements')
         for imu_df in self.imu_dfs:
             t_imu = imu_df['time']
-            fig.line(
-                t_imu,
-                imu_df['acc_0'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                t_imu,
-                imu_df['acc_1'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                t_imu,
-                imu_df['acc_2'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            acc_0 = imu_df['acc_0']
+            acc_1 = imu_df['acc_1']
+            acc_2 = imu_df['acc_2']
+            fig.line(t_imu, acc_0, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(t_imu, acc_1, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(t_imu, acc_2, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_omg_measurements(self):
@@ -73,24 +61,12 @@ class tab_imu:
             title='Angular Rate Measurements')
         for imu_df in self.imu_dfs:
             t_imu = imu_df['time']
-            fig.line(
-                t_imu,
-                imu_df['omg_0'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                t_imu,
-                imu_df['omg_1'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                t_imu,
-                imu_df['omg_2'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            omg_0 = imu_df['omg_0']
+            omg_1 = imu_df['omg_1']
+            omg_2 = imu_df['omg_2']
+            fig.line(t_imu, omg_0, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(t_imu, omg_1, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(t_imu, omg_2, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_acc_residuals(self):
@@ -103,24 +79,12 @@ class tab_imu:
             title='Acceleration Residuals')
         for imu_df in self.imu_dfs:
             t_imu = imu_df['time']
-            fig.line(
-                t_imu,
-                imu_df['residual_0'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                t_imu,
-                imu_df['residual_1'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                t_imu,
-                imu_df['residual_2'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            res_0 = imu_df['residual_0']
+            res_1 = imu_df['residual_1']
+            res_2 = imu_df['residual_2']
+            fig.line(t_imu, res_0, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(t_imu, res_1, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(t_imu, res_2, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_omg_residuals(self):
@@ -133,24 +97,12 @@ class tab_imu:
             title='Angular Rate Residuals')
         for imu_df in self.imu_dfs:
             time = imu_df['time']
-            fig.line(
-                time,
-                imu_df['residual_3'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                time,
-                imu_df['residual_4'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                time,
-                imu_df['residual_5'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            res_3 = imu_df['residual_3']
+            res_4 = imu_df['residual_4']
+            res_5 = imu_df['residual_5']
+            fig.line(time, res_3, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, res_4, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, res_5, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_ext_pos_err(self):
