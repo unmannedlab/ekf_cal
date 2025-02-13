@@ -1,20 +1,19 @@
 /EkfCalNode:
     ros__parameters:
         debug_log_level: 2
-        data_log_rate: 100.0
+        data_log_rate: 10.0
         process_noise:
             pos: 1.0e-0
             vel: 1.0e-1
-            acc: 1.0e-2
-            ang_pos: 1.0e-1
+            ang_pos: 1.0e-3
         sim_params:
             seed: 1.0
-            max_time: 50.0
-            stationary_time: 0.5
+            max_time: 300.0
+            stationary_time: 0.1
             truth_type: "cyclic"
             pos_frequency: [0.3, 0.5, 0.7]
             ang_frequency: [0.2, 0.3, 0.4]
-            ang_amplitude: 0.3
+            ang_amplitude: 0.5
             number_of_runs: 10
             run_number: 0
 
@@ -35,16 +34,14 @@
             imu_1:
                 is_extrinsic: false
                 is_intrinsic: false
-                rate: 100.0
+                rate: 1000.0
                 topic: "/imu_1"
-                variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01,
-                           1e-6, 1e-6, 1e-6,
-                           1e-6, 1e-6, 1e-6]
+                variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
                 pos_i_in_b: [0.0, 0.0, 0.0]
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
-                data_log_rate: 100.0
+                data_log_rate: 10.0
                 sim_params:
-                    acc_error: [1.0e-1, 1.0e-1, 1.0e-1]
+                    acc_error: [1.0e-2, 1.0e-2, 1.0e-2]
                     omg_error: [1.0e-3, 1.0e-3, 1.0e-3]
 
         camera:
@@ -54,13 +51,12 @@
                 topic:  "/cam_1"
                 pos_c_in_b: [0.0, 0.0, 0.0]
                 ang_c_to_b: [-0.5, 0.5, -0.5, 0.5]
-                variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+                variance: [0.01, 0.01, 0.01, 0.1, 0.1, 0.1]
                 tracker: "orb"
-                is_extrinsic: false
+                is_extrinsic: true
+                pos_stability: 1e-2
                 sim_params:
-                    time_bias_error: 0.0
-                    time_error: 0.0
-                    pos_error: [0.0, 0.0, 0.0]
+                    pos_error: [0.01, 0.01, 0.01]
                     ang_error: [0.0, 0.0, 0.0]
 
         tracker:
@@ -72,7 +68,7 @@
                 pixel_error: 0.5
                 max_track_length: 10
                 sim_params:
-                    feature_count: 500
+                    feature_count: 200
                     room_size: 5.0
 
         fiducial: {}
