@@ -159,22 +159,27 @@ class tab_imu:
             width=800,
             height=300,
             x_axis_label='Time [s]',
-            y_axis_label='Position Error [m]',
+            y_axis_label='Position Error [mm]',
             title='Extrinsic Position Error')
-        n = min([len(df['time']) for df in self.imu_dfs])
-        t_imu = np.zeros([len(self.imu_dfs), n])
-        pos_0 = np.zeros([len(self.imu_dfs), n])
-        pos_1 = np.zeros([len(self.imu_dfs), n])
-        pos_2 = np.zeros([len(self.imu_dfs), n])
 
-        for i in range(len(self.imu_dfs)):
-            time = self.imu_dfs[i]['time'][:n]
-            pos_0[i, :] = np.array(self.imu_dfs[i]['imu_pos_0'][:n])
-            pos_1[i, :] = np.array(self.imu_dfs[i]['imu_pos_1'][:n])
-            pos_2[i, :] = np.array(self.imu_dfs[i]['imu_pos_2'][:n])
-            fig.line(time, pos_0[i, :], alpha=self.alpha, color=self.colors[0], legend_label='X')
-            fig.line(time, pos_1[i, :], alpha=self.alpha, color=self.colors[1], legend_label='Y')
-            fig.line(time, pos_2[i, :], alpha=self.alpha, color=self.colors[2], legend_label='Z')
+        for i, (imu_df, body_truth) in enumerate(zip(self.imu_dfs, self.body_truth_dfs)):
+            time = self.imu_dfs[i]['time']
+            est_x = np.array(self.imu_dfs[i]['imu_pos_0'])
+            est_y = np.array(self.imu_dfs[i]['imu_pos_1'])
+            est_z = np.array(self.imu_dfs[i]['imu_pos_2'])
+
+            true_t = body_truth['time']
+            true_x = body_truth[f"imu_pos_{imu_df.attrs['id']}_0"]
+            true_y = body_truth[f"imu_pos_{imu_df.attrs['id']}_1"]
+            true_z = body_truth[f"imu_pos_{imu_df.attrs['id']}_2"]
+
+            pos_x = np.array(interpolate_error(true_t, true_x, time, est_x))
+            pos_y = np.array(interpolate_error(true_t, true_y, time, est_y))
+            pos_z = np.array(interpolate_error(true_t, true_z, time, est_z))
+
+            fig.line(time, pos_x*1e3, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, pos_y*1e3, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, pos_z*1e3, alpha=self.alpha, color=self.colors[2], legend_label='Z')
 
         return fig
 
@@ -197,9 +202,6 @@ class tab_imu:
             true_x = body_truth[f"imu_ang_pos_{imu_df.attrs['id']}_1"]
             true_y = body_truth[f"imu_ang_pos_{imu_df.attrs['id']}_2"]
             true_z = body_truth[f"imu_ang_pos_{imu_df.attrs['id']}_3"]
-            eul_err_x = []
-            eul_err_y = []
-            eul_err_z = []
 
             eul_err_x, eul_err_y, eul_err_z = interpolate_quat_error(
                 true_t, true_w, true_x, true_y, true_z, est_t, est_w, est_x, est_y, est_z)
@@ -218,14 +220,13 @@ class tab_imu:
             y_axis_label='Bias Error [m]',
             title='Accelerometer Bias Error')
         n = np.max([len(imu_df) for imu_df in self.imu_dfs])
-        a_bias_t = np.zeros([len(self.imu_dfs), n])
         a_bias_err_x = np.zeros([len(self.imu_dfs), n])
         a_bias_err_y = np.zeros([len(self.imu_dfs), n])
         a_bias_err_z = np.zeros([len(self.imu_dfs), n])
 
         for i, (imu_df, body_truth) in enumerate(zip(self.imu_dfs, self.body_truth_dfs)):
             m = len(self.imu_dfs[i]['time'])
-            a_bias_t[i, 0:m] = self.imu_dfs[i]['time']
+            time = self.imu_dfs[i]['time']
             est_x = np.array(self.imu_dfs[i]['imu_acc_bias_0'])
             est_y = np.array(self.imu_dfs[i]['imu_acc_bias_1'])
             est_z = np.array(self.imu_dfs[i]['imu_acc_bias_2'])
@@ -235,13 +236,13 @@ class tab_imu:
             true_y = body_truth[f"imu_acc_bias_{imu_df.attrs['id']}_1"]
             true_z = body_truth[f"imu_acc_bias_{imu_df.attrs['id']}_2"]
 
-            a_bias_err_x[i, 0:m] = interpolate_error(true_t, true_x, a_bias_t[i, 0:n], est_x)
-            a_bias_err_y[i, 0:m] = interpolate_error(true_t, true_y, a_bias_t[i, 0:n], est_y)
-            a_bias_err_z[i, 0:m] = interpolate_error(true_t, true_z, a_bias_t[i, 0:n], est_z)
+            a_bias_err_x[i, 0:m] = interpolate_error(true_t, true_x, time, est_x)
+            a_bias_err_y[i, 0:m] = interpolate_error(true_t, true_y, time, est_y)
+            a_bias_err_z[i, 0:m] = interpolate_error(true_t, true_z, time, est_z)
 
-            fig.line(a_bias_t[i, :], a_bias_err_x[i, :], color=self.colors[0], alpha=self.alpha)
-            fig.line(a_bias_t[i, :], a_bias_err_y[i, :], color=self.colors[1], alpha=self.alpha)
-            fig.line(a_bias_t[i, :], a_bias_err_z[i, :], color=self.colors[2], alpha=self.alpha)
+            fig.line(time, a_bias_err_x[i, :], color=self.colors[0], alpha=self.alpha)
+            fig.line(time, a_bias_err_y[i, :], color=self.colors[1], alpha=self.alpha)
+            fig.line(time, a_bias_err_z[i, :], color=self.colors[2], alpha=self.alpha)
 
         return fig
 
