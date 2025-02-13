@@ -134,7 +134,7 @@ void GpsUpdater::UpdateEKF(
   }
   msg << VectorToCommaString(residual);
   msg << "," << t_execution.count();
-  m_data_logger.Log(msg.str());
+  m_data_logger.RateLimitedLog(msg.str(), local_time);
 }
 
 void GpsUpdater::MultiUpdateEKF(std::shared_ptr<EKF> ekf)
