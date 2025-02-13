@@ -93,22 +93,29 @@ void ImuUpdater::UpdateEKF(
   Eigen::Quaterniond ang_i_to_b = ekf->m_state.imu_states[m_id].ang_i_to_b;
   Eigen::Vector3d acc_bias = ekf->m_state.imu_states[m_id].acc_bias;
   Eigen::Vector3d omg_bias = ekf->m_state.imu_states[m_id].omg_bias;
+  Eigen::VectorXd resid = Eigen::VectorXd::Zero(6);
 
-  Eigen::VectorXd z(acceleration.size() + angular_rate.size());
-  z.segment<3>(0) = acceleration;
-  z.segment<3>(3) = angular_rate;
+  if (ekf->m_state.imu_states.size() == 1) {
+    ekf->m_state.body_state.acc_b_in_l = ang_b_to_l * ang_i_to_b * (acceleration - acc_bias);
+    ekf->m_state.body_state.ang_vel_b_in_l = ang_b_to_l * ang_i_to_b * (angular_rate - omg_bias);
+    ekf->m_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Zero();
+  } else {
+    Eigen::VectorXd z(acceleration.size() + angular_rate.size());
+    z.segment<3>(0) = acceleration;
+    z.segment<3>(3) = angular_rate;
 
-  Eigen::VectorXd z_pred = PredictMeasurement(ekf);
-  Eigen::VectorXd resid = z - z_pred;
+    Eigen::VectorXd z_pred = PredictMeasurement(ekf);
+    resid = z - z_pred;
 
-  Eigen::MatrixXd H = GetMeasurementJacobian(ekf);
+    Eigen::MatrixXd H = GetMeasurementJacobian(ekf);
 
-  Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-  R.block<3, 3>(0, 0) = acceleration_covariance;
-  R.block<3, 3>(3, 3) = angular_rate_covariance;
+    Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
+    R.block<3, 3>(0, 0) = acceleration_covariance;
+    R.block<3, 3>(3, 3) = angular_rate_covariance;
 
-  // Apply Kalman update
-  KalmanUpdate(ekf, H, resid, R);
+    // Apply Kalman update
+    KalmanUpdate(ekf, H, resid, R);
+  }
 
   ekf->PredictModel(local_time);
 
@@ -342,6 +349,31 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
   // Body Angular Velocity
   measurement_jacobian.block<3, 3>(3, 12) = ang_i_to_b.inverse().toRotationMatrix() *
     ang_b_to_l.inverse().toRotationMatrix();
+
+  if (m_is_extrinsic) {
+    unsigned int index_extrinsic = ekf->m_state.imu_states[m_id].index_extrinsic;
+    Eigen::Vector3d ang_vel_b_in_l = ekf->m_state.body_state.ang_vel_b_in_l;
+    Eigen::Vector3d ang_acc_b_in_l = ekf->m_state.body_state.ang_acc_b_in_l;
+
+
+    // IMU Positional Offset
+    measurement_jacobian.block<3, 3>(0, index_extrinsic + 0) =
+      ang_i_to_b.inverse().toRotationMatrix() * (SkewSymmetric(ang_acc_b_in_l) +
+      SkewSymmetric(ang_vel_b_in_l) * SkewSymmetric(ang_vel_b_in_l)
+      );
+
+    // IMU Angular Offset
+    measurement_jacobian.block<3, 3>(0, index_extrinsic + 3) = SkewSymmetric(
+      ang_i_to_b.inverse() * (ang_acc_b_in_l.cross(pos_i_in_b) +
+      ang_vel_b_in_l.cross(ang_vel_b_in_l.cross(pos_i_in_b)) +
+      ang_b_to_l.inverse() * (ekf->m_state.body_state.acc_b_in_l + g_gravity)
+      )
+    );
+
+    // IMU Angular Offset
+    measurement_jacobian.block<3, 3>(3, index_extrinsic + 3) = SkewSymmetric(
+      ang_i_to_b.inverse() * ang_b_to_l.inverse() * ang_vel_b_in_l);
+  }
 
   if (m_is_intrinsic) {
     unsigned int index_intrinsic = ekf->m_state.imu_states[m_id].index_intrinsic;
