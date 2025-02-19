@@ -16,7 +16,7 @@ jobs:
         shell: bash
         run: |
           apt-get update
-          apt-get install -y python3-colcon-common-extensions python3-colcon-lcov-result python3-rosdep git lcov cloc doxygen nodejs
+          apt-get install -y python3-colcon-common-extensions python3-colcon-lcov-result python3-rosdep lcov cloc doxygen nodejs
           mkdir -p ~/ekf_cal_ws/src
 
       - uses: actions/checkout@v4
@@ -86,4 +86,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
