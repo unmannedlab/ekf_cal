@@ -21,7 +21,7 @@ RUN apt-get update && \
     && \
     rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m pip install rosdep opencv-python
+RUN python3 -m pip install bokeh matplotlib numpy opencv-python pandas pyyaml rosdep scipy==1.15
 
 # Set Locales
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
