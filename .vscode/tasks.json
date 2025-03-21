@@ -111,10 +111,10 @@
             }
         },
         {
-            "label": "debug ekf_cal",
+            "label": "build ekf_cal debug",
             "detail": "Build ekf_cal package with debug symbols",
             "type": "shell",
-            "command": "colcon build --symlink-install --packages-select ekf_cal --cmake-args '-DCMAKE_BUILD_TYPE=Debug'",
+            "command": "colcon build --symlink-install --packages-select ekf_cal --cmake-args -DCMAKE_BUILD_TYPE=Debug",
             "group": "build",
             "problemMatcher": "$gcc",
             "options": {

@@ -47,7 +47,7 @@ rosdep install --from-paths src -y --ignore-src
 Building can be done simply with the following command:
 
 ```
-colcon build --symlink-install --packages-select ekf_cal --event-handlers console_cohesion+ --cmake-args -DCMAKE_C_FLAGS='--coverage' -DCMAKE_CXX_FLAGS='--coverage'
+colcon build --symlink-install --packages-select ekf_cal --event-handlers console_cohesion+ --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 #### Docker
