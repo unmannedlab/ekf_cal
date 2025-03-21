@@ -5,6 +5,7 @@ Package Features:
     - Implement AprilGridTracker
     - Multiple Single-IMU filters to a multi-sensor filter
     - Use emplace_back where appropriate
+    - Multi-Threading in EKF std::lock_guard lock(mutex);
 
 Simulation:
     - Show track images from simulation
@@ -12,6 +13,7 @@ Simulation:
     - Add extrinsic step disturbance
     - Add IMU bias instability
     - Use named variance terms
+    - Switch to H5 data logging, save errors off in real time
     - Create Simulated Camera video feed
         - Circles for points, radius based on distance
         - Polygon for Board edges
