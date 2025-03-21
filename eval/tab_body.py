@@ -40,24 +40,12 @@ class tab_body:
                      y_axis_label='Position [m]', title='Body Position')
         for body_df in self.body_state_dfs:
             time = body_df['time']
-            fig.line(
-                time,
-                body_df['body_pos_0'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                time,
-                body_df['body_pos_1'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                time,
-                body_df['body_pos_2'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            pos_x = body_df['body_pos_0']
+            pos_y = body_df['body_pos_1']
+            pos_z = body_df['body_pos_2']
+            fig.line(time, pos_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, pos_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, pos_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_vel(self):
@@ -66,24 +54,12 @@ class tab_body:
                      y_axis_label='Velocity [m/s]', title='Body Velocity')
         for body_df in self.body_state_dfs:
             time = body_df['time']
-            fig.line(
-                time,
-                body_df['body_vel_0'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                time,
-                body_df['body_vel_1'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                time,
-                body_df['body_vel_2'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            vel_x = body_df['body_vel_0']
+            vel_y = body_df['body_vel_1']
+            vel_z = body_df['body_vel_2']
+            fig.line(time, vel_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, vel_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, vel_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_acc(self):
@@ -92,24 +68,12 @@ class tab_body:
                      y_axis_label='Acceleration [m/s/s]', title='Body Acceleration')
         for body_df in self.body_state_dfs:
             time = body_df['time']
-            fig.line(
-                time,
-                body_df['body_acc_0'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                time,
-                body_df['body_acc_1'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                time,
-                body_df['body_acc_2'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            acc_x = body_df['body_acc_0']
+            acc_y = body_df['body_acc_1']
+            acc_z = body_df['body_acc_2']
+            fig.line(time, acc_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, acc_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, acc_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_ang(self):
@@ -136,24 +100,9 @@ class tab_body:
                 body_g.append(body_eul[2])
 
             time = body_df['time']
-            fig.line(
-                time,
-                body_a,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                time,
-                body_b,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                time,
-                body_g,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            fig.line(time, body_a, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, body_b, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, body_g, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_ang_vel(self):
@@ -162,24 +111,12 @@ class tab_body:
                      y_axis_label='Angular Velocity', title='Body Angular Velocity')
         for body_df in self.body_state_dfs:
             time = body_df['time']
-            fig.line(
-                time,
-                body_df['body_ang_vel_0'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                time,
-                body_df['body_ang_vel_1'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                time,
-                body_df['body_ang_vel_2'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            ang_vel_x = body_df['body_ang_vel_0']
+            ang_vel_y = body_df['body_ang_vel_1']
+            ang_vel_z = body_df['body_ang_vel_2']
+            fig.line(time, ang_vel_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, ang_vel_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, ang_vel_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_ang_acc(self):
@@ -188,24 +125,12 @@ class tab_body:
                      y_axis_label='Angular Acceleration', title='Body Angular Acceleration')
         for body_df in self.body_state_dfs:
             time = body_df['time']
-            fig.line(
-                time,
-                body_df['body_ang_acc_0'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                time,
-                body_df['body_ang_acc_1'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                time,
-                body_df['body_ang_acc_2'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            ang_acc_x = body_df['body_ang_acc_0']
+            ang_acc_y = body_df['body_ang_acc_1']
+            ang_acc_z = body_df['body_ang_acc_2']
+            fig.line(time, ang_acc_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, ang_acc_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, ang_acc_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_err_pos(self):
@@ -218,33 +143,18 @@ class tab_body:
             true_pos_1 = body_truth['body_pos_1']
             true_pos_2 = body_truth['body_pos_2']
 
-            est_time = body_state['time']
+            time = body_state['time']
             est_pos_0 = body_state['body_pos_0']
             est_pos_1 = body_state['body_pos_1']
             est_pos_2 = body_state['body_pos_2']
 
-            err_pos_0 = interpolate_error(true_time, true_pos_0, est_time, est_pos_0)
-            err_pos_1 = interpolate_error(true_time, true_pos_1, est_time, est_pos_1)
-            err_pos_2 = interpolate_error(true_time, true_pos_2, est_time, est_pos_2)
+            err_pos_0 = interpolate_error(true_time, true_pos_0, time, est_pos_0)
+            err_pos_1 = interpolate_error(true_time, true_pos_1, time, est_pos_1)
+            err_pos_2 = interpolate_error(true_time, true_pos_2, time, est_pos_2)
 
-            fig.line(
-                est_time,
-                err_pos_0,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                est_time,
-                err_pos_1,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                est_time,
-                err_pos_2,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            fig.line(time, err_pos_0, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, err_pos_1, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, err_pos_2, alpha=self.alpha, color=self.colors[2], legend_label='Z')
 
         return fig
 
@@ -258,33 +168,18 @@ class tab_body:
             true_vel_1 = body_truth['body_vel_1']
             true_vel_2 = body_truth['body_vel_2']
 
-            est_time = body_state['time']
+            time = body_state['time']
             est_vel_0 = body_state['body_vel_0']
             est_vel_1 = body_state['body_vel_1']
             est_vel_2 = body_state['body_vel_2']
 
-            err_vel_0 = interpolate_error(true_time, true_vel_0, est_time, est_vel_0)
-            err_vel_1 = interpolate_error(true_time, true_vel_1, est_time, est_vel_1)
-            err_vel_2 = interpolate_error(true_time, true_vel_2, est_time, est_vel_2)
+            err_vel_0 = interpolate_error(true_time, true_vel_0, time, est_vel_0)
+            err_vel_1 = interpolate_error(true_time, true_vel_1, time, est_vel_1)
+            err_vel_2 = interpolate_error(true_time, true_vel_2, time, est_vel_2)
 
-            fig.line(
-                est_time,
-                err_vel_0,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                est_time,
-                err_vel_1,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                est_time,
-                err_vel_2,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            fig.line(time, err_vel_0, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, err_vel_1, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, err_vel_2, alpha=self.alpha, color=self.colors[2], legend_label='Z')
 
         return fig
 
@@ -298,33 +193,18 @@ class tab_body:
             true_acc_1 = body_truth['body_acc_1']
             true_acc_2 = body_truth['body_acc_2']
 
-            est_time = body_state['time']
+            time = body_state['time']
             est_acc_0 = body_state['body_acc_0']
             est_acc_1 = body_state['body_acc_1']
             est_acc_2 = body_state['body_acc_2']
 
-            err_acc_0 = interpolate_error(true_time, true_acc_0, est_time, est_acc_0)
-            err_acc_1 = interpolate_error(true_time, true_acc_1, est_time, est_acc_1)
-            err_acc_2 = interpolate_error(true_time, true_acc_2, est_time, est_acc_2)
+            err_acc_0 = interpolate_error(true_time, true_acc_0, time, est_acc_0)
+            err_acc_1 = interpolate_error(true_time, true_acc_1, time, est_acc_1)
+            err_acc_2 = interpolate_error(true_time, true_acc_2, time, est_acc_2)
 
-            fig.line(
-                est_time,
-                err_acc_0,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                est_time,
-                err_acc_1,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                est_time,
-                err_acc_2,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            fig.line(time, err_acc_0, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, err_acc_1, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, err_acc_2, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_err_ang(self):
@@ -338,7 +218,7 @@ class tab_body:
             true_ang_pos_y = body_truth['body_ang_pos_2']
             true_ang_pos_z = body_truth['body_ang_pos_3']
 
-            est_time = body_state['time']
+            time = body_state['time']
             est_ang_pos_w = body_state['body_ang_pos_0']
             est_ang_pos_x = body_state['body_ang_pos_1']
             est_ang_pos_y = body_state['body_ang_pos_2']
@@ -349,33 +229,18 @@ class tab_body:
                 est_ang_pos_y,
                 est_ang_pos_z)
 
-            interp_w = np.interp(est_time, true_time, true_ang_pos_w)
-            interp_x = np.interp(est_time, true_time, true_ang_pos_x)
-            interp_y = np.interp(est_time, true_time, true_ang_pos_y)
-            interp_z = np.interp(est_time, true_time, true_ang_pos_z)
+            interp_w = np.interp(time, true_time, true_ang_pos_w)
+            interp_x = np.interp(time, true_time, true_ang_pos_x)
+            interp_y = np.interp(time, true_time, true_ang_pos_y)
+            interp_z = np.interp(time, true_time, true_ang_pos_z)
             interp_r = lists_to_rot(interp_w, interp_x, interp_y, interp_z)
 
-            err_ang_pos_x, err_ang_pos_y, err_ang_pos_z = \
+            pos_err_x, pos_err_y, pos_err_z = \
                 calculate_rotation_errors(est_ang_pos_r, interp_r)
 
-            fig.line(
-                est_time,
-                err_ang_pos_x,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                est_time,
-                err_ang_pos_y,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                est_time,
-                err_ang_pos_z,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            fig.line(time, pos_err_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, pos_err_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, pos_err_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_err_ang_vel(self):
@@ -389,33 +254,18 @@ class tab_body:
             true_ang_vel_1 = body_truth['body_ang_vel_1']
             true_ang_vel_2 = body_truth['body_ang_vel_2']
 
-            est_time = body_state['time']
+            time = body_state['time']
             est_ang_vel_0 = body_state['body_ang_vel_0']
             est_ang_vel_1 = body_state['body_ang_vel_1']
             est_ang_vel_2 = body_state['body_ang_vel_2']
 
-            err_ang_vel_0 = interpolate_error(true_time, true_ang_vel_0, est_time, est_ang_vel_0)
-            err_ang_vel_1 = interpolate_error(true_time, true_ang_vel_1, est_time, est_ang_vel_1)
-            err_ang_vel_2 = interpolate_error(true_time, true_ang_vel_2, est_time, est_ang_vel_2)
+            vel_err_0 = interpolate_error(true_time, true_ang_vel_0, time, est_ang_vel_0)
+            vel_err_1 = interpolate_error(true_time, true_ang_vel_1, time, est_ang_vel_1)
+            vel_err_2 = interpolate_error(true_time, true_ang_vel_2, time, est_ang_vel_2)
 
-            fig.line(
-                est_time,
-                err_ang_vel_0,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                est_time,
-                err_ang_vel_1,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                est_time,
-                err_ang_vel_2,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            fig.line(time, vel_err_0, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, vel_err_1, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, vel_err_2, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_err_ang_acc(self):
@@ -429,33 +279,18 @@ class tab_body:
             true_ang_acc_1 = body_truth['body_ang_acc_1']
             true_ang_acc_2 = body_truth['body_ang_acc_2']
 
-            est_time = body_state['time']
+            time = body_state['time']
             est_ang_acc_0 = body_state['body_ang_acc_0']
             est_ang_acc_1 = body_state['body_ang_acc_1']
             est_ang_acc_2 = body_state['body_ang_acc_2']
 
-            err_ang_acc_0 = interpolate_error(true_time, true_ang_acc_0, est_time, est_ang_acc_0)
-            err_ang_acc_1 = interpolate_error(true_time, true_ang_acc_1, est_time, est_ang_acc_1)
-            err_ang_acc_2 = interpolate_error(true_time, true_ang_acc_2, est_time, est_ang_acc_2)
+            acc_err_0 = interpolate_error(true_time, true_ang_acc_0, time, est_ang_acc_0)
+            acc_err_1 = interpolate_error(true_time, true_ang_acc_1, time, est_ang_acc_1)
+            acc_err_2 = interpolate_error(true_time, true_ang_acc_2, time, est_ang_acc_2)
 
-            fig.line(
-                est_time,
-                err_ang_acc_0,
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                est_time,
-                err_ang_acc_1,
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                est_time,
-                err_ang_acc_2,
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            fig.line(time, acc_err_0, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, acc_err_1, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, acc_err_2, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_pos_cov(self):
@@ -464,24 +299,12 @@ class tab_body:
                      y_axis_label='Position [m]', title='Body Position Covariance')
         for body_df in self.body_state_dfs:
             time = body_df['time']
-            fig.line(
-                time,
-                body_df['body_cov_0'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                time,
-                body_df['body_cov_1'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                time,
-                body_df['body_cov_2'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            cov_x = body_df['body_cov_0']
+            cov_y = body_df['body_cov_1']
+            cov_z = body_df['body_cov_2']
+            fig.line(time, cov_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, cov_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, cov_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_vel_cov(self):
@@ -490,24 +313,12 @@ class tab_body:
                      y_axis_label='Velocity [m/s]', title='Body Velocity Covariance')
         for body_df in self.body_state_dfs:
             time = body_df['time']
-            fig.line(
-                time,
-                body_df['body_cov_3'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                time,
-                body_df['body_cov_4'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                time,
-                body_df['body_cov_5'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            cov_x = body_df['body_cov_3']
+            cov_y = body_df['body_cov_4']
+            cov_z = body_df['body_cov_5']
+            fig.line(time, cov_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, cov_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, cov_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_acc_cov(self):
@@ -516,24 +327,12 @@ class tab_body:
                      y_axis_label='Acceleration [m/s/s]', title='Body Acceleration Covariance')
         for body_df in self.body_state_dfs:
             time = body_df['time']
-            fig.line(
-                time,
-                body_df['body_cov_6'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                time,
-                body_df['body_cov_7'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                time,
-                body_df['body_cov_8'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            cov_x = body_df['body_cov_6']
+            cov_y = body_df['body_cov_7']
+            cov_z = body_df['body_cov_8']
+            fig.line(time, cov_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, cov_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, cov_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_ang_cov(self):
@@ -542,24 +341,12 @@ class tab_body:
                      y_axis_label='Angle [rad]', title='Body Angular Covariance')
         for body_df in self.body_state_dfs:
             time = body_df['time']
-            fig.line(
-                time,
-                body_df['body_cov_6'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                time,
-                body_df['body_cov_7'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                time,
-                body_df['body_cov_8'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            cov_x = body_df['body_cov_9']
+            cov_y = body_df['body_cov_10']
+            cov_z = body_df['body_cov_11']
+            fig.line(time, cov_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, cov_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, cov_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_ang_vel_cov(self):
@@ -568,24 +355,12 @@ class tab_body:
                      y_axis_label='Angular Rate [rad/s]', title='Body Angular Rate Covariance')
         for body_df in self.body_state_dfs:
             time = body_df['time']
-            fig.line(
-                time,
-                body_df['body_cov_12'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                time,
-                body_df['body_cov_13'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                time,
-                body_df['body_cov_14'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            cov_x = body_df['body_cov_12']
+            cov_y = body_df['body_cov_13']
+            cov_z = body_df['body_cov_14']
+            fig.line(time, cov_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, cov_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, cov_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_body_ang_acc_cov(self):
@@ -595,24 +370,12 @@ class tab_body:
                      title='Body Angular Acceleration Covariance')
         for body_df in self.body_state_dfs:
             time = body_df['time']
-            fig.line(
-                time,
-                body_df['body_cov_15'],
-                alpha=self.alpha,
-                color=self.colors[0],
-                legend_label='X')
-            fig.line(
-                time,
-                body_df['body_cov_16'],
-                alpha=self.alpha,
-                color=self.colors[1],
-                legend_label='Y')
-            fig.line(
-                time,
-                body_df['body_cov_17'],
-                alpha=self.alpha,
-                color=self.colors[2],
-                legend_label='Z')
+            cov_x = body_df['body_cov_15']
+            cov_y = body_df['body_cov_16']
+            cov_z = body_df['body_cov_17']
+            fig.line(time, cov_x, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, cov_y, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, cov_z, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
     def plot_aug_pos(self):

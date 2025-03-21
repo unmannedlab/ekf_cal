@@ -1,7 +1,7 @@
 {
     "editor.formatOnSave": true,
     "editor.rulers": [
-        100
+        99
     ],
     "python.autoComplete.extraPaths": [
         "/opt/ros/iron/lib/python3.8/site-packages"
@@ -204,8 +204,8 @@
     "terminal.integrated.gpuAcceleration": "off",
     "cmake.debugConfig": {
         "args": [
-            "${workspaceFolder}/config/example.yaml",
-            "${workspaceFolder}/config/example/"
+            "${workspaceFolder}/config/regression/one_imu_cam.yaml",
+            "${workspaceFolder}/config/regression/one_imu_cam/"
         ]
     },
     "todo.embedded.exclude": [
@@ -262,6 +262,6 @@
     },
     "[markdown]": {
         "editor.wordWrap": "wordWrapColumn",
-        "editor.wordWrapColumn": 100
+        "editor.wordWrapColumn": 99
     }
 }

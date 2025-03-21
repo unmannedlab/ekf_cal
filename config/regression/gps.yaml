@@ -1,17 +1,23 @@
 /EkfCalNode:
     ros__parameters:
         debug_log_level: 2
-        data_log_rate: 10.0
+        data_log_rate: 1.0
         process_noise:
-            pos: 1.0e-3
-            vel: 5.0e-1
+            pos: 1.0e-6
+            vel: 5.0e-6
             ang_pos: 1.0e-1
+
+        gps_init_type: 0
+        gps_init_pos_thresh: 0.1
+        gps_init_ang_thresh: 0.1
+        gps_init_baseline_dist: 100.0
+
         sim_params:
             seed: 1.0
-            max_time: 6.0
+            max_time: 300.0
             number_of_runs: 10
             run_number: 0
-            stationary_time: 1.0
+            stationary_time: 500.0
             truth_type: "spline"
             positions: [
                 00.0, 00.0, 00.0,
@@ -27,12 +33,12 @@
                 0.0, 0.0, 0.5,
                 0.0, 0.0, 0.0
             ]
-            pos_e_in_g: [0.0, 0.0, 0.0]
-            ang_l_to_e: 0.0
+            pos_e_in_g: [1.0e-9, 1.0e-9, 1.0e-9]
+            ang_l_to_e: 1.0e-9
             pos_e_in_g_error: [1.0e-9, 1.0e-9, 1.0e-9]
             ang_l_to_e_error: 1.0e-9
-            pos_b_in_l_error: [0.0, 0.0, 0.0]
-            ang_b_to_l_error: [0.5, 0.5, 0.5]
+            pos_b_in_l_error: [1.0e-9, 1.0e-9, 1.0e-9]
+            ang_b_to_l_error: [1.0e-9, 1.0e-9, 1.0e-9]
 
         imu_list:
             - "imu_1"
@@ -50,27 +56,22 @@
             imu_1:
                 is_extrinsic: false
                 is_intrinsic: false
-                rate: 40.0
+                rate: 400.0
                 topic: "/imu_1"
-                variance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                variance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
                 pos_i_in_b: [0.0, 0.0, 0.0]
                 ang_i_to_b: [1.0, 0.0, 0.0, 0.0]
                 acc_bias: [0.0, 0.0, 0.0]
                 omg_bias: [0.0, 0.0, 0.0]
                 pos_stability: 1.0e-2
                 ang_stability: 1.0e-2
-                acc_bias_stability: 1.0e-3
-                omg_bias_stability: 1.0e-3
-                data_log_rate: 10.0
+                data_log_rate: 1.0
+                use_for_prediction: true
                 sim_params:
-                    time_bias_error: 1.0e-9
-                    time_error: 1.0e-6
                     pos_error: [0.0, 0.0, 0.0]
                     ang_error: [0.0, 0.0, 0.0]
-                    acc_error: [1.0e-2, 1.0e-2, 1.0e-2]
-                    omg_error: [1.0e-2, 1.0e-2, 1.0e-2]
-                    acc_bias_error: [0.0, 0.0, 0.0]
-                    omg_bias_error: [0.0, 0.0, 0.0]
+                    acc_error: [1.0e-6, 1.0e-6, 1.0e-6]
+                    omg_error: [1.0e-6, 1.0e-6, 1.0e-6]
 
         camera: {}
 
@@ -84,16 +85,9 @@
                 topic: "/gps1"
                 pos_a_in_b: [0.0, 0.0, 0.0]
                 variance: [1.0, 1.0, 1.0]
-                data_log_rate: 10.0
-                initialization_type: 0
-                init_pos_thresh: 0.1
-                init_ang_thresh: 0.1
-                init_baseline_dist: 100.0
-                pos_stability: 1.0e-9
-                is_extrinsic: false
+                data_log_rate: 1.0
+                pos_stability: 1.0e-4
+                is_extrinsic: true
                 sim_params:
-                    no_errors: false
-                    time_bias_error: 1.0e-9
-                    time_error: 1.0e-9
-                    lla_error: [1.0, 1.0, 1.0]
-                    pos_a_in_b_err: [1.0e-1, 1.0e-1, 1.0e-1]
+                    lla_error: [1.0e-2, 1.0e-2, 1.0e-2]
+                    pos_a_in_b_err: [1.0e-0, 1.0e-0, 1.0e-0]

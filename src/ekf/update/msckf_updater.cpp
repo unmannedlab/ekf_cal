@@ -59,6 +59,7 @@ MsckfUpdater::MsckfUpdater(
 
   m_msckf_logger.DefineHeader(header.str());
   if (data_log_rate) {m_msckf_logger.EnableLogging();}
+  m_msckf_logger.SetLogRate(data_log_rate);
 
   m_triangulation_logger.DefineHeader("time,feature,x,y,z");
   if (data_log_rate) {m_triangulation_logger.EnableLogging();}
