@@ -103,7 +103,6 @@ private:
 
 
   double m_stationary_time {0.1};
-  double m_max_acceleration {10.0};
   double m_rate;
   std::vector<double> m_time;
   std::vector<Eigen::Vector3d> m_pos;

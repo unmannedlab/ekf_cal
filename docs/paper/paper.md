@@ -25,9 +25,7 @@ bibliography: paper.bib
 
 The increasing complexity of autonomous systems operating in challenging environments demands robust and accurate calibration methods. Modern autonomous systems use multiple types of sensors to handle a wide variety of environments. To improve system robustness in these challenging environments, redundant sensors are often used to protect against erroneous sensor measurements or outright sensor failures. However, the underlying navigation system must be designed in such a way as to handle these duplicate measurement streams and the addition of each sensor introduces parameters that must be properly calibrated before these sensors' measurements can be effectively used. Moreover, these underlying calibration parameters can change, and often must be estimated *online*. Kalman filters are a common and near-optimal method to estimate a system's state given a series of measurements and transitions through time. Improper tuning can lead to filter instability and poor performance . As such, it is important to verify a filters performance and stability across a large set of runs in the desired operating environment with various initial errors in state estimates.
 
-This software package, `ekf_cal`, seeks to provide a framework for testing multi-sensor Kalman filters using Monte Carlo techniques. By running a given sensor configuration through a large sample of runs, each with varying initial conditions and errors, stability is verified. By looking at the resulting error distributions in any of the system states, the expected system bias and error are estimated. In addition to the simulation running framework, additional scripts are provided that calculate the distribution of errors for a Monte Carlo and generate a report showing state values and errors across the run to aid in analysis.
-
-Additionally, this software package provides example implementations of state-of-the-art Kalman filter-based calibration routines and is currently used for ongoing research [@2022_Multi_Cam] and [@2023_Multi_IMU].
+This software package, `ekf_cal`, seeks to provide a framework for testing multi-sensor Kalman filters using Monte Carlo techniques. By running a given sensor configuration through a large sample of runs, each with varying initial conditions and errors, stability is verified. By looking at the resulting error distributions in any of the system states, the expected system bias and error are estimated. In addition to the simulation running framework, additional scripts are provided that calculate the distribution of errors for a Monte Carlo and generate a report showing state values and errors across the run to aid in analysis. The Multi-State Constraint Kalman Filter (MSCKF) formulation used in this work was originally proposed proposed in [@MSCKF]. Additionally, this work heavily utilizes the Eigen [@eigen] and OpenCV libraries [@opencv]. Lastly, this software package provides example implementations of state-of-the-art Kalman filter-based calibration routines and is currently used for ongoing research [@2022_Multi_Cam] and [@2023_Multi_IMU].
 
 # Statement of need
 
@@ -39,11 +37,12 @@ The `ekf_cal` package, in contrast, seeks to provide additional avenues for test
 
 In summary, this package
 
-- Provides examples of the filtering techniques outlined in [@2022_Multi_Cam] and [@2023_Multi_IMU]
+- Provides examples of the filtering techniques outlined in @2022_Multi_Cam and @2023_Multi_IMU
 - Provides a Monte Carlo architecture for testing filter-based calibration techniques
 - Provides analysis tools for plotting results and evaluating performance statistics
 
 # Capabilities
+
 The `ekf_cal` package supports any number or combination of the sensors listed in the following sections. Errors in sensor measurements and calibrations are varied across Monte Carlo runs, which allow for more robust testing of calibration and localization algorithms. The key parameters supported by all sensors are
 
 | Sensor Parameter   | Description                   |
@@ -56,6 +55,7 @@ The `ekf_cal` package supports any number or combination of the sensors listed i
 | `output_directory` | Data logging output directory |
 
 ### IMU
+
 The `ekf_cal` package supports the use of multiple IMU for updating the state estimate of acceleration and angular rates. A single IMU can be selected to provide state predictions, or all IMU can be used to provide state updates within an Extended Kalman Filter framework. The key IMU parameters supported are
 
 
@@ -74,7 +74,8 @@ The `ekf_cal` package supports the use of multiple IMU for updating the state es
 | `variance`           | Initial state variance                      |
 
 ### Cameras
-The `ekf_cal` package supports the use of multiple cameras, which can simultaneously use MSCKF-based feature tracking and/or fiducial marker tracking for measurement updates. The package is designed to support the use of any OpenCV feature tracker, descriptor, or matcher for MSCKF-based visual inertial odometry. For fiducial measurements, the package supports the use of Aruco or Charuco grid boards. The key camera parameters supported are
+
+The `ekf_cal` package supports the use of multiple cameras, which can simultaneously use MSCKF-based feature tracking and/or fiducial marker tracking for measurement updates. For visual inertial odometry, the package is designed to support the use of any feature tracker, descriptor, or matcher made available through the OpenCV package [@opencv]. For fiducial measurements, the package supports the use of Aruco or Charuco grid boards. The key camera parameters supported are
 
 | Camera Parameter | Description                                    |
 | ---------------- | ---------------------------------------------- |
@@ -88,6 +89,7 @@ The `ekf_cal` package supports the use of multiple cameras, which can simultaneo
 | `variance`       | Initial state variance                         |
 
 ### GPS
+
 The `ekf_cal` package supports the use of multiple GPS antenna for updating the state estimate of position in the global frame. The currently implemented filter can utilize these measurements to estimate the initial global to local frame transformation as well as provide online estimates of the heading of the local frame. The key GPS parameters supported are
 
 | GPS Parameter   | Description                                      |
@@ -100,6 +102,7 @@ The `ekf_cal` package supports the use of multiple GPS antenna for updating the 
 | `variance`      | Initial state variance                           |
 
 ### Plotting and Analysis
+
 `ekf_cal` provides various tools for evaluating the performance of multi-sensor Kalman filters. These include Monte Carlo testing, report generation, and statistical summary functions that simplify the analysis of algorithm changes and development. Perturbations are automatically added to not only sensor measurements, but the underlying truth model. This allows for variations in paths taken, sensor measurement times, and measurement values themselves, among others. An example of perturbations in true body positions is shown in Figure \ref{pos}.
 
 ![Simulated positions generated from spline inputs.\label{pos}](png/body-pos.png)
@@ -109,6 +112,7 @@ The main goal of this software is the evaluation of calibration kalman filters f
 ![Convergence of filtered GPS antenna position over course of multiple Monte Carlo runs.\label{ant}](png/gps-ant-pos-err.png)
 
 # Conclusion
-In conclusion, the `ekf_cal` package provides a comprehensive framework for testing multi-sensor Kalman filters using Monte Carlo techniques. By running a given sensor configuration through a large sample of runs, each with varying initial conditions and errors, stability is verified. The package's capabilities include the provision of example implementations of state-of-the-art Kalman filter-based calibration routines and analysis tools for plotting results and evaluating performance statistics. In contrast to existing software packages that are limited by their scope or batch-based optimization methods, `ekf_cal` offers a flexible and online calibration framework that can be tailored to specific research needs. As demonstrated by its successful application in past and ongoing research projects [@2022_Multi_Cam] and [@2023_Multi_IMU], the `ekf_cal` package has the potential to significantly improve the robustness and accuracy of autonomous systems operating in challenging environments. Future work will focus on expanding the package's capabilities, including the integration of new sensors and optimization methods, as well as exploring its applications in various domains.
+
+In conclusion, the `ekf_cal` package provides a comprehensive framework for testing multi-sensor Kalman filters using Monte Carlo techniques. By running a given sensor configuration through a large sample of runs, each with varying initial conditions and errors, stability is verified. The package's capabilities include the provision of example implementations of state-of-the-art Kalman filter-based calibration routines and analysis tools for plotting results and evaluating performance statistics. In contrast to existing software packages that are limited by their scope or batch-based optimization methods, `ekf_cal` offers a flexible and online calibration framework that can be tailored to specific research needs. As demonstrated by its successful application in past and ongoing research projects, the `ekf_cal` package has the potential to significantly improve the robustness and accuracy of autonomous systems operating in challenging environments. Future work will focus on expanding the package's capabilities, including the integration of new sensors and optimization methods, as well as exploring its applications in various domains.
 
 # References
