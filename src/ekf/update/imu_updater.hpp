@@ -54,14 +54,14 @@ public:
   /// @param ekf EKF pointer
   /// @return Predicted measurement vector
   ///
-  Eigen::VectorXd PredictMeasurement(std::shared_ptr<EKF> ekf);
+  Eigen::VectorXd PredictMeasurement(EKF & ekf);
 
   ///
   /// @brief Zero acceleration Jacobian method
   /// @param ekf EKF pointer
   /// @return Measurement Jacobian matrix
   ///
-  Eigen::MatrixXd GetZeroAccelerationJacobian(std::shared_ptr<EKF> ekf);
+  Eigen::MatrixXd GetZeroAccelerationJacobian(EKF & ekf);
 
   ///
   /// @brief EKF update method for IMU measurements
@@ -73,7 +73,7 @@ public:
   /// @param angular_rate_covariance Estimated angular rate error
   ///
   void UpdateEKF(
-    std::shared_ptr<EKF> ekf,
+    EKF & ekf,
     double time,
     Eigen::Vector3d acceleration,
     Eigen::Matrix3d acceleration_covariance,
@@ -91,7 +91,7 @@ public:
   /// @param angular_rate_covariance Estimated angular rate error
   ///
   bool ZeroAccelerationUpdate(
-    std::shared_ptr<EKF> ekf,
+    EKF & ekf,
     double local_time,
     Eigen::Vector3d acceleration,
     Eigen::Matrix3d acceleration_covariance,
@@ -106,7 +106,7 @@ public:
   /// @param ang_b_to_l Body orientation to the local frame
   /// @return Measurement jacobian
   ///
-  Eigen::MatrixXd GetMeasurementJacobian(std::shared_ptr<EKF> ekf);
+  Eigen::MatrixXd GetMeasurementJacobian(EKF & ekf);
 
   ///
   /// @brief IMU state angular rate updater
@@ -115,7 +115,7 @@ public:
   /// @param omg_bias Angular rate bias
   ///
   void AngularUpdate(
-    std::shared_ptr<EKF> ekf,
+    EKF & ekf,
     Eigen::Vector3d angular_rate,
     Eigen::Matrix3d angular_rate_covariance
   );

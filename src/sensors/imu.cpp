@@ -65,7 +65,7 @@ void IMU::Callback(std::shared_ptr<ImuMessage> imu_message)
     LogLevel::DEBUG,
     "IMU \"" + m_name + "\" callback at time " + std::to_string(imu_message->time));
   m_imu_updater.UpdateEKF(
-    m_ekf,
+    *m_ekf,
     imu_message->time,
     imu_message->acceleration,
     imu_message->acceleration_covariance,

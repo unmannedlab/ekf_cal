@@ -53,7 +53,7 @@ public:
   /// @param ekf EKF pointer
   /// @return Measurement Jacobian matrix
   ///
-  Eigen::MatrixXd GetMeasurementJacobian(std::shared_ptr<EKF> ekf);
+  Eigen::MatrixXd GetMeasurementJacobian(EKF & ekf);
 
   ///
   /// @brief EKF update method for GPS measurements
@@ -63,7 +63,7 @@ public:
   /// @param pos_covariance GPS measurement covariance
   ///
   void UpdateEKF(
-    std::shared_ptr<EKF> ekf,
+    EKF & ekf,
     double time,
     Eigen::Vector3d gps_lla,
     Eigen::MatrixXd pos_covariance);
@@ -72,7 +72,7 @@ public:
   /// @brief Update/marginalize EKF using GPS measurements used to initialize local frame
   /// @param ekf EKF pointer
   ///
-  void MultiUpdateEKF(std::shared_ptr<EKF> ekf);
+  void MultiUpdateEKF(EKF & ekf);
 
 private:
   bool m_is_extrinsic {false};

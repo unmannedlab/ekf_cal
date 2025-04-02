@@ -57,7 +57,7 @@ TEST(test_gps_updater, update) {
   Eigen::Vector3d ref_lla{0, 0, 0};
   Eigen::Vector3d antenna_enu{1, 1, 1};
   Eigen::Vector3d gps_lla = enu_to_lla(antenna_enu, ref_lla);
-  gps_updater.UpdateEKF(ekf, time, gps_lla, pos_cov);
+  gps_updater.UpdateEKF(*ekf, time, gps_lla, pos_cov);
 
   state = ekf->m_state;
   EXPECT_NEAR(state.body_state.pos_b_in_l[0], 1.0, 1e-2);
@@ -67,7 +67,7 @@ TEST(test_gps_updater, update) {
   time += 1;
   antenna_enu = Eigen::Vector3d{2, 2, 2};
   gps_lla = enu_to_lla(antenna_enu, ref_lla);
-  gps_updater.UpdateEKF(ekf, time, gps_lla, pos_cov);
+  gps_updater.UpdateEKF(*ekf, time, gps_lla, pos_cov);
 
   state = ekf->m_state;
   EXPECT_NEAR(state.body_state.pos_b_in_l[0], 1.5, 1e-2);

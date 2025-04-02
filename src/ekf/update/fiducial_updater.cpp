@@ -64,33 +64,33 @@ FiducialUpdater::FiducialUpdater(
 }
 
 void FiducialUpdater::UpdateEKF(
-  std::shared_ptr<EKF> ekf, double time, BoardDetection board_detection)
+  EKF & ekf, double time, BoardDetection board_detection)
 {
   m_logger->Log(
     LogLevel::DEBUG, "Called Fiducial Update for camera ID: " + std::to_string(m_camera_id));
 
-  double local_time = ekf->CalculateLocalTime(time);
-  ekf->PredictModel(local_time);
+  double local_time = ekf.CalculateLocalTime(time);
+  ekf.PredictModel(local_time);
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
-  if (!ekf->GetUseFirstEstimateJacobian() || m_is_first_estimate) {
-    m_pos_c_in_b = ekf->m_state.cam_states[m_camera_id].pos_c_in_b;
-    m_ang_c_to_b = ekf->m_state.cam_states[m_camera_id].ang_c_to_b;
-    m_pos_f_in_l = ekf->m_state.fid_states[m_id].pos_f_in_l;
-    m_ang_f_to_l = ekf->m_state.fid_states[m_id].ang_f_to_l;
+  if (!ekf.GetUseFirstEstimateJacobian() || m_is_first_estimate) {
+    m_pos_c_in_b = ekf.m_state.cam_states[m_camera_id].pos_c_in_b;
+    m_ang_c_to_b = ekf.m_state.cam_states[m_camera_id].ang_c_to_b;
+    m_pos_f_in_l = ekf.m_state.fid_states[m_id].pos_f_in_l;
+    m_ang_f_to_l = ekf.m_state.fid_states[m_id].ang_f_to_l;
     m_is_first_estimate = false;
   }
 
-  const Eigen::Vector3d pos_b_in_l = ekf->m_state.body_state.pos_b_in_l;
-  const Eigen::Quaterniond ang_b_to_l = ekf->m_state.body_state.ang_b_to_l;
+  const Eigen::Vector3d pos_b_in_l = ekf.m_state.body_state.pos_b_in_l;
+  const Eigen::Quaterniond ang_b_to_l = ekf.m_state.body_state.ang_b_to_l;
   const Eigen::Matrix3d rot_b_to_l = ang_b_to_l.toRotationMatrix();
   const Eigen::Matrix3d rot_c_to_b = m_ang_c_to_b.toRotationMatrix();
 
   Eigen::Matrix3d rot_f_to_l = m_ang_f_to_l.toRotationMatrix();
 
-  unsigned int state_size = ekf->GetStateSize();
-  unsigned int cam_index = ekf->m_state.cam_states[m_camera_id].index;
+  unsigned int state_size = ekf.GetStateSize();
+  unsigned int cam_index = ekf.m_state.cam_states[m_camera_id].index;
 
   Eigen::VectorXd res = Eigen::VectorXd::Zero(g_fid_measurement_size);
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(g_fid_measurement_size, state_size);
@@ -128,7 +128,7 @@ void FiducialUpdater::UpdateEKF(
     quaternion_jacobian(ang_b_to_l).transpose();
 
   /// @todo Test camera calibration jacobians
-  if (ekf->m_state.cam_states[m_camera_id].GetIsExtrinsic()) {
+  if (ekf.m_state.cam_states[m_camera_id].GetIsExtrinsic()) {
     H.block<3, 3>(0, cam_index + 0) = -rot_b_to_c;
 
     H.block<3, 3>(0, cam_index + 3) = rot_b_to_c *
@@ -159,13 +159,13 @@ void FiducialUpdater::UpdateEKF(
   msg << "," << m_id;
   msg << VectorToCommaString(pos_measured);
   msg << QuaternionToCommaString(ang_measured);
-  msg << VectorToCommaString(ekf->m_state.cam_states[m_camera_id].pos_c_in_b);
-  msg << QuaternionToCommaString(ekf->m_state.cam_states[m_camera_id].ang_c_to_b);
+  msg << VectorToCommaString(ekf.m_state.cam_states[m_camera_id].pos_c_in_b);
+  msg << QuaternionToCommaString(ekf.m_state.cam_states[m_camera_id].ang_c_to_b);
   msg << VectorToCommaString(res);
   if (m_is_cam_extrinsic) {
-    Eigen::VectorXd cov_diag = ekf->m_cov.block(
+    Eigen::VectorXd cov_diag = ekf.m_cov.block(
       cam_index, cam_index, g_cam_extrinsic_state_size, g_cam_extrinsic_state_size).diagonal();
-    if (ekf->GetUseRootCovariance()) {
+    if (ekf.GetUseRootCovariance()) {
       cov_diag = cov_diag.cwiseProduct(cov_diag);
     }
     msg << VectorToCommaString(cov_diag);

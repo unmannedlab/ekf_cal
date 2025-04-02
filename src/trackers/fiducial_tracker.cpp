@@ -174,7 +174,7 @@ void FiducialTracker::Track(
       board_detection.pos_error = m_pos_error;
       board_detection.ang_error = m_ang_error;
 
-      m_fiducial_updater.UpdateEKF(m_ekf, time, board_detection);
+      m_fiducial_updater.UpdateEKF(*m_ekf, time, board_detection);
     }
   }
 }

@@ -254,7 +254,7 @@ void FeatureTracker::Track(double time, int frame_id, cv::Mat img_in, cv::Mat im
       }
     }
     if (feature_tracks.size() > 0) {
-      m_msckf_updater.UpdateEKF(m_ekf, time, feature_tracks, m_px_error);
+      m_msckf_updater.UpdateEKF(*m_ekf, time, feature_tracks, m_px_error);
     }
   }
 

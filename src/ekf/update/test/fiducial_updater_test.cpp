@@ -38,12 +38,12 @@ TEST(test_imu_updater, constructor) {
     data_log_rate,
     debug_logger);
 
-  auto ekf = std::make_shared<EKF>(ekf_params);
+  EKF ekf(ekf_params);
 
   CamState cam_state;
   cam_state.SetIsExtrinsic(is_cam_extrinsic);
   Eigen::MatrixXd covariance = Eigen::MatrixXd::Identity(6, 6) * 1e-3;
-  ekf->RegisterCamera(cam_id, cam_state, covariance);
+  ekf.RegisterCamera(cam_id, cam_state, covariance);
 
   BoardDetection board_detection;
   board_detection.frame_id = 0;

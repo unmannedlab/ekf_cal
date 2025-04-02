@@ -61,7 +61,7 @@ public:
   ///
   bool TriangulateFeature(
     double local_time,
-    std::shared_ptr<EKF> ekf,
+    EKF & ekf,
     FeatureTrack & feature_track,
     Eigen::Vector3d & pos_f_in_l);
 
@@ -73,7 +73,7 @@ public:
   /// @param px_error Standard deviation of pixel error
   ///
   void UpdateEKF(
-    std::shared_ptr<EKF> ekf,
+    EKF & ekf,
     double time,
     FeatureTracks feature_tracks,
     double px_error);

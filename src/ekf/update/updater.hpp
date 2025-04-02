@@ -36,10 +36,10 @@ public:
   explicit Updater(unsigned int sensor_id, std::shared_ptr<DebugLogger> logger);
 
   /// @todo switch to passing EKF pointer
-  // Updater(std::shared_ptr<EKF> ekf, unsigned int sensor_id);
+  // Updater(EKF & ekf, unsigned int sensor_id);
 
   void KalmanUpdate(
-    std::shared_ptr<EKF> ekf,
+    EKF & ekf,
     const Eigen::MatrixXd & jacobian,
     const Eigen::VectorXd & residual,
     Eigen::MatrixXd & measurement_noise);

@@ -157,6 +157,6 @@ std::shared_ptr<SimFiducialTrackerMessage> SimFiducialTracker::GenerateMessage(
 void SimFiducialTracker::Callback(double time, std::shared_ptr<SimFiducialTrackerMessage> msg)
 {
   if (msg->is_board_visible) {
-    m_fiducial_updater.UpdateEKF(m_ekf, time, msg->board_detection);
+    m_fiducial_updater.UpdateEKF(*m_ekf, time, msg->board_detection);
   }
 }

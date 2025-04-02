@@ -66,16 +66,16 @@ TEST(test_msckf_updater, distortion_jacobian) {
 TEST(test_msckf_updater, update) {
   EKF::Parameters ekf_params;
   ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(ekf_params);
+  EKF ekf(ekf_params);
   BodyState body_state;
   body_state.vel_b_in_l = Eigen::Vector3d{0, 5, 0};
-  ekf->Initialize(0.0, body_state);
+  ekf.Initialize(0.0, body_state);
 
   unsigned int cam_id{1};
 
   CamState cam_state;
   Eigen::MatrixXd cam_cov = Eigen::MatrixXd::Zero(6, 6);
-  ekf->RegisterCamera(cam_id, cam_state, cam_cov);
+  ekf.RegisterCamera(cam_id, cam_state, cam_cov);
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   auto msckf_updater = MsckfUpdater(1, false, "", 0.0, 1.0, logger);
@@ -105,12 +105,12 @@ TEST(test_msckf_updater, update) {
   FeatureTracks feature_tracks;
   feature_tracks.push_back(feature_points);
 
-  ekf->PredictModel(0.1);
-  ekf->AugmentStateIfNeeded(cam_id, feature_point_1.frame_id);
-  ekf->PredictModel(0.2);
-  ekf->AugmentStateIfNeeded(cam_id, feature_point_2.frame_id);
-  ekf->PredictModel(0.3);
-  ekf->AugmentStateIfNeeded(cam_id, feature_point_3.frame_id);
+  ekf.PredictModel(0.1);
+  ekf.AugmentStateIfNeeded(cam_id, feature_point_1.frame_id);
+  ekf.PredictModel(0.2);
+  ekf.AugmentStateIfNeeded(cam_id, feature_point_2.frame_id);
+  ekf.PredictModel(0.3);
+  ekf.AugmentStateIfNeeded(cam_id, feature_point_3.frame_id);
 
   msckf_updater.UpdateEKF(ekf, time, feature_tracks, 1e-3);
 }

@@ -70,7 +70,7 @@ MsckfUpdater::MsckfUpdater(
 
 bool MsckfUpdater::TriangulateFeature(
   double local_time,
-  std::shared_ptr<EKF> ekf,
+  EKF & ekf,
   FeatureTrack & feature_track,
   Eigen::Vector3d & pos_f_in_l)
 {
@@ -79,7 +79,7 @@ bool MsckfUpdater::TriangulateFeature(
     pos_f_in_l = feature_track.true_feature_position;
   }
 
-  AugState aug_state_0 = ekf->GetAugState(
+  AugState aug_state_0 = ekf.GetAugState(
     m_id, feature_track.track[0].frame_id, feature_track.track[0].frame_time);
 
   // 3D Cartesian Triangulation
@@ -94,7 +94,7 @@ bool MsckfUpdater::TriangulateFeature(
   const Eigen::Matrix3d rot_b0_to_c0 = rot_c_to_b.transpose();
 
   for (unsigned int i = 0; i < feature_track.track.size(); ++i) {
-    AugState aug_state_i = ekf->GetAugState(
+    AugState aug_state_i = ekf.GetAugState(
       m_id, feature_track.track[i].frame_id, feature_track.track[i].frame_time);
 
     const Eigen::Vector3d pos_bi_in_l = aug_state_i.pos_b_in_l;
@@ -212,13 +212,13 @@ void MsckfUpdater::distortion_jacobian(
 }
 
 void MsckfUpdater::UpdateEKF(
-  std::shared_ptr<EKF> ekf,
+  EKF & ekf,
   double time,
   FeatureTracks feature_tracks,
   double px_error)
 {
-  double local_time = ekf->CalculateLocalTime(time);
-  ekf->PredictModel(local_time);
+  double local_time = ekf.CalculateLocalTime(time);
+  ekf.PredictModel(local_time);
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
@@ -228,10 +228,10 @@ void MsckfUpdater::UpdateEKF(
     return;
   }
 
-  if (!ekf->GetUseFirstEstimateJacobian() || m_is_first_estimate) {
-    m_intrinsics = ekf->m_state.cam_states[m_id].intrinsics;
-    m_pos_c_in_b = ekf->m_state.cam_states[m_id].pos_c_in_b;
-    m_ang_c_to_b = ekf->m_state.cam_states[m_id].ang_c_to_b;
+  if (!ekf.GetUseFirstEstimateJacobian() || m_is_first_estimate) {
+    m_intrinsics = ekf.m_state.cam_states[m_id].intrinsics;
+    m_pos_c_in_b = ekf.m_state.cam_states[m_id].pos_c_in_b;
+    m_ang_c_to_b = ekf.m_state.cam_states[m_id].ang_c_to_b;
     m_is_first_estimate = false;
   }
 
@@ -242,8 +242,8 @@ void MsckfUpdater::UpdateEKF(
   }
 
   unsigned int ct_meas = 0;
-  unsigned int state_size = ekf->GetStateSize();
-  unsigned int cam_index = ekf->m_state.cam_states[m_id].index;
+  unsigned int state_size = ekf.GetStateSize();
+  unsigned int cam_index = ekf.m_state.cam_states[m_id].index;
 
   Eigen::VectorXd res_x = Eigen::VectorXd::Zero(max_meas_size);
   Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero(max_meas_size, state_size);
@@ -269,7 +269,7 @@ void MsckfUpdater::UpdateEKF(
     Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), state_size);
 
     for (unsigned int i = 0; i < feature_track.track.size(); ++i) {
-      AugState aug_state_i = ekf->GetAugState(
+      AugState aug_state_i = ekf.GetAugState(
         m_id, feature_track.track[i].frame_id, feature_track.track[i].frame_time);
 
       Eigen::Matrix3d rot_ci_to_b = m_ang_c_to_b.toRotationMatrix();
@@ -371,12 +371,12 @@ void MsckfUpdater::UpdateEKF(
   // Write outputs
   std::stringstream msg;
   msg << local_time;
-  msg << VectorToCommaString(ekf->m_state.cam_states[m_id].pos_c_in_b);
-  msg << QuaternionToCommaString(ekf->m_state.cam_states[m_id].ang_c_to_b);
+  msg << VectorToCommaString(ekf.m_state.cam_states[m_id].pos_c_in_b);
+  msg << QuaternionToCommaString(ekf.m_state.cam_states[m_id].ang_c_to_b);
   if (m_is_cam_extrinsic) {
-    Eigen::VectorXd cov_diag = ekf->m_cov.block(
+    Eigen::VectorXd cov_diag = ekf.m_cov.block(
       cam_index, cam_index, g_cam_extrinsic_state_size, g_cam_extrinsic_state_size).diagonal();
-    if (ekf->GetUseRootCovariance()) {
+    if (ekf.GetUseRootCovariance()) {
       cov_diag = cov_diag.cwiseProduct(cov_diag);
     }
     msg << VectorToCommaString(cov_diag);

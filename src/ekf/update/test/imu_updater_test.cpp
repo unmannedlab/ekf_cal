@@ -27,12 +27,12 @@
 TEST(test_imu_updater, update) {
   EKF::Parameters ekf_params;
   ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(ekf_params);
+  EKF ekf(ekf_params);
 
   double time_init = 0.0;
   BodyState body_state;
   body_state.vel_b_in_l = Eigen::Vector3d::Ones();
-  ekf->Initialize(time_init, body_state);
+  ekf.Initialize(time_init, body_state);
 
   unsigned int imu_id{0};
   std::string log_file_directory{""};
@@ -47,9 +47,9 @@ TEST(test_imu_updater, update) {
   imu_state_3.SetIsIntrinsic(false);
   imu_state_3.SetIsExtrinsic(true);
   Eigen::MatrixXd imu_covariance_3 = Eigen::MatrixXd::Identity(6, 6);
-  ekf->RegisterIMU(0, imu_state_1, imu_covariance_1);
-  ekf->RegisterIMU(1, imu_state_2, imu_covariance_2);
-  ekf->RegisterIMU(2, imu_state_3, imu_covariance_3);
+  ekf.RegisterIMU(0, imu_state_1, imu_covariance_1);
+  ekf.RegisterIMU(1, imu_state_2, imu_covariance_2);
+  ekf.RegisterIMU(2, imu_state_3, imu_covariance_3);
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   ImuUpdater imu_updater(imu_id, true, true, log_file_directory, 0.0, logger);
@@ -59,7 +59,7 @@ TEST(test_imu_updater, update) {
   Eigen::Vector3d angular_rate = Eigen::Vector3d::Zero();
   Eigen::Matrix3d angular_rate_cov = Eigen::Matrix3d::Identity() * 1e-3;
 
-  State state = ekf->m_state;
+  State state = ekf.m_state;
   EXPECT_NEAR(state.body_state.pos_b_in_l[0], 0, 1e-2);
   EXPECT_NEAR(state.body_state.pos_b_in_l[1], 0, 1e-2);
   EXPECT_NEAR(state.body_state.pos_b_in_l[2], 0, 1e-2);
@@ -68,7 +68,7 @@ TEST(test_imu_updater, update) {
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
-  state = ekf->m_state;
+  state = ekf.m_state;
   EXPECT_NEAR(state.body_state.pos_b_in_l[0], 1, 1e-2);
   EXPECT_NEAR(state.body_state.pos_b_in_l[1], 1, 1e-2);
   EXPECT_NEAR(state.body_state.pos_b_in_l[2], 1, 1e-2);
@@ -77,7 +77,7 @@ TEST(test_imu_updater, update) {
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
-  state = ekf->m_state;
+  state = ekf.m_state;
   EXPECT_NEAR(state.body_state.pos_b_in_l[0], 2, 1e-2);
   EXPECT_NEAR(state.body_state.pos_b_in_l[1], 2, 1e-2);
   EXPECT_NEAR(state.body_state.pos_b_in_l[2], 2, 1e-2);
@@ -85,7 +85,7 @@ TEST(test_imu_updater, update) {
   imu_updater.UpdateEKF(
     ekf, time - 1, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
-  state = ekf->m_state;
+  state = ekf.m_state;
   EXPECT_NEAR(state.body_state.pos_b_in_l[0], 2, 1e-2);
   EXPECT_NEAR(state.body_state.pos_b_in_l[1], 2, 1e-2);
   EXPECT_NEAR(state.body_state.pos_b_in_l[2], 2, 1e-2);
@@ -94,7 +94,7 @@ TEST(test_imu_updater, update) {
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
-  state = ekf->m_state;
+  state = ekf.m_state;
   EXPECT_NEAR(state.body_state.pos_b_in_l[0], 3, 1e-2);
   EXPECT_NEAR(state.body_state.pos_b_in_l[1], 3, 1e-2);
   EXPECT_NEAR(state.body_state.pos_b_in_l[2], 3, 1e-2);
@@ -107,12 +107,12 @@ TEST(test_imu_updater, update) {
 TEST(test_imu_updater, imu_prediction_update) {
   EKF::Parameters ekf_params;
   ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(ekf_params);
+  EKF ekf(ekf_params);
 
   double time_init = 0.0;
   BodyState body_state;
   body_state.vel_b_in_l = Eigen::Vector3d::Ones();
-  ekf->Initialize(time_init, body_state);
+  ekf.Initialize(time_init, body_state);
 
   unsigned int imu_id{0};
   std::string log_file_directory{""};
@@ -121,7 +121,7 @@ TEST(test_imu_updater, imu_prediction_update) {
   imu_state.SetIsExtrinsic(true);
   imu_state.SetIsIntrinsic(true);
   Eigen::MatrixXd imu_cov = Eigen::MatrixXd::Zero(12, 12);
-  ekf->RegisterIMU(imu_id, imu_state, imu_cov);
+  ekf.RegisterIMU(imu_id, imu_state, imu_cov);
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   ImuUpdater imu_updater(imu_id, true, true, log_file_directory, 0.0, logger);
@@ -131,7 +131,7 @@ TEST(test_imu_updater, imu_prediction_update) {
   Eigen::Vector3d angular_rate = Eigen::Vector3d::Zero();
   Eigen::Matrix3d angular_rate_cov = Eigen::Matrix3d::Identity() * 1e-3;
 
-  State state = ekf->m_state;
+  State state = ekf.m_state;
   EXPECT_EQ(state.body_state.pos_b_in_l[0], 0);
   EXPECT_EQ(state.body_state.pos_b_in_l[1], 0);
   EXPECT_EQ(state.body_state.pos_b_in_l[2], 0);
@@ -140,7 +140,7 @@ TEST(test_imu_updater, imu_prediction_update) {
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
-  state = ekf->m_state;
+  state = ekf.m_state;
   EXPECT_EQ(state.body_state.pos_b_in_l[0], 1);
   EXPECT_EQ(state.body_state.pos_b_in_l[1], 1);
   EXPECT_EQ(state.body_state.pos_b_in_l[2], 1);
@@ -149,7 +149,7 @@ TEST(test_imu_updater, imu_prediction_update) {
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
-  state = ekf->m_state;
+  state = ekf.m_state;
   EXPECT_EQ(state.body_state.pos_b_in_l[0], 2);
   EXPECT_EQ(state.body_state.pos_b_in_l[1], 2);
   EXPECT_EQ(state.body_state.pos_b_in_l[2], 2);
@@ -157,7 +157,7 @@ TEST(test_imu_updater, imu_prediction_update) {
   imu_updater.UpdateEKF(
     ekf, time - 1, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
-  state = ekf->m_state;
+  state = ekf.m_state;
   EXPECT_EQ(state.body_state.pos_b_in_l[0], 2);
   EXPECT_EQ(state.body_state.pos_b_in_l[1], 2);
   EXPECT_EQ(state.body_state.pos_b_in_l[2], 2);
@@ -166,7 +166,7 @@ TEST(test_imu_updater, imu_prediction_update) {
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
-  state = ekf->m_state;
+  state = ekf.m_state;
   EXPECT_EQ(state.body_state.pos_b_in_l[0], 3);
   EXPECT_EQ(state.body_state.pos_b_in_l[1], 3);
   EXPECT_EQ(state.body_state.pos_b_in_l[2], 3);
@@ -179,7 +179,7 @@ TEST(test_imu_updater, imu_prediction_update) {
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
-  state = ekf->m_state;
+  state = ekf.m_state;
   EXPECT_EQ(state.body_state.pos_b_in_l[0], 4);
   EXPECT_EQ(state.body_state.pos_b_in_l[1], 4);
   EXPECT_EQ(state.body_state.pos_b_in_l[2], 4);
@@ -192,7 +192,7 @@ TEST(test_imu_updater, imu_prediction_update) {
 TEST(test_imu_updater, non_initialized_time) {
   EKF::Parameters ekf_params;
   ekf_params.debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto ekf = std::make_shared<EKF>(ekf_params);
+  EKF ekf(ekf_params);
 
   unsigned int imu_id{0};
   std::string log_file_directory{""};
@@ -201,7 +201,7 @@ TEST(test_imu_updater, non_initialized_time) {
   imu_state.SetIsExtrinsic(true);
   imu_state.SetIsIntrinsic(true);
   Eigen::MatrixXd imu_cov = Eigen::MatrixXd::Zero(12, 12);
-  ekf->RegisterIMU(imu_id, imu_state, imu_cov);
+  ekf.RegisterIMU(imu_id, imu_state, imu_cov);
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
   ImuUpdater imu_updater(imu_id, true, true, log_file_directory, 0.0, logger);
@@ -211,7 +211,7 @@ TEST(test_imu_updater, non_initialized_time) {
   Eigen::Vector3d angular_rate = Eigen::Vector3d::Zero();
   Eigen::Matrix3d angular_rate_cov = Eigen::Matrix3d::Identity() * 1e-3;
 
-  State state = ekf->m_state;
+  State state = ekf.m_state;
   EXPECT_EQ(state.body_state.pos_b_in_l[0], 0);
   EXPECT_EQ(state.body_state.pos_b_in_l[1], 0);
   EXPECT_EQ(state.body_state.pos_b_in_l[2], 0);
@@ -220,7 +220,7 @@ TEST(test_imu_updater, non_initialized_time) {
   imu_updater.UpdateEKF(
     ekf, time, acceleration, acceleration_cov, angular_rate, angular_rate_cov);
 
-  state = ekf->m_state;
+  state = ekf.m_state;
   EXPECT_EQ(state.body_state.pos_b_in_l[0], 0);
   EXPECT_EQ(state.body_state.pos_b_in_l[1], 0);
   EXPECT_EQ(state.body_state.pos_b_in_l[2], 0);

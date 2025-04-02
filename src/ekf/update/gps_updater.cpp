@@ -57,52 +57,52 @@ GpsUpdater::GpsUpdater(
   m_data_logger.SetLogRate(data_log_rate);
 }
 
-Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(std::shared_ptr<EKF> ekf)
+Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(EKF & ekf)
 {
-  Eigen::Quaterniond ang_b_to_l = ekf->m_state.body_state.ang_b_to_l;
+  Eigen::Quaterniond ang_b_to_l = ekf.m_state.body_state.ang_b_to_l;
 
-  Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, ekf->GetStateSize());
+  Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, ekf.GetStateSize());
   measurement_jacobian.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity(3, 3);
   measurement_jacobian.block<3, 3>(0, 6) = -ang_b_to_l.toRotationMatrix() *
     SkewSymmetric(m_pos_a_in_b) * quaternion_jacobian(ang_b_to_l);
 
   if (m_is_extrinsic) {
-    unsigned int gps_index = ekf->m_state.gps_states[m_id].index;
+    unsigned int gps_index = ekf.m_state.gps_states[m_id].index;
     measurement_jacobian.block<3, 3>(0, gps_index) = ang_b_to_l.toRotationMatrix();
   }
   return measurement_jacobian;
 }
 
 void GpsUpdater::UpdateEKF(
-  std::shared_ptr<EKF> ekf, double time, Eigen::Vector3d gps_lla, Eigen::MatrixXd pos_covariance)
+  EKF & ekf, double time, Eigen::Vector3d gps_lla, Eigen::MatrixXd pos_covariance)
 {
   auto t_start = std::chrono::high_resolution_clock::now();
-  double local_time = ekf->CalculateLocalTime(time);
-  ekf->PredictModel(local_time);
+  double local_time = ekf.CalculateLocalTime(time);
+  ekf.PredictModel(local_time);
 
-  if (!ekf->GetUseFirstEstimateJacobian() || m_is_first_estimate) {
-    m_pos_a_in_b = ekf->m_state.gps_states[m_id].pos_a_in_b;
+  if (!ekf.GetUseFirstEstimateJacobian() || m_is_first_estimate) {
+    m_pos_a_in_b = ekf.m_state.gps_states[m_id].pos_a_in_b;
     m_is_first_estimate = false;
   }
 
   Eigen::Vector3d pos_a_in_l = Eigen::Vector3d::Zero();
   Eigen::Vector3d residual = Eigen::Vector3d::Zero();
   Eigen::Vector3d pos_e_in_g = Eigen::Vector3d::Zero();
-  double ang_l_to_e = ekf->GetReferenceAngle();
-  if (!ekf->IsLlaInitialized()) {
+  double ang_l_to_e = ekf.GetReferenceAngle();
+  if (!ekf.IsLlaInitialized()) {
     m_logger->Log(LogLevel::INFO, "GPS Updater Attempt Initialization");
-    ekf->AttemptGpsInitialization(local_time, gps_lla);
-    if (ekf->IsLlaInitialized()) {
+    ekf.AttemptGpsInitialization(local_time, gps_lla);
+    if (ekf.IsLlaInitialized()) {
       // Perform single update with compressed measurements
       MultiUpdateEKF(ekf);
     }
   } else {
-    pos_e_in_g = ekf->GetReferenceLLA();
+    pos_e_in_g = ekf.GetReferenceLLA();
     Eigen::Vector3d gps_enu = lla_to_enu(gps_lla, pos_e_in_g);
     pos_a_in_l = enu_to_local(gps_enu, ang_l_to_e);
 
-    Eigen::Vector3d pos_b_in_l = ekf->m_state.body_state.pos_b_in_l;
-    Eigen::Quaterniond ang_b_to_l = ekf->m_state.body_state.ang_b_to_l;
+    Eigen::Vector3d pos_b_in_l = ekf.m_state.body_state.pos_b_in_l;
+    Eigen::Quaterniond ang_b_to_l = ekf.m_state.body_state.ang_b_to_l;
 
     Eigen::Vector3d pos_a_in_l_hat = pos_b_in_l + ang_b_to_l * m_pos_a_in_b;
     residual = pos_a_in_l - pos_a_in_l_hat;
@@ -121,13 +121,13 @@ void GpsUpdater::UpdateEKF(
   msg << VectorToCommaString(pos_a_in_l);
   msg << VectorToCommaString(pos_e_in_g, 12);
   msg << "," << ang_l_to_e;
-  msg << "," << ekf->IsLlaInitialized();
+  msg << "," << ekf.IsLlaInitialized();
   if (m_is_extrinsic) {
-    msg << VectorToCommaString(ekf->m_state.gps_states[m_id].pos_a_in_b);
-    unsigned int gps_index = ekf->m_state.gps_states[m_id].index;
-    Eigen::VectorXd cov_diag = ekf->m_cov.block(
+    msg << VectorToCommaString(ekf.m_state.gps_states[m_id].pos_a_in_b);
+    unsigned int gps_index = ekf.m_state.gps_states[m_id].index;
+    Eigen::VectorXd cov_diag = ekf.m_cov.block(
       gps_index, gps_index, g_gps_extrinsic_state_size, g_gps_extrinsic_state_size).diagonal();
-    if (ekf->GetUseRootCovariance()) {
+    if (ekf.GetUseRootCovariance()) {
       cov_diag = cov_diag.cwiseProduct(cov_diag);
     }
     msg << VectorToCommaString(cov_diag);
@@ -137,18 +137,18 @@ void GpsUpdater::UpdateEKF(
   m_data_logger.RateLimitedLog(msg.str(), local_time);
 }
 
-void GpsUpdater::MultiUpdateEKF(std::shared_ptr<EKF> ekf)
+void GpsUpdater::MultiUpdateEKF(EKF & ekf)
 {
-  std::vector<double> gps_time_vec = ekf->GetGpsTimeVector();
-  std::vector<Eigen::Vector3d> gps_ecef_vec = ekf->GetGpsEcefVector();
-  std::vector<Eigen::Vector3d> local_xyz_vec = ekf->GetGpsXyzVector();
+  std::vector<double> gps_time_vec = ekf.GetGpsTimeVector();
+  std::vector<Eigen::Vector3d> gps_ecef_vec = ekf.GetGpsEcefVector();
+  std::vector<Eigen::Vector3d> local_xyz_vec = ekf.GetGpsXyzVector();
 
   unsigned int measurement_size = 3 * gps_time_vec.size();
-  unsigned int state_size = ekf->GetStateSize();
+  unsigned int state_size = ekf.GetStateSize();
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(measurement_size, state_size);
   Eigen::VectorXd y = Eigen::VectorXd::Zero(measurement_size);
-  Eigen::Vector3d pos_e_in_g = ekf->GetReferenceLLA();
-  double ang_l_to_e = ekf->GetReferenceAngle();
+  Eigen::Vector3d pos_e_in_g = ekf.GetReferenceLLA();
+  double ang_l_to_e = ekf.GetReferenceAngle();
 
   for (unsigned int i = 0; i < gps_time_vec.size(); ++i) {
     Eigen::Vector3d gps_enu = ecef_to_enu(gps_ecef_vec[i], pos_e_in_g);
