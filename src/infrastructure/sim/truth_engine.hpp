@@ -188,7 +188,7 @@ public:
   /// @param sensor_id Camera ID
   /// @param intrinsics Camera intrinsics
   ///
-  void SetCameraIntrinsics(unsigned int sensor_id, Intrinsics intrinsics);
+  void SetCameraIntrinsics(unsigned int sensor_id, const Intrinsics & intrinsics);
 
   ///
   /// @brief Fiducial board position setter

@@ -95,11 +95,11 @@ std::vector<cv::KeyPoint> SimFeatureTracker::GetVisibleKeypoints(double time)
 }
 
 std::vector<cv::KeyPoint> SimFeatureTracker::FilterInvisiblePoints(
-  std::vector<cv::Point3d> feature_points,
-  std::vector<cv::Point2d> projected_points,
-  Eigen::Matrix3d rot_c_to_l,
-  Eigen::Vector3d pos_c_in_l,
-  Intrinsics intrinsics
+  const std::vector<cv::Point3d> & feature_points,
+  const std::vector<cv::Point2d> & projected_points,
+  const Eigen::Matrix3d & rot_c_to_l,
+  const Eigen::Vector3d & pos_c_in_l,
+  const Intrinsics & intrinsics
 )
 {
   // Convert to feature points

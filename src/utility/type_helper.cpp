@@ -73,7 +73,7 @@ Eigen::Quaterniond EigVecToQuat(const Eigen::Vector3d & euler_angles)
   return quaternion;
 }
 
-void EigenMatrixToCv(const Eigen::Matrix3d & matrix_eigen, cv::Mat matrix_cv)
+void EigenMatrixToCv(const Eigen::Matrix3d & matrix_eigen, cv::Mat & matrix_cv)
 {
   for (unsigned int i = 0; i < 3; ++i) {
     for (unsigned int j = 0; j < 3; ++j) {

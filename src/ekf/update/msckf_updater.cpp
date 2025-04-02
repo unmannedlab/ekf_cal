@@ -167,7 +167,7 @@ void MsckfUpdater::projection_jacobian(const Eigen::Vector3d & pos, Eigen::Matri
 
 void MsckfUpdater::distortion_jacobian(
   const Eigen::Vector2d & xy_norm,
-  Intrinsics intrinsics,
+  const Intrinsics & intrinsics,
   Eigen::MatrixXd & H_d)
 {
   // Calculate distorted coordinates for radial

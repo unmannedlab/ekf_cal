@@ -86,7 +86,7 @@ public:
   ///
   void distortion_jacobian(
     const Eigen::Vector2d & uv_norm,
-    Intrinsics intrinsics,
+    const Intrinsics & intrinsics,
     Eigen::MatrixXd & H_d);
 
   ///

@@ -131,8 +131,8 @@ bool FiducialTracker::EstimatePoseBoard(
 void FiducialTracker::Track(
   double time,
   int frame_id,
-  cv::Mat img_in,
-  cv::Mat img_out)
+  const cv::Mat & img_in,
+  cv::Mat & img_out)
 {
   cv::Ptr<cv::aruco::DetectorParameters> params = cv::makePtr<cv::aruco::DetectorParameters>();
   std::vector<int> marker_ids;

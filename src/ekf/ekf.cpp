@@ -239,14 +239,17 @@ unsigned int EKF::GetAugStateSize()
   return m_aug_state_size;
 }
 
-void EKF::Initialize(double timeInit, BodyState body_state_init)
+void EKF::Initialize(double timeInit, const BodyState & body_state_init)
 {
   m_current_time = timeInit;
   m_time_initialized = true;
   m_state.body_state = body_state_init;
 }
 
-void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, const Eigen::MatrixXd & covariance)
+void EKF::RegisterIMU(
+  unsigned int imu_id,
+  const ImuState & imu_state,
+  const Eigen::MatrixXd & covariance)
 {
   // Check that ID hasn't been used before
   if (m_state.imu_states.find(imu_id) != m_state.imu_states.end()) {
@@ -279,7 +282,10 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, const Eigen::Matr
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-void EKF::RegisterGPS(unsigned int gps_id, GpsState gps_state, const Eigen::Matrix3d & covariance)
+void EKF::RegisterGPS(
+  unsigned int gps_id,
+  const GpsState & gps_state,
+  const Eigen::Matrix3d & covariance)
 {
   // Check that ID hasn't been used before
   if (m_state.gps_states.find(gps_id) != m_state.gps_states.end()) {
@@ -306,7 +312,8 @@ void EKF::RegisterGPS(unsigned int gps_id, GpsState gps_state, const Eigen::Matr
 }
 
 void EKF::RegisterCamera(
-  unsigned int cam_id, CamState cam_state,
+  unsigned int cam_id,
+  const CamState & cam_state,
   const Eigen::MatrixXd & covariance)
 {
   // Check that ID hasn't been used before
@@ -343,7 +350,7 @@ void EKF::RegisterCamera(
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-void EKF::RegisterFiducial(FidState fid_state, const Eigen::MatrixXd & covariance)
+void EKF::RegisterFiducial(const FidState & fid_state, const Eigen::MatrixXd & covariance)
 {
   // Check that ID hasn't been used before
   if (m_state.fid_states.find(fid_state.id) != m_state.fid_states.end()) {

@@ -64,7 +64,7 @@ Eigen::Quaterniond EigVecToQuat(const Eigen::Vector3d & euler_angles);
 /// @param matrix_eigen Input Eigen matrix
 /// @param matrix_cv Output CV matrix
 ///
-void EigenMatrixToCv(const Eigen::Matrix3d & matrix_eigen, cv::Mat matrix_cv);
+void EigenMatrixToCv(const Eigen::Matrix3d & matrix_eigen, cv::Mat & matrix_cv);
 
 ///
 /// @brief Convert CV matrix to Eigen matrix

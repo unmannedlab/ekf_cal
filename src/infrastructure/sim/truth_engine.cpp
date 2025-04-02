@@ -323,7 +323,7 @@ Intrinsics TruthEngine::GetCameraIntrinsics(unsigned int sensor_id)
   return m_cam_intrinsics[sensor_id];
 }
 
-void TruthEngine::SetCameraIntrinsics(unsigned int sensor_id, Intrinsics intrinsics)
+void TruthEngine::SetCameraIntrinsics(unsigned int sensor_id, const Intrinsics & intrinsics)
 {
   m_cam_intrinsics[sensor_id] = intrinsics;
 }

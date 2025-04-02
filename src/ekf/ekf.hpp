@@ -158,7 +158,7 @@ public:
   /// @param timeInit Initial time
   /// @param bodyStateInit Initial state
   ///
-  void Initialize(double timeInit, BodyState bodyStateInit);
+  void Initialize(double timeInit, const BodyState & bodyStateInit);
 
   ///
   /// @brief IMU Registration function
@@ -166,7 +166,10 @@ public:
   /// @param imu_state Initial IMU state
   /// @param covariance Initial IMU covariance
   ///
-  void RegisterIMU(unsigned int imu_id, ImuState imu_state, const Eigen::MatrixXd & covariance);
+  void RegisterIMU(
+    unsigned int imu_id,
+    const ImuState & imu_state,
+    const Eigen::MatrixXd & covariance);
 
   ///
   /// @brief GPS Registration function
@@ -174,7 +177,10 @@ public:
   /// @param gps_state Initial GPS state
   /// @param covariance Initial GPS covariance
   ///
-  void RegisterGPS(unsigned int gps_id, GpsState gps_state, const Eigen::Matrix3d & covariance);
+  void RegisterGPS(
+    unsigned int gps_id,
+    const GpsState & gps_state,
+    const Eigen::Matrix3d & covariance);
 
   ///
   /// @brief Camera Registration function
@@ -182,14 +188,17 @@ public:
   /// @param cam_state Initial camera state
   /// @param covariance Initial camera covariance
   ///
-  void RegisterCamera(unsigned int cam_id, CamState cam_state, const Eigen::MatrixXd & covariance);
+  void RegisterCamera(
+    unsigned int cam_id,
+    const CamState & cam_state,
+    const Eigen::MatrixXd & covariance);
 
   ///
   /// @brief Fiducial Registration function
   /// @param fid_state Initial fiducial state
   /// @param covariance Initial fiducial covariance
   ///
-  void RegisterFiducial(FidState fid_state, const Eigen::MatrixXd & covariance);
+  void RegisterFiducial(const FidState & fid_state, const Eigen::MatrixXd & covariance);
 
   ///
   /// @brief Augment the state covariance matrix

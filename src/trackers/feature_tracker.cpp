@@ -167,7 +167,7 @@ std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
   return grid_key_points;
 }
 
-void FeatureTracker::Track(double time, int frame_id, cv::Mat img_in, cv::Mat img_out)
+void FeatureTracker::Track(double time, int frame_id, const cv::Mat & img_in, cv::Mat & img_out)
 {
   // Down sample image
   /// @todo: Get down-sample parameters from input
