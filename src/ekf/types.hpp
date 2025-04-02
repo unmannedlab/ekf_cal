@@ -95,7 +95,7 @@ public:
   /// @brief Function to set state using vector
   /// @param state vector for setting body state
   ///
-  void SetState(Eigen::VectorXd state);
+  void SetState(const Eigen::VectorXd & state);
 
   Eigen::Vector3d pos_b_in_l{0.0, 0.0, 0.0};          ///< @brief Body position
   Eigen::Vector3d vel_b_in_l{0.0, 0.0, 0.0};          ///< @brief Body velocity
@@ -367,22 +367,22 @@ public:
   std::map<unsigned int, std::vector<AugState>> aug_states{};  ///< @brief Fiducial states
 };
 
-BodyState & operator+=(BodyState & l_body_state, BodyState & r_body_state);
-BodyState & operator+=(BodyState & l_body_state, Eigen::VectorXd & r_vector);
-ImuState & operator+=(ImuState & l_imu_state, Eigen::VectorXd & r_vector);
+BodyState & operator+=(BodyState & l_body_state, const BodyState & r_body_state);
+BodyState & operator+=(BodyState & l_body_state, const Eigen::VectorXd & r_vector);
+ImuState & operator+=(ImuState & l_imu_state, const Eigen::VectorXd & r_vector);
 std::map<unsigned int, ImuState> & operator+=(
-  std::map<unsigned int, ImuState> & l_imu_state, Eigen::VectorXd & r_vector);
+  std::map<unsigned int, ImuState> & l_imu_state, const Eigen::VectorXd & r_vector);
 std::map<unsigned int, GpsState> & operator+=(
-  std::map<unsigned int, GpsState> & l_gps_state, Eigen::VectorXd & r_vector);
+  std::map<unsigned int, GpsState> & l_gps_state, const Eigen::VectorXd & r_vector);
 std::map<unsigned int, CamState> & operator+=(
-  std::map<unsigned int, CamState> & l_cam_state, Eigen::VectorXd & r_vector);
+  std::map<unsigned int, CamState> & l_cam_state, const Eigen::VectorXd & r_vector);
 std::map<unsigned int, FidState> & operator+=(
-  std::map<unsigned int, FidState> & l_fid_state, Eigen::VectorXd & r_vector);
+  std::map<unsigned int, FidState> & l_fid_state, const Eigen::VectorXd & r_vector);
 std::vector<AugState> & operator+=(
-  std::vector<AugState> & l_augState, Eigen::VectorXd & r_vector);
+  std::vector<AugState> & l_augState, const Eigen::VectorXd & r_vector);
 
 State & operator+=(State & l_state, State & rState);
-State & operator+=(State & l_state, Eigen::VectorXd & r_vector);
+State & operator+=(State & l_state, const Eigen::VectorXd & r_vector);
 
 enum class GpsInitType
 {

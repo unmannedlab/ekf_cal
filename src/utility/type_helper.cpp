@@ -45,7 +45,7 @@ Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
   }
 }
 
-Eigen::Quaterniond RotVecToQuat(Eigen::Vector3d rot_vec)
+Eigen::Quaterniond RotVecToQuat(const Eigen::Vector3d & rot_vec)
 {
   double angle = rot_vec.norm();
   if (angle > 1e-9) {
@@ -57,14 +57,14 @@ Eigen::Quaterniond RotVecToQuat(Eigen::Vector3d rot_vec)
   }
 }
 
-Eigen::Vector3d QuatToRotVec(Eigen::Quaterniond quat)
+Eigen::Vector3d QuatToRotVec(const Eigen::Quaterniond & quat)
 {
   Eigen::AngleAxisd ang_axis{quat};
   Eigen::Vector3d rot_vec = ang_axis.axis() * ang_axis.angle();
   return rot_vec;
 }
 
-Eigen::Quaterniond EigVecToQuat(Eigen::Vector3d euler_angles)
+Eigen::Quaterniond EigVecToQuat(const Eigen::Vector3d & euler_angles)
 {
   Eigen::Quaterniond quaternion =
     Eigen::AngleAxisd(euler_angles(2), Eigen::Vector3d::UnitZ()) *
@@ -73,7 +73,7 @@ Eigen::Quaterniond EigVecToQuat(Eigen::Vector3d euler_angles)
   return quaternion;
 }
 
-void EigenMatrixToCv(Eigen::Matrix3d & matrix_eigen, cv::Mat matrix_cv)
+void EigenMatrixToCv(const Eigen::Matrix3d & matrix_eigen, cv::Mat matrix_cv)
 {
   for (unsigned int i = 0; i < 3; ++i) {
     for (unsigned int j = 0; j < 3; ++j) {
@@ -82,7 +82,7 @@ void EigenMatrixToCv(Eigen::Matrix3d & matrix_eigen, cv::Mat matrix_cv)
   }
 }
 
-void CvMatrixToEigen(cv::Mat matrix_cv, Eigen::Matrix3d & matrix_eigen)
+void CvMatrixToEigen(const cv::Mat matrix_cv, Eigen::Matrix3d & matrix_eigen)
 {
   for (unsigned int i = 0; i < 3; ++i) {
     for (unsigned int j = 0; j < 3; ++j) {
@@ -91,7 +91,7 @@ void CvMatrixToEigen(cv::Mat matrix_cv, Eigen::Matrix3d & matrix_eigen)
   }
 }
 
-cv::Vec3d QuatToRodrigues(Eigen::Quaterniond quat)
+cv::Vec3d QuatToRodrigues(const Eigen::Quaterniond & quat)
 {
   Eigen::Matrix3d rotation_matrix_eigen = quat.toRotationMatrix();
   cv::Mat rotation_matrix_cv(3, 3, cv::DataType<double>::type);

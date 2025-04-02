@@ -65,8 +65,8 @@ public:
   void UpdateEKF(
     EKF & ekf,
     double time,
-    Eigen::Vector3d gps_lla,
-    Eigen::MatrixXd pos_covariance);
+    const Eigen::Vector3d & gps_lla,
+    const Eigen::MatrixXd & pos_covariance);
 
   ///
   /// @brief Update/marginalize EKF using GPS measurements used to initialize local frame

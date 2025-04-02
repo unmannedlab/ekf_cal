@@ -54,14 +54,18 @@ public:
   /// @param mean Mean of normal distribution
   /// @param std_dev Standard deviation of normal distribution
   ///
-  Eigen::Vector3d VecNormRand(Eigen::Vector3d mean, Eigen::Vector3d std_dev);
+  Eigen::Vector3d VecNormRand(
+    const Eigen::Vector3d & mean,
+    const Eigen::Vector3d & std_dev);
 
   ///
   /// @brief Function to return normal random number
   /// @param mean Mean of normal distribution
   /// @param std_dev Standard deviation of normal distribution
   ///
-  Eigen::Quaterniond QuatNormRand(Eigen::Quaterniond mean, Eigen::Vector3d std_dev);
+  Eigen::Quaterniond QuatNormRand(
+    const Eigen::Quaterniond & mean,
+    const Eigen::Vector3d & std_dev);
 
 private:
   static std::mt19937_64 m_generator;

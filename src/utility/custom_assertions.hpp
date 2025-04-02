@@ -21,7 +21,7 @@
 #include <math.h>
 
 static testing::AssertionResult EXPECT_EIGEN_NEAR(
-  Eigen::MatrixXd mat1, Eigen::MatrixXd mat2, double precision)
+  const Eigen::MatrixXd & mat1, const Eigen::MatrixXd & mat2, double precision)
 {
   for (unsigned int i = 0; i < mat1.rows(); ++i) {
     for (unsigned int j = 0; j < mat1.cols(); ++j) {
@@ -36,7 +36,9 @@ static testing::AssertionResult EXPECT_EIGEN_NEAR(
 }
 
 static testing::AssertionResult EXPECT_EIGEN_NEAR(
-  Eigen::Quaterniond quat1, Eigen::Quaterniond quat2, double precision)
+  const Eigen::Quaterniond & quat1,
+  const Eigen::Quaterniond & quat2,
+  double precision)
 {
   Eigen::Quaterniond delta_quat = quat1.inverse() * quat2;
   double angle = atan2(delta_quat.vec().norm(), delta_quat.w());

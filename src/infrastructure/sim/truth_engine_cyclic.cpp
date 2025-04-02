@@ -124,7 +124,7 @@ Eigen::Quaterniond TruthEngineCyclic::GetBodyAngularPosition(double time)
   return angular_position;
 }
 
-Eigen::Matrix3d TruthEngineCyclic::EulerDerivativeTransform(Eigen::Vector3d rpy_vector)
+Eigen::Matrix3d TruthEngineCyclic::EulerDerivativeTransform(const Eigen::Vector3d & rpy_vector)
 {
   Eigen::Matrix3d transform_matrix;
   transform_matrix.setZero();
@@ -181,12 +181,12 @@ Eigen::Vector3d TruthEngineCyclic::GetBodyAngularAcceleration(double time)
   }
 }
 
-void TruthEngineCyclic::SetBodyPosCycleFrequency(Eigen::Vector3d frequency)
+void TruthEngineCyclic::SetBodyPosCycleFrequency(const Eigen::Vector3d & frequency)
 {
   m_pos_frequency = frequency;
 }
 
-void TruthEngineCyclic::SetBodyAngCycleFrequency(Eigen::Vector3d frequency)
+void TruthEngineCyclic::SetBodyAngCycleFrequency(const Eigen::Vector3d & frequency)
 {
   m_ang_frequency = frequency;
 }

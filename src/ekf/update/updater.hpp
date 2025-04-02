@@ -42,7 +42,7 @@ public:
     EKF & ekf,
     const Eigen::MatrixXd & jacobian,
     const Eigen::VectorXd & residual,
-    Eigen::MatrixXd & measurement_noise);
+    const Eigen::MatrixXd & measurement_noise);
 
 protected:
   unsigned int m_id;                      ///< @brief Associated sensor ID

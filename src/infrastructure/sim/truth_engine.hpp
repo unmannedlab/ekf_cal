@@ -145,42 +145,42 @@ public:
   /// @param sensor_id sensor ID
   /// @param imu_pos sensor parameter
   ///
-  void SetImuPosition(unsigned int sensor_id, Eigen::Vector3d imu_pos);
+  void SetImuPosition(unsigned int sensor_id, const Eigen::Vector3d & imu_pos);
 
   ///
   /// @brief True sensor orientation setter
   /// @param sensor_id sensor ID
   /// @param imu_ang_pos sensor parameter
   ///
-  void SetImuAngularPosition(unsigned int sensor_id, Eigen::Quaterniond imu_ang_pos);
+  void SetImuAngularPosition(unsigned int sensor_id, const Eigen::Quaterniond & imu_ang_pos);
 
   ///
   /// @brief True sensor orientation setter
   /// @param sensor_id sensor ID
   /// @param imu_acc_bias sensor parameter
   ///
-  void SetImuAccelerometerBias(unsigned int sensor_id, Eigen::Vector3d imu_acc_bias);
+  void SetImuAccelerometerBias(unsigned int sensor_id, const Eigen::Vector3d & imu_acc_bias);
 
   ///
   /// @brief True sensor orientation setter
   /// @param sensor_id sensor ID
   /// @param imu_gyro_bias sensor parameter
   ///
-  void SetImuGyroscopeBias(unsigned int sensor_id, Eigen::Vector3d imu_gyro_bias);
+  void SetImuGyroscopeBias(unsigned int sensor_id, const Eigen::Vector3d & imu_gyro_bias);
 
   ///
   /// @brief True sensor position setter
   /// @param sensor_id sensor ID
   /// @param cam_pos sensor parameter
   ///
-  void SetCameraPosition(unsigned int sensor_id, Eigen::Vector3d cam_pos);
+  void SetCameraPosition(unsigned int sensor_id, const Eigen::Vector3d & cam_pos);
 
   ///
   /// @brief True sensor orientation setter
   /// @param sensor_id sensor ID
   /// @param cam_ang_pos sensor parameter
   ///
-  void SetCameraAngularPosition(unsigned int sensor_id, Eigen::Quaterniond cam_ang_pos);
+  void SetCameraAngularPosition(unsigned int sensor_id, const Eigen::Quaterniond & cam_ang_pos);
 
 
   ///
@@ -195,27 +195,27 @@ public:
   /// @param board_id sensor ID
   /// @param board_position Board position
   ///
-  void SetBoardPosition(unsigned int board_id, Eigen::Vector3d board_position);
+  void SetBoardPosition(unsigned int board_id, const Eigen::Vector3d & board_position);
 
   ///
   /// @brief Fiducial board orientation setter
   /// @param board_id sensor ID
   /// @param board_orientation Board orientation
   ///
-  void SetBoardOrientation(unsigned int board_id, Eigen::Quaterniond board_orientation);
+  void SetBoardOrientation(unsigned int board_id, const Eigen::Quaterniond & board_orientation);
 
   ///
   /// @brief GPS sensor position setter
   /// @param sensor_id GPS ID
   /// @param gps_position Antenna position
   ///
-  void SetGpsPosition(unsigned int sensor_id, Eigen::Vector3d gps_position);
+  void SetGpsPosition(unsigned int sensor_id, const Eigen::Vector3d & gps_position);
 
   ///
   /// @brief Local frame reference LLA setter
   /// @param lla_reference Reference LLA
   ///
-  void SetLocalPosition(Eigen::Vector3d lla_reference);
+  void SetLocalPosition(const Eigen::Vector3d & lla_reference);
 
   ///
   /// @brief Local frame reference heading setter

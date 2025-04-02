@@ -65,9 +65,11 @@ ImuUpdater::ImuUpdater(
 
 void ImuUpdater::UpdateEKF(
   EKF & ekf,
-  double time, Eigen::Vector3d acceleration,
-  Eigen::Matrix3d acceleration_covariance, Eigen::Vector3d angular_rate,
-  Eigen::Matrix3d angular_rate_covariance)
+  double time,
+  const Eigen::Vector3d & acceleration,
+  const Eigen::Matrix3d & acceleration_covariance,
+  const Eigen::Vector3d & angular_rate,
+  const Eigen::Matrix3d & angular_rate_covariance)
 {
   double local_time = ekf.CalculateLocalTime(time);
 
@@ -180,10 +182,10 @@ Eigen::MatrixXd ImuUpdater::GetZeroAccelerationJacobian(EKF & ekf)
 bool ImuUpdater::ZeroAccelerationUpdate(
   EKF & ekf,
   double local_time,
-  Eigen::Vector3d acceleration,
-  Eigen::Matrix3d acceleration_covariance,
-  Eigen::Vector3d angular_rate,
-  Eigen::Matrix3d angular_rate_covariance)
+  const Eigen::Vector3d & acceleration,
+  const Eigen::Matrix3d & acceleration_covariance,
+  const Eigen::Vector3d & angular_rate,
+  const Eigen::Matrix3d & angular_rate_covariance)
 {
   auto t_start = std::chrono::high_resolution_clock::now();
 
@@ -386,8 +388,8 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(EKF & ekf)
 
 void ImuUpdater::AngularUpdate(
   EKF & ekf,
-  Eigen::Vector3d angular_rate,
-  Eigen::Matrix3d angular_rate_covariance
+  const Eigen::Vector3d & angular_rate,
+  const Eigen::Matrix3d & angular_rate_covariance
 )
 {
   Eigen::Quaterniond ang_b_to_l = ekf.m_state.body_state.ang_b_to_l;

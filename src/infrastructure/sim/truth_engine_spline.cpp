@@ -162,7 +162,7 @@ bool TruthEngineSpline::IsTimeInvalid(double time)
   }
 }
 
-bool TruthEngineSpline::IsSplineInvalid(Eigen::Spline3d spline)
+bool TruthEngineSpline::IsSplineInvalid(const Eigen::Spline3d & spline)
 {
   return !(*spline.ctrls().data() == *spline.ctrls().data());
 }

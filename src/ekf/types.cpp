@@ -23,7 +23,7 @@
 #include "ekf/constants.hpp"
 #include "utility/type_helper.hpp"
 
-BodyState & operator+=(BodyState & l_body_state, BodyState & r_body_state)
+BodyState & operator+=(BodyState & l_body_state, const BodyState & r_body_state)
 {
   l_body_state.pos_b_in_l += r_body_state.pos_b_in_l;
   l_body_state.vel_b_in_l += r_body_state.vel_b_in_l;
@@ -35,7 +35,7 @@ BodyState & operator+=(BodyState & l_body_state, BodyState & r_body_state)
   return l_body_state;
 }
 
-BodyState & operator+=(BodyState & l_body_state, Eigen::VectorXd & r_vector)
+BodyState & operator+=(BodyState & l_body_state, const Eigen::VectorXd & r_vector)
 {
   l_body_state.pos_b_in_l += r_vector.segment<3>(0);
   l_body_state.vel_b_in_l += r_vector.segment<3>(3);
@@ -91,7 +91,7 @@ State & operator+=(State & l_state, State & r_state)
   return l_state;
 }
 
-State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
+State & operator+=(State & l_state, const Eigen::VectorXd & r_vector)
 {
   Eigen::VectorXd r_body_state = r_vector.segment<g_body_state_size>(0);
   l_state.body_state += r_body_state;
@@ -149,7 +149,7 @@ State & operator+=(State & l_state, Eigen::VectorXd & r_vector)
   return l_state;
 }
 
-ImuState & operator+=(ImuState & l_imu_state, Eigen::VectorXd & r_vector)
+ImuState & operator+=(ImuState & l_imu_state, const Eigen::VectorXd & r_vector)
 {
   unsigned int n {0};
   if (l_imu_state.GetIsExtrinsic()) {
@@ -168,7 +168,7 @@ ImuState & operator+=(ImuState & l_imu_state, Eigen::VectorXd & r_vector)
 }
 
 std::map<unsigned int, ImuState> & operator+=(
-  std::map<unsigned int, ImuState> & l_imu_state, Eigen::VectorXd & r_vector)
+  std::map<unsigned int, ImuState> & l_imu_state, const Eigen::VectorXd & r_vector)
 {
   unsigned int n {0};
   for (auto & imu_iter : l_imu_state) {
@@ -190,7 +190,7 @@ std::map<unsigned int, ImuState> & operator+=(
 }
 
 std::map<unsigned int, CamState> & operator+=(
-  std::map<unsigned int, CamState> & l_cam_state, Eigen::VectorXd & r_vector)
+  std::map<unsigned int, CamState> & l_cam_state, const Eigen::VectorXd & r_vector)
 {
   unsigned int n {0};
   for (auto & cam_iter : l_cam_state) {
@@ -205,7 +205,7 @@ std::map<unsigned int, CamState> & operator+=(
 
 
 std::vector<AugState> & operator+=(
-  std::vector<AugState> & l_aug_state, Eigen::VectorXd & r_vector)
+  std::vector<AugState> & l_aug_state, const Eigen::VectorXd & r_vector)
 {
   unsigned int n {0};
   for (auto & aug_iter : l_aug_state) {
@@ -287,7 +287,7 @@ Eigen::VectorXd FidState::ToVector() const
   return out_vec;
 }
 
-void BodyState::SetState(Eigen::VectorXd state)
+void BodyState::SetState(const Eigen::VectorXd & state)
 {
   pos_b_in_l = state.segment<3>(0);
   vel_b_in_l = state.segment<3>(3);

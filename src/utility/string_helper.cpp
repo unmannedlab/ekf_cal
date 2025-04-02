@@ -30,7 +30,7 @@ std::string EnumerateHeader(const std::string & name, unsigned int size)
   return stream.str();
 }
 
-std::string VectorToCommaString(Eigen::VectorXd vec)
+std::string VectorToCommaString(const Eigen::VectorXd & vec)
 {
   std::stringstream stream;
   for (unsigned int i = 0; i < vec.size(); ++i) {
@@ -39,7 +39,7 @@ std::string VectorToCommaString(Eigen::VectorXd vec)
   return stream.str();
 }
 
-std::string VectorToCommaString(Eigen::VectorXd vec, unsigned int precision)
+std::string VectorToCommaString(const Eigen::VectorXd & vec, unsigned int precision)
 {
   std::stringstream stream;
   for (unsigned int i = 0; i < vec.size(); ++i) {
@@ -48,7 +48,7 @@ std::string VectorToCommaString(Eigen::VectorXd vec, unsigned int precision)
   return stream.str();
 }
 
-std::string QuaternionToCommaString(Eigen::Quaterniond quat)
+std::string QuaternionToCommaString(const Eigen::Quaterniond & quat)
 {
   std::stringstream stream;
   stream << "," << quat.w();

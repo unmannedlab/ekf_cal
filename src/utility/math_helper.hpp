@@ -25,7 +25,7 @@
 /// @param in_vec Input vector with which to find the left hand size cross product matrix
 /// @return Cross product matrix
 ///
-Eigen::Matrix3d SkewSymmetric(Eigen::Vector3d in_vec);
+Eigen::Matrix3d SkewSymmetric(const Eigen::Vector3d & in_vec);
 
 ///
 /// @brief Bound vector by a minimum value
@@ -43,7 +43,10 @@ void MinBoundVector(Eigen::VectorXd & in_vec, double min_bound);
 /// @return Matrix with sub-matrix added
 ///
 Eigen::MatrixXd InsertInMatrix(
-  Eigen::MatrixXd sub_mat, Eigen::MatrixXd in_mat, unsigned int row, unsigned int col);
+  const Eigen::MatrixXd & sub_mat,
+  const Eigen::MatrixXd & in_mat,
+  unsigned int row,
+  unsigned int col);
 
 ///
 /// @brief Remove rows and columns from a matrix
@@ -54,7 +57,7 @@ Eigen::MatrixXd InsertInMatrix(
 /// @return Matrix with rows and columns removed
 ///
 Eigen::MatrixXd RemoveFromMatrix(
-  Eigen::MatrixXd in_mat, unsigned int row, unsigned int col, unsigned int size);
+  const Eigen::MatrixXd & in_mat, unsigned int row, unsigned int col, unsigned int size);
 
 ///
 /// @brief Apply left nullspace to update matrices
@@ -62,7 +65,7 @@ Eigen::MatrixXd RemoveFromMatrix(
 /// @param H_x Track Jacobian
 /// @param res Update residual
 ///
-void ApplyLeftNullspace(Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::VectorXd & res);
+void ApplyLeftNullspace(const Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::VectorXd & res);
 
 ///
 /// @brief Perform measurement compression
@@ -91,7 +94,7 @@ Eigen::Vector3d average_vectors(std::vector<Eigen::Vector3d> vectors, std::vecto
 /// @param quat Input quaternion
 /// @return Jacobian matrix
 ///
-Eigen::MatrixXd quaternion_jacobian(Eigen::Quaterniond quat);
+Eigen::MatrixXd quaternion_jacobian(const Eigen::Quaterniond & quat);
 
 ///
 /// @brief Create a horizontal 2xN matrix from a list of vectors
@@ -143,6 +146,6 @@ double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vector
 /// @param B Bottom matrix
 /// @return R matrix from QR decomposition
 ///
-Eigen::MatrixXd QR_r(Eigen::MatrixXd A, Eigen::MatrixXd B);
+Eigen::MatrixXd QR_r(const Eigen::MatrixXd & A, const Eigen::MatrixXd & B);
 
 #endif  // UTILITY__MATH_HELPER_HPP_

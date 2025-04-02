@@ -246,7 +246,7 @@ void EKF::Initialize(double timeInit, BodyState body_state_init)
   m_state.body_state = body_state_init;
 }
 
-void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd covariance)
+void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, const Eigen::MatrixXd & covariance)
 {
   // Check that ID hasn't been used before
   if (m_state.imu_states.find(imu_id) != m_state.imu_states.end()) {
@@ -279,7 +279,7 @@ void EKF::RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd c
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-void EKF::RegisterGPS(unsigned int gps_id, GpsState gps_state, Eigen::Matrix3d covariance)
+void EKF::RegisterGPS(unsigned int gps_id, GpsState gps_state, const Eigen::Matrix3d & covariance)
 {
   // Check that ID hasn't been used before
   if (m_state.gps_states.find(gps_id) != m_state.gps_states.end()) {
@@ -305,7 +305,9 @@ void EKF::RegisterGPS(unsigned int gps_id, GpsState gps_state, Eigen::Matrix3d c
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixXd covariance)
+void EKF::RegisterCamera(
+  unsigned int cam_id, CamState cam_state,
+  const Eigen::MatrixXd & covariance)
 {
   // Check that ID hasn't been used before
   if (m_state.cam_states.find(cam_id) != m_state.cam_states.end()) {
@@ -341,7 +343,7 @@ void EKF::RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixX
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-void EKF::RegisterFiducial(FidState fid_state, Eigen::MatrixXd covariance)
+void EKF::RegisterFiducial(FidState fid_state, const Eigen::MatrixXd & covariance)
 {
   // Check that ID hasn't been used before
   if (m_state.fid_states.find(fid_state.id) != m_state.fid_states.end()) {
@@ -364,7 +366,7 @@ void EKF::RegisterFiducial(FidState fid_state, Eigen::MatrixXd covariance)
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-Eigen::MatrixXd EKF::AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int index)
+Eigen::MatrixXd EKF::AugmentCovariance(const Eigen::MatrixXd & in_cov, unsigned int index)
 {
   unsigned int in_rows = in_cov.rows();
   unsigned int in_cols = in_cov.cols();
@@ -552,7 +554,7 @@ void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
   }
 }
 
-void EKF::SetBodyProcessNoise(Eigen::VectorXd process_noise)
+void EKF::SetBodyProcessNoise(const Eigen::VectorXd & process_noise)
 {
   m_body_process_noise = process_noise;
 }
@@ -622,7 +624,7 @@ void EKF::SetMaxTrackLength(unsigned int max_track_length)
   m_max_track_duration = m_max_frame_period * m_max_track_length;
 }
 
-void EKF::SetGpsReference(Eigen::VectorXd pos_e_in_g, double ang_l_to_e)
+void EKF::SetGpsReference(const Eigen::VectorXd & pos_e_in_g, double ang_l_to_e)
 {
   m_pos_e_in_g = pos_e_in_g;
   m_ang_l_to_e = ang_l_to_e;

@@ -166,7 +166,7 @@ public:
   /// @param imu_state Initial IMU state
   /// @param covariance Initial IMU covariance
   ///
-  void RegisterIMU(unsigned int imu_id, ImuState imu_state, Eigen::MatrixXd covariance);
+  void RegisterIMU(unsigned int imu_id, ImuState imu_state, const Eigen::MatrixXd & covariance);
 
   ///
   /// @brief GPS Registration function
@@ -174,7 +174,7 @@ public:
   /// @param gps_state Initial GPS state
   /// @param covariance Initial GPS covariance
   ///
-  void RegisterGPS(unsigned int gps_id, GpsState gps_state, Eigen::Matrix3d covariance);
+  void RegisterGPS(unsigned int gps_id, GpsState gps_state, const Eigen::Matrix3d & covariance);
 
   ///
   /// @brief Camera Registration function
@@ -182,14 +182,14 @@ public:
   /// @param cam_state Initial camera state
   /// @param covariance Initial camera covariance
   ///
-  void RegisterCamera(unsigned int cam_id, CamState cam_state, Eigen::MatrixXd covariance);
+  void RegisterCamera(unsigned int cam_id, CamState cam_state, const Eigen::MatrixXd & covariance);
 
   ///
   /// @brief Fiducial Registration function
   /// @param fid_state Initial fiducial state
   /// @param covariance Initial fiducial covariance
   ///
-  void RegisterFiducial(FidState fid_state, Eigen::MatrixXd covariance);
+  void RegisterFiducial(FidState fid_state, const Eigen::MatrixXd & covariance);
 
   ///
   /// @brief Augment the state covariance matrix
@@ -197,7 +197,7 @@ public:
   /// @param index Augmented state start index
   /// @return Augmented state covariance matrix
   ///
-  Eigen::MatrixXd AugmentCovariance(Eigen::MatrixXd in_cov, unsigned int index);
+  Eigen::MatrixXd AugmentCovariance(const Eigen::MatrixXd & in_cov, unsigned int index);
 
   ///
   /// @brief Check if state should be augmented using current state
@@ -221,14 +221,14 @@ public:
   /// @brief EKF process noise setter
   /// @param process_noise Diagonal terms of process noise
   ///
-  void SetBodyProcessNoise(Eigen::VectorXd process_noise);
+  void SetBodyProcessNoise(const Eigen::VectorXd & process_noise);
 
   ///
   /// @brief GPS reference position setter
   /// @param pos_e_in_g GPS reference LLA
   /// @param ang_l_to_e GPS reference header
   ///
-  void SetGpsReference(Eigen::VectorXd pos_e_in_g, double ang_l_to_e);
+  void SetGpsReference(const Eigen::VectorXd & pos_e_in_g, double ang_l_to_e);
 
   ///
   /// @brief Zero acceleration flag setter

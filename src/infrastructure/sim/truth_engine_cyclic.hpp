@@ -57,13 +57,13 @@ public:
   /// @brief Setter for body position cycle frequency
   /// @param frequency Vector of frequencies to use
   ///
-  void SetBodyPosCycleFrequency(Eigen::Vector3d frequency);
+  void SetBodyPosCycleFrequency(const Eigen::Vector3d & frequency);
 
   ///
   /// @brief Setter for body euler angle cycle frequency
   /// @param frequency Vector of frequencies to use
   ///
-  void SetBodyAngCycleFrequency(Eigen::Vector3d frequency);
+  void SetBodyAngCycleFrequency(const Eigen::Vector3d & frequency);
 
   ///
   /// @brief True body position getter
@@ -99,7 +99,7 @@ public:
   /// @brief Calculate transformation matrix to convert RPY derivatives into final frame
   /// @param rpy_vector Roll-Pitch-Yaw vector
   ///
-  Eigen::Matrix3d EulerDerivativeTransform(Eigen::Vector3d rpy_vector);
+  Eigen::Matrix3d EulerDerivativeTransform(const Eigen::Vector3d & rpy_vector);
 
   ///
   /// @brief True body angular rate getter

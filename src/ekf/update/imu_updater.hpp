@@ -75,10 +75,10 @@ public:
   void UpdateEKF(
     EKF & ekf,
     double time,
-    Eigen::Vector3d acceleration,
-    Eigen::Matrix3d acceleration_covariance,
-    Eigen::Vector3d angular_rate,
-    Eigen::Matrix3d angular_rate_covariance
+    const Eigen::Vector3d & acceleration,
+    const Eigen::Matrix3d & acceleration_covariance,
+    const Eigen::Vector3d & angular_rate,
+    const Eigen::Matrix3d & angular_rate_covariance
   );
 
   ///
@@ -93,10 +93,10 @@ public:
   bool ZeroAccelerationUpdate(
     EKF & ekf,
     double local_time,
-    Eigen::Vector3d acceleration,
-    Eigen::Matrix3d acceleration_covariance,
-    Eigen::Vector3d angular_rate,
-    Eigen::Matrix3d angular_rate_covariance
+    const Eigen::Vector3d & acceleration,
+    const Eigen::Matrix3d & acceleration_covariance,
+    const Eigen::Vector3d & angular_rate,
+    const Eigen::Matrix3d & angular_rate_covariance
   );
 
   ///
@@ -116,8 +116,8 @@ public:
   ///
   void AngularUpdate(
     EKF & ekf,
-    Eigen::Vector3d angular_rate,
-    Eigen::Matrix3d angular_rate_covariance
+    const Eigen::Vector3d & angular_rate,
+    const Eigen::Matrix3d & angular_rate_covariance
   );
 
 private:

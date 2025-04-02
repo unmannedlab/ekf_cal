@@ -24,7 +24,7 @@
 
 #include "utility/type_helper.hpp"
 
-Eigen::Matrix3d SkewSymmetric(Eigen::Vector3d in_vec)
+Eigen::Matrix3d SkewSymmetric(const Eigen::Vector3d & in_vec)
 {
   Eigen::Matrix3d out_mat = Eigen::Matrix3d::Zero();
 
@@ -48,7 +48,10 @@ void MinBoundVector(Eigen::VectorXd & in_vec, double min_bound)
 }
 
 Eigen::MatrixXd InsertInMatrix(
-  Eigen::MatrixXd sub_mat, Eigen::MatrixXd in_mat, unsigned int row, unsigned int col)
+  const Eigen::MatrixXd & sub_mat,
+  const Eigen::MatrixXd & in_mat,
+  unsigned int row,
+  unsigned int col)
 {
   unsigned int in_rows = in_mat.rows();
   unsigned int in_cols = in_mat.cols();
@@ -79,8 +82,10 @@ Eigen::MatrixXd InsertInMatrix(
 }
 
 Eigen::MatrixXd RemoveFromMatrix(
-  Eigen::MatrixXd in_mat, unsigned int row,
-  unsigned int col, unsigned int size)
+  const Eigen::MatrixXd & in_mat,
+  unsigned int row,
+  unsigned int col,
+  unsigned int size)
 {
   unsigned int in_rows = in_mat.rows();
   unsigned int in_cols = in_mat.cols();
@@ -101,7 +106,7 @@ Eigen::MatrixXd RemoveFromMatrix(
   return out_mat;
 }
 
-void ApplyLeftNullspace(Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::VectorXd & res)
+void ApplyLeftNullspace(const Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::VectorXd & res)
 {
   Eigen::HouseholderQR<Eigen::MatrixXd> QR(H_f);
   Eigen::MatrixXd Q = QR.householderQ();
@@ -161,7 +166,7 @@ Eigen::Vector3d average_vectors(
   return average_vector / weights_sum;
 }
 
-Eigen::MatrixXd quaternion_jacobian(Eigen::Quaterniond quat)
+Eigen::MatrixXd quaternion_jacobian(const Eigen::Quaterniond & quat)
 {
   Eigen::Vector3d rot_vec = QuatToRotVec(quat);
   Eigen::Matrix3d skew_mat = SkewSymmetric(rot_vec);
@@ -291,7 +296,7 @@ double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vector
   return std::sqrt(square_sum_of_difference) / input_vectors.size();
 }
 
-Eigen::MatrixXd QR_r(Eigen::MatrixXd A, Eigen::MatrixXd B)
+Eigen::MatrixXd QR_r(const Eigen::MatrixXd & A, const Eigen::MatrixXd & B)
 {
   Eigen::MatrixXd vert_cat(A.rows() + B.rows(), A.cols());
 

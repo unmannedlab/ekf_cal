@@ -38,7 +38,9 @@ double SimRNG::UniRand(double min, double max)
   return uniform_distribution(m_generator);
 }
 
-Eigen::Vector3d SimRNG::VecNormRand(Eigen::Vector3d mean, Eigen::Vector3d std_dev)
+Eigen::Vector3d SimRNG::VecNormRand(
+  const Eigen::Vector3d & mean,
+  const Eigen::Vector3d & std_dev)
 {
   Eigen::Vector3d out_vec;
   out_vec[0] = NormRand(mean[0], std_dev[0]);
@@ -47,7 +49,9 @@ Eigen::Vector3d SimRNG::VecNormRand(Eigen::Vector3d mean, Eigen::Vector3d std_de
   return out_vec;
 }
 
-Eigen::Quaterniond SimRNG::QuatNormRand(Eigen::Quaterniond mean, Eigen::Vector3d std_dev)
+Eigen::Quaterniond SimRNG::QuatNormRand(
+  const Eigen::Quaterniond & mean,
+  const Eigen::Vector3d & std_dev)
 {
   Eigen::Quaterniond out_quat;
   Eigen::Vector3d ang_error_rpy;

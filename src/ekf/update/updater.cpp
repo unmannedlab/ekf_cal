@@ -27,17 +27,18 @@ void Updater::KalmanUpdate(
   EKF & ekf,
   const Eigen::MatrixXd & jacobian,
   const Eigen::VectorXd & residual,
-  Eigen::MatrixXd & measurement_noise
+  const Eigen::MatrixXd & measurement_noise
 )
 {
   // Calculate Kalman gain
-  Eigen::MatrixXd S, G, K;
+  Eigen::MatrixXd S, G, K, R;
   if (ekf.GetUseRootCovariance()) {
-    measurement_noise = measurement_noise.cwiseSqrt();
-    G = QR_r(ekf.m_cov * jacobian.transpose(), measurement_noise);
+    R = measurement_noise.cwiseSqrt();
+    G = QR_r(ekf.m_cov * jacobian.transpose(), R);
     K = ekf.m_cov.transpose() * ekf.m_cov * jacobian.transpose() * (G.transpose() * G).inverse();
   } else {
-    S = jacobian * ekf.m_cov * jacobian.transpose() + measurement_noise;
+    R = measurement_noise;
+    S = jacobian * ekf.m_cov * jacobian.transpose() + R;
     K = ekf.m_cov * jacobian.transpose() * S.inverse();
   }
 
@@ -49,11 +50,11 @@ void Updater::KalmanUpdate(
   if (ekf.GetUseRootCovariance()) {
     ekf.m_cov = QR_r(
       ekf.m_cov * (Eigen::MatrixXd::Identity(rows, cols) -
-      K * jacobian).transpose(), measurement_noise * K.transpose());
+      K * jacobian).transpose(), R * K.transpose());
   } else {
     ekf.m_cov =
       (Eigen::MatrixXd::Identity(rows, cols) - K * jacobian) * ekf.m_cov *
       (Eigen::MatrixXd::Identity(rows, cols) - K * jacobian).transpose() +
-      K * measurement_noise * K.transpose();
+      K * R * K.transpose();
   }
 }

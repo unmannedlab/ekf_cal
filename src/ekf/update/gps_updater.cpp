@@ -74,7 +74,7 @@ Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(EKF & ekf)
 }
 
 void GpsUpdater::UpdateEKF(
-  EKF & ekf, double time, Eigen::Vector3d gps_lla, Eigen::MatrixXd pos_covariance)
+  EKF & ekf, double time, const Eigen::Vector3d & gps_lla, const Eigen::MatrixXd & pos_covariance)
 {
   auto t_start = std::chrono::high_resolution_clock::now();
   double local_time = ekf.CalculateLocalTime(time);

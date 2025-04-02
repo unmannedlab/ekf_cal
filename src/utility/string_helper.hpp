@@ -33,7 +33,7 @@ std::string EnumerateHeader(const std::string & name, unsigned int size);
 /// @param vec Input vector
 /// @return Comma-separated string vector
 ///
-std::string VectorToCommaString(Eigen::VectorXd vec);
+std::string VectorToCommaString(const Eigen::VectorXd & vec);
 
 ///
 /// @brief Create comma-separated string from vector
@@ -41,13 +41,13 @@ std::string VectorToCommaString(Eigen::VectorXd vec);
 /// @param precision Output precision
 /// @return Comma-separated string vector
 ///
-std::string VectorToCommaString(Eigen::VectorXd vec, unsigned int precision);
+std::string VectorToCommaString(const Eigen::VectorXd & vec, unsigned int precision);
 
 ///
 /// @brief Create comma-separated string from quaternion
 /// @param quat Input quaternion
 /// @return Comma-separated string quaternion
 ///
-std::string QuaternionToCommaString(Eigen::Quaterniond quat);
+std::string QuaternionToCommaString(const Eigen::Quaterniond & quat);
 
 #endif  // UTILITY__STRING_HELPER_HPP_

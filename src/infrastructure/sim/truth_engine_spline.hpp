@@ -92,7 +92,7 @@ public:
 
 private:
   bool IsTimeInvalid(double time);
-  bool IsSplineInvalid(Eigen::Spline3d spline);
+  bool IsSplineInvalid(const Eigen::Spline3d & spline);
 
   double m_stationary_time {0.1};
   Eigen::Spline3d m_pos_spline;

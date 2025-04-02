@@ -43,42 +43,42 @@ Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in);
 /// @param rot_vec Input rotation vector
 /// @return Rotation quaternion
 ///
-Eigen::Quaterniond RotVecToQuat(Eigen::Vector3d rot_vec);
+Eigen::Quaterniond RotVecToQuat(const Eigen::Vector3d & rot_vec);
 
 ///
 /// @brief Convert quaternion to rotation vector
 /// @param quat Input rotation quaternion
 /// @return Rotation vector
 ///
-Eigen::Vector3d QuatToRotVec(Eigen::Quaterniond quat);
+Eigen::Vector3d QuatToRotVec(const Eigen::Quaterniond & quat);
 
 ///
 /// @brief Convert Euler angles to quaternion
 /// @param euler_angles Input Euler angles
 /// @return Resulting quaternion
 ///
-Eigen::Quaterniond EigVecToQuat(Eigen::Vector3d euler_angles);
+Eigen::Quaterniond EigVecToQuat(const Eigen::Vector3d & euler_angles);
 
 ///
 /// @brief Convert Eigen matrix to cv matrix
 /// @param matrix_eigen Input Eigen matrix
 /// @param matrix_cv Output CV matrix
 ///
-void EigenMatrixToCv(Eigen::Matrix3d & matrix_eigen, cv::Mat matrix_cv);
+void EigenMatrixToCv(const Eigen::Matrix3d & matrix_eigen, cv::Mat matrix_cv);
 
 ///
 /// @brief Convert CV matrix to Eigen matrix
 /// @param matrix_cv Input CV matrix
 /// @param matrix_eigen Output Eigen matrix
 ///
-void CvMatrixToEigen(cv::Mat matrix_cv, Eigen::Matrix3d & matrix_eigen);
+void CvMatrixToEigen(const cv::Mat matrix_cv, Eigen::Matrix3d & matrix_eigen);
 
 ///
 /// @brief Convert quaternion to Rodrigues rotation vector
 /// @param quat Input rotation quaternion
 /// @return Rodrigues rotation vector
 ///
-cv::Vec3d QuatToRodrigues(Eigen::Quaterniond quat);
+cv::Vec3d QuatToRodrigues(const Eigen::Quaterniond & quat);
 
 ///
 /// @brief Convert Rodrigues rotation vector to quaternion

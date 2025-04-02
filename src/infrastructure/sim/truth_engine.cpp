@@ -75,47 +75,53 @@ double TruthEngine::GetLocalHeading()
   return m_heading;
 }
 
-void TruthEngine::SetImuPosition(unsigned int sensor_id, Eigen::Vector3d imu_pos)
+void TruthEngine::SetImuPosition(unsigned int sensor_id, const Eigen::Vector3d & imu_pos)
 {
   m_imu_pos[sensor_id] = imu_pos;
 }
 
-void TruthEngine::SetImuAngularPosition(unsigned int sensor_id, Eigen::Quaterniond imu_ang_pos)
+void TruthEngine::SetImuAngularPosition(
+  unsigned int sensor_id,
+  const Eigen::Quaterniond & imu_ang_pos)
 {
   m_imu_ang_pos[sensor_id] = imu_ang_pos;
 }
 
-void TruthEngine::SetImuAccelerometerBias(unsigned int sensor_id, Eigen::Vector3d imu_acc_bias)
+void TruthEngine::SetImuAccelerometerBias(
+  unsigned int sensor_id,
+  const Eigen::Vector3d & imu_acc_bias)
 {
   m_imu_acc_bias[sensor_id] = imu_acc_bias;
 }
 
-void TruthEngine::SetImuGyroscopeBias(unsigned int sensor_id, Eigen::Vector3d imu_gyro_bias)
+void TruthEngine::SetImuGyroscopeBias(unsigned int sensor_id, const Eigen::Vector3d & imu_gyro_bias)
 {
   m_imu_gyro_bias[sensor_id] = imu_gyro_bias;
 }
 
-void TruthEngine::SetCameraPosition(unsigned int sensor_id, Eigen::Vector3d cam_pos)
+void TruthEngine::SetCameraPosition(unsigned int sensor_id, const Eigen::Vector3d & cam_pos)
 {
   m_cam_pos[sensor_id] = cam_pos;
 }
 
-void TruthEngine::SetCameraAngularPosition(unsigned int sensor_id, Eigen::Quaterniond cam_ang_pos)
+void TruthEngine::SetCameraAngularPosition(
+  unsigned int sensor_id,
+  const Eigen::Quaterniond & cam_ang_pos)
 {
   m_cam_ang_pos[sensor_id] = cam_ang_pos;
 }
 
-void TruthEngine::SetBoardPosition(unsigned int board_id, Eigen::Vector3d board_position)
+void TruthEngine::SetBoardPosition(unsigned int board_id, const Eigen::Vector3d & board_position)
 {
   m_board_pos[board_id] = board_position;
 }
 
-void TruthEngine::SetGpsPosition(unsigned int sensor_id, Eigen::Vector3d gps_position)
+void TruthEngine::SetGpsPosition(unsigned int sensor_id, const Eigen::Vector3d & gps_position)
 {
   m_gps_pos[sensor_id] = gps_position;
 }
 
-void TruthEngine::SetLocalPosition(Eigen::Vector3d lla_reference)
+void TruthEngine::SetLocalPosition(const Eigen::Vector3d & lla_reference)
 {
   m_lla_reference = lla_reference;
 }
@@ -130,7 +136,9 @@ Eigen::Vector3d TruthEngine::GetBoardPosition(unsigned int board_id)
   return m_board_pos[board_id];
 }
 
-void TruthEngine::SetBoardOrientation(unsigned int board_id, Eigen::Quaterniond board_orientation)
+void TruthEngine::SetBoardOrientation(
+  unsigned int board_id,
+  const Eigen::Quaterniond & board_orientation)
 {
   m_board_ang[board_id] = board_orientation;
 }
