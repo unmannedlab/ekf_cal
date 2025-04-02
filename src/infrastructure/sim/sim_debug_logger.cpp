@@ -54,7 +54,7 @@ void DebugLogger::SetLogLevel(unsigned int level)
   m_log_level = static_cast<LogLevel>(level);
 }
 
-void DebugLogger::Log(LogLevel level, std::string message)
+void DebugLogger::Log(LogLevel level, const std::string & message)
 {
   if (m_log_level >= level) {
     switch (level) {

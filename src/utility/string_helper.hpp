@@ -26,7 +26,7 @@
 /// @param size Header count
 /// @return Comma-separated, enumerated header string
 ///
-std::string EnumerateHeader(std::string name, unsigned int size);
+std::string EnumerateHeader(const std::string & name, unsigned int size);
 
 ///
 /// @brief Create comma-separated string from vector

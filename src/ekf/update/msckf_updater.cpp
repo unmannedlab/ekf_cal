@@ -39,7 +39,7 @@
 MsckfUpdater::MsckfUpdater(
   int cam_id,
   bool is_extrinsic,
-  std::string log_file_directory,
+  const std::string & log_file_directory,
   double data_log_rate,
   double min_feat_dist,
   std::shared_ptr<DebugLogger> logger

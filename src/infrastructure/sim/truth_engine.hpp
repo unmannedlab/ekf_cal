@@ -242,7 +242,7 @@ public:
   /// @param data_log_rate Body data rate
   /// @param log_directory Output directory
   ///
-  void WriteTruthData(double data_log_rate, std::string log_directory);
+  void WriteTruthData(double data_log_rate, const std::string & log_directory);
 
   ///
   /// @brief Feature generation function

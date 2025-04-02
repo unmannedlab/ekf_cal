@@ -161,7 +161,7 @@ void EkfCalNode::DeclareSensors()
   }
 }
 
-void EkfCalNode::DeclareSensorParameters(std::string prefix)
+void EkfCalNode::DeclareSensorParameters(const std::string & prefix)
 {
   declare_parameter(prefix + ".topic", "");
   declare_parameter(prefix + ".rate", 1.0);
@@ -170,8 +170,8 @@ void EkfCalNode::DeclareSensorParameters(std::string prefix)
 
 void EkfCalNode::LoadSensorParameters(
   Sensor::Parameters & params,
-  std::string prefix,
-  std::string name
+  const std::string & prefix,
+  const std::string & name
 )
 {
   params.topic = get_parameter(prefix + ".topic").as_string();
@@ -205,7 +205,7 @@ void EkfCalNode::LoadSensors()
   m_imu_state_pub = create_publisher<std_msgs::msg::Float64MultiArray>("~/ImuState", 10);
 }
 
-void EkfCalNode::DeclareImuParameters(std::string imu_name)
+void EkfCalNode::DeclareImuParameters(const std::string & imu_name)
 {
   // Declare parameters
   std::string imu_prefix = "imu." + imu_name;
@@ -224,7 +224,7 @@ void EkfCalNode::DeclareImuParameters(std::string imu_name)
   declare_parameter(imu_prefix + ".omg_bias_stability", 1e-9);
 }
 
-IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
+IMU::Parameters EkfCalNode::GetImuParameters(const std::string & imu_name)
 {
   // Load parameters
   std::string imu_prefix = "imu." + imu_name;
@@ -257,7 +257,7 @@ IMU::Parameters EkfCalNode::GetImuParameters(std::string imu_name)
   return imu_params;
 }
 
-void EkfCalNode::DeclareIntrinsicParameters(std::string intrinsics_prefix)
+void EkfCalNode::DeclareIntrinsicParameters(const std::string & intrinsics_prefix)
 {
   declare_parameter(intrinsics_prefix + ".f_x", 0.01);
   declare_parameter(intrinsics_prefix + ".f_y", 0.01);
@@ -270,7 +270,7 @@ void EkfCalNode::DeclareIntrinsicParameters(std::string intrinsics_prefix)
   declare_parameter(intrinsics_prefix + ".height", 480.0);
 }
 
-Intrinsics EkfCalNode::GetIntrinsicParameters(std::string intrinsics_prefix)
+Intrinsics EkfCalNode::GetIntrinsicParameters(const std::string & intrinsics_prefix)
 {
   Intrinsics intrinsics;
 
@@ -287,7 +287,7 @@ Intrinsics EkfCalNode::GetIntrinsicParameters(std::string intrinsics_prefix)
   return intrinsics;
 }
 
-void EkfCalNode::DeclareCameraParameters(std::string camera_name)
+void EkfCalNode::DeclareCameraParameters(const std::string & camera_name)
 {
   // Declare parameters
   std::string cam_prefix = "camera." + camera_name;
@@ -303,7 +303,7 @@ void EkfCalNode::DeclareCameraParameters(std::string camera_name)
   DeclareIntrinsicParameters(cam_prefix + ".intrinsics");
 }
 
-Camera::Parameters EkfCalNode::GetCameraParameters(std::string camera_name)
+Camera::Parameters EkfCalNode::GetCameraParameters(const std::string & camera_name)
 {
   // Load parameters
   std::string cam_prefix = "camera." + camera_name;
@@ -331,7 +331,7 @@ Camera::Parameters EkfCalNode::GetCameraParameters(std::string camera_name)
   return camera_params;
 }
 
-void EkfCalNode::DeclareTrackerParameters(std::string tracker_name)
+void EkfCalNode::DeclareTrackerParameters(const std::string & tracker_name)
 {
   // Declare parameters
   std::string tracker_prefix = "tracker." + tracker_name;
@@ -347,7 +347,7 @@ void EkfCalNode::DeclareTrackerParameters(std::string tracker_name)
   declare_parameter(tracker_prefix + ".max_track_length", 20);
 }
 
-FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_name)
+FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(const std::string & tracker_name)
 {
   // Get parameters
   std::string tracker_prefix = "tracker." + tracker_name;
@@ -379,7 +379,7 @@ FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(std::string tracker_
   return tracker_params;
 }
 
-void EkfCalNode::DeclareFiducialParameters(std::string fid_name)
+void EkfCalNode::DeclareFiducialParameters(const std::string & fid_name)
 {
   // Declare parameters
   std::string fiducial_prefix = "fiducial." + fid_name;
@@ -397,7 +397,7 @@ void EkfCalNode::DeclareFiducialParameters(std::string fid_name)
   declare_parameter(fiducial_prefix + ".is_extrinsic", false);
 }
 
-FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(std::string fiducial_name)
+FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(const std::string & fiducial_name)
 {
   // Get parameters
   std::string fiducial_prefix = "fiducial." + fiducial_name;
@@ -433,7 +433,7 @@ FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(std::string fiduci
   return fiducial_params;
 }
 
-void EkfCalNode::DeclareGpsParameters(std::string gps_name)
+void EkfCalNode::DeclareGpsParameters(const std::string & gps_name)
 {
   // Declare parameters
   std::string gps_prefix = "gps." + gps_name;
@@ -443,7 +443,7 @@ void EkfCalNode::DeclareGpsParameters(std::string gps_name)
   declare_parameter(gps_prefix + ".variance", std::vector<double>{1, 1, 1});
 }
 
-GPS::Parameters EkfCalNode::GetGpsParameters(std::string gps_name)
+GPS::Parameters EkfCalNode::GetGpsParameters(const std::string & gps_name)
 {
   // Get parameters
   std::string gps_prefix = "gps." + gps_name;
@@ -459,7 +459,7 @@ GPS::Parameters EkfCalNode::GetGpsParameters(std::string gps_name)
   return gps_params;
 }
 
-void EkfCalNode::LoadImu(std::string imu_name)
+void EkfCalNode::LoadImu(const std::string & imu_name)
 {
   IMU::Parameters imu_params = GetImuParameters(imu_name);
   m_debug_logger->Log(LogLevel::INFO, "Loaded IMU: " + imu_name);
@@ -470,7 +470,7 @@ void EkfCalNode::LoadImu(std::string imu_name)
   RegisterImu(imu_ptr, imu_params.topic);
 }
 
-void EkfCalNode::RegisterImu(std::shared_ptr<RosIMU> imu_ptr, std::string topic)
+void EkfCalNode::RegisterImu(std::shared_ptr<RosIMU> imu_ptr, const std::string & topic)
 {
   m_map_imu[imu_ptr->GetId()] = imu_ptr;
 
@@ -485,7 +485,7 @@ void EkfCalNode::RegisterImu(std::shared_ptr<RosIMU> imu_ptr, std::string topic)
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-void EkfCalNode::LoadCamera(std::string camera_name)
+void EkfCalNode::LoadCamera(const std::string & camera_name)
 {
   // Load camera parameters
   Camera::Parameters camera_params = GetCameraParameters(camera_name);
@@ -516,7 +516,7 @@ void EkfCalNode::LoadCamera(std::string camera_name)
     create_publisher<sensor_msgs::msg::Image>("~/" + camera_name, 10);
 }
 
-void EkfCalNode::RegisterCamera(std::shared_ptr<RosCamera> camera_ptr, std::string topic)
+void EkfCalNode::RegisterCamera(std::shared_ptr<RosCamera> camera_ptr, const std::string & topic)
 {
   m_map_camera[camera_ptr->GetId()] = camera_ptr;
 
@@ -530,7 +530,7 @@ void EkfCalNode::RegisterCamera(std::shared_ptr<RosCamera> camera_ptr, std::stri
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-void EkfCalNode::LoadGps(std::string gps_name)
+void EkfCalNode::LoadGps(const std::string & gps_name)
 {
   GPS::Parameters gps_params = GetGpsParameters(gps_name);
   m_debug_logger->Log(LogLevel::INFO, "Loaded GPS: " + gps_name);
@@ -541,7 +541,7 @@ void EkfCalNode::LoadGps(std::string gps_name)
   RegisterGps(gps_ptr, gps_params.topic);
 }
 
-void EkfCalNode::RegisterGps(std::shared_ptr<RosGPS> gps_ptr, std::string topic)
+void EkfCalNode::RegisterGps(std::shared_ptr<RosGPS> gps_ptr, const std::string & topic)
 {
   m_map_gps[gps_ptr->GetId()] = gps_ptr;
 

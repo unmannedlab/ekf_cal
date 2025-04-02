@@ -44,7 +44,7 @@ public:
     unsigned int imu_id,
     bool is_extrinsic,
     bool is_intrinsic,
-    std::string log_file_directory,
+    const std::string & log_file_directory,
     double data_log_rate,
     std::shared_ptr<DebugLogger> logger
   );

@@ -211,7 +211,7 @@ TruthEngine::~TruthEngine() {}
 
 void TruthEngine::WriteTruthData(
   double data_log_rate,
-  std::string log_directory)
+  const std::string & log_directory)
 {
   DataLogger truth_logger(log_directory, "body_truth.csv");
   truth_logger.EnableLogging();

@@ -46,7 +46,7 @@ public:
     int fiducial_id,
     int camera_id,
     bool is_cam_extrinsic,
-    std::string log_file_directory,
+    const std::string & log_file_directory,
     double data_log_rate,
     std::shared_ptr<DebugLogger> logger
   );

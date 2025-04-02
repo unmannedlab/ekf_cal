@@ -43,7 +43,7 @@ public:
   GpsUpdater(
     unsigned int gps_id,
     bool is_extrinsic,
-    std::string log_file_directory,
+    const std::string & log_file_directory,
     double data_log_rate,
     std::shared_ptr<DebugLogger> logger
   );

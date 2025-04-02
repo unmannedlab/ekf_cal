@@ -76,27 +76,27 @@ public:
   ///
   void LoadSensorParameters(
     Sensor::Parameters & params,
-    std::string prefix,
-    std::string name
+    const std::string & prefix,
+    const std::string & name
   );
 
   ///
   /// @brief Load IMU sensor
   /// @param imu_name Name of IMU to find and load from YAML
   ///
-  void LoadImu(std::string imu_name);
+  void LoadImu(const std::string & imu_name);
 
   ///
   /// @brief Load camera sensor
   /// @param cam_name Name of camera to find and load from YAML
   ///
-  void LoadCamera(std::string cam_name);
+  void LoadCamera(const std::string & cam_name);
 
   ///
   /// @brief Load GPS sensor
   /// @param gps_name Name of GPS to find and load from YAML
   ///
-  void LoadGps(std::string gps_name);
+  void LoadGps(const std::string & gps_name);
 
   ///
   /// @brief Load process noise
@@ -109,21 +109,21 @@ public:
   /// @param imu_name Name of parameter structure
   /// @return IMU parameters
   ///
-  IMU::Parameters GetImuParameters(std::string imu_name);
+  IMU::Parameters GetImuParameters(const std::string & imu_name);
 
   ///
   /// @brief Function for loading camera parameters
   /// @param camera_name Name of parameter structure
   /// @return Camera parameters
   ///
-  Camera::Parameters GetCameraParameters(std::string camera_name);
+  Camera::Parameters GetCameraParameters(const std::string & camera_name);
 
   ///
   /// @brief Function for loading camera parameters
   /// @param gps_name Name of parameter structure
   /// @return GPS parameters
   ///
-  GPS::Parameters GetGpsParameters(std::string gps_name);
+  GPS::Parameters GetGpsParameters(const std::string & gps_name);
 
   ///
   /// @brief Declare parameters for all sensors
@@ -134,63 +134,63 @@ public:
   /// @brief Declare generic sensor parameters
   /// @param sensor_name Sensor name
   ///
-  void DeclareSensorParameters(std::string sensor_name);
+  void DeclareSensorParameters(const std::string & sensor_name);
 
   ///
   /// @brief Declare IMU parameters
   /// @param imu_name IMU name
   ///
-  void DeclareImuParameters(std::string imu_name);
+  void DeclareImuParameters(const std::string & imu_name);
 
   ///
   /// @brief Declare camera parameters
   /// @param camera_name Camera name
   ///
-  void DeclareCameraParameters(std::string camera_name);
+  void DeclareCameraParameters(const std::string & camera_name);
 
   ///
   /// @brief Declare tracker parameters
   /// @param tracker_name Tracker name
   ///
-  void DeclareTrackerParameters(std::string tracker_name);
+  void DeclareTrackerParameters(const std::string & tracker_name);
 
   ///
   /// @brief Declare camera intrinsic parameters
   /// @param intrinsics_prefix Camera intrinsic prefix
   ///
-  void DeclareIntrinsicParameters(std::string intrinsics_prefix);
+  void DeclareIntrinsicParameters(const std::string & intrinsics_prefix);
 
   ///
   /// @brief Declare fiducial parameters
   /// @param fid_name Fiducial name
   ///
-  void DeclareFiducialParameters(std::string fid_name);
+  void DeclareFiducialParameters(const std::string & fid_name);
 
   ///
   /// @brief Load camera intrinsic parameters
   /// @param intrinsics_prefix Camera intrinsic prefix
   ///
-  Intrinsics GetIntrinsicParameters(std::string intrinsics_prefix);
+  Intrinsics GetIntrinsicParameters(const std::string & intrinsics_prefix);
 
   ///
   /// @brief Declare GPS parameters
   /// @param gps_name GPS name
   ///
-  void DeclareGpsParameters(std::string gps_name);
+  void DeclareGpsParameters(const std::string & gps_name);
 
   ///
   /// @brief Load tracker parameters
   /// @param tracker_name Name of parameter structure
   /// @return Tracker parameters
   ///
-  FeatureTracker::Parameters GetTrackerParameters(std::string tracker_name);
+  FeatureTracker::Parameters GetTrackerParameters(const std::string & tracker_name);
 
   ///
   /// @brief Load fiducial parameters
   /// @param fiducial_name Name of parameter structure
   /// @return Fiducial parameters
   ///
-  FiducialTracker::Parameters GetFiducialParameters(std::string fiducial_name);
+  FiducialTracker::Parameters GetFiducialParameters(const std::string & fiducial_name);
 
   ///
   /// @brief Callback method for IMU sensor messages
@@ -218,21 +218,21 @@ public:
   /// @param imu_ptr IMU sensor shared pointer
   /// @param topic Topic to subscribe
   ///
-  void RegisterImu(std::shared_ptr<RosIMU> imu_ptr, std::string topic);
+  void RegisterImu(std::shared_ptr<RosIMU> imu_ptr, const std::string & topic);
 
   ///
   /// @brief Register camera sensor
   /// @param cam_ptr Camera sensor shared pointer
   /// @param topic Topic to subscribe
   ///
-  void RegisterCamera(std::shared_ptr<RosCamera> cam_ptr, std::string topic);
+  void RegisterCamera(std::shared_ptr<RosCamera> cam_ptr, const std::string & topic);
 
   ///
   /// @brief Register GPS sensor
   /// @param gps_ptr GPS sensor shared pointer
   /// @param topic Topic to subscribe
   ///
-  void RegisterGps(std::shared_ptr<RosGPS> gps_ptr, std::string topic);
+  void RegisterGps(std::shared_ptr<RosGPS> gps_ptr, const std::string & topic);
 
   ///
   /// @brief State publisher callback

@@ -67,8 +67,8 @@ std::vector<std::string> LoadNodeList(YAML::Node node)
 void LoadSensorParams(
   Sensor::Parameters & params,
   YAML::Node node,
-  std::string name,
-  std::string log_directory,
+  const std::string & name,
+  const std::string & log_directory,
   std::shared_ptr<EKF> ekf,
   std::shared_ptr<DebugLogger> debug_logger
 )
@@ -92,8 +92,8 @@ void LoadSimSensorParams(
 
 void LoadTrackerParams(
   Tracker::Parameters & params,
-  std::string name,
-  std::string log_directory,
+  const std::string & name,
+  const std::string & log_directory,
   std::shared_ptr<EKF> ekf,
   std::shared_ptr<DebugLogger> debug_logger
 )

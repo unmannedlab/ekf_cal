@@ -18,20 +18,22 @@
 #include <fstream>
 
 
-DataLogger::DataLogger(std::string log_directory, std::string file_name)
+DataLogger::DataLogger(const std::string & log_directory, const std::string & file_name)
 {
   m_log_directory = log_directory;
   m_file_name = file_name;
 }
 
-DataLogger::DataLogger(std::string log_directory, std::string file_name, double logging_rate)
+DataLogger::DataLogger(
+  const std::string & log_directory, const std::string & file_name,
+  double logging_rate)
 {
   m_log_directory = log_directory;
   m_file_name = file_name;
   m_rate = logging_rate;
 }
 
-void DataLogger::Log(std::string message)
+void DataLogger::Log(const std::string & message)
 {
   if (m_logging_on) {
     if (!m_initialized) {
@@ -44,7 +46,7 @@ void DataLogger::Log(std::string message)
   }
 }
 
-void DataLogger::RateLimitedLog(std::string message, double time)
+void DataLogger::RateLimitedLog(const std::string & message, double time)
 {
   if (m_logging_on) {
     if (m_time_init) {
@@ -66,19 +68,19 @@ void DataLogger::EnableLogging()
 }
 
 
-void DataLogger::SetOutputDirectory(std::string log_directory)
+void DataLogger::SetOutputDirectory(const std::string & log_directory)
 {
   m_log_directory = log_directory;
 }
 
 
-void DataLogger::SetOutputFileName(std::string file_name)
+void DataLogger::SetOutputFileName(const std::string & file_name)
 {
   m_file_name = file_name;
 }
 
 
-void DataLogger::DefineHeader(std::string header)
+void DataLogger::DefineHeader(const std::string & header)
 {
   m_log_header = header;
 }

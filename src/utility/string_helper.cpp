@@ -21,7 +21,7 @@
 #include <sstream>
 #include <string>
 
-std::string EnumerateHeader(std::string name, unsigned int size)
+std::string EnumerateHeader(const std::string & name, unsigned int size)
 {
   std::stringstream stream;
   for (unsigned int i = 0; i < size; ++i) {

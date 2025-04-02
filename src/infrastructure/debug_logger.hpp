@@ -41,21 +41,21 @@ public:
   /// @param log_level Logging Level
   /// @param log_directory Output directory
   ///
-  DebugLogger(LogLevel log_level, std::string log_directory);
+  DebugLogger(LogLevel log_level, const std::string & log_directory);
 
   ///
   /// @brief DebugLogger Constructor
   /// @param log_level Logging Level
   /// @param log_directory Output directory
   ///
-  DebugLogger(unsigned int log_level, std::string log_directory);
+  DebugLogger(unsigned int log_level, const std::string & log_directory);
 
   ///
   /// @brief Log message
   /// @param level Level of log
   /// @param message Message contents of log
   ///
-  void Log(LogLevel level, std::string message);
+  void Log(LogLevel level, const std::string & message);
 
   ///
   /// @brief Function to set the log level

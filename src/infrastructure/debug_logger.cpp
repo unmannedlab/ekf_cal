@@ -18,10 +18,10 @@
 #include <string>
 
 
-DebugLogger::DebugLogger(LogLevel log_level, std::string log_directory)
+DebugLogger::DebugLogger(LogLevel log_level, const std::string & log_directory)
 : m_log_level(log_level),
   m_log_directory(log_directory) {}
 
-DebugLogger::DebugLogger(unsigned int log_level, std::string log_directory)
+DebugLogger::DebugLogger(unsigned int log_level, const std::string & log_directory)
 : m_log_level(static_cast<LogLevel>(log_level)),
   m_log_directory(log_directory) {}

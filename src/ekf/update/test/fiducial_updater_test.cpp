@@ -23,7 +23,7 @@ TEST(test_imu_updater, constructor) {
   int cam_id {1};
   Eigen::Vector3d fiducial_pos{0.0, 0.0, 0.0};
   Eigen::Quaterniond fiducial_ang{1.0, 0.0, 0.0, 0.0};
-  std::string log_file_directory("");
+  const std::string & log_file_directory("");
   bool is_cam_extrinsic{false};
   double data_log_rate{1.0};
   auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");

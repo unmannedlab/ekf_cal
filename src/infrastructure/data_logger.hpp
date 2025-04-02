@@ -32,7 +32,7 @@ public:
   /// @param log_directory Output directory for creating data log file
   /// @param file_name Name of data log file
   ///
-  DataLogger(std::string log_directory, std::string file_name);
+  DataLogger(const std::string & log_directory, const std::string & file_name);
 
   ///
   /// @brief DataLogger constructor
@@ -40,26 +40,26 @@ public:
   /// @param file_name Name of data log file
   /// @param logging_rate Logging rate
   ///
-  DataLogger(std::string log_directory, std::string file_name, double logging_rate);
+  DataLogger(const std::string & log_directory, const std::string & file_name, double logging_rate);
 
   ///
   /// @brief Log message
   /// @param message Message contents of log
   ///
-  void Log(std::string message);
+  void Log(const std::string & message);
 
   ///
   /// @brief Log rate-limited messages
   /// @param message Message contents of log
   /// @param time Message log time for rate-limited logging
   ///
-  void RateLimitedLog(std::string message, double time);
+  void RateLimitedLog(const std::string & message, double time);
 
   ///
   /// @brief Function to set the output file header
   /// @param header Header string for output file
   ///
-  void DefineHeader(std::string header);
+  void DefineHeader(const std::string & header);
 
   ///
   /// @brief Function to enable logging
@@ -70,13 +70,13 @@ public:
   /// @brief Output directory setter
   /// @param log_directory Output directory string
   ///
-  void SetOutputDirectory(std::string log_directory);
+  void SetOutputDirectory(const std::string & log_directory);
 
   ///
   /// @brief Output file name setter
   /// @param file_name Output file name
   ///
-  void SetOutputFileName(std::string file_name);
+  void SetOutputFileName(const std::string & file_name);
 
   ///
   /// @brief Data logging rate setter
