@@ -752,7 +752,7 @@ void EKF::RefreshIndices()
 
 void EKF::AttemptGpsInitialization(
   double time,
-  Eigen::Vector3d gps_lla)
+  const Eigen::Vector3d & gps_lla)
 {
   Eigen::Vector3d gps_ecef = lla_to_ecef(gps_lla);
 

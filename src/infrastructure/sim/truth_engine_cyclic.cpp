@@ -34,16 +34,15 @@ TruthEngineCyclic::TruthEngineCyclic(
   double max_time,
   std::shared_ptr<DebugLogger> logger
 )
-: TruthEngine(max_time, logger)
-{
-  m_pos_frequency = pos_frequency;
-  m_ang_frequency = ang_frequency;
-  m_pos_offset = pos_offset;
-  m_ang_offset = ang_offset;
-  m_ang_amplitude = ang_amplitude;
-  m_pos_amplitude = pos_amplitude;
-  m_stationary_time = stationary_time;
-}
+: TruthEngine(max_time, logger),
+  m_pos_frequency(pos_frequency),
+  m_ang_frequency(ang_frequency),
+  m_pos_offset(pos_offset),
+  m_ang_offset(ang_offset),
+  m_ang_amplitude(ang_amplitude),
+  m_pos_amplitude(pos_amplitude),
+  m_stationary_time(stationary_time)
+{}
 
 Eigen::Vector3d TruthEngineCyclic::GetBodyPosition(double time)
 {

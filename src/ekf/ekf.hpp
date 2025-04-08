@@ -301,7 +301,7 @@ public:
   ///
   void AttemptGpsInitialization(
     double time,
-    Eigen::Vector3d gps_lla);
+    const Eigen::Vector3d & gps_lla);
 
   ///
   /// @brief GPS time vector getter

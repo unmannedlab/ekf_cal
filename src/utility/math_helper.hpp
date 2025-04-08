@@ -79,7 +79,7 @@ void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual
 /// @param vectors Vector of vectors to average
 /// @return Average vector
 ///
-Eigen::Vector3d average_vectors(std::vector<Eigen::Vector3d> vectors);
+Eigen::Vector3d average_vectors(const std::vector<Eigen::Vector3d> & vectors);
 
 ///
 /// @brief Find average of multiple vectors
@@ -87,7 +87,9 @@ Eigen::Vector3d average_vectors(std::vector<Eigen::Vector3d> vectors);
 /// @param weights Vector of weights
 /// @return Average vector
 ///
-Eigen::Vector3d average_vectors(std::vector<Eigen::Vector3d> vectors, std::vector<double> weights);
+Eigen::Vector3d average_vectors(
+  const std::vector<Eigen::Vector3d> & vectors,
+  const std::vector<double> & weights);
 
 ///
 /// @brief Calculate jacobian of quaternion with respect to a rotation measurement

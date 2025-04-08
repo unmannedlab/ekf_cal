@@ -144,7 +144,7 @@ void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual
 }
 
 Eigen::Vector3d average_vectors(
-  std::vector<Eigen::Vector3d> vectors)
+  const std::vector<Eigen::Vector3d> & vectors)
 {
   std::vector<double> weights;
   for (unsigned int i = 0; i < vectors.size(); ++i) {
@@ -154,7 +154,8 @@ Eigen::Vector3d average_vectors(
 }
 
 Eigen::Vector3d average_vectors(
-  std::vector<Eigen::Vector3d> vectors, std::vector<double> weights)
+  const std::vector<Eigen::Vector3d> & vectors,
+  const std::vector<double> & weights)
 {
   Eigen::Vector3d average_vector {0.0, 0.0, 0.0};
   double weights_sum {0.0};

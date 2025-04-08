@@ -102,7 +102,7 @@ cv::Vec3d QuatToRodrigues(const Eigen::Quaterniond & quat)
   return rodrigues_vector;
 }
 
-Eigen::Quaterniond RodriguesToQuat(cv::Vec3d rodrigues_vector)
+Eigen::Quaterniond RodriguesToQuat(cv::Vec3d & rodrigues_vector)
 {
   cv::Mat rotation_matrix_cv(3, 3, cv::DataType<double>::type);
   cv::Rodrigues(rodrigues_vector, rotation_matrix_cv);
