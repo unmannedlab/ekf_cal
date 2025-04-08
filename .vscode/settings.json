@@ -291,5 +291,7 @@
     "[markdown]": {
         "editor.wordWrap": "wordWrapColumn",
         "editor.wordWrapColumn": 99
-    }
+    },
+    "ros.distro": "jazzy",
+    "python.defaultInterpreterPath": "../../venv/bin/python3"
 }

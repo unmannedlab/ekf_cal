@@ -20,7 +20,7 @@ from bokeh.models import Range1d, TabPanel
 from bokeh.plotting import figure
 import numpy as np
 
-from utilities import calculate_alpha, get_colors, interpolate_quat_error, interpolate_error, \
+from utilities import calculate_alpha, get_colors, interpolate_error, interpolate_quat_error, \
     plot_update_timing
 
 
