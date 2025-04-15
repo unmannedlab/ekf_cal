@@ -53,7 +53,7 @@ public:
 
   ///
   /// @brief Triangulate feature seen from multiple camera frames
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @param local_time Measurement in EKF time
   /// @param feature_track Single feature track
   /// @param pos_f_in_l Output estimate of feature position in camera frame given observations
@@ -67,7 +67,7 @@ public:
 
   ///
   /// @brief EKF updater function
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @param time Time of update
   /// @param feature_tracks Feature tracks to be used for state update
   /// @param px_error Standard deviation of pixel error

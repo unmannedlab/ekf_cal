@@ -53,7 +53,7 @@ public:
 
   ///
   /// @brief EKF updater function
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @param time Time of update
   /// @param board_track Board track to be used for state update
   ///

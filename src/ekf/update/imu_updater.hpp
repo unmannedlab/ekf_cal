@@ -51,21 +51,21 @@ public:
 
   ///
   /// @brief Predict acceleration measurement
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @return Predicted measurement vector
   ///
   Eigen::VectorXd PredictMeasurement(EKF & ekf);
 
   ///
   /// @brief Zero acceleration Jacobian method
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @return Measurement Jacobian matrix
   ///
   Eigen::MatrixXd GetZeroAccelerationJacobian(EKF & ekf);
 
   ///
   /// @brief EKF update method for IMU measurements
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @param time Measurement time
   /// @param acceleration Measured acceleration
   /// @param acceleration_covariance Estimated acceleration error
@@ -83,7 +83,7 @@ public:
 
   ///
   /// @brief Check for and perform a zero-acceleration update
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @param local_time Measurement in local EKF time
   /// @param acceleration Measured acceleration
   /// @param acceleration_covariance Estimated acceleration error

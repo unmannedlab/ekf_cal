@@ -222,7 +222,11 @@
         "__bit_reference": "cpp",
         "locale": "cpp",
         "filesystem": "cpp",
-        "__config": "cpp"
+        "__config": "cpp",
+        "charconv": "cpp",
+        "format": "cpp",
+        "span": "cpp",
+        "stdfloat": "cpp"
     },
     "cmake.configureOnOpen": true,
     "flake8.args": [

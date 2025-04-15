@@ -23,7 +23,9 @@
 #include "ekf/ekf.hpp"
 #include "ekf/types.hpp"
 #include "ekf/update/gps_updater.hpp"
+#include "utility/custom_assertions.hpp"
 #include "utility/gps_helper.hpp"
+#include "utility/type_helper.hpp"
 
 TEST(test_gps_updater, update) {
   EKF::Parameters ekf_params;
@@ -73,4 +75,62 @@ TEST(test_gps_updater, update) {
   EXPECT_NEAR(state.body_state.pos_b_in_l[0], 1.5, 1e-2);
   EXPECT_NEAR(state.body_state.pos_b_in_l[1], 1.5, 1e-2);
   EXPECT_NEAR(state.body_state.pos_b_in_l[2], 1.5, 1e-2);
+}
+
+TEST(test_gps_updater, jacobian) {
+  unsigned int gps_id{0};
+  bool is_extrinsic{true};
+  GpsState gps_state;
+  gps_state.pos_a_in_b = Eigen::Vector3d{1, 2, 3};
+  gps_state.SetIsExtrinsic(is_extrinsic);
+
+  Eigen::Matrix3d covariance = Eigen::Matrix3d::Identity();
+
+  auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = debug_logger;
+  EKF ekf(ekf_params);
+  ekf.RegisterGPS(gps_id, gps_state, covariance);
+
+  auto gps_updater = GpsUpdater(gps_id, is_extrinsic, "log_file_directory", 0.0, debug_logger);
+
+  Eigen::MatrixXd jac_analytical = gps_updater.GetMeasurementJacobian(ekf);
+
+  double delta = 1.0e-6;
+  Eigen::Vector3d base = gps_updater.PredictMeasurement(ekf);
+
+  Eigen::MatrixXd jac_numerical = Eigen::MatrixXd::Zero(3, 21);
+
+  ekf.m_state.body_state.pos_b_in_l = Eigen::Vector3d{delta, 0, 0};
+  jac_numerical.block<3, 1>(0, 0) = (gps_updater.PredictMeasurement(ekf) - base) / delta;
+
+  ekf.m_state.body_state.pos_b_in_l = Eigen::Vector3d{0, delta, 0};
+  jac_numerical.block<3, 1>(0, 1) = (gps_updater.PredictMeasurement(ekf) - base) / delta;
+
+  ekf.m_state.body_state.pos_b_in_l = Eigen::Vector3d{0, 0, delta};
+  jac_numerical.block<3, 1>(0, 2) = (gps_updater.PredictMeasurement(ekf) - base) / delta;
+
+  ekf.m_state.body_state.pos_b_in_l = Eigen::Vector3d{0, 0, 0};
+
+  ekf.m_state.body_state.ang_b_to_l = RotVecToQuat(Eigen::Vector3d{delta, 0, 0});
+  jac_numerical.block<3, 1>(0, 9) = (gps_updater.PredictMeasurement(ekf) - base) / delta;
+
+  ekf.m_state.body_state.ang_b_to_l = RotVecToQuat(Eigen::Vector3d{0, delta, 0});
+  jac_numerical.block<3, 1>(0, 10) = (gps_updater.PredictMeasurement(ekf) - base) / delta;
+
+  ekf.m_state.body_state.ang_b_to_l = RotVecToQuat(Eigen::Vector3d{0, 0, delta});
+  jac_numerical.block<3, 1>(0, 11) = (gps_updater.PredictMeasurement(ekf) - base) / delta;
+
+  ekf.m_state.body_state.ang_b_to_l = RotVecToQuat(Eigen::Vector3d{0, 0, 0});
+
+  ekf.m_state.gps_states[gps_id].pos_a_in_b = Eigen::Vector3d{1 + delta, 2, 3};
+  jac_numerical.block<3, 1>(0, 18) = (gps_updater.PredictMeasurement(ekf) - base) / delta;
+
+  ekf.m_state.gps_states[gps_id].pos_a_in_b = Eigen::Vector3d{1, 2 + delta, 3};
+  jac_numerical.block<3, 1>(0, 19) = (gps_updater.PredictMeasurement(ekf) - base) / delta;
+
+  ekf.m_state.gps_states[gps_id].pos_a_in_b = Eigen::Vector3d{1, 2, 3 + delta};
+  jac_numerical.block<3, 1>(0, 20) = (gps_updater.PredictMeasurement(ekf) - base) / delta;
+
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(jac_analytical, jac_numerical, 1e-3));
 }
