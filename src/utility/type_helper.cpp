@@ -75,8 +75,8 @@ Eigen::Quaterniond EigVecToQuat(const Eigen::Vector3d & euler_angles)
 
 void EigenMatrixToCv(const Eigen::Matrix3d & matrix_eigen, cv::Mat & matrix_cv)
 {
-  for (unsigned int i = 0; i < 3; ++i) {
-    for (unsigned int j = 0; j < 3; ++j) {
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
       matrix_cv.at<double>(i, j) = matrix_eigen(i, j);
     }
   }
@@ -84,8 +84,8 @@ void EigenMatrixToCv(const Eigen::Matrix3d & matrix_eigen, cv::Mat & matrix_cv)
 
 void CvMatrixToEigen(const cv::Mat matrix_cv, Eigen::Matrix3d & matrix_eigen)
 {
-  for (unsigned int i = 0; i < 3; ++i) {
-    for (unsigned int j = 0; j < 3; ++j) {
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
       matrix_eigen(i, j) = matrix_cv.at<double>(i, j);
     }
   }

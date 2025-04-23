@@ -33,7 +33,7 @@ public:
   /// @brief Function to set seed for random number generator
   /// @param seed Seed to use for random number generation
   ///
-  void SetSeed(double seed);
+  void SetSeed(unsigned int seed);
 
   ///
   /// @brief Function to return normal random number

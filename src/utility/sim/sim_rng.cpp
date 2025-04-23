@@ -21,7 +21,7 @@
 
 std::mt19937_64 SimRNG::m_generator;
 
-void SimRNG::SetSeed(double seed)
+void SimRNG::SetSeed(unsigned int seed)
 {
   m_generator = std::mt19937_64(seed);
 }

@@ -148,8 +148,8 @@ std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
     cv::KeyPoint kpt = key_points.at(i);
     int x = static_cast<int>(kpt.pt.x);
     int y = static_cast<int>(kpt.pt.y);
-    int x_grid = static_cast<int>(kpt.pt.x / double_min_pixel_distance);
-    int y_grid = static_cast<int>(kpt.pt.y / double_min_pixel_distance);
+    int x_grid = static_cast<int>(static_cast<double>(kpt.pt.x) / double_min_pixel_distance);
+    int y_grid = static_cast<int>(static_cast<double>(kpt.pt.y) / double_min_pixel_distance);
     if (x_grid < 0 || x_grid >= size.width || y_grid < 0 || y_grid >= size.height || x < 0 ||
       x >= static_cast<int>(cols) || y < 0 || y >= static_cast<int>(rows))
     {
@@ -275,7 +275,9 @@ void FeatureTracker::RatioTest(std::vector<std::vector<cv::DMatch>> & matches)
 {
   for (auto & match : matches) {
     // Remove matches without two nearest neighbors or that fail the ratio test
-    if ((match.size() == 1) || (match[0].distance / match[1].distance > m_knn_ratio)) {
+    if ((match.size() == 1) ||
+      (static_cast<double>(match[0].distance / match[1].distance) > m_knn_ratio))
+    {
       match.clear();
     }
   }

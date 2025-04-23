@@ -60,7 +60,7 @@ public:
 
 protected:
   unsigned int m_id;                      ///< @brief Tracker ID
-  int m_camera_id;                        ///< @brief Associated camera ID of tracker
+  unsigned int m_camera_id;               ///< @brief Associated camera ID of tracker
   unsigned int m_min_track_length{2};     ///< @brief Minimum track length to consider
   unsigned int m_max_track_length{20};    ///< @brief Maximum track length before forced output
   std::shared_ptr<EKF> m_ekf;             ///< @brief EKF

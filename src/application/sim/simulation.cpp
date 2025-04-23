@@ -199,7 +199,7 @@ int main(int argc, char * argv[])
   // Simulation parameters
   /// @todo: Add overriding no_errors option
   YAML::Node sim_params = ros_params["sim_params"];
-  double rng_seed = sim_params["seed"].as<double>(0.0);
+  unsigned int rng_seed = sim_params["seed"].as<unsigned int>(1);
   double max_time = sim_params["max_time"].as<double>(10.0);
 
   SimRNG rng;
