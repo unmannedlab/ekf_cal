@@ -754,10 +754,8 @@ void EKF::AttemptGpsInitialization(
   double time,
   const Eigen::Vector3d & gps_lla)
 {
-  Eigen::Vector3d gps_ecef = lla_to_ecef(gps_lla);
-
   m_gps_time_vec.push_back(time);
-  m_gps_ecef_vec.push_back(gps_ecef);
+  m_gps_ecef_vec.push_back(lla_to_ecef(gps_lla));
   m_gps_xyz_vec.push_back(m_state.body_state.pos_b_in_l);
 
   if (m_gps_time_vec.size() >= 4) {
