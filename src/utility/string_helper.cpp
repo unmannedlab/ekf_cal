@@ -39,7 +39,7 @@ std::string VectorToCommaString(const Eigen::VectorXd & vec)
   return stream.str();
 }
 
-std::string VectorToCommaString(const Eigen::VectorXd & vec, unsigned int precision)
+std::string VectorToCommaString(const Eigen::VectorXd & vec, int precision)
 {
   std::stringstream stream;
   for (unsigned int i = 0; i < vec.size(); ++i) {

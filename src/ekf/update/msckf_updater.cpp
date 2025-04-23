@@ -108,10 +108,10 @@ bool MsckfUpdater::TriangulateFeature(
 
     // Get the UV coordinate normal
     Eigen::Vector3d b_i;
-    b_i(0) = (feature_track.track[i].key_point.pt.x - m_intrinsics.width / 2) /
-      (m_intrinsics.f_x / m_intrinsics.pixel_size);
-    b_i(1) = (feature_track.track[i].key_point.pt.y - m_intrinsics.height / 2) /
-      (m_intrinsics.f_y / m_intrinsics.pixel_size);
+    b_i(0) = (static_cast<double>(feature_track.track[i].key_point.pt.x) -
+      m_intrinsics.width / 2) / (m_intrinsics.f_x / m_intrinsics.pixel_size);
+    b_i(1) = (static_cast<double>(feature_track.track[i].key_point.pt.y) -
+      m_intrinsics.height / 2) / (m_intrinsics.f_y / m_intrinsics.pixel_size);
     b_i(2) = 1;
 
     // Rotate and normalize
@@ -287,10 +287,10 @@ void MsckfUpdater::UpdateEKF(
       xy_predicted(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
 
       Eigen::Vector2d xy_measured;
-      xy_measured(0) = (feature_track.track[i].key_point.pt.x - m_intrinsics.width / 2) /
-        (m_intrinsics.f_x / m_intrinsics.pixel_size);
-      xy_measured(1) = (feature_track.track[i].key_point.pt.y - m_intrinsics.height / 2) /
-        (m_intrinsics.f_y / m_intrinsics.pixel_size);
+      xy_measured(0) = (static_cast<double>(feature_track.track[i].key_point.pt.x) -
+        m_intrinsics.width / 2) / (m_intrinsics.f_x / m_intrinsics.pixel_size);
+      xy_measured(1) = (static_cast<double>(feature_track.track[i].key_point.pt.y) -
+        m_intrinsics.height / 2) / (m_intrinsics.f_y / m_intrinsics.pixel_size);
       Eigen::Vector2d xz_residual = xy_measured - xy_predicted;
       res_f.segment<2>(2 * i) = xz_residual;
 

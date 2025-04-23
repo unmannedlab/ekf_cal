@@ -36,7 +36,7 @@ public:
   typedef struct Parameters
   {
     std::string name {""};                ///< @brief Feature Tracker name
-    int camera_id{-1};                    ///< @brief Associated sensor ID
+    unsigned int camera_id{0};            ///< @brief Associated sensor ID
     std::string log_directory {""};       ///< @brief Feature Tracker data logging directory
     Intrinsics intrinsics;                ///< @brief Camera intrinsic parameters
     unsigned int min_track_length{2};     ///< @brief Minimum track length to consider

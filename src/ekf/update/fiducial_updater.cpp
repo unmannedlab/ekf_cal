@@ -38,7 +38,7 @@
 
 FiducialUpdater::FiducialUpdater(
   int fiducial_id,
-  int camera_id,
+  unsigned int camera_id,
   bool is_cam_extrinsic,
   const std::string & log_file_directory,
   double data_log_rate,

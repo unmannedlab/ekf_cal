@@ -251,7 +251,7 @@ public:
 
   std::vector<cv::Point3d> GenerateVisibleFeatures(
     double time,
-    int camera_id,
+    unsigned int camera_id,
     unsigned int new_feature_count,
     SimRNG rng
   );

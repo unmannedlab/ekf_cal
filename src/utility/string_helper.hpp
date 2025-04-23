@@ -41,7 +41,7 @@ std::string VectorToCommaString(const Eigen::VectorXd & vec);
 /// @param precision Output precision
 /// @return Comma-separated string vector
 ///
-std::string VectorToCommaString(const Eigen::VectorXd & vec, unsigned int precision);
+std::string VectorToCommaString(const Eigen::VectorXd & vec, int precision);
 
 ///
 /// @brief Create comma-separated string from quaternion
