@@ -154,9 +154,9 @@ std::shared_ptr<SimFiducialTrackerMessage> SimFiducialTracker::GenerateMessage(
   return tracker_message;
 }
 
-void SimFiducialTracker::Callback(double time, std::shared_ptr<SimFiducialTrackerMessage> msg)
+void SimFiducialTracker::Callback(double time, SimFiducialTrackerMessage & msg)
 {
-  if (msg->is_board_visible) {
-    m_fiducial_updater.UpdateEKF(*m_ekf, time, msg->board_detection);
+  if (msg.is_board_visible) {
+    m_fiducial_updater.UpdateEKF(*m_ekf, time, msg.board_detection);
   }
 }

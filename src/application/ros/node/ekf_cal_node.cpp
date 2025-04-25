@@ -561,7 +561,7 @@ void EkfCalNode::ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigne
   if (ros_imu_iter != m_map_imu.end()) {
     auto ros_imu_message = std::make_shared<RosImuMessage>(msg);
     ros_imu_message->sensor_id = id;
-    ros_imu_iter->second->Callback(ros_imu_message);
+    ros_imu_iter->second->Callback(*ros_imu_message);
   } else {
     m_debug_logger->Log(LogLevel::WARN, "IMU ID Not Found: " + std::to_string(id));
   }
@@ -573,7 +573,7 @@ void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, un
   if (ros_cam_iter != m_map_camera.end()) {
     auto ros_camera_message = std::make_shared<RosCameraMessage>(msg);
     ros_camera_message->sensor_id = id;
-    ros_cam_iter->second->Callback(ros_camera_message);
+    ros_cam_iter->second->Callback(*ros_camera_message);
     m_map_image_publishers[id]->publish(*ros_cam_iter->second->GetRosImage().get());
   } else {
     m_debug_logger->Log(LogLevel::WARN, "Camera ID Not Found: " + std::to_string(id));
@@ -586,7 +586,7 @@ void EkfCalNode::GpsCallback(const sensor_msgs::msg::NavSatFix::SharedPtr msg, u
   if (ros_gps_iter != m_map_gps.end()) {
     auto ros_gps_message = std::make_shared<RosGpsMessage>(msg);
     ros_gps_message->sensor_id = id;
-    ros_gps_iter->second->Callback(ros_gps_message);
+    ros_gps_iter->second->Callback(*ros_gps_message);
   } else {
     m_debug_logger->Log(LogLevel::WARN, "GPS ID Not Found: " + std::to_string(id));
   }

@@ -509,15 +509,15 @@ int main(int argc, char * argv[])
       if (message->sensor_type == SensorType::IMU) {
         auto imu = std::static_pointer_cast<SimIMU>(it->second);
         auto msg = std::static_pointer_cast<SimImuMessage>(message);
-        imu->Callback(msg);
+        imu->Callback(*msg);
       } else if (message->sensor_type == SensorType::Camera) {
         auto cam = std::static_pointer_cast<SimCamera>(it->second);
         auto msg = std::static_pointer_cast<SimCameraMessage>(message);
-        cam->Callback(msg);
+        cam->Callback(*msg);
       } else if (message->sensor_type == SensorType::GPS) {
         auto gps = std::static_pointer_cast<SimGPS>(it->second);
         auto msg = std::static_pointer_cast<SimGpsMessage>(message);
-        gps->Callback(msg);
+        gps->Callback(*msg);
       } else {
         debug_logger->Log(LogLevel::WARN, "Unknown Message Type");
       }

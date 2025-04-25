@@ -75,7 +75,7 @@ public:
   void UpdateEKF(
     EKF & ekf,
     double time,
-    FeatureTracks feature_tracks,
+    FeatureTracks & feature_tracks,
     double px_error);
 
   ///

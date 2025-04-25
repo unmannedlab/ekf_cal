@@ -54,8 +54,8 @@ TEST(test_ros_camera, ros_camera_callback) {
   cv::Mat img = cv::Mat::zeros(cv::Size(640, 480), CV_8UC1);
   cv_bridge::CvImage cv_image_bridge;
 
-  auto ros_camera_message = std::make_shared<RosCameraMessage>(image_message);
-  ros_camera_message->image = img;
+  RosCameraMessage ros_camera_message(image_message);
+  ros_camera_message.image = img;
 
   Camera::Parameters cam_params;
   cam_params.name = "test_Camera";

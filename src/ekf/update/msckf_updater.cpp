@@ -214,7 +214,7 @@ void MsckfUpdater::distortion_jacobian(
 void MsckfUpdater::UpdateEKF(
   EKF & ekf,
   double time,
-  FeatureTracks feature_tracks,
+  FeatureTracks & feature_tracks,
   double px_error)
 {
   double local_time = ekf.CalculateLocalTime(time);

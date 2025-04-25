@@ -55,7 +55,7 @@ TEST(test_ros_camera, ros_gps_callback) {
   nav_sat_fix_msg->longitude = 0.0;
   nav_sat_fix_msg->altitude = 0.0;
 
-  auto ros_gps_message = std::make_shared<RosGpsMessage>(nav_sat_fix_msg);
+  RosGpsMessage ros_gps_message(nav_sat_fix_msg);
 
   rosGPS.Callback(ros_gps_message);
 }

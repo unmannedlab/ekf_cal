@@ -107,20 +107,20 @@ void SimCamera::AddFiducial(std::shared_ptr<SimFiducialTracker> fiducial)
   m_fiducials[fiducial->GetID()] = fiducial;
 }
 
-void SimCamera::Callback(std::shared_ptr<SimCameraMessage> sim_camera_message)
+void SimCamera::Callback(SimCameraMessage & sim_camera_message)
 {
-  double local_time = m_ekf->CalculateLocalTime(sim_camera_message->time);
+  double local_time = m_ekf->CalculateLocalTime(sim_camera_message.time);
   m_ekf->PredictModel(local_time);
-  m_ekf->AugmentStateIfNeeded(m_id, sim_camera_message->frame_id);
+  m_ekf->AugmentStateIfNeeded(m_id, sim_camera_message.frame_id);
 
-  for (auto feature_track_message : sim_camera_message->feature_track_messages) {
+  for (auto feature_track_message : sim_camera_message.feature_track_messages) {
     if (feature_track_message->feature_tracks.size() > 0) {
       m_trackers[feature_track_message->tracker_id]->Callback(
-        sim_camera_message->time, feature_track_message);
+        sim_camera_message.time, *feature_track_message);
     }
   }
-  for (auto fiducial_track_message : sim_camera_message->fiducial_track_messages) {
+  for (auto fiducial_track_message : sim_camera_message.fiducial_track_messages) {
     m_fiducials[fiducial_track_message->tracker_id]->Callback(
-      sim_camera_message->time, fiducial_track_message);
+      sim_camera_message.time, *fiducial_track_message);
   }
 }

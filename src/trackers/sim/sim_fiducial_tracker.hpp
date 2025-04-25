@@ -81,7 +81,7 @@ public:
   /// @param time Message time
   /// @param msg Feature track message
   ///
-  void Callback(double time, std::shared_ptr<SimFiducialTrackerMessage> msg);
+  void Callback(double time, SimFiducialTrackerMessage & msg);
 
 private:
   SimRNG m_rng;

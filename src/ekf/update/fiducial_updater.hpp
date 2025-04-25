@@ -57,7 +57,7 @@ public:
   /// @param time Time of update
   /// @param board_track Board track to be used for state update
   ///
-  void UpdateEKF(EKF & ekf, double time, BoardDetection board_detection);
+  void UpdateEKF(EKF & ekf, double time, BoardDetection & board_detection);
 
 private:
   bool m_is_cam_extrinsic;

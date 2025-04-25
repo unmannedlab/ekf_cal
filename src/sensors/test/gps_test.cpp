@@ -33,13 +33,13 @@ TEST(test_gps, Callback) {
 
   GPS gps(params);
 
-  auto gps_message = std::make_shared<GpsMessage>();
-  gps_message->sensor_id = 1;
-  gps_message->sensor_type = SensorType::GPS;
-  gps_message->gps_lla = Eigen::Vector3d{0.0, 0.0, 0.0};
+  GpsMessage gps_message;
+  gps_message.sensor_id = 1;
+  gps_message.sensor_type = SensorType::GPS;
+  gps_message.gps_lla = Eigen::Vector3d{0.0, 0.0, 0.0};
 
   for (unsigned int i = 0; i < 10; ++i) {
-    gps_message->time = static_cast<double>(i);
+    gps_message.time = static_cast<double>(i);
     gps.Callback(gps_message);
   }
 }

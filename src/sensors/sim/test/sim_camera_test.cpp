@@ -89,8 +89,8 @@ TEST(test_SimCamera, feature_track) {
 
   std::vector<std::shared_ptr<SimCameraMessage>> cam_messages = sim_camera.GenerateMessages();
 
-  for (unsigned int i = 0; i < 5; ++i) {
-    sim_camera.Callback(cam_messages[i]);
+  for (auto cam_message : cam_messages) {
+    sim_camera.Callback(*cam_message);
   }
 }
 
@@ -162,6 +162,6 @@ TEST(test_SimCamera, fiducial_track) {
   std::vector<std::shared_ptr<SimCameraMessage>> cam_messages = sim_camera.GenerateMessages();
 
   for (auto cam_message : cam_messages) {
-    sim_camera.Callback(cam_message);
+    sim_camera.Callback(*cam_message);
   }
 }

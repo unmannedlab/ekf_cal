@@ -30,7 +30,7 @@
 RosCamera::RosCamera(Camera::Parameters camera_parameters)
 : Camera(camera_parameters) {}
 
-void RosCamera::Callback(std::shared_ptr<RosCameraMessage> ros_camera_message)
+void RosCamera::Callback(RosCameraMessage & ros_camera_message)
 {
   Camera::Callback(ros_camera_message);
 

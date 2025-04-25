@@ -35,7 +35,7 @@ public:
   /// @brief RosIMU callback method
   /// @param ros_imu_message ROS IMU message
   ///
-  void Callback(std::shared_ptr<RosImuMessage> ros_imu_message);
+  void Callback(RosImuMessage & ros_imu_message);
 };
 
 #endif  // SENSORS__ROS__ROS_IMU_HPP_
