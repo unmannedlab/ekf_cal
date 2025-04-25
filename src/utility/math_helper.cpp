@@ -181,7 +181,7 @@ Eigen::MatrixXd quaternion_jacobian(const Eigen::Quaterniond & quat)
   return jacobian;
 }
 
-double sign(double val)
+double sign(const double val)
 {
   return (0.0 < val) - (val < 0.0);
 }

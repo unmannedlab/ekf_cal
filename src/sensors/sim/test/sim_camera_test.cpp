@@ -154,6 +154,7 @@ TEST(test_SimCamera, fiducial_track) {
   fiducial_params.logger = ekf_params.debug_logger;
   fiducial_params.camera_id = sim_camera.GetId();
   fiducial_params.pos_f_in_l = Eigen::Vector3d{5, 0, 0};
+  fiducial_params.ang_f_to_l = Eigen::Quaterniond{1, 0, 0, 0};
   SimFiducialTracker::Parameters sim_fiducial_params;
   sim_fiducial_params.fiducial_params = fiducial_params;
   auto fiducial_tracker = std::make_shared<SimFiducialTracker>(sim_fiducial_params, truth_engine);

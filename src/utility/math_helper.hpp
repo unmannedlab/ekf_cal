@@ -99,6 +99,13 @@ Eigen::Vector3d average_vectors(
 Eigen::MatrixXd quaternion_jacobian(const Eigen::Quaterniond & quat);
 
 ///
+/// @brief Function to determine sign of a double
+/// @param val Value to consider
+/// @return The sign of the input value as a +/- 1 double
+///
+double sign(const double val);
+
+///
 /// @brief Create a horizontal 2xN matrix from a list of vectors
 /// @param input_vectors List of vectors
 /// @return 2xN Matrix

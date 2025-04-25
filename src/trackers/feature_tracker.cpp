@@ -279,7 +279,8 @@ void FeatureTracker::RatioTest(std::vector<std::vector<cv::DMatch>> & matches)
   for (auto & match : matches) {
     // Remove matches without two nearest neighbors or that fail the ratio test
     if ((match.size() == 1) ||
-      (static_cast<double>(match[0].distance / match[1].distance) > m_knn_ratio))
+      ((match.size() == 2) &&
+      (static_cast<double>(match[0].distance / match[1].distance) > m_knn_ratio)))
     {
       match.clear();
     }
