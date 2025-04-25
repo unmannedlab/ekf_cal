@@ -99,10 +99,10 @@ public:
   /// @return Down sampled key points
   ///
   std::vector<cv::KeyPoint> GridFeatures(
-    std::vector<cv::KeyPoint> key_points,
+    std::vector<cv::KeyPoint> & key_points,
     int rows,
     int cols
-  );
+  ) const;
 
   ///
   /// @brief Perform track on new image frame
@@ -118,12 +118,11 @@ public:
     cv::Mat & img_out
   );
 
-
   ///
   /// @brief Perform ratio test on a set of matches
   /// @param matches List of matches to perform test over
   ///
-  void RatioTest(std::vector<std::vector<cv::DMatch>> & matches);
+  void RatioTest(std::vector<std::vector<cv::DMatch>> & matches) const;
 
   ///
   /// @brief Perform symmetry test given forward and backward matches
@@ -134,7 +133,8 @@ public:
   void SymmetryTest(
     std::vector<std::vector<cv::DMatch>> & matches_forward,
     std::vector<std::vector<cv::DMatch>> & matches_backward,
-    std::vector<cv::DMatch> & matches_out);
+    std::vector<cv::DMatch> & matches_out
+  ) const;
 
   ///
   /// @brief Perform RANSAC filtering test given matches and key points
@@ -146,7 +146,7 @@ public:
     std::vector<cv::DMatch> & matches_in,
     std::vector<cv::KeyPoint> & curr_key_points,
     std::vector<cv::DMatch> & matches_out
-  );
+  ) const;
 
   ///
   /// @brief Perform distance test given matches and key points
@@ -158,7 +158,7 @@ public:
     std::vector<cv::DMatch> & matches_in,
     std::vector<cv::KeyPoint> & curr_key_points,
     std::vector<cv::DMatch> & matches_out
-  );
+  ) const;
 
 protected:
   MsckfUpdater m_msckf_updater;  ///< @brief MSCKF updater object

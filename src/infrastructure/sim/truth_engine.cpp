@@ -66,11 +66,11 @@ Eigen::Vector3d TruthEngine::GetGpsPosition(unsigned int sensor_id)
 {
   return m_gps_pos[sensor_id];
 }
-Eigen::Vector3d TruthEngine::GetLocalPosition()
+Eigen::Vector3d TruthEngine::GetLocalPosition() const
 {
   return m_lla_reference;
 }
-double TruthEngine::GetLocalHeading()
+double TruthEngine::GetLocalHeading() const
 {
   return m_heading;
 }

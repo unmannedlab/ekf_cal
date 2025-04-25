@@ -120,7 +120,10 @@ cv::Ptr<cv::DescriptorMatcher> FeatureTracker::InitDescriptorMatcher(Matcher mat
 
 /// @todo Do keypoint vector editing in place
 std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
-  std::vector<cv::KeyPoint> key_points, int rows, int cols)
+  std::vector<cv::KeyPoint> & key_points,
+  int rows,
+  int cols
+)const
 {
   double min_pixel_distance = 10.0;
   auto double_rows = static_cast<double>(rows);
@@ -274,7 +277,7 @@ int FeatureTracker::GenerateFeatureID()
   return featureID++;
 }
 
-void FeatureTracker::RatioTest(std::vector<std::vector<cv::DMatch>> & matches)
+void FeatureTracker::RatioTest(std::vector<std::vector<cv::DMatch>> & matches) const
 {
   for (auto & match : matches) {
     // Remove matches without two nearest neighbors or that fail the ratio test
@@ -290,7 +293,8 @@ void FeatureTracker::RatioTest(std::vector<std::vector<cv::DMatch>> & matches)
 void FeatureTracker::SymmetryTest(
   std::vector<std::vector<cv::DMatch>> & matches_forward,
   std::vector<std::vector<cv::DMatch>> & matches_backward,
-  std::vector<cv::DMatch> & matches_out)
+  std::vector<cv::DMatch> & matches_out
+) const
 {
   for (auto & match_f : matches_forward) {
     if (match_f.size() != 2) {
@@ -316,7 +320,7 @@ void FeatureTracker::RANSAC(
   std::vector<cv::DMatch> & matches_in,
   std::vector<cv::KeyPoint> & curr_key_points,
   std::vector<cv::DMatch> & matches_out
-)
+) const
 {
   // Minimum threshold for RANSAC
   if (matches_in.size() < 10) {
@@ -349,7 +353,7 @@ void FeatureTracker::DistanceTest(
   std::vector<cv::DMatch> & matches_in,
   std::vector<cv::KeyPoint> & curr_key_points,
   std::vector<cv::DMatch> & matches_out
-)
+) const
 {
   double dist_sum{0.0};
   std::vector<cv::Point2f> points_good_prev, points_good_curr;

@@ -67,13 +67,15 @@ public:
   /// @return Generated feature tracker message
   ///
   std::shared_ptr<SimFeatureTrackerMessage> GenerateMessage(
-    double message_time, unsigned int frame_id);
+    double message_time,
+    unsigned int frame_id
+  );
 
   ///
   /// @brief Return currently visible keypoints
   /// @param time Current time
   ///
-  std::vector<cv::KeyPoint> GetVisibleKeypoints(double time);
+  std::vector<cv::KeyPoint> GetVisibleKeypoints(double time) const;
 
   std::vector<cv::KeyPoint> FilterInvisiblePoints(
     const std::vector<cv::Point3d> & feature_points,
@@ -81,7 +83,7 @@ public:
     const Eigen::Matrix3d & rot_c_to_l,
     const Eigen::Vector3d & pos_c_in_l,
     const Intrinsics & intrinsics
-  );
+  ) const;
 
   ///
   /// @brief Callback for feature tracker

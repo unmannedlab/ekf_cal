@@ -56,7 +56,7 @@ public:
   /// @brief Tracker ID getter method
   /// @return Tracker ID
   ///
-  unsigned int GetID();
+  unsigned int GetID() const;
 
 protected:
   unsigned int m_id;                      ///< @brief Tracker ID

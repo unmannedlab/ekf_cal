@@ -68,7 +68,9 @@ public:
   /// @return Generated fiducial tracker message
   ///
   std::shared_ptr<SimFiducialTrackerMessage> GenerateMessage(
-    double message_time, unsigned int frame_id);
+    double message_time,
+    unsigned int frame_id
+  ) const;
 
   ///
   /// @brief Return currently visible keypoints

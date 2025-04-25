@@ -106,7 +106,7 @@ public:
     std::vector<int> & ids,
     cv::Mat camera_matrix,
     cv::Mat dist_coefficients
-  );
+  ) const;
 
   ///
   /// @brief DrawDetectedCorners
@@ -122,7 +122,7 @@ public:
     std::vector<cv::Point2f> & corners,
     std::vector<int> & ids,
     cv::Scalar corner_color
-  );
+  ) const;
 
   ///
   /// @brief Estimate pose of board
@@ -144,7 +144,7 @@ public:
     cv::InputArray & dist_coefficients,
     cv::Vec3d & r_vec,
     cv::Vec3d & t_vec
-  );
+  ) const;
 
   cv::Ptr<cv::aruco::Dictionary> m_dict;  ///< @brief Fiducial board dictionary
   cv::Ptr<cv::aruco::Board> m_board;      ///< @brief Fiducial board

@@ -72,7 +72,8 @@ bool MsckfUpdater::TriangulateFeature(
   const double local_time,
   EKF & ekf,
   const FeatureTrack & feature_track,
-  Eigen::Vector3d & pos_f_in_l)
+  Eigen::Vector3d & pos_f_in_l
+)
 {
   /// @todo: Need to continue debugging the triangulated features
   if (m_use_true_triangulation) {
@@ -154,7 +155,10 @@ bool MsckfUpdater::TriangulateFeature(
   }
 }
 
-void MsckfUpdater::projection_jacobian(const Eigen::Vector3d & pos, Eigen::MatrixXd & jacobian)
+void MsckfUpdater::projection_jacobian(
+  const Eigen::Vector3d & pos,
+  Eigen::MatrixXd & jacobian
+) const
 {
   // Normalized coordinates in respect to projection function
   jacobian(0, 0) = 1 / pos(2);
@@ -168,7 +172,8 @@ void MsckfUpdater::projection_jacobian(const Eigen::Vector3d & pos, Eigen::Matri
 void MsckfUpdater::distortion_jacobian(
   const Eigen::Vector2d & xy_norm,
   const Intrinsics & intrinsics,
-  Eigen::MatrixXd & H_d)
+  Eigen::MatrixXd & H_d
+) const
 {
   // Calculate distorted coordinates for radial
   double r = std::sqrt(xy_norm(0) * xy_norm(0) + xy_norm(1) * xy_norm(1));
@@ -215,7 +220,8 @@ void MsckfUpdater::UpdateEKF(
   EKF & ekf,
   const double time,
   const FeatureTracks & feature_tracks,
-  double px_error)
+  double px_error
+)
 {
   double local_time = ekf.CalculateLocalTime(time);
   ekf.PredictModel(local_time);

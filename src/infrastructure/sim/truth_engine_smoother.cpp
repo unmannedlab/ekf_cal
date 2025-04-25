@@ -25,8 +25,8 @@
 
 Eigen::Vector3d TruthEngineSmoother::GetInterpolatedValue(
   double time,
-  std::vector<Eigen::Vector3d> & values
-)
+  const std::vector<Eigen::Vector3d> & values
+) const
 {
   double whole, alpha;
   alpha = std::modf(time * m_rate, &whole);
@@ -228,7 +228,7 @@ TruthEngineSmoother::TruthEngineSmoother(
   m_stationary_time = stationary_time;
 }
 
-bool TruthEngineSmoother::IsTimeInvalid(double time)
+bool TruthEngineSmoother::IsTimeInvalid(double time) const
 {
   if (time < 0.0 || time > m_max_time) {
     return true;

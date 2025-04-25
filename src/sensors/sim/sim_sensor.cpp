@@ -30,7 +30,7 @@ SimSensor::SimSensor(Parameters params)
   }
 }
 
-std::vector<double> SimSensor::GenerateMeasurementTimes(double m_rate)
+std::vector<double> SimSensor::GenerateMeasurementTimes(double m_rate) const
 {
   auto num_measurements = static_cast<unsigned int>(std::floor(m_truth->m_max_time * m_rate));
   double time_init = m_no_errors ? 0 : m_rng.UniRand(0.0, 1.0 / m_rate);
@@ -42,7 +42,7 @@ std::vector<double> SimSensor::GenerateMeasurementTimes(double m_rate)
   return message_times;
 }
 
-double SimSensor::ApplyTimeError(double true_time)
+double SimSensor::ApplyTimeError(double true_time) const
 {
   if (m_no_errors) {
     return true_time;

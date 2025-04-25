@@ -133,12 +133,12 @@ public:
   /// @brief Local frame reference LLA getter
   /// @return Reference LLA
   ///
-  Eigen::Vector3d GetLocalPosition();
+  Eigen::Vector3d GetLocalPosition() const;
   ///
   /// @brief Local frame reference heading getter
   /// @return Reference heading
   ///
-  double GetLocalHeading();
+  double GetLocalHeading() const;
 
   ///
   /// @brief True sensor position setter

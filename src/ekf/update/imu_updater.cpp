@@ -69,7 +69,8 @@ void ImuUpdater::UpdateEKF(
   const Eigen::Vector3d & acceleration,
   const Eigen::Matrix3d & acceleration_covariance,
   const Eigen::Vector3d & angular_rate,
-  const Eigen::Matrix3d & angular_rate_covariance)
+  const Eigen::Matrix3d & angular_rate_covariance
+)
 {
   double local_time = ekf.CalculateLocalTime(time);
 
@@ -152,7 +153,7 @@ void ImuUpdater::UpdateEKF(
   ekf.LogBodyStateIfNeeded(static_cast<int>(t_execution.count()));
 }
 
-Eigen::MatrixXd ImuUpdater::GetZeroAccelerationJacobian(EKF & ekf)
+Eigen::MatrixXd ImuUpdater::GetZeroAccelerationJacobian(EKF & ekf) const
 {
   unsigned int meas_size = m_is_intrinsic ? 6 : 3;
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(meas_size, ekf.GetStateSize());
@@ -185,7 +186,8 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   const Eigen::Vector3d & acceleration,
   const Eigen::Matrix3d & acceleration_covariance,
   const Eigen::Vector3d & angular_rate,
-  const Eigen::Matrix3d & angular_rate_covariance)
+  const Eigen::Matrix3d & angular_rate_covariance
+)
 {
   auto t_start = std::chrono::high_resolution_clock::now();
 
@@ -298,7 +300,7 @@ bool ImuUpdater::ZeroAccelerationUpdate(
 }
 
 /// TODO: The frames are not correct here
-Eigen::VectorXd ImuUpdater::PredictMeasurement(EKF & ekf)
+Eigen::VectorXd ImuUpdater::PredictMeasurement(EKF & ekf) const
 {
   Eigen::Vector3d pos_i_in_b = ekf.m_state.imu_states[m_id].pos_i_in_b;
   Eigen::Quaterniond ang_i_to_b = ekf.m_state.imu_states[m_id].ang_i_to_b;
@@ -325,7 +327,7 @@ Eigen::VectorXd ImuUpdater::PredictMeasurement(EKF & ekf)
   return predicted_measurement;
 }
 
-Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(EKF & ekf)
+Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(EKF & ekf) const
 {
   Eigen::Vector3d pos_i_in_b = ekf.m_state.imu_states[m_id].pos_i_in_b;
   Eigen::Quaterniond ang_i_to_b = ekf.m_state.imu_states[m_id].ang_i_to_b;
@@ -390,7 +392,7 @@ void ImuUpdater::AngularUpdate(
   EKF & ekf,
   const Eigen::Vector3d & angular_rate,
   const Eigen::Matrix3d & angular_rate_covariance
-)
+) const
 {
   Eigen::Quaterniond ang_b_to_l = ekf.m_state.body_state.ang_b_to_l;
   Eigen::Quaterniond ang_i_to_b = ekf.m_state.imu_states[m_id].ang_i_to_b;

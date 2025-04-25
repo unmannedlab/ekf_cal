@@ -26,7 +26,7 @@
 /// @param size Header count
 /// @return Comma-separated, enumerated header string
 ///
-std::string EnumerateHeader(const std::string & name, unsigned int size);
+std::string EnumerateHeader(const std::string & name, const unsigned int size);
 
 ///
 /// @brief Create comma-separated string from vector
@@ -41,7 +41,7 @@ std::string VectorToCommaString(const Eigen::VectorXd & vec);
 /// @param precision Output precision
 /// @return Comma-separated string vector
 ///
-std::string VectorToCommaString(const Eigen::VectorXd & vec, int precision);
+std::string VectorToCommaString(const Eigen::VectorXd & vec, const int precision);
 
 ///
 /// @brief Create comma-separated string from quaternion

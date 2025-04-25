@@ -61,7 +61,7 @@ public:
   /// @brief Generate simulated IMU messages
   /// @return Generated IMU messages
   ///
-  std::vector<std::shared_ptr<SimImuMessage>> GenerateMessages();
+  std::vector<std::shared_ptr<SimImuMessage>> GenerateMessages() const;
 
 private:
   Eigen::Vector3d m_acc_error;

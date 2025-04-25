@@ -76,7 +76,7 @@ public:
   /// @brief Getter for state size
   /// @return State size
   ///
-  unsigned int GetStateSize();
+  unsigned int GetStateSize() const;
 
   ///
   /// @brief Get IMU sensor state
@@ -102,37 +102,37 @@ public:
   /// @brief IMU count getter method
   /// @return IMU count
   ///
-  unsigned int GetImuCount();
+  unsigned int GetImuCount() const;
 
   ///
   /// @brief IMU state size getter method
   /// @return IMU state size
   ///
-  unsigned int GetImuStateSize();
+  unsigned int GetImuStateSize() const;
 
   ///
   /// @brief IMU count getter method
   /// @return IMU count
   ///
-  unsigned int GetGpsCount();
+  unsigned int GetGpsCount() const;
 
   ///
   /// @brief GPS state size getter method
   /// @return GPS state size
   ///
-  unsigned int GetGpsStateSize();
+  unsigned int GetGpsStateSize() const;
 
   ///
   /// @brief Camera state size getter method
   /// @return Camera state size
   ///
-  unsigned int GetCamStateSize();
+  unsigned int GetCamStateSize() const;
 
   ///
   /// @brief Camera count getter method
   /// @return Camera count
   ///
-  unsigned int GetCamCount();
+  unsigned int GetCamCount() const;
 
   ///
   /// @brief Check if body data should be logged and do so if necessary
@@ -151,7 +151,7 @@ public:
   /// @param dT State transition time
   /// @return State transition matrix
   ///
-  Eigen::MatrixXd GetStateTransition(double dT);
+  Eigen::MatrixXd GetStateTransition(double dT) const;
 
   ///
   /// @brief EKF state initialization method
@@ -249,25 +249,25 @@ public:
   /// @brief Getter for the LLA reference position
   /// @return Reference LLA position
   ///
-  Eigen::VectorXd GetReferenceLLA();
+  Eigen::VectorXd GetReferenceLLA() const;
 
   ///
   /// @brief Getter for the LLA reference frame heading
   /// @return Reference frame heading
   ///
-  double GetReferenceAngle();
+  double GetReferenceAngle() const;
 
   ///
   /// @brief Checks if the LLA reference frame has been initialized
   /// @return LLA initialization boolean
   ///
-  bool IsLlaInitialized();
+  bool IsLlaInitialized() const;
 
   ///
   /// @brief Checks if the gravity angle has been initialized
   /// @return Gravity initialization boolean
   ///
-  bool IsGravityInitialized();
+  bool IsGravityInitialized() const;
 
   ///
   /// @brief Function to initialize gravity angle
@@ -287,7 +287,7 @@ public:
   /// @brief Get augmented state size
   /// @return Augmented state size
   ///
-  unsigned int GetAugStateSize();
+  unsigned int GetAugStateSize() const;
 
   ///
   /// @brief Refresh the sub-state indices
@@ -307,79 +307,79 @@ public:
   /// @brief GPS time vector getter
   /// @return GPS time vector
   ///
-  std::vector<double> GetGpsTimeVector();
+  std::vector<double> GetGpsTimeVector() const;
 
   ///
   /// @brief GPS ECEF vector getter
   /// @return GPS ECEF vector
   ///
-  std::vector<Eigen::Vector3d> GetGpsEcefVector();
+  std::vector<Eigen::Vector3d> GetGpsEcefVector() const;
 
   ///
   /// @brief GPS XYZ vector getter
   /// @return GPS XYZ vector
   ///
-  std::vector<Eigen::Vector3d> GetGpsXyzVector();
+  std::vector<Eigen::Vector3d> GetGpsXyzVector() const;
 
   ///
   /// @brief Current time getter
   /// @return Current time
   ///
-  double GetCurrentTime();
+  double GetCurrentTime() const;
 
   ///
   /// @brief IMU state start getter
   /// @return IMU state start
   ///
-  unsigned int GetImuStateStart();
+  unsigned int GetImuStateStart() const;
 
   ///
   /// @brief GPS state start getter
   /// @return GPS state start
   ///
-  unsigned int GetGpsStateStart();
+  unsigned int GetGpsStateStart() const;
 
   ///
   /// @brief Camera state start getter
   /// @return Camera state start
   ///
-  unsigned int GetCamStateStart();
+  unsigned int GetCamStateStart() const;
 
   ///
   /// @brief Augmented states start getter
   /// @return Augmented states start
   ///
-  unsigned int GetAugStateStart();
+  unsigned int GetAugStateStart() const;
 
   ///
   /// @brief Fiducial state start getter
   /// @return Fiducial state start
   ///
-  unsigned int GetFidStateStart();
+  unsigned int GetFidStateStart() const;
 
   ///
   /// @brief Motion detection Chi squared threshold getter
   /// @return Motion detection Chi squared threshold
   ///
-  double GetMotionDetectionChiSquared();
+  double GetMotionDetectionChiSquared() const;
 
   ///
   /// @brief IMU noise scale factor getter
   /// @return IMU noise scale factor
   ///
-  double GetImuNoiseScaleFactor();
+  double GetImuNoiseScaleFactor() const;
 
   ///
   /// @brief Getter for use root covariance flag
   /// @return Use root covariance flag
   ///
-  bool GetUseRootCovariance();
+  bool GetUseRootCovariance() const;
 
   ///
   /// @brief Getter for use first estimate Jacobians
   /// @return Use first estimate Jacobians
   ///
-  bool GetUseFirstEstimateJacobian();
+  bool GetUseFirstEstimateJacobian() const;
 
   ///
   /// @brief Calculate UTF time to local EKF time

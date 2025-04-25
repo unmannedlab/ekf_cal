@@ -123,7 +123,9 @@ Eigen::Quaterniond TruthEngineCyclic::GetBodyAngularPosition(double time)
   return angular_position;
 }
 
-Eigen::Matrix3d TruthEngineCyclic::EulerDerivativeTransform(const Eigen::Vector3d & rpy_vector)
+Eigen::Matrix3d TruthEngineCyclic::EulerDerivativeTransform(
+  const Eigen::Vector3d & rpy_vector
+) const
 {
   Eigen::Matrix3d transform_matrix;
   transform_matrix.setZero();

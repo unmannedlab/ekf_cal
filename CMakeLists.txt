@@ -17,7 +17,7 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(-Wall -Wextra -Wpedantic -Wsign-conversion -Wconversion -Wshadow -Wuseless-cast -Wdouble-promotion)
+    add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 # @TODO Should this compile without ROS? Just make EKF library?

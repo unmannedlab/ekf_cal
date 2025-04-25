@@ -45,7 +45,7 @@ SimFeatureTracker::SimFeatureTracker(
   m_truth = truthEngine;
 }
 
-std::vector<cv::KeyPoint> SimFeatureTracker::GetVisibleKeypoints(double time)
+std::vector<cv::KeyPoint> SimFeatureTracker::GetVisibleKeypoints(double time) const
 {
   Eigen::Vector3d pos_b_in_l = m_truth->GetBodyPosition(time);
   Eigen::Quaterniond ang_b_to_l = m_truth->GetBodyAngularPosition(time);
@@ -100,7 +100,7 @@ std::vector<cv::KeyPoint> SimFeatureTracker::FilterInvisiblePoints(
   const Eigen::Matrix3d & rot_c_to_l,
   const Eigen::Vector3d & pos_c_in_l,
   const Intrinsics & intrinsics
-)
+) const
 {
   // Convert to feature points
   Eigen::Vector3d cam_plane_vec = rot_c_to_l * Eigen::Vector3d(0, 0, 1);
@@ -136,7 +136,9 @@ std::vector<cv::KeyPoint> SimFeatureTracker::FilterInvisiblePoints(
 }
 
 std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
-  double message_time, unsigned int frame_id)
+  double message_time,
+  unsigned int frame_id
+)
 {
   FeatureTracks feature_tracks;
 

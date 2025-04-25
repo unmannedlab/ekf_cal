@@ -77,7 +77,7 @@ int FiducialTracker::InterpolateCorners(
   std::vector<int> & ids,
   cv::Mat camera_matrix,
   cv::Mat distortion
-)
+) const
 {
   if (m_detector_type == FiducialType::CHARUCO_BOARD) {
     auto temp_board = board.staticCast<cv::aruco::CharucoBoard>();
@@ -98,7 +98,7 @@ void FiducialTracker::DrawDetectedCorners(
   std::vector<cv::Point2f> & corners,
   std::vector<int> & ids,
   cv::Scalar corner_color
-)
+) const
 {
   if (m_detector_type == FiducialType::CHARUCO_BOARD) {
     cv::aruco::drawDetectedCornersCharuco(image, corners, ids, corner_color);
@@ -116,7 +116,7 @@ bool FiducialTracker::EstimatePoseBoard(
   cv::InputArray & distortion,
   cv::Vec3d & r_vec,
   cv::Vec3d & t_vec
-)
+) const
 {
   if (m_detector_type == FiducialType::CHARUCO_BOARD) {
     auto temp_board = board.staticCast<cv::aruco::CharucoBoard>();

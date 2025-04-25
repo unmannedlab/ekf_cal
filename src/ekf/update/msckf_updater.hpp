@@ -87,14 +87,14 @@ public:
   void distortion_jacobian(
     const Eigen::Vector2d & uv_norm,
     const Intrinsics & intrinsics,
-    Eigen::MatrixXd & H_d);
+    Eigen::MatrixXd & H_d) const;
 
   ///
   /// @brief Function to calculate jacobian for camera projection function
   /// @param position Position in camera coordinates
   /// @param jacobian Resulting camera projection jacobian
   ///
-  void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian);
+  void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian) const;
 
 private:
   bool m_is_cam_extrinsic;

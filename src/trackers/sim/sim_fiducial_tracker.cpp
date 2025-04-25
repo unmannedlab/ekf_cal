@@ -105,7 +105,9 @@ bool SimFiducialTracker::IsBoardVisible(const double time) const
 }
 
 std::shared_ptr<SimFiducialTrackerMessage> SimFiducialTracker::GenerateMessage(
-  double message_time, unsigned int frame_id)
+  double message_time,
+  unsigned int frame_id
+) const
 {
   std::vector<std::shared_ptr<SimFiducialTrackerMessage>> fiducial_tracker_messages;
   Eigen::Vector3d pos_f_in_l_true = m_truth->GetBoardPosition(m_id);

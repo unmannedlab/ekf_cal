@@ -30,12 +30,12 @@ Sensor::Sensor(Parameters params)
   m_logger = params.logger;
 }
 
-unsigned int Sensor::GetId()
+unsigned int Sensor::GetId() const
 {
   return m_id;
 }
 
-std::string Sensor::GetName()
+std::string Sensor::GetName() const
 {
   return m_name;
 }
@@ -45,7 +45,7 @@ bool MessageCompare(std::shared_ptr<SensorMessage> a, std::shared_ptr<SensorMess
   return a->time < b->time;
 }
 
-void Sensor::Callback(const SensorMessage sensor_message)
+void Sensor::Callback(const SensorMessage sensor_message) const
 {
   std::stringstream msg;
   msg << "Base Sensor callback invoked at time " << sensor_message.time;
