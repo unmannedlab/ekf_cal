@@ -43,16 +43,18 @@ FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
 
   if (params.detector_type == FiducialType::ARUCO_BOARD) {
     m_board = cv::aruco::GridBoard::create(
-      params.squares_x,
-      params.squares_y,
-      params.square_length,
-      params.marker_length, m_dict);
+      static_cast<int>(params.squares_x),
+      static_cast<int>(params.squares_y),
+      static_cast<float>(params.square_length),
+      static_cast<float>(params.marker_length),
+      m_dict);
   } else if (params.detector_type == FiducialType::CHARUCO_BOARD) {
     m_board = cv::aruco::CharucoBoard::create(
-      params.squares_x,
-      params.squares_y,
-      params.square_length,
-      params.marker_length, m_dict);
+      static_cast<int>(params.squares_x),
+      static_cast<int>(params.squares_y),
+      static_cast<float>(params.square_length),
+      static_cast<float>(params.marker_length),
+      m_dict);
   }
 
   FidState fid_state;
@@ -84,7 +86,7 @@ int FiducialTracker::InterpolateCorners(
       corners, ids, camera_matrix, distortion);
   } else if (m_detector_type == FiducialType::ARUCO_BOARD) {
     ids = marker_ids;
-    return ids.size();
+    return static_cast<int>(ids.size());
   } else {
     return 0;
   }
@@ -130,7 +132,7 @@ bool FiducialTracker::EstimatePoseBoard(
 
 void FiducialTracker::Track(
   double time,
-  int frame_id,
+  unsigned int frame_id,
   const cv::Mat & img_in,
   cv::Mat & img_out)
 {

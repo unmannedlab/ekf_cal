@@ -56,7 +56,7 @@ TEST(test_feature_tracker, initialization) {
   params.matcher = Matcher::FLANN;
   FeatureTracker feature_tracker_8 {params};
 
-  EXPECT_EQ(feature_tracker_1.GetID(), 1U);
+  EXPECT_EQ(feature_tracker_1.GetID(), 1);
 }
 
 TEST(test_feature_tracker, track) {

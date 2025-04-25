@@ -79,7 +79,12 @@ public:
   /// @param img_in Input frame
   /// @param img_out Output frame with drawn track lines
   ///
-  void Track(double time, int frame_id, const cv::Mat & img_in, cv::Mat & img_out);
+  void Track(
+    double time,
+    unsigned int frame_id,
+    const cv::Mat & img_in,
+    cv::Mat & img_out
+  );
 
   ///
   /// @brief Function to interpolate corners of charuco boards

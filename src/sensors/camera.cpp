@@ -97,7 +97,7 @@ void Camera::Callback(std::shared_ptr<CameraMessage> camera_message)
 /// @todo apply similar function to sensor/tracker IDs
 unsigned int Camera::GenerateFrameID()
 {
-  static int frame_id = 0;
+  static unsigned int frame_id = 0;
   return frame_id++;
 }
 

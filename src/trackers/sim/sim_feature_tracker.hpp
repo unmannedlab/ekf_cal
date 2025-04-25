@@ -67,7 +67,7 @@ public:
   /// @return Generated feature tracker message
   ///
   std::shared_ptr<SimFeatureTrackerMessage> GenerateMessage(
-    double message_time, int frame_id);
+    double message_time, unsigned int frame_id);
 
   ///
   /// @brief Return currently visible keypoints

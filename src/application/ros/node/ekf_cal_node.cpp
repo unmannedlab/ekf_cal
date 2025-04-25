@@ -338,10 +338,10 @@ void EkfCalNode::DeclareTrackerParameters(const std::string & tracker_name)
   declare_parameter(tracker_prefix + ".feature_detector", 0);
   declare_parameter(tracker_prefix + ".descriptor_extractor", 0);
   declare_parameter(tracker_prefix + ".descriptor_matcher", 0);
-  declare_parameter(tracker_prefix + ".detector_threshold", 20.0);
+  declare_parameter(tracker_prefix + ".detector_threshold", 20);
   declare_parameter(tracker_prefix + ".pixel_error", 1.0);
-  declare_parameter(tracker_prefix + ".down_sample_height", 480.0);
-  declare_parameter(tracker_prefix + ".down_sample_width", 640.0);
+  declare_parameter(tracker_prefix + ".down_sample_height", 480);
+  declare_parameter(tracker_prefix + ".down_sample_width", 640);
   declare_parameter(tracker_prefix + ".min_feature_distance", 1.0);
   declare_parameter(tracker_prefix + ".min_track_length", 2);
   declare_parameter(tracker_prefix + ".max_track_length", 20);
@@ -351,28 +351,28 @@ FeatureTracker::Parameters EkfCalNode::GetTrackerParameters(const std::string & 
 {
   // Get parameters
   std::string tracker_prefix = "tracker." + tracker_name;
-  int detector = get_parameter(tracker_prefix + ".feature_detector").as_int();
-  int extractor = get_parameter(tracker_prefix + ".descriptor_extractor").as_int();
-  int matcher = get_parameter(tracker_prefix + ".descriptor_matcher").as_int();
-  double threshold = get_parameter(tracker_prefix + ".detector_threshold").as_double();
-  double px_error = get_parameter(tracker_prefix + ".pixel_error").as_double();
-  double down_height = get_parameter(tracker_prefix + ".down_sample_height").as_double();
-  double down_width = get_parameter(tracker_prefix + ".down_sample_width").as_double();
-  double min_feat_dist = get_parameter(tracker_prefix + ".min_feature_distance").as_double();
-  int min_track_length = get_parameter(tracker_prefix + ".min_track_length").as_int();
-  int max_track_length = get_parameter(tracker_prefix + ".max_track_length").as_int();
+  auto detector = get_parameter(tracker_prefix + ".feature_detector").as_int();
+  auto extractor = get_parameter(tracker_prefix + ".descriptor_extractor").as_int();
+  auto matcher = get_parameter(tracker_prefix + ".descriptor_matcher").as_int();
+  auto threshold = get_parameter(tracker_prefix + ".detector_threshold").as_int();
+  auto px_error = get_parameter(tracker_prefix + ".pixel_error").as_double();
+  auto down_height = get_parameter(tracker_prefix + ".down_sample_height").as_int();
+  auto down_width = get_parameter(tracker_prefix + ".down_sample_width").as_int();
+  auto min_feat_dist = get_parameter(tracker_prefix + ".min_feature_distance").as_double();
+  auto min_track_length = get_parameter(tracker_prefix + ".min_track_length").as_int();
+  auto max_track_length = get_parameter(tracker_prefix + ".max_track_length").as_int();
 
   FeatureTracker::Parameters tracker_params;
   tracker_params.detector = static_cast<Detector>(detector);
   tracker_params.descriptor = static_cast<Descriptor>(extractor);
   tracker_params.matcher = static_cast<Matcher>(matcher);
-  tracker_params.threshold = threshold;
+  tracker_params.threshold = static_cast<int>(threshold);
   tracker_params.px_error = px_error;
-  tracker_params.down_sample_height = down_height;
-  tracker_params.down_sample_width = down_width;
+  tracker_params.down_sample_height = static_cast<int>(down_height);
+  tracker_params.down_sample_width = static_cast<int>(down_width);
   tracker_params.min_feat_dist = min_feat_dist;
-  tracker_params.min_track_length = min_track_length;
-  tracker_params.max_track_length = max_track_length;
+  tracker_params.min_track_length = static_cast<unsigned int>(min_track_length);
+  tracker_params.max_track_length = static_cast<unsigned int>(max_track_length);
   tracker_params.ekf = m_ekf;
   tracker_params.logger = m_debug_logger;
   tracker_params.log_directory = m_log_directory;
@@ -416,16 +416,16 @@ FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(const std::string 
 
   FiducialTracker::Parameters fiducial_params;
   fiducial_params.detector_type = static_cast<FiducialType>(fiducial_type);
-  fiducial_params.squares_x = squares_x;
-  fiducial_params.squares_y = squares_y;
+  fiducial_params.squares_x = static_cast<unsigned int>(squares_x);
+  fiducial_params.squares_y = static_cast<unsigned int>(squares_y);
   fiducial_params.square_length = square_length;
   fiducial_params.marker_length = marker_length;
   fiducial_params.id = static_cast<unsigned int>(id);
   fiducial_params.pos_f_in_l = StdToEigVec(pos_f_in_l);
   fiducial_params.ang_f_to_l = StdToEigQuat(ang_f_to_l);
   fiducial_params.variance = StdToEigVec(variance);
-  fiducial_params.min_track_length = min_track_length;
-  fiducial_params.max_track_length = max_track_length;
+  fiducial_params.min_track_length = static_cast<unsigned int>(min_track_length);
+  fiducial_params.max_track_length = static_cast<unsigned int>(max_track_length);
   fiducial_params.is_extrinsic = is_extrinsic;
   fiducial_params.ekf = m_ekf;
   fiducial_params.logger = m_debug_logger;

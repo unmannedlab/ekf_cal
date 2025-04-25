@@ -266,7 +266,7 @@ public:
   /// @brief Getter function for a specific feature
   /// @return Feature position
   ///
-  cv::Point3d GetFeature(unsigned int feature_id);
+  cv::Point3d GetFeature(int feature_id);
 
   double m_max_time;  ///< @brief Maximum time for truth engine
 

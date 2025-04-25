@@ -43,7 +43,7 @@ public:
   /// @param logger Debug logger pointer
   ///
   explicit MsckfUpdater(
-    int cam_id,
+    unsigned int cam_id,
     bool is_cam_extrinsic,
     const std::string & log_file_directory,
     double data_log_rate,

@@ -37,7 +37,7 @@
 #include "utility/type_helper.hpp"
 
 MsckfUpdater::MsckfUpdater(
-  int cam_id,
+  unsigned int cam_id,
   bool is_extrinsic,
   const std::string & log_file_directory,
   double data_log_rate,
@@ -238,7 +238,7 @@ void MsckfUpdater::UpdateEKF(
   // Calculate the max possible measurement size
   unsigned int max_meas_size = 0;
   for (unsigned int i = 0; i < feature_tracks.size(); ++i) {
-    max_meas_size += 2 * feature_tracks[i].track.size();
+    max_meas_size += 2 * static_cast<unsigned int>(feature_tracks[i].track.size());
   }
 
   unsigned int ct_meas = 0;
@@ -264,9 +264,10 @@ void MsckfUpdater::UpdateEKF(
       continue;
     }
 
-    Eigen::VectorXd res_f = Eigen::VectorXd::Zero(2 * feature_track.track.size());
-    Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), 3);
-    Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), state_size);
+    auto feat_size = static_cast<Eigen::Index>(feature_track.track.size());
+    Eigen::VectorXd res_f = Eigen::VectorXd::Zero(2 * feat_size);
+    Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feat_size, 3);
+    Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(2 * feat_size, state_size);
 
     for (unsigned int i = 0; i < feature_track.track.size(); ++i) {
       AugState aug_state_i = ekf.GetAugState(
@@ -345,7 +346,7 @@ void MsckfUpdater::UpdateEKF(
     H_x.block(ct_meas, 0, H_c.rows(), H_c.cols()) = H_c;
     res_x.block(ct_meas, 0, res_f.rows(), 1) = res_f;
 
-    ct_meas += H_c.rows();
+    ct_meas += static_cast<unsigned int>(H_c.rows());
   }
 
   if (ct_meas == 0) {

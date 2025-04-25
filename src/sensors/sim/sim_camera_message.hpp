@@ -37,7 +37,7 @@ public:
   using CameraMessage::CameraMessage;
 
   /// @brief Message frame ID
-  int frame_id;
+  unsigned int frame_id;
 
   /// @brief Message output from feature tracker
   std::vector<std::shared_ptr<SimFeatureTrackerMessage>> feature_track_messages;

@@ -32,7 +32,7 @@ SimSensor::SimSensor(Parameters params)
 
 std::vector<double> SimSensor::GenerateMeasurementTimes(double m_rate)
 {
-  unsigned int num_measurements = static_cast<int>(std::floor(m_truth->m_max_time * m_rate));
+  auto num_measurements = static_cast<unsigned int>(std::floor(m_truth->m_max_time * m_rate));
   double time_init = m_no_errors ? 0 : m_rng.UniRand(0.0, 1.0 / m_rate);
 
   std::vector<double> message_times;

@@ -161,7 +161,7 @@ int main(int argc, char * argv[])
   // Logging parameters
   EKF::Parameters ekf_params;
   YAML::Node ros_params = root["/EkfCalNode"]["ros__parameters"];
-  unsigned int debug_log_level = ros_params["debug_log_level"].as<unsigned int>(0U);
+  unsigned int debug_log_level = ros_params["debug_log_level"].as<unsigned int>(0);
   auto debug_logger = std::make_shared<DebugLogger>(debug_log_level, log_directory);
   debug_logger->Log(LogLevel::INFO, "EKF CAL Version: " + std::string(EKF_CAL_VERSION));
 
@@ -336,12 +336,12 @@ int main(int argc, char * argv[])
     LoadTrackerParams(
       track_params, trackers[i], log_directory, ekf, debug_logger);
     track_params.px_error = trk_node["pixel_error"].as<double>(1.0);
-    track_params.min_track_length = trk_node["min_track_length"].as<unsigned int>(2U);
-    track_params.max_track_length = trk_node["max_track_length"].as<unsigned int>(20U);
+    track_params.min_track_length = trk_node["min_track_length"].as<unsigned int>(2);
+    track_params.max_track_length = trk_node["max_track_length"].as<unsigned int>(20);
     track_params.min_feat_dist = trk_node["min_feat_dist"].as<double>(1.0);
     track_params.down_sample = trk_node["down_sample"].as<bool>(false);
-    track_params.down_sample_height = trk_node["down_sample_height"].as<double>(480.0);
-    track_params.down_sample_width = trk_node["down_sample_width"].as<double>(640.0);
+    track_params.down_sample_height = trk_node["down_sample_height"].as<int>(480);
+    track_params.down_sample_width = trk_node["down_sample_width"].as<int>(640);
     max_track_length = std::max(max_track_length, track_params.max_track_length);
 
     SimFeatureTracker::Parameters sim_tracker_params;
@@ -369,11 +369,11 @@ int main(int argc, char * argv[])
     fiducial_params.ang_f_to_l =
       StdToEigQuat(fid_node["ang_f_to_l"].as<std::vector<double>>(def_quat));
     fiducial_params.variance = StdToEigVec(fid_node["variance"].as<std::vector<double>>(def_vec));
-    fiducial_params.squares_x = fid_node["squares_x"].as<unsigned int>(1U);
-    fiducial_params.squares_y = fid_node["squares_y"].as<unsigned int>(1U);
+    fiducial_params.squares_x = fid_node["squares_x"].as<unsigned int>(1);
+    fiducial_params.squares_y = fid_node["squares_y"].as<unsigned int>(1);
     fiducial_params.square_length = fid_node["square_length"].as<double>(0.0);
     fiducial_params.marker_length = fid_node["marker_length"].as<double>(0.0);
-    fiducial_params.id = fid_node["id"].as<unsigned int>(0U);
+    fiducial_params.id = fid_node["id"].as<unsigned int>(0);
     fiducial_params.is_extrinsic = fid_node["is_extrinsic"].as<bool>(false);
     fiducial_params.ekf = ekf;
     max_track_length = std::max(max_track_length, fiducial_params.max_track_length);

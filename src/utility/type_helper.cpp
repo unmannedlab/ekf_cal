@@ -36,8 +36,8 @@ Eigen::VectorXd StdToEigVec(std::vector<double> const & in)
 
 Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
 {
-  if (in.size() == 4U) {
-    Eigen::Quaterniond quat{in[0U], in[1U], in[2U], in[3U]};
+  if (in.size() == 4) {
+    Eigen::Quaterniond quat{in[0], in[1], in[2], in[3]};
     quat.normalize();
     return quat;
   } else {

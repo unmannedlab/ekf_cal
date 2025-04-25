@@ -218,7 +218,7 @@ public:
   /// @param camera_id Current camera ID
   /// @param frame_id Current frame ID
   ///
-  void AugmentStateIfNeeded(unsigned int camera_id, int frame_id);
+  void AugmentStateIfNeeded(unsigned int camera_id, unsigned int frame_id);
 
   ///
   /// @brief Setter for maximum track length
@@ -281,7 +281,7 @@ public:
   /// @param time Frame time
   /// @return Augmented state
   ///
-  AugState GetAugState(unsigned int camera_id, int frame_id, double time);
+  AugState GetAugState(unsigned int camera_id, unsigned int frame_id, double time);
 
   ///
   /// @brief Get augmented state size

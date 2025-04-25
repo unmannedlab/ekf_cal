@@ -43,7 +43,7 @@ public:
   /// @param logger Debug logger pointer
   ///
   explicit FiducialUpdater(
-    int fiducial_id,
+    unsigned int fiducial_id,
     unsigned int camera_id,
     bool is_cam_extrinsic,
     const std::string & log_file_directory,

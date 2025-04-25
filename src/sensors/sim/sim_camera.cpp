@@ -72,7 +72,7 @@ std::vector<std::shared_ptr<SimCameraMessage>> SimCamera::GenerateMessages()
     LogLevel::INFO, "Generating " + std::to_string(measurement_times.size()) + " Camera frames");
 
   for (double measurement_time : measurement_times) {
-    int frame_id = GenerateFrameID();
+    unsigned int frame_id = GenerateFrameID();
     cv::Mat blank_img;
     auto cam_msg = std::make_shared<SimCameraMessage>(blank_img);
     cam_msg->sensor_id = m_id;

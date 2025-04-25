@@ -45,8 +45,8 @@ void Updater::KalmanUpdate(
   Eigen::VectorXd update = K * residual;
   ekf.m_state += update;
 
-  unsigned int rows = ekf.m_cov.rows();
-  unsigned int cols = ekf.m_cov.cols();
+  unsigned int rows = static_cast<unsigned int>(ekf.m_cov.rows());
+  unsigned int cols = static_cast<unsigned int>(ekf.m_cov.cols());
   if (ekf.GetUseRootCovariance()) {
     ekf.m_cov = QR_r(
       ekf.m_cov * (Eigen::MatrixXd::Identity(rows, cols) -

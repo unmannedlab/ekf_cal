@@ -181,7 +181,7 @@ void EKF::PredictModel(double local_time)
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
-  LogBodyStateIfNeeded(t_execution.count());
+  LogBodyStateIfNeeded(static_cast<int>(t_execution.count()));
 }
 
 unsigned int EKF::GetStateSize()
@@ -206,7 +206,7 @@ CamState EKF::GetCamState(unsigned int cam_id)
 
 unsigned int EKF::GetImuCount()
 {
-  return m_state.imu_states.size();
+  return static_cast<unsigned int>(m_state.imu_states.size());
 }
 
 unsigned int EKF::GetImuStateSize()
@@ -216,7 +216,7 @@ unsigned int EKF::GetImuStateSize()
 
 unsigned int EKF::GetGpsCount()
 {
-  return m_state.gps_states.size();
+  return static_cast<unsigned int>(m_state.gps_states.size());
 }
 
 unsigned int EKF::GetGpsStateSize()
@@ -231,7 +231,7 @@ unsigned int EKF::GetCamStateSize()
 
 unsigned int EKF::GetCamCount()
 {
-  return m_state.cam_states.size();
+  return static_cast<unsigned int>(m_state.cam_states.size());
 }
 
 unsigned int EKF::GetAugStateSize()
@@ -375,10 +375,10 @@ void EKF::RegisterFiducial(const FidState & fid_state, const Eigen::MatrixXd & c
 
 Eigen::MatrixXd EKF::AugmentCovariance(const Eigen::MatrixXd & in_cov, unsigned int index)
 {
-  unsigned int in_rows = in_cov.rows();
-  unsigned int in_cols = in_cov.cols();
-  unsigned int out_rows = in_cov.rows() + g_aug_state_size;
-  unsigned int out_cols = in_cov.cols() + g_aug_state_size;
+  auto in_rows = static_cast<unsigned int>(in_cov.rows());
+  auto in_cols = static_cast<unsigned int>(in_cov.cols());
+  auto out_rows = static_cast<unsigned int>(in_cov.rows() + g_aug_state_size);
+  auto out_cols = static_cast<unsigned int>(in_cov.cols() + g_aug_state_size);
 
   Eigen::MatrixXd out_cov = Eigen::MatrixXd::Zero(out_rows, out_cols);
 
@@ -474,15 +474,15 @@ void EKF::AugmentStateIfNeeded()
   }
 
   // Prune old states
-  for (int i = m_state.aug_states[0].size() - 2; i >= 0; --i) {
+  for (int i = static_cast<int>(m_state.aug_states[0].size()) - 2; i >= 0; --i) {
     // Check if any states are too old
     if (
-      ((m_current_time - m_state.aug_states[0][i + 1].time) > m_max_track_duration) &&
-      (static_cast<unsigned int>(i) < m_state.aug_states[0].size()))
+      ((m_current_time - m_state.aug_states[0][static_cast<unsigned int>(i + 1)].time) >
+      m_max_track_duration) && (static_cast<unsigned int>(i) < m_state.aug_states[0].size()))
     {
       m_state_size -= g_aug_state_size;
       m_aug_state_size -= g_aug_state_size;
-      unsigned int aug_index = m_state.aug_states[0][i].index;
+      unsigned int aug_index = m_state.aug_states[0][static_cast<unsigned int>(i)].index;
 
       // Prune old states
       m_state.aug_states[0].erase(m_state.aug_states[0].begin() + i);
@@ -497,7 +497,7 @@ void EKF::AugmentStateIfNeeded()
 
     AugState aug_state;
     aug_state.time = m_current_time;
-    aug_state.frame_id = -1;
+    aug_state.frame_id = 0;
     aug_state.pos_b_in_l = m_state.body_state.pos_b_in_l;
     aug_state.ang_b_to_l = m_state.body_state.ang_b_to_l;
     m_state.aug_states[0].push_back(aug_state);
@@ -518,7 +518,7 @@ void EKF::AugmentStateIfNeeded()
   }
 }
 
-void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
+void EKF::AugmentStateIfNeeded(unsigned int camera_id, unsigned int frame_id)
 {
   m_frame_received_since_last_aug = true;
   if (m_augmenting_type == AugmentationType::ALL ||
@@ -566,7 +566,7 @@ void EKF::SetBodyProcessNoise(const Eigen::VectorXd & process_noise)
   m_body_process_noise = process_noise;
 }
 
-AugState EKF::GetAugState(unsigned int camera_id, int frame_id, double time)
+AugState EKF::GetAugState(unsigned int camera_id, unsigned int frame_id, double time)
 {
   AugState aug_state;
 
@@ -777,10 +777,8 @@ void EKF::AttemptGpsInitialization(
       pos_stddev,
       ang_stddev);
 
-    double max_distance = maximum_distance(gps_states_enu);
-
     if (((m_gps_init_type == GpsInitType::BASELINE_DIST) &&
-      (max_distance > m_gps_init_baseline_dist)) ||
+      (maximum_distance(gps_states_enu) > m_gps_init_baseline_dist)) ||
       ((m_gps_init_type == GpsInitType::ERROR_THRESHOLD) && is_successful &&
       (pos_stddev < m_gps_init_pos_thresh) && ang_stddev &&
       (ang_stddev < std::tan(m_gps_init_ang_thresh))))

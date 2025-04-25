@@ -150,7 +150,7 @@ void GpsUpdater::MultiUpdateEKF(EKF & ekf)
   std::vector<Eigen::Vector3d> gps_ecef_vec = ekf.GetGpsEcefVector();
   std::vector<Eigen::Vector3d> local_xyz_vec = ekf.GetGpsXyzVector();
 
-  unsigned int measurement_size = 3 * gps_time_vec.size();
+  unsigned int measurement_size = 3 * static_cast<unsigned int>(gps_time_vec.size());
   unsigned int state_size = ekf.GetStateSize();
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(measurement_size, state_size);
   Eigen::VectorXd y = Eigen::VectorXd::Zero(measurement_size);

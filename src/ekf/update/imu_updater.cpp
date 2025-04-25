@@ -149,7 +149,7 @@ void ImuUpdater::UpdateEKF(
   msg << "," << t_execution.count();
   m_data_logger.RateLimitedLog(msg.str(), local_time);
 
-  ekf.LogBodyStateIfNeeded(t_execution.count());
+  ekf.LogBodyStateIfNeeded(static_cast<int>(t_execution.count()));
 }
 
 Eigen::MatrixXd ImuUpdater::GetZeroAccelerationJacobian(EKF & ekf)
@@ -292,7 +292,7 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   msg << "," << t_execution.count();
   m_data_logger.RateLimitedLog(msg.str(), local_time);
 
-  ekf.LogBodyStateIfNeeded(t_execution.count());
+  ekf.LogBodyStateIfNeeded(static_cast<int>(t_execution.count()));
 
   return true;
 }

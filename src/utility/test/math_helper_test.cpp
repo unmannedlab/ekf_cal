@@ -118,9 +118,9 @@ TEST(test_MathHelper, ApplyLeftNullspace) {
 
   ApplyLeftNullspace(H_f, H_x, res);
 
-  EXPECT_EQ(res.size(), 3U);
-  EXPECT_EQ(H_x.rows(), 3U);
-  EXPECT_EQ(H_x.cols(), 5U);
+  EXPECT_EQ(res.size(), 3);
+  EXPECT_EQ(H_x.rows(), 3);
+  EXPECT_EQ(H_x.cols(), 5);
 }
 
 TEST(test_MathHelper, CompressMeasurements) {
@@ -130,9 +130,9 @@ TEST(test_MathHelper, CompressMeasurements) {
   residual1 << 1, 1, 1, 1;
   CompressMeasurements(jacobian1, residual1);
 
-  EXPECT_EQ(jacobian1.rows(), 2U);
-  EXPECT_EQ(jacobian1.cols(), 2U);
-  EXPECT_EQ(residual1.size(), 2U);
+  EXPECT_EQ(jacobian1.rows(), 2);
+  EXPECT_EQ(jacobian1.cols(), 2);
+  EXPECT_EQ(residual1.size(), 2);
   EXPECT_EQ(jacobian1(0, 1), 0.0);
   EXPECT_EQ(jacobian1(1, 0), 0.0);
   EXPECT_NEAR(jacobian1(0, 0), 1.414214, 1e-6);
@@ -146,9 +146,9 @@ TEST(test_MathHelper, CompressMeasurements) {
   residual2 << 1, 1, 1, 1;
   CompressMeasurements(jacobian2, residual2);
 
-  EXPECT_EQ(jacobian2.rows(), 1U);
-  EXPECT_EQ(jacobian2.cols(), 2U);
-  EXPECT_EQ(residual2.size(), 1U);
+  EXPECT_EQ(jacobian2.rows(), 1);
+  EXPECT_EQ(jacobian2.cols(), 2);
+  EXPECT_EQ(residual2.size(), 1);
   EXPECT_NEAR(jacobian2(0, 0), 2.0, 1e-6);
   EXPECT_NEAR(jacobian2(0, 1), 0.0, 1e-6);
   EXPECT_NEAR(residual2(0), 2.0, 1e-6);

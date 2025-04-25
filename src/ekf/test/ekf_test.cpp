@@ -122,11 +122,11 @@ TEST(test_EKF, MatchState) {
   Eigen::Quaterniond zero_quat {1, 0, 0, 0};
   Eigen::Vector3d zero_vec {0, 0, 0};
 
-  EXPECT_EQ(aug_state.frame_id, -1);
+  EXPECT_EQ(aug_state.frame_id, 0);
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.ang_b_to_l, zero_quat, 1e-6));
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(aug_state.pos_b_in_l, zero_vec, 1e-6));
 
-  EXPECT_EQ(ekf->GetAugState(0, 0, 0).index, -1);
+  EXPECT_EQ(ekf->GetAugState(0, 0, 0).index, 0);
 }
 
 TEST(test_EKF, SetMaxTrackLength) {

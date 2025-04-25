@@ -76,12 +76,12 @@ public:
     Detector detector {Detector::FAST};       ///< @brief Detector
     Descriptor descriptor {Descriptor::ORB};  ///< @brief Descriptor
     Matcher matcher {Matcher::FLANN};         ///< @brief Matcher
-    double threshold {20.0};                  ///< @brief Threshold
+    int threshold {20};                       ///< @brief Threshold
     double px_error{1e-9};                    ///< @brief Pixel error standard deviation
     double min_feat_dist {1.0};               ///< @brief Minimum feature distance to consider
     bool down_sample {false};                 ///< @brief Flag to perform down-sampling
-    double down_sample_height {480.0};        ///< @brief Down-sampled height to use for tracking
-    double down_sample_width {640.0};         ///< @brief Down-sampled width to use for tracking
+    int down_sample_height {480};             ///< @brief Down-sampled height to use for tracking
+    int down_sample_width {640};              ///< @brief Down-sampled width to use for tracking
     bool is_cam_extrinsic{false};             ///< @brief Flag for extrinsic camera calibration
   } Parameters;
 
@@ -100,8 +100,9 @@ public:
   ///
   std::vector<cv::KeyPoint> GridFeatures(
     std::vector<cv::KeyPoint> key_points,
-    unsigned int rows,
-    unsigned int cols);
+    int rows,
+    int cols
+  );
 
   ///
   /// @brief Perform track on new image frame
@@ -110,7 +111,12 @@ public:
   /// @param img_in Input frame
   /// @param img_out Output frame with drawn track lines
   ///
-  void Track(double time, int frame_id, const cv::Mat & img_in, cv::Mat & img_out);
+  void Track(
+    double time,
+    unsigned int frame_id,
+    const cv::Mat & img_in,
+    cv::Mat & img_out
+  );
 
 
   ///
@@ -158,27 +164,27 @@ protected:
   MsckfUpdater m_msckf_updater;  ///< @brief MSCKF updater object
 
 private:
-  cv::Ptr<cv::FeatureDetector> InitFeatureDetector(Detector detector, double threshold);
-  cv::Ptr<cv::DescriptorExtractor> InitDescriptorExtractor(Descriptor extractor, double threshold);
+  cv::Ptr<cv::FeatureDetector> InitFeatureDetector(Detector detector, int threshold);
+  cv::Ptr<cv::DescriptorExtractor> InitDescriptorExtractor(Descriptor extractor, int threshold);
   cv::Ptr<cv::DescriptorMatcher> InitDescriptorMatcher(Matcher matcher);
 
   cv::Ptr<cv::FeatureDetector> m_feature_detector;
   cv::Ptr<cv::DescriptorExtractor> m_descriptor_extractor;
   cv::Ptr<cv::DescriptorMatcher> m_descriptor_matcher;
 
-  int m_prev_frame_id;
+  unsigned int m_prev_frame_id;
   double m_prev_frame_time;
   cv::Mat m_prev_descriptors;
   std::vector<cv::KeyPoint> m_prev_key_points;
 
   std::map<unsigned int, std::vector<FeaturePoint>> m_feature_points_map;
 
-  unsigned int GenerateFeatureID();
+  int GenerateFeatureID();
 
   double m_px_error;
   bool m_down_sample;
-  double m_down_sample_height;
-  double m_down_sample_width;
+  int m_down_sample_height;
+  int m_down_sample_width;
   double m_knn_ratio{0.7};
 };
 
