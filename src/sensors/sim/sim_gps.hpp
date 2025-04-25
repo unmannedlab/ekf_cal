@@ -62,7 +62,7 @@ public:
   /// @brief Generate simulated GPS messages
   /// @return Generated GPS messages
   ///
-  std::vector<std::shared_ptr<SimGpsMessage>> GenerateMessages();
+  std::vector<std::shared_ptr<SimGpsMessage>> GenerateMessages() const;
 
 private:
   Eigen::Vector3d m_lla_error{1e-9, 1e-9, 1e-9};

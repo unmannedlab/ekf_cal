@@ -43,7 +43,7 @@ public:
   /// @param logger Debug logger pointer
   ///
   explicit MsckfUpdater(
-    int cam_id,
+    unsigned int cam_id,
     bool is_cam_extrinsic,
     const std::string & log_file_directory,
     double data_log_rate,
@@ -53,29 +53,29 @@ public:
 
   ///
   /// @brief Triangulate feature seen from multiple camera frames
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @param local_time Measurement in EKF time
   /// @param feature_track Single feature track
   /// @param pos_f_in_l Output estimate of feature position in camera frame given observations
   /// @return If triangulation was successful
   ///
   bool TriangulateFeature(
-    double local_time,
+    const double local_time,
     EKF & ekf,
-    FeatureTrack & feature_track,
+    const FeatureTrack & feature_track,
     Eigen::Vector3d & pos_f_in_l);
 
   ///
   /// @brief EKF updater function
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @param time Time of update
   /// @param feature_tracks Feature tracks to be used for state update
   /// @param px_error Standard deviation of pixel error
   ///
   void UpdateEKF(
     EKF & ekf,
-    double time,
-    FeatureTracks feature_tracks,
+    const double time,
+    const FeatureTracks & feature_tracks,
     double px_error);
 
   ///
@@ -87,14 +87,14 @@ public:
   void distortion_jacobian(
     const Eigen::Vector2d & uv_norm,
     const Intrinsics & intrinsics,
-    Eigen::MatrixXd & H_d);
+    Eigen::MatrixXd & H_d) const;
 
   ///
   /// @brief Function to calculate jacobian for camera projection function
   /// @param position Position in camera coordinates
   /// @param jacobian Resulting camera projection jacobian
   ///
-  void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian);
+  void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian) const;
 
 private:
   bool m_is_cam_extrinsic;

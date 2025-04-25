@@ -25,8 +25,8 @@
 
 Eigen::Vector3d TruthEngineSmoother::GetInterpolatedValue(
   double time,
-  std::vector<Eigen::Vector3d> & values
-)
+  const std::vector<Eigen::Vector3d> & values
+) const
 {
   double whole, alpha;
   alpha = std::modf(time * m_rate, &whole);
@@ -70,8 +70,8 @@ Eigen::Quaterniond TruthEngineSmoother::GetBodyAngularPosition(double time)
   if (IsTimeInvalid(relative_time)) {
     return Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
   } else {
-    Eigen::Vector3d euler_angles_in = GetInterpolatedValue(time, m_ang);
-    Eigen::Quaterniond angular_position = EigVecToQuat(euler_angles_in);
+    Eigen::Vector3d euler_angles = GetInterpolatedValue(time, m_ang);
+    Eigen::Quaterniond angular_position = EigVecToQuat(euler_angles);
     return angular_position;
   }
 }
@@ -176,8 +176,8 @@ double MaxAcceleration(std::vector<double> times, std::vector<Eigen::Vector3d> &
 
 TruthEngineSmoother::TruthEngineSmoother(
   std::vector<double> times,
-  std::vector<double> positions_in,
-  std::vector<double> angles_in,
+  std::vector<double> poses,
+  std::vector<double> angles,
   std::vector<double> position_errors,
   std::vector<double> angle_errors,
   double stationary_time,
@@ -189,7 +189,8 @@ TruthEngineSmoother::TruthEngineSmoother(
 : TruthEngine(max_time, logger), m_rate(rate)
 {
   unsigned int spline_size =
-    std::floor(std::min(positions_in.size() / 3.0, angles_in.size() / 3.0));
+    static_cast<unsigned int>( std::floor(
+      std::min(static_cast<double>(poses.size()), static_cast<double>(angles.size())) / 3.0));
 
   Eigen::Vector3d pos_errors = StdToEigVec(position_errors);
   Eigen::Vector3d ang_errors = StdToEigVec(angle_errors);
@@ -198,8 +199,8 @@ TruthEngineSmoother::TruthEngineSmoother(
   std::vector<Eigen::Vector3d> angle_vectors;
 
   for (unsigned int i = 0; i < spline_size; ++i) {
-    Eigen::Vector3d pos {positions_in[3 * i], positions_in[3 * i + 1], positions_in[3 * i + 2]};
-    Eigen::Vector3d ang {angles_in[3 * i], angles_in[3 * i + 1], angles_in[3 * i + 2]};
+    Eigen::Vector3d pos {poses[3 * i], poses[3 * i + 1], poses[3 * i + 2]};
+    Eigen::Vector3d ang {angles[3 * i], angles[3 * i + 1], angles[3 * i + 2]};
 
     if (i) {
       pos = rng.VecNormRand(pos, pos_errors);
@@ -227,7 +228,7 @@ TruthEngineSmoother::TruthEngineSmoother(
   m_stationary_time = stationary_time;
 }
 
-bool TruthEngineSmoother::IsTimeInvalid(double time)
+bool TruthEngineSmoother::IsTimeInvalid(double time) const
 {
   if (time < 0.0 || time > m_max_time) {
     return true;

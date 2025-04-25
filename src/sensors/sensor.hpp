@@ -55,19 +55,19 @@ public:
   /// @brief Sensor ID getter method
   /// @return Sensor ID
   ///
-  unsigned int GetId();
+  unsigned int GetId() const;
 
   ///
   /// @brief Sensor name getter method
   /// @return Sensor name
   ///
-  std::string GetName();
+  std::string GetName() const;
 
   ///
   /// @brief Sensor callback function
   /// @param sensor_message callback message
   ///
-  void Callback(SensorMessage sensor_message);
+  void Callback(const SensorMessage sensor_message) const;
 
 protected:
   double m_rate;                          ///< @brief Sensor measurement rate

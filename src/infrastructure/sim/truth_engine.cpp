@@ -66,11 +66,11 @@ Eigen::Vector3d TruthEngine::GetGpsPosition(unsigned int sensor_id)
 {
   return m_gps_pos[sensor_id];
 }
-Eigen::Vector3d TruthEngine::GetLocalPosition()
+Eigen::Vector3d TruthEngine::GetLocalPosition() const
 {
   return m_lla_reference;
 }
-double TruthEngine::GetLocalHeading()
+double TruthEngine::GetLocalHeading() const
 {
   return m_heading;
 }
@@ -171,7 +171,7 @@ void TruthEngine::GenerateGridFeatures()
 
 std::vector<cv::Point3d> TruthEngine::GenerateVisibleFeatures(
   double time,
-  int camera_id,
+  unsigned int camera_id,
   unsigned int new_feature_count,
   SimRNG rng
 )
@@ -199,7 +199,7 @@ std::vector<cv::Point3d> TruthEngine::GenerateVisibleFeatures(
     cv::Point3d pos_f_in_l{pos_f_in_l_eig(0), pos_f_in_l_eig(1), pos_f_in_l_eig(2)};
 
     m_feature_points.push_back(pos_f_in_l);
-    m_feature_points_map[m_feature_points_map.size()] = pos_f_in_l;
+    m_feature_points_map[static_cast<unsigned int>(m_feature_points_map.size())] = pos_f_in_l;
   }
 
   return m_feature_points;
@@ -210,9 +210,9 @@ std::vector<cv::Point3d> TruthEngine::GetFeatures()
   return m_feature_points;
 }
 
-cv::Point3d TruthEngine::GetFeature(unsigned int feature_id)
+cv::Point3d TruthEngine::GetFeature(int feature_id)
 {
-  return m_feature_points_map[feature_id];
+  return m_feature_points_map[static_cast<unsigned int>(feature_id)];
 }
 
 TruthEngine::~TruthEngine() {}
@@ -256,7 +256,7 @@ void TruthEngine::WriteTruthData(
 
   truth_logger.DefineHeader(header.str());
 
-  unsigned int num_measurements = static_cast<int>(std::floor((m_max_time + 1.0) * data_log_rate));
+  auto num_measurements = static_cast<unsigned int>(std::floor((m_max_time + 1.0) * data_log_rate));
   for (unsigned int i = 0; i < num_measurements; ++i) {
     sensor_count = 0;
     std::stringstream msg;
@@ -268,19 +268,19 @@ void TruthEngine::WriteTruthData(
     msg << QuaternionToCommaString(GetBodyAngularPosition(time));
     msg << VectorToCommaString(GetBodyAngularRate(time));
     msg << VectorToCommaString(GetBodyAngularAcceleration(time));
-    for (unsigned int i = 0; i < m_imu_pos.size(); ++i) {
+    for (unsigned int j = 0; j < m_imu_pos.size(); ++j) {
       ++sensor_count;
       msg << VectorToCommaString(GetImuPosition(sensor_count));
       msg << QuaternionToCommaString(GetImuAngularPosition(sensor_count));
       msg << VectorToCommaString(GetImuAccelerometerBias(sensor_count));
       msg << VectorToCommaString(GetImuGyroscopeBias(sensor_count));
     }
-    for (unsigned int i = 0; i < m_cam_pos.size(); ++i) {
+    for (unsigned int j = 0; j < m_cam_pos.size(); ++j) {
       ++sensor_count;
       msg << VectorToCommaString(GetCameraPosition(sensor_count));
       msg << QuaternionToCommaString(GetCameraAngularPosition(sensor_count));
     }
-    for (unsigned int i = 0; i < m_gps_pos.size(); ++i) {
+    for (unsigned int j = 0; j < m_gps_pos.size(); ++j) {
       ++sensor_count;
       msg << VectorToCommaString(GetGpsPosition(sensor_count));
     }

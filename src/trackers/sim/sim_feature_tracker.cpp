@@ -45,7 +45,7 @@ SimFeatureTracker::SimFeatureTracker(
   m_truth = truthEngine;
 }
 
-std::vector<cv::KeyPoint> SimFeatureTracker::GetVisibleKeypoints(double time)
+std::vector<cv::KeyPoint> SimFeatureTracker::GetVisibleKeypoints(double time) const
 {
   Eigen::Vector3d pos_b_in_l = m_truth->GetBodyPosition(time);
   Eigen::Quaterniond ang_b_to_l = m_truth->GetBodyAngularPosition(time);
@@ -84,7 +84,7 @@ std::vector<cv::KeyPoint> SimFeatureTracker::GetVisibleKeypoints(double time)
     FilterInvisiblePoints(feature_points, projected_points, rot_c_to_l, pos_c_in_l, intrinsics);
 
   if (m_feature_count > projected_features.size()) {
-    unsigned int new_feature_count = m_feature_count - projected_features.size();
+    auto new_feature_count = m_feature_count - static_cast<unsigned int>(projected_features.size());
     feature_points = m_truth->GenerateVisibleFeatures(time, m_camera_id, new_feature_count, m_rng);
     cv::projectPoints(feature_points, r_vec, t_vec, camera_matrix, distortion, projected_points);
     projected_features =
@@ -100,7 +100,7 @@ std::vector<cv::KeyPoint> SimFeatureTracker::FilterInvisiblePoints(
   const Eigen::Matrix3d & rot_c_to_l,
   const Eigen::Vector3d & pos_c_in_l,
   const Intrinsics & intrinsics
-)
+) const
 {
   // Convert to feature points
   Eigen::Vector3d cam_plane_vec = rot_c_to_l * Eigen::Vector3d(0, 0, 1);
@@ -121,13 +121,13 @@ std::vector<cv::KeyPoint> SimFeatureTracker::FilterInvisiblePoints(
       projected_points[i].y <= intrinsics.height)
     {
       cv::KeyPoint feat;
-      feat.class_id = i;
+      feat.class_id = static_cast<int>(i);
       if (m_no_errors) {
-        feat.pt.x = projected_points[i].x;
-        feat.pt.y = projected_points[i].y;
+        feat.pt.x = static_cast<float>(projected_points[i].x);
+        feat.pt.y = static_cast<float>(projected_points[i].y);
       } else {
-        feat.pt.x = round(projected_points[i].x);
-        feat.pt.y = round(projected_points[i].y);
+        feat.pt.x = static_cast<float>(round(projected_points[i].x));
+        feat.pt.y = static_cast<float>(round(projected_points[i].y));
       }
       projected_features.push_back(feat);
     }
@@ -136,7 +136,9 @@ std::vector<cv::KeyPoint> SimFeatureTracker::FilterInvisiblePoints(
 }
 
 std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
-  double message_time, int frame_id)
+  double message_time,
+  unsigned int frame_id
+)
 {
   FeatureTracks feature_tracks;
 
@@ -144,7 +146,7 @@ std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
 
   for (auto & key_point : key_points) {
     auto feature_point = FeaturePoint{frame_id, message_time, key_point};
-    m_feature_points_map[key_point.class_id].push_back(feature_point);
+    m_feature_points_map[static_cast<unsigned int>(key_point.class_id)].push_back(feature_point);
   }
 
   // Update MSCKF on features no longer detected
@@ -179,11 +181,11 @@ std::shared_ptr<SimFeatureTrackerMessage> SimFeatureTracker::GenerateMessage(
   return tracker_message;
 }
 
-void SimFeatureTracker::Callback(double time, std::shared_ptr<SimFeatureTrackerMessage> msg)
+void SimFeatureTracker::Callback(const double time, const SimFeatureTrackerMessage & msg)
 {
   m_msckf_updater.UpdateEKF(
     *m_ekf,
     time,
-    msg->feature_tracks,
+    msg.feature_tracks,
     m_px_error);
 }

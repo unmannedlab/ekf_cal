@@ -36,8 +36,8 @@ Eigen::VectorXd StdToEigVec(std::vector<double> const & in)
 
 Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
 {
-  if (in.size() == 4U) {
-    Eigen::Quaterniond quat{in[0U], in[1U], in[2U], in[3U]};
+  if (in.size() == 4) {
+    Eigen::Quaterniond quat{in[0], in[1], in[2], in[3]};
     quat.normalize();
     return quat;
   } else {
@@ -75,8 +75,8 @@ Eigen::Quaterniond EigVecToQuat(const Eigen::Vector3d & euler_angles)
 
 void EigenMatrixToCv(const Eigen::Matrix3d & matrix_eigen, cv::Mat & matrix_cv)
 {
-  for (unsigned int i = 0; i < 3; ++i) {
-    for (unsigned int j = 0; j < 3; ++j) {
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
       matrix_cv.at<double>(i, j) = matrix_eigen(i, j);
     }
   }
@@ -84,8 +84,8 @@ void EigenMatrixToCv(const Eigen::Matrix3d & matrix_eigen, cv::Mat & matrix_cv)
 
 void CvMatrixToEigen(const cv::Mat matrix_cv, Eigen::Matrix3d & matrix_eigen)
 {
-  for (unsigned int i = 0; i < 3; ++i) {
-    for (unsigned int j = 0; j < 3; ++j) {
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
       matrix_eigen(i, j) = matrix_cv.at<double>(i, j);
     }
   }
@@ -102,7 +102,7 @@ cv::Vec3d QuatToRodrigues(const Eigen::Quaterniond & quat)
   return rodrigues_vector;
 }
 
-Eigen::Quaterniond RodriguesToQuat(cv::Vec3d rodrigues_vector)
+Eigen::Quaterniond RodriguesToQuat(cv::Vec3d & rodrigues_vector)
 {
   cv::Mat rotation_matrix_cv(3, 3, cv::DataType<double>::type);
   cv::Rodrigues(rodrigues_vector, rotation_matrix_cv);

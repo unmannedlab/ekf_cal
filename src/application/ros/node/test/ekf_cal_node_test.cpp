@@ -87,7 +87,7 @@ TEST_F(EkfCalNode_test, hello_world)
   node.set_parameter(rclcpp::Parameter("tracker.tracker_3.feature_detector", 4));
   node.set_parameter(rclcpp::Parameter("tracker.tracker_3.descriptor_extractor", 0));
   node.set_parameter(rclcpp::Parameter("tracker.tracker_3.descriptor_matcher", 0));
-  node.set_parameter(rclcpp::Parameter("tracker.tracker_3.detector_threshold", 10.0));
+  node.set_parameter(rclcpp::Parameter("tracker.tracker_3.detector_threshold", 10));
 
   node.set_parameter(rclcpp::Parameter("gps.gps_4.topic", "/gps1"));
   node.set_parameter(rclcpp::Parameter("gps.gps_4.rate", 10.0));

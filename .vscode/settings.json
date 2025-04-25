@@ -30,6 +30,8 @@
         "Chengjie",
         "Chunlei",
         "citeulike",
+        "cppcheck",
+        "cpplint",
         "curdoc",
         "cwise",
         "devcontainer",
@@ -41,6 +43,7 @@
         "ECEF",
         "Eckenhoff",
         "eigen",
+        "endforeach",
         "extrinsics",
         "fargs",
         "fiducials",
@@ -51,6 +54,7 @@
         "GFTT",
         "ggplot",
         "GNSS",
+        "GNUCXX",
         "Guohang",
         "Guoquan",
         "Hartzer",
@@ -88,6 +92,7 @@
         "opencv",
         "osrf",
         "Pengjin",
+        "PKGS",
         "PLANTUML",
         "quaterniond",
         "Raphson's",
@@ -100,6 +105,7 @@
         "RVIZ",
         "Siegwart",
         "slerp",
+        "SRCS",
         "Srikanth",
         "SSRR",
         "Stergios",
@@ -108,8 +114,15 @@
         "tsukuba",
         "undistort",
         "unmannedlab",
+        "Wconversion",
+        "Wdouble",
+        "Wextra",
         "whitegrid",
         "Woosik",
+        "Wpedantic",
+        "Wshadow",
+        "Wsign",
+        "Wuseless",
         "xdata",
         "ydata",
         "Yikang",
@@ -121,7 +134,7 @@
         "Zheng",
         "Zhizheng",
         "Zhong",
-        "Zhuochun",
+        "Zhuochun"
     ],
     "terminal.integrated.scrollback": 5000,
     "cmake.buildDirectory": "${workspaceFolder}/../../build/ekf_cal/",
@@ -222,7 +235,11 @@
         "__bit_reference": "cpp",
         "locale": "cpp",
         "filesystem": "cpp",
-        "__config": "cpp"
+        "__config": "cpp",
+        "charconv": "cpp",
+        "format": "cpp",
+        "span": "cpp",
+        "stdfloat": "cpp"
     },
     "cmake.configureOnOpen": true,
     "flake8.args": [
@@ -291,5 +308,7 @@
     "[markdown]": {
         "editor.wordWrap": "wordWrapColumn",
         "editor.wordWrapColumn": 99
-    }
+    },
+    "ros.distro": "jazzy",
+    "python.defaultInterpreterPath": "../../venv/bin/python3"
 }

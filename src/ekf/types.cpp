@@ -309,7 +309,7 @@ Eigen::VectorXd State::ToVector() const
     if (imu_iter.second.GetIsExtrinsic() || imu_iter.second.GetIsExtrinsic()) {
       Eigen::VectorXd temp_vec = imu_iter.second.ToVector();
       out_vec.segment(n, temp_vec.size()) = temp_vec;
-      n += temp_vec.size();
+      n += static_cast<unsigned int>(temp_vec.size());
     }
   }
 
@@ -375,7 +375,7 @@ unsigned int State::GetStateSize() const
     }
   }
 
-  state_size += g_aug_state_size * aug_states.size();
+  state_size += static_cast<unsigned int>(g_aug_state_size * aug_states.size());
 
   return state_size;
 }

@@ -85,7 +85,7 @@ cv::Vec3d QuatToRodrigues(const Eigen::Quaterniond & quat);
 /// @param rodrigues_vector Input rodrigues vector
 /// @return rotation quaternion
 ///
-Eigen::Quaterniond RodriguesToQuat(cv::Vec3d rodrigues_vector);
+Eigen::Quaterniond RodriguesToQuat(cv::Vec3d & rodrigues_vector);
 
 ///
 /// @brief Convert CV vector to Eigen vector

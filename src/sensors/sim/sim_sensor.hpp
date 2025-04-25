@@ -50,14 +50,14 @@ public:
   /// @param m_rate Sensor rate
   /// @return List of sensor measurement times
   ///
-  std::vector<double> GenerateMeasurementTimes(double m_rate);
+  std::vector<double> GenerateMeasurementTimes(double m_rate) const;
 
   ///
   /// @brief Apply errors, if necessary, to sensor measurement time
   /// @param true_time True measurement time
   /// @return Time with error
   ///
-  double ApplyTimeError(double true_time);
+  double ApplyTimeError(double true_time) const;
 
 protected:
   bool m_no_errors {false};              ///< @brief Flag to remove measurement errors

@@ -6,6 +6,7 @@ Package Features:
     - Multiple Single-IMU filters to a multi-sensor filter
     - Use emplace_back where appropriate
     - Multi-Threading in EKF std::lock_guard lock(mutex);
+    - Reduce state with single IMU
 
 Simulation:
     - Show track images from simulation

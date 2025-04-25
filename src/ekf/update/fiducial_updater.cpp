@@ -37,8 +37,8 @@
 #include "utility/type_helper.hpp"
 
 FiducialUpdater::FiducialUpdater(
-  int fiducial_id,
-  int camera_id,
+  unsigned int fiducial_id,
+  unsigned int camera_id,
   bool is_cam_extrinsic,
   const std::string & log_file_directory,
   double data_log_rate,
@@ -64,7 +64,9 @@ FiducialUpdater::FiducialUpdater(
 }
 
 void FiducialUpdater::UpdateEKF(
-  EKF & ekf, double time, BoardDetection board_detection)
+  EKF & ekf,
+  const double time,
+  const BoardDetection & board_detection)
 {
   m_logger->Log(
     LogLevel::DEBUG, "Called Fiducial Update for camera ID: " + std::to_string(m_camera_id));

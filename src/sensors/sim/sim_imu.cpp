@@ -64,7 +64,7 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truth_eng
   m_truth->SetImuGyroscopeBias(m_id, omg_bias_true);
 }
 
-std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages()
+std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages() const
 {
   std::vector<double> measurement_times = GenerateMeasurementTimes(m_rate);
 

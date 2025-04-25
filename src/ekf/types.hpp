@@ -104,7 +104,7 @@ public:
   Eigen::Vector3d ang_vel_b_in_l{0.0, 0.0, 0.0};      ///< @brief Body angular velocity
   Eigen::Vector3d ang_acc_b_in_l{0.0, 0.0, 0.0};      ///< @brief Body angular acceleration
   unsigned int size{g_body_state_size};               ///< @brief State size
-  int index{-1};                                      ///< @brief State index
+  unsigned int index{0};                              ///< @brief State index
 };
 
 ///
@@ -151,9 +151,9 @@ public:
   Eigen::Vector3d acc_bias{0.0, 0.0, 0.0};            ///< @brief Acceleration bias
   Eigen::Vector3d omg_bias{0.0, 0.0, 0.0};            ///< @brief Angular rate bias
   unsigned int size{0};                               ///< @brief State size
-  int index{-1};                                      ///< @brief State index
-  int index_intrinsic{-1};                            ///< @brief Intrinsic state index
-  int index_extrinsic{-1};                            ///< @brief Extrinsic state index
+  unsigned int index{0};                              ///< @brief State index
+  unsigned int index_intrinsic{0};                    ///< @brief Intrinsic state index
+  unsigned int index_extrinsic{0};                    ///< @brief Extrinsic state index
 
 private:
   void refresh_size();
@@ -189,7 +189,7 @@ public:
   Eigen::Vector3d pos_a_in_b{0.0, 0.0, 0.0};  ///< @brief Antenna position in body frame
   double pos_stability {1e-9};                ///< @brief Antenna position stability
   unsigned int size{0};                       ///< @brief State size
-  int index{-1};                              ///< @brief State index
+  unsigned int index{0};                      ///< @brief State index
 
 private:
   void refresh_size();
@@ -210,12 +210,12 @@ public:
   ///
   Eigen::VectorXd ToVector() const;
 
-  int frame_id {-1};                                  ///< @brief Augmented frame ID
+  unsigned int frame_id{0};                           ///< @brief Augmented frame ID
   double time {0.0};                                  ///< @brief Augmented frame ID
   Eigen::Vector3d pos_b_in_l{0.0, 0.0, 0.0};          ///< @brief Augmented IMU position
   Eigen::Quaterniond ang_b_to_l{1.0, 0.0, 0.0, 0.0};  ///< @brief Augmented IMU orientation
   unsigned int size{g_aug_state_size};                ///< @brief State size
-  int index{-1};                                      ///< @brief State index
+  unsigned int index{0};                              ///< @brief State index
   double alpha {0.0};                                 ///< @brief Interpolation Factor
 };
 
@@ -251,7 +251,7 @@ public:
   Intrinsics intrinsics;                              ///< @brief Camera Intrinsics
   double rate{1.0};                                   ///< @brief Frame rate
   unsigned int size{0};                               ///< @brief State size
-  int index{-1};                                      ///< @brief State index
+  unsigned int index{0};                              ///< @brief State index
 
 private:
   void refresh_size();
@@ -263,7 +263,7 @@ private:
 ///
 typedef struct FeaturePoint
 {
-  int frame_id;            ///< @brief Feature track frame ID
+  unsigned int frame_id;   ///< @brief Feature track frame ID
   double frame_time;       ///< @brief Feature frame time
   cv::KeyPoint key_point;  ///< @brief Feature track key point
 } FeaturePoint;
@@ -288,7 +288,7 @@ typedef std::vector<FeatureTrack> FeatureTracks;
 ///
 typedef struct BoardDetection
 {
-  int frame_id{-1};                ///< @brief Image frame ID
+  unsigned int frame_id{0};        ///< @brief Image frame ID
   double frame_time{-1.0};         ///< @brief Feature frame time
   Eigen::Vector3d pos_f_in_c;      ///< @brief Rotation vector of the board
   Eigen::Quaterniond ang_f_to_c;   ///< @brief Translation vector of the board
@@ -321,13 +321,13 @@ public:
   ///
   void SetIsExtrinsic(bool extrinsic);
 
-  int frame_id{-1};               ///< @brief Fiducial board ID
+  unsigned int frame_id{0};       ///< @brief Fiducial board ID
   Eigen::Vector3d pos_f_in_l;     ///< @brief Fiducial position in the local frame
   Eigen::Quaterniond ang_f_to_l;  ///< @brief Fiducial position in the local frame
   double pos_stability {1e-9};    ///< @brief Fiducial position stability
   double ang_stability {1e-9};    ///< @brief Fiducial orientation stability
   unsigned int size{0};           ///< @brief State size
-  int index{-1};                  ///< @brief State index
+  unsigned int index{0};          ///< @brief State index
   unsigned int id{0};             ///< @brief Fiducial ID
 
 private:

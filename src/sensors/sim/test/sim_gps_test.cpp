@@ -70,7 +70,7 @@ TEST(test_SimIMU, Constructor) {
   truth_engine->SetLocalHeading(0.0);
 
   SimRNG rng;
-  rng.SetSeed(1.0);
+  rng.SetSeed(1);
   auto gps_msgs = sim_gps.GenerateMessages();
 
   EXPECT_NEAR(gps_msgs[1]->time - gps_msgs[0]->time, 0.2, 1e-3);

@@ -43,7 +43,7 @@ SimGPS::SimGPS(SimGPS::Parameters params, std::shared_ptr<TruthEngine> truth_eng
   m_truth->SetGpsPosition(m_id, pos_a_in_b);
 }
 
-std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages()
+std::vector<std::shared_ptr<SimGpsMessage>> SimGPS::GenerateMessages() const
 {
   std::vector<double> measurement_times = GenerateMeasurementTimes(m_rate);
 

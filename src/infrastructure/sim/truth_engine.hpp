@@ -133,12 +133,12 @@ public:
   /// @brief Local frame reference LLA getter
   /// @return Reference LLA
   ///
-  Eigen::Vector3d GetLocalPosition();
+  Eigen::Vector3d GetLocalPosition() const;
   ///
   /// @brief Local frame reference heading getter
   /// @return Reference heading
   ///
-  double GetLocalHeading();
+  double GetLocalHeading() const;
 
   ///
   /// @brief True sensor position setter
@@ -251,7 +251,7 @@ public:
 
   std::vector<cv::Point3d> GenerateVisibleFeatures(
     double time,
-    int camera_id,
+    unsigned int camera_id,
     unsigned int new_feature_count,
     SimRNG rng
   );
@@ -266,7 +266,7 @@ public:
   /// @brief Getter function for a specific feature
   /// @return Feature position
   ///
-  cv::Point3d GetFeature(unsigned int feature_id);
+  cv::Point3d GetFeature(int feature_id);
 
   double m_max_time;  ///< @brief Maximum time for truth engine
 

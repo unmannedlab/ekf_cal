@@ -33,21 +33,21 @@ public:
   /// @brief Function to set seed for random number generator
   /// @param seed Seed to use for random number generation
   ///
-  void SetSeed(double seed);
+  void SetSeed(unsigned int seed);
 
   ///
   /// @brief Function to return normal random number
   /// @param mean Mean of normal distribution
   /// @param std_dev Standard deviation of normal distribution
   ///
-  double NormRand(double mean, double std_dev);
+  double NormRand(double mean, double std_dev) const;
 
   ///
   /// @brief Uniform random number generator
   /// @param min Minimum value for uniform distribution
   /// @param max Maximum value for uniform distribution
   ///
-  double UniRand(double min, double max);
+  double UniRand(double min, double max) const;
 
   ///
   /// @brief Function to return normal random number
@@ -56,7 +56,7 @@ public:
   ///
   Eigen::Vector3d VecNormRand(
     const Eigen::Vector3d & mean,
-    const Eigen::Vector3d & std_dev);
+    const Eigen::Vector3d & std_dev) const;
 
   ///
   /// @brief Function to return normal random number
@@ -65,7 +65,7 @@ public:
   ///
   Eigen::Quaterniond QuatNormRand(
     const Eigen::Quaterniond & mean,
-    const Eigen::Vector3d & std_dev);
+    const Eigen::Vector3d & std_dev) const;
 
 private:
   static std::mt19937_64 m_generator;

@@ -27,7 +27,7 @@ Tracker::Tracker(Tracker::Parameters params)
   m_logger(params.logger)
 {}
 
-unsigned int Tracker::GetID()
+unsigned int Tracker::GetID() const
 {
   return m_id;
 }

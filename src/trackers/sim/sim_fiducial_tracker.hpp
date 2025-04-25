@@ -68,20 +68,22 @@ public:
   /// @return Generated fiducial tracker message
   ///
   std::shared_ptr<SimFiducialTrackerMessage> GenerateMessage(
-    double message_time, int frame_id);
+    double message_time,
+    unsigned int frame_id
+  ) const;
 
   ///
   /// @brief Return currently visible keypoints
   /// @param time Current time
   ///
-  bool IsBoardVisible(double time);
+  bool IsBoardVisible(const double time) const;
 
   ///
   /// @brief Callback for feature tracker
   /// @param time Message time
   /// @param msg Feature track message
   ///
-  void Callback(double time, std::shared_ptr<SimFiducialTrackerMessage> msg);
+  void Callback(const double time, const SimFiducialTrackerMessage & msg);
 
 private:
   SimRNG m_rng;

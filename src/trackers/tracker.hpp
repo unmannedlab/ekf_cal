@@ -36,7 +36,7 @@ public:
   typedef struct Parameters
   {
     std::string name {""};                ///< @brief Feature Tracker name
-    int camera_id{-1};                    ///< @brief Associated sensor ID
+    unsigned int camera_id{0};            ///< @brief Associated sensor ID
     std::string log_directory {""};       ///< @brief Feature Tracker data logging directory
     Intrinsics intrinsics;                ///< @brief Camera intrinsic parameters
     unsigned int min_track_length{2};     ///< @brief Minimum track length to consider
@@ -56,11 +56,11 @@ public:
   /// @brief Tracker ID getter method
   /// @return Tracker ID
   ///
-  unsigned int GetID();
+  unsigned int GetID() const;
 
 protected:
   unsigned int m_id;                      ///< @brief Tracker ID
-  int m_camera_id;                        ///< @brief Associated camera ID of tracker
+  unsigned int m_camera_id;               ///< @brief Associated camera ID of tracker
   unsigned int m_min_track_length{2};     ///< @brief Minimum track length to consider
   unsigned int m_max_track_length{20};    ///< @brief Maximum track length before forced output
   std::shared_ptr<EKF> m_ekf;             ///< @brief EKF

@@ -37,7 +37,7 @@
 #include "utility/type_helper.hpp"
 
 MsckfUpdater::MsckfUpdater(
-  int cam_id,
+  unsigned int cam_id,
   bool is_extrinsic,
   const std::string & log_file_directory,
   double data_log_rate,
@@ -69,10 +69,11 @@ MsckfUpdater::MsckfUpdater(
 }
 
 bool MsckfUpdater::TriangulateFeature(
-  double local_time,
+  const double local_time,
   EKF & ekf,
-  FeatureTrack & feature_track,
-  Eigen::Vector3d & pos_f_in_l)
+  const FeatureTrack & feature_track,
+  Eigen::Vector3d & pos_f_in_l
+)
 {
   /// @todo: Need to continue debugging the triangulated features
   if (m_use_true_triangulation) {
@@ -108,10 +109,10 @@ bool MsckfUpdater::TriangulateFeature(
 
     // Get the UV coordinate normal
     Eigen::Vector3d b_i;
-    b_i(0) = (feature_track.track[i].key_point.pt.x - m_intrinsics.width / 2) /
-      (m_intrinsics.f_x / m_intrinsics.pixel_size);
-    b_i(1) = (feature_track.track[i].key_point.pt.y - m_intrinsics.height / 2) /
-      (m_intrinsics.f_y / m_intrinsics.pixel_size);
+    b_i(0) = (static_cast<double>(feature_track.track[i].key_point.pt.x) -
+      m_intrinsics.width / 2) / (m_intrinsics.f_x / m_intrinsics.pixel_size);
+    b_i(1) = (static_cast<double>(feature_track.track[i].key_point.pt.y) -
+      m_intrinsics.height / 2) / (m_intrinsics.f_y / m_intrinsics.pixel_size);
     b_i(2) = 1;
 
     // Rotate and normalize
@@ -154,7 +155,10 @@ bool MsckfUpdater::TriangulateFeature(
   }
 }
 
-void MsckfUpdater::projection_jacobian(const Eigen::Vector3d & pos, Eigen::MatrixXd & jacobian)
+void MsckfUpdater::projection_jacobian(
+  const Eigen::Vector3d & pos,
+  Eigen::MatrixXd & jacobian
+) const
 {
   // Normalized coordinates in respect to projection function
   jacobian(0, 0) = 1 / pos(2);
@@ -168,7 +172,8 @@ void MsckfUpdater::projection_jacobian(const Eigen::Vector3d & pos, Eigen::Matri
 void MsckfUpdater::distortion_jacobian(
   const Eigen::Vector2d & xy_norm,
   const Intrinsics & intrinsics,
-  Eigen::MatrixXd & H_d)
+  Eigen::MatrixXd & H_d
+) const
 {
   // Calculate distorted coordinates for radial
   double r = std::sqrt(xy_norm(0) * xy_norm(0) + xy_norm(1) * xy_norm(1));
@@ -213,9 +218,10 @@ void MsckfUpdater::distortion_jacobian(
 
 void MsckfUpdater::UpdateEKF(
   EKF & ekf,
-  double time,
-  FeatureTracks feature_tracks,
-  double px_error)
+  const double time,
+  const FeatureTracks & feature_tracks,
+  double px_error
+)
 {
   double local_time = ekf.CalculateLocalTime(time);
   ekf.PredictModel(local_time);
@@ -238,7 +244,7 @@ void MsckfUpdater::UpdateEKF(
   // Calculate the max possible measurement size
   unsigned int max_meas_size = 0;
   for (unsigned int i = 0; i < feature_tracks.size(); ++i) {
-    max_meas_size += 2 * feature_tracks[i].track.size();
+    max_meas_size += 2 * static_cast<unsigned int>(feature_tracks[i].track.size());
   }
 
   unsigned int ct_meas = 0;
@@ -264,9 +270,10 @@ void MsckfUpdater::UpdateEKF(
       continue;
     }
 
-    Eigen::VectorXd res_f = Eigen::VectorXd::Zero(2 * feature_track.track.size());
-    Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), 3);
-    Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(2 * feature_track.track.size(), state_size);
+    auto feat_size = static_cast<Eigen::Index>(feature_track.track.size());
+    Eigen::VectorXd res_f = Eigen::VectorXd::Zero(2 * feat_size);
+    Eigen::MatrixXd H_f = Eigen::MatrixXd::Zero(2 * feat_size, 3);
+    Eigen::MatrixXd H_c = Eigen::MatrixXd::Zero(2 * feat_size, state_size);
 
     for (unsigned int i = 0; i < feature_track.track.size(); ++i) {
       AugState aug_state_i = ekf.GetAugState(
@@ -287,10 +294,10 @@ void MsckfUpdater::UpdateEKF(
       xy_predicted(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
 
       Eigen::Vector2d xy_measured;
-      xy_measured(0) = (feature_track.track[i].key_point.pt.x - m_intrinsics.width / 2) /
-        (m_intrinsics.f_x / m_intrinsics.pixel_size);
-      xy_measured(1) = (feature_track.track[i].key_point.pt.y - m_intrinsics.height / 2) /
-        (m_intrinsics.f_y / m_intrinsics.pixel_size);
+      xy_measured(0) = (static_cast<double>(feature_track.track[i].key_point.pt.x) -
+        m_intrinsics.width / 2) / (m_intrinsics.f_x / m_intrinsics.pixel_size);
+      xy_measured(1) = (static_cast<double>(feature_track.track[i].key_point.pt.y) -
+        m_intrinsics.height / 2) / (m_intrinsics.f_y / m_intrinsics.pixel_size);
       Eigen::Vector2d xz_residual = xy_measured - xy_predicted;
       res_f.segment<2>(2 * i) = xz_residual;
 
@@ -345,7 +352,7 @@ void MsckfUpdater::UpdateEKF(
     H_x.block(ct_meas, 0, H_c.rows(), H_c.cols()) = H_c;
     res_x.block(ct_meas, 0, res_f.rows(), 1) = res_f;
 
-    ct_meas += H_c.rows();
+    ct_meas += static_cast<unsigned int>(H_c.rows());
   }
 
   if (ct_meas == 0) {

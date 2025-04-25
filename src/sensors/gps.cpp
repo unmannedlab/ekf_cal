@@ -45,14 +45,14 @@ GPS::GPS(GPS::Parameters params)
   m_ekf->RegisterGPS(m_id, gps_state, gps_cov);
 }
 
-void GPS::Callback(std::shared_ptr<GpsMessage> gps_message)
+void GPS::Callback(const GpsMessage & gps_message)
 {
   m_logger->Log(
     LogLevel::DEBUG,
-    "GPS \"" + m_name + "\" callback at time " + std::to_string(gps_message->time));
+    "GPS \"" + m_name + "\" callback at time " + std::to_string(gps_message.time));
 
   m_gps_updater.UpdateEKF(
-    *m_ekf, gps_message->time, gps_message->gps_lla, gps_message->pos_covariance);
+    *m_ekf, gps_message.time, gps_message.gps_lla, gps_message.pos_covariance);
 
   m_logger->Log(LogLevel::DEBUG, "GPS \"" + m_name + "\" callback complete");
 }

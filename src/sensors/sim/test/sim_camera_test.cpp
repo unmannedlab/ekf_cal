@@ -49,7 +49,7 @@ TEST(test_SimCamera, feature_track) {
   );
 
   SimRNG rng;
-  rng.SetSeed(1.0);
+  rng.SetSeed(1);
 
   Intrinsics intrinsics;
   intrinsics.f_x = 0.01;
@@ -89,8 +89,8 @@ TEST(test_SimCamera, feature_track) {
 
   std::vector<std::shared_ptr<SimCameraMessage>> cam_messages = sim_camera.GenerateMessages();
 
-  for (unsigned int i = 0; i < 5; ++i) {
-    sim_camera.Callback(cam_messages[i]);
+  for (auto cam_message : cam_messages) {
+    sim_camera.Callback(*cam_message);
   }
 }
 
@@ -120,7 +120,7 @@ TEST(test_SimCamera, fiducial_track) {
   );
 
   SimRNG rng;
-  rng.SetSeed(1.0);
+  rng.SetSeed(1);
 
   Intrinsics intrinsics;
   intrinsics.f_x = 0.01;
@@ -154,6 +154,7 @@ TEST(test_SimCamera, fiducial_track) {
   fiducial_params.logger = ekf_params.debug_logger;
   fiducial_params.camera_id = sim_camera.GetId();
   fiducial_params.pos_f_in_l = Eigen::Vector3d{5, 0, 0};
+  fiducial_params.ang_f_to_l = Eigen::Quaterniond{1, 0, 0, 0};
   SimFiducialTracker::Parameters sim_fiducial_params;
   sim_fiducial_params.fiducial_params = fiducial_params;
   auto fiducial_tracker = std::make_shared<SimFiducialTracker>(sim_fiducial_params, truth_engine);
@@ -162,6 +163,6 @@ TEST(test_SimCamera, fiducial_track) {
   std::vector<std::shared_ptr<SimCameraMessage>> cam_messages = sim_camera.GenerateMessages();
 
   for (auto cam_message : cam_messages) {
-    sim_camera.Callback(cam_message);
+    sim_camera.Callback(*cam_message);
   }
 }

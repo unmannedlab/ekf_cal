@@ -96,10 +96,10 @@ public:
 private:
   Eigen::Vector3d GetInterpolatedValue(
     double time,
-    std::vector<Eigen::Vector3d> & values
-  );
+    const std::vector<Eigen::Vector3d> & values
+  ) const;
 
-  bool IsTimeInvalid(double time);
+  bool IsTimeInvalid(double time) const;
 
 
   double m_stationary_time {0.1};

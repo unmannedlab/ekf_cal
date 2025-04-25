@@ -43,8 +43,8 @@ public:
   /// @param logger Debug logger pointer
   ///
   explicit FiducialUpdater(
-    int fiducial_id,
-    int camera_id,
+    unsigned int fiducial_id,
+    unsigned int camera_id,
     bool is_cam_extrinsic,
     const std::string & log_file_directory,
     double data_log_rate,
@@ -53,11 +53,14 @@ public:
 
   ///
   /// @brief EKF updater function
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @param time Time of update
   /// @param board_track Board track to be used for state update
   ///
-  void UpdateEKF(EKF & ekf, double time, BoardDetection board_detection);
+  void UpdateEKF(
+    EKF & ekf,
+    const double time,
+    const BoardDetection & board_detection);
 
 private:
   bool m_is_cam_extrinsic;

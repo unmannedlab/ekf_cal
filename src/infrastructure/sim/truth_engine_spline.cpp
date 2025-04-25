@@ -112,7 +112,7 @@ Eigen::Vector3d TruthEngineSpline::GetBodyAngularAcceleration(double time)
 }
 
 TruthEngineSpline::TruthEngineSpline(
-  std::vector<double> positions,
+  std::vector<double> poses,
   std::vector<double> angles,
   std::vector<double> position_errors,
   std::vector<double> angle_errors,
@@ -123,7 +123,9 @@ TruthEngineSpline::TruthEngineSpline(
 )
 : TruthEngine(max_time, logger)
 {
-  unsigned int spline_size = std::floor(std::min(positions.size() / 3.0, angles.size() / 3.0));
+  unsigned int spline_size =
+    static_cast<unsigned int>( std::floor(
+      std::min(static_cast<double>(poses.size()), static_cast<double>(angles.size())) / 3.0));
 
   Eigen::Vector3d pos_errors = StdToEigVec(position_errors);
   Eigen::Vector3d ang_errors = StdToEigVec(angle_errors);
@@ -131,7 +133,7 @@ TruthEngineSpline::TruthEngineSpline(
   Eigen::MatrixXd pos_mat(3, spline_size);
   Eigen::MatrixXd ang_mat(3, spline_size);
   for (unsigned int index = 0; index < spline_size; ++index) {
-    Eigen::Vector3d pos {positions[3 * index], positions[3 * index + 1], positions[3 * index + 2]};
+    Eigen::Vector3d pos {poses[3 * index], poses[3 * index + 1], poses[3 * index + 2]};
     Eigen::Vector3d ang {angles[3 * index], angles[3 * index + 1], angles[3 * index + 2]};
     if (index) {
       pos = rng.VecNormRand(pos, pos_errors);

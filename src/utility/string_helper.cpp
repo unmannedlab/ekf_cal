@@ -21,7 +21,7 @@
 #include <sstream>
 #include <string>
 
-std::string EnumerateHeader(const std::string & name, unsigned int size)
+std::string EnumerateHeader(const std::string & name, const unsigned int size)
 {
   std::stringstream stream;
   for (unsigned int i = 0; i < size; ++i) {
@@ -39,7 +39,7 @@ std::string VectorToCommaString(const Eigen::VectorXd & vec)
   return stream.str();
 }
 
-std::string VectorToCommaString(const Eigen::VectorXd & vec, unsigned int precision)
+std::string VectorToCommaString(const Eigen::VectorXd & vec, const int precision)
 {
   std::stringstream stream;
   for (unsigned int i = 0; i < vec.size(); ++i) {

@@ -56,7 +56,7 @@ TEST(test_feature_tracker, initialization) {
   params.matcher = Matcher::FLANN;
   FeatureTracker feature_tracker_8 {params};
 
-  EXPECT_EQ(feature_tracker_1.GetID(), 1U);
+  EXPECT_EQ(feature_tracker_1.GetID(), 1);
 }
 
 TEST(test_feature_tracker, track) {
@@ -99,11 +99,11 @@ TEST(test_feature_tracker, track) {
   cv::Mat img_2 =
     cv::imread("../../src/ekf_cal/src/trackers/test/images/tsukuba_r.png", cv::IMREAD_GRAYSCALE);
 
-  auto cam_msg_1 = std::make_shared<CameraMessage>(img_1);
-  auto cam_msg_2 = std::make_shared<CameraMessage>(img_2);
+  CameraMessage cam_msg_1(img_1);
+  CameraMessage cam_msg_2(img_2);
 
-  cam_msg_1->time = 0.0;
-  cam_msg_2->time = 1.0;
+  cam_msg_1.time = 0.0;
+  cam_msg_2.time = 1.0;
 
   cam.Callback(cam_msg_1);
   cam.Callback(cam_msg_2);

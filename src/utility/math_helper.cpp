@@ -28,12 +28,12 @@ Eigen::Matrix3d SkewSymmetric(const Eigen::Vector3d & in_vec)
 {
   Eigen::Matrix3d out_mat = Eigen::Matrix3d::Zero();
 
-  out_mat(0U, 1U) = -in_vec(2U);
-  out_mat(0U, 2U) = in_vec(1U);
-  out_mat(1U, 2U) = -in_vec(0U);
-  out_mat(1U, 0U) = in_vec(2U);
-  out_mat(2U, 0U) = -in_vec(1U);
-  out_mat(2U, 1U) = in_vec(0U);
+  out_mat(0, 1) = -in_vec(2);
+  out_mat(0, 2) = in_vec(1);
+  out_mat(1, 2) = -in_vec(0);
+  out_mat(1, 0) = in_vec(2);
+  out_mat(2, 0) = -in_vec(1);
+  out_mat(2, 1) = in_vec(0);
 
   return out_mat;
 }
@@ -53,12 +53,12 @@ Eigen::MatrixXd InsertInMatrix(
   unsigned int row,
   unsigned int col)
 {
-  unsigned int in_rows = in_mat.rows();
-  unsigned int in_cols = in_mat.cols();
-  unsigned int sub_rows = sub_mat.rows();
-  unsigned int sub_cols = sub_mat.cols();
-  unsigned int out_rows = in_mat.rows() + sub_mat.rows();
-  unsigned int out_cols = in_mat.cols() + sub_mat.cols();
+  auto in_rows = static_cast<unsigned int>(in_mat.rows());
+  auto in_cols = static_cast<unsigned int>(in_mat.cols());
+  auto sub_rows = static_cast<unsigned int>(sub_mat.rows());
+  auto sub_cols = static_cast<unsigned int>(sub_mat.cols());
+  auto out_rows = static_cast<unsigned int>(in_mat.rows() + sub_mat.rows());
+  auto out_cols = static_cast<unsigned int>(in_mat.cols() + sub_mat.cols());
 
   Eigen::MatrixXd out_mat = Eigen::MatrixXd::Zero(out_rows, out_cols);
 
@@ -87,8 +87,8 @@ Eigen::MatrixXd RemoveFromMatrix(
   unsigned int col,
   unsigned int size)
 {
-  unsigned int in_rows = in_mat.rows();
-  unsigned int in_cols = in_mat.cols();
+  auto in_rows = static_cast<unsigned int>(in_mat.rows());
+  auto in_cols = static_cast<unsigned int>(in_mat.cols());
 
   Eigen::MatrixXd out_mat = Eigen::MatrixXd::Zero(in_rows - size, in_cols - size);
 
@@ -117,8 +117,8 @@ void ApplyLeftNullspace(const Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eige
 
 void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual)
 {
-  unsigned int m = jacobian.rows();
-  unsigned int n = jacobian.cols();
+  auto m = static_cast<unsigned int>(jacobian.rows());
+  auto n = static_cast<unsigned int>(jacobian.cols());
 
   // Cannot compress fat matrices
   if (m >= n) {
@@ -144,7 +144,7 @@ void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual
 }
 
 Eigen::Vector3d average_vectors(
-  std::vector<Eigen::Vector3d> vectors)
+  const std::vector<Eigen::Vector3d> & vectors)
 {
   std::vector<double> weights;
   for (unsigned int i = 0; i < vectors.size(); ++i) {
@@ -154,7 +154,8 @@ Eigen::Vector3d average_vectors(
 }
 
 Eigen::Vector3d average_vectors(
-  std::vector<Eigen::Vector3d> vectors, std::vector<double> weights)
+  const std::vector<Eigen::Vector3d> & vectors,
+  const std::vector<double> & weights)
 {
   Eigen::Vector3d average_vector {0.0, 0.0, 0.0};
   double weights_sum {0.0};
@@ -180,7 +181,7 @@ Eigen::MatrixXd quaternion_jacobian(const Eigen::Quaterniond & quat)
   return jacobian;
 }
 
-double sign(double val)
+double sign(const double val)
 {
   return (0.0 < val) - (val < 0.0);
 }
@@ -258,13 +259,14 @@ bool kabsch_2d(
   return true;
 }
 
+/// @todo This method uses integers for distance, where doubles would be more accurate
 double maximum_distance(const std::vector<Eigen::Vector3d> & eigen_points)
 {
   std::vector<cv::Point> points, hull;
   for (auto eigen_point : eigen_points) {
     cv::Point cv_point;
-    cv_point.x = eigen_point.x();
-    cv_point.y = eigen_point.y();
+    cv_point.x = static_cast<int>(eigen_point.x());
+    cv_point.y = static_cast<int>(eigen_point.y());
     points.push_back(cv_point);
   }
   cv::convexHull(points, hull);
@@ -293,7 +295,7 @@ double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vector
     square_sum_of_difference += diff * diff;
   }
 
-  return std::sqrt(square_sum_of_difference) / input_vectors.size();
+  return std::sqrt(square_sum_of_difference) / static_cast<double>(input_vectors.size());
 }
 
 Eigen::MatrixXd QR_r(const Eigen::MatrixXd & A, const Eigen::MatrixXd & B)

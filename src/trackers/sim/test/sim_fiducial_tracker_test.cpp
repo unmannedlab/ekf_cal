@@ -48,6 +48,8 @@ TEST(test_fiducial_tracker, constructor) {
   FiducialTracker::Parameters fiducial_params;
   fiducial_params.ekf = ekf;
   fiducial_params.is_extrinsic = true;
+  fiducial_params.pos_f_in_l = Eigen::Vector3d{5, 0, 0};
+  fiducial_params.ang_f_to_l = Eigen::Quaterniond{1, 0, 0, 0};
   SimFiducialTracker::Parameters sim_params;
   sim_params.fiducial_params = fiducial_params;
   SimFiducialTracker sim_fiducial_tracker(sim_params, truth_engine);

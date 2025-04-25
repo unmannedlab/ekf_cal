@@ -58,7 +58,7 @@ TEST(test_fiducial_tracker, charuco_track) {
   cv::Mat board_img;
   board->draw(cv::Size(600, 800), board_img, 10, 1);
 
-  auto cam_msg = std::make_shared<CameraMessage>(board_img);
+  CameraMessage cam_msg(board_img);
   cam.Callback(cam_msg);
 
   cv::imwrite("../../src/ekf_cal/src/trackers/test/images/charuco_track.png", cam.m_out_img);
@@ -99,7 +99,7 @@ TEST(test_fiducial_tracker, aruco_track) {
   auto board = fid_tracker->m_board.staticCast<cv::aruco::GridBoard>();
   board->draw(cv::Size(600, 800), board_img, 10, 1);
 
-  auto cam_msg = std::make_shared<CameraMessage>(board_img);
+  CameraMessage cam_msg(board_img);
   cam.Callback(cam_msg);
 
   cv::imwrite("../../src/ekf_cal/src/trackers/test/images/aruco_track.png", cam.m_out_img);

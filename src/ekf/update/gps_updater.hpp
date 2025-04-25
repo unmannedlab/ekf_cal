@@ -50,27 +50,34 @@ public:
 
   ///
   /// @brief Measurement Jacobian method
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @return Measurement Jacobian matrix
   ///
   Eigen::MatrixXd GetMeasurementJacobian(EKF & ekf);
 
   ///
+  /// @brief Predict GPS measurement
+  /// @param ekf EKF address
+  /// @return Predicted GPS measurement
+  ///
+  Eigen::Vector3d PredictMeasurement(EKF & ekf);
+
+  ///
   /// @brief EKF update method for GPS measurements
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @param time Measurement time
   /// @param gps_lla GPS measured lat-lon-alt
   /// @param pos_covariance GPS measurement covariance
   ///
   void UpdateEKF(
     EKF & ekf,
-    double time,
+    const double time,
     const Eigen::Vector3d & gps_lla,
     const Eigen::MatrixXd & pos_covariance);
 
   ///
   /// @brief Update/marginalize EKF using GPS measurements used to initialize local frame
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   ///
   void MultiUpdateEKF(EKF & ekf);
 

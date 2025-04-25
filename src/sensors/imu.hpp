@@ -63,7 +63,7 @@ public:
   /// @brief Callback method for IMU measurements
   /// @param imu_message IMU measurement message
   ///
-  void Callback(std::shared_ptr<ImuMessage> imu_message);
+  void Callback(const ImuMessage & imu_message);
 
 private:
   bool m_is_extrinsic;

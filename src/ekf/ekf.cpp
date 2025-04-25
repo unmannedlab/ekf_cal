@@ -90,7 +90,7 @@ EKF::EKF(Parameters params)
   }
 }
 
-Eigen::MatrixXd EKF::GetStateTransition(double dT)
+Eigen::MatrixXd EKF::GetStateTransition(double dT) const
 {
   Eigen::MatrixXd state_transition =
     Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size);
@@ -181,10 +181,10 @@ void EKF::PredictModel(double local_time)
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
 
-  LogBodyStateIfNeeded(t_execution.count());
+  LogBodyStateIfNeeded(static_cast<int>(t_execution.count()));
 }
 
-unsigned int EKF::GetStateSize()
+unsigned int EKF::GetStateSize() const
 {
   return m_state_size;
 }
@@ -204,37 +204,37 @@ CamState EKF::GetCamState(unsigned int cam_id)
   return m_state.cam_states[cam_id];
 }
 
-unsigned int EKF::GetImuCount()
+unsigned int EKF::GetImuCount() const
 {
-  return m_state.imu_states.size();
+  return static_cast<unsigned int>(m_state.imu_states.size());
 }
 
-unsigned int EKF::GetImuStateSize()
+unsigned int EKF::GetImuStateSize() const
 {
   return m_imu_state_size;
 }
 
-unsigned int EKF::GetGpsCount()
+unsigned int EKF::GetGpsCount() const
 {
-  return m_state.gps_states.size();
+  return static_cast<unsigned int>(m_state.gps_states.size());
 }
 
-unsigned int EKF::GetGpsStateSize()
+unsigned int EKF::GetGpsStateSize() const
 {
   return m_gps_state_size;
 }
 
-unsigned int EKF::GetCamStateSize()
+unsigned int EKF::GetCamStateSize() const
 {
   return m_cam_state_size;
 }
 
-unsigned int EKF::GetCamCount()
+unsigned int EKF::GetCamCount() const
 {
-  return m_state.cam_states.size();
+  return static_cast<unsigned int>(m_state.cam_states.size());
 }
 
-unsigned int EKF::GetAugStateSize()
+unsigned int EKF::GetAugStateSize() const
 {
   return m_aug_state_size;
 }
@@ -375,10 +375,10 @@ void EKF::RegisterFiducial(const FidState & fid_state, const Eigen::MatrixXd & c
 
 Eigen::MatrixXd EKF::AugmentCovariance(const Eigen::MatrixXd & in_cov, unsigned int index)
 {
-  unsigned int in_rows = in_cov.rows();
-  unsigned int in_cols = in_cov.cols();
-  unsigned int out_rows = in_cov.rows() + g_aug_state_size;
-  unsigned int out_cols = in_cov.cols() + g_aug_state_size;
+  auto in_rows = static_cast<unsigned int>(in_cov.rows());
+  auto in_cols = static_cast<unsigned int>(in_cov.cols());
+  auto out_rows = static_cast<unsigned int>(in_cov.rows() + g_aug_state_size);
+  auto out_cols = static_cast<unsigned int>(in_cov.cols() + g_aug_state_size);
 
   Eigen::MatrixXd out_cov = Eigen::MatrixXd::Zero(out_rows, out_cols);
 
@@ -474,15 +474,15 @@ void EKF::AugmentStateIfNeeded()
   }
 
   // Prune old states
-  for (int i = m_state.aug_states[0].size() - 2; i >= 0; --i) {
+  for (int i = static_cast<int>(m_state.aug_states[0].size()) - 2; i >= 0; --i) {
     // Check if any states are too old
     if (
-      ((m_current_time - m_state.aug_states[0][i + 1].time) > m_max_track_duration) &&
-      (static_cast<unsigned int>(i) < m_state.aug_states[0].size()))
+      ((m_current_time - m_state.aug_states[0][static_cast<unsigned int>(i + 1)].time) >
+      m_max_track_duration) && (static_cast<unsigned int>(i) < m_state.aug_states[0].size()))
     {
       m_state_size -= g_aug_state_size;
       m_aug_state_size -= g_aug_state_size;
-      unsigned int aug_index = m_state.aug_states[0][i].index;
+      unsigned int aug_index = m_state.aug_states[0][static_cast<unsigned int>(i)].index;
 
       // Prune old states
       m_state.aug_states[0].erase(m_state.aug_states[0].begin() + i);
@@ -497,7 +497,7 @@ void EKF::AugmentStateIfNeeded()
 
     AugState aug_state;
     aug_state.time = m_current_time;
-    aug_state.frame_id = -1;
+    aug_state.frame_id = 0;
     aug_state.pos_b_in_l = m_state.body_state.pos_b_in_l;
     aug_state.ang_b_to_l = m_state.body_state.ang_b_to_l;
     m_state.aug_states[0].push_back(aug_state);
@@ -518,7 +518,7 @@ void EKF::AugmentStateIfNeeded()
   }
 }
 
-void EKF::AugmentStateIfNeeded(unsigned int camera_id, int frame_id)
+void EKF::AugmentStateIfNeeded(unsigned int camera_id, unsigned int frame_id)
 {
   m_frame_received_since_last_aug = true;
   if (m_augmenting_type == AugmentationType::ALL ||
@@ -566,7 +566,7 @@ void EKF::SetBodyProcessNoise(const Eigen::VectorXd & process_noise)
   m_body_process_noise = process_noise;
 }
 
-AugState EKF::GetAugState(unsigned int camera_id, int frame_id, double time)
+AugState EKF::GetAugState(unsigned int camera_id, unsigned int frame_id, double time)
 {
   AugState aug_state;
 
@@ -643,7 +643,7 @@ void EKF::SetZeroAcceleration(bool is_zero_acceleration)
   m_is_zero_acceleration = is_zero_acceleration;
 }
 
-Eigen::VectorXd EKF::GetReferenceLLA()
+Eigen::VectorXd EKF::GetReferenceLLA() const
 {
   if (!m_is_lla_initialized) {
     m_debug_logger->Log(LogLevel::WARN, "LLA is being accessed before initialization!");
@@ -651,17 +651,17 @@ Eigen::VectorXd EKF::GetReferenceLLA()
   return m_pos_e_in_g;
 }
 
-double EKF::GetReferenceAngle()
+double EKF::GetReferenceAngle() const
 {
   return m_ang_l_to_e;
 }
 
-bool EKF::IsLlaInitialized()
+bool EKF::IsLlaInitialized() const
 {
   return m_is_lla_initialized;
 }
 
-bool EKF::IsGravityInitialized()
+bool EKF::IsGravityInitialized() const
 {
   return m_is_gravity_initialized;
 }
@@ -752,12 +752,10 @@ void EKF::RefreshIndices()
 
 void EKF::AttemptGpsInitialization(
   double time,
-  Eigen::Vector3d gps_lla)
+  const Eigen::Vector3d & gps_lla)
 {
-  Eigen::Vector3d gps_ecef = lla_to_ecef(gps_lla);
-
   m_gps_time_vec.push_back(time);
-  m_gps_ecef_vec.push_back(gps_ecef);
+  m_gps_ecef_vec.push_back(lla_to_ecef(gps_lla));
   m_gps_xyz_vec.push_back(m_state.body_state.pos_b_in_l);
 
   if (m_gps_time_vec.size() >= 4) {
@@ -779,10 +777,8 @@ void EKF::AttemptGpsInitialization(
       pos_stddev,
       ang_stddev);
 
-    double max_distance = maximum_distance(gps_states_enu);
-
     if (((m_gps_init_type == GpsInitType::BASELINE_DIST) &&
-      (max_distance > m_gps_init_baseline_dist)) ||
+      (maximum_distance(gps_states_enu) > m_gps_init_baseline_dist)) ||
       ((m_gps_init_type == GpsInitType::ERROR_THRESHOLD) && is_successful &&
       (pos_stddev < m_gps_init_pos_thresh) && ang_stddev &&
       (ang_stddev < std::tan(m_gps_init_ang_thresh))))
@@ -797,65 +793,65 @@ void EKF::AttemptGpsInitialization(
   }
 }
 
-std::vector<double> EKF::GetGpsTimeVector()
+std::vector<double> EKF::GetGpsTimeVector() const
 {
   return m_gps_time_vec;
 }
-std::vector<Eigen::Vector3d> EKF::GetGpsEcefVector()
+std::vector<Eigen::Vector3d> EKF::GetGpsEcefVector() const
 {
   return m_gps_ecef_vec;
 }
-std::vector<Eigen::Vector3d> EKF::GetGpsXyzVector()
+std::vector<Eigen::Vector3d> EKF::GetGpsXyzVector() const
 {
   return m_gps_xyz_vec;
 }
 
-unsigned int EKF::GetImuStateStart()
+unsigned int EKF::GetImuStateStart() const
 {
   return m_imu_state_start;
 }
 
-unsigned int EKF::GetGpsStateStart()
+unsigned int EKF::GetGpsStateStart() const
 {
   return m_gps_state_start;
 }
 
-unsigned int EKF::GetCamStateStart()
+unsigned int EKF::GetCamStateStart() const
 {
   return m_cam_state_start;
 }
 
-unsigned int EKF::GetAugStateStart()
+unsigned int EKF::GetAugStateStart() const
 {
   return m_aug_state_start;
 }
 
-unsigned int EKF::GetFidStateStart()
+unsigned int EKF::GetFidStateStart() const
 {
   return m_fid_state_start;
 }
 
-double EKF::GetCurrentTime()
+double EKF::GetCurrentTime() const
 {
   return m_current_time;
 }
 
-double EKF::GetMotionDetectionChiSquared()
+double EKF::GetMotionDetectionChiSquared() const
 {
   return m_motion_detection_chi_squared;
 }
 
-double EKF::GetImuNoiseScaleFactor()
+double EKF::GetImuNoiseScaleFactor() const
 {
   return m_imu_noise_scale_factor;
 }
 
-bool EKF::GetUseRootCovariance()
+bool EKF::GetUseRootCovariance() const
 {
   return m_use_root_covariance;
 }
 
-bool EKF::GetUseFirstEstimateJacobian()
+bool EKF::GetUseFirstEstimateJacobian() const
 {
   return m_use_first_estimate_jacobian;
 }

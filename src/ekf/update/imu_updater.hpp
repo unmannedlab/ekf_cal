@@ -51,21 +51,21 @@ public:
 
   ///
   /// @brief Predict acceleration measurement
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @return Predicted measurement vector
   ///
-  Eigen::VectorXd PredictMeasurement(EKF & ekf);
+  Eigen::VectorXd PredictMeasurement(EKF & ekf) const;
 
   ///
   /// @brief Zero acceleration Jacobian method
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @return Measurement Jacobian matrix
   ///
-  Eigen::MatrixXd GetZeroAccelerationJacobian(EKF & ekf);
+  Eigen::MatrixXd GetZeroAccelerationJacobian(EKF & ekf) const;
 
   ///
   /// @brief EKF update method for IMU measurements
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @param time Measurement time
   /// @param acceleration Measured acceleration
   /// @param acceleration_covariance Estimated acceleration error
@@ -74,7 +74,7 @@ public:
   ///
   void UpdateEKF(
     EKF & ekf,
-    double time,
+    const double time,
     const Eigen::Vector3d & acceleration,
     const Eigen::Matrix3d & acceleration_covariance,
     const Eigen::Vector3d & angular_rate,
@@ -83,7 +83,7 @@ public:
 
   ///
   /// @brief Check for and perform a zero-acceleration update
-  /// @param ekf EKF pointer
+  /// @param ekf EKF address
   /// @param local_time Measurement in local EKF time
   /// @param acceleration Measured acceleration
   /// @param acceleration_covariance Estimated acceleration error
@@ -106,7 +106,7 @@ public:
   /// @param ang_b_to_l Body orientation to the local frame
   /// @return Measurement jacobian
   ///
-  Eigen::MatrixXd GetMeasurementJacobian(EKF & ekf);
+  Eigen::MatrixXd GetMeasurementJacobian(EKF & ekf) const;
 
   ///
   /// @brief IMU state angular rate updater
@@ -118,7 +118,7 @@ public:
     EKF & ekf,
     const Eigen::Vector3d & angular_rate,
     const Eigen::Matrix3d & angular_rate_covariance
-  );
+  ) const;
 
 private:
   Eigen::Vector3d m_pos_i_in_g {0.0, 0.0, 0.0};
