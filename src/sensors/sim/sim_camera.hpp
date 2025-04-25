@@ -72,7 +72,7 @@ public:
   /// @brief Callback method for simulated camera
   /// @param sim_camera_message Simulated camera data message
   ///
-  void Callback(SimCameraMessage & sim_camera_message);
+  void Callback(const SimCameraMessage & sim_camera_message);
 
   ///
   /// @brief Generate simulated IMU messages

@@ -69,9 +69,9 @@ MsckfUpdater::MsckfUpdater(
 }
 
 bool MsckfUpdater::TriangulateFeature(
-  double local_time,
+  const double local_time,
   EKF & ekf,
-  FeatureTrack & feature_track,
+  const FeatureTrack & feature_track,
   Eigen::Vector3d & pos_f_in_l)
 {
   /// @todo: Need to continue debugging the triangulated features
@@ -213,8 +213,8 @@ void MsckfUpdater::distortion_jacobian(
 
 void MsckfUpdater::UpdateEKF(
   EKF & ekf,
-  double time,
-  FeatureTracks & feature_tracks,
+  const double time,
+  const FeatureTracks & feature_tracks,
   double px_error)
 {
   double local_time = ekf.CalculateLocalTime(time);

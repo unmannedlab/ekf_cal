@@ -35,7 +35,7 @@ public:
   /// @brief RosGPS callback method
   /// @param ros_gps_message ROS GPS message
   ///
-  void Callback(RosGpsMessage & ros_gps_message);
+  void Callback(const RosGpsMessage & ros_gps_message);
 };
 
 #endif  // SENSORS__ROS__ROS_GPS_HPP_

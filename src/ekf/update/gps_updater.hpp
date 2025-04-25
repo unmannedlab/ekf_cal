@@ -71,7 +71,7 @@ public:
   ///
   void UpdateEKF(
     EKF & ekf,
-    double time,
+    const double time,
     const Eigen::Vector3d & gps_lla,
     const Eigen::MatrixXd & pos_covariance);
 

@@ -107,7 +107,7 @@ void SimCamera::AddFiducial(std::shared_ptr<SimFiducialTracker> fiducial)
   m_fiducials[fiducial->GetID()] = fiducial;
 }
 
-void SimCamera::Callback(SimCameraMessage & sim_camera_message)
+void SimCamera::Callback(const SimCameraMessage & sim_camera_message)
 {
   double local_time = m_ekf->CalculateLocalTime(sim_camera_message.time);
   m_ekf->PredictModel(local_time);

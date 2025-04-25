@@ -45,7 +45,7 @@ bool MessageCompare(std::shared_ptr<SensorMessage> a, std::shared_ptr<SensorMess
   return a->time < b->time;
 }
 
-void Sensor::Callback(SensorMessage sensor_message)
+void Sensor::Callback(const SensorMessage sensor_message)
 {
   std::stringstream msg;
   msg << "Base Sensor callback invoked at time " << sensor_message.time;

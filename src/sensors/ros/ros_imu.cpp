@@ -18,7 +18,7 @@
 #include "sensors/ros/ros_imu.hpp"
 #include "sensors/ros/ros_imu_message.hpp"
 
-void RosIMU::Callback(RosImuMessage & ros_imu_message)
+void RosIMU::Callback(const RosImuMessage & ros_imu_message)
 {
   IMU::Callback(ros_imu_message);
 

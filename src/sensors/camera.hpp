@@ -78,7 +78,7 @@ public:
   /// @brief Callback method for camera
   /// @param camera_message camera message
   ///
-  void Callback(CameraMessage & camera_message);
+  void Callback(const CameraMessage & camera_message);
 
   cv::Mat m_out_img{0, 0, CV_8UC1};  ///< @brief Published output test image
 

@@ -28,20 +28,20 @@
 /// @param header ROS header
 /// @return Time as a double
 ///
-double RosHeaderToTime(std_msgs::msg::Header header);
+double RosHeaderToTime(const std_msgs::msg::Header header);
 
 ///
 /// @brief Convert ROS vector to Eigen
 /// @param msg ROS message
 /// @return Eigen vector
 ///
-Eigen::Vector3d RosToEigen(geometry_msgs::msg::Vector3 msg);
+Eigen::Vector3d RosToEigen(const geometry_msgs::msg::Vector3 msg);
 
 ///
 /// @brief Convert ROS matrix to Eigen
 /// @param msg ROS message
 /// @return Eigen matrix
 ///
-Eigen::Matrix3d RosToEigen(std::array<double, 9> msg);
+Eigen::Matrix3d RosToEigen(const std::array<double, 9> msg);
 
 #endif  // UTILITY__ROS_HELPER_HPP_

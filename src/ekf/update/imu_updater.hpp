@@ -74,7 +74,7 @@ public:
   ///
   void UpdateEKF(
     EKF & ekf,
-    double time,
+    const double time,
     const Eigen::Vector3d & acceleration,
     const Eigen::Matrix3d & acceleration_covariance,
     const Eigen::Vector3d & angular_rate,

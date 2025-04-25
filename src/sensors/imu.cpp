@@ -59,7 +59,7 @@ IMU::IMU(IMU::Parameters params)
   m_ekf->RegisterIMU(m_id, imu_state, cov);
 }
 
-void IMU::Callback(ImuMessage & imu_message)
+void IMU::Callback(const ImuMessage & imu_message)
 {
   m_logger->Log(
     LogLevel::DEBUG,

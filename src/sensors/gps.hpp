@@ -56,7 +56,7 @@ public:
   /// @brief Callback method for GPS measurements
   /// @param gps_message GPS measurement message
   ///
-  void Callback(GpsMessage & gps_message);
+  void Callback(const GpsMessage & gps_message);
 
 private:
   std::shared_ptr<EKF> m_ekf;

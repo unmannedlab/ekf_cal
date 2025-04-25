@@ -64,7 +64,9 @@ FiducialUpdater::FiducialUpdater(
 }
 
 void FiducialUpdater::UpdateEKF(
-  EKF & ekf, double time, BoardDetection & board_detection)
+  EKF & ekf,
+  const double time,
+  const BoardDetection & board_detection)
 {
   m_logger->Log(
     LogLevel::DEBUG, "Called Fiducial Update for camera ID: " + std::to_string(m_camera_id));

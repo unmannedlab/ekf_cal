@@ -88,7 +88,7 @@ public:
   /// @param time Message time
   /// @param msg Feature track message
   ///
-  void Callback(double time, SimFeatureTrackerMessage & msg);
+  void Callback(const double time, const SimFeatureTrackerMessage & msg);
 
 private:
   SimRNG m_rng;

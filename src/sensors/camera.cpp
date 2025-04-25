@@ -54,7 +54,7 @@ Camera::Camera(Camera::Parameters cam_params)
   m_ekf->RegisterCamera(m_id, cam_state, cov);
 }
 
-void Camera::Callback(CameraMessage & camera_message)
+void Camera::Callback(const CameraMessage & camera_message)
 {
   m_logger->Log(
     LogLevel::DEBUG, "Camera " + std::to_string(camera_message.sensor_id) +

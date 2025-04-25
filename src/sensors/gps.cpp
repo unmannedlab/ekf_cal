@@ -45,7 +45,7 @@ GPS::GPS(GPS::Parameters params)
   m_ekf->RegisterGPS(m_id, gps_state, gps_cov);
 }
 
-void GPS::Callback(GpsMessage & gps_message)
+void GPS::Callback(const GpsMessage & gps_message)
 {
   m_logger->Log(
     LogLevel::DEBUG,

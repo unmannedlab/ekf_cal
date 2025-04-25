@@ -67,7 +67,7 @@ public:
   /// @brief Sensor callback function
   /// @param sensor_message callback message
   ///
-  void Callback(SensorMessage sensor_message);
+  void Callback(const SensorMessage sensor_message);
 
 protected:
   double m_rate;                          ///< @brief Sensor measurement rate

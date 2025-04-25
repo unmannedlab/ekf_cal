@@ -89,7 +89,10 @@ Eigen::Vector3d GpsUpdater::PredictMeasurement(EKF & ekf)
 }
 
 void GpsUpdater::UpdateEKF(
-  EKF & ekf, double time, const Eigen::Vector3d & gps_lla, const Eigen::MatrixXd & pos_covariance)
+  EKF & ekf,
+  const double time,
+  const Eigen::Vector3d & gps_lla,
+  const Eigen::MatrixXd & pos_covariance)
 {
   auto t_start = std::chrono::high_resolution_clock::now();
   double local_time = ekf.CalculateLocalTime(time);

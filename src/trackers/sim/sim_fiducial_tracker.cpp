@@ -49,7 +49,7 @@ SimFiducialTracker::SimFiducialTracker(
   truth_engine->SetBoardOrientation(m_id, ang_f_to_l_true);
 }
 
-bool SimFiducialTracker::IsBoardVisible(double time)
+bool SimFiducialTracker::IsBoardVisible(const double time) const
 {
   return true;
   Eigen::Vector3d pos_b_in_l = m_truth->GetBodyPosition(time);
@@ -154,7 +154,7 @@ std::shared_ptr<SimFiducialTrackerMessage> SimFiducialTracker::GenerateMessage(
   return tracker_message;
 }
 
-void SimFiducialTracker::Callback(double time, SimFiducialTrackerMessage & msg)
+void SimFiducialTracker::Callback(const double time, const SimFiducialTrackerMessage & msg)
 {
   if (msg.is_board_visible) {
     m_fiducial_updater.UpdateEKF(*m_ekf, time, msg.board_detection);

@@ -18,7 +18,7 @@
 #include "sensors/ros/ros_gps.hpp"
 #include "sensors/ros/ros_gps_message.hpp"
 
-void RosGPS::Callback(RosGpsMessage & ros_gps_message)
+void RosGPS::Callback(const RosGpsMessage & ros_gps_message)
 {
   GPS::Callback(ros_gps_message);
 
