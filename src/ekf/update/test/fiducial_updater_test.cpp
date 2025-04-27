@@ -18,7 +18,7 @@
 
 #include "ekf/update/fiducial_updater.hpp"
 
-TEST(test_imu_updater, constructor) {
+TEST(test_fiducial_updater, constructor) {
   unsigned int fid_id {0};
   unsigned int cam_id {1};
   Eigen::Vector3d fiducial_pos{0.0, 0.0, 0.0};

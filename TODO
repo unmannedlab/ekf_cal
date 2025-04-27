@@ -7,6 +7,7 @@ Package Features:
     - Use emplace_back where appropriate
     - Multi-Threading in EKF std::lock_guard lock(mutex);
     - Reduce state with single IMU
+    - RNG should be pointers
 
 Simulation:
     - Show track images from simulation
@@ -34,3 +35,4 @@ Documentation:
 Test:
     - Test Aprilgrid detection
     - Test multiple fiducial detection
+    - Numerical Jacobian tests

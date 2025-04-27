@@ -77,6 +77,14 @@ public:
   ///
   std::vector<cv::KeyPoint> GetVisibleKeypoints(double time) const;
 
+  ///
+  /// @brief Filter out invisible keypoints
+  /// @param feature_points Current list of feature points
+  /// @param projected_points Feature points after projection
+  /// @param rot_c_to_l Rotation from camera C to local frame L
+  /// @param pos_c_in_l Position of camera C in local frame L
+  /// @param intrinsics Camera intrinsics
+  ///
   std::vector<cv::KeyPoint> FilterInvisiblePoints(
     const std::vector<cv::Point3d> & feature_points,
     const std::vector<cv::Point2d> & projected_points,

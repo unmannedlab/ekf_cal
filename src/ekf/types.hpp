@@ -253,7 +253,10 @@ public:
   /// @param extrinsic value to use for setting
   ///
   void SetIsExtrinsic(bool extrinsic);
-
+  ///
+  /// @brief Setter for state values
+  /// @param state state vector
+  ///
   void SetState(const Eigen::VectorXd & state);
 
   double pos_stability {1e-9};                        ///< @brief Extrinsic position stability
@@ -332,7 +335,10 @@ public:
   /// @param extrinsic value to use for setting
   ///
   void SetIsExtrinsic(bool extrinsic);
-
+  ///
+  /// @brief Setter for state values
+  /// @param state state vector
+  ///
   void SetState(const Eigen::VectorXd & state);
 
   unsigned int frame_id{0};       ///< @brief Fiducial board ID

@@ -100,19 +100,17 @@ public:
   );
 
   ///
-  /// @brief Calculate measurement jacobian
-  /// @param pos_i_in_b IMU position in the body frame
-  /// @param ang_i_to_b IMU orientation to the body frame
-  /// @param ang_b_to_l Body orientation to the local frame
+  /// @brief Calculate IMU measurement jacobian
+  /// @param ekf EKF address
   /// @return Measurement jacobian
   ///
   Eigen::MatrixXd GetMeasurementJacobian(EKF & ekf) const;
 
   ///
   /// @brief IMU state angular rate updater
+  /// @param ekf EKF address
   /// @param angular_rate Angular rate measurement
   /// @param angular_rate_covariance Angular rate covariance
-  /// @param omg_bias Angular rate bias
   ///
   void AngularUpdate(
     EKF & ekf,
