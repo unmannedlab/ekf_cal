@@ -250,7 +250,7 @@ void TruthEngine::WriteTruthData(
     ++sensor_count;
     header << EnumerateHeader(std::string("gps_pos_") + std::to_string(sensor_count), 3);
   }
-  if (m_gps_pos.size() >= 1) {
+  if (!m_gps_pos.empty()) {
     header << ",ref_lat,ref_lon,ref_alt,ref_heading";
   }
 
@@ -284,7 +284,7 @@ void TruthEngine::WriteTruthData(
       ++sensor_count;
       msg << VectorToCommaString(GetGpsPosition(sensor_count));
     }
-    if (m_gps_pos.size() >= 1) {
+    if (!m_gps_pos.empty()) {
       msg << VectorToCommaString(GetLocalPosition());
       msg << "," << GetLocalHeading();
     }

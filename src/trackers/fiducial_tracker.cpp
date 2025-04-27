@@ -145,7 +145,7 @@ void FiducialTracker::Track(
   cv::aruco::detectMarkers(img_in, m_dict, marker_corners, marker_ids, params);
 
   // if at least one marker detected
-  if (marker_ids.size() > 0) {
+  if (!marker_ids.empty()) {
     cv::aruco::drawDetectedMarkers(img_out, marker_corners, marker_ids);
     std::vector<cv::Point2f> corners;
     std::vector<int> ids;
@@ -154,7 +154,7 @@ void FiducialTracker::Track(
       marker_corners, marker_ids, img_in, m_board, corners, ids, camera_matrix, distortion);
 
     // If at least one corner detected
-    if (ids.size() > 0) {
+    if (!ids.empty()) {
       cv::Scalar color = cv::Scalar(255, 0, 0);
       FiducialTracker::DrawDetectedCorners(img_out, marker_corners, corners, ids, color);
       cv::Vec3d r_vec, t_vec;

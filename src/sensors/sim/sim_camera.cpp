@@ -114,7 +114,7 @@ void SimCamera::Callback(const SimCameraMessage & sim_camera_message)
   m_ekf->AugmentStateIfNeeded(m_id, sim_camera_message.frame_id);
 
   for (auto feature_track_message : sim_camera_message.feature_track_messages) {
-    if (feature_track_message->feature_tracks.size() > 0) {
+    if (!feature_track_message->feature_tracks.empty()) {
       m_trackers[feature_track_message->tracker_id]->Callback(
         sim_camera_message.time, *feature_track_message);
     }

@@ -230,7 +230,7 @@ void MsckfUpdater::UpdateEKF(
 
   m_logger->Log(LogLevel::DEBUG, "Called MSCKF Update for camera ID: " + std::to_string(m_id));
 
-  if (feature_tracks.size() == 0) {
+  if (feature_tracks.empty()) {
     return;
   }
 

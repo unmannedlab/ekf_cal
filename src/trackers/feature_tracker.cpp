@@ -259,7 +259,7 @@ void FeatureTracker::Track(
         ++it;
       }
     }
-    if (feature_tracks.size() > 0) {
+    if (!feature_tracks.empty()) {
       m_msckf_updater.UpdateEKF(*m_ekf, time, feature_tracks, m_px_error);
     }
   }

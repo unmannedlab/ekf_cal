@@ -97,7 +97,7 @@ void EkfCalNode::Initialize()
   m_log_directory = get_parameter("log_directory").as_string();
 
   m_debug_logger = std::make_shared<DebugLogger>(debug_log_level, m_log_directory);
-  if (data_log_rate) {m_state_data_logger.EnableLogging();}
+  if (data_log_rate != 0.0) {m_state_data_logger.EnableLogging();}
   m_state_data_logger.SetOutputDirectory(m_log_directory);
   m_state_data_logger.SetOutputFileName("state_vector.csv");
   m_state_data_logger.DefineHeader("");
@@ -135,7 +135,7 @@ void EkfCalNode::Initialize()
   m_fiducial_list = get_parameter("fiducial_list").as_string_array();
   m_gps_list = get_parameter("gps_list").as_string_array();
 
-  if (m_tracker_list.size() == 0) {
+  if (m_tracker_list.empty()) {
     ekf_params.augmenting_type = AugmentationType::NONE;
   }
 

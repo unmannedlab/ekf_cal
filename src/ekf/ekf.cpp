@@ -440,7 +440,7 @@ void EKF::AugmentStateIfNeeded()
 
   bool augmented_state_needed {false};
 
-  if (m_state.aug_states[0].size() == 0) {
+  if (m_state.aug_states[0].empty()) {
     augmented_state_needed = true;
   } else if (m_augmenting_type == AugmentationType::TIME) {
     if (abs(m_current_time - m_augmenting_prev_time) > m_augmenting_delta_time) {
