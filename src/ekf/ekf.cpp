@@ -239,9 +239,9 @@ unsigned int EKF::GetAugStateSize() const
   return m_aug_state_size;
 }
 
-void EKF::Initialize(double timeInit, const BodyState & body_state_init)
+void EKF::Initialize(double initial_time, const BodyState & body_state_init)
 {
-  m_current_time = timeInit;
+  m_current_time = initial_time;
   m_time_initialized = true;
   m_state.body_state = body_state_init;
 }

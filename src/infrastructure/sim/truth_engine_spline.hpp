@@ -34,7 +34,7 @@ class TruthEngineSpline : public TruthEngine
 public:
   ///
   /// @brief Spline-based truth engine
-  /// @param positions Position control points
+  /// @param poses Position control points
   /// @param angles Angular position control points
   /// @param position_errors Standard deviations of position control points
   /// @param angle_errors Standard deviations of angular control points
@@ -44,7 +44,7 @@ public:
   /// @param rng Random number generator
   ///
   TruthEngineSpline(
-    std::vector<double> positions,
+    std::vector<double> poses,
     std::vector<double> angles,
     std::vector<double> position_errors,
     std::vector<double> angle_errors,

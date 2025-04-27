@@ -161,11 +161,11 @@ void EkfCalNode::DeclareSensors()
   }
 }
 
-void EkfCalNode::DeclareSensorParameters(const std::string & prefix)
+void EkfCalNode::DeclareSensorParameters(const std::string & sensor_name)
 {
-  declare_parameter(prefix + ".topic", "");
-  declare_parameter(prefix + ".rate", 1.0);
-  declare_parameter(prefix + ".data_log_rate", 0.0);
+  declare_parameter(sensor_name + ".topic", "");
+  declare_parameter(sensor_name + ".rate", 1.0);
+  declare_parameter(sensor_name + ".data_log_rate", 0.0);
 }
 
 void EkfCalNode::LoadSensorParameters(

@@ -34,7 +34,7 @@
 
 SimFeatureTracker::SimFeatureTracker(
   SimFeatureTracker::Parameters params,
-  std::shared_ptr<TruthEngine> truthEngine)
+  std::shared_ptr<TruthEngine> truth_engine)
 : FeatureTracker(params.tracker_params),
   m_rng(params.rng)
 {
@@ -42,7 +42,7 @@ SimFeatureTracker::SimFeatureTracker(
   m_no_errors = params.no_errors;
   m_feature_count = params.feature_count;
   m_max_track_length = params.tracker_params.max_track_length;
-  m_truth = truthEngine;
+  m_truth = truth_engine;
 }
 
 std::vector<cv::KeyPoint> SimFeatureTracker::GetVisibleKeypoints(double time) const

@@ -155,10 +155,10 @@ public:
 
   ///
   /// @brief EKF state initialization method
-  /// @param timeInit Initial time
-  /// @param bodyStateInit Initial state
+  /// @param initial_time Initial time
+  /// @param body_state_init Initial state
   ///
-  void Initialize(double timeInit, const BodyState & bodyStateInit);
+  void Initialize(double initial_time, const BodyState & body_state_init);
 
   ///
   /// @brief IMU Registration function

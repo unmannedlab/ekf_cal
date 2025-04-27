@@ -76,14 +76,14 @@ int FiducialTracker::InterpolateCorners(
   std::vector<cv::Point2f> & corners,
   std::vector<int> & ids,
   cv::Mat camera_matrix,
-  cv::Mat distortion
+  cv::Mat dist_coefficients
 ) const
 {
   if (m_detector_type == FiducialType::CHARUCO_BOARD) {
     auto temp_board = board.staticCast<cv::aruco::CharucoBoard>();
     return cv::aruco::interpolateCornersCharuco(
       marker_corners, marker_ids, image, temp_board,
-      corners, ids, camera_matrix, distortion);
+      corners, ids, camera_matrix, dist_coefficients);
   } else if (m_detector_type == FiducialType::ARUCO_BOARD) {
     ids = marker_ids;
     return static_cast<int>(ids.size());
@@ -113,7 +113,7 @@ bool FiducialTracker::EstimatePoseBoard(
   cv::InputArray & ids,
   cv::Ptr<cv::aruco::Board> board,
   cv::InputArray & camera_matrix,
-  cv::InputArray & distortion,
+  cv::InputArray & dist_coefficients,
   cv::Vec3d & r_vec,
   cv::Vec3d & t_vec
 ) const
@@ -121,10 +121,10 @@ bool FiducialTracker::EstimatePoseBoard(
   if (m_detector_type == FiducialType::CHARUCO_BOARD) {
     auto temp_board = board.staticCast<cv::aruco::CharucoBoard>();
     return cv::aruco::estimatePoseCharucoBoard(
-      corners, ids, temp_board, camera_matrix, distortion, r_vec, t_vec);
+      corners, ids, temp_board, camera_matrix, dist_coefficients, r_vec, t_vec);
   } else if (m_detector_type == FiducialType::ARUCO_BOARD) {
     return cv::aruco::estimatePoseBoard(
-      marker_corners, ids, board, camera_matrix, distortion, r_vec, t_vec);
+      marker_corners, ids, board, camera_matrix, dist_coefficients, r_vec, t_vec);
   } else {
     return false;
   }

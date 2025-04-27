@@ -405,9 +405,9 @@ std::map<unsigned int, CamState> & operator+=(
 std::map<unsigned int, FidState> & operator+=(
   std::map<unsigned int, FidState> & l_fid_state, const Eigen::VectorXd & r_vector);
 std::vector<AugState> & operator+=(
-  std::vector<AugState> & l_augState, const Eigen::VectorXd & r_vector);
+  std::vector<AugState> & l_aug_state, const Eigen::VectorXd & r_vector);
 
-State & operator+=(State & l_state, State & rState);
+State & operator+=(State & l_state, State & r_state);
 State & operator+=(State & l_state, const Eigen::VectorXd & r_vector);
 
 enum class GpsInitType
