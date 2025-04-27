@@ -344,6 +344,45 @@ Eigen::VectorXd State::ToVector() const
   return out_vec;
 }
 
+void State::SetState(const Eigen::VectorXd & state)
+{
+  unsigned int n = 0;
+  body_state.SetState(state.segment<g_body_state_size>(n));
+  n += g_body_state_size;
+
+  for (auto & imu_iter : imu_states) {
+    if (imu_iter.second.GetIsExtrinsic()) {
+      imu_iter.second.SetExtrinsicState(state.segment<g_imu_extrinsic_state_size>(n));
+      n += g_imu_extrinsic_state_size;
+    }
+    if (imu_iter.second.GetIsIntrinsic()) {
+      imu_iter.second.SetIntrinsicState(state.segment<g_imu_intrinsic_state_size>(n));
+      n += g_imu_intrinsic_state_size;
+    }
+  }
+
+  for (auto & gps_iter : gps_states) {
+    if (gps_iter.second.GetIsExtrinsic()) {
+      gps_iter.second.pos_a_in_b = state.segment<g_gps_extrinsic_state_size>(n);
+      n += g_gps_extrinsic_state_size;
+    }
+  }
+
+  for (auto & cam_iter : cam_states) {
+    if (cam_iter.second.GetIsExtrinsic()) {
+      cam_iter.second.SetState(state.segment<g_cam_extrinsic_state_size>(n));
+      n += g_cam_extrinsic_state_size;
+    }
+  }
+
+  for (auto & fid_iter : fid_states) {
+    if (fid_iter.second.GetIsExtrinsic()) {
+      fid_iter.second.SetState(state.segment<g_fid_extrinsic_state_size>(n));
+      n += g_fid_extrinsic_state_size;
+    }
+  }
+}
+
 unsigned int State::GetStateSize() const
 {
   unsigned int state_size = g_body_state_size;
@@ -375,9 +414,21 @@ unsigned int State::GetStateSize() const
     }
   }
 
-  state_size += static_cast<unsigned int>(g_aug_state_size * aug_states.size());
+  state_size += g_aug_state_size * aug_states.size();
 
   return state_size;
+}
+
+void ImuState::SetExtrinsicState(const Eigen::VectorXd & state)
+{
+  pos_i_in_b = state.segment<3>(0);
+  ang_i_to_b = RotVecToQuat(state.segment<3>(3));
+}
+
+void ImuState::SetIntrinsicState(const Eigen::VectorXd & state)
+{
+  acc_bias = state.segment<3>(0);
+  omg_bias = state.segment<3>(3);
 }
 
 bool ImuState::GetIsExtrinsic() const
@@ -417,6 +468,12 @@ void CamState::SetIsExtrinsic(bool extrinsic)
   refresh_size();
 }
 
+void CamState::SetState(const Eigen::VectorXd & state)
+{
+  pos_c_in_b = state.segment<3>(0);
+  ang_c_to_b = RotVecToQuat(state.segment<3>(3));
+}
+
 void GpsState::SetIsExtrinsic(bool extrinsic)
 {
   is_extrinsic = extrinsic;
@@ -452,6 +509,12 @@ void FidState::SetIsExtrinsic(bool extrinsic)
 {
   is_extrinsic = extrinsic;
   refresh_size();
+}
+
+void FidState::SetState(const Eigen::VectorXd & state)
+{
+  pos_f_in_l = state.segment<3>(0);
+  ang_f_to_l = RotVecToQuat(state.segment<3>(3));
 }
 
 void FidState::refresh_size()

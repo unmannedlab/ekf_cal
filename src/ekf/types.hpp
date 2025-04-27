@@ -141,6 +141,16 @@ public:
   /// @param intrinsic value to use for setting
   ///
   void SetIsIntrinsic(bool intrinsic);
+  ///
+  /// @brief Setter for extrinsic state values
+  /// @param state extrinsic state vector
+  ///
+  void SetExtrinsicState(const Eigen::VectorXd & state);
+  ///
+  /// @brief Setter for intrinsic state values
+  /// @param state intrinsic state vector
+  ///
+  void SetIntrinsicState(const Eigen::VectorXd & state);
 
   double pos_stability {1e-9};                        ///< @brief Extrinsic position stability
   double ang_stability {1e-9};                        ///< @brief Extrinsic orientation stability
@@ -244,6 +254,8 @@ public:
   ///
   void SetIsExtrinsic(bool extrinsic);
 
+  void SetState(const Eigen::VectorXd & state);
+
   double pos_stability {1e-9};                        ///< @brief Extrinsic position stability
   double ang_stability {1e-9};                        ///< @brief Extrinsic orientation stability
   Eigen::Vector3d pos_c_in_b{0.0, 0.0, 0.0};          ///< @brief Camera state position
@@ -321,6 +333,8 @@ public:
   ///
   void SetIsExtrinsic(bool extrinsic);
 
+  void SetState(const Eigen::VectorXd & state);
+
   unsigned int frame_id{0};       ///< @brief Fiducial board ID
   Eigen::Vector3d pos_f_in_l;     ///< @brief Fiducial position in the local frame
   Eigen::Quaterniond ang_f_to_l;  ///< @brief Fiducial position in the local frame
@@ -352,6 +366,12 @@ public:
   /// @return EKF state as a vector
   ///
   Eigen::VectorXd ToVector() const;
+
+  ///
+  /// @brief Function to set state using vector
+  /// @param state vector for setting state
+  ///
+  void SetState(const Eigen::VectorXd & state);
 
   ///
   /// @brief Get EKF state size
