@@ -114,7 +114,7 @@ def generate_mc_from_yaml(
                 for i in range(num_runs):
                     sub_yaml = top_yaml
                     if (seed):
-                        new_seed = random.randint(0, 1e9)
+                        new_seed = random.randint(0, 1000000000)
                         sub_yaml['/EkfCalNode']['ros__parameters']['sim_params']['seed'] = new_seed
                     sub_yaml['/EkfCalNode']['ros__parameters']['sim_params']['number_of_runs'] = 1
                     sub_yaml['/EkfCalNode']['ros__parameters']['sim_params']['run_number'] += i

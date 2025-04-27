@@ -37,7 +37,7 @@
         use_first_estimate_jacobian: true     # Flag to utilize the first estimate Jacobian
 
         sim_params:
-            seed: 1.0                         # Seed to provide to random number generator
+            seed: 1                           # Seed to provide to random number generator
             max_time: 10.0                    # Maximum simulation time
             number_of_runs: 10                # Number of runs for Multi-Threaded Simulation
             run_number: 0                     # Start run number (also used to initialize seed)

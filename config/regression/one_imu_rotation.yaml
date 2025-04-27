@@ -10,7 +10,7 @@
             ang_vel: 1.0e-1
             ang_acc: 1.0e-5
         sim_params:
-            seed: 1.0
+            seed: 1
             max_time: 60.0
             truth_type: "cyclic"
             pos_frequency: [0.0, 0.0, 0.0]
