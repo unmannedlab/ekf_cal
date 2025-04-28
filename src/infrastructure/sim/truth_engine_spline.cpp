@@ -26,89 +26,101 @@
 
 Eigen::Vector3d TruthEngineSpline::GetBodyPosition(double time)
 {
+  Eigen::Vector3d body_pos;
   double relative_time = time - m_stationary_time;
   if (IsTimeInvalid(relative_time) || IsSplineInvalid(m_pos_spline)) {
-    return Eigen::Vector3d::Zero(3);
+    body_pos = Eigen::Vector3d::Zero(3);
   } else {
-    return m_pos_spline(relative_time / (m_max_time - m_stationary_time));
+    body_pos = m_pos_spline(relative_time / (m_max_time - m_stationary_time));
   }
+  return body_pos;
 }
 
 Eigen::Vector3d TruthEngineSpline::GetBodyVelocity(double time)
 {
+  Eigen::Vector3d body_vel;
   double relative_time = time - m_stationary_time;
   if (IsTimeInvalid(relative_time) || IsSplineInvalid(m_pos_spline)) {
-    return Eigen::Vector3d::Zero(3);
+    body_vel = Eigen::Vector3d::Zero(3);
   } else {
     unsigned int order {1};
-    double u = relative_time / (m_max_time - m_stationary_time);
+    double spline_param = relative_time / (m_max_time - m_stationary_time);
     Eigen::Vector3d velocity;
-    velocity =
-      m_pos_spline.derivatives(u, order).block<3, 1>(0, order) / (m_max_time - m_stationary_time);
-    return velocity;
+    body_vel = m_pos_spline.derivatives(spline_param, order).block<3, 1>(0, order) /
+      (m_max_time - m_stationary_time);
   }
+  return body_vel;
 }
 
 Eigen::Vector3d TruthEngineSpline::GetBodyAcceleration(double time)
 {
+  Eigen::Vector3d body_acc;
   double relative_time = time - m_stationary_time;
   if (IsTimeInvalid(relative_time) || IsSplineInvalid(m_pos_spline)) {
-    return Eigen::Vector3d::Zero(3);
+    body_acc = Eigen::Vector3d::Zero(3);
   } else {
     unsigned int order {2};
-    double u = relative_time / (m_max_time - m_stationary_time);
+    double spline_param = relative_time / (m_max_time - m_stationary_time);
     Eigen::Vector3d acceleration;
     acceleration =
-      m_pos_spline.derivatives(u, order).block<3, 1>(0, order) /
+      m_pos_spline.derivatives(spline_param, order).block<3, 1>(0, order) /
       (m_max_time - m_stationary_time) / (m_max_time - m_stationary_time);
-    return acceleration;
+    body_acc = acceleration;
   }
+  return body_acc;
 }
 
 Eigen::Quaterniond TruthEngineSpline::GetBodyAngularPosition(double time)
 {
+  Eigen::Quaterniond body_ang_pos;
   double relative_time = time - m_stationary_time;
   if (IsTimeInvalid(relative_time) || IsSplineInvalid(m_ang_spline)) {
-    return Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
+    body_ang_pos = Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
   } else {
-    double u = relative_time / (m_max_time - m_stationary_time);
-    Eigen::Vector3d euler_angles = m_ang_spline(u);
+    double spline_param = relative_time / (m_max_time - m_stationary_time);
+    Eigen::Vector3d euler_angles = m_ang_spline(spline_param);
 
     Eigen::Quaterniond angular_position = EigVecToQuat(euler_angles);
 
-    return angular_position;
+    body_ang_pos = angular_position;
   }
+  return body_ang_pos;
 }
 
 Eigen::Vector3d TruthEngineSpline::GetBodyAngularRate(double time)
 {
+  Eigen::Vector3d body_ang_vel;
   double relative_time = time - m_stationary_time;
   if (IsTimeInvalid(relative_time) || IsSplineInvalid(m_ang_spline)) {
-    return Eigen::Vector3d::Zero(3);
+    body_ang_vel = Eigen::Vector3d::Zero(3);
   } else {
     unsigned int order {1};
-    double u = relative_time / (m_max_time - m_stationary_time);
+    double spline_param = relative_time / (m_max_time - m_stationary_time);
     Eigen::Vector3d velocity;
     velocity =
-      m_ang_spline.derivatives(u, order).block<3, 1>(0, order) / (m_max_time - m_stationary_time);
-    return velocity;
+      m_ang_spline.derivatives(spline_param, order).block<3, 1>(0, order) /
+      (m_max_time - m_stationary_time);
+    body_ang_vel = velocity;
   }
+  return body_ang_vel;
 }
 
 Eigen::Vector3d TruthEngineSpline::GetBodyAngularAcceleration(double time)
 {
+  Eigen::Vector3d body_ang_acc;
   double relative_time = time - m_stationary_time;
   if (IsTimeInvalid(relative_time) || IsSplineInvalid(m_ang_spline)) {
-    return Eigen::Vector3d::Zero(3);
+    body_ang_acc = Eigen::Vector3d::Zero(3);
   } else {
     unsigned int order {2};
-    double u = relative_time / (m_max_time - m_stationary_time);
+    double spline_param = relative_time / (m_max_time - m_stationary_time);
     Eigen::Vector3d acceleration;
     acceleration =
-      m_ang_spline.derivatives(u, order).block<3, 1>(0, order) /
+      m_ang_spline.derivatives(spline_param, order).block<3, 1>(0, order) /
       (m_max_time - m_stationary_time) / (m_max_time - m_stationary_time);
-    return acceleration;
+    body_ang_acc = acceleration;
   }
+  return body_ang_acc;
 }
 
 TruthEngineSpline::TruthEngineSpline(

@@ -103,12 +103,12 @@ Eigen::Vector3d ecef_to_lla(const Eigen::Vector3d & ecef)
   // Karl Olsen. Accurate Conversion of Earth-Fixed Earth-Centered Coordinates to Geodetic
   // Coordinates. [Research Report] Norwegian University of Science and Technology. 2017.
   // hal-01704943v2
-  double x = ecef[0];
-  double y = ecef[1];
-  double z = ecef[2];
-  double ww = x * x + y * y;
+  double ecef_x = ecef[0];
+  double ecef_y = ecef[1];
+  double ecef_z = ecef[2];
+  double ww = ecef_x * ecef_x + ecef_y * ecef_y;
   double m = ww / g_wgs84_a / g_wgs84_a;
-  double n = z * z * ((1 - pow(g_wgs84_e, 2)) / pow(g_wgs84_a, 2));
+  double n = ecef_z * ecef_z * ((1 - pow(g_wgs84_e, 2)) / pow(g_wgs84_a, 2));
   double mpn = m + n;
   double p = (mpn - pow(g_wgs84_e, 4)) / 6;
   double G = m * n * pow(g_wgs84_e, 4) / 4;
@@ -146,19 +146,19 @@ Eigen::Vector3d ecef_to_lla(const Eigen::Vector3d & ecef)
   double u = t + dt + pow(g_wgs84_e, 2) / 2;
   double v = t + dt - pow(g_wgs84_e, 2) / 2;
   double w = std::sqrt(ww);
-  double zu = z * u;
+  double zu = ecef_z * u;
   double wv = w * v;
   double lat = std::atan2(zu, wv);
 
   // compute altitude
   double inv_uv = 1 / (u * v);
   double dw = w - wv * inv_uv;
-  double dz = z - zu * (1.0 - pow(g_wgs84_e, 2)) * inv_uv;
+  double dz = ecef_z - zu * (1.0 - pow(g_wgs84_e, 2)) * inv_uv;
   double da = std::sqrt(dw * dw + dz * dz);
   double alt = (u < 1) ? -da : da;
 
   // compute longitude (range -90..90)
-  double lon = std::atan2(y, x);
+  double lon = std::atan2(ecef_y, ecef_x);
 
   Eigen::Vector3d lla {lat / g_deg_to_rad, lon / g_deg_to_rad, alt};
 

@@ -36,64 +36,75 @@ Eigen::Vector3d TruthEngineSmoother::GetInterpolatedValue(
 
 Eigen::Vector3d TruthEngineSmoother::GetBodyPosition(double time)
 {
+  Eigen::Vector3d body_pos;
   double relative_time = time - m_stationary_time;
   if (IsTimeInvalid(relative_time) ) {
-    return Eigen::Vector3d::Zero(3);
+    body_pos = Eigen::Vector3d::Zero(3);
   } else {
-    return GetInterpolatedValue(time, m_pos);
+    body_pos = GetInterpolatedValue(time, m_pos);
   }
+  return body_pos;
 }
 
 Eigen::Vector3d TruthEngineSmoother::GetBodyVelocity(double time)
 {
+  Eigen::Vector3d body_vel;
   double relative_time = time - m_stationary_time;
   if (IsTimeInvalid(relative_time) ) {
-    return Eigen::Vector3d::Zero(3);
+    body_vel = Eigen::Vector3d::Zero(3);
   } else {
-    return GetInterpolatedValue(time, m_vel);
+    body_vel = GetInterpolatedValue(time, m_vel);
   }
+  return body_vel;
 }
 
 Eigen::Vector3d TruthEngineSmoother::GetBodyAcceleration(double time)
 {
+  Eigen::Vector3d body_acc;
   double relative_time = time - m_stationary_time;
   if (IsTimeInvalid(relative_time) ) {
-    return Eigen::Vector3d::Zero(3);
+    body_acc = Eigen::Vector3d::Zero(3);
   } else {
-    return GetInterpolatedValue(time, m_acc);
+    body_acc = GetInterpolatedValue(time, m_acc);
   }
+  return body_acc;
 }
 
 Eigen::Quaterniond TruthEngineSmoother::GetBodyAngularPosition(double time)
 {
+  Eigen::Quaterniond body_ang;
   double relative_time = time - m_stationary_time;
   if (IsTimeInvalid(relative_time)) {
-    return Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
+    body_ang = Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
   } else {
     Eigen::Vector3d euler_angles = GetInterpolatedValue(time, m_ang);
-    Eigen::Quaterniond angular_position = EigVecToQuat(euler_angles);
-    return angular_position;
+    body_ang = EigVecToQuat(euler_angles);
   }
+  return body_ang;
 }
 
 Eigen::Vector3d TruthEngineSmoother::GetBodyAngularRate(double time)
 {
+  Eigen::Vector3d body_ang_vel;
   double relative_time = time - m_stationary_time;
   if (IsTimeInvalid(relative_time)) {
-    return Eigen::Vector3d::Zero(3);
+    body_ang_vel = Eigen::Vector3d::Zero(3);
   } else {
-    return GetInterpolatedValue(time, m_ang_vel);
+    body_ang_vel = GetInterpolatedValue(time, m_ang_vel);
   }
+  return body_ang_vel;
 }
 
 Eigen::Vector3d TruthEngineSmoother::GetBodyAngularAcceleration(double time)
 {
+  Eigen::Vector3d body_ang_acc;
   double relative_time = time - m_stationary_time;
   if (IsTimeInvalid(relative_time)) {
-    return Eigen::Vector3d::Zero(3);
+    body_ang_acc = Eigen::Vector3d::Zero(3);
   } else {
-    return GetInterpolatedValue(time, m_ang_acc);
+    body_ang_acc = GetInterpolatedValue(time, m_ang_acc);
   }
+  return body_ang_acc;
 }
 
 
@@ -104,7 +115,7 @@ std::vector<Eigen::Vector3d> InterpolateVectors(
 )
 {
   std::vector<Eigen::Vector3d> out_vectors;
-  unsigned int j {0};
+  unsigned int j{0};
   for (unsigned int i = 0; i < m_time.size(); ++i) {
     Eigen::Vector3d vec {0.0, 0.0, 0.0};
     if ((m_time[i] > times[0]) && (m_time[i] < times.back())) {

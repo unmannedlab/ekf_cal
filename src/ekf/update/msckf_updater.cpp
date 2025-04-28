@@ -128,6 +128,7 @@ bool MsckfUpdater::TriangulateFeature(
   Eigen::Vector3d pos_f_in_c0 = A.colPivHouseholderQr().solve(b);
 
   Eigen::Vector3d pos_f_in_l_tri;
+  bool success{false};
   if (pos_f_in_c0.z() < m_min_feat_dist || m_max_feat_dist < pos_f_in_c0.z()) {
     std::stringstream err_msg;
     err_msg << "MSCKF triangulated point out of bounds. meas_noise = " << pos_f_in_c0.z();
@@ -135,10 +136,10 @@ bool MsckfUpdater::TriangulateFeature(
     pos_f_in_l_tri = Eigen::Vector3d::Zero();
     /// @todo: Add input flag
     if (m_use_true_triangulation) {
-      return true;
+      success = true;
     } else {
       pos_f_in_l = pos_f_in_l_tri;
-      return false;
+      success = false;
     }
   } else {
     pos_f_in_l_tri = rot_b0_to_l * (m_ang_c_to_b * pos_f_in_c0 + m_pos_c_in_b) + pos_b0_in_l;
@@ -151,8 +152,9 @@ bool MsckfUpdater::TriangulateFeature(
     if (!m_use_true_triangulation) {
       pos_f_in_l = pos_f_in_l_tri;
     }
-    return true;
+    success = true;
   }
+  return success;
 }
 
 void MsckfUpdater::projection_jacobian(
@@ -182,8 +184,8 @@ void MsckfUpdater::distortion_jacobian(
 
   // Jacobian of distorted pixel to normalized pixel
   H_d = Eigen::MatrixXd::Zero(2, 2);
-  double x = xy_norm(0);
-  double y = xy_norm(1);
+  double x_norm = xy_norm(0);
+  double y_norm = xy_norm(1);
   double x_2 = xy_norm(0) * xy_norm(0);
   double y_2 = xy_norm(1) * xy_norm(1);
   double x_y = xy_norm(0) * xy_norm(1);
@@ -191,29 +193,29 @@ void MsckfUpdater::distortion_jacobian(
   H_d(0, 0) =
     (1 + intrinsics.k_1 * r_2 + intrinsics.k_2 * r_4) +
     (2 * intrinsics.k_1 * x_2 + 4 * intrinsics.k_2 * x_2 * r_2) +
-    (2 * intrinsics.p_1 * y) +
-    (2 * intrinsics.p_2 * x) +
-    (4 * intrinsics.p_2 * x);
+    (2 * intrinsics.p_1 * y_norm) +
+    (2 * intrinsics.p_2 * x_norm) +
+    (4 * intrinsics.p_2 * x_norm);
 
   H_d(0, 1) =
     (2 * intrinsics.k_1 * x_y) +
     (4 * intrinsics.k_2 * x_y * r_2) +
-    (2 * intrinsics.p_1 * x) +
-    (2 * intrinsics.p_2 * y);
+    (2 * intrinsics.p_1 * x_norm) +
+    (2 * intrinsics.p_2 * y_norm);
 
   H_d(1, 0) =
     (2 * intrinsics.k_1 * x_y) +
     (4 * intrinsics.k_2 * x_y * r_2) +
-    (2 * intrinsics.p_1 * x) +
-    (2 * intrinsics.p_2 * y);
+    (2 * intrinsics.p_1 * x_norm) +
+    (2 * intrinsics.p_2 * y_norm);
 
   H_d(1, 1) =
     (1 + intrinsics.k_1 * r_2 + intrinsics.k_2 * r_4) +
     (2 * intrinsics.k_1 * y_2) +
     (4 * intrinsics.k_2 * y_2 * r_2) +
-    (2 * intrinsics.p_2 * x) +
-    (2 * intrinsics.p_1 * y) +
-    (4 * intrinsics.p_1 * y);
+    (2 * intrinsics.p_2 * x_norm) +
+    (2 * intrinsics.p_1 * y_norm) +
+    (4 * intrinsics.p_1 * y_norm);
 }
 
 void MsckfUpdater::UpdateEKF(

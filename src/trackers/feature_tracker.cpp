@@ -142,12 +142,12 @@ std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
   for (unsigned int i = 0; i < key_points.size(); i++) {
     // Get current left keypoint, check that it is in bounds
     cv::KeyPoint kpt = key_points.at(i);
-    int x = static_cast<int>(kpt.pt.x);
-    int y = static_cast<int>(kpt.pt.y);
+    int pt_x = static_cast<int>(kpt.pt.x);
+    int pt_y = static_cast<int>(kpt.pt.y);
     int x_grid = static_cast<int>(static_cast<double>(kpt.pt.x) / min_pixel_distance);
     int y_grid = static_cast<int>(static_cast<double>(kpt.pt.y) / min_pixel_distance);
-    if (x_grid < 0 || x_grid >= size.width || y_grid < 0 || y_grid >= size.height || x < 0 ||
-      x >= cols || y < 0 || y >= rows)
+    if (x_grid < 0 || x_grid >= size.width || y_grid < 0 || y_grid >= size.height || pt_x < 0 ||
+      pt_x >= cols || pt_y < 0 || pt_y >= rows)
     {
       continue;
     }
@@ -217,28 +217,27 @@ void FeatureTracker::Track(
     DistanceTest(matches_ransac, curr_key_points, matches_final);
 
     // Draw tracks
-    for (const auto & m : matches_final) {
-      cv::Point2f point_old = m_prev_key_points[static_cast<unsigned int>(m.queryIdx)].pt;
-      cv::Point2f point_new = curr_key_points[static_cast<unsigned int>(m.trainIdx)].pt;
+    for (const auto & match : matches_final) {
+      cv::Point2f point_old = m_prev_key_points[static_cast<unsigned int>(match.queryIdx)].pt;
+      cv::Point2f point_new = curr_key_points[static_cast<unsigned int>(match.trainIdx)].pt;
       cv::line(img_out, point_old, point_new, cv::Scalar(0, 255, 0), 2, 8, 0);
     }
 
     // Generate IDs and add to track map features that persist along at least two frames
-    for (const auto & m : matches_final) {
-      if (m_prev_key_points[static_cast<unsigned int>(m.queryIdx)].class_id == -1) {
-        m_prev_key_points[static_cast<unsigned int>(m.queryIdx)].class_id = GenerateFeatureID();
+    for (const auto & match : matches_final) {
+      if (m_prev_key_points[static_cast<unsigned int>(match.queryIdx)].class_id == -1) {
+        m_prev_key_points[static_cast<unsigned int>(match.queryIdx)].class_id = GenerateFeatureID();
         FeaturePoint feat_point {m_prev_frame_id, m_prev_frame_time,
-          m_prev_key_points[static_cast<unsigned int>(m.queryIdx)]};
-        m_feature_points_map[static_cast<unsigned int>(m_prev_key_points[static_cast<unsigned int>(m
-          .queryIdx)].class_id)].
-        push_back(feat_point);
+          m_prev_key_points[static_cast<unsigned int>(match.queryIdx)]};
+        m_feature_points_map[static_cast<unsigned int>(m_prev_key_points[
+            static_cast<unsigned int>(match.queryIdx)].class_id)].push_back(feat_point);
       }
-      curr_key_points[static_cast<unsigned int>(m.trainIdx)].class_id =
-        m_prev_key_points[static_cast<unsigned int>(m.queryIdx)].class_id;
+      curr_key_points[static_cast<unsigned int>(match.trainIdx)].class_id =
+        m_prev_key_points[static_cast<unsigned int>(match.queryIdx)].class_id;
       FeaturePoint feat_point {frame_id, m_ekf->GetCurrentTime(),
-        curr_key_points[static_cast<unsigned int>(m.trainIdx)]};
-      m_feature_points_map[static_cast<unsigned int>(curr_key_points[static_cast<unsigned int>(m.
-        trainIdx)].class_id)].
+        curr_key_points[static_cast<unsigned int>(match.trainIdx)]};
+      m_feature_points_map[static_cast<unsigned int>(curr_key_points[
+          static_cast<unsigned int>(match.trainIdx)].class_id)].
       push_back(feat_point);
     }
 

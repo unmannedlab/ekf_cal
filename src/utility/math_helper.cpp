@@ -108,38 +108,38 @@ Eigen::MatrixXd RemoveFromMatrix(
 
 void ApplyLeftNullspace(const Eigen::MatrixXd & H_f, Eigen::MatrixXd & H_x, Eigen::VectorXd & res)
 {
-  Eigen::HouseholderQR<Eigen::MatrixXd> QR(H_f);
-  Eigen::MatrixXd Q = QR.householderQ();
-  Eigen::MatrixXd Q_null = Q.block(H_f.cols(), 0, H_f.rows() - H_f.cols(), H_f.rows());
+  Eigen::HouseholderQR<Eigen::MatrixXd> QR_decomp(H_f);
+  Eigen::MatrixXd Q_decomp = QR_decomp.householderQ();
+  Eigen::MatrixXd Q_null = Q_decomp.block(H_f.cols(), 0, H_f.rows() - H_f.cols(), H_f.rows());
   H_x = Q_null * H_x;
   res = Q_null * res;
 }
 
 void CompressMeasurements(Eigen::MatrixXd & jacobian, Eigen::VectorXd & residual)
 {
-  auto m = static_cast<unsigned int>(jacobian.rows());
-  auto n = static_cast<unsigned int>(jacobian.cols());
+  auto m_rows = static_cast<unsigned int>(jacobian.rows());
+  auto n_cols = static_cast<unsigned int>(jacobian.cols());
 
   // Cannot compress fat matrices
-  if (m >= n) {
+  if (m_rows >= n_cols) {
     Eigen::JacobiRotation<double> givens;
-    for (unsigned int j = 0; j < n; j++) {
-      for (unsigned int i = m - 1; i > j; --i) {
+    for (unsigned int j = 0; j < n_cols; j++) {
+      for (unsigned int i = m_rows - 1; i > j; --i) {
         // Givens matrix
         givens.makeGivens(jacobian(i - 1, j), jacobian(i, j));
 
         // Compress measurements
-        (jacobian.block(i - 1, j, 2, n - j)).applyOnTheLeft(0, 1, givens.adjoint());
+        (jacobian.block(i - 1, j, 2, n_cols - j)).applyOnTheLeft(0, 1, givens.adjoint());
         (residual.segment<2>(i - 1)).applyOnTheLeft(0, 1, givens.adjoint());
       }
     }
 
     // Count non-zero rows after compression
-    unsigned int r = (jacobian.array().abs() > 1e-9).rowwise().any().cast<unsigned int>().sum();
+    unsigned int rows = (jacobian.array().abs() > 1e-9).rowwise().any().cast<unsigned int>().sum();
 
     // Construct the smaller jacobian and residual after measurement compression
-    jacobian.conservativeResize(r, jacobian.cols());
-    residual.conservativeResize(r);
+    jacobian.conservativeResize(rows, jacobian.cols());
+    residual.conservativeResize(rows);
   }
 }
 
@@ -226,10 +226,10 @@ bool kabsch_2d(
   Eigen::MatrixXd cov = mat_src * mat_tgt.transpose();
   Eigen::JacobiSVD<Eigen::MatrixXd> svd(cov, Eigen::ComputeFullU | Eigen::ComputeFullV);
 
-  Eigen::Matrix2d I = Eigen::Matrix2d::Identity();
+  Eigen::Matrix2d eye = Eigen::Matrix2d::Identity();
   double det = (svd.matrixV() * svd.matrixU().transpose()).determinant();
-  I(1, 1) = sign(det);
-  rotation_2d = svd.matrixV() * I * svd.matrixU().transpose();
+  eye(1, 1) = sign(det);
+  rotation_2d = svd.matrixV() * eye * svd.matrixU().transpose();
 
   Eigen::Matrix3d rotation_3d = Eigen::Matrix3d::Identity(3, 3);
   rotation_3d.block(0, 0, 2, 2) = rotation_2d;
@@ -299,13 +299,14 @@ double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vector
   return std::sqrt(square_sum_of_difference) / static_cast<double>(input_vectors.size());
 }
 
-Eigen::MatrixXd QR_r(const Eigen::MatrixXd & A, const Eigen::MatrixXd & B)
+Eigen::MatrixXd QR_r(const Eigen::MatrixXd & left, const Eigen::MatrixXd & right)
 {
-  Eigen::MatrixXd vert_cat(A.rows() + B.rows(), A.cols());
+  Eigen::MatrixXd vert_cat(left.rows() + right.rows(), left.cols());
 
-  vert_cat << A, B;
-  Eigen::HouseholderQR<Eigen::MatrixXd> QR(vert_cat);
-  Eigen::MatrixXd R = QR.matrixQR().block(0, 0, A.cols(), A.cols()).triangularView<Eigen::Upper>();
+  vert_cat << left, right;
+  Eigen::HouseholderQR<Eigen::MatrixXd> QR_decomp(vert_cat);
+  Eigen::MatrixXd R_decomp =
+    QR_decomp.matrixQR().block(0, 0, left.cols(), left.cols()).triangularView<Eigen::Upper>();
 
-  return R;
+  return R_decomp;
 }

@@ -85,9 +85,9 @@ void ImuUpdater::UpdateEKF(
   {
     ekf.SetZeroAcceleration(true);
     return;
-  } else {
-    ekf.SetZeroAcceleration(false);
   }
+
+  ekf.SetZeroAcceleration(false);
 
   auto t_start = std::chrono::high_resolution_clock::now();
 

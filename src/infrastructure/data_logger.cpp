@@ -49,7 +49,7 @@ void DataLogger::Log(const std::string & message)
 void DataLogger::RateLimitedLog(const std::string & message, double time)
 {
   if (m_logging_on) {
-    if (m_time_init) {
+    if (m_time_init != 0.0) {
       double log_count = static_cast<double>(m_log_count);
       double max_count = m_rate * (time - m_time_init);
       if ((m_rate == 0.0) || (log_count < max_count)) {
