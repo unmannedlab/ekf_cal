@@ -67,7 +67,7 @@ EKF::EKF(Parameters params)
   body_header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(body_header.str());
-  if (m_data_log_rate) {m_data_logger.EnableLogging();}
+  if (m_data_log_rate != 0.0) {m_data_logger.EnableLogging();}
   m_data_logger.SetLogRate(params.data_log_rate);
 
   std::stringstream aug_header;
@@ -75,32 +75,28 @@ EKF::EKF(Parameters params)
   aug_header << EnumerateHeader("aug_pos", 3);
   aug_header << EnumerateHeader("aug_ang", 4);
   m_augmentation_logger.DefineHeader(aug_header.str());
-  if (m_data_log_rate) {m_augmentation_logger.EnableLogging();}
+  if (m_data_log_rate != 0.0) {m_augmentation_logger.EnableLogging();}
 
   SetBodyProcessNoise(params.process_noise);
 
-  if (params.gps_init_type == GpsInitType::CONSTANT) {
-    m_is_lla_initialized = true;
-  } else {
-    m_is_lla_initialized = false;
-  }
+  m_is_lla_initialized = (params.gps_init_type == GpsInitType::CONSTANT);
 
   if (m_use_root_covariance) {
     m_cov = m_cov.cwiseSqrt();
   }
 }
 
-Eigen::MatrixXd EKF::GetStateTransition(double dT) const
+Eigen::MatrixXd EKF::GetStateTransition(double delta_time)
 {
   Eigen::MatrixXd state_transition =
     Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size);
-  state_transition.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * dT;
+  state_transition.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * delta_time;
   return state_transition;
 }
 
 void EKF::LogBodyStateIfNeeded(int execution_count)
 {
-  if (m_data_log_rate) {
+  if (m_data_log_rate != 0.0) {
     std::stringstream msg;
     Eigen::VectorXd body_cov = m_cov.block<g_body_state_size, g_body_state_size>(0, 0).diagonal();
     if (m_use_root_covariance) {
@@ -331,7 +327,7 @@ void EKF::RegisterCamera(
   unsigned int cam_state_end = g_body_state_size +
     GetImuStateSize() + GetGpsStateSize() + GetCamStateSize();
 
-  if (!m_primary_camera_id) {
+  if (m_primary_camera_id == 0) {
     m_primary_camera_id = cam_id;
   }
 
@@ -373,7 +369,7 @@ void EKF::RegisterFiducial(const FidState & fid_state, const Eigen::MatrixXd & c
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-Eigen::MatrixXd EKF::AugmentCovariance(const Eigen::MatrixXd & in_cov, unsigned int index)
+Eigen::MatrixXd EKF::AugmentCovariance(const Eigen::MatrixXd & in_cov, unsigned int index) const
 {
   auto in_rows = static_cast<unsigned int>(in_cov.rows());
   auto in_cols = static_cast<unsigned int>(in_cov.cols());
@@ -587,7 +583,8 @@ AugState EKF::GetAugState(unsigned int camera_id, unsigned int frame_id, double 
     }
 
     double alpha{0.0};
-    AugState aug_state_0, aug_state_1;
+    AugState aug_state_0;
+    AugState aug_state_1;
 
     if (time < m_state.aug_states[aug_key][0].time) {
       aug_state_0 = m_state.aug_states[aug_key][0];
@@ -780,7 +777,7 @@ void EKF::AttemptGpsInitialization(
     if (((m_gps_init_type == GpsInitType::BASELINE_DIST) &&
       (maximum_distance(gps_states_enu) > m_gps_init_baseline_dist)) ||
       ((m_gps_init_type == GpsInitType::ERROR_THRESHOLD) && is_successful &&
-      (pos_stddev < m_gps_init_pos_thresh) && ang_stddev &&
+      (pos_stddev < m_gps_init_pos_thresh) && (ang_stddev != 0.0) &&
       (ang_stddev < std::tan(m_gps_init_ang_thresh))))
     {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
@@ -858,14 +855,16 @@ bool EKF::GetUseFirstEstimateJacobian() const
 
 double EKF::CalculateLocalTime(double time)
 {
+  double local_time;
   if (!m_time_initialized) {
     m_reference_time = time;
     m_time_initialized = true;
     m_current_time = 0;
     m_debug_logger->Log(
       LogLevel::INFO, "EKF initialized time at t = " + std::to_string(time));
-    return m_current_time;
+    local_time = m_current_time;
   } else {
-    return time - m_reference_time;
+    local_time = time - m_reference_time;
   }
+  return local_time;
 }

@@ -406,7 +406,7 @@ FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(const std::string 
   auto squares_y = get_parameter(fiducial_prefix + ".squares_y").as_int();
   auto square_length = get_parameter(fiducial_prefix + ".square_length").as_double();
   auto marker_length = get_parameter(fiducial_prefix + ".marker_length").as_double();
-  auto id = get_parameter(fiducial_prefix + ".id").as_int();
+  auto fid_id = get_parameter(fiducial_prefix + ".id").as_int();
   auto pos_f_in_l = get_parameter(fiducial_prefix + ".pos_f_in_l").as_double_array();
   auto ang_f_to_l = get_parameter(fiducial_prefix + ".ang_f_to_l").as_double_array();
   auto variance = get_parameter(fiducial_prefix + ".variance").as_double_array();
@@ -420,7 +420,7 @@ FiducialTracker::Parameters EkfCalNode::GetFiducialParameters(const std::string 
   fiducial_params.squares_y = static_cast<unsigned int>(squares_y);
   fiducial_params.square_length = square_length;
   fiducial_params.marker_length = marker_length;
-  fiducial_params.id = static_cast<unsigned int>(id);
+  fiducial_params.id = static_cast<unsigned int>(fid_id);
   fiducial_params.pos_f_in_l = StdToEigVec(pos_f_in_l);
   fiducial_params.ang_f_to_l = StdToEigQuat(ang_f_to_l);
   fiducial_params.variance = StdToEigVec(variance);
@@ -555,40 +555,40 @@ void EkfCalNode::RegisterGps(std::shared_ptr<RosGPS> gps_ptr, const std::string 
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-void EkfCalNode::ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int id)
+void EkfCalNode::ImuCallback(const sensor_msgs::msg::Imu::SharedPtr msg, unsigned int imu_id)
 {
-  auto ros_imu_iter = m_map_imu.find(id);
+  auto ros_imu_iter = m_map_imu.find(imu_id);
   if (ros_imu_iter != m_map_imu.end()) {
     auto ros_imu_message = std::make_shared<RosImuMessage>(msg);
-    ros_imu_message->sensor_id = id;
+    ros_imu_message->sensor_id = imu_id;
     ros_imu_iter->second->Callback(*ros_imu_message);
   } else {
-    m_debug_logger->Log(LogLevel::WARN, "IMU ID Not Found: " + std::to_string(id));
+    m_debug_logger->Log(LogLevel::WARN, "IMU ID Not Found: " + std::to_string(imu_id));
   }
 }
 
-void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int id)
+void EkfCalNode::CameraCallback(const sensor_msgs::msg::Image::SharedPtr msg, unsigned int cam_id)
 {
-  auto ros_cam_iter = m_map_camera.find(id);
+  auto ros_cam_iter = m_map_camera.find(cam_id);
   if (ros_cam_iter != m_map_camera.end()) {
     auto ros_camera_message = std::make_shared<RosCameraMessage>(msg);
-    ros_camera_message->sensor_id = id;
+    ros_camera_message->sensor_id = cam_id;
     ros_cam_iter->second->Callback(*ros_camera_message);
-    m_map_image_publishers[id]->publish(*ros_cam_iter->second->GetRosImage().get());
+    m_map_image_publishers[cam_id]->publish(*ros_cam_iter->second->GetRosImage().get());
   } else {
-    m_debug_logger->Log(LogLevel::WARN, "Camera ID Not Found: " + std::to_string(id));
+    m_debug_logger->Log(LogLevel::WARN, "Camera ID Not Found: " + std::to_string(cam_id));
   }
 }
 
-void EkfCalNode::GpsCallback(const sensor_msgs::msg::NavSatFix::SharedPtr msg, unsigned int id)
+void EkfCalNode::GpsCallback(const sensor_msgs::msg::NavSatFix::SharedPtr msg, unsigned int gps_id)
 {
-  auto ros_gps_iter = m_map_gps.find(id);
+  auto ros_gps_iter = m_map_gps.find(gps_id);
   if (ros_gps_iter != m_map_gps.end()) {
     auto ros_gps_message = std::make_shared<RosGpsMessage>(msg);
-    ros_gps_message->sensor_id = id;
+    ros_gps_message->sensor_id = gps_id;
     ros_gps_iter->second->Callback(*ros_gps_message);
   } else {
-    m_debug_logger->Log(LogLevel::WARN, "GPS ID Not Found: " + std::to_string(id));
+    m_debug_logger->Log(LogLevel::WARN, "GPS ID Not Found: " + std::to_string(gps_id));
   }
 }
 

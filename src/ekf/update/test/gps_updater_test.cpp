@@ -38,7 +38,6 @@ TEST(test_gps_updater, update) {
   ekf->Initialize(time_init, body_state);
 
   unsigned int gps_id{0};
-  std::string log_file_dir{""};
   bool is_extrinsic{false};
 
   GpsState gps_state;
@@ -47,7 +46,7 @@ TEST(test_gps_updater, update) {
   ekf->RegisterGPS(gps_id, gps_state, gps_cov);
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  GpsUpdater gps_updater(gps_id, is_extrinsic, log_file_dir, 0.0, logger);
+  GpsUpdater gps_updater(gps_id, is_extrinsic, "", 0.0, logger);
   Eigen::Matrix3d pos_cov = Eigen::Matrix3d::Identity() * 1e-9;
 
   State state = ekf->m_state;

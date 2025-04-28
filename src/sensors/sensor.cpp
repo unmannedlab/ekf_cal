@@ -40,9 +40,9 @@ std::string Sensor::GetName() const
   return m_name;
 }
 
-bool MessageCompare(std::shared_ptr<SensorMessage> a, std::shared_ptr<SensorMessage> b)
+bool MessageCompare(std::shared_ptr<SensorMessage> l_msg, std::shared_ptr<SensorMessage> r_msg)
 {
-  return a->time < b->time;
+  return l_msg->time < r_msg->time;
 }
 
 void Sensor::Callback(const SensorMessage sensor_message) const

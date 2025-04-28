@@ -25,7 +25,7 @@
 
 void DebugLogger::SetLogLevel(LogLevel level)
 {
-  if ((m_log_level <= LogLevel::INFO) || (static_cast<LogLevel>(level) <= LogLevel::INFO)) {
+  if ((m_log_level <= LogLevel::INFO) || (level <= LogLevel::INFO)) {
     RCLCPP_INFO_STREAM(
       rclcpp::get_logger(
         "Logger"), "Log level set to: " <<

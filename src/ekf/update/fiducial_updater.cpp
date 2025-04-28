@@ -60,7 +60,7 @@ FiducialUpdater::FiducialUpdater(
   header << EnumerateHeader("duration", 1);
 
   m_fiducial_logger.DefineHeader(header.str());
-  if (data_log_rate) {m_fiducial_logger.EnableLogging();}
+  if (data_log_rate != 0.0) {m_fiducial_logger.EnableLogging();}
 }
 
 void FiducialUpdater::UpdateEKF(

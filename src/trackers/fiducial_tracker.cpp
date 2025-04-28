@@ -124,7 +124,7 @@ bool FiducialTracker::EstimatePoseBoard(
       corners, ids, temp_board, camera_matrix, dist_coefficients, r_vec, t_vec);
   } else if (m_detector_type == FiducialType::ARUCO_BOARD) {
     return cv::aruco::estimatePoseBoard(
-      marker_corners, ids, board, camera_matrix, dist_coefficients, r_vec, t_vec);
+      marker_corners, ids, board, camera_matrix, dist_coefficients, r_vec, t_vec) != 0;
   } else {
     return false;
   }

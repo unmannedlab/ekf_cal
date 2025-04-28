@@ -437,7 +437,7 @@ int main(int argc, char * argv[])
       trk_params.tracker_params.intrinsics = cam_params.intrinsics;
       trk_params.tracker_params.is_cam_extrinsic = cam_params.is_extrinsic;
       trk_params.tracker_params.data_log_rate = cam_params.data_log_rate;
-      trk_params.no_errors = trk_params.no_errors | sim_cam_params.no_errors;
+      trk_params.no_errors = trk_params.no_errors || sim_cam_params.no_errors;
       auto trk = std::make_shared<SimFeatureTracker>(trk_params, truth_engine);
       cam->AddTracker(trk);
     }
@@ -447,7 +447,7 @@ int main(int argc, char * argv[])
       fid_params.fiducial_params.intrinsics = cam_params.intrinsics;
       fid_params.fiducial_params.is_cam_extrinsic = cam_params.is_extrinsic;
       fid_params.fiducial_params.data_log_rate = cam_params.data_log_rate;
-      fid_params.no_errors = fid_params.no_errors | sim_cam_params.no_errors;
+      fid_params.no_errors = fid_params.no_errors || sim_cam_params.no_errors;
       auto fid = std::make_shared<SimFiducialTracker>(fid_params, truth_engine);
       cam->AddFiducial(fid);
     }
@@ -495,7 +495,7 @@ int main(int argc, char * argv[])
   }
 
   // Log truth data
-  if (data_log_rate) {truth_engine->WriteTruthData(data_log_rate, log_directory);}
+  if (data_log_rate != 0.0) {truth_engine->WriteTruthData(data_log_rate, log_directory);}
 
   // Sort Measurements
   sort(messages.begin(), messages.end(), MessageCompare);
@@ -504,18 +504,18 @@ int main(int argc, char * argv[])
   /// @todo: Add high-level execution timing vs. simulation time.
   debug_logger->Log(LogLevel::INFO, "Begin Simulation");
   for (auto message : messages) {
-    auto it = sensor_map.find(message->sensor_id);
-    if (it != sensor_map.end()) {
+    auto sensor_iter = sensor_map.find(message->sensor_id);
+    if (sensor_iter != sensor_map.end()) {
       if (message->sensor_type == SensorType::IMU) {
-        auto imu = std::static_pointer_cast<SimIMU>(it->second);
+        auto imu = std::static_pointer_cast<SimIMU>(sensor_iter->second);
         auto msg = std::static_pointer_cast<SimImuMessage>(message);
         imu->Callback(*msg);
       } else if (message->sensor_type == SensorType::Camera) {
-        auto cam = std::static_pointer_cast<SimCamera>(it->second);
+        auto cam = std::static_pointer_cast<SimCamera>(sensor_iter->second);
         auto msg = std::static_pointer_cast<SimCameraMessage>(message);
         cam->Callback(*msg);
       } else if (message->sensor_type == SensorType::GPS) {
-        auto gps = std::static_pointer_cast<SimGPS>(it->second);
+        auto gps = std::static_pointer_cast<SimGPS>(sensor_iter->second);
         auto msg = std::static_pointer_cast<SimGpsMessage>(message);
         gps->Callback(*msg);
       } else {

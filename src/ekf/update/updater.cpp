@@ -28,7 +28,7 @@ void Updater::KalmanUpdate(
   const Eigen::MatrixXd & jacobian,
   const Eigen::VectorXd & residual,
   const Eigen::MatrixXd & measurement_noise
-) const
+)
 {
   // Calculate Kalman gain
   Eigen::MatrixXd S, G, K, R;

@@ -44,9 +44,11 @@ std::vector<double> SimSensor::GenerateMeasurementTimes(double m_rate) const
 
 double SimSensor::ApplyTimeError(double true_time) const
 {
+  double time_err;
   if (m_no_errors) {
-    return true_time;
+    time_err = true_time;
   } else {
-    return m_rng.NormRand(true_time, m_time_error);
+    time_err = m_rng.NormRand(true_time, m_time_error);
   }
+  return time_err;
 }

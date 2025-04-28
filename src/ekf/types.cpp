@@ -96,53 +96,53 @@ State & operator+=(State & l_state, const Eigen::VectorXd & r_vector)
   Eigen::VectorXd r_body_state = r_vector.segment<g_body_state_size>(0);
   l_state.body_state += r_body_state;
 
-  unsigned int n = g_body_state_size;
+  unsigned int index = g_body_state_size;
   for (auto & imu_iter : l_state.imu_states) {
     if (imu_iter.second.GetIsExtrinsic()) {
-      imu_iter.second.pos_i_in_b += r_vector.segment<3>(n + 0);
+      imu_iter.second.pos_i_in_b += r_vector.segment<3>(index + 0);
       imu_iter.second.ang_i_to_b =
-        imu_iter.second.ang_i_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
-      n += g_imu_extrinsic_state_size;
+        imu_iter.second.ang_i_to_b * RotVecToQuat(r_vector.segment<3>(index + 3));
+      index += g_imu_extrinsic_state_size;
     }
     if (imu_iter.second.GetIsIntrinsic()) {
-      imu_iter.second.acc_bias += r_vector.segment<3>(n + 0);
-      imu_iter.second.omg_bias += r_vector.segment<3>(n + 3);
-      n += g_imu_intrinsic_state_size;
+      imu_iter.second.acc_bias += r_vector.segment<3>(index + 0);
+      imu_iter.second.omg_bias += r_vector.segment<3>(index + 3);
+      index += g_imu_intrinsic_state_size;
     }
   }
 
   for (auto & gps_iter : l_state.gps_states) {
     if (gps_iter.second.GetIsExtrinsic()) {
-      gps_iter.second.pos_a_in_b += r_vector.segment<3>(n);
-      n += g_gps_extrinsic_state_size;
+      gps_iter.second.pos_a_in_b += r_vector.segment<3>(index);
+      index += g_gps_extrinsic_state_size;
     }
   }
 
   for (auto & cam_iter : l_state.cam_states) {
     if (cam_iter.second.GetIsExtrinsic()) {
-      cam_iter.second.pos_c_in_b += r_vector.segment<3>(n + 0);
+      cam_iter.second.pos_c_in_b += r_vector.segment<3>(index + 0);
       cam_iter.second.ang_c_to_b =
-        cam_iter.second.ang_c_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
-      n += g_cam_extrinsic_state_size;
+        cam_iter.second.ang_c_to_b * RotVecToQuat(r_vector.segment<3>(index + 3));
+      index += g_cam_extrinsic_state_size;
     }
   }
 
   for (auto & fid_iter : l_state.fid_states) {
     if (fid_iter.second.GetIsExtrinsic()) {
-      fid_iter.second.pos_f_in_l += r_vector.segment<3>(n);
+      fid_iter.second.pos_f_in_l += r_vector.segment<3>(index);
       fid_iter.second.ang_f_to_l =
-        fid_iter.second.ang_f_to_l * RotVecToQuat(r_vector.segment<3>(n + 3));
-      n += g_fid_extrinsic_state_size;
+        fid_iter.second.ang_f_to_l * RotVecToQuat(r_vector.segment<3>(index + 3));
+      index += g_fid_extrinsic_state_size;
     }
   }
 
   for (auto & aug_iter : l_state.aug_states) {
     unsigned int aug_id = aug_iter.first;
     for (unsigned int i = 0; i < l_state.aug_states[aug_id].size(); ++i) {
-      l_state.aug_states[aug_id][i].pos_b_in_l += r_vector.segment<3>(n + 0);
+      l_state.aug_states[aug_id][i].pos_b_in_l += r_vector.segment<3>(index + 0);
       l_state.aug_states[aug_id][i].ang_b_to_l = l_state.aug_states[aug_id][i].ang_b_to_l *
-        RotVecToQuat(r_vector.segment<3>(n + 3));
-      n += g_aug_state_size;
+        RotVecToQuat(r_vector.segment<3>(index + 3));
+      index += g_aug_state_size;
     }
   }
 
@@ -151,17 +151,17 @@ State & operator+=(State & l_state, const Eigen::VectorXd & r_vector)
 
 ImuState & operator+=(ImuState & l_imu_state, const Eigen::VectorXd & r_vector)
 {
-  unsigned int n {0};
+  unsigned int index {0};
   if (l_imu_state.GetIsExtrinsic()) {
-    l_imu_state.pos_i_in_b += r_vector.segment<3>(n + 0);
+    l_imu_state.pos_i_in_b += r_vector.segment<3>(index + 0);
     l_imu_state.ang_i_to_b = l_imu_state.ang_i_to_b * RotVecToQuat(
-      r_vector.segment<3>(n + 3));
-    n += g_imu_extrinsic_state_size;
+      r_vector.segment<3>(index + 3));
+    index += g_imu_extrinsic_state_size;
   }
   if (l_imu_state.GetIsIntrinsic()) {
-    l_imu_state.acc_bias += r_vector.segment<3>(n + 0);
-    l_imu_state.omg_bias += r_vector.segment<3>(n + 3);
-    n += g_imu_intrinsic_state_size;
+    l_imu_state.acc_bias += r_vector.segment<3>(index + 0);
+    l_imu_state.omg_bias += r_vector.segment<3>(index + 3);
+    index += g_imu_intrinsic_state_size;
   }
 
   return l_imu_state;
@@ -170,19 +170,19 @@ ImuState & operator+=(ImuState & l_imu_state, const Eigen::VectorXd & r_vector)
 std::map<unsigned int, ImuState> & operator+=(
   std::map<unsigned int, ImuState> & l_imu_state, const Eigen::VectorXd & r_vector)
 {
-  unsigned int n {0};
+  unsigned int index {0};
   for (auto & imu_iter : l_imu_state) {
     unsigned int imu_id = imu_iter.first;
     if (l_imu_state[imu_id].GetIsExtrinsic()) {
-      l_imu_state[imu_id].pos_i_in_b += r_vector.segment<3>(n + 0);
+      l_imu_state[imu_id].pos_i_in_b += r_vector.segment<3>(index + 0);
       l_imu_state[imu_id].ang_i_to_b = l_imu_state[imu_id].ang_i_to_b * RotVecToQuat(
-        r_vector.segment<3>(n + 3));
-      n += g_imu_extrinsic_state_size;
+        r_vector.segment<3>(index + 3));
+      index += g_imu_extrinsic_state_size;
     }
     if (l_imu_state[imu_id].GetIsIntrinsic()) {
-      l_imu_state[imu_id].acc_bias += r_vector.segment<3>(n + 0);
-      l_imu_state[imu_id].omg_bias += r_vector.segment<3>(n + 3);
-      n += g_imu_intrinsic_state_size;
+      l_imu_state[imu_id].acc_bias += r_vector.segment<3>(index + 0);
+      l_imu_state[imu_id].omg_bias += r_vector.segment<3>(index + 3);
+      index += g_imu_intrinsic_state_size;
     }
   }
 
@@ -192,12 +192,12 @@ std::map<unsigned int, ImuState> & operator+=(
 std::map<unsigned int, CamState> & operator+=(
   std::map<unsigned int, CamState> & l_cam_state, const Eigen::VectorXd & r_vector)
 {
-  unsigned int n {0};
+  unsigned int index {0};
   for (auto & cam_iter : l_cam_state) {
     unsigned int cam_id = cam_iter.first;
-    l_cam_state[cam_id].pos_c_in_b += r_vector.segment<3>(n + 0);
+    l_cam_state[cam_id].pos_c_in_b += r_vector.segment<3>(index + 0);
     l_cam_state[cam_id].ang_c_to_b =
-      l_cam_state[cam_id].ang_c_to_b * RotVecToQuat(r_vector.segment<3>(n + 3));
+      l_cam_state[cam_id].ang_c_to_b * RotVecToQuat(r_vector.segment<3>(index + 3));
   }
 
   return l_cam_state;
@@ -207,11 +207,11 @@ std::map<unsigned int, CamState> & operator+=(
 std::vector<AugState> & operator+=(
   std::vector<AugState> & l_aug_state, const Eigen::VectorXd & r_vector)
 {
-  unsigned int n {0};
+  unsigned int index {0};
   for (auto & aug_iter : l_aug_state) {
-    aug_iter.pos_b_in_l += r_vector.segment<3>(n + 0);
-    aug_iter.ang_b_to_l = aug_iter.ang_b_to_l * RotVecToQuat(r_vector.segment<3>(n + 3));
-    n += g_aug_state_size;
+    aug_iter.pos_b_in_l += r_vector.segment<3>(index + 0);
+    aug_iter.ang_b_to_l = aug_iter.ang_b_to_l * RotVecToQuat(r_vector.segment<3>(index + 3));
+    index += g_aug_state_size;
   }
 
   return l_aug_state;
@@ -254,17 +254,17 @@ Eigen::VectorXd AugState::ToVector() const
 Eigen::VectorXd ImuState::ToVector() const
 {
   Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(size);
-  unsigned int n {0};
+  unsigned int index {0};
 
   if (is_extrinsic) {
-    out_vec.segment<3>(n + 0) = pos_i_in_b;
-    out_vec.segment<3>(n + 3) = QuatToRotVec(ang_i_to_b);
-    n += g_imu_extrinsic_state_size;
+    out_vec.segment<3>(index + 0) = pos_i_in_b;
+    out_vec.segment<3>(index + 3) = QuatToRotVec(ang_i_to_b);
+    index += g_imu_extrinsic_state_size;
   }
   if (is_intrinsic) {
-    out_vec.segment<3>(n + 0) = acc_bias;
-    out_vec.segment<3>(n + 3) = omg_bias;
-    n += g_imu_intrinsic_state_size;
+    out_vec.segment<3>(index + 0) = acc_bias;
+    out_vec.segment<3>(index + 3) = omg_bias;
+    index += g_imu_intrinsic_state_size;
   }
 
   return out_vec;
@@ -303,41 +303,41 @@ Eigen::VectorXd State::ToVector() const
   Eigen::VectorXd out_vec = Eigen::VectorXd::Zero(GetStateSize());
 
   out_vec.segment<g_body_state_size>(0) = body_state.ToVector();
-  unsigned int n = g_body_state_size;
+  unsigned int index = g_body_state_size;
 
   for (auto const & imu_iter : imu_states) {
     if (imu_iter.second.GetIsExtrinsic() || imu_iter.second.GetIsExtrinsic()) {
       Eigen::VectorXd temp_vec = imu_iter.second.ToVector();
-      out_vec.segment(n, temp_vec.size()) = temp_vec;
-      n += static_cast<unsigned int>(temp_vec.size());
+      out_vec.segment(index, temp_vec.size()) = temp_vec;
+      index += static_cast<unsigned int>(temp_vec.size());
     }
   }
 
   for (auto const & gps_iter : gps_states) {
     if (gps_iter.second.GetIsExtrinsic()) {
-      out_vec.segment<g_gps_extrinsic_state_size>(n) = gps_iter.second.pos_a_in_b;
-      n += g_gps_extrinsic_state_size;
+      out_vec.segment<g_gps_extrinsic_state_size>(index) = gps_iter.second.pos_a_in_b;
+      index += g_gps_extrinsic_state_size;
     }
   }
 
   for (auto const & cam_iter : cam_states) {
     if (cam_iter.second.GetIsExtrinsic()) {
-      out_vec.segment(n, g_cam_extrinsic_state_size) = cam_iter.second.ToVector();
-      n += g_cam_extrinsic_state_size;
+      out_vec.segment(index, g_cam_extrinsic_state_size) = cam_iter.second.ToVector();
+      index += g_cam_extrinsic_state_size;
     }
   }
 
   for (auto const & fid_iter : fid_states) {
     if (fid_iter.second.GetIsExtrinsic()) {
-      out_vec.segment<g_fid_extrinsic_state_size>(n + 0) = fid_iter.second.ToVector();
-      n += g_fid_extrinsic_state_size;
+      out_vec.segment<g_fid_extrinsic_state_size>(index + 0) = fid_iter.second.ToVector();
+      index += g_fid_extrinsic_state_size;
     }
   }
 
   for (auto const & aug_iter : aug_states) {
     for (unsigned int i = 0; i < aug_iter.second.size(); ++i) {
-      out_vec.segment<g_aug_state_size>(n) = aug_iter.second[i].ToVector();
-      n += g_aug_state_size;
+      out_vec.segment<g_aug_state_size>(index) = aug_iter.second[i].ToVector();
+      index += g_aug_state_size;
     }
   }
 
@@ -346,39 +346,39 @@ Eigen::VectorXd State::ToVector() const
 
 void State::SetState(const Eigen::VectorXd & state)
 {
-  unsigned int n = 0;
-  body_state.SetState(state.segment<g_body_state_size>(n));
-  n += g_body_state_size;
+  unsigned int index = 0;
+  body_state.SetState(state.segment<g_body_state_size>(index));
+  index += g_body_state_size;
 
   for (auto & imu_iter : imu_states) {
     if (imu_iter.second.GetIsExtrinsic()) {
-      imu_iter.second.SetExtrinsicState(state.segment<g_imu_extrinsic_state_size>(n));
-      n += g_imu_extrinsic_state_size;
+      imu_iter.second.SetExtrinsicState(state.segment<g_imu_extrinsic_state_size>(index));
+      index += g_imu_extrinsic_state_size;
     }
     if (imu_iter.second.GetIsIntrinsic()) {
-      imu_iter.second.SetIntrinsicState(state.segment<g_imu_intrinsic_state_size>(n));
-      n += g_imu_intrinsic_state_size;
+      imu_iter.second.SetIntrinsicState(state.segment<g_imu_intrinsic_state_size>(index));
+      index += g_imu_intrinsic_state_size;
     }
   }
 
   for (auto & gps_iter : gps_states) {
     if (gps_iter.second.GetIsExtrinsic()) {
-      gps_iter.second.pos_a_in_b = state.segment<g_gps_extrinsic_state_size>(n);
-      n += g_gps_extrinsic_state_size;
+      gps_iter.second.pos_a_in_b = state.segment<g_gps_extrinsic_state_size>(index);
+      index += g_gps_extrinsic_state_size;
     }
   }
 
   for (auto & cam_iter : cam_states) {
     if (cam_iter.second.GetIsExtrinsic()) {
-      cam_iter.second.SetState(state.segment<g_cam_extrinsic_state_size>(n));
-      n += g_cam_extrinsic_state_size;
+      cam_iter.second.SetState(state.segment<g_cam_extrinsic_state_size>(index));
+      index += g_cam_extrinsic_state_size;
     }
   }
 
   for (auto & fid_iter : fid_states) {
     if (fid_iter.second.GetIsExtrinsic()) {
-      fid_iter.second.SetState(state.segment<g_fid_extrinsic_state_size>(n));
-      n += g_fid_extrinsic_state_size;
+      fid_iter.second.SetState(state.segment<g_fid_extrinsic_state_size>(index));
+      index += g_fid_extrinsic_state_size;
     }
   }
 }
@@ -523,7 +523,7 @@ void FidState::refresh_size()
   if (is_extrinsic) {size += g_imu_extrinsic_state_size;}
 }
 
-cv::Mat Intrinsics::ToCameraMatrix()
+cv::Mat Intrinsics::ToCameraMatrix() const
 {
   cv::Mat camera_matrix = cv::Mat(3, 3, CV_64F, 0.0);
 
@@ -536,7 +536,7 @@ cv::Mat Intrinsics::ToCameraMatrix()
   return camera_matrix;
 }
 
-cv::Mat Intrinsics::ToDistortionVector()
+cv::Mat Intrinsics::ToDistortionVector() const
 {
   cv::Mat distortion_vector = cv::Mat(4, 1, CV_64F, 0.0);
 

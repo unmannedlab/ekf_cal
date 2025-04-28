@@ -54,13 +54,13 @@ public:
   /// @brief Generate camera matrix from intrinsics
   /// @return Camera matrix
   ///
-  cv::Mat ToCameraMatrix();
+  cv::Mat ToCameraMatrix() const;
 
   ///
   /// @brief Generate distortion vector from intrinsics
   /// @return Distortion vector
   ///
-  cv::Mat ToDistortionVector();
+  cv::Mat ToDistortionVector() const;
 
   /// @todo Develop better defaults
   double f_x {0.01};           ///< @brief X focal length [px]

@@ -94,7 +94,7 @@ public:
   /// @param position Position in camera coordinates
   /// @param jacobian Resulting camera projection jacobian
   ///
-  void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian) const;
+  static void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian);
 
 private:
   bool m_is_cam_extrinsic;

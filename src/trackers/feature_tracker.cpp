@@ -84,7 +84,6 @@ cv::Ptr<cv::FeatureDetector> FeatureTracker::InitFeatureDetector(
   return feature_detector;
 }
 
-
 cv::Ptr<cv::DescriptorExtractor> FeatureTracker::InitDescriptorExtractor(
   Descriptor extractor, int threshold)
 {
@@ -101,7 +100,6 @@ cv::Ptr<cv::DescriptorExtractor> FeatureTracker::InitDescriptorExtractor(
 
   return descriptor_extractor;
 }
-
 
 cv::Ptr<cv::DescriptorMatcher> FeatureTracker::InitDescriptorMatcher(Matcher matcher)
 {
@@ -123,7 +121,7 @@ std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
   std::vector<cv::KeyPoint> & key_points,
   int rows,
   int cols
-)const
+)
 {
   double min_pixel_distance = 10.0;
   auto double_rows = static_cast<double>(rows);
@@ -270,7 +268,6 @@ void FeatureTracker::Track(
   m_prev_descriptors = curr_descriptors;
 }
 
-
 int FeatureTracker::GenerateFeatureID()
 {
   static int featureID = 0;
@@ -294,7 +291,7 @@ void FeatureTracker::SymmetryTest(
   std::vector<std::vector<cv::DMatch>> & matches_forward,
   std::vector<std::vector<cv::DMatch>> & matches_backward,
   std::vector<cv::DMatch> & matches_out
-) const
+)
 {
   for (auto & match_f : matches_forward) {
     if (match_f.size() != 2) {

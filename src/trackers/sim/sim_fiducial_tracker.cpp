@@ -92,16 +92,11 @@ bool SimFiducialTracker::IsBoardVisible(const double time) const
   Eigen::Vector3d cam_plane_vec = rot_l_to_c.transpose() * Eigen::Vector3d(0, 0, 1);
   // Check that board is in front of camera plane
 
-  if (cam_plane_vec.dot(pos_f_in_l_true) > 0 &&
-    projected_points[0].x >= 0 &&
-    projected_points[0].y >= 0 &&
-    projected_points[0].x <= intrinsics.width &&
-    projected_points[0].y <= intrinsics.height)
-  {
-    return true;
-  } else {
-    return false;
-  }
+  return cam_plane_vec.dot(pos_f_in_l_true) > 0 &&
+         projected_points[0].x >= 0 &&
+         projected_points[0].y >= 0 &&
+         projected_points[0].x <= intrinsics.width &&
+         projected_points[0].y <= intrinsics.height;
 }
 
 std::shared_ptr<SimFiducialTrackerMessage> SimFiducialTracker::GenerateMessage(

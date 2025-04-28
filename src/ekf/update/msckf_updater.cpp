@@ -58,11 +58,11 @@ MsckfUpdater::MsckfUpdater(
   header << EnumerateHeader("duration", 1);
 
   m_msckf_logger.DefineHeader(header.str());
-  if (data_log_rate) {m_msckf_logger.EnableLogging();}
+  if (data_log_rate != 0.0) {m_msckf_logger.EnableLogging();}
   m_msckf_logger.SetLogRate(data_log_rate);
 
   m_triangulation_logger.DefineHeader("time,feature,x,y,z");
-  if (data_log_rate) {m_triangulation_logger.EnableLogging();}
+  if (data_log_rate != 0.0) {m_triangulation_logger.EnableLogging();}
   m_triangulation_logger.SetLogRate(data_log_rate);
 
   m_min_feat_dist = min_feat_dist;
@@ -158,7 +158,7 @@ bool MsckfUpdater::TriangulateFeature(
 void MsckfUpdater::projection_jacobian(
   const Eigen::Vector3d & pos,
   Eigen::MatrixXd & jacobian
-) const
+)
 {
   // Normalized coordinates in respect to projection function
   jacobian(0, 0) = 1 / pos(2);
@@ -325,7 +325,7 @@ void MsckfUpdater::UpdateEKF(
           quaternion_jacobian(m_ang_c_to_b).transpose();
       }
 
-      if (aug_state_i.alpha) {
+      if (aug_state_i.alpha != 0.0) {
         Eigen::MatrixXd H_aug_0 = H_d * H_p * H_t * (1 - aug_state_i.alpha);
         Eigen::MatrixXd H_aug_1 = H_d * H_p * H_t * aug_state_i.alpha;
 

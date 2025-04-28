@@ -135,7 +135,7 @@ TruthEngineSpline::TruthEngineSpline(
   for (unsigned int index = 0; index < spline_size; ++index) {
     Eigen::Vector3d pos {poses[3 * index], poses[3 * index + 1], poses[3 * index + 2]};
     Eigen::Vector3d ang {angles[3 * index], angles[3 * index + 1], angles[3 * index + 2]};
-    if (index) {
+    if (index != 0) {
       pos = rng.VecNormRand(pos, pos_errors);
       ang = rng.VecNormRand(ang, ang_errors);
     }

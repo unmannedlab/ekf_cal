@@ -183,7 +183,7 @@ Eigen::MatrixXd quaternion_jacobian(const Eigen::Quaterniond & quat)
 
 double sign(const double val)
 {
-  return (0.0 < val) - (val < 0.0);
+  return static_cast<double>(0.0 < val) - static_cast<double>(val < 0.0);
 }
 
 Eigen::MatrixXd matrix2d_from_vectors3d(const std::vector<Eigen::Vector3d> & input_vectors)
@@ -252,7 +252,7 @@ bool kabsch_2d(
   }
 
   pos_stddev = mean_standard_deviation(pos_errors);
-  if (sum_count) {
+  if (sum_count != 0.0) {
     ang_stddev = std::sqrt(sum_square_slopes) / sum_count;
   }
 

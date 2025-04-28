@@ -20,6 +20,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*)
+
 # @TODO Should this compile without ROS? Just make EKF library?
 if(NOT DEFINED ${ROS_DISTRO})
     set(ROS_DISTRO jazzy)

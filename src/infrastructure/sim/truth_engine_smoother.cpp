@@ -202,7 +202,7 @@ TruthEngineSmoother::TruthEngineSmoother(
     Eigen::Vector3d pos {poses[3 * i], poses[3 * i + 1], poses[3 * i + 2]};
     Eigen::Vector3d ang {angles[3 * i], angles[3 * i + 1], angles[3 * i + 2]};
 
-    if (i) {
+    if (i != 0) {
       pos = rng.VecNormRand(pos, pos_errors);
       ang = rng.VecNormRand(ang, ang_errors);
     }

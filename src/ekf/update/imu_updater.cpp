@@ -59,7 +59,7 @@ ImuUpdater::ImuUpdater(
   header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(header.str());
-  if (data_log_rate) {m_data_logger.EnableLogging();}
+  if (data_log_rate != 0.0) {m_data_logger.EnableLogging();}
   m_data_logger.SetLogRate(data_log_rate);
 }
 

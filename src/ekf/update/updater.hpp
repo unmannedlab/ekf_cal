@@ -38,11 +38,11 @@ public:
   /// @todo switch to passing EKF pointer
   // Updater(EKF & ekf, unsigned int sensor_id);
 
-  void KalmanUpdate(
+  static void KalmanUpdate(
     EKF & ekf,
     const Eigen::MatrixXd & jacobian,
     const Eigen::VectorXd & residual,
-    const Eigen::MatrixXd & measurement_noise) const;
+    const Eigen::MatrixXd & measurement_noise);
 
 protected:
   unsigned int m_id;                      ///< @brief Associated sensor ID

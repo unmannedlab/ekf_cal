@@ -148,10 +148,10 @@ public:
 
   ///
   /// @brief State transition matrix getter method
-  /// @param dT State transition time
+  /// @param delta_time State transition time
   /// @return State transition matrix
   ///
-  Eigen::MatrixXd GetStateTransition(double dT) const;
+  static Eigen::MatrixXd GetStateTransition(double delta_time);
 
   ///
   /// @brief EKF state initialization method
@@ -206,7 +206,7 @@ public:
   /// @param index Augmented state start index
   /// @return Augmented state covariance matrix
   ///
-  Eigen::MatrixXd AugmentCovariance(const Eigen::MatrixXd & in_cov, unsigned int index);
+  Eigen::MatrixXd AugmentCovariance(const Eigen::MatrixXd & in_cov, unsigned int index) const;
 
   ///
   /// @brief Check if state should be augmented using current state
