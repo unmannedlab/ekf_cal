@@ -130,7 +130,7 @@ bool MsckfUpdater::TriangulateFeature(
   Eigen::Vector3d pos_f_in_l_tri;
   if (pos_f_in_c0.z() < m_min_feat_dist || m_max_feat_dist < pos_f_in_c0.z()) {
     std::stringstream err_msg;
-    err_msg << "MSCKF triangulated point out of bounds. r = " << pos_f_in_c0.z();
+    err_msg << "MSCKF triangulated point out of bounds. meas_noise = " << pos_f_in_c0.z();
     m_logger->Log(LogLevel::INFO, err_msg.str());
     pos_f_in_l_tri = Eigen::Vector3d::Zero();
     /// @todo: Add input flag
@@ -173,11 +173,11 @@ void MsckfUpdater::distortion_jacobian(
   const Eigen::Vector2d & xy_norm,
   const Intrinsics & intrinsics,
   Eigen::MatrixXd & H_d
-) const
+)
 {
   // Calculate distorted coordinates for radial
-  double r = std::sqrt(xy_norm(0) * xy_norm(0) + xy_norm(1) * xy_norm(1));
-  double r_2 = r * r;
+  double meas_noise = std::sqrt(xy_norm(0) * xy_norm(0) + xy_norm(1) * xy_norm(1));
+  double r_2 = meas_noise * meas_noise;
   double r_4 = r_2 * r_2;
 
   // Jacobian of distorted pixel to normalized pixel
@@ -257,7 +257,7 @@ void MsckfUpdater::UpdateEKF(
   m_logger->Log(LogLevel::DEBUG, "Update track count: " + std::to_string(feature_tracks.size()));
 
   // MSCKF Update
-  for (auto & feature_track : feature_tracks) {
+  for (const auto & feature_track : feature_tracks) {
     m_logger->Log(
       LogLevel::DEBUG, "Feature Track size: " + std::to_string(feature_track.track.size()));
 
@@ -368,9 +368,10 @@ void MsckfUpdater::UpdateEKF(
   }
 
   px_error = std::max(px_error, 0.5);
-  Eigen::MatrixXd R = px_error * px_error * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
+  Eigen::MatrixXd meas_noise = px_error * px_error *
+    Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
-  KalmanUpdate(ekf, H_x, res_x, R);
+  KalmanUpdate(ekf, H_x, res_x, meas_noise);
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);

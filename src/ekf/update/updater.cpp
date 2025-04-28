@@ -31,7 +31,11 @@ void Updater::KalmanUpdate(
 )
 {
   // Calculate Kalman gain
-  Eigen::MatrixXd S, G, K, R;
+  Eigen::MatrixXd S;
+  Eigen::MatrixXd G;
+  Eigen::MatrixXd K;
+  Eigen::MatrixXd R;
+
   if (ekf.GetUseRootCovariance()) {
     R = measurement_noise.cwiseSqrt();
     G = QR_r(ekf.m_cov * jacobian.transpose(), R);

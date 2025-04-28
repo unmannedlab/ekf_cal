@@ -74,7 +74,7 @@ cv::Ptr<cv::FeatureDetector> FeatureTracker::InitFeatureDetector(
       break;
     case Detector::ORB:
       feature_detector =
-        cv::ORB::create(1000, 1.2f, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
+        cv::ORB::create(1000, 1.2, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
       break;
     case Detector::SIFT:
       feature_detector = cv::SIFT::create();
@@ -91,7 +91,7 @@ cv::Ptr<cv::DescriptorExtractor> FeatureTracker::InitDescriptorExtractor(
   switch (extractor) {
     case Descriptor::ORB:
       descriptor_extractor =
-        cv::ORB::create(500, 1.2f, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
+        cv::ORB::create(500, 1.2, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
       break;
     case Descriptor::SIFT:
       descriptor_extractor = cv::SIFT::create();
@@ -147,7 +147,7 @@ std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
     int x_grid = static_cast<int>(static_cast<double>(kpt.pt.x) / min_pixel_distance);
     int y_grid = static_cast<int>(static_cast<double>(kpt.pt.y) / min_pixel_distance);
     if (x_grid < 0 || x_grid >= size.width || y_grid < 0 || y_grid >= size.height || x < 0 ||
-      x >= static_cast<int>(cols) || y < 0 || y >= static_cast<int>(rows))
+      x >= cols || y < 0 || y >= rows)
     {
       continue;
     }
@@ -199,7 +199,8 @@ void FeatureTracker::Track(
   m_logger->Log(LogLevel::DEBUG, "Called Tracker for frame ID: " + std::to_string(frame_id));
 
   if (m_prev_descriptors.rows > 0 && curr_descriptors.rows > 0) {
-    std::vector<std::vector<cv::DMatch>> matches_forward, matches_backward;
+    std::vector<std::vector<cv::DMatch>> matches_forward;
+    std::vector<std::vector<cv::DMatch>> matches_backward;
 
     /// @todo Mask using maximum distance from predicted IMU rotations
     m_descriptor_matcher->knnMatch(m_prev_descriptors, curr_descriptors, matches_forward, 2);
@@ -208,7 +209,9 @@ void FeatureTracker::Track(
     // Perform test on matches
     RatioTest(matches_forward);
     RatioTest(matches_backward);
-    std::vector<cv::DMatch> matches_symmetry, matches_ransac, matches_final;
+    std::vector<cv::DMatch> matches_symmetry;
+    std::vector<cv::DMatch> matches_ransac;
+    std::vector<cv::DMatch> matches_final;
     SymmetryTest(matches_forward, matches_backward, matches_symmetry);
     RANSAC(matches_symmetry, curr_key_points, matches_ransac);
     DistanceTest(matches_ransac, curr_key_points, matches_final);
@@ -325,7 +328,8 @@ void FeatureTracker::RANSAC(
   }
 
   // Convert points into points for RANSAC
-  std::vector<cv::Point2f> points_good_prev, points_good_curr;
+  std::vector<cv::Point2f> points_good_prev;
+  std::vector<cv::Point2f> points_good_curr;
   for (unsigned int i = 0; i < matches_in.size(); i++) {
     points_good_prev.push_back(
       m_prev_key_points[static_cast<unsigned int>(matches_in.at(i).queryIdx)].pt);
@@ -353,7 +357,8 @@ void FeatureTracker::DistanceTest(
 ) const
 {
   double dist_sum{0.0};
-  std::vector<cv::Point2f> points_good_prev, points_good_curr;
+  std::vector<cv::Point2f> points_good_prev;
+  std::vector<cv::Point2f> points_good_curr;
   for (unsigned int i = 0; i < matches_in.size(); i++) {
     cv::Point2f point_prev =
       m_prev_key_points[static_cast<unsigned int>(matches_in.at(i).queryIdx)].pt;

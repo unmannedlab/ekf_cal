@@ -254,13 +254,11 @@ public:
   /// @param time Current time
   /// @param camera_id Camera ID
   /// @param new_feature_count Number of new features to generate
-  /// @param rng Random number generator
   ///
   std::vector<cv::Point3d> GenerateVisibleFeatures(
     double time,
     unsigned int camera_id,
-    unsigned int new_feature_count,
-    SimRNG rng
+    unsigned int new_feature_count
   );
 
   ///

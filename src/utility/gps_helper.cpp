@@ -51,27 +51,23 @@ Eigen::Vector3d lla_to_ecef(const Eigen::Vector3d & lla)
 
 Eigen::Vector3d ecef_to_enu(const Eigen::Vector3d & in_ecef, const Eigen::Vector3d & ref_lla)
 {
-  Eigen::Vector3d ref_ecef, diff_ecef;
-
-  ref_ecef = lla_to_ecef(ref_lla);
+  Eigen::Vector3d ref_ecef = lla_to_ecef(ref_lla);
 
   // ECEF difference from reference point
-  diff_ecef(0) = in_ecef(0) - ref_ecef(0);
-  diff_ecef(1) = in_ecef(1) - ref_ecef(1);
-  diff_ecef(2) = in_ecef(2) - ref_ecef(2);
+  Eigen::Vector3d diff_ecef = in_ecef - ref_ecef;
 
-  Eigen::Matrix3d R;
-  R(0, 0) = -std::sin(ref_lla(1) * g_deg_to_rad);
-  R(0, 1) = std::cos(ref_lla(1) * g_deg_to_rad);
-  R(0, 2) = 0.0;
-  R(1, 0) = -std::cos(ref_lla(1) * g_deg_to_rad) * std::sin(ref_lla(0) * g_deg_to_rad);
-  R(1, 1) = -std::sin(ref_lla(1) * g_deg_to_rad) * std::sin(ref_lla(0) * g_deg_to_rad);
-  R(1, 2) = std::cos(ref_lla(0) * g_deg_to_rad);
-  R(2, 0) = std::cos(ref_lla(1) * g_deg_to_rad) * std::cos(ref_lla(0) * g_deg_to_rad);
-  R(2, 1) = std::sin(ref_lla(1) * g_deg_to_rad) * std::cos(ref_lla(0) * g_deg_to_rad);
-  R(2, 2) = std::sin(ref_lla(0) * g_deg_to_rad);
+  Eigen::Matrix3d rot_mat;
+  rot_mat(0, 0) = -std::sin(ref_lla(1) * g_deg_to_rad);
+  rot_mat(0, 1) = std::cos(ref_lla(1) * g_deg_to_rad);
+  rot_mat(0, 2) = 0.0;
+  rot_mat(1, 0) = -std::cos(ref_lla(1) * g_deg_to_rad) * std::sin(ref_lla(0) * g_deg_to_rad);
+  rot_mat(1, 1) = -std::sin(ref_lla(1) * g_deg_to_rad) * std::sin(ref_lla(0) * g_deg_to_rad);
+  rot_mat(1, 2) = std::cos(ref_lla(0) * g_deg_to_rad);
+  rot_mat(2, 0) = std::cos(ref_lla(1) * g_deg_to_rad) * std::cos(ref_lla(0) * g_deg_to_rad);
+  rot_mat(2, 1) = std::sin(ref_lla(1) * g_deg_to_rad) * std::cos(ref_lla(0) * g_deg_to_rad);
+  rot_mat(2, 2) = std::sin(ref_lla(0) * g_deg_to_rad);
 
-  Eigen::Vector3d out_enu = R * diff_ecef;
+  Eigen::Vector3d out_enu = rot_mat * diff_ecef;
 
   return out_enu;
 }
@@ -79,18 +75,18 @@ Eigen::Vector3d ecef_to_enu(const Eigen::Vector3d & in_ecef, const Eigen::Vector
 Eigen::Vector3d enu_to_ecef(const Eigen::Vector3d & in_enu, const Eigen::Vector3d & ref_lla)
 {
   Eigen::Vector3d ref_ecef = lla_to_ecef(ref_lla);
-  Eigen::Matrix3d R(3, 3);
-  R(0, 0) = -std::sin(ref_lla(1) * g_deg_to_rad);
-  R(0, 1) = -std::cos(ref_lla(1) * g_deg_to_rad) * std::sin(ref_lla(0) * g_deg_to_rad);
-  R(0, 2) = std::cos(ref_lla(1) * g_deg_to_rad) * std::cos(ref_lla(0) * g_deg_to_rad);
-  R(1, 0) = std::cos(ref_lla(1) * g_deg_to_rad);
-  R(1, 1) = -std::sin(ref_lla(1) * g_deg_to_rad) * std::sin(ref_lla(0) * g_deg_to_rad);
-  R(1, 2) = std::sin(ref_lla(1) * g_deg_to_rad) * std::cos(ref_lla(0) * g_deg_to_rad);
-  R(2, 0) = 0.0;
-  R(2, 1) = std::cos(ref_lla(0) * g_deg_to_rad);
-  R(2, 2) = std::sin(ref_lla(0) * g_deg_to_rad);
+  Eigen::Matrix3d rot_mat(3, 3);
+  rot_mat(0, 0) = -std::sin(ref_lla(1) * g_deg_to_rad);
+  rot_mat(0, 1) = -std::cos(ref_lla(1) * g_deg_to_rad) * std::sin(ref_lla(0) * g_deg_to_rad);
+  rot_mat(0, 2) = std::cos(ref_lla(1) * g_deg_to_rad) * std::cos(ref_lla(0) * g_deg_to_rad);
+  rot_mat(1, 0) = std::cos(ref_lla(1) * g_deg_to_rad);
+  rot_mat(1, 1) = -std::sin(ref_lla(1) * g_deg_to_rad) * std::sin(ref_lla(0) * g_deg_to_rad);
+  rot_mat(1, 2) = std::sin(ref_lla(1) * g_deg_to_rad) * std::cos(ref_lla(0) * g_deg_to_rad);
+  rot_mat(2, 0) = 0.0;
+  rot_mat(2, 1) = std::cos(ref_lla(0) * g_deg_to_rad);
+  rot_mat(2, 2) = std::sin(ref_lla(0) * g_deg_to_rad);
 
-  Eigen::Vector3d out_ecef = ref_ecef + R * in_enu;
+  Eigen::Vector3d out_ecef = ref_ecef + rot_mat * in_enu;
   return out_ecef;
 }
 

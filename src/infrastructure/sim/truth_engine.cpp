@@ -172,8 +172,7 @@ void TruthEngine::GenerateGridFeatures()
 std::vector<cv::Point3d> TruthEngine::GenerateVisibleFeatures(
   double time,
   unsigned int camera_id,
-  unsigned int new_feature_count,
-  SimRNG rng
+  unsigned int new_feature_count
 )
 {
   Eigen::Vector3d pos_b_in_l = GetBodyPosition(time);
@@ -185,9 +184,9 @@ std::vector<cv::Point3d> TruthEngine::GenerateVisibleFeatures(
   Intrinsics intrinsics = GetCameraIntrinsics(camera_id);
 
   for (unsigned int i = 0; i < new_feature_count; ++i) {
-    auto c_x = static_cast<unsigned int>(rng.UniRand(0, intrinsics.width));
-    auto c_y = static_cast<unsigned int>(rng.UniRand(0, intrinsics.height));
-    double depth = rng.UniRand(0, m_room_size);
+    auto c_x = static_cast<unsigned int>(SimRNG::UniRand(0, intrinsics.width));
+    auto c_y = static_cast<unsigned int>(SimRNG::UniRand(0, intrinsics.height));
+    double depth = SimRNG::UniRand(0, m_room_size);
 
     Eigen::Vector3d pos_f_in_c{
       depth * (c_x - intrinsics.width / 2) / (intrinsics.f_x / intrinsics.pixel_size),

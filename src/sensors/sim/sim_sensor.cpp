@@ -20,8 +20,7 @@
 
 
 SimSensor::SimSensor(Parameters params)
-: m_no_errors(params.no_errors),
-  m_rng(params.rng)
+: m_no_errors(params.no_errors)
 {
   if (m_no_errors) {
     m_time_error = 0.0;
@@ -33,7 +32,7 @@ SimSensor::SimSensor(Parameters params)
 std::vector<double> SimSensor::GenerateMeasurementTimes(double m_rate) const
 {
   auto num_measurements = static_cast<unsigned int>(std::floor(m_truth->m_max_time * m_rate));
-  double time_init = m_no_errors ? 0 : m_rng.UniRand(0.0, 1.0 / m_rate);
+  double time_init = m_no_errors ? 0 : SimRNG::UniRand(0.0, 1.0 / m_rate);
 
   std::vector<double> message_times;
   for (unsigned int i = 0; i < num_measurements; ++i) {
@@ -48,7 +47,7 @@ double SimSensor::ApplyTimeError(double true_time) const
   if (m_no_errors) {
     time_err = true_time;
   } else {
-    time_err = m_rng.NormRand(true_time, m_time_error);
+    time_err = SimRNG::NormRand(true_time, m_time_error);
   }
   return time_err;
 }

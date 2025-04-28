@@ -35,10 +35,8 @@ TEST(test_TruthEngineSpline, Constructor) {
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
-  SimRNG rng;
-
   TruthEngineSpline truth_engine_spline(
-    positions, angles, pos_errs, ang_errs, stationary_time, max_time, logger, rng);
+    positions, angles, pos_errs, ang_errs, stationary_time, max_time, logger);
 }
 
 TEST(test_TruthEngineSpline, Constant_Velocity) {
@@ -52,10 +50,8 @@ TEST(test_TruthEngineSpline, Constant_Velocity) {
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
-  SimRNG rng;
-
   TruthEngineSpline truth_engine_spline(
-    positions, angles, pos_errs, ang_errs, stationary_time, max_time, logger, rng);
+    positions, angles, pos_errs, ang_errs, stationary_time, max_time, logger);
 
   Eigen::Vector3d pos_n = truth_engine_spline.GetBodyPosition(-1.0);
   Eigen::Vector3d pos_0 = truth_engine_spline.GetBodyPosition(0.0);
@@ -165,10 +161,8 @@ TEST(test_TruthEngineSpline, Oscillating) {
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
-  SimRNG rng;
-
   TruthEngineSpline truth_engine_spline(
-    positions, angles, pos_errs, ang_errs, stationary_time, max_time, logger, rng);
+    positions, angles, pos_errs, ang_errs, stationary_time, max_time, logger);
 
   Eigen::Vector3d pos_n = truth_engine_spline.GetBodyPosition(-1.0);
   Eigen::Vector3d pos_0 = truth_engine_spline.GetBodyPosition(0.0);

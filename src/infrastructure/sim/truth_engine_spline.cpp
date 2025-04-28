@@ -118,8 +118,7 @@ TruthEngineSpline::TruthEngineSpline(
   std::vector<double> angle_errors,
   double stationary_time,
   double max_time,
-  std::shared_ptr<DebugLogger> logger,
-  SimRNG rng
+  std::shared_ptr<DebugLogger> logger
 )
 : TruthEngine(max_time, logger)
 {
@@ -136,8 +135,8 @@ TruthEngineSpline::TruthEngineSpline(
     Eigen::Vector3d pos {poses[3 * index], poses[3 * index + 1], poses[3 * index + 2]};
     Eigen::Vector3d ang {angles[3 * index], angles[3 * index + 1], angles[3 * index + 2]};
     if (index != 0) {
-      pos = rng.VecNormRand(pos, pos_errors);
-      ang = rng.VecNormRand(ang, ang_errors);
+      pos = SimRNG::VecNormRand(pos, pos_errors);
+      ang = SimRNG::VecNormRand(ang, ang_errors);
     }
     pos_mat.col(index) << pos[0], pos[1], pos[2];
     ang_mat.col(index) << ang[0], ang[1], ang[2];
@@ -157,11 +156,7 @@ TruthEngineSpline::TruthEngineSpline(
 
 bool TruthEngineSpline::IsTimeInvalid(double time)
 {
-  if (time < 0.0 || time > m_max_time) {
-    return true;
-  } else {
-    return false;
-  }
+  return time < 0.0 || time > m_max_time;
 }
 
 bool TruthEngineSpline::IsSplineInvalid(const Eigen::Spline3d & spline)

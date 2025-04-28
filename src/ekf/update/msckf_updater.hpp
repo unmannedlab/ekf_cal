@@ -84,10 +84,10 @@ public:
   /// @param intrinsics Camera intrinsics
   /// @param H_d Derivative of measurement z in respect to normalized
   ///
-  void distortion_jacobian(
+  static void distortion_jacobian(
     const Eigen::Vector2d & xy_norm,
     const Intrinsics & intrinsics,
-    Eigen::MatrixXd & H_d) const;
+    Eigen::MatrixXd & H_d);
 
   ///
   /// @brief Function to calculate jacobian for camera projection function

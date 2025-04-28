@@ -262,7 +262,8 @@ bool kabsch_2d(
 /// @todo This method uses integers for distance, where doubles would be more accurate
 double maximum_distance(const std::vector<Eigen::Vector3d> & eigen_points)
 {
-  std::vector<cv::Point> points, hull;
+  std::vector<cv::Point> points;
+  std::vector<cv::Point> hull;
   for (auto eigen_point : eigen_points) {
     cv::Point cv_point;
     cv_point.x = static_cast<int>(eigen_point.x());
@@ -290,7 +291,7 @@ double mean_standard_deviation(const std::vector<Eigen::Vector3d> & input_vector
   double square_sum_of_difference{0.0};
   Eigen::Vector3d mean_var = average_vectors(input_vectors);
 
-  for (auto & vector : input_vectors) {
+  for (const auto & vector : input_vectors) {
     double diff = (vector - mean_var).norm();
     square_sum_of_difference += diff * diff;
   }

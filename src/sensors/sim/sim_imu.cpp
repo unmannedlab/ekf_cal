@@ -52,10 +52,10 @@ SimIMU::SimIMU(SimIMU::Parameters params, std::shared_ptr<TruthEngine> truth_eng
     acc_bias_true = params.imu_params.acc_bias;
     omg_bias_true = params.imu_params.omg_bias;
   } else {
-    pos_i_in_b_true = m_rng.VecNormRand(params.imu_params.pos_i_in_b, params.pos_error);
-    ang_i_to_b_true = m_rng.QuatNormRand(params.imu_params.ang_i_to_b, params.ang_error);
-    acc_bias_true = m_rng.VecNormRand(params.imu_params.acc_bias, params.acc_bias_error);
-    omg_bias_true = m_rng.VecNormRand(params.imu_params.omg_bias, params.omg_bias_error);
+    pos_i_in_b_true = SimRNG::VecNormRand(params.imu_params.pos_i_in_b, params.pos_error);
+    ang_i_to_b_true = SimRNG::QuatNormRand(params.imu_params.ang_i_to_b, params.ang_error);
+    acc_bias_true = SimRNG::VecNormRand(params.imu_params.acc_bias, params.acc_bias_error);
+    omg_bias_true = SimRNG::VecNormRand(params.imu_params.omg_bias, params.omg_bias_error);
   }
 
   m_truth->SetImuPosition(m_id, pos_i_in_b_true);
@@ -100,8 +100,8 @@ std::vector<std::shared_ptr<SimImuMessage>> SimIMU::GenerateMessages() const
     sim_imu_msg->angular_rate = imu_omg_i;
 
     if (!m_no_errors) {
-      sim_imu_msg->acceleration += m_rng.VecNormRand(acc_bias_true, m_acc_error);
-      sim_imu_msg->angular_rate += m_rng.VecNormRand(gyr_bias_true, m_omg_error);
+      sim_imu_msg->acceleration += SimRNG::VecNormRand(acc_bias_true, m_acc_error);
+      sim_imu_msg->angular_rate += SimRNG::VecNormRand(gyr_bias_true, m_omg_error);
     }
 
     sim_imu_msg->acceleration_covariance = m_acc_error.cwiseProduct(m_acc_error).asDiagonal();

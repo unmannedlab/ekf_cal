@@ -95,49 +95,46 @@ void FiducialUpdater::UpdateEKF(
   unsigned int cam_index = ekf.m_state.cam_states[m_camera_id].index;
 
   Eigen::VectorXd res = Eigen::VectorXd::Zero(g_fid_measurement_size);
-  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(g_fid_measurement_size, state_size);
+  Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(g_fid_measurement_size, state_size);
 
   Eigen::Matrix3d rot_b_to_c = rot_c_to_b.transpose();
   Eigen::Matrix3d rot_l_to_b = rot_b_to_l.transpose();
   Eigen::Matrix3d rot_l_to_c = rot_b_to_c * rot_l_to_b;
   Eigen::Quaterniond ang_l_to_c(rot_l_to_c);
 
-  Eigen::Vector3d pos_predicted, pos_measured, pos_residual;
-  Eigen::Quaterniond ang_predicted, ang_measured, ang_residual;
-
   // Project the current feature into the current frame of reference
   Eigen::Vector3d pos_f_in_b = rot_l_to_b * (m_pos_f_in_l - pos_b_in_l);
-  pos_predicted = rot_b_to_c * (pos_f_in_b - m_pos_c_in_b);
-  ang_predicted = ang_l_to_c * m_ang_f_to_l;
+  Eigen::Vector3d pos_predicted = rot_b_to_c * (pos_f_in_b - m_pos_c_in_b);
+  Eigen::Quaterniond ang_predicted = ang_l_to_c * m_ang_f_to_l;
 
-  pos_measured = board_detection.pos_f_in_c;
-  ang_measured = board_detection.ang_f_to_c;
+  Eigen::Vector3d pos_measured = board_detection.pos_f_in_c;
+  Eigen::Quaterniond ang_measured = board_detection.ang_f_to_c;
 
   // Residuals for this frame
-  pos_residual = pos_measured - pos_predicted;
-  ang_residual = ang_predicted * ang_measured.inverse();
+  Eigen::Vector3d pos_residual = pos_measured - pos_predicted;
+  Eigen::Quaterniond ang_residual = ang_predicted * ang_measured.inverse();
 
   res.segment<3>(0) = pos_residual;
   res.segment<3>(3) = QuatToRotVec(ang_residual);
 
-  H.block<3, 3>(0, 0) = -rot_l_to_c;
+  jacobian.block<3, 3>(0, 0) = -rot_l_to_c;
 
-  H.block<3, 3>(0, 9) = -rot_l_to_c *
+  jacobian.block<3, 3>(0, 9) = -rot_l_to_c *
     SkewSymmetric(m_pos_f_in_l - pos_b_in_l) *
     quaternion_jacobian(ang_b_to_l).transpose();
 
-  H.block<3, 3>(3, 9) = rot_l_to_c * rot_f_to_l *
+  jacobian.block<3, 3>(3, 9) = rot_l_to_c * rot_f_to_l *
     quaternion_jacobian(ang_b_to_l).transpose();
 
   /// @todo Test camera calibration jacobians
   if (ekf.m_state.cam_states[m_camera_id].GetIsExtrinsic()) {
-    H.block<3, 3>(0, cam_index + 0) = -rot_b_to_c;
+    jacobian.block<3, 3>(0, cam_index + 0) = -rot_b_to_c;
 
-    H.block<3, 3>(0, cam_index + 3) = rot_b_to_c *
+    jacobian.block<3, 3>(0, cam_index + 3) = rot_b_to_c *
       SkewSymmetric(rot_l_to_b * (m_pos_f_in_l - pos_b_in_l) - m_pos_c_in_b) *
       quaternion_jacobian(m_ang_c_to_b).transpose();
 
-    H.block<3, 3>(3, cam_index + 3) = rot_b_to_c *
+    jacobian.block<3, 3>(3, cam_index + 3) = rot_b_to_c *
       quaternion_jacobian(m_ang_c_to_b).transpose() * rot_l_to_b * rot_f_to_l;
   }
 
@@ -145,12 +142,12 @@ void FiducialUpdater::UpdateEKF(
 
   /// @todo Chi^2 distance check
 
-  Eigen::MatrixXd R = Eigen::MatrixXd::Zero(res.rows(), res.rows());
-  R.block<3, 3>(0, 0) = board_detection.pos_error.asDiagonal();
-  R.block<3, 3>(3, 3) = board_detection.ang_error.asDiagonal();
+  Eigen::MatrixXd meas_noise = Eigen::MatrixXd::Zero(res.rows(), res.rows());
+  meas_noise.block<3, 3>(0, 0) = board_detection.pos_error.asDiagonal();
+  meas_noise.block<3, 3>(3, 3) = board_detection.ang_error.asDiagonal();
 
   // Apply Kalman update
-  KalmanUpdate(ekf, H, res, R);
+  KalmanUpdate(ekf, jacobian, res, meas_noise);
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);

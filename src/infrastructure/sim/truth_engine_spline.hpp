@@ -41,7 +41,6 @@ public:
   /// @param stationary_time Time to be stationary before beginning motion
   /// @param max_time Maximum simulation time
   /// @param logger Debug logger pointer
-  /// @param rng Random number generator
   ///
   TruthEngineSpline(
     std::vector<double> poses,
@@ -50,8 +49,7 @@ public:
     std::vector<double> angle_errors,
     double stationary_time,
     double max_time,
-    std::shared_ptr<DebugLogger> logger,
-    SimRNG rng
+    std::shared_ptr<DebugLogger> logger
   );
 
   ///

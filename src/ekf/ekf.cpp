@@ -131,7 +131,7 @@ void EKF::PredictModel(double local_time)
   auto t_start = std::chrono::high_resolution_clock::now();
 
   if (m_is_gravity_initialized) {
-    double dT = local_time - m_current_time;
+    double delta_time = local_time - m_current_time;
 
     Eigen::Vector3d acc_b_in_l = m_state.body_state.acc_b_in_l;
     Eigen::Vector3d ang_vel_in_b = m_state.body_state.ang_vel_b_in_l;
@@ -143,31 +143,38 @@ void EKF::PredictModel(double local_time)
       acceleration_local = acc_b_in_l - g_gravity;
     }
 
-    Eigen::Vector3d rot_vec(ang_vel_in_b[0] * dT, ang_vel_in_b[1] * dT, ang_vel_in_b[2] * dT);
+    Eigen::Vector3d rot_vec(
+      ang_vel_in_b[0] * delta_time,
+      ang_vel_in_b[1] * delta_time,
+      ang_vel_in_b[2] * delta_time
+    );
 
-    m_state.body_state.vel_b_in_l += dT * acceleration_local;
-    m_state.body_state.pos_b_in_l += dT * m_state.body_state.vel_b_in_l;
+    m_state.body_state.vel_b_in_l += delta_time * acceleration_local;
+    m_state.body_state.pos_b_in_l += delta_time * m_state.body_state.vel_b_in_l;
     m_state.body_state.ang_b_to_l = RotVecToQuat(rot_vec) * m_state.body_state.ang_b_to_l;
 
-    Eigen::MatrixXd F = GetStateTransition(dT);
+    Eigen::MatrixXd state_transition = GetStateTransition(delta_time);
     unsigned int alt_size = m_state_size - g_body_state_size;
 
     if (m_use_root_covariance) {
       m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-        m_cov.block<g_body_state_size, g_body_state_size>(0, 0) * F.transpose();
+        m_cov.block<g_body_state_size, g_body_state_size>(0, 0) * state_transition.transpose();
 
       m_cov.block(0, g_body_state_size, g_body_state_size, alt_size) =
-        F * m_cov.block(0, g_body_state_size, g_body_state_size, alt_size);
+        state_transition * m_cov.block(0, g_body_state_size, g_body_state_size, alt_size);
 
-      m_cov = QR_r(m_cov, m_process_noise * std::sqrt(dT));
+      m_cov = QR_r(m_cov, m_process_noise * std::sqrt(delta_time));
     } else {
-      m_cov.diagonal() += m_process_noise.diagonal() * dT;
+      m_cov.diagonal() += m_process_noise.diagonal() * delta_time;
       m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-        F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose();
+        state_transition * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) *
+        state_transition.transpose();
       m_cov.block(0, g_body_state_size, g_body_state_size, alt_size) =
-        F * m_cov.block(0, g_body_state_size, g_body_state_size, alt_size);
+        state_transition * m_cov.block(0, g_body_state_size, g_body_state_size, alt_size);
       m_cov.block(g_body_state_size, 0, alt_size, g_body_state_size) =
-        m_cov.block(g_body_state_size, 0, alt_size, g_body_state_size) * F.transpose();
+        m_cov.block(
+        g_body_state_size, 0, alt_size,
+        g_body_state_size) * state_transition.transpose();
     }
   }
   m_current_time = local_time;

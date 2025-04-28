@@ -36,7 +36,9 @@ TEST(test_imu_updater, update) {
 
   unsigned int imu_id{0};
 
-  ImuState imu_state_1, imu_state_2, imu_state_3;
+  ImuState imu_state_1;
+  ImuState imu_state_2;
+  ImuState imu_state_3;
   imu_state_1.SetIsIntrinsic(true);
   imu_state_1.SetIsExtrinsic(true);
   Eigen::MatrixXd imu_covariance_1 = Eigen::MatrixXd::Identity(12, 12);

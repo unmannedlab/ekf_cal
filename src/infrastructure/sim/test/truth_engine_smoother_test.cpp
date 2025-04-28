@@ -49,10 +49,8 @@ TEST(test_TruthEngineSmoother, Oscillating) {
 
   auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
 
-  SimRNG rng;
-
   TruthEngineSmoother truth_engine_spline(
-    times, positions, angles, pos_errs, ang_errs, stationary_time, max_time, 10.0, logger, rng);
+    times, positions, angles, pos_errs, ang_errs, stationary_time, max_time, 10.0, logger);
 
   for (unsigned int i = 0; i < 70; ++i) {
     double time = static_cast<double>(i) / 10.0;

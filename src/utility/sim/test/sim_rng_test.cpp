@@ -22,11 +22,10 @@
 
 
 TEST(test_SimRNG, RNG) {
-  SimRNG rng;
-  rng.SetSeed(123456789);
+  SimRNG::SetSeed(123456789);
 
-  double norm_rand = rng.NormRand(0, 1);
-  double uni_rand = rng.UniRand(0, 1);
+  double norm_rand = SimRNG::NormRand(0, 1);
+  double uni_rand = SimRNG::UniRand(0, 1);
 
   EXPECT_NEAR(norm_rand, -1.2864683, 1e-6);
   EXPECT_NEAR(uni_rand, 0.1366463, 1e-6);
@@ -36,8 +35,8 @@ TEST(test_SimRNG, RNG) {
   Eigen::Quaterniond quat_mean{1, 0, 0, 0};
   Eigen::Vector3d quat_std_dev{0.1, 0.1, 0.1};
 
-  Eigen::Vector3d rand_vec = rng.VecNormRand(vec_mean, vec_std_dev);
-  Eigen::Quaterniond rand_quat = rng.QuatNormRand(quat_mean, quat_std_dev);
+  Eigen::Vector3d rand_vec = SimRNG::VecNormRand(vec_mean, vec_std_dev);
+  Eigen::Quaterniond rand_quat = SimRNG::QuatNormRand(quat_mean, quat_std_dev);
 
   EXPECT_TRUE(
     EXPECT_EIGEN_NEAR(rand_vec, Eigen::Vector3d{-0.0862701, 1.0938618, 0.2384812}, 1e-6));

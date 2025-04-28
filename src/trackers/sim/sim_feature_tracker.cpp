@@ -35,8 +35,7 @@
 SimFeatureTracker::SimFeatureTracker(
   SimFeatureTracker::Parameters params,
   std::shared_ptr<TruthEngine> truth_engine)
-: FeatureTracker(params.tracker_params),
-  m_rng(params.rng)
+: FeatureTracker(params.tracker_params)
 {
   m_px_error = params.tracker_params.px_error;
   m_no_errors = params.no_errors;
@@ -85,7 +84,7 @@ std::vector<cv::KeyPoint> SimFeatureTracker::GetVisibleKeypoints(double time) co
 
   if (m_feature_count > projected_features.size()) {
     auto new_feature_count = m_feature_count - static_cast<unsigned int>(projected_features.size());
-    feature_points = m_truth->GenerateVisibleFeatures(time, m_camera_id, new_feature_count, m_rng);
+    feature_points = m_truth->GenerateVisibleFeatures(time, m_camera_id, new_feature_count);
     cv::projectPoints(feature_points, r_vec, t_vec, camera_matrix, distortion, projected_points);
     projected_features =
       FilterInvisiblePoints(feature_points, projected_points, rot_c_to_l, pos_c_in_l, intrinsics);

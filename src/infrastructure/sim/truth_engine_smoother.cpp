@@ -28,8 +28,8 @@ Eigen::Vector3d TruthEngineSmoother::GetInterpolatedValue(
   const std::vector<Eigen::Vector3d> & values
 ) const
 {
-  double whole, alpha;
-  alpha = std::modf(time * m_rate, &whole);
+  double whole;
+  double alpha = std::modf(time * m_rate, &whole);
   auto index = static_cast<unsigned int>(whole);
   return values[index] * (1 - alpha) + values[index + 1] * alpha;
 }
@@ -183,8 +183,7 @@ TruthEngineSmoother::TruthEngineSmoother(
   double stationary_time,
   double max_time,
   double rate,
-  std::shared_ptr<DebugLogger> logger,
-  SimRNG rng
+  std::shared_ptr<DebugLogger> logger
 )
 : TruthEngine(max_time, logger), m_rate(rate)
 {
@@ -203,8 +202,8 @@ TruthEngineSmoother::TruthEngineSmoother(
     Eigen::Vector3d ang {angles[3 * i], angles[3 * i + 1], angles[3 * i + 2]};
 
     if (i != 0) {
-      pos = rng.VecNormRand(pos, pos_errors);
-      ang = rng.VecNormRand(ang, ang_errors);
+      pos = SimRNG::VecNormRand(pos, pos_errors);
+      ang = SimRNG::VecNormRand(ang, ang_errors);
     }
 
     position_vectors.push_back(pos);
@@ -230,9 +229,5 @@ TruthEngineSmoother::TruthEngineSmoother(
 
 bool TruthEngineSmoother::IsTimeInvalid(double time) const
 {
-  if (time < 0.0 || time > m_max_time) {
-    return true;
-  } else {
-    return false;
-  }
+  return time < 0.0 || time > m_max_time;
 }

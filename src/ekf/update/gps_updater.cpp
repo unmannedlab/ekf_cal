@@ -16,7 +16,6 @@
 #include "ekf/update/gps_updater.hpp"
 
 #include <eigen3/Eigen/Eigen>
-#include <unistd.h>
 
 #include <memory>
 #include <sstream>
@@ -44,7 +43,7 @@ GpsUpdater::GpsUpdater(
   m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
 {
   std::stringstream header;
-  header << "time,lat,lon,alt,x,y,z,ref_lat,ref_lon,ref_alt,ref_heading,is_initialized";
+  header << "time,lat,lon,alt,x,resid,z,ref_lat,ref_lon,ref_alt,ref_heading,is_initialized";
   if (m_is_extrinsic) {
     header << EnumerateHeader("ant_pos", g_gps_extrinsic_state_size);
     header << EnumerateHeader("gps_cov", g_gps_extrinsic_state_size);
@@ -156,8 +155,8 @@ void GpsUpdater::MultiUpdateEKF(EKF & ekf)
 
   unsigned int measurement_size = 3 * static_cast<unsigned int>(gps_time_vec.size());
   unsigned int state_size = ekf.GetStateSize();
-  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(measurement_size, state_size);
-  Eigen::VectorXd y = Eigen::VectorXd::Zero(measurement_size);
+  Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(measurement_size, state_size);
+  Eigen::VectorXd resid = Eigen::VectorXd::Zero(measurement_size);
   Eigen::Vector3d pos_e_in_g = ekf.GetReferenceLLA();
   double ang_l_to_e = ekf.GetReferenceAngle();
 
@@ -165,20 +164,20 @@ void GpsUpdater::MultiUpdateEKF(EKF & ekf)
     Eigen::Vector3d gps_enu = ecef_to_enu(gps_ecef_vec[i], pos_e_in_g);
     Eigen::Vector3d gps_local = enu_to_local(gps_enu, ang_l_to_e);
 
-    H.block(3 * i, 0, 3, state_size) = GetMeasurementJacobian(ekf);
-    y.segment(3 * i, 3) = gps_local - local_xyz_vec[i];
+    jacobian.block(3 * i, 0, 3, state_size) = GetMeasurementJacobian(ekf);
+    resid.segment(3 * i, 3) = gps_local - local_xyz_vec[i];
   }
 
-  CompressMeasurements(H, y);
+  CompressMeasurements(jacobian, resid);
 
   // Jacobian is ill-formed if either rows or columns post-compression are size 1
-  if (y.size() <= 1) {
+  if (resid.size() <= 1) {
     m_logger->Log(LogLevel::INFO, "Compressed MSCKF Jacobian is ill-formed");
     return;
   }
 
-  Eigen::MatrixXd R = Eigen::MatrixXd::Identity(y.rows(), y.rows());
+  Eigen::MatrixXd meas_noise = Eigen::MatrixXd::Identity(resid.rows(), resid.rows());
 
-  KalmanUpdate(ekf, H, y, R);
+  KalmanUpdate(ekf, jacobian, resid, meas_noise);
   m_logger->Log(LogLevel::INFO, "GPS Updater Update");
 }

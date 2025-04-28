@@ -28,7 +28,7 @@ TEST(test_msckf_updater, projection_jacobian) {
 
   Eigen::Vector3d position{2, 3, 4};
   Eigen::MatrixXd jacobian(2, 3);
-  msckf_updater.projection_jacobian(position, jacobian);
+  MsckfUpdater::projection_jacobian(position, jacobian);
   EXPECT_EQ(jacobian(0, 0), 1.0 / 4.0);
   EXPECT_EQ(jacobian(0, 1), 0);
   EXPECT_EQ(jacobian(0, 2), -2.0 / 4.0 / 4.0);
@@ -54,7 +54,7 @@ TEST(test_msckf_updater, distortion_jacobian) {
 
   Eigen::MatrixXd jacobian;
 
-  msckf_updater.distortion_jacobian(uv_norm, intrinsics, jacobian);
+  MsckfUpdater::distortion_jacobian(uv_norm, intrinsics, jacobian);
 
   EXPECT_EQ(jacobian(0, 0), 1);
   EXPECT_EQ(jacobian(0, 1), 0);
@@ -81,7 +81,9 @@ TEST(test_msckf_updater, update) {
   auto msckf_updater = MsckfUpdater(1, false, "", 0.0, 1.0, logger);
 
   double time {0.3};
-  cv::KeyPoint point_1, point_2, point_3;
+  cv::KeyPoint point_1;
+  cv::KeyPoint point_2;
+  cv::KeyPoint point_3;
   point_1.pt.x = 320;
   point_1.pt.y = 240;
   point_2.pt.x = 220;
@@ -89,7 +91,9 @@ TEST(test_msckf_updater, update) {
   point_3.pt.x = 120;
   point_3.pt.y = 240;
 
-  FeaturePoint feature_point_1, feature_point_2, feature_point_3;
+  FeaturePoint feature_point_1;
+  FeaturePoint feature_point_2;
+  FeaturePoint feature_point_3;
   feature_point_1.frame_id = 1;
   feature_point_1.key_point = point_1;
   feature_point_2.frame_id = 2;

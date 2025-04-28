@@ -157,7 +157,8 @@ void FiducialTracker::Track(
     if (!ids.empty()) {
       cv::Scalar color = cv::Scalar(255, 0, 0);
       FiducialTracker::DrawDetectedCorners(img_out, marker_corners, corners, ids, color);
-      cv::Vec3d r_vec, t_vec;
+      cv::Vec3d r_vec;
+      cv::Vec3d t_vec;
       bool valid = FiducialTracker::EstimatePoseBoard(
         marker_corners, corners, ids, m_board, camera_matrix, distortion, r_vec, t_vec);
 

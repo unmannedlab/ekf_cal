@@ -54,8 +54,8 @@ SimCamera::SimCamera(
     pos_c_in_b_true = params.cam_params.pos_c_in_b;
     ang_c_to_b_true = params.cam_params.ang_c_to_b;
   } else {
-    pos_c_in_b_true = m_rng.VecNormRand(params.cam_params.pos_c_in_b, params.pos_error);
-    ang_c_to_b_true = m_rng.QuatNormRand(params.cam_params.ang_c_to_b, params.ang_error);
+    pos_c_in_b_true = SimRNG::VecNormRand(params.cam_params.pos_c_in_b, params.pos_error);
+    ang_c_to_b_true = SimRNG::QuatNormRand(params.cam_params.ang_c_to_b, params.ang_error);
   }
 
   truth_engine->SetCameraPosition(m_id, pos_c_in_b_true);

@@ -47,7 +47,6 @@ public:
     unsigned int feature_count{0};              ///< @brief Total feature count
     double room_size{10.0};                     ///< @brief Size of "Room" for features
     bool no_errors {false};                     ///< @brief Perfect measurements flag
-    SimRNG rng;                                 ///< @brief Random number generator
     FeatureTracker::Parameters tracker_params;  ///< @brief Tracker parameters
   } Parameters;
 
@@ -101,7 +100,6 @@ public:
   void Callback(const double time, const SimFeatureTrackerMessage & msg);
 
 private:
-  SimRNG m_rng;
   double m_px_error;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};
