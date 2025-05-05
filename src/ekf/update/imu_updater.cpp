@@ -350,7 +350,7 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(EKF & ekf) const
   );
 
   // Body Angular Acceleration
-  measurement_jacobian.block<3, 3>(0, 15) = ang_i_to_b.inverse().toRotationMatrix() *
+  measurement_jacobian.block<3, 3>(0, 15) = -ang_i_to_b.inverse().toRotationMatrix() *
     SkewSymmetric(pos_i_in_b);
 
   // Body Angular Velocity
@@ -373,7 +373,7 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(EKF & ekf) const
     measurement_jacobian.block<3, 3>(0, index_extrinsic + 3) = SkewSymmetric(
       ang_i_to_b.inverse() * (ang_acc_b_in_l.cross(pos_i_in_b) +
       ang_vel_b_in_l.cross(ang_vel_b_in_l.cross(pos_i_in_b)) +
-      ang_b_to_l.inverse() * (ekf.m_state.body_state.acc_b_in_l + g_gravity)
+      ang_b_to_l.inverse() * ekf.m_state.body_state.acc_b_in_l
       )
     );
 
@@ -385,7 +385,7 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(EKF & ekf) const
   if (m_is_intrinsic) {
     unsigned int index_intrinsic = ekf.m_state.imu_states[m_id].index_intrinsic;
     measurement_jacobian.block<3, 3>(0, index_intrinsic + 0) = Eigen::Matrix3d::Identity();
-    measurement_jacobian.block<3, 3>(3, index_intrinsic + 3) = -Eigen::Matrix3d::Identity();
+    measurement_jacobian.block<3, 3>(3, index_intrinsic + 3) = Eigen::Matrix3d::Identity();
   }
 
   return measurement_jacobian;
