@@ -69,7 +69,7 @@ TEST(test_fiducial_updater, jacobian) {
   ekf.RegisterCamera(cam_id, cam_state, cam_cov);
 
   unsigned int fid_id{1};
-  bool is_extrinsic{false};
+  bool is_extrinsic{true};
   FidState fid_state;
   fid_state.id = fid_id;
   fid_state.pos_f_in_l = Eigen::Vector3d{2, 3, 5};

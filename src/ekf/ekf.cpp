@@ -371,6 +371,8 @@ void EKF::RegisterFiducial(const FidState & fid_state, const Eigen::MatrixXd & c
     m_fid_state_size += g_fid_extrinsic_state_size;
   }
 
+  RefreshIndices();
+
   std::stringstream log_msg;
   log_msg << "Register Fiducial: " << fid_state.id << ", stateSize: " << m_state_size;
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());

@@ -77,8 +77,6 @@ void FiducialUpdater::RefreshStates(EKF & ekf)
 Eigen::MatrixXd FiducialUpdater::GetMeasurementJacobian(EKF & ekf)
 {
   RefreshStates(ekf);
-  unsigned int state_size = ekf.GetStateSize();
-  unsigned int cam_index = ekf.m_state.cam_states[m_camera_id].index;
 
   Eigen::Vector3d pos_b_in_l = ekf.m_state.body_state.pos_b_in_l;
   Eigen::Quaterniond ang_b_to_l = ekf.m_state.body_state.ang_b_to_l;
@@ -87,6 +85,7 @@ Eigen::MatrixXd FiducialUpdater::GetMeasurementJacobian(EKF & ekf)
   Eigen::Matrix3d rot_l_to_b = ang_b_to_l.toRotationMatrix().transpose();
   Eigen::Matrix3d rot_l_to_c = rot_b_to_c * rot_l_to_b;
 
+  unsigned int state_size = ekf.GetStateSize();
   Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(g_fid_measurement_size, state_size);
 
   jacobian.block<3, 3>(0, 0) = -rot_l_to_c;
@@ -100,6 +99,7 @@ Eigen::MatrixXd FiducialUpdater::GetMeasurementJacobian(EKF & ekf)
 
   /// @todo Test camera calibration jacobians
   if (ekf.m_state.cam_states[m_camera_id].GetIsExtrinsic()) {
+    unsigned int cam_index = ekf.m_state.cam_states[m_camera_id].index;
     jacobian.block<3, 3>(0, cam_index + 0) = -rot_b_to_c;
 
     jacobian.block<3, 3>(0, cam_index + 3) = rot_b_to_c *
@@ -110,7 +110,11 @@ Eigen::MatrixXd FiducialUpdater::GetMeasurementJacobian(EKF & ekf)
       quaternion_jacobian(m_ang_c_to_b).transpose() * rot_l_to_b * rot_f_to_l;
   }
 
-  /// @todo Fiducial calibration jacobians
+  if (ekf.m_state.fid_states[m_id].GetIsExtrinsic()) {
+    unsigned int fid_index = ekf.m_state.fid_states[m_id].index;
+    jacobian.block<3, 3>(0, fid_index + 0) = Eigen::Matrix3d::Identity();
+    jacobian.block<3, 3>(3, fid_index + 3) = Eigen::Matrix3d::Identity();
+  }
 
   return jacobian;
 }
