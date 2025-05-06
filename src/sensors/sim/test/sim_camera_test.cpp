@@ -48,8 +48,7 @@ TEST(test_SimCamera, feature_track) {
     ekf_params.debug_logger
   );
 
-  SimRNG rng;
-  rng.SetSeed(1);
+  SimRNG::SetSeed(1);
 
   Intrinsics intrinsics;
   intrinsics.f_x = 0.01;
@@ -119,8 +118,7 @@ TEST(test_SimCamera, fiducial_track) {
     ekf_params.debug_logger
   );
 
-  SimRNG rng;
-  rng.SetSeed(1);
+  SimRNG::SetSeed(1);
 
   Intrinsics intrinsics;
   intrinsics.f_x = 0.01;

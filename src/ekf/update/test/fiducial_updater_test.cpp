@@ -17,8 +17,9 @@
 #include <gtest/gtest.h>
 
 #include "ekf/update/fiducial_updater.hpp"
+#include "utility/custom_assertions.hpp"
 
-TEST(test_imu_updater, constructor) {
+TEST(test_fiducial_updater, constructor) {
   unsigned int fid_id {0};
   unsigned int cam_id {1};
   Eigen::Vector3d fiducial_pos{0.0, 0.0, 0.0};
@@ -53,4 +54,49 @@ TEST(test_imu_updater, constructor) {
   board_detection.ang_error = Eigen::Vector3d{0.1, 0.1, 0.1};
 
   fiducial_updater.UpdateEKF(ekf, 0.0, board_detection);
+}
+
+TEST(test_fiducial_updater, jacobian) {
+  auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
+  EKF::Parameters ekf_params;
+  ekf_params.debug_logger = debug_logger;
+  EKF ekf(ekf_params);
+
+  unsigned int cam_id{0};
+  CamState cam_state;
+  cam_state.SetIsExtrinsic(true);
+  Eigen::MatrixXd cam_cov = Eigen::MatrixXd::Identity(6, 6);
+  ekf.RegisterCamera(cam_id, cam_state, cam_cov);
+
+  unsigned int fid_id{1};
+  bool is_extrinsic{true};
+  FidState fid_state;
+  fid_state.id = fid_id;
+  fid_state.pos_f_in_l = Eigen::Vector3d{2, 3, 5};
+  fid_state.ang_f_to_l = Eigen::Quaterniond{1, 0, 0, 0};
+  fid_state.SetIsExtrinsic(is_extrinsic);
+  Eigen::MatrixXd fid_cov = Eigen::MatrixXd::Identity(6, 6);
+  ekf.RegisterFiducial(fid_state, fid_cov);
+
+  auto fid_updater =
+    FiducialUpdater(fid_id, cam_id, is_extrinsic, "log_file_directory", 0.0, debug_logger);
+
+  Eigen::VectorXd base_state = ekf.m_state.ToVector();
+  Eigen::MatrixXd jac_analytical = fid_updater.GetMeasurementJacobian(ekf);
+  Eigen::VectorXd base_meas = fid_updater.PredictMeasurement(ekf);
+  double delta = 1.0e-6;
+  unsigned int jac_size = base_state.size();
+  Eigen::MatrixXd jac_numerical = Eigen::MatrixXd::Zero(6, jac_size);
+
+  for (unsigned int i = 0; i < jac_size; ++i) {
+    Eigen::VectorXd delta_vec = base_state;
+    delta_vec[i] = delta_vec[i] + delta;
+
+    ekf.m_state.SetState(delta_vec);
+    Eigen::VectorXd curr = fid_updater.PredictMeasurement(ekf);
+    Eigen::VectorXd diff = curr - base_meas;
+    jac_numerical.block<6, 1>(0, i) = (diff) / delta;
+  }
+
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(jac_analytical, jac_numerical, 1e-3));
 }

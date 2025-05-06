@@ -48,7 +48,6 @@ public:
     Eigen::Vector3d ang_error{1e-9, 1e-9, 1e-9};    ///< @brief Angular error standard deviation
     Eigen::Vector3d t_vec_error{1e-9, 1e-9, 1e-9};  ///< @brief t_vec error standard deviation
     Eigen::Vector3d r_vec_error{1e-9, 1e-9, 1e-9};  ///< @brief r_vec error standard deviation
-    SimRNG rng;                                     ///< @brief Random number generator
     FiducialTracker::Parameters fiducial_params;    ///< @brief Tracker parameters
   } Parameters;
 
@@ -86,7 +85,6 @@ public:
   void Callback(const double time, const SimFiducialTrackerMessage & msg);
 
 private:
-  SimRNG m_rng;
   Eigen::Vector3d m_pos_error;
   Eigen::Vector3d m_ang_error;
   Eigen::Vector3d m_t_vec_error;

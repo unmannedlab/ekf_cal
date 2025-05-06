@@ -16,7 +16,6 @@
 #include "ekf/update/gps_updater.hpp"
 
 #include <eigen3/Eigen/Eigen>
-#include <unistd.h>
 
 #include <memory>
 #include <sstream>
@@ -53,7 +52,7 @@ GpsUpdater::GpsUpdater(
   header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(header.str());
-  if (data_log_rate) {m_data_logger.EnableLogging();}
+  if (data_log_rate != 0.0) {m_data_logger.EnableLogging();}
   m_data_logger.SetLogRate(data_log_rate);
 }
 
@@ -69,7 +68,7 @@ Eigen::MatrixXd GpsUpdater::GetMeasurementJacobian(EKF & ekf)
   Eigen::MatrixXd measurement_jacobian = Eigen::MatrixXd::Zero(3, ekf.GetStateSize());
   measurement_jacobian.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity(3, 3);
   measurement_jacobian.block<3, 3>(0, 9) = -ang_b_to_l.toRotationMatrix() *
-    SkewSymmetric(m_pos_a_in_b) * quaternion_jacobian(ang_b_to_l);
+    SkewSymmetric(m_pos_a_in_b) * QuaternionJacobian(ang_b_to_l);
 
   if (m_is_extrinsic) {
     unsigned int gps_index = ekf.m_state.gps_states[m_id].index;
@@ -156,8 +155,8 @@ void GpsUpdater::MultiUpdateEKF(EKF & ekf)
 
   unsigned int measurement_size = 3 * static_cast<unsigned int>(gps_time_vec.size());
   unsigned int state_size = ekf.GetStateSize();
-  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(measurement_size, state_size);
-  Eigen::VectorXd y = Eigen::VectorXd::Zero(measurement_size);
+  Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(measurement_size, state_size);
+  Eigen::VectorXd resid = Eigen::VectorXd::Zero(measurement_size);
   Eigen::Vector3d pos_e_in_g = ekf.GetReferenceLLA();
   double ang_l_to_e = ekf.GetReferenceAngle();
 
@@ -165,20 +164,20 @@ void GpsUpdater::MultiUpdateEKF(EKF & ekf)
     Eigen::Vector3d gps_enu = ecef_to_enu(gps_ecef_vec[i], pos_e_in_g);
     Eigen::Vector3d gps_local = enu_to_local(gps_enu, ang_l_to_e);
 
-    H.block(3 * i, 0, 3, state_size) = GetMeasurementJacobian(ekf);
-    y.segment(3 * i, 3) = gps_local - local_xyz_vec[i];
+    jacobian.block(3 * i, 0, 3, state_size) = GetMeasurementJacobian(ekf);
+    resid.segment(3 * i, 3) = gps_local - local_xyz_vec[i];
   }
 
-  CompressMeasurements(H, y);
+  CompressMeasurements(jacobian, resid);
 
   // Jacobian is ill-formed if either rows or columns post-compression are size 1
-  if (y.size() <= 1) {
+  if (resid.size() <= 1) {
     m_logger->Log(LogLevel::INFO, "Compressed MSCKF Jacobian is ill-formed");
     return;
   }
 
-  Eigen::MatrixXd R = Eigen::MatrixXd::Identity(y.rows(), y.rows());
+  Eigen::MatrixXd meas_noise = Eigen::MatrixXd::Identity(resid.rows(), resid.rows());
 
-  KalmanUpdate(ekf, H, y, R);
+  KalmanUpdate(ekf, jacobian, resid, meas_noise);
   m_logger->Log(LogLevel::INFO, "GPS Updater Update");
 }

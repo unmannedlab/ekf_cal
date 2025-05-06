@@ -28,21 +28,25 @@ void Updater::KalmanUpdate(
   const Eigen::MatrixXd & jacobian,
   const Eigen::VectorXd & residual,
   const Eigen::MatrixXd & measurement_noise
-) const
+)
 {
   // Calculate Kalman gain
-  Eigen::MatrixXd S, G, K, R;
+  Eigen::MatrixXd innovation;
+  Eigen::MatrixXd gain;
+  Eigen::MatrixXd observation_noise;
+
   if (ekf.GetUseRootCovariance()) {
-    R = measurement_noise.cwiseSqrt();
-    G = QR_r(ekf.m_cov * jacobian.transpose(), R);
-    K = ekf.m_cov.transpose() * ekf.m_cov * jacobian.transpose() * (G.transpose() * G).inverse();
+    observation_noise = measurement_noise.cwiseSqrt();
+    innovation = QR_r(ekf.m_cov * jacobian.transpose(), observation_noise);
+    gain = ekf.m_cov.transpose() * ekf.m_cov * jacobian.transpose() *
+      (innovation.transpose() * innovation).inverse();
   } else {
-    R = measurement_noise;
-    S = jacobian * ekf.m_cov * jacobian.transpose() + R;
-    K = ekf.m_cov * jacobian.transpose() * S.inverse();
+    observation_noise = measurement_noise;
+    innovation = jacobian * ekf.m_cov * jacobian.transpose() + observation_noise;
+    gain = ekf.m_cov * jacobian.transpose() * innovation.inverse();
   }
 
-  Eigen::VectorXd update = K * residual;
+  Eigen::VectorXd update = gain * residual;
   ekf.m_state += update;
 
   unsigned int rows = static_cast<unsigned int>(ekf.m_cov.rows());
@@ -50,11 +54,11 @@ void Updater::KalmanUpdate(
   if (ekf.GetUseRootCovariance()) {
     ekf.m_cov = QR_r(
       ekf.m_cov * (Eigen::MatrixXd::Identity(rows, cols) -
-      K * jacobian).transpose(), R * K.transpose());
+      gain * jacobian).transpose(), observation_noise * gain.transpose());
   } else {
     ekf.m_cov =
-      (Eigen::MatrixXd::Identity(rows, cols) - K * jacobian) * ekf.m_cov *
-      (Eigen::MatrixXd::Identity(rows, cols) - K * jacobian).transpose() +
-      K * R * K.transpose();
+      (Eigen::MatrixXd::Identity(rows, cols) - gain * jacobian) * ekf.m_cov *
+      (Eigen::MatrixXd::Identity(rows, cols) - gain * jacobian).transpose() +
+      gain * observation_noise * gain.transpose();
   }
 }

@@ -88,9 +88,9 @@ public:
 
   ///
   /// @brief Load camera sensor
-  /// @param cam_name Name of camera to find and load from YAML
+  /// @param camera_name Name of camera to find and load from YAML
   ///
-  void LoadCamera(const std::string & cam_name);
+  void LoadCamera(const std::string & camera_name);
 
   ///
   /// @brief Load GPS sensor
@@ -222,10 +222,10 @@ public:
 
   ///
   /// @brief Register camera sensor
-  /// @param cam_ptr Camera sensor shared pointer
+  /// @param camera_ptr Camera sensor shared pointer
   /// @param topic Topic to subscribe
   ///
-  void RegisterCamera(std::shared_ptr<RosCamera> cam_ptr, const std::string & topic);
+  void RegisterCamera(std::shared_ptr<RosCamera> camera_ptr, const std::string & topic);
 
   ///
   /// @brief Register GPS sensor

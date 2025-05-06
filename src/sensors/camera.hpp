@@ -83,7 +83,7 @@ public:
   cv::Mat m_out_img{0, 0, CV_8UC1};  ///< @brief Published output test image
 
 protected:
-  unsigned int GenerateFrameID();
+  static unsigned int GenerateFrameID();
 
   std::shared_ptr<EKF> m_ekf;  ///< @brief EKF to update
 

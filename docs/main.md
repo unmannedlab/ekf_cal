@@ -9,10 +9,10 @@
 \endhtmlonly
 
 Extended Kalman Filter Calibration and Localization: ekf_cal is a package focused on the simulation and development of a multi-sensor online calibration kalman filter. It combines the architecture of a Multi-State Constraint Kalman Filter (MSCKF) with a multi-sensor calibration filter to provide intrinsic and extrinsic estimates for the following sensors:
-- [IMU](docs/filters/imu.md)
-- [GPS](docs/filters/gps.md)
-- [Cameras](docs/filters/camera.md)
-- [Fiducials](docs/filters/fiducial.md)
+- [IMU](@ref imu)
+- [GPS](@ref gps)
+- [Cameras](@ref camera)
+- [Fiducials](@ref fiducial)
 
 The full [project documentation](https://www.unmannedlab.org/ekf_cal/) is available online.
 
@@ -61,7 +61,7 @@ Alternatively, a Dockerfile is provided, which can be used either inside a VS Co
 
 ### Input Files
 
-This repository offers two main ways to utilize the Kalman filter framework: a simulation and ROS2 node. Both the simulation and ROS node are configurable and runnable using identically formatted YAML files. Further documentation can be found on the [Parameters](docs/parameters.md) page.
+This repository offers two main ways to utilize the Kalman filter framework: a simulation and ROS2 node. Both the simulation and ROS node are configurable and runnable using identically formatted YAML files. Further documentation can be found on the [Parameters](@ref parameters) page.
 
 ### Simulation
 

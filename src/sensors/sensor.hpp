@@ -80,7 +80,6 @@ private:
   static unsigned int m_sensor_count;     ///< @brief Static sensor count
 };
 
-
-bool MessageCompare(std::shared_ptr<SensorMessage> a, std::shared_ptr<SensorMessage> b);
+bool MessageCompare(std::shared_ptr<SensorMessage> l_msg, std::shared_ptr<SensorMessage> r_msg);
 
 #endif  // SENSORS__SENSOR_HPP_

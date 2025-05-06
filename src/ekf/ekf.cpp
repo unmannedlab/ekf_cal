@@ -67,7 +67,7 @@ EKF::EKF(Parameters params)
   body_header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(body_header.str());
-  if (m_data_log_rate) {m_data_logger.EnableLogging();}
+  if (m_data_log_rate != 0.0) {m_data_logger.EnableLogging();}
   m_data_logger.SetLogRate(params.data_log_rate);
 
   std::stringstream aug_header;
@@ -75,32 +75,28 @@ EKF::EKF(Parameters params)
   aug_header << EnumerateHeader("aug_pos", 3);
   aug_header << EnumerateHeader("aug_ang", 4);
   m_augmentation_logger.DefineHeader(aug_header.str());
-  if (m_data_log_rate) {m_augmentation_logger.EnableLogging();}
+  if (m_data_log_rate != 0.0) {m_augmentation_logger.EnableLogging();}
 
   SetBodyProcessNoise(params.process_noise);
 
-  if (params.gps_init_type == GpsInitType::CONSTANT) {
-    m_is_lla_initialized = true;
-  } else {
-    m_is_lla_initialized = false;
-  }
+  m_is_lla_initialized = (params.gps_init_type == GpsInitType::CONSTANT);
 
   if (m_use_root_covariance) {
     m_cov = m_cov.cwiseSqrt();
   }
 }
 
-Eigen::MatrixXd EKF::GetStateTransition(double dT) const
+Eigen::MatrixXd EKF::GetStateTransition(double delta_time)
 {
   Eigen::MatrixXd state_transition =
     Eigen::MatrixXd::Identity(g_body_state_size, g_body_state_size);
-  state_transition.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * dT;
+  state_transition.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3) * delta_time;
   return state_transition;
 }
 
 void EKF::LogBodyStateIfNeeded(int execution_count)
 {
-  if (m_data_log_rate) {
+  if (m_data_log_rate != 0.0) {
     std::stringstream msg;
     Eigen::VectorXd body_cov = m_cov.block<g_body_state_size, g_body_state_size>(0, 0).diagonal();
     if (m_use_root_covariance) {
@@ -135,7 +131,7 @@ void EKF::PredictModel(double local_time)
   auto t_start = std::chrono::high_resolution_clock::now();
 
   if (m_is_gravity_initialized) {
-    double dT = local_time - m_current_time;
+    double delta_time = local_time - m_current_time;
 
     Eigen::Vector3d acc_b_in_l = m_state.body_state.acc_b_in_l;
     Eigen::Vector3d ang_vel_in_b = m_state.body_state.ang_vel_b_in_l;
@@ -147,31 +143,38 @@ void EKF::PredictModel(double local_time)
       acceleration_local = acc_b_in_l - g_gravity;
     }
 
-    Eigen::Vector3d rot_vec(ang_vel_in_b[0] * dT, ang_vel_in_b[1] * dT, ang_vel_in_b[2] * dT);
+    Eigen::Vector3d rot_vec(
+      ang_vel_in_b[0] * delta_time,
+      ang_vel_in_b[1] * delta_time,
+      ang_vel_in_b[2] * delta_time
+    );
 
-    m_state.body_state.vel_b_in_l += dT * acceleration_local;
-    m_state.body_state.pos_b_in_l += dT * m_state.body_state.vel_b_in_l;
+    m_state.body_state.vel_b_in_l += delta_time * acceleration_local;
+    m_state.body_state.pos_b_in_l += delta_time * m_state.body_state.vel_b_in_l;
     m_state.body_state.ang_b_to_l = RotVecToQuat(rot_vec) * m_state.body_state.ang_b_to_l;
 
-    Eigen::MatrixXd F = GetStateTransition(dT);
+    Eigen::MatrixXd state_transition = GetStateTransition(delta_time);
     unsigned int alt_size = m_state_size - g_body_state_size;
 
     if (m_use_root_covariance) {
       m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-        m_cov.block<g_body_state_size, g_body_state_size>(0, 0) * F.transpose();
+        m_cov.block<g_body_state_size, g_body_state_size>(0, 0) * state_transition.transpose();
 
       m_cov.block(0, g_body_state_size, g_body_state_size, alt_size) =
-        F * m_cov.block(0, g_body_state_size, g_body_state_size, alt_size);
+        state_transition * m_cov.block(0, g_body_state_size, g_body_state_size, alt_size);
 
-      m_cov = QR_r(m_cov, m_process_noise * std::sqrt(dT));
+      m_cov = QR_r(m_cov, m_process_noise * std::sqrt(delta_time));
     } else {
-      m_cov.diagonal() += m_process_noise.diagonal() * dT;
+      m_cov.diagonal() += m_process_noise.diagonal() * delta_time;
       m_cov.block<g_body_state_size, g_body_state_size>(0, 0) =
-        F * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) * F.transpose();
+        state_transition * (m_cov.block<g_body_state_size, g_body_state_size>(0, 0)) *
+        state_transition.transpose();
       m_cov.block(0, g_body_state_size, g_body_state_size, alt_size) =
-        F * m_cov.block(0, g_body_state_size, g_body_state_size, alt_size);
+        state_transition * m_cov.block(0, g_body_state_size, g_body_state_size, alt_size);
       m_cov.block(g_body_state_size, 0, alt_size, g_body_state_size) =
-        m_cov.block(g_body_state_size, 0, alt_size, g_body_state_size) * F.transpose();
+        m_cov.block(
+        g_body_state_size, 0, alt_size,
+        g_body_state_size) * state_transition.transpose();
     }
   }
   m_current_time = local_time;
@@ -239,9 +242,9 @@ unsigned int EKF::GetAugStateSize() const
   return m_aug_state_size;
 }
 
-void EKF::Initialize(double timeInit, const BodyState & body_state_init)
+void EKF::Initialize(double initial_time, const BodyState & body_state_init)
 {
-  m_current_time = timeInit;
+  m_current_time = initial_time;
   m_time_initialized = true;
   m_state.body_state = body_state_init;
 }
@@ -331,7 +334,7 @@ void EKF::RegisterCamera(
   unsigned int cam_state_end = g_body_state_size +
     GetImuStateSize() + GetGpsStateSize() + GetCamStateSize();
 
-  if (!m_primary_camera_id) {
+  if (m_primary_camera_id == 0) {
     m_primary_camera_id = cam_id;
   }
 
@@ -368,12 +371,14 @@ void EKF::RegisterFiducial(const FidState & fid_state, const Eigen::MatrixXd & c
     m_fid_state_size += g_fid_extrinsic_state_size;
   }
 
+  RefreshIndices();
+
   std::stringstream log_msg;
   log_msg << "Register Fiducial: " << fid_state.id << ", stateSize: " << m_state_size;
   m_debug_logger->Log(LogLevel::INFO, log_msg.str());
 }
 
-Eigen::MatrixXd EKF::AugmentCovariance(const Eigen::MatrixXd & in_cov, unsigned int index)
+Eigen::MatrixXd EKF::AugmentCovariance(const Eigen::MatrixXd & in_cov, unsigned int index) const
 {
   auto in_rows = static_cast<unsigned int>(in_cov.rows());
   auto in_cols = static_cast<unsigned int>(in_cov.cols());
@@ -440,7 +445,7 @@ void EKF::AugmentStateIfNeeded()
 
   bool augmented_state_needed {false};
 
-  if (m_state.aug_states[0].size() == 0) {
+  if (m_state.aug_states[0].empty()) {
     augmented_state_needed = true;
   } else if (m_augmenting_type == AugmentationType::TIME) {
     if (abs(m_current_time - m_augmenting_prev_time) > m_augmenting_delta_time) {
@@ -587,7 +592,8 @@ AugState EKF::GetAugState(unsigned int camera_id, unsigned int frame_id, double 
     }
 
     double alpha{0.0};
-    AugState aug_state_0, aug_state_1;
+    AugState aug_state_0;
+    AugState aug_state_1;
 
     if (time < m_state.aug_states[aug_key][0].time) {
       aug_state_0 = m_state.aug_states[aug_key][0];
@@ -780,7 +786,7 @@ void EKF::AttemptGpsInitialization(
     if (((m_gps_init_type == GpsInitType::BASELINE_DIST) &&
       (maximum_distance(gps_states_enu) > m_gps_init_baseline_dist)) ||
       ((m_gps_init_type == GpsInitType::ERROR_THRESHOLD) && is_successful &&
-      (pos_stddev < m_gps_init_pos_thresh) && ang_stddev &&
+      (pos_stddev < m_gps_init_pos_thresh) && (ang_stddev != 0.0) &&
       (ang_stddev < std::tan(m_gps_init_ang_thresh))))
     {
       Eigen::Vector3d delta_ref_enu = transformation.translation();
@@ -858,14 +864,16 @@ bool EKF::GetUseFirstEstimateJacobian() const
 
 double EKF::CalculateLocalTime(double time)
 {
+  double local_time;
   if (!m_time_initialized) {
     m_reference_time = time;
     m_time_initialized = true;
     m_current_time = 0;
     m_debug_logger->Log(
       LogLevel::INFO, "EKF initialized time at t = " + std::to_string(time));
-    return m_current_time;
+    local_time = m_current_time;
   } else {
-    return time - m_reference_time;
+    local_time = time - m_reference_time;
   }
+  return local_time;
 }

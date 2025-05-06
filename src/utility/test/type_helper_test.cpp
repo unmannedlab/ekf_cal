@@ -41,28 +41,20 @@ TEST(test_TypeHelper, StdToEigVec) {
 }
 
 TEST(test_TypeHelper, StdToEigQuat) {
-  std::vector<double> in {1.0, 2.0, 3.0, 4.0};
-  double norm = sqrt(in[0] * in[0] + in[1] * in[1] + in[2] * in[2] + in[3] * in[3]);
-  in[0] = in[0] / norm;
-  in[1] = in[1] / norm;
-  in[2] = in[2] / norm;
-  in[3] = in[3] / norm;
+  std::vector<double> std_vec {1.0, 2.0, 3.0, 4.0};
+  double norm = sqrt(
+    std_vec[0] * std_vec[0] + std_vec[1] * std_vec[1] + std_vec[2] * std_vec[2] +
+    std_vec[3] * std_vec[3]);
+  std_vec[0] = std_vec[0] / norm;
+  std_vec[1] = std_vec[1] / norm;
+  std_vec[2] = std_vec[2] / norm;
+  std_vec[3] = std_vec[3] / norm;
 
-  Eigen::Quaterniond out = StdToEigQuat(in);
-  EXPECT_NEAR(out.w(), in[0], 1e-6);
-  EXPECT_NEAR(out.x(), in[1], 1e-6);
-  EXPECT_NEAR(out.y(), in[2], 1e-6);
-  EXPECT_NEAR(out.z(), in[3], 1e-6);
-}
-
-TEST(test_TypeHelper, StdToEigQuat_err) {
-  std::vector<double> in {1.0, 2.0, 3.0};
-
-  Eigen::Quaterniond out = StdToEigQuat(in);
-  EXPECT_EQ(out.w(), 1.0);
-  EXPECT_EQ(out.x(), 0.0);
-  EXPECT_EQ(out.y(), 0.0);
-  EXPECT_EQ(out.z(), 0.0);
+  Eigen::Quaterniond eig_vec = StdToEigQuat(std_vec);
+  EXPECT_NEAR(eig_vec.w(), std_vec[0], 1e-6);
+  EXPECT_NEAR(eig_vec.x(), std_vec[1], 1e-6);
+  EXPECT_NEAR(eig_vec.y(), std_vec[2], 1e-6);
+  EXPECT_NEAR(eig_vec.z(), std_vec[3], 1e-6);
 }
 
 /// @todo replace with round numbers

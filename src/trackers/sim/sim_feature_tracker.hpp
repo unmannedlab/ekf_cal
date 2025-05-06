@@ -47,7 +47,6 @@ public:
     unsigned int feature_count{0};              ///< @brief Total feature count
     double room_size{10.0};                     ///< @brief Size of "Room" for features
     bool no_errors {false};                     ///< @brief Perfect measurements flag
-    SimRNG rng;                                 ///< @brief Random number generator
     FeatureTracker::Parameters tracker_params;  ///< @brief Tracker parameters
   } Parameters;
 
@@ -77,6 +76,14 @@ public:
   ///
   std::vector<cv::KeyPoint> GetVisibleKeypoints(double time) const;
 
+  ///
+  /// @brief Filter out invisible keypoints
+  /// @param feature_points Current list of feature points
+  /// @param projected_points Feature points after projection
+  /// @param rot_c_to_l Rotation from camera C to local frame L
+  /// @param pos_c_in_l Position of camera C in local frame L
+  /// @param intrinsics Camera intrinsics
+  ///
   std::vector<cv::KeyPoint> FilterInvisiblePoints(
     const std::vector<cv::Point3d> & feature_points,
     const std::vector<cv::Point2d> & projected_points,
@@ -93,7 +100,6 @@ public:
   void Callback(const double time, const SimFeatureTrackerMessage & msg);
 
 private:
-  SimRNG m_rng;
   double m_px_error;
   std::shared_ptr<TruthEngine> m_truth;
   bool m_no_errors {false};

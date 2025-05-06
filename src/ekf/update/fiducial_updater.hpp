@@ -52,10 +52,30 @@ public:
   );
 
   ///
+  /// @brief Refresh the EKF state indices
+  /// @param ekf EKF address
+  ///
+  void RefreshStates(EKF & ekf);
+
+  ///
+  /// @brief Measurement Jacobian method
+  /// @param ekf EKF address
+  /// @return Measurement Jacobian matrix
+  ///
+  Eigen::MatrixXd GetMeasurementJacobian(EKF & ekf);
+
+  ///
+  /// @brief Predict Fiducial measurement
+  /// @param ekf EKF address
+  /// @return Predicted Fiducial measurement
+  ///
+  Eigen::VectorXd PredictMeasurement(EKF & ekf);
+
+  ///
   /// @brief EKF updater function
   /// @param ekf EKF address
   /// @param time Time of update
-  /// @param board_track Board track to be used for state update
+  /// @param board_detection Board detection to be used for state update
   ///
   void UpdateEKF(
     EKF & ekf,

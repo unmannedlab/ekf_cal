@@ -24,9 +24,7 @@
 
 void DebugLogger::SetLogLevel(LogLevel level)
 {
-  if ((m_log_level <= LogLevel::INFO) ||
-    (static_cast<LogLevel>(level) <= LogLevel::INFO))
-  {
+  if ((m_log_level <= LogLevel::INFO) || (level <= LogLevel::INFO)) {
     std::cout << "[" <<
       m_log_level_names[static_cast<std::underlying_type<LogLevel>::type>(LogLevel::INFO)
       ] << "]: " <<

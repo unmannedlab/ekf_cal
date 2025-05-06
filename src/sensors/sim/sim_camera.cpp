@@ -54,8 +54,8 @@ SimCamera::SimCamera(
     pos_c_in_b_true = params.cam_params.pos_c_in_b;
     ang_c_to_b_true = params.cam_params.ang_c_to_b;
   } else {
-    pos_c_in_b_true = m_rng.VecNormRand(params.cam_params.pos_c_in_b, params.pos_error);
-    ang_c_to_b_true = m_rng.QuatNormRand(params.cam_params.ang_c_to_b, params.ang_error);
+    pos_c_in_b_true = SimRNG::VecNormRand(params.cam_params.pos_c_in_b, params.pos_error);
+    ang_c_to_b_true = SimRNG::QuatNormRand(params.cam_params.ang_c_to_b, params.ang_error);
   }
 
   truth_engine->SetCameraPosition(m_id, pos_c_in_b_true);
@@ -114,7 +114,7 @@ void SimCamera::Callback(const SimCameraMessage & sim_camera_message)
   m_ekf->AugmentStateIfNeeded(m_id, sim_camera_message.frame_id);
 
   for (auto feature_track_message : sim_camera_message.feature_track_messages) {
-    if (feature_track_message->feature_tracks.size() > 0) {
+    if (!feature_track_message->feature_tracks.empty()) {
       m_trackers[feature_track_message->tracker_id]->Callback(
         sim_camera_message.time, *feature_track_message);
     }

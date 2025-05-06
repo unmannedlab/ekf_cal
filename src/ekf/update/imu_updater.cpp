@@ -59,7 +59,7 @@ ImuUpdater::ImuUpdater(
   header << EnumerateHeader("duration", 1);
 
   m_data_logger.DefineHeader(header.str());
-  if (data_log_rate) {m_data_logger.EnableLogging();}
+  if (data_log_rate != 0.0) {m_data_logger.EnableLogging();}
   m_data_logger.SetLogRate(data_log_rate);
 }
 
@@ -85,9 +85,9 @@ void ImuUpdater::UpdateEKF(
   {
     ekf.SetZeroAcceleration(true);
     return;
-  } else {
-    ekf.SetZeroAcceleration(false);
   }
+
+  ekf.SetZeroAcceleration(false);
 
   auto t_start = std::chrono::high_resolution_clock::now();
 
@@ -103,21 +103,21 @@ void ImuUpdater::UpdateEKF(
     ekf.m_state.body_state.ang_vel_b_in_l = ang_b_to_l * ang_i_to_b * (angular_rate - omg_bias);
     ekf.m_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Zero();
   } else {
-    Eigen::VectorXd z(acceleration.size() + angular_rate.size());
-    z.segment<3>(0) = acceleration;
-    z.segment<3>(3) = angular_rate;
+    Eigen::VectorXd measurement(acceleration.size() + angular_rate.size());
+    measurement.segment<3>(0) = acceleration;
+    measurement.segment<3>(3) = angular_rate;
 
-    Eigen::VectorXd z_pred = PredictMeasurement(ekf);
-    resid = z - z_pred;
+    Eigen::VectorXd pred_measurement = PredictMeasurement(ekf);
+    resid = measurement - pred_measurement;
 
-    Eigen::MatrixXd H = GetMeasurementJacobian(ekf);
+    Eigen::MatrixXd jacobian = GetMeasurementJacobian(ekf);
 
-    Eigen::MatrixXd R = Eigen::MatrixXd::Zero(6, 6);
-    R.block<3, 3>(0, 0) = acceleration_covariance;
-    R.block<3, 3>(3, 3) = angular_rate_covariance;
+    Eigen::MatrixXd meas_noise = Eigen::MatrixXd::Zero(6, 6);
+    meas_noise.block<3, 3>(0, 0) = acceleration_covariance;
+    meas_noise.block<3, 3>(3, 3) = angular_rate_covariance;
 
     // Apply Kalman update
-    KalmanUpdate(ekf, H, resid, R);
+    KalmanUpdate(ekf, jacobian, resid, meas_noise);
   }
 
   ekf.PredictModel(local_time);
@@ -156,28 +156,30 @@ void ImuUpdater::UpdateEKF(
 Eigen::MatrixXd ImuUpdater::GetZeroAccelerationJacobian(EKF & ekf) const
 {
   unsigned int meas_size = m_is_intrinsic ? 6 : 3;
-  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(meas_size, ekf.GetStateSize());
+  Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(meas_size, ekf.GetStateSize());
 
   Eigen::Quaterniond ang_i_to_b = ekf.m_state.imu_states[m_id].ang_i_to_b;
   Eigen::Quaterniond ang_b_to_l = ekf.m_state.body_state.ang_b_to_l;
 
-  H.block<3, 3>(0, 9) = -SkewSymmetric(ang_i_to_b.inverse() * ang_b_to_l.inverse() * g_gravity) *
-    quaternion_jacobian(ang_b_to_l).transpose();
+  jacobian.block<3, 3>(
+    0,
+    9) = -SkewSymmetric(ang_i_to_b.inverse() * ang_b_to_l.inverse() * g_gravity) *
+    QuaternionJacobian(ang_b_to_l).transpose();
 
   if (m_is_extrinsic) {
     unsigned int index_extrinsic = ekf.m_state.imu_states[m_id].index_extrinsic;
-    H.block<3, 3>(0, index_extrinsic) = -SkewSymmetric(
+    jacobian.block<3, 3>(0, index_extrinsic) = -SkewSymmetric(
       ang_i_to_b.inverse() * ang_b_to_l.inverse() * g_gravity
     );
   }
 
   if (m_is_intrinsic) {
     unsigned int index_intrinsic = ekf.m_state.imu_states[m_id].index_intrinsic;
-    H.block<3, 3>(0, index_intrinsic + 0) = -Eigen::Matrix3d::Identity();
-    H.block<3, 3>(3, index_intrinsic + 3) = -Eigen::Matrix3d::Identity();
+    jacobian.block<3, 3>(0, index_intrinsic + 0) = -Eigen::Matrix3d::Identity();
+    jacobian.block<3, 3>(3, index_intrinsic + 3) = -Eigen::Matrix3d::Identity();
   }
 
-  return H;
+  return jacobian;
 }
 
 bool ImuUpdater::ZeroAccelerationUpdate(
@@ -199,12 +201,12 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   Eigen::Quaterniond ang_i_to_b = ekf.m_state.imu_states[m_id].ang_i_to_b;
   Eigen::Quaterniond ang_b_to_l = ekf.m_state.body_state.ang_b_to_l;
 
-  Eigen::MatrixXd H = GetZeroAccelerationJacobian(ekf);
+  Eigen::MatrixXd jacobian = GetZeroAccelerationJacobian(ekf);
 
-  Eigen::MatrixXd R = Eigen::MatrixXd::Zero(meas_size, meas_size);
-  R.block<3, 3>(0, 0) = acceleration_covariance;
+  Eigen::MatrixXd meas_noise = Eigen::MatrixXd::Zero(meas_size, meas_size);
+  meas_noise.block<3, 3>(0, 0) = acceleration_covariance;
   if (m_is_intrinsic) {
-    R.block<3, 3>(3, 3) = angular_rate_covariance;
+    meas_noise.block<3, 3>(3, 3) = angular_rate_covariance;
   }
 
   Eigen::Vector3d bias_a = ekf.m_state.imu_states[m_id].acc_bias;
@@ -219,7 +221,8 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   }
 
   Eigen::MatrixXd score_mat = resid.transpose() *
-    (H * ekf.m_cov * H.transpose() + ekf.GetImuNoiseScaleFactor() * R).inverse() * resid;
+    (jacobian * ekf.m_cov * jacobian.transpose() + ekf.GetImuNoiseScaleFactor() *
+    meas_noise).inverse() * resid;
 
   double score = std::abs(score_mat(0, 0));
   if (score > ekf.GetMotionDetectionChiSquared() && ekf.IsGravityInitialized()) {
@@ -235,11 +238,11 @@ bool ImuUpdater::ZeroAccelerationUpdate(
   ekf.PredictModel(local_time);
 
   // Update Jacobian
-  H = GetZeroAccelerationJacobian(ekf);
+  jacobian = GetZeroAccelerationJacobian(ekf);
 
   // Apply Kalman update
   // Eigen::Quaterniond ang_b_to_l_pre = ekf.m_state.body_state.ang_b_to_l;
-  KalmanUpdate(ekf, H, resid, R);
+  KalmanUpdate(ekf, jacobian, resid, meas_noise);
 
   ekf.m_state.body_state.acc_b_in_l = g_gravity;
   ekf.m_state.body_state.ang_vel_b_in_l = Eigen::Vector3d::Zero();
@@ -347,7 +350,7 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(EKF & ekf) const
   );
 
   // Body Angular Acceleration
-  measurement_jacobian.block<3, 3>(0, 15) = ang_i_to_b.inverse().toRotationMatrix() *
+  measurement_jacobian.block<3, 3>(0, 15) = -ang_i_to_b.inverse().toRotationMatrix() *
     SkewSymmetric(pos_i_in_b);
 
   // Body Angular Velocity
@@ -370,7 +373,7 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(EKF & ekf) const
     measurement_jacobian.block<3, 3>(0, index_extrinsic + 3) = SkewSymmetric(
       ang_i_to_b.inverse() * (ang_acc_b_in_l.cross(pos_i_in_b) +
       ang_vel_b_in_l.cross(ang_vel_b_in_l.cross(pos_i_in_b)) +
-      ang_b_to_l.inverse() * (ekf.m_state.body_state.acc_b_in_l + g_gravity)
+      ang_b_to_l.inverse() * ekf.m_state.body_state.acc_b_in_l
       )
     );
 
@@ -382,7 +385,7 @@ Eigen::MatrixXd ImuUpdater::GetMeasurementJacobian(EKF & ekf) const
   if (m_is_intrinsic) {
     unsigned int index_intrinsic = ekf.m_state.imu_states[m_id].index_intrinsic;
     measurement_jacobian.block<3, 3>(0, index_intrinsic + 0) = Eigen::Matrix3d::Identity();
-    measurement_jacobian.block<3, 3>(3, index_intrinsic + 3) = -Eigen::Matrix3d::Identity();
+    measurement_jacobian.block<3, 3>(3, index_intrinsic + 3) = Eigen::Matrix3d::Identity();
   }
 
   return measurement_jacobian;
@@ -402,21 +405,21 @@ void ImuUpdater::AngularUpdate(
     ekf.m_state.body_state.ang_vel_b_in_l = ang_b_to_l * ang_i_to_b * (angular_rate - omg_bias);
     ekf.m_state.body_state.ang_acc_b_in_l = Eigen::Vector3d::Zero();
   } else {
-    Eigen::VectorXd z(3);
-    z.segment<3>(0) = angular_rate;
+    Eigen::VectorXd measurement(3);
+    measurement.segment<3>(0) = angular_rate;
 
-    Eigen::VectorXd z_pred =
+    Eigen::VectorXd pred_measurement =
       ang_i_to_b.inverse() *
       ang_b_to_l.inverse() * ekf.m_state.body_state.ang_vel_b_in_l + omg_bias;
-    Eigen::VectorXd resid = z - z_pred;
+    Eigen::VectorXd resid = measurement - pred_measurement;
 
-    Eigen::MatrixXd H = Eigen::MatrixXd::Zero(3, 9);
-    H.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3);
+    Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(3, 9);
+    jacobian.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3);
 
-    Eigen::MatrixXd R = Eigen::MatrixXd::Zero(3, 3);
-    R.block<3, 3>(0, 0) = angular_rate_covariance;
+    Eigen::MatrixXd meas_noise = Eigen::MatrixXd::Zero(3, 3);
+    meas_noise.block<3, 3>(0, 0) = angular_rate_covariance;
 
     // Apply Kalman update
-    KalmanUpdate(ekf, H, resid, R);
+    KalmanUpdate(ekf, jacobian, resid, meas_noise);
   }
 }

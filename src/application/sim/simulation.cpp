@@ -191,7 +191,7 @@ int main(int argc, char * argv[])
   ekf_params.use_root_covariance = ros_params["use_root_covariance"].as<bool>(true);
   ekf_params.use_first_estimate_jacobian =
     ros_params["use_first_estimate_jacobian"].as<bool>(false);
-  if (trackers.size() == 0) {
+  if (trackers.empty()) {
     ekf_params.augmenting_type = AugmentationType::NONE;
   }
   auto ekf = std::make_shared<EKF>(ekf_params);
@@ -202,9 +202,8 @@ int main(int argc, char * argv[])
   unsigned int rng_seed = sim_params["seed"].as<unsigned int>(1);
   double max_time = sim_params["max_time"].as<double>(10.0);
 
-  SimRNG rng;
   if (rng_seed > 0) {
-    rng.SetSeed(rng_seed);
+    SimRNG::SetSeed(rng_seed);
   }
 
   // Truth parameters
@@ -238,7 +237,7 @@ int main(int argc, char * argv[])
     auto ang_errs = sim_params["ang_errors"].as<std::vector<double>>(def_vec);
     auto truth_engine_spline = std::make_shared<TruthEngineSmoother>(
       times, positions, angles, pos_errs, ang_errs,
-      stationary_time, max_time, 1000.0, debug_logger, rng);
+      stationary_time, max_time, 1000.0, debug_logger);
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_spline);
   } else if (truth_type == "spline") {
     auto positions = sim_params["positions"].as<std::vector<double>>(def_vec);
@@ -246,7 +245,7 @@ int main(int argc, char * argv[])
     auto pos_errs = sim_params["pos_errors"].as<std::vector<double>>(def_vec);
     auto ang_errs = sim_params["ang_errors"].as<std::vector<double>>(def_vec);
     auto truth_engine_spline = std::make_shared<TruthEngineSpline>(
-      positions, angles, pos_errs, ang_errs, stationary_time, max_time, debug_logger, rng);
+      positions, angles, pos_errs, ang_errs, stationary_time, max_time, debug_logger);
     truth_engine = std::static_pointer_cast<TruthEngine>(truth_engine_spline);
   } else {
     std::stringstream msg;
@@ -260,10 +259,10 @@ int main(int argc, char * argv[])
   auto ang_b_to_l_err =
     StdToEigVec(sim_params["ang_b_to_l_error"].as<std::vector<double>>(def_vec));
   BodyState initial_state;
-  initial_state.pos_b_in_l = rng.VecNormRand(ekf_params.pos_b_in_l, pos_b_in_l_err);
+  initial_state.pos_b_in_l = SimRNG::VecNormRand(ekf_params.pos_b_in_l, pos_b_in_l_err);
   initial_state.ang_b_to_l =
-    Eigen::AngleAxisd(rng.NormRand(0, ang_b_to_l_err[0]), Eigen::Vector3d::UnitX()) *
-    Eigen::AngleAxisd(rng.NormRand(0, ang_b_to_l_err[1]), Eigen::Vector3d::UnitY()) *
+    Eigen::AngleAxisd(SimRNG::NormRand(0, ang_b_to_l_err[0]), Eigen::Vector3d::UnitX()) *
+    Eigen::AngleAxisd(SimRNG::NormRand(0, ang_b_to_l_err[1]), Eigen::Vector3d::UnitY()) *
     ekf_params.ang_b_to_l;
 
   ekf->Initialize(0.0, initial_state);
@@ -274,10 +273,12 @@ int main(int argc, char * argv[])
   auto ang_l_to_e_err = sim_params["ang_l_to_e_error"].as<double>(0.0);
 
   Eigen::Vector3d pos_e_in_g_true;
-  pos_e_in_g_true(0) = rng.NormRand(ekf_params.pos_e_in_g(0), wgs84_m_to_deg(pos_e_in_g_err(0)));
-  pos_e_in_g_true(1) = rng.NormRand(ekf_params.pos_e_in_g(1), wgs84_m_to_deg(pos_e_in_g_err(1)));
-  pos_e_in_g_true(2) = rng.NormRand(ekf_params.pos_e_in_g(2), pos_e_in_g_err(2));
-  double ang_l_to_e_true = rng.NormRand(ekf_params.ang_l_to_e, ang_l_to_e_err);
+  pos_e_in_g_true(0) = SimRNG::NormRand(
+    ekf_params.pos_e_in_g(0), wgs84_m_to_deg(pos_e_in_g_err(0)));
+  pos_e_in_g_true(1) = SimRNG::NormRand(
+    ekf_params.pos_e_in_g(1), wgs84_m_to_deg(pos_e_in_g_err(1)));
+  pos_e_in_g_true(2) = SimRNG::NormRand(ekf_params.pos_e_in_g(2), pos_e_in_g_err(2));
+  double ang_l_to_e_true = SimRNG::NormRand(ekf_params.ang_l_to_e, ang_l_to_e_err);
   truth_engine->SetLocalPosition(pos_e_in_g_true);
   truth_engine->SetLocalHeading(ang_l_to_e_true);
 
@@ -313,7 +314,6 @@ int main(int argc, char * argv[])
       StdToEigVec(sim_node["acc_bias_error"].as<std::vector<double>>(def_vec));
     sim_imu_params.omg_bias_error =
       StdToEigVec(sim_node["omg_bias_error"].as<std::vector<double>>(def_vec));
-    sim_imu_params.rng = rng;
 
     // Add sensor to map
     auto imu = std::make_shared<SimIMU>(sim_imu_params, truth_engine);
@@ -348,7 +348,6 @@ int main(int argc, char * argv[])
     sim_tracker_params.feature_count = sim_node["feature_count"].as<unsigned int>(100);
     sim_tracker_params.room_size = sim_node["room_size"].as<double>(10.0);
     sim_tracker_params.no_errors = sim_node["no_errors"].as<bool>(false);
-    sim_tracker_params.rng = rng;
     sim_tracker_params.tracker_params = track_params;
 
     tracker_map[track_params.name] = sim_tracker_params;
@@ -388,7 +387,6 @@ int main(int argc, char * argv[])
     sim_fiducial_params.r_vec_error =
       StdToEigVec(sim_node["r_vec_error"].as<std::vector<double>>(def_vec));
     sim_fiducial_params.no_errors = sim_node["no_errors"].as<bool>(false);
-    sim_fiducial_params.rng = rng;
     sim_fiducial_params.fiducial_params = fiducial_params;
 
     fiducial_map[fiducial_params.name] = sim_fiducial_params;
@@ -427,7 +425,6 @@ int main(int argc, char * argv[])
     sim_cam_params.pos_error = StdToEigVec(sim_node["pos_error"].as<std::vector<double>>(def_vec));
     sim_cam_params.ang_error = StdToEigVec(sim_node["ang_error"].as<std::vector<double>>(def_vec));
     sim_cam_params.cam_params = cam_params;
-    sim_cam_params.rng = rng;
 
     // Add sensor to map
     auto cam = std::make_shared<SimCamera>(sim_cam_params, truth_engine);
@@ -437,7 +434,7 @@ int main(int argc, char * argv[])
       trk_params.tracker_params.intrinsics = cam_params.intrinsics;
       trk_params.tracker_params.is_cam_extrinsic = cam_params.is_extrinsic;
       trk_params.tracker_params.data_log_rate = cam_params.data_log_rate;
-      trk_params.no_errors = trk_params.no_errors | sim_cam_params.no_errors;
+      trk_params.no_errors = trk_params.no_errors || sim_cam_params.no_errors;
       auto trk = std::make_shared<SimFeatureTracker>(trk_params, truth_engine);
       cam->AddTracker(trk);
     }
@@ -447,7 +444,7 @@ int main(int argc, char * argv[])
       fid_params.fiducial_params.intrinsics = cam_params.intrinsics;
       fid_params.fiducial_params.is_cam_extrinsic = cam_params.is_extrinsic;
       fid_params.fiducial_params.data_log_rate = cam_params.data_log_rate;
-      fid_params.no_errors = fid_params.no_errors | sim_cam_params.no_errors;
+      fid_params.no_errors = fid_params.no_errors || sim_cam_params.no_errors;
       auto fid = std::make_shared<SimFiducialTracker>(fid_params, truth_engine);
       cam->AddFiducial(fid);
     }
@@ -483,7 +480,6 @@ int main(int argc, char * argv[])
     sim_gps_params.pos_e_in_g_err =
       StdToEigVec(sim_node["pos_e_in_g_error"].as<std::vector<double>>(def_vec));
     sim_gps_params.ang_l_to_e_err = sim_node["ang_l_to_e_error"].as<double>(1e-9);
-    sim_gps_params.rng = rng;
 
     // Add sensor to map
     auto gps = std::make_shared<SimGPS>(sim_gps_params, truth_engine);
@@ -495,7 +491,7 @@ int main(int argc, char * argv[])
   }
 
   // Log truth data
-  if (data_log_rate) {truth_engine->WriteTruthData(data_log_rate, log_directory);}
+  if (data_log_rate != 0.0) {truth_engine->WriteTruthData(data_log_rate, log_directory);}
 
   // Sort Measurements
   sort(messages.begin(), messages.end(), MessageCompare);
@@ -504,18 +500,18 @@ int main(int argc, char * argv[])
   /// @todo: Add high-level execution timing vs. simulation time.
   debug_logger->Log(LogLevel::INFO, "Begin Simulation");
   for (auto message : messages) {
-    auto it = sensor_map.find(message->sensor_id);
-    if (it != sensor_map.end()) {
+    auto sensor_iter = sensor_map.find(message->sensor_id);
+    if (sensor_iter != sensor_map.end()) {
       if (message->sensor_type == SensorType::IMU) {
-        auto imu = std::static_pointer_cast<SimIMU>(it->second);
+        auto imu = std::static_pointer_cast<SimIMU>(sensor_iter->second);
         auto msg = std::static_pointer_cast<SimImuMessage>(message);
         imu->Callback(*msg);
       } else if (message->sensor_type == SensorType::Camera) {
-        auto cam = std::static_pointer_cast<SimCamera>(it->second);
+        auto cam = std::static_pointer_cast<SimCamera>(sensor_iter->second);
         auto msg = std::static_pointer_cast<SimCameraMessage>(message);
         cam->Callback(*msg);
       } else if (message->sensor_type == SensorType::GPS) {
-        auto gps = std::static_pointer_cast<SimGPS>(it->second);
+        auto gps = std::static_pointer_cast<SimGPS>(sensor_iter->second);
         auto msg = std::static_pointer_cast<SimGpsMessage>(message);
         gps->Callback(*msg);
       } else {

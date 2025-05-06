@@ -34,24 +34,22 @@ class TruthEngineSpline : public TruthEngine
 public:
   ///
   /// @brief Spline-based truth engine
-  /// @param positions Position control points
+  /// @param poses Position control points
   /// @param angles Angular position control points
   /// @param position_errors Standard deviations of position control points
   /// @param angle_errors Standard deviations of angular control points
   /// @param stationary_time Time to be stationary before beginning motion
   /// @param max_time Maximum simulation time
   /// @param logger Debug logger pointer
-  /// @param rng Random number generator
   ///
   TruthEngineSpline(
-    std::vector<double> positions,
+    std::vector<double> poses,
     std::vector<double> angles,
     std::vector<double> position_errors,
     std::vector<double> angle_errors,
     double stationary_time,
     double max_time,
-    std::shared_ptr<DebugLogger> logger,
-    SimRNG rng
+    std::shared_ptr<DebugLogger> logger
   );
 
   ///
@@ -92,7 +90,7 @@ public:
 
 private:
   bool IsTimeInvalid(double time);
-  bool IsSplineInvalid(const Eigen::Spline3d & spline);
+  static bool IsSplineInvalid(const Eigen::Spline3d & spline);
 
   double m_stationary_time {0.1};
   Eigen::Spline3d m_pos_spline;

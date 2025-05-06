@@ -7,7 +7,7 @@
             vel: 1.0e-1
             ang_pos: 1.0e-3
         sim_params:
-            seed: 1.0
+            seed: 1
             max_time: 300.0
             stationary_time: 0.1
             truth_type: "cyclic"

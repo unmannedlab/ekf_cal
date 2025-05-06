@@ -29,14 +29,14 @@
 /// @param in Input std::vector
 /// @return Output Eigen Vector3
 ///
-Eigen::VectorXd StdToEigVec(std::vector<double> const & in);
+Eigen::VectorXd StdToEigVec(std::vector<double> const & std_vec);
 
 ///
 /// @brief Converts std::vector into Eigen Quaternion
 /// @param in Input std::vector
 /// @return Output Eigen Quaternion
 ///
-Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in);
+Eigen::Quaterniond StdToEigQuat(std::vector<double> const & std_quat);
 
 ///
 /// @brief Convert rotation vector to quaternion

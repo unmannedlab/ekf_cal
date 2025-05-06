@@ -74,7 +74,7 @@ cv::Ptr<cv::FeatureDetector> FeatureTracker::InitFeatureDetector(
       break;
     case Detector::ORB:
       feature_detector =
-        cv::ORB::create(1000, 1.2f, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
+        cv::ORB::create(1000, 1.2, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
       break;
     case Detector::SIFT:
       feature_detector = cv::SIFT::create();
@@ -84,7 +84,6 @@ cv::Ptr<cv::FeatureDetector> FeatureTracker::InitFeatureDetector(
   return feature_detector;
 }
 
-
 cv::Ptr<cv::DescriptorExtractor> FeatureTracker::InitDescriptorExtractor(
   Descriptor extractor, int threshold)
 {
@@ -92,7 +91,7 @@ cv::Ptr<cv::DescriptorExtractor> FeatureTracker::InitDescriptorExtractor(
   switch (extractor) {
     case Descriptor::ORB:
       descriptor_extractor =
-        cv::ORB::create(500, 1.2f, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
+        cv::ORB::create(500, 1.2, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
       break;
     case Descriptor::SIFT:
       descriptor_extractor = cv::SIFT::create();
@@ -101,7 +100,6 @@ cv::Ptr<cv::DescriptorExtractor> FeatureTracker::InitDescriptorExtractor(
 
   return descriptor_extractor;
 }
-
 
 cv::Ptr<cv::DescriptorMatcher> FeatureTracker::InitDescriptorMatcher(Matcher matcher)
 {
@@ -123,7 +121,7 @@ std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
   std::vector<cv::KeyPoint> & key_points,
   int rows,
   int cols
-)const
+)
 {
   double min_pixel_distance = 10.0;
   auto double_rows = static_cast<double>(rows);
@@ -144,12 +142,12 @@ std::vector<cv::KeyPoint> FeatureTracker::GridFeatures(
   for (unsigned int i = 0; i < key_points.size(); i++) {
     // Get current left keypoint, check that it is in bounds
     cv::KeyPoint kpt = key_points.at(i);
-    int x = static_cast<int>(kpt.pt.x);
-    int y = static_cast<int>(kpt.pt.y);
+    int pt_x = static_cast<int>(kpt.pt.x);
+    int pt_y = static_cast<int>(kpt.pt.y);
     int x_grid = static_cast<int>(static_cast<double>(kpt.pt.x) / min_pixel_distance);
     int y_grid = static_cast<int>(static_cast<double>(kpt.pt.y) / min_pixel_distance);
-    if (x_grid < 0 || x_grid >= size.width || y_grid < 0 || y_grid >= size.height || x < 0 ||
-      x >= static_cast<int>(cols) || y < 0 || y >= static_cast<int>(rows))
+    if (x_grid < 0 || x_grid >= size.width || y_grid < 0 || y_grid >= size.height || pt_x < 0 ||
+      pt_x >= cols || pt_y < 0 || pt_y >= rows)
     {
       continue;
     }
@@ -201,7 +199,8 @@ void FeatureTracker::Track(
   m_logger->Log(LogLevel::DEBUG, "Called Tracker for frame ID: " + std::to_string(frame_id));
 
   if (m_prev_descriptors.rows > 0 && curr_descriptors.rows > 0) {
-    std::vector<std::vector<cv::DMatch>> matches_forward, matches_backward;
+    std::vector<std::vector<cv::DMatch>> matches_forward;
+    std::vector<std::vector<cv::DMatch>> matches_backward;
 
     /// @todo Mask using maximum distance from predicted IMU rotations
     m_descriptor_matcher->knnMatch(m_prev_descriptors, curr_descriptors, matches_forward, 2);
@@ -210,34 +209,35 @@ void FeatureTracker::Track(
     // Perform test on matches
     RatioTest(matches_forward);
     RatioTest(matches_backward);
-    std::vector<cv::DMatch> matches_symmetry, matches_ransac, matches_final;
+    std::vector<cv::DMatch> matches_symmetry;
+    std::vector<cv::DMatch> matches_ransac;
+    std::vector<cv::DMatch> matches_final;
     SymmetryTest(matches_forward, matches_backward, matches_symmetry);
     RANSAC(matches_symmetry, curr_key_points, matches_ransac);
     DistanceTest(matches_ransac, curr_key_points, matches_final);
 
     // Draw tracks
-    for (const auto & m : matches_final) {
-      cv::Point2f point_old = m_prev_key_points[static_cast<unsigned int>(m.queryIdx)].pt;
-      cv::Point2f point_new = curr_key_points[static_cast<unsigned int>(m.trainIdx)].pt;
+    for (const auto & match : matches_final) {
+      cv::Point2f point_old = m_prev_key_points[static_cast<unsigned int>(match.queryIdx)].pt;
+      cv::Point2f point_new = curr_key_points[static_cast<unsigned int>(match.trainIdx)].pt;
       cv::line(img_out, point_old, point_new, cv::Scalar(0, 255, 0), 2, 8, 0);
     }
 
     // Generate IDs and add to track map features that persist along at least two frames
-    for (const auto & m : matches_final) {
-      if (m_prev_key_points[static_cast<unsigned int>(m.queryIdx)].class_id == -1) {
-        m_prev_key_points[static_cast<unsigned int>(m.queryIdx)].class_id = GenerateFeatureID();
+    for (const auto & match : matches_final) {
+      if (m_prev_key_points[static_cast<unsigned int>(match.queryIdx)].class_id == -1) {
+        m_prev_key_points[static_cast<unsigned int>(match.queryIdx)].class_id = GenerateFeatureID();
         FeaturePoint feat_point {m_prev_frame_id, m_prev_frame_time,
-          m_prev_key_points[static_cast<unsigned int>(m.queryIdx)]};
-        m_feature_points_map[static_cast<unsigned int>(m_prev_key_points[static_cast<unsigned int>(m
-          .queryIdx)].class_id)].
-        push_back(feat_point);
+          m_prev_key_points[static_cast<unsigned int>(match.queryIdx)]};
+        m_feature_points_map[static_cast<unsigned int>(m_prev_key_points[
+            static_cast<unsigned int>(match.queryIdx)].class_id)].push_back(feat_point);
       }
-      curr_key_points[static_cast<unsigned int>(m.trainIdx)].class_id =
-        m_prev_key_points[static_cast<unsigned int>(m.queryIdx)].class_id;
+      curr_key_points[static_cast<unsigned int>(match.trainIdx)].class_id =
+        m_prev_key_points[static_cast<unsigned int>(match.queryIdx)].class_id;
       FeaturePoint feat_point {frame_id, m_ekf->GetCurrentTime(),
-        curr_key_points[static_cast<unsigned int>(m.trainIdx)]};
-      m_feature_points_map[static_cast<unsigned int>(curr_key_points[static_cast<unsigned int>(m.
-        trainIdx)].class_id)].
+        curr_key_points[static_cast<unsigned int>(match.trainIdx)]};
+      m_feature_points_map[static_cast<unsigned int>(curr_key_points[
+          static_cast<unsigned int>(match.trainIdx)].class_id)].
       push_back(feat_point);
     }
 
@@ -259,7 +259,7 @@ void FeatureTracker::Track(
         ++it;
       }
     }
-    if (feature_tracks.size() > 0) {
+    if (!feature_tracks.empty()) {
       m_msckf_updater.UpdateEKF(*m_ekf, time, feature_tracks, m_px_error);
     }
   }
@@ -269,7 +269,6 @@ void FeatureTracker::Track(
   m_prev_key_points = curr_key_points;
   m_prev_descriptors = curr_descriptors;
 }
-
 
 int FeatureTracker::GenerateFeatureID()
 {
@@ -294,7 +293,7 @@ void FeatureTracker::SymmetryTest(
   std::vector<std::vector<cv::DMatch>> & matches_forward,
   std::vector<std::vector<cv::DMatch>> & matches_backward,
   std::vector<cv::DMatch> & matches_out
-) const
+)
 {
   for (auto & match_f : matches_forward) {
     if (match_f.size() != 2) {
@@ -328,7 +327,8 @@ void FeatureTracker::RANSAC(
   }
 
   // Convert points into points for RANSAC
-  std::vector<cv::Point2f> points_good_prev, points_good_curr;
+  std::vector<cv::Point2f> points_good_prev;
+  std::vector<cv::Point2f> points_good_curr;
   for (unsigned int i = 0; i < matches_in.size(); i++) {
     points_good_prev.push_back(
       m_prev_key_points[static_cast<unsigned int>(matches_in.at(i).queryIdx)].pt);
@@ -356,7 +356,8 @@ void FeatureTracker::DistanceTest(
 ) const
 {
   double dist_sum{0.0};
-  std::vector<cv::Point2f> points_good_prev, points_good_curr;
+  std::vector<cv::Point2f> points_good_prev;
+  std::vector<cv::Point2f> points_good_curr;
   for (unsigned int i = 0; i < matches_in.size(); i++) {
     cv::Point2f point_prev =
       m_prev_key_points[static_cast<unsigned int>(matches_in.at(i).queryIdx)].pt;

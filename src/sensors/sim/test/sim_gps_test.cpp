@@ -69,8 +69,7 @@ TEST(test_SimIMU, Constructor) {
   truth_engine->SetLocalPosition(Eigen::Vector3d{0, 0, 0});
   truth_engine->SetLocalHeading(0.0);
 
-  SimRNG rng;
-  rng.SetSeed(1);
+  SimRNG::SetSeed(1);
   auto gps_msgs = sim_gps.GenerateMessages();
 
   EXPECT_NEAR(gps_msgs[1]->time - gps_msgs[0]->time, 0.2, 1e-3);
@@ -78,23 +77,13 @@ TEST(test_SimIMU, Constructor) {
   EXPECT_NEAR(gps_msgs[3]->time - gps_msgs[2]->time, 0.2, 1e-3);
   EXPECT_NEAR(gps_msgs[4]->time - gps_msgs[3]->time, 0.2, 1e-3);
 
+  Eigen::Vector3d lla_ref = Eigen::Vector3d::Zero();
 
-  Eigen::Vector3d lla_ref, lla_0, lla_1, lla_2, lla_3, lla_4;
-  lla_ref[0] = 0.0;
-  lla_ref[1] = 0.0;
-  lla_ref[2] = 0.0;
-
-  lla_0 = gps_msgs[0]->gps_lla;
-  lla_1 = gps_msgs[1]->gps_lla;
-  lla_2 = gps_msgs[2]->gps_lla;
-  lla_3 = gps_msgs[3]->gps_lla;
-  lla_4 = gps_msgs[4]->gps_lla;
-
-  Eigen::Vector3d enu_0 = lla_to_enu(lla_0, lla_ref);
-  Eigen::Vector3d enu_1 = lla_to_enu(lla_1, lla_ref);
-  Eigen::Vector3d enu_2 = lla_to_enu(lla_2, lla_ref);
-  Eigen::Vector3d enu_3 = lla_to_enu(lla_3, lla_ref);
-  Eigen::Vector3d enu_4 = lla_to_enu(lla_4, lla_ref);
+  Eigen::Vector3d enu_0 = lla_to_enu(gps_msgs[0]->gps_lla, lla_ref);
+  Eigen::Vector3d enu_1 = lla_to_enu(gps_msgs[1]->gps_lla, lla_ref);
+  Eigen::Vector3d enu_2 = lla_to_enu(gps_msgs[2]->gps_lla, lla_ref);
+  Eigen::Vector3d enu_3 = lla_to_enu(gps_msgs[3]->gps_lla, lla_ref);
+  Eigen::Vector3d enu_4 = lla_to_enu(gps_msgs[4]->gps_lla, lla_ref);
 
   EXPECT_NEAR(enu_0[0], -2.069, 1e-3);
   EXPECT_NEAR(enu_0[1], -4.190, 1e-3);

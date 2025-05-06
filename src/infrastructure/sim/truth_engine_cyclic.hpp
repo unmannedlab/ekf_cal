@@ -99,7 +99,7 @@ public:
   /// @brief Calculate transformation matrix to convert RPY derivatives into final frame
   /// @param rpy_vector Roll-Pitch-Yaw vector
   ///
-  Eigen::Matrix3d EulerDerivativeTransform(const Eigen::Vector3d & rpy_vector) const;
+  static Eigen::Matrix3d EulerDerivativeTransform(const Eigen::Vector3d & rpy_vector);
 
   ///
   /// @brief True body angular rate getter

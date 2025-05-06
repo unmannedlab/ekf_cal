@@ -34,7 +34,7 @@ public:
   ///
   /// @brief Smoother-based truth engine
   /// @param times Times for control points
-  /// @param positions Position control points
+  /// @param poses Position control points
   /// @param angles Angular position control points
   /// @param position_errors Standard deviations of position control points
   /// @param angle_errors Standard deviations of angular control points
@@ -42,19 +42,17 @@ public:
   /// @param max_time Maximum simulation time
   /// @param max_rate Maximum sensor rate
   /// @param logger Debug logger pointer
-  /// @param rng Random number generator
   ///
   TruthEngineSmoother(
     std::vector<double> times,
-    std::vector<double> positions,
+    std::vector<double> poses,
     std::vector<double> angles,
     std::vector<double> position_errors,
     std::vector<double> angle_errors,
     double stationary_time,
     double max_time,
     double max_rate,
-    std::shared_ptr<DebugLogger> logger,
-    SimRNG rng
+    std::shared_ptr<DebugLogger> logger
   );
 
   ///

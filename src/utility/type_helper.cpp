@@ -25,19 +25,20 @@
 #include "infrastructure/debug_logger.hpp"
 
 
-Eigen::VectorXd StdToEigVec(std::vector<double> const & in)
+Eigen::VectorXd StdToEigVec(std::vector<double> const & std_vec)
 {
-  Eigen::VectorXd out(in.size());
-  for (unsigned int i = 0; i < in.size(); ++i) {
-    out(i) = in[i];
+  assert(std_vec.size() == 3);
+  Eigen::VectorXd eig_vec(std_vec.size());
+  for (unsigned int i = 0; i < std_vec.size(); ++i) {
+    eig_vec(i) = std_vec[i];
   }
-  return out;
+  return eig_vec;
 }
 
-Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
+Eigen::Quaterniond StdToEigQuat(std::vector<double> const & std_quat)
 {
-  if (in.size() == 4) {
-    Eigen::Quaterniond quat{in[0], in[1], in[2], in[3]};
+  if (std_quat.size() == 4) {
+    Eigen::Quaterniond quat{std_quat[0], std_quat[1], std_quat[2], std_quat[3]};
     quat.normalize();
     return quat;
   } else {
@@ -48,13 +49,15 @@ Eigen::Quaterniond StdToEigQuat(std::vector<double> const & in)
 Eigen::Quaterniond RotVecToQuat(const Eigen::Vector3d & rot_vec)
 {
   double angle = rot_vec.norm();
+  Eigen::Quaterniond quat;
   if (angle > 1e-9) {
     Eigen::Vector3d axis = rot_vec / rot_vec.norm();
     Eigen::AngleAxisd ang_axis{angle, axis};
-    return Eigen::Quaterniond(ang_axis);
+    quat = Eigen::Quaterniond(ang_axis);
   } else {
-    return Eigen::Quaterniond{1, 0, 0, 0};
+    quat = Eigen::Quaterniond{1, 0, 0, 0};
   }
+  return quat;
 }
 
 Eigen::Vector3d QuatToRotVec(const Eigen::Quaterniond & quat)

@@ -23,8 +23,7 @@
 SimFiducialTracker::SimFiducialTracker(
   SimFiducialTracker::Parameters params,
   std::shared_ptr<TruthEngine> truth_engine)
-: FiducialTracker(params.fiducial_params),
-  m_rng(params.rng)
+: FiducialTracker(params.fiducial_params)
 {
   m_no_errors = params.no_errors;
   m_truth = truth_engine;
@@ -42,8 +41,8 @@ SimFiducialTracker::SimFiducialTracker(
     pos_f_in_l_true = params.fiducial_params.pos_f_in_l;
     ang_f_to_l_true = params.fiducial_params.ang_f_to_l;
   } else {
-    pos_f_in_l_true = m_rng.VecNormRand(params.fiducial_params.pos_f_in_l, params.pos_error);
-    ang_f_to_l_true = m_rng.QuatNormRand(params.fiducial_params.ang_f_to_l, params.ang_error);
+    pos_f_in_l_true = SimRNG::VecNormRand(params.fiducial_params.pos_f_in_l, params.pos_error);
+    ang_f_to_l_true = SimRNG::QuatNormRand(params.fiducial_params.ang_f_to_l, params.ang_error);
   }
   truth_engine->SetBoardPosition(m_id, pos_f_in_l_true);
   truth_engine->SetBoardOrientation(m_id, ang_f_to_l_true);
@@ -92,16 +91,11 @@ bool SimFiducialTracker::IsBoardVisible(const double time) const
   Eigen::Vector3d cam_plane_vec = rot_l_to_c.transpose() * Eigen::Vector3d(0, 0, 1);
   // Check that board is in front of camera plane
 
-  if (cam_plane_vec.dot(pos_f_in_l_true) > 0 &&
-    projected_points[0].x >= 0 &&
-    projected_points[0].y >= 0 &&
-    projected_points[0].x <= intrinsics.width &&
-    projected_points[0].y <= intrinsics.height)
-  {
-    return true;
-  } else {
-    return false;
-  }
+  return cam_plane_vec.dot(pos_f_in_l_true) > 0 &&
+         projected_points[0].x >= 0 &&
+         projected_points[0].y >= 0 &&
+         projected_points[0].x <= intrinsics.width &&
+         projected_points[0].y <= intrinsics.height;
 }
 
 std::shared_ptr<SimFiducialTrackerMessage> SimFiducialTracker::GenerateMessage(
@@ -143,8 +137,8 @@ std::shared_ptr<SimFiducialTrackerMessage> SimFiducialTracker::GenerateMessage(
     board_detection.pos_error = m_t_vec_error;
     board_detection.ang_error = m_r_vec_error;
     if (!m_no_errors) {
-      board_detection.pos_f_in_c = m_rng.VecNormRand(pos_f_in_c_true, m_t_vec_error);
-      board_detection.ang_f_to_c = m_rng.QuatNormRand(ang_f_to_c_true, m_r_vec_error);
+      board_detection.pos_f_in_c = SimRNG::VecNormRand(pos_f_in_c_true, m_t_vec_error);
+      board_detection.ang_f_to_c = SimRNG::QuatNormRand(ang_f_to_c_true, m_r_vec_error);
     } else {
       board_detection.pos_f_in_c = pos_f_in_c_true;
       board_detection.ang_f_to_c = ang_f_to_c_true;

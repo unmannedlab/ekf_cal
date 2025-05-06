@@ -54,13 +54,13 @@ public:
   /// @brief Generate camera matrix from intrinsics
   /// @return Camera matrix
   ///
-  cv::Mat ToCameraMatrix();
+  cv::Mat ToCameraMatrix() const;
 
   ///
   /// @brief Generate distortion vector from intrinsics
   /// @return Distortion vector
   ///
-  cv::Mat ToDistortionVector();
+  cv::Mat ToDistortionVector() const;
 
   /// @todo Develop better defaults
   double f_x {0.01};           ///< @brief X focal length [px]
@@ -141,6 +141,16 @@ public:
   /// @param intrinsic value to use for setting
   ///
   void SetIsIntrinsic(bool intrinsic);
+  ///
+  /// @brief Setter for extrinsic state values
+  /// @param state extrinsic state vector
+  ///
+  void SetExtrinsicState(const Eigen::VectorXd & state);
+  ///
+  /// @brief Setter for intrinsic state values
+  /// @param state intrinsic state vector
+  ///
+  void SetIntrinsicState(const Eigen::VectorXd & state);
 
   double pos_stability {1e-9};                        ///< @brief Extrinsic position stability
   double ang_stability {1e-9};                        ///< @brief Extrinsic orientation stability
@@ -243,6 +253,11 @@ public:
   /// @param extrinsic value to use for setting
   ///
   void SetIsExtrinsic(bool extrinsic);
+  ///
+  /// @brief Setter for state values
+  /// @param state state vector
+  ///
+  void SetState(const Eigen::VectorXd & state);
 
   double pos_stability {1e-9};                        ///< @brief Extrinsic position stability
   double ang_stability {1e-9};                        ///< @brief Extrinsic orientation stability
@@ -320,6 +335,11 @@ public:
   /// @param extrinsic value to use for setting
   ///
   void SetIsExtrinsic(bool extrinsic);
+  ///
+  /// @brief Setter for state values
+  /// @param state state vector
+  ///
+  void SetState(const Eigen::VectorXd & state);
 
   unsigned int frame_id{0};       ///< @brief Fiducial board ID
   Eigen::Vector3d pos_f_in_l;     ///< @brief Fiducial position in the local frame
@@ -354,6 +374,12 @@ public:
   Eigen::VectorXd ToVector() const;
 
   ///
+  /// @brief Function to set state using vector
+  /// @param state vector for setting state
+  ///
+  void SetState(const Eigen::VectorXd & state);
+
+  ///
   /// @brief Get EKF state size
   /// @return EKF state size as an integer
   ///
@@ -379,9 +405,9 @@ std::map<unsigned int, CamState> & operator+=(
 std::map<unsigned int, FidState> & operator+=(
   std::map<unsigned int, FidState> & l_fid_state, const Eigen::VectorXd & r_vector);
 std::vector<AugState> & operator+=(
-  std::vector<AugState> & l_augState, const Eigen::VectorXd & r_vector);
+  std::vector<AugState> & l_aug_state, const Eigen::VectorXd & r_vector);
 
-State & operator+=(State & l_state, State & rState);
+State & operator+=(State & l_state, State & r_state);
 State & operator+=(State & l_state, const Eigen::VectorXd & r_vector);
 
 enum class GpsInitType

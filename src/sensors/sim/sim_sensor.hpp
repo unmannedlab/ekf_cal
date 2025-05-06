@@ -37,7 +37,6 @@ public:
   {
     bool no_errors {false};        ///< @brief Perfect measurements flag
     double time_error {0.0};       ///< @brief Time offset error
-    SimRNG rng;                    ///< @brief Random number generator
   } Parameters;
 
   ///
@@ -62,7 +61,6 @@ public:
 protected:
   bool m_no_errors {false};              ///< @brief Flag to remove measurement errors
   double m_time_error {0.0};            ///< @brief Time offset error
-  SimRNG m_rng;                          ///< @brief Random number generator
   std::shared_ptr<TruthEngine> m_truth;  ///< @brief Truth engine pointer
 };
 

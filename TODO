@@ -34,3 +34,4 @@ Documentation:
 Test:
     - Test Aprilgrid detection
     - Test multiple fiducial detection
+    - Numerical Jacobian tests

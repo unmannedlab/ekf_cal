@@ -58,11 +58,11 @@ MsckfUpdater::MsckfUpdater(
   header << EnumerateHeader("duration", 1);
 
   m_msckf_logger.DefineHeader(header.str());
-  if (data_log_rate) {m_msckf_logger.EnableLogging();}
+  if (data_log_rate != 0.0) {m_msckf_logger.EnableLogging();}
   m_msckf_logger.SetLogRate(data_log_rate);
 
   m_triangulation_logger.DefineHeader("time,feature,x,y,z");
-  if (data_log_rate) {m_triangulation_logger.EnableLogging();}
+  if (data_log_rate != 0.0) {m_triangulation_logger.EnableLogging();}
   m_triangulation_logger.SetLogRate(data_log_rate);
 
   m_min_feat_dist = min_feat_dist;
@@ -128,17 +128,18 @@ bool MsckfUpdater::TriangulateFeature(
   Eigen::Vector3d pos_f_in_c0 = A.colPivHouseholderQr().solve(b);
 
   Eigen::Vector3d pos_f_in_l_tri;
+  bool success{false};
   if (pos_f_in_c0.z() < m_min_feat_dist || m_max_feat_dist < pos_f_in_c0.z()) {
     std::stringstream err_msg;
-    err_msg << "MSCKF triangulated point out of bounds. r = " << pos_f_in_c0.z();
+    err_msg << "MSCKF triangulated point out of bounds. meas_noise = " << pos_f_in_c0.z();
     m_logger->Log(LogLevel::INFO, err_msg.str());
     pos_f_in_l_tri = Eigen::Vector3d::Zero();
     /// @todo: Add input flag
     if (m_use_true_triangulation) {
-      return true;
+      success = true;
     } else {
       pos_f_in_l = pos_f_in_l_tri;
-      return false;
+      success = false;
     }
   } else {
     pos_f_in_l_tri = rot_b0_to_l * (m_ang_c_to_b * pos_f_in_c0 + m_pos_c_in_b) + pos_b0_in_l;
@@ -151,16 +152,17 @@ bool MsckfUpdater::TriangulateFeature(
     if (!m_use_true_triangulation) {
       pos_f_in_l = pos_f_in_l_tri;
     }
-    return true;
+    success = true;
   }
+  return success;
 }
 
-void MsckfUpdater::projection_jacobian(
+void MsckfUpdater::ProjectionJacobian(
   const Eigen::Vector3d & pos,
   Eigen::MatrixXd & jacobian
-) const
+)
 {
-  // Normalized coordinates in respect to projection function
+  // Normalized coordinates with respect to projection function
   jacobian(0, 0) = 1 / pos(2);
   jacobian(1, 1) = 1 / pos(2);
   jacobian(0, 1) = 0.0;
@@ -169,21 +171,21 @@ void MsckfUpdater::projection_jacobian(
   jacobian(1, 2) = -pos(1) / (pos(2) * pos(2));
 }
 
-void MsckfUpdater::distortion_jacobian(
+void MsckfUpdater::DistortionJacobian(
   const Eigen::Vector2d & xy_norm,
   const Intrinsics & intrinsics,
   Eigen::MatrixXd & H_d
-) const
+)
 {
   // Calculate distorted coordinates for radial
-  double r = std::sqrt(xy_norm(0) * xy_norm(0) + xy_norm(1) * xy_norm(1));
-  double r_2 = r * r;
+  double meas_noise = std::sqrt(xy_norm(0) * xy_norm(0) + xy_norm(1) * xy_norm(1));
+  double r_2 = meas_noise * meas_noise;
   double r_4 = r_2 * r_2;
 
   // Jacobian of distorted pixel to normalized pixel
   H_d = Eigen::MatrixXd::Zero(2, 2);
-  double x = xy_norm(0);
-  double y = xy_norm(1);
+  double x_norm = xy_norm(0);
+  double y_norm = xy_norm(1);
   double x_2 = xy_norm(0) * xy_norm(0);
   double y_2 = xy_norm(1) * xy_norm(1);
   double x_y = xy_norm(0) * xy_norm(1);
@@ -191,30 +193,58 @@ void MsckfUpdater::distortion_jacobian(
   H_d(0, 0) =
     (1 + intrinsics.k_1 * r_2 + intrinsics.k_2 * r_4) +
     (2 * intrinsics.k_1 * x_2 + 4 * intrinsics.k_2 * x_2 * r_2) +
-    (2 * intrinsics.p_1 * y) +
-    (2 * intrinsics.p_2 * x) +
-    (4 * intrinsics.p_2 * x);
+    (2 * intrinsics.p_1 * y_norm) +
+    (2 * intrinsics.p_2 * x_norm) +
+    (4 * intrinsics.p_2 * x_norm);
 
   H_d(0, 1) =
     (2 * intrinsics.k_1 * x_y) +
     (4 * intrinsics.k_2 * x_y * r_2) +
-    (2 * intrinsics.p_1 * x) +
-    (2 * intrinsics.p_2 * y);
+    (2 * intrinsics.p_1 * x_norm) +
+    (2 * intrinsics.p_2 * y_norm);
 
   H_d(1, 0) =
     (2 * intrinsics.k_1 * x_y) +
     (4 * intrinsics.k_2 * x_y * r_2) +
-    (2 * intrinsics.p_1 * x) +
-    (2 * intrinsics.p_2 * y);
+    (2 * intrinsics.p_1 * x_norm) +
+    (2 * intrinsics.p_2 * y_norm);
 
   H_d(1, 1) =
     (1 + intrinsics.k_1 * r_2 + intrinsics.k_2 * r_4) +
     (2 * intrinsics.k_1 * y_2) +
     (4 * intrinsics.k_2 * y_2 * r_2) +
-    (2 * intrinsics.p_2 * x) +
-    (2 * intrinsics.p_1 * y) +
-    (4 * intrinsics.p_1 * y);
+    (2 * intrinsics.p_2 * x_norm) +
+    (2 * intrinsics.p_1 * y_norm) +
+    (4 * intrinsics.p_1 * y_norm);
 }
+
+Eigen::Vector2d MsckfUpdater::Project(const Eigen::Vector3d pos_f_in_c)
+{
+  Eigen::Vector2d xy_projection;
+  xy_projection(0) = pos_f_in_c(0) / pos_f_in_c(2);
+  xy_projection(1) = pos_f_in_c(1) / pos_f_in_c(2);
+  return xy_projection;
+}
+
+Eigen::Vector2d MsckfUpdater::Distort(
+  const Eigen::Vector2d & xy_norm,
+  const Intrinsics & intrinsics
+)
+{
+  double x2 = xy_norm(0) * xy_norm(0);
+  double y2 = xy_norm(1) * xy_norm(1);
+  double r2 = x2 + y2;
+  Eigen::Vector2d xy;
+
+  xy(0) = xy_norm(0) * (1 + intrinsics.k_1 * r2 + intrinsics.k_1 * r2 * r2) +
+    2 * intrinsics.p_1 * xy_norm(0) * xy_norm(1) + intrinsics.p_2 * (r2 + 2 * x2);
+
+  xy(1) = xy_norm(1) * (1 + intrinsics.k_1 * r2 + intrinsics.k_1 * r2 * r2) +
+    2 * intrinsics.p_2 * xy_norm(0) * xy_norm(1) + intrinsics.p_1 * (r2 + 2 * y2);
+
+  return xy;
+}
+
 
 void MsckfUpdater::UpdateEKF(
   EKF & ekf,
@@ -230,7 +260,7 @@ void MsckfUpdater::UpdateEKF(
 
   m_logger->Log(LogLevel::DEBUG, "Called MSCKF Update for camera ID: " + std::to_string(m_id));
 
-  if (feature_tracks.size() == 0) {
+  if (feature_tracks.empty()) {
     return;
   }
 
@@ -257,7 +287,7 @@ void MsckfUpdater::UpdateEKF(
   m_logger->Log(LogLevel::DEBUG, "Update track count: " + std::to_string(feature_tracks.size()));
 
   // MSCKF Update
-  for (auto & feature_track : feature_tracks) {
+  for (const auto & feature_track : feature_tracks) {
     m_logger->Log(
       LogLevel::DEBUG, "Feature Track size: " + std::to_string(feature_track.track.size()));
 
@@ -289,9 +319,7 @@ void MsckfUpdater::UpdateEKF(
       // Project the current feature into the current frame of reference
       Eigen::Vector3d pos_f_in_bi = rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l);
       Eigen::Vector3d pos_f_in_ci = rot_ci_to_b.transpose() * (pos_f_in_bi - m_pos_c_in_b);
-      Eigen::Vector2d xy_predicted;
-      xy_predicted(0) = pos_f_in_ci(0) / pos_f_in_ci(2);
-      xy_predicted(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
+      Eigen::Vector2d xy_predicted = Project(pos_f_in_ci);
 
       Eigen::Vector2d xy_measured;
       xy_measured(0) = (static_cast<double>(feature_track.track[i].key_point.pt.x) -
@@ -303,11 +331,11 @@ void MsckfUpdater::UpdateEKF(
 
       // Projection Jacobian
       Eigen::MatrixXd H_p(2, 3);
-      projection_jacobian(pos_f_in_ci, H_p);
+      ProjectionJacobian(pos_f_in_ci, H_p);
 
       // Distortion Jacobian
       Eigen::MatrixXd H_d(2, 2);
-      distortion_jacobian(xy_measured, m_intrinsics, H_d);
+      DistortionJacobian(xy_measured, m_intrinsics, H_d);
 
       // Entire feature Jacobian
       H_f.block<2, 3>(2 * i, 0) = H_d * H_p * rot_l_to_ci;
@@ -316,16 +344,16 @@ void MsckfUpdater::UpdateEKF(
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, g_aug_state_size);
       H_t.block<3, 3>(0, 0) = -rot_l_to_ci;
       H_t.block<3, 3>(0, 3) = rot_l_to_ci * SkewSymmetric(pos_f_in_l - pos_bi_in_l) *
-        quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
+        QuaternionJacobian(aug_state_i.ang_b_to_l).transpose();
 
       if (m_is_cam_extrinsic) {
         H_c.block<2, 3>(2 * i, cam_index + 0) = -H_d * H_p * rot_b_to_ci;
         H_c.block<2, 3>(2 * i, cam_index + 3) = H_d * H_p * rot_b_to_ci *
           SkewSymmetric(rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l) - m_pos_c_in_b) *
-          quaternion_jacobian(m_ang_c_to_b).transpose();
+          QuaternionJacobian(m_ang_c_to_b).transpose();
       }
 
-      if (aug_state_i.alpha) {
+      if (aug_state_i.alpha != 0.0) {
         Eigen::MatrixXd H_aug_0 = H_d * H_p * H_t * (1 - aug_state_i.alpha);
         Eigen::MatrixXd H_aug_1 = H_d * H_p * H_t * aug_state_i.alpha;
 
@@ -368,9 +396,10 @@ void MsckfUpdater::UpdateEKF(
   }
 
   px_error = std::max(px_error, 0.5);
-  Eigen::MatrixXd R = px_error * px_error * Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
+  Eigen::MatrixXd meas_noise = px_error * px_error *
+    Eigen::MatrixXd::Identity(res_x.rows(), res_x.rows());
 
-  KalmanUpdate(ekf, H_x, res_x, R);
+  KalmanUpdate(ekf, H_x, res_x, meas_noise);
 
   auto t_end = std::chrono::high_resolution_clock::now();
   auto t_execution = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);

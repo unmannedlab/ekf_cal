@@ -98,11 +98,11 @@ public:
   /// @param cols Number of final columns to consider
   /// @return Down sampled key points
   ///
-  std::vector<cv::KeyPoint> GridFeatures(
+  static std::vector<cv::KeyPoint> GridFeatures(
     std::vector<cv::KeyPoint> & key_points,
     int rows,
     int cols
-  ) const;
+  );
 
   ///
   /// @brief Perform track on new image frame
@@ -130,11 +130,11 @@ public:
   /// @param matches_backward Backward matches
   /// @param matches_out Passing matches
   ///
-  void SymmetryTest(
+  static void SymmetryTest(
     std::vector<std::vector<cv::DMatch>> & matches_forward,
     std::vector<std::vector<cv::DMatch>> & matches_backward,
     std::vector<cv::DMatch> & matches_out
-  ) const;
+  );
 
   ///
   /// @brief Perform RANSAC filtering test given matches and key points
@@ -164,9 +164,13 @@ protected:
   MsckfUpdater m_msckf_updater;  ///< @brief MSCKF updater object
 
 private:
-  cv::Ptr<cv::FeatureDetector> InitFeatureDetector(Detector detector, int threshold);
-  cv::Ptr<cv::DescriptorExtractor> InitDescriptorExtractor(Descriptor extractor, int threshold);
-  cv::Ptr<cv::DescriptorMatcher> InitDescriptorMatcher(Matcher matcher);
+  static cv::Ptr<cv::FeatureDetector> InitFeatureDetector(
+    Detector detector,
+    int threshold);
+  static cv::Ptr<cv::DescriptorExtractor> InitDescriptorExtractor(
+    Descriptor extractor,
+    int threshold);
+  static cv::Ptr<cv::DescriptorMatcher> InitDescriptorMatcher(Matcher matcher);
 
   cv::Ptr<cv::FeatureDetector> m_feature_detector;
   cv::Ptr<cv::DescriptorExtractor> m_descriptor_extractor;
@@ -179,7 +183,7 @@ private:
 
   std::map<unsigned int, std::vector<FeaturePoint>> m_feature_points_map;
 
-  int GenerateFeatureID();
+  static int GenerateFeatureID();
 
   double m_px_error;
   bool m_down_sample;

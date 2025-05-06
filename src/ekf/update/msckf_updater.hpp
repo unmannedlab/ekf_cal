@@ -36,7 +36,7 @@ public:
   ///
   /// @brief MSCKF EKF Updater constructor
   /// @param cam_id Camera sensor ID
-  /// @param is_cam_extrinsic Camera extrinsic calibration flag
+  /// @param is_extrinsic Camera extrinsic calibration flag
   /// @param log_file_directory Directory to save log files
   /// @param data_log_rate Maximum average rate to log data
   /// @param min_feat_dist Closest feature distance to consider
@@ -44,7 +44,7 @@ public:
   ///
   explicit MsckfUpdater(
     unsigned int cam_id,
-    bool is_cam_extrinsic,
+    bool is_extrinsic,
     const std::string & log_file_directory,
     double data_log_rate,
     double min_feat_dist,
@@ -80,21 +80,36 @@ public:
 
   ///
   /// @brief Computes the derivative of raw distorted to normalized coordinate.
-  /// @param uv_norm Normalized coordinates we wish to distort
+  /// @param xy_norm Normalized coordinates we wish to distort
   /// @param intrinsics Camera intrinsics
   /// @param H_d Derivative of measurement z in respect to normalized
   ///
-  void distortion_jacobian(
-    const Eigen::Vector2d & uv_norm,
+  static void DistortionJacobian(
+    const Eigen::Vector2d & xy_norm,
     const Intrinsics & intrinsics,
-    Eigen::MatrixXd & H_d) const;
+    Eigen::MatrixXd & H_d);
 
   ///
   /// @brief Function to calculate jacobian for camera projection function
   /// @param position Position in camera coordinates
   /// @param jacobian Resulting camera projection jacobian
   ///
-  void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian) const;
+  static void ProjectionJacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian);
+
+  ///
+  /// @brief Project a 3D position in the camera frame to a 2D bearing
+  /// @param pos_f_in_c Feature position in the camera frame
+  /// @return Projected 2D position
+  ///
+  static Eigen::Vector2d Project(const Eigen::Vector3d pos_f_in_c);
+
+  ///
+  /// @brief Distort a normalized camera coordinate using intrinsics
+  /// @param xy_norm Normalized camera coordinate
+  /// @param intrinsics camera intrinsics
+  /// @return Distorted XY coordinate
+  ///
+  static Eigen::Vector2d Distort(const Eigen::Vector2d & xy_norm, const Intrinsics & intrinsics);
 
 private:
   bool m_is_cam_extrinsic;

@@ -35,7 +35,7 @@ static testing::AssertionResult EXPECT_EIGEN_NEAR(
   return testing::AssertionSuccess();
 }
 
-static testing::AssertionResult EXPECT_EIGEN_NEAR(
+testing::AssertionResult EXPECT_EIGEN_NEAR(
   const Eigen::Quaterniond & quat1,
   const Eigen::Quaterniond & quat2,
   double precision)
