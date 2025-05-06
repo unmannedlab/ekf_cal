@@ -43,7 +43,7 @@ GpsUpdater::GpsUpdater(
   m_data_logger(log_file_directory, "gps_" + std::to_string(gps_id) + ".csv")
 {
   std::stringstream header;
-  header << "time,lat,lon,alt,x,resid,z,ref_lat,ref_lon,ref_alt,ref_heading,is_initialized";
+  header << "time,lat,lon,alt,x,y,z,ref_lat,ref_lon,ref_alt,ref_heading,is_initialized";
   if (m_is_extrinsic) {
     header << EnumerateHeader("ant_pos", g_gps_extrinsic_state_size);
     header << EnumerateHeader("gps_cov", g_gps_extrinsic_state_size);

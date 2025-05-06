@@ -37,10 +37,13 @@ Eigen::VectorXd StdToEigVec(std::vector<double> const & std_vec)
 
 Eigen::Quaterniond StdToEigQuat(std::vector<double> const & std_quat)
 {
-  assert(std_quat.size() == 4);
-  Eigen::Quaterniond eig_quat{std_quat[0], std_quat[1], std_quat[2], std_quat[3]};
-  eig_quat.normalize();
-  return eig_quat;
+  if (std_quat.size() == 4) {
+    Eigen::Quaterniond quat{std_quat[0], std_quat[1], std_quat[2], std_quat[3]};
+    quat.normalize();
+    return quat;
+  } else {
+    return Eigen::Quaterniond{1.0, 0.0, 0.0, 0.0};
+  }
 }
 
 Eigen::Quaterniond RotVecToQuat(const Eigen::Vector3d & rot_vec)
