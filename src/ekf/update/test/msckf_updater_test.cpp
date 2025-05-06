@@ -21,45 +21,44 @@
 #include "ekf/ekf.hpp"
 #include "ekf/types.hpp"
 #include "ekf/update/msckf_updater.hpp"
+#include "utility/custom_assertions.hpp"
+
 
 TEST(test_msckf_updater, projection_jacobian) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-  auto msckf_updater = MsckfUpdater(1, false, "", 0.0, 1.0, logger);
+  Eigen::Vector3d base_pos {1, 2, 3};
+  Eigen::MatrixXd jac_analytic = Eigen::MatrixXd::Zero(2, 3);
+  MsckfUpdater::ProjectionJacobian(base_pos, jac_analytic);
 
-  Eigen::Vector3d position{2, 3, 4};
-  Eigen::MatrixXd jacobian(2, 3);
-  MsckfUpdater::projection_jacobian(position, jacobian);
-  EXPECT_EQ(jacobian(0, 0), 1.0 / 4.0);
-  EXPECT_EQ(jacobian(0, 1), 0);
-  EXPECT_EQ(jacobian(0, 2), -2.0 / 4.0 / 4.0);
-  EXPECT_EQ(jacobian(1, 0), 0);
-  EXPECT_EQ(jacobian(1, 1), 1.0 / 4.0);
-  EXPECT_EQ(jacobian(1, 2), -3.0 / 4.0 / 4.0);
+  double delta = 1.0e-6;
+  Eigen::MatrixXd jac_numerical = Eigen::MatrixXd::Zero(2, 3);
+  Eigen::Vector2d base_meas = MsckfUpdater::Project(base_pos);
+  for (unsigned int i = 0; i < 3; ++i) {
+    Eigen::Vector3d delta_pos = base_pos;
+    delta_pos[i] += delta;
+    jac_numerical.block<2, 1>(0, i) = (MsckfUpdater::Project(delta_pos) - base_meas) / delta;
+  }
+
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(jac_analytic, jac_numerical, 1e-3));
 }
 
+
 TEST(test_msckf_updater, distortion_jacobian) {
-  auto logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
-
-  Eigen::Vector2d uv_norm;
-  uv_norm << 1, 2;
+  Eigen::Vector2d xy_norm {1, 2};
   Intrinsics intrinsics;
-  intrinsics.f_x = 1;
-  intrinsics.f_y = 1;
-  intrinsics.k_1 = 0.0;
-  intrinsics.k_2 = 0.0;
-  intrinsics.p_1 = 0.0;
-  intrinsics.p_2 = 0.0;
+  Eigen::MatrixXd jac_analytic = Eigen::MatrixXd::Zero(2, 2);
+  MsckfUpdater::DistortionJacobian(xy_norm, intrinsics, jac_analytic);
 
-  auto msckf_updater = MsckfUpdater(1, false, "", 0.0, 1.0, logger);
+  double delta = 1.0e-6;
+  Eigen::MatrixXd jac_numerical = Eigen::MatrixXd::Zero(2, 2);
+  Eigen::Vector2d base_meas = MsckfUpdater::Distort(xy_norm, intrinsics);
+  for (unsigned int i = 0; i < 2; ++i) {
+    Eigen::Vector2d delta_pos = xy_norm;
+    delta_pos[i] += delta;
+    jac_numerical.block<2, 1>(0, i) =
+      (MsckfUpdater::Distort(delta_pos, intrinsics) - base_meas) / delta;
+  }
 
-  Eigen::MatrixXd jacobian;
-
-  MsckfUpdater::DistortionJacobian(uv_norm, intrinsics, jacobian);
-
-  EXPECT_EQ(jacobian(0, 0), 1);
-  EXPECT_EQ(jacobian(0, 1), 0);
-  EXPECT_EQ(jacobian(1, 0), 0);
-  EXPECT_EQ(jacobian(1, 1), 1);
+  EXPECT_TRUE(EXPECT_EIGEN_NEAR(jac_analytic, jac_numerical, 1e-3));
 }
 
 

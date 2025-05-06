@@ -218,6 +218,34 @@ void MsckfUpdater::DistortionJacobian(
     (4 * intrinsics.p_1 * y_norm);
 }
 
+Eigen::Vector2d MsckfUpdater::Project(const Eigen::Vector3d pos_f_in_c)
+{
+  Eigen::Vector2d xy_projection;
+  xy_projection(0) = pos_f_in_c(0) / pos_f_in_c(2);
+  xy_projection(1) = pos_f_in_c(1) / pos_f_in_c(2);
+  return xy_projection;
+}
+
+Eigen::Vector2d MsckfUpdater::Distort(
+  const Eigen::Vector2d & xy_norm,
+  const Intrinsics & intrinsics
+)
+{
+  double x2 = xy_norm(0) * xy_norm(0);
+  double y2 = xy_norm(1) * xy_norm(1);
+  double r2 = x2 + y2;
+  Eigen::Vector2d xy;
+
+  xy(0) = xy_norm(0) * (1 + intrinsics.k_1 * r2 + intrinsics.k_1 * r2 * r2) +
+    2 * intrinsics.p_1 * xy_norm(0) * xy_norm(1) + intrinsics.p_2 * (r2 + 2 * x2);
+
+  xy(1) = xy_norm(1) * (1 + intrinsics.k_1 * r2 + intrinsics.k_1 * r2 * r2) +
+    2 * intrinsics.p_2 * xy_norm(0) * xy_norm(1) + intrinsics.p_1 * (r2 + 2 * y2);
+
+  return xy;
+}
+
+
 void MsckfUpdater::UpdateEKF(
   EKF & ekf,
   const double time,
@@ -291,9 +319,7 @@ void MsckfUpdater::UpdateEKF(
       // Project the current feature into the current frame of reference
       Eigen::Vector3d pos_f_in_bi = rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l);
       Eigen::Vector3d pos_f_in_ci = rot_ci_to_b.transpose() * (pos_f_in_bi - m_pos_c_in_b);
-      Eigen::Vector2d xy_predicted;
-      xy_predicted(0) = pos_f_in_ci(0) / pos_f_in_ci(2);
-      xy_predicted(1) = pos_f_in_ci(1) / pos_f_in_ci(2);
+      Eigen::Vector2d xy_predicted = Project(pos_f_in_ci);
 
       Eigen::Vector2d xy_measured;
       xy_measured(0) = (static_cast<double>(feature_track.track[i].key_point.pt.x) -

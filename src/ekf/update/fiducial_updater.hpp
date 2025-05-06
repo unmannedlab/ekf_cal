@@ -51,6 +51,10 @@ public:
     std::shared_ptr<DebugLogger> logger
   );
 
+  ///
+  /// @brief Refresh the EKF state indices
+  /// @param ekf EKF address
+  ///
   void RefreshStates(EKF & ekf);
 
   ///

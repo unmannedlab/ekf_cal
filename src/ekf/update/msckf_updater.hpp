@@ -96,6 +96,21 @@ public:
   ///
   static void ProjectionJacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian);
 
+  ///
+  /// @brief Project a 3D position in the camera frame to a 2D bearing
+  /// @param pos_f_in_c Feature position in the camera frame
+  /// @return Projected 2D position
+  ///
+  static Eigen::Vector2d Project(const Eigen::Vector3d pos_f_in_c);
+
+  ///
+  /// @brief Distort a normalized camera coordinate using intrinsics
+  /// @param xy_norm Normalized camera coordinate
+  /// @param intrinsics camera intrinsics
+  /// @return Distorted XY coordinate
+  ///
+  static Eigen::Vector2d Distort(const Eigen::Vector2d & xy_norm, const Intrinsics & intrinsics);
+
 private:
   bool m_is_cam_extrinsic;
   DataLogger m_msckf_logger;
