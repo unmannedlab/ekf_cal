@@ -164,7 +164,7 @@ Eigen::MatrixXd ImuUpdater::GetZeroAccelerationJacobian(EKF & ekf) const
   jacobian.block<3, 3>(
     0,
     9) = -SkewSymmetric(ang_i_to_b.inverse() * ang_b_to_l.inverse() * g_gravity) *
-    quaternion_jacobian(ang_b_to_l).transpose();
+    QuaternionJacobian(ang_b_to_l).transpose();
 
   if (m_is_extrinsic) {
     unsigned int index_extrinsic = ekf.m_state.imu_states[m_id].index_extrinsic;

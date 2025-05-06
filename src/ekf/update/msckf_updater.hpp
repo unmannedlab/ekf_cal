@@ -84,7 +84,7 @@ public:
   /// @param intrinsics Camera intrinsics
   /// @param H_d Derivative of measurement z in respect to normalized
   ///
-  static void distortion_jacobian(
+  static void DistortionJacobian(
     const Eigen::Vector2d & xy_norm,
     const Intrinsics & intrinsics,
     Eigen::MatrixXd & H_d);
@@ -94,7 +94,7 @@ public:
   /// @param position Position in camera coordinates
   /// @param jacobian Resulting camera projection jacobian
   ///
-  static void projection_jacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian);
+  static void ProjectionJacobian(const Eigen::Vector3d & position, Eigen::MatrixXd & jacobian);
 
 private:
   bool m_is_cam_extrinsic;

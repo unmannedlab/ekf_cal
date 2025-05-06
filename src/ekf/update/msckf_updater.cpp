@@ -157,12 +157,12 @@ bool MsckfUpdater::TriangulateFeature(
   return success;
 }
 
-void MsckfUpdater::projection_jacobian(
+void MsckfUpdater::ProjectionJacobian(
   const Eigen::Vector3d & pos,
   Eigen::MatrixXd & jacobian
 )
 {
-  // Normalized coordinates in respect to projection function
+  // Normalized coordinates with respect to projection function
   jacobian(0, 0) = 1 / pos(2);
   jacobian(1, 1) = 1 / pos(2);
   jacobian(0, 1) = 0.0;
@@ -171,7 +171,7 @@ void MsckfUpdater::projection_jacobian(
   jacobian(1, 2) = -pos(1) / (pos(2) * pos(2));
 }
 
-void MsckfUpdater::distortion_jacobian(
+void MsckfUpdater::DistortionJacobian(
   const Eigen::Vector2d & xy_norm,
   const Intrinsics & intrinsics,
   Eigen::MatrixXd & H_d
@@ -305,11 +305,11 @@ void MsckfUpdater::UpdateEKF(
 
       // Projection Jacobian
       Eigen::MatrixXd H_p(2, 3);
-      projection_jacobian(pos_f_in_ci, H_p);
+      ProjectionJacobian(pos_f_in_ci, H_p);
 
       // Distortion Jacobian
       Eigen::MatrixXd H_d(2, 2);
-      distortion_jacobian(xy_measured, m_intrinsics, H_d);
+      DistortionJacobian(xy_measured, m_intrinsics, H_d);
 
       // Entire feature Jacobian
       H_f.block<2, 3>(2 * i, 0) = H_d * H_p * rot_l_to_ci;
@@ -318,13 +318,13 @@ void MsckfUpdater::UpdateEKF(
       Eigen::MatrixXd H_t = Eigen::MatrixXd::Zero(3, g_aug_state_size);
       H_t.block<3, 3>(0, 0) = -rot_l_to_ci;
       H_t.block<3, 3>(0, 3) = rot_l_to_ci * SkewSymmetric(pos_f_in_l - pos_bi_in_l) *
-        quaternion_jacobian(aug_state_i.ang_b_to_l).transpose();
+        QuaternionJacobian(aug_state_i.ang_b_to_l).transpose();
 
       if (m_is_cam_extrinsic) {
         H_c.block<2, 3>(2 * i, cam_index + 0) = -H_d * H_p * rot_b_to_ci;
         H_c.block<2, 3>(2 * i, cam_index + 3) = H_d * H_p * rot_b_to_ci *
           SkewSymmetric(rot_bi_to_l.transpose() * (pos_f_in_l - pos_bi_in_l) - m_pos_c_in_b) *
-          quaternion_jacobian(m_ang_c_to_b).transpose();
+          QuaternionJacobian(m_ang_c_to_b).transpose();
       }
 
       if (aug_state_i.alpha != 0.0) {

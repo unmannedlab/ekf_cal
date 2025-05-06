@@ -92,10 +92,10 @@ Eigen::MatrixXd FiducialUpdater::GetMeasurementJacobian(EKF & ekf)
 
   jacobian.block<3, 3>(0, 9) = rot_l_to_c *
     SkewSymmetric(m_pos_f_in_l - pos_b_in_l) *
-    quaternion_jacobian(ang_b_to_l).transpose();
+    QuaternionJacobian(ang_b_to_l).transpose();
 
   jacobian.block<3, 3>(3, 9) = -rot_l_to_c * rot_f_to_l *
-    quaternion_jacobian(ang_b_to_l).transpose();
+    QuaternionJacobian(ang_b_to_l).transpose();
 
   /// @todo Test camera calibration jacobians
   if (ekf.m_state.cam_states[m_camera_id].GetIsExtrinsic()) {
@@ -104,10 +104,10 @@ Eigen::MatrixXd FiducialUpdater::GetMeasurementJacobian(EKF & ekf)
 
     jacobian.block<3, 3>(0, cam_index + 3) = rot_b_to_c *
       SkewSymmetric(rot_l_to_b * (m_pos_f_in_l - pos_b_in_l) - m_pos_c_in_b) *
-      quaternion_jacobian(m_ang_c_to_b).transpose();
+      QuaternionJacobian(m_ang_c_to_b).transpose();
 
     jacobian.block<3, 3>(3, cam_index + 3) = -rot_b_to_c *
-      quaternion_jacobian(m_ang_c_to_b).transpose() * rot_l_to_b * rot_f_to_l;
+      QuaternionJacobian(m_ang_c_to_b).transpose() * rot_l_to_b * rot_f_to_l;
   }
 
   if (ekf.m_state.fid_states[m_id].GetIsExtrinsic()) {

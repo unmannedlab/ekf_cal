@@ -54,7 +54,7 @@ TEST(test_msckf_updater, distortion_jacobian) {
 
   Eigen::MatrixXd jacobian;
 
-  MsckfUpdater::distortion_jacobian(uv_norm, intrinsics, jacobian);
+  MsckfUpdater::DistortionJacobian(uv_norm, intrinsics, jacobian);
 
   EXPECT_EQ(jacobian(0, 0), 1);
   EXPECT_EQ(jacobian(0, 1), 0);

@@ -96,7 +96,7 @@ Eigen::Vector3d average_vectors(
 /// @param quat Input quaternion
 /// @return Jacobian matrix
 ///
-Eigen::MatrixXd quaternion_jacobian(const Eigen::Quaterniond & quat);
+Eigen::MatrixXd QuaternionJacobian(const Eigen::Quaterniond & quat);
 
 ///
 /// @brief Function to determine sign of a double

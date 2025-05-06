@@ -186,9 +186,9 @@ TEST(test_MathHelper, average_vectors) {
   EXPECT_EQ(average_vector_2[2], 3.0);
 }
 
-TEST(test_MathHelper, quaternion_jacobian) {
+TEST(test_MathHelper, QuaternionJacobian) {
   Eigen::Quaterniond quat{1, 0, 0, 0};
-  Eigen::Matrix3d jac = quaternion_jacobian(quat);
+  Eigen::Matrix3d jac = QuaternionJacobian(quat);
   EXPECT_TRUE(EXPECT_EIGEN_NEAR(jac, Eigen::Matrix3d::Identity(3, 3), 1e-6));
 }
 

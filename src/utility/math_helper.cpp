@@ -167,7 +167,7 @@ Eigen::Vector3d average_vectors(
   return average_vector / weights_sum;
 }
 
-Eigen::MatrixXd quaternion_jacobian(const Eigen::Quaterniond & quat)
+Eigen::MatrixXd QuaternionJacobian(const Eigen::Quaterniond & quat)
 {
   Eigen::Vector3d rot_vec = QuatToRotVec(quat);
   Eigen::Matrix3d skew_mat = SkewSymmetric(rot_vec);
