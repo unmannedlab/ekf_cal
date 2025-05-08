@@ -45,7 +45,7 @@ def interpolate_error(true_t, true_x, estimate_t, estimate_x):
     """Calculate an interpolated error using truth and estimate points."""
     interp_x = np.interp(estimate_t, true_t, true_x)
     errors = [estimate - interp for estimate, interp in zip(estimate_x, interp_x)]
-    return errors
+    return np.array(errors)
 
 
 def interpolate_quat_error(
@@ -109,7 +109,7 @@ def calculate_rotation_errors(estimate, truth):
         y.append(error_eul[1])
         z.append(error_eul[2])
 
-    return x, y, z
+    return np.array(x), np.array(y), np.array(z)
 
 
 def RMSE_from_vectors(x_list, y_list, z_list):
