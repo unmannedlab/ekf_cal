@@ -85,7 +85,7 @@ def interpolate_quat_error(
         err_y.append(error_euler[1] * 1e3)
         err_z.append(error_euler[2] * 1e3)
 
-    return err_x, err_y, err_z
+    return np.array(err_x), np.array(err_y), np.array(err_z)
 
 
 def lists_to_rot(w_list, x_list, y_list, z_list):

@@ -23,7 +23,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 from scipy.stats.distributions import chi2
 from utilities import calculate_alpha, calculate_rotation_errors, get_colors, interpolate_error, \
-    lists_to_rot, plot_update_timing
+    interpolate_quat_error, lists_to_rot, plot_update_timing
 
 
 class tab_body:
@@ -445,14 +445,6 @@ class tab_body:
             t16 = body_truth['body_ang_acc_1']
             t17 = body_truth['body_ang_acc_2']
 
-            xr = lists_to_rot(xw, xx, xy, xz)
-
-            ew = np.interp(xt, tt, tw)
-            ex = np.interp(xt, tt, tx)
-            ey = np.interp(xt, tt, ty)
-            ez = np.interp(xt, tt, tz)
-            er = lists_to_rot(ew, ex, ey, ez)
-
             e00 = interpolate_error(tt, t00, xt, x00)
             e01 = interpolate_error(tt, t01, xt, x01)
             e02 = interpolate_error(tt, t02, xt, x02)
@@ -462,7 +454,7 @@ class tab_body:
             e06 = interpolate_error(tt, t06, xt, x06)
             e07 = interpolate_error(tt, t07, xt, x07)
             e08 = interpolate_error(tt, t08, xt, x08)
-            e09, e10, e11 = calculate_rotation_errors(xr, er)
+            e09, e10, e11  = interpolate_quat_error(tt, tw, tx, ty, tz, xt, xw, xx, xy, xz)
             e12 = interpolate_error(tt, t12, xt, x12)
             e13 = interpolate_error(tt, t13, xt, x13)
             e14 = interpolate_error(tt, t14, xt, x14)
