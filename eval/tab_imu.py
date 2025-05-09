@@ -334,8 +334,8 @@ class tab_imu:
         fig.y_range = Range1d(0, 1)
         return fig
 
-    def plot_body_nees(self):
-        """Plot body normalized estimation error squared."""
+    def plot_imu_nees(self):
+        """Plot IMU normalized estimation error squared."""
         fig = figure(width=800, height=300, x_axis_label='Time [s]',
                      y_axis_label='NEES', title='Normalized Estimation Error Squared')
         for imu_df, body_truth in zip(self.imu_dfs, self.body_truth_dfs):
@@ -442,7 +442,7 @@ class tab_imu:
         layout_plots.append([plot_update_timing(self.imu_dfs), self.plot_stationary()])
 
         if self.is_extrinsic or self.is_intrinsic:
-            layout_plots.append([self.plot_body_nees(), Spacer()])
+            layout_plots.append([self.plot_imu_nees(), Spacer()])
 
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')
         tab = TabPanel(child=tab_layout,
