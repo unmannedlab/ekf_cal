@@ -18,11 +18,10 @@
 import collections
 
 from bokeh.layouts import layout
-from bokeh.models import Band, Spacer, TabPanel
+from bokeh.models import Band, Range1d, Spacer, TabPanel
 from bokeh.plotting import ColumnDataSource, figure
-
 import numpy as np
-
+from scipy.stats.distributions import chi2
 from utilities import calculate_alpha, get_colors, interpolate_error, interpolate_quat_error, \
     plot_update_timing
 
@@ -34,7 +33,7 @@ class tab_msckf:
         self.tri_dfs = tri_dfs
         self.feat_dfs = feat_dfs
         self.body_truth_dfs = body_truth_dfs
-
+        self.is_extrinsic = 'cam_cov_0' in self.msckf_dfs[0].keys()
         self.alpha = calculate_alpha(len(self.msckf_dfs))
         self.colors = get_colors(args)
 
@@ -285,15 +284,69 @@ class tab_msckf:
                 legend_label='Track Count')
         return fig
 
+    def plot_cam_nees(self):
+        """Plot camera normalized estimation error squared."""
+        fig = figure(width=800, height=300, x_axis_label='Time [s]',
+                     y_axis_label='NEES', title='Normalized Estimation Error Squared')
+        for msckf_df, body_truth in zip(self.msckf_dfs, self.body_truth_dfs):
+            xt = msckf_df['time']
+            x00 = msckf_df['cam_pos_0']
+            x01 = msckf_df['cam_pos_1']
+            x02 = msckf_df['cam_pos_2']
+            xw = msckf_df['cam_ang_pos_0']
+            xx = msckf_df['cam_ang_pos_1']
+            xy = msckf_df['cam_ang_pos_2']
+            xz = msckf_df['cam_ang_pos_3']
+
+            c00 = msckf_df['cam_cov_0']
+            c01 = msckf_df['cam_cov_1']
+            c02 = msckf_df['cam_cov_2']
+            c03 = msckf_df['cam_cov_3']
+            c04 = msckf_df['cam_cov_4']
+            c05 = msckf_df['cam_cov_5']
+
+            tt = body_truth['time']
+            t00 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_0"]
+            t01 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_1"]
+            t02 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_2"]
+            tw = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_0"]
+            tx = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_1"]
+            ty = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_2"]
+            tz = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_3"]
+
+            e00 = interpolate_error(tt, t00, xt, x00)
+            e01 = interpolate_error(tt, t01, xt, x01)
+            e02 = interpolate_error(tt, t02, xt, x02)
+            e03, e04, e05 = interpolate_quat_error(tt, tw, tx, ty, tz, xt, xw, xx, xy, xz)
+
+            nees = \
+                e00 * e00 / c00 / c00 + \
+                e01 * e01 / c01 / c01 + \
+                e02 * e02 / c02 / c02 + \
+                e03 * e03 / c03 / c03 + \
+                e04 * e04 / c04 / c04 + \
+                e05 * e05 / c05 / c05
+
+            fig.line(xt, nees, alpha=self.alpha, color=self.colors[0])
+
+        fig.hspan(y=chi2.ppf(0.025, df=6), line_color='red')
+        fig.hspan(y=chi2.ppf(0.975, df=6), line_color='red')
+        fig.y_range = Range1d(0, 40)
+
+        return fig
+
     def get_tab(self):
         layout_plots = [[self.plot_track_count(), self.plot_triangulation_error()]]
 
-        if ('cam_cov_0' in self.msckf_dfs[0].keys()):
+        if self.is_extrinsic:
             layout_plots.append([self.plot_cam_pos(), self.plot_cam_ang()])
             layout_plots.append([self.plot_cam_pos_err(), self.plot_cam_ang_err()])
             layout_plots.append([self.plot_cam_pos_cov(), self.plot_cam_ang_cov()])
 
         layout_plots.append([plot_update_timing(self.msckf_dfs), Spacer()])
+
+        if self.is_extrinsic:
+            layout_plots.append([self.plot_cam_nees(), Spacer()])
 
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')
         tab = TabPanel(child=tab_layout, title=f"MSCKF {self.msckf_dfs[0].attrs['id']}")

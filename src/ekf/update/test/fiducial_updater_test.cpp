@@ -25,6 +25,7 @@ TEST(test_fiducial_updater, constructor) {
   Eigen::Vector3d fiducial_pos{0.0, 0.0, 0.0};
   Eigen::Quaterniond fiducial_ang{1.0, 0.0, 0.0, 0.0};
   const std::string & log_file_directory("");
+  bool is_fid_extrinsic{false};
   bool is_cam_extrinsic{false};
   double data_log_rate{1.0};
   auto debug_logger = std::make_shared<DebugLogger>(LogLevel::DEBUG, "");
@@ -34,6 +35,7 @@ TEST(test_fiducial_updater, constructor) {
   FiducialUpdater fiducial_updater(
     fid_id,
     cam_id,
+    is_fid_extrinsic,
     is_cam_extrinsic,
     log_file_directory,
     data_log_rate,
@@ -63,23 +65,25 @@ TEST(test_fiducial_updater, jacobian) {
   EKF ekf(ekf_params);
 
   unsigned int cam_id{0};
+  bool is_cam_extrinsic{true};
   CamState cam_state;
-  cam_state.SetIsExtrinsic(true);
+  cam_state.SetIsExtrinsic(is_cam_extrinsic);
   Eigen::MatrixXd cam_cov = Eigen::MatrixXd::Identity(6, 6);
   ekf.RegisterCamera(cam_id, cam_state, cam_cov);
 
   unsigned int fid_id{1};
-  bool is_extrinsic{true};
+  bool is_fid_extrinsic{true};
   FidState fid_state;
   fid_state.id = fid_id;
   fid_state.pos_f_in_l = Eigen::Vector3d{2, 3, 5};
   fid_state.ang_f_to_l = Eigen::Quaterniond{1, 0, 0, 0};
-  fid_state.SetIsExtrinsic(is_extrinsic);
+  fid_state.SetIsExtrinsic(is_cam_extrinsic);
   Eigen::MatrixXd fid_cov = Eigen::MatrixXd::Identity(6, 6);
   ekf.RegisterFiducial(fid_state, fid_cov);
 
   auto fid_updater =
-    FiducialUpdater(fid_id, cam_id, is_extrinsic, "log_file_directory", 0.0, debug_logger);
+    FiducialUpdater(
+    fid_id, cam_id, is_cam_extrinsic, is_fid_extrinsic, "log_file_directory", 0.0, debug_logger);
 
   Eigen::VectorXd base_state = ekf.m_state.ToVector();
   Eigen::MatrixXd jac_analytical = fid_updater.GetMeasurementJacobian(ekf);

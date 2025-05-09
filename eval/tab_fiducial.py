@@ -16,10 +16,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from bokeh.layouts import layout
-from bokeh.models import Spacer, TabPanel
+from bokeh.models import Range1d, Spacer, TabPanel
 from bokeh.plotting import figure
 import numpy as np
 from scipy.spatial.transform import Rotation
+from scipy.stats.distributions import chi2
 from utilities import calculate_alpha, get_colors, interpolate_error, interpolate_quat_error, \
     plot_update_timing
 
@@ -30,6 +31,8 @@ class tab_fiducial:
         self.fiducial_dfs = fiducial_dfs
         self.board_truth_dfs = board_truth_dfs
         self.body_truth_dfs = body_truth_dfs
+        self.is_fid_extrinsic = 'fid_cov_0' in self.fiducial_dfs[0].keys()
+        self.is_cam_extrinsic = 'cam_cov_0' in self.fiducial_dfs[0].keys()
 
         self.alpha = calculate_alpha(len(self.fiducial_dfs))
         self.colors = get_colors(args)
@@ -174,9 +177,9 @@ class tab_fiducial:
 
         for fiducial_df in self.fiducial_dfs:
             time = fiducial_df['time']
-            board_px = fiducial_df['board_pos_0']
-            board_py = fiducial_df['board_pos_1']
-            board_pz = fiducial_df['board_pos_2']
+            board_px = fiducial_df['board_meas_pos_0']
+            board_py = fiducial_df['board_meas_pos_1']
+            board_pz = fiducial_df['board_meas_pos_2']
             fig.line(time, board_px, alpha=self.alpha, color=self.colors[0], legend_label='X')
             fig.line(time, board_py, alpha=self.alpha, color=self.colors[1], legend_label='Y')
             fig.line(time, board_pz, alpha=self.alpha, color=self.colors[2], legend_label='Z')
@@ -194,10 +197,10 @@ class tab_fiducial:
 
         for fiducial_df in self.fiducial_dfs:
             time = fiducial_df['time']
-            board_qw = fiducial_df['board_ang_0']
-            board_qx = fiducial_df['board_ang_1']
-            board_qy = fiducial_df['board_ang_2']
-            board_qz = fiducial_df['board_ang_3']
+            board_qw = fiducial_df['board_meas_ang_0']
+            board_qx = fiducial_df['board_meas_ang_1']
+            board_qy = fiducial_df['board_meas_ang_2']
+            board_qz = fiducial_df['board_meas_ang_3']
 
             board_a = []
             board_b = []
@@ -217,15 +220,78 @@ class tab_fiducial:
             fig.line(time, board_g, alpha=self.alpha, color=self.colors[2], legend_label='Z')
         return fig
 
+    def plot_fid_nees(self):
+        """Plot fiducial normalized estimation error squared."""
+        fig = figure(width=800, height=300, x_axis_label='Time [s]',
+                     y_axis_label='NEES', title='Normalized Estimation Error Squared')
+        for fiducial_df, board_truth in zip(self.fiducial_dfs, self.board_truth_dfs):
+            t00 = np.array(board_truth['pos_x'])[0]
+            t01 = np.array(board_truth['pos_y'])[0]
+            t02 = np.array(board_truth['pos_z'])[0]
+            tw = np.array(board_truth['quat_w'])[0]
+            tx = np.array(board_truth['quat_x'])[0]
+            ty = np.array(board_truth['quat_y'])[0]
+            tz = np.array(board_truth['quat_z'])[0]
+
+            xt = fiducial_df['time']
+            e00 = fiducial_df['fid_pos_0'] - t00
+            e01 = fiducial_df['fid_pos_1'] - t01
+            e02 = fiducial_df['fid_pos_2'] - t02
+
+            e03 = []
+            e04 = []
+            e05 = []
+            for i in range(len(fiducial_df['fid_ang_0'])):
+                ew = fiducial_df['fid_ang_0'][i]
+                ex = fiducial_df['fid_ang_1'][i]
+                ey = fiducial_df['fid_ang_2'][i]
+                ez = fiducial_df['fid_ang_3'][i]
+                qt = Rotation.from_quat([tw, tx, ty, tz], scalar_first=True)
+                qe = Rotation.from_quat([ew, ex, ey, ez], scalar_first=True)
+                q_err = qt * qe.inv()
+                error_euler = q_err.as_euler('XYZ')
+                e03.append(error_euler[0] * 1e3)
+                e04.append(error_euler[1] * 1e3)
+                e05.append(error_euler[2] * 1e3)
+            e03 = np.array(e03)
+            e04 = np.array(e04)
+            e05 = np.array(e05)
+
+            c00 = fiducial_df['fid_cov_0']
+            c01 = fiducial_df['fid_cov_1']
+            c02 = fiducial_df['fid_cov_2']
+            c03 = fiducial_df['fid_cov_3']
+            c04 = fiducial_df['fid_cov_4']
+            c05 = fiducial_df['fid_cov_5']
+
+            nees = \
+                e00 * e00 / c00 / c00 + \
+                e01 * e01 / c01 / c01 + \
+                e02 * e02 / c02 / c02 + \
+                e03 * e03 / c03 / c03 + \
+                e04 * e04 / c04 / c04 + \
+                e05 * e05 / c05 / c05
+
+            fig.line(xt, nees, alpha=self.alpha, color=self.colors[0])
+
+        fig.hspan(y=chi2.ppf(0.025, df=6), line_color='red')
+        fig.hspan(y=chi2.ppf(0.975, df=6), line_color='red')
+        fig.y_range = Range1d(0, 40)
+
+        return fig
+
     def get_tab(self):
         layout_plots = [[self.plot_fiducial_error_pos(), self.plot_fiducial_error_ang()]]
 
-        if ('cam_cov_0' in self.fiducial_dfs[0].keys()):
+        if self.is_cam_extrinsic:
             layout_plots.append([self.plot_camera_pos(), self.plot_camera_ang()])
             layout_plots.append([self.plot_cam_pos_err(), self.plot_cam_ang_err()])
             layout_plots.append([self.plot_cam_pos_cov(), self.plot_cam_ang_cov()])
 
         layout_plots.append([plot_update_timing(self.fiducial_dfs), Spacer()])
+
+        if self.is_fid_extrinsic:
+            layout_plots.append([self.plot_fid_nees(), Spacer()])
 
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')
         tab = TabPanel(child=tab_layout, title=f"Fiducial {self.fiducial_dfs[0].attrs['id']}")

@@ -16,12 +16,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from bokeh.layouts import layout
-from bokeh.models import Range1d, TabPanel
+from bokeh.models import Range1d, Spacer, TabPanel
 from bokeh.plotting import figure
 import numpy as np
-
-from utilities import calculate_alpha, get_colors, interpolate_error, interpolate_quat_error, \
-    plot_update_timing
+from scipy.stats.distributions import chi2
+from utilities import calculate_alpha, get_colors, interpolate_error, \
+    interpolate_quat_error, plot_update_timing
 
 
 class tab_imu:
@@ -29,7 +29,8 @@ class tab_imu:
     def __init__(self, imu_dfs, body_truth_dfs, args):
         self.imu_dfs = imu_dfs
         self.body_truth_dfs = body_truth_dfs
-
+        self.is_extrinsic = 'imu_ext_cov_0' in self.imu_dfs[0].keys()
+        self.is_intrinsic = 'imu_int_cov_0' in self.imu_dfs[0].keys()
         self.alpha = calculate_alpha(len(self.imu_dfs))
         self.colors = get_colors(args)
 
@@ -333,21 +334,119 @@ class tab_imu:
         fig.y_range = Range1d(0, 1)
         return fig
 
+    def plot_imu_nees(self):
+        """Plot IMU normalized estimation error squared."""
+        fig = figure(width=800, height=300, x_axis_label='Time [s]',
+                     y_axis_label='NEES', title='Normalized Estimation Error Squared')
+        for imu_df, body_truth in zip(self.imu_dfs, self.body_truth_dfs):
+            xt = imu_df['time']
+            tt = body_truth['time']
+            nees = np.zeros(len(xt))
+            dof = 0
+
+            if self.is_extrinsic:
+                dof += 6
+                x00 = imu_df['imu_pos_0']
+                x01 = imu_df['imu_pos_1']
+                x02 = imu_df['imu_pos_2']
+                xw = imu_df['imu_ang_pos_0']
+                xx = imu_df['imu_ang_pos_1']
+                xy = imu_df['imu_ang_pos_2']
+                xz = imu_df['imu_ang_pos_3']
+
+                c00 = imu_df['imu_ext_cov_0']
+                c01 = imu_df['imu_ext_cov_1']
+                c02 = imu_df['imu_ext_cov_2']
+                c03 = imu_df['imu_ext_cov_3']
+                c04 = imu_df['imu_ext_cov_4']
+                c05 = imu_df['imu_ext_cov_5']
+
+                t00 = body_truth[f"imu_pos_{self.imu_dfs[0].attrs['id']}_0"]
+                t01 = body_truth[f"imu_pos_{self.imu_dfs[0].attrs['id']}_1"]
+                t02 = body_truth[f"imu_pos_{self.imu_dfs[0].attrs['id']}_2"]
+                tw = body_truth[f"imu_ang_pos_{self.imu_dfs[0].attrs['id']}_0"]
+                tx = body_truth[f"imu_ang_pos_{self.imu_dfs[0].attrs['id']}_1"]
+                ty = body_truth[f"imu_ang_pos_{self.imu_dfs[0].attrs['id']}_2"]
+                tz = body_truth[f"imu_ang_pos_{self.imu_dfs[0].attrs['id']}_3"]
+
+                e00 = interpolate_error(tt, t00, xt, x00)
+                e01 = interpolate_error(tt, t01, xt, x01)
+                e02 = interpolate_error(tt, t02, xt, x02)
+                e03, e04, e05 = interpolate_quat_error(tt, tw, tx, ty, tz, xt, xw, xx, xy, xz)
+
+                nees += \
+                    e00 * e00 / c00 / c00 + \
+                    e01 * e01 / c01 / c01 + \
+                    e02 * e02 / c02 / c02 + \
+                    e03 * e03 / c03 / c03 + \
+                    e04 * e04 / c04 / c04 + \
+                    e05 * e05 / c05 / c05
+
+            if self.is_intrinsic:
+                dof += 6
+                x06 = imu_df['imu_acc_bias_0']
+                x07 = imu_df['imu_acc_bias_1']
+                x08 = imu_df['imu_acc_bias_2']
+                x09 = imu_df['imu_gyr_bias_0']
+                x10 = imu_df['imu_gyr_bias_1']
+                x11 = imu_df['imu_gyr_bias_2']
+
+                c06 = imu_df['imu_int_cov_0']
+                c07 = imu_df['imu_int_cov_1']
+                c08 = imu_df['imu_int_cov_2']
+                c09 = imu_df['imu_int_cov_3']
+                c10 = imu_df['imu_int_cov_4']
+                c11 = imu_df['imu_int_cov_5']
+
+                t06 = body_truth[f"imu_acc_bias_{imu_df.attrs['id']}_0"]
+                t07 = body_truth[f"imu_acc_bias_{imu_df.attrs['id']}_1"]
+                t08 = body_truth[f"imu_acc_bias_{imu_df.attrs['id']}_2"]
+                t09 = body_truth[f"imu_gyr_bias_{imu_df.attrs['id']}_0"]
+                t10 = body_truth[f"imu_gyr_bias_{imu_df.attrs['id']}_1"]
+                t11 = body_truth[f"imu_gyr_bias_{imu_df.attrs['id']}_2"]
+
+                e06 = interpolate_error(tt, t06, xt, x06)
+                e07 = interpolate_error(tt, t07, xt, x07)
+                e08 = interpolate_error(tt, t08, xt, x08)
+                e09 = interpolate_error(tt, t09, xt, x09)
+                e10 = interpolate_error(tt, t10, xt, x10)
+                e11 = interpolate_error(tt, t11, xt, x11)
+
+                nees += \
+                    e06 * e06 / c06 / c06 + \
+                    e07 * e07 / c07 / c07 + \
+                    e08 * e08 / c08 / c08 + \
+                    e09 * e09 / c09 / c09 + \
+                    e10 * e10 / c10 / c10 + \
+                    e11 * e11 / c11 / c11
+
+            fig.line(xt, nees, alpha=self.alpha, color=self.colors[0])
+
+        fig.hspan(y=chi2.ppf(0.025, df=dof), line_color='red')
+        fig.hspan(y=chi2.ppf(0.975, df=dof), line_color='red')
+        fig.y_range = Range1d(0, 40)
+
+        return fig
+
     def get_tab(self):
         layout_plots = [
             [self.plot_acc_measurements(), self.plot_omg_measurements()],
             [self.plot_acc_residuals(), self.plot_omg_residuals()],
         ]
 
-        if ('imu_ext_cov_0' in self.imu_dfs[0].keys()):
+        if self.is_extrinsic:
             layout_plots.append([self.plot_imu_ext_pos_cov(), self.plot_imu_ext_ang_cov()])
             layout_plots.append([self.plot_ext_pos_err(), self.plot_ext_ang_err()])
 
-        if ('imu_int_cov_0' in self.imu_dfs[0].keys()):
+        if self.is_intrinsic:
             layout_plots.append([self.plot_imu_int_pos_cov(), self.plot_imu_int_ang_cov()])
             layout_plots.append([self.plot_acc_bias_err(), self.plot_omg_bias_err()])
 
         layout_plots.append([plot_update_timing(self.imu_dfs), self.plot_stationary()])
+
+        if self.is_extrinsic or self.is_intrinsic:
+            layout_plots.append([self.plot_imu_nees(), Spacer()])
+
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')
         tab = TabPanel(child=tab_layout,
                        title=f"IMU {self.imu_dfs[0].attrs['id']}")

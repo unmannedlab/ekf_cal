@@ -16,10 +16,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from bokeh.layouts import layout
-from bokeh.models import Spacer, TabPanel
+from bokeh.models import Range1d, Spacer, TabPanel
 from bokeh.plotting import figure
 import numpy as np
-
+from scipy.stats.distributions import chi2
 from utilities import calculate_alpha, get_colors, interpolate_error, plot_update_timing
 
 
@@ -28,7 +28,7 @@ class tab_gps:
     def __init__(self, gps_dfs, body_truth_dfs, args):
         self.gps_dfs = gps_dfs
         self.body_truth_dfs = body_truth_dfs
-
+        self.is_extrinsic = 'gps_cov_0' in self.gps_dfs[0].keys()
         self.alpha = calculate_alpha(len(self.gps_dfs))
         self.colors = get_colors(args)
 
@@ -126,14 +126,53 @@ class tab_gps:
                 legend_label='Z')
         return fig
 
+    def plot_gps_nees(self):
+        """Plot GPS normalized estimation error squared."""
+        fig = figure(width=800, height=300, x_axis_label='Time [s]',
+                     y_axis_label='NEES', title='Normalized Estimation Error Squared')
+        for gps_df, body_truth in zip(self.gps_dfs, self.body_truth_dfs):
+            xt = gps_df['time']
+            x00 = gps_df['ant_pos_0']
+            x01 = gps_df['ant_pos_1']
+            x02 = gps_df['ant_pos_2']
+
+            c00 = gps_df['gps_cov_0']
+            c01 = gps_df['gps_cov_1']
+            c02 = gps_df['gps_cov_2']
+
+            tt = body_truth['time']
+            t00 = body_truth[f"gps_pos_{gps_df.attrs['id']}_0"]
+            t01 = body_truth[f"gps_pos_{gps_df.attrs['id']}_1"]
+            t02 = body_truth[f"gps_pos_{gps_df.attrs['id']}_2"]
+
+            e00 = interpolate_error(tt, t00, xt, x00)
+            e01 = interpolate_error(tt, t01, xt, x01)
+            e02 = interpolate_error(tt, t02, xt, x02)
+
+            nees = \
+                e00 * e00 / c00 / c00 + \
+                e01 * e01 / c01 / c01 + \
+                e02 * e02 / c02 / c02
+
+            fig.line(xt, nees, alpha=self.alpha, color=self.colors[0])
+
+        fig.hspan(y=chi2.ppf(0.025, df=3), line_color='red')
+        fig.hspan(y=chi2.ppf(0.975, df=3), line_color='red')
+        fig.y_range = Range1d(0, 15)
+
+        return fig
+
     def get_tab(self):
 
         layout_plots = [[self.plot_gps_measurements(), self.plot_gps_residuals()]]
 
-        if ('gps_cov_0' in self.gps_dfs[0].keys()):
+        if self.is_extrinsic:
             layout_plots.append([self.plot_ant_pos_error(), self.plot_gps_cov()])
 
         layout_plots.append([plot_update_timing(self.gps_dfs), Spacer()])
+
+        if self.is_extrinsic:
+            layout_plots.append([self.plot_gps_nees(), Spacer()])
 
         tab_layout = layout(layout_plots, sizing_mode='stretch_width')
         tab = TabPanel(child=tab_layout,
