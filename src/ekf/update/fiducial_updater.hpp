@@ -37,7 +37,8 @@ public:
   /// @brief MSCKF EKF Updater constructor
   /// @param fiducial_id Fiducial ID
   /// @param camera_id Camera sensor ID
-  /// @param is_cam_extrinsic Camera extrinsic calibration flag
+  /// @param is_fid_extrinsic Camera extrinsic calibration flag
+  /// @param is_cam_extrinsic Fiducial extrinsic calibration flag
   /// @param log_file_directory Directory to save log files
   /// @param data_log_rate Maximum average rate to log data
   /// @param logger Debug logger pointer
@@ -45,6 +46,7 @@ public:
   explicit FiducialUpdater(
     unsigned int fiducial_id,
     unsigned int camera_id,
+    bool is_fid_extrinsic,
     bool is_cam_extrinsic,
     const std::string & log_file_directory,
     double data_log_rate,
@@ -83,6 +85,7 @@ public:
     const BoardDetection & board_detection);
 
 private:
+  bool m_is_fid_extrinsic;
   bool m_is_cam_extrinsic;
   DataLogger m_fiducial_logger;
   unsigned int m_camera_id;

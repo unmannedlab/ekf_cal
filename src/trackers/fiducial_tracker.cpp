@@ -28,6 +28,7 @@ FiducialTracker::FiducialTracker(FiducialTracker::Parameters params)
   m_fiducial_updater(
     params.id,
     params.camera_id,
+    params.is_extrinsic,
     params.is_cam_extrinsic,
     params.log_directory,
     params.data_log_rate,

@@ -39,23 +39,30 @@
 FiducialUpdater::FiducialUpdater(
   unsigned int fiducial_id,
   unsigned int camera_id,
+  bool is_fid_extrinsic,
   bool is_cam_extrinsic,
   const std::string & log_file_directory,
   double data_log_rate,
   std::shared_ptr<DebugLogger> logger
 )
 : Updater(fiducial_id, logger),
+  m_is_fid_extrinsic(is_fid_extrinsic),
   m_is_cam_extrinsic(is_cam_extrinsic),
   m_fiducial_logger(log_file_directory, "fiducial_" + std::to_string(camera_id) + ".csv"),
   m_camera_id(camera_id)
 {
   std::stringstream header;
   header << "time,board";
-  header << EnumerateHeader("board_pos", 3);
-  header << EnumerateHeader("board_ang", 4);
+  header << EnumerateHeader("board_meas_pos", 3);
+  header << EnumerateHeader("board_meas_ang", 4);
   header << EnumerateHeader("cam_pos", 3);
   header << EnumerateHeader("cam_ang_pos", 4);
   header << EnumerateHeader("residual", g_fid_measurement_size);
+  if (m_is_fid_extrinsic) {
+    header << EnumerateHeader("fid_pos", 3);
+    header << EnumerateHeader("fid_ang", 4);
+    header << EnumerateHeader("fid_cov", g_cam_extrinsic_state_size);
+  }
   if (m_is_cam_extrinsic) {header << EnumerateHeader("cam_cov", g_cam_extrinsic_state_size);}
   header << EnumerateHeader("duration", 1);
 
@@ -98,7 +105,7 @@ Eigen::MatrixXd FiducialUpdater::GetMeasurementJacobian(EKF & ekf)
     QuaternionJacobian(ang_b_to_l).transpose();
 
   /// @todo Test camera calibration jacobians
-  if (ekf.m_state.cam_states[m_camera_id].GetIsExtrinsic()) {
+  if (m_is_cam_extrinsic) {
     unsigned int cam_index = ekf.m_state.cam_states[m_camera_id].index;
     jacobian.block<3, 3>(0, cam_index + 0) = -rot_b_to_c;
 
@@ -110,7 +117,7 @@ Eigen::MatrixXd FiducialUpdater::GetMeasurementJacobian(EKF & ekf)
       QuaternionJacobian(m_ang_c_to_b).transpose() * rot_l_to_b * rot_f_to_l;
   }
 
-  if (ekf.m_state.fid_states[m_id].GetIsExtrinsic()) {
+  if (m_is_fid_extrinsic) {
     unsigned int fid_index = ekf.m_state.fid_states[m_id].index;
     jacobian.block<3, 3>(0, fid_index + 0) = Eigen::Matrix3d::Identity();
     jacobian.block<3, 3>(3, fid_index + 3) = Eigen::Matrix3d::Identity();
@@ -186,6 +193,17 @@ void FiducialUpdater::UpdateEKF(
   msg << VectorToCommaString(ekf.m_state.cam_states[m_camera_id].pos_c_in_b);
   msg << QuaternionToCommaString(ekf.m_state.cam_states[m_camera_id].ang_c_to_b);
   msg << VectorToCommaString(res);
+  if (m_is_fid_extrinsic) {
+    msg << VectorToCommaString(ekf.m_state.fid_states[m_id].pos_f_in_l);
+    msg << QuaternionToCommaString(ekf.m_state.fid_states[m_id].ang_f_to_l);
+    unsigned int fid_index = ekf.m_state.fid_states[m_id].index;
+    Eigen::VectorXd cov_diag = ekf.m_cov.block(
+      fid_index, fid_index, g_fid_extrinsic_state_size, g_fid_extrinsic_state_size).diagonal();
+    if (ekf.GetUseRootCovariance()) {
+      cov_diag = cov_diag.cwiseProduct(cov_diag);
+    }
+    msg << VectorToCommaString(cov_diag);
+  }
   if (m_is_cam_extrinsic) {
     unsigned int cam_index = ekf.m_state.cam_states[m_camera_id].index;
     Eigen::VectorXd cov_diag = ekf.m_cov.block(
