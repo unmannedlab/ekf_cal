@@ -384,7 +384,7 @@ class tab_body:
         fig = figure(width=800, height=300, x_axis_label='Time [s]',
                      y_axis_label='NEES', title='Normalized Estimation Error Squared')
         for body_state, body_truth in zip(self.body_state_dfs, self.body_truth_dfs):
-            xt  = body_state['time']
+            xt = body_state['time']
             x00 = body_state['body_pos_0']
             x01 = body_state['body_pos_1']
             x02 = body_state['body_pos_2']
@@ -394,10 +394,10 @@ class tab_body:
             x06 = body_state['body_acc_0']
             x07 = body_state['body_acc_1']
             x08 = body_state['body_acc_2']
-            xw  = body_state['body_ang_pos_0']
-            xx  = body_state['body_ang_pos_1']
-            xy  = body_state['body_ang_pos_2']
-            xz  = body_state['body_ang_pos_3']
+            xw = body_state['body_ang_pos_0']
+            xx = body_state['body_ang_pos_1']
+            xy = body_state['body_ang_pos_2']
+            xz = body_state['body_ang_pos_3']
             x12 = body_state['body_ang_vel_0']
             x13 = body_state['body_ang_vel_1']
             x14 = body_state['body_ang_vel_2']
@@ -424,7 +424,7 @@ class tab_body:
             c16 = body_state['body_cov_16']
             c17 = body_state['body_cov_17']
 
-            tt  = body_truth['time']
+            tt = body_truth['time']
             t00 = body_truth['body_pos_0']
             t01 = body_truth['body_pos_1']
             t02 = body_truth['body_pos_2']
@@ -434,10 +434,10 @@ class tab_body:
             t06 = body_truth['body_acc_0']
             t07 = body_truth['body_acc_1']
             t08 = body_truth['body_acc_2']
-            tw  = body_truth['body_ang_pos_0']
-            tx  = body_truth['body_ang_pos_1']
-            ty  = body_truth['body_ang_pos_2']
-            tz  = body_truth['body_ang_pos_3']
+            tw = body_truth['body_ang_pos_0']
+            tx = body_truth['body_ang_pos_1']
+            ty = body_truth['body_ang_pos_2']
+            tz = body_truth['body_ang_pos_3']
             t12 = body_truth['body_ang_vel_0']
             t13 = body_truth['body_ang_vel_1']
             t14 = body_truth['body_ang_vel_2']
@@ -454,7 +454,7 @@ class tab_body:
             e06 = interpolate_error(tt, t06, xt, x06)
             e07 = interpolate_error(tt, t07, xt, x07)
             e08 = interpolate_error(tt, t08, xt, x08)
-            e09, e10, e11  = interpolate_quat_error(tt, tw, tx, ty, tz, xt, xw, xx, xy, xz)
+            e09, e10, e11 = interpolate_quat_error(tt, tw, tx, ty, tz, xt, xw, xx, xy, xz)
             e12 = interpolate_error(tt, t12, xt, x12)
             e13 = interpolate_error(tt, t13, xt, x13)
             e14 = interpolate_error(tt, t14, xt, x14)

@@ -289,14 +289,14 @@ class tab_msckf:
         fig = figure(width=800, height=300, x_axis_label='Time [s]',
                      y_axis_label='NEES', title='Normalized Estimation Error Squared')
         for msckf_df, body_truth in zip(self.msckf_dfs, self.body_truth_dfs):
-            xt  = msckf_df['time']
+            xt = msckf_df['time']
             x00 = msckf_df['cam_pos_0']
             x01 = msckf_df['cam_pos_1']
             x02 = msckf_df['cam_pos_2']
-            xw  = msckf_df['cam_ang_pos_0']
-            xx  = msckf_df['cam_ang_pos_1']
-            xy  = msckf_df['cam_ang_pos_2']
-            xz  = msckf_df['cam_ang_pos_3']
+            xw = msckf_df['cam_ang_pos_0']
+            xx = msckf_df['cam_ang_pos_1']
+            xy = msckf_df['cam_ang_pos_2']
+            xz = msckf_df['cam_ang_pos_3']
 
             c00 = msckf_df['cam_cov_0']
             c01 = msckf_df['cam_cov_1']
@@ -305,14 +305,14 @@ class tab_msckf:
             c04 = msckf_df['cam_cov_4']
             c05 = msckf_df['cam_cov_5']
 
-            tt  = body_truth['time']
-            t00 = body_truth[f'cam_pos_{msckf_df.attrs['id']}_0']
-            t01 = body_truth[f'cam_pos_{msckf_df.attrs['id']}_1']
-            t02 = body_truth[f'cam_pos_{msckf_df.attrs['id']}_2']
-            tw  = body_truth[f'cam_ang_pos_{msckf_df.attrs['id']}_0']
-            tx  = body_truth[f'cam_ang_pos_{msckf_df.attrs['id']}_1']
-            ty  = body_truth[f'cam_ang_pos_{msckf_df.attrs['id']}_2']
-            tz  = body_truth[f'cam_ang_pos_{msckf_df.attrs['id']}_3']
+            tt = body_truth['time']
+            t00 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_0"]
+            t01 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_1"]
+            t02 = body_truth[f"cam_pos_{msckf_df.attrs['id']}_2"]
+            tw = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_0"]
+            tx = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_1"]
+            ty = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_2"]
+            tz = body_truth[f"cam_ang_pos_{msckf_df.attrs['id']}_3"]
 
             e00 = interpolate_error(tt, t00, xt, x00)
             e01 = interpolate_error(tt, t01, xt, x01)

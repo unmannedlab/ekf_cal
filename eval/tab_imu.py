@@ -20,8 +20,8 @@ from bokeh.models import Range1d, Spacer, TabPanel
 from bokeh.plotting import figure
 import numpy as np
 from scipy.stats.distributions import chi2
-from utilities import calculate_alpha, calculate_rotation_errors, get_colors, interpolate_error, \
-    interpolate_quat_error, lists_to_rot, plot_update_timing
+from utilities import calculate_alpha, get_colors, interpolate_error, \
+    interpolate_quat_error, plot_update_timing
 
 
 class tab_imu:
@@ -339,8 +339,8 @@ class tab_imu:
         fig = figure(width=800, height=300, x_axis_label='Time [s]',
                      y_axis_label='NEES', title='Normalized Estimation Error Squared')
         for imu_df, body_truth in zip(self.imu_dfs, self.body_truth_dfs):
-            xt  = imu_df['time']
-            tt  = body_truth['time']
+            xt = imu_df['time']
+            tt = body_truth['time']
             nees = np.zeros(len(xt))
             dof = 0
 
@@ -349,10 +349,10 @@ class tab_imu:
                 x00 = imu_df['imu_pos_0']
                 x01 = imu_df['imu_pos_1']
                 x02 = imu_df['imu_pos_2']
-                xw  = imu_df['imu_ang_pos_0']
-                xx  = imu_df['imu_ang_pos_1']
-                xy  = imu_df['imu_ang_pos_2']
-                xz  = imu_df['imu_ang_pos_3']
+                xw = imu_df['imu_ang_pos_0']
+                xx = imu_df['imu_ang_pos_1']
+                xy = imu_df['imu_ang_pos_2']
+                xz = imu_df['imu_ang_pos_3']
 
                 c00 = imu_df['imu_ext_cov_0']
                 c01 = imu_df['imu_ext_cov_1']
@@ -361,13 +361,13 @@ class tab_imu:
                 c04 = imu_df['imu_ext_cov_4']
                 c05 = imu_df['imu_ext_cov_5']
 
-                t00 = body_truth[f'imu_pos_{self.imu_dfs[0].attrs['id']}_0']
-                t01 = body_truth[f'imu_pos_{self.imu_dfs[0].attrs['id']}_1']
-                t02 = body_truth[f'imu_pos_{self.imu_dfs[0].attrs['id']}_2']
-                tw  = body_truth[f'imu_ang_pos_{self.imu_dfs[0].attrs['id']}_0']
-                tx  = body_truth[f'imu_ang_pos_{self.imu_dfs[0].attrs['id']}_1']
-                ty  = body_truth[f'imu_ang_pos_{self.imu_dfs[0].attrs['id']}_2']
-                tz  = body_truth[f'imu_ang_pos_{self.imu_dfs[0].attrs['id']}_3']
+                t00 = body_truth[f"imu_pos_{self.imu_dfs[0].attrs['id']}_0"]
+                t01 = body_truth[f"imu_pos_{self.imu_dfs[0].attrs['id']}_1"]
+                t02 = body_truth[f"imu_pos_{self.imu_dfs[0].attrs['id']}_2"]
+                tw = body_truth[f"imu_ang_pos_{self.imu_dfs[0].attrs['id']}_0"]
+                tx = body_truth[f"imu_ang_pos_{self.imu_dfs[0].attrs['id']}_1"]
+                ty = body_truth[f"imu_ang_pos_{self.imu_dfs[0].attrs['id']}_2"]
+                tz = body_truth[f"imu_ang_pos_{self.imu_dfs[0].attrs['id']}_3"]
 
                 e00 = interpolate_error(tt, t00, xt, x00)
                 e01 = interpolate_error(tt, t01, xt, x01)
@@ -398,12 +398,12 @@ class tab_imu:
                 c10 = imu_df['imu_int_cov_4']
                 c11 = imu_df['imu_int_cov_5']
 
-                t06 = body_truth[f'imu_acc_bias_{imu_df.attrs['id']}_0']
-                t07 = body_truth[f'imu_acc_bias_{imu_df.attrs['id']}_1']
-                t08 = body_truth[f'imu_acc_bias_{imu_df.attrs['id']}_2']
-                t09 = body_truth[f'imu_gyr_bias_{imu_df.attrs['id']}_0']
-                t10 = body_truth[f'imu_gyr_bias_{imu_df.attrs['id']}_1']
-                t11 = body_truth[f'imu_gyr_bias_{imu_df.attrs['id']}_2']
+                t06 = body_truth[f"imu_acc_bias_{imu_df.attrs['id']}_0"]
+                t07 = body_truth[f"imu_acc_bias_{imu_df.attrs['id']}_1"]
+                t08 = body_truth[f"imu_acc_bias_{imu_df.attrs['id']}_2"]
+                t09 = body_truth[f"imu_gyr_bias_{imu_df.attrs['id']}_0"]
+                t10 = body_truth[f"imu_gyr_bias_{imu_df.attrs['id']}_1"]
+                t11 = body_truth[f"imu_gyr_bias_{imu_df.attrs['id']}_2"]
 
                 e06 = interpolate_error(tt, t06, xt, x06)
                 e07 = interpolate_error(tt, t07, xt, x07)

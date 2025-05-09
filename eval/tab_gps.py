@@ -131,7 +131,7 @@ class tab_gps:
         fig = figure(width=800, height=300, x_axis_label='Time [s]',
                      y_axis_label='NEES', title='Normalized Estimation Error Squared')
         for gps_df, body_truth in zip(self.gps_dfs, self.body_truth_dfs):
-            xt  = gps_df['time']
+            xt = gps_df['time']
             x00 = gps_df['ant_pos_0']
             x01 = gps_df['ant_pos_1']
             x02 = gps_df['ant_pos_2']
@@ -140,10 +140,10 @@ class tab_gps:
             c01 = gps_df['gps_cov_1']
             c02 = gps_df['gps_cov_2']
 
-            tt  = body_truth['time']
-            t00 = body_truth[f'gps_pos_{gps_df.attrs['id']}_0']
-            t01 = body_truth[f'gps_pos_{gps_df.attrs['id']}_1']
-            t02 = body_truth[f'gps_pos_{gps_df.attrs['id']}_2']
+            tt = body_truth['time']
+            t00 = body_truth[f"gps_pos_{gps_df.attrs['id']}_0"]
+            t01 = body_truth[f"gps_pos_{gps_df.attrs['id']}_1"]
+            t02 = body_truth[f"gps_pos_{gps_df.attrs['id']}_2"]
 
             e00 = interpolate_error(tt, t00, xt, x00)
             e01 = interpolate_error(tt, t01, xt, x01)
