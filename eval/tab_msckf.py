@@ -329,8 +329,8 @@ class tab_msckf:
 
             fig.line(xt, nees, alpha=self.alpha, color=self.colors[0])
 
-        fig.hspan(y=chi2.ppf(0.025, df=12), line_color='red')
-        fig.hspan(y=chi2.ppf(0.975, df=12), line_color='red')
+        fig.hspan(y=chi2.ppf(0.025, df=6), line_color='red')
+        fig.hspan(y=chi2.ppf(0.975, df=6), line_color='red')
         fig.y_range = Range1d(0, 40)
 
         return fig

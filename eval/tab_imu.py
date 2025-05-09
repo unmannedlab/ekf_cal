@@ -342,8 +342,10 @@ class tab_imu:
             xt  = imu_df['time']
             tt  = body_truth['time']
             nees = np.zeros(len(xt))
+            dof = 0
 
             if self.is_extrinsic:
+                dof += 6
                 x00 = imu_df['imu_pos_0']
                 x01 = imu_df['imu_pos_1']
                 x02 = imu_df['imu_pos_2']
@@ -381,6 +383,7 @@ class tab_imu:
                     e05 * e05 / c05 / c05
 
             if self.is_intrinsic:
+                dof += 6
                 x06 = imu_df['imu_acc_bias_0']
                 x07 = imu_df['imu_acc_bias_1']
                 x08 = imu_df['imu_acc_bias_2']
@@ -419,8 +422,8 @@ class tab_imu:
 
             fig.line(xt, nees, alpha=self.alpha, color=self.colors[0])
 
-        fig.hspan(y=chi2.ppf(0.025, df=12), line_color='red')
-        fig.hspan(y=chi2.ppf(0.975, df=12), line_color='red')
+        fig.hspan(y=chi2.ppf(0.025, df=dof), line_color='red')
+        fig.hspan(y=chi2.ppf(0.975, df=dof), line_color='red')
         fig.y_range = Range1d(0, 40)
 
         return fig
