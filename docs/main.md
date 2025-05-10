@@ -39,6 +39,7 @@ The ekf_cal package has the following hard dependencies that are required for al
 The following dependencies are for building the ROS node and simulation, respectively
 - [ROS2](https://docs.ros.org/en/rolling/index.html)
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp)
+
 The following soft dependencies useful for development and documentation
 - [Doxygen](https://www.doxygen.nl/index.html)
 - [Google Test](https://google.github.io/googletest/)
@@ -53,7 +54,7 @@ rosdep install --from-paths src -y --ignore-src
 Building can be done simply with the following command:
 
 ```
-colcon build --symlink-install --packages-select ekf_cal --event-handlers console_cohesion+ --cmake-args -DCMAKE_C_FLAGS='--coverage' -DCMAKE_CXX_FLAGS='--coverage'
+colcon build --symlink-install --packages-select ekf_cal --event-handlers console_cohesion+ --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 #### Docker
@@ -61,7 +62,7 @@ Alternatively, a Dockerfile is provided, which can be used either inside a VS Co
 
 ### Input Files
 
-This repository offers two main ways to utilize the Kalman filter framework: a simulation and ROS2 node. Both the simulation and ROS node are configurable and runnable using identically formatted YAML files. Further documentation can be found on the [Parameters](@ref parameters) page.
+This repository offers two main ways to utilize the Kalman filter framework: a simulation and ROS2 node. Both the simulation and ROS node are configurable and runnable using identically formatted YAML files. Further documentation on how to configure this YAML file for a particular setup can be found on the [Parameters](@ref parameters) page.
 
 ### Simulation
 
@@ -99,6 +100,8 @@ The configuration file specifies which sensor topics should to use and the initi
 ```
 ros2 launch example.launch
 ```
+
+Evaluating the output of the ROS node is the same as with the simulations, where reports can be generated using the resultant log files.
 
 ## Testing & Static Analysis
 

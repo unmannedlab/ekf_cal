@@ -78,10 +78,7 @@ The basic structure of the YAML files is a set of ROS parameters, lists that def
             ang_l_to_g_error: 0.1             # Local frame heading error
 ```
 
-Sensors and parameters can be dynamically declared with a bit of tomfoolery. To achieve this, we
-must read from a known list to the declare and read unknown lists. Therefore, the following lists
-must exist, but can be empty. These define the parameter sections for each of their respective
-categories.
+Sensors and parameters can be dynamically declared with a bit of tomfoolery. To achieve this, we must read from a known list to the declare and read unknown lists. Therefore, the following lists must exist, but can be empty. These define the parameter sections for each of their respective categories. Ensure that each of the sensors used in a configuration are declared here and defined later:
 
 ```{.py}
 /EkfCalNode:
@@ -289,3 +286,13 @@ The following is an example of a GPS input configuration.
                     lla_error:  [5.0, 5.0, 5.0]      # LLA measurement error
                     pos_a_in_b_err: [0.0, 0.0, 0.0]  # Antenna position error
 ```
+
+## Parameter Adjustment
+
+As with most Kalman Filter tunings the two primary knobs to turn are the measurement and process noise variables.
+
+The measurement noise should be set to the sensor manufacturer's specified value if it has not yet been verified. Ideally, depending on the sensor, a calibration routine should be performed to find a more accurate measurement noise value.
+
+The process noise can be harder to tune, especially when balancing such a large number of filter states, as is the case with `ekf_cal`. In simulation, one can make use of the [NEES](https://kalman-filter.com/normalized-estimation-error-squared/) plots that are produced to determine if the filter is being efficient in its estimations. The process noise should be changed to roughly keep the NEES within the specified confidence interval.
+
+Finally, depending on the setup, it can be difficult to determine what is driving low filter performance. In complex cases, it is easiest to disable entire sensors or disable a sensors extrinsic/intrinsic calibration in steps in order to determine which is driving the largest errors.

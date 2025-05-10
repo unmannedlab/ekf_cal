@@ -55,7 +55,7 @@ Alternatively, a Dockerfile is provided, which can be used either inside a VS Co
 
 ### Input Files
 
-This repository offers two main ways to utilize the Kalman filter framework: a simulation and ROS2 node. Both the simulation and ROS node are configurable and runnable using identically formatted YAML files. Further documentation can be found on the [Parameters](https://unmannedlab.org/ekf_cal/parameters.html) page.
+This repository offers two main ways to utilize the Kalman filter framework: a simulation and ROS2 node. Both the simulation and ROS node are configurable and runnable using identically formatted YAML files. Further documentation on how to configure this YAML file for a particular setup can be found on the [Parameters](https://unmannedlab.org/ekf_cal/parameters.html) page.
 
 ### Simulation
 
@@ -91,6 +91,8 @@ The configuration file specifies which sensor topics should to use and the initi
 ```
 ros2 launch example.launch
 ```
+
+Evaluating the output of the ROS node is the same as with the simulations, where reports can be generated using the resultant log files.
 
 ## Testing & Static Analysis
 
