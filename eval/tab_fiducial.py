@@ -29,7 +29,7 @@ class tab_fiducial:
     """Class for plotting fiducial data."""
 
     def __init__(self, fiducial_dfs, board_truth_dfs, body_truth_dfs, args):
-        """Initializes the tab_fiducial class for plotting fiducial information."""
+        """Initialize the tab_fiducial class for plotting fiducial information."""
         self.fiducial_dfs = fiducial_dfs
         self.board_truth_dfs = board_truth_dfs
         self.body_truth_dfs = body_truth_dfs
@@ -283,7 +283,7 @@ class tab_fiducial:
         return fig
 
     def get_tab(self):
-        """Generates the Bokeh TabPanel containing all fiducial plots."""
+        """Generate the Bokeh TabPanel containing all fiducial plots."""
         layout_plots = [[self.plot_fiducial_error_pos(), self.plot_fiducial_error_ang()]]
 
         if self.is_cam_extrinsic:

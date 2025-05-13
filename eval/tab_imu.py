@@ -28,7 +28,7 @@ class tab_imu:
     """Class for plotting IMU data."""
 
     def __init__(self, imu_dfs, body_truth_dfs, args):
-        """Initializes the tab_imu class for plotting IMU information."""
+        """Initialize the tab_imu class for plotting IMU information."""
         self.imu_dfs = imu_dfs
         self.body_truth_dfs = body_truth_dfs
         self.is_extrinsic = 'imu_ext_cov_0' in self.imu_dfs[0].keys()
@@ -431,7 +431,7 @@ class tab_imu:
         return fig
 
     def get_tab(self):
-        """Generates the Bokeh TabPanel containing all IMU plots."""
+        """Generate the Bokeh TabPanel containing all IMU plots."""
         layout_plots = [
             [self.plot_acc_measurements(), self.plot_omg_measurements()],
             [self.plot_acc_residuals(), self.plot_omg_residuals()],

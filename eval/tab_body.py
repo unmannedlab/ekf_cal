@@ -30,7 +30,7 @@ class tab_body:
     """Class for plotting body data."""
 
     def __init__(self, body_state_dfs, aug_state_dfs, body_truth_dfs, args):
-        """Initializes the tab_body class for plotting body state information."""
+        """Initialize the tab_body class for plotting body state information."""
         self.body_state_dfs = body_state_dfs
         self.aug_state_dfs = aug_state_dfs
         self.body_truth_dfs = body_truth_dfs
@@ -588,7 +588,7 @@ class tab_body:
         return fig
 
     def get_tab(self):
-        """Generates the Bokeh TabPanel containing all body state plots."""
+        """Generate the Bokeh TabPanel containing all body state plots."""
         layout_plots = [
             [
                 self.plot_body_pos(),

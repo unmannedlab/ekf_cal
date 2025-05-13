@@ -30,7 +30,7 @@ class tab_msckf:
     """Class for plotting camera MSCKF data."""
 
     def __init__(self, msckf_dfs, tri_dfs, feat_dfs, body_truth_dfs, args):
-        """Initializes the tab_msckf class for plotting camera MSCKF information."""
+        """Initialize the tab_msckf class for plotting camera MSCKF information."""
         self.msckf_dfs = msckf_dfs
         self.tri_dfs = tri_dfs
         self.feat_dfs = feat_dfs
@@ -338,7 +338,7 @@ class tab_msckf:
         return fig
 
     def get_tab(self):
-        """Generates the Bokeh TabPanel containing all camera MSCKF plots."""
+        """Generate the Bokeh TabPanel containing all camera MSCKF plots."""
         layout_plots = [[self.plot_track_count(), self.plot_triangulation_error()]]
 
         if self.is_extrinsic:
