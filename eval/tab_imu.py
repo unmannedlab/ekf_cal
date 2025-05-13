@@ -25,8 +25,10 @@ from utilities import calculate_alpha, get_colors, interpolate_error, \
 
 
 class tab_imu:
+    """Class for plotting IMU data."""
 
     def __init__(self, imu_dfs, body_truth_dfs, args):
+        """Initializes the tab_imu class for plotting IMU information."""
         self.imu_dfs = imu_dfs
         self.body_truth_dfs = body_truth_dfs
         self.is_extrinsic = 'imu_ext_cov_0' in self.imu_dfs[0].keys()
@@ -130,9 +132,9 @@ class tab_imu:
             pos_y = np.array(interpolate_error(true_t, true_y, time, est_y))
             pos_z = np.array(interpolate_error(true_t, true_z, time, est_z))
 
-            fig.line(time, pos_x*1e3, alpha=self.alpha, color=self.colors[0], legend_label='X')
-            fig.line(time, pos_y*1e3, alpha=self.alpha, color=self.colors[1], legend_label='Y')
-            fig.line(time, pos_z*1e3, alpha=self.alpha, color=self.colors[2], legend_label='Z')
+            fig.line(time, pos_x * 1e3, alpha=self.alpha, color=self.colors[0], legend_label='X')
+            fig.line(time, pos_y * 1e3, alpha=self.alpha, color=self.colors[1], legend_label='Y')
+            fig.line(time, pos_z * 1e3, alpha=self.alpha, color=self.colors[2], legend_label='Z')
 
         return fig
 
@@ -429,6 +431,7 @@ class tab_imu:
         return fig
 
     def get_tab(self):
+        """Generates the Bokeh TabPanel containing all IMU plots."""
         layout_plots = [
             [self.plot_acc_measurements(), self.plot_omg_measurements()],
             [self.plot_acc_residuals(), self.plot_omg_residuals()],

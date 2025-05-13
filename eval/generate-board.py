@@ -23,7 +23,7 @@ import cv2
 
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
 board = cv2.aruco.CharucoBoard_create(5, 7, 0.04, 0.02, dictionary)
-img = board.draw((200*3, 200*3))
+img = board.draw((200 * 3, 200 * 3))
 
 # Dump the calibration board to a file
 cv2.imwrite(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'charuco.png'), img)

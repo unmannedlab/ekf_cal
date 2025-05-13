@@ -29,6 +29,7 @@ import yaml
 
 
 def get_colors(args):
+    """Get color palette based on the theme setting."""
     if args.light:
         return ['red', 'green', 'blue', 'magenta']
     else:

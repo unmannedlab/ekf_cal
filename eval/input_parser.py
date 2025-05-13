@@ -21,8 +21,10 @@ import argparse
 
 
 class InputParser:
+    """Handles parsing of common command-line arguments for EKF evaluation tools."""
 
     def __init__(self):
+        """Initializes the argparse parser with common arguments."""
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument('inputs', nargs='+', type=str)
         self.parser.add_argument('-j', '--jobs', default=None, type=int)
@@ -35,5 +37,6 @@ class InputParser:
         self.parser.add_argument('--light', action='store_true')
 
     def parse_args(self):
+        """Parses generic command-line arguments."""
         self.args = self.parser.parse_args()
         return self.args

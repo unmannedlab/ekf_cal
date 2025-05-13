@@ -59,10 +59,6 @@ def generate_animation(config_sets, args):
             os.mkdir(plot_dir)
 
         body_state_dfs_dict = find_and_read_data_frames(data_dirs, 'body_state')
-        # body_truth_dfs_dict = find_and_read_data_frames(data_dirs, 'body_truth')
-        # tri_dfs_dict = find_and_read_data_frames(data_dirs, 'triangulation')
-        # feat_dfs_dict = find_and_read_data_frames(data_dirs, 'feature_points')
-        # board_truth_dfs_dict = find_and_read_data_frames(data_dirs, 'board_truth')
 
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
@@ -94,9 +90,9 @@ def generate_animation(config_sets, args):
                     max_n = int(tail_time * fps * ppf)
                     n = int(t * ppf) + 1
 
-                    pos_x = np.array(body_df['body_pos_0'][max(0, n-max_n):n])
-                    pos_y = np.array(body_df['body_pos_1'][max(0, n-max_n):n])
-                    pos_z = np.array(body_df['body_pos_2'][max(0, n-max_n):n])
+                    pos_x = np.array(body_df['body_pos_0'][max(0, n - max_n):n])
+                    pos_y = np.array(body_df['body_pos_1'][max(0, n - max_n):n])
+                    pos_z = np.array(body_df['body_pos_2'][max(0, n - max_n):n])
                     ax.plot(pos_x, pos_y, pos_z)
                     ax.set_xlim(x_lim)
                     ax.set_ylim(y_lim)

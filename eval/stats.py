@@ -258,6 +258,7 @@ def imu_duration(imu_dfs):
 
 
 def gps_err_pos(gps_dfs, body_truth_dfs):
+    """Calculate the gps position error."""
     RMSE_list = []
     for gps_state, body_truth in zip(gps_dfs, body_truth_dfs):
         true_lat = body_truth['ref_lat'][0]
@@ -278,6 +279,7 @@ def gps_err_pos(gps_dfs, body_truth_dfs):
 
 
 def gps_err_ang(gps_dfs, body_truth_dfs):
+    """Calculate the gps angular position error."""
     error_list = []
     for gps_state, body_truth in zip(gps_dfs, body_truth_dfs):
         true_hdg = body_truth['ref_heading'][0]
@@ -291,6 +293,7 @@ def gps_err_ang(gps_dfs, body_truth_dfs):
 
 
 def gps_init_count(gps_dfs):
+    """Calculate the gps initialization count."""
     time_list = []
     for gps_state in gps_dfs:
         time_list.append(np.sum(gps_state['is_initialized'] == 0))

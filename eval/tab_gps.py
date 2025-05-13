@@ -24,8 +24,10 @@ from utilities import calculate_alpha, get_colors, interpolate_error, plot_updat
 
 
 class tab_gps:
+    """Class for plotting GPS data."""
 
     def __init__(self, gps_dfs, body_truth_dfs, args):
+        """Initializes the tab_gps class for plotting GPS information."""
         self.gps_dfs = gps_dfs
         self.body_truth_dfs = body_truth_dfs
         self.is_extrinsic = 'gps_cov_0' in self.gps_dfs[0].keys()
@@ -163,7 +165,7 @@ class tab_gps:
         return fig
 
     def get_tab(self):
-
+        """Generates the Bokeh TabPanel containing all GPS plots."""
         layout_plots = [[self.plot_gps_measurements(), self.plot_gps_residuals()]]
 
         if self.is_extrinsic:
