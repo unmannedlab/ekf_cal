@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(ekf_cal)
 
 set(EKF_CAL_MAJOR_VERSION 0)
-set(EKF_CAL_MINOR_VERSION 6)
+set(EKF_CAL_MINOR_VERSION 7)
 set(EKF_CAL_VERSION ${EKF_CAL_MAJOR_VERSION}.${EKF_CAL_MINOR_VERSION})
 configure_file(src/infrastructure/ekf_cal_version.hpp.in infrastructure/ekf_cal_version.hpp)
 
